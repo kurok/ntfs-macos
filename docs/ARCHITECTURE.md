@@ -40,7 +40,8 @@ Task T-M2-03 resolves this on day one of M2. The fallbacks are ordered in ADR-00
 Unmodified-in-substance **NTFS-3G 2026.9.28** (`ntfs-3g` FUSE server plus `libntfs-3g`) is the NTFS engine.
 It runs as an **unprivileged, sandboxed worker process** on the **macFUSE 5.5.0 FSKit backend** (`-o backend=fskit,local`).
 A small root **mount broker daemon** (`ntfsmacd`) watches Disk Arbitration, runs a **read-only safety probe** on every NTFS volume, decides `rw`, `ro` or `refuse` from a fixed policy table, opens the block device with exactly the access the decision allows, and passes the file descriptor to the worker.
-The daemon never parses NTFS metadata. The worker never holds root. NTFS-3G is never started with `recover` or `remove_hiberfile`.
+The daemon never parses NTFS metadata. Three unprivileged processes do: the probe (read-only), the short-lived `ntfsmac-volmark` step that sets and clears the on-disk dirty flag around every read/write session (ADR-006), and the worker. The worker never holds root. NTFS-3G is never started with `recover` or `remove_hiberfile`.
+Strings that come from the disk (the volume label) are untrusted: the daemon sanitises them and validates the final worker argument vector before any spawn (ADR-016).
 The fallback, if the FSKit backend cannot carry NTFS-3G, is a native FSKit module that links `libntfs-3g` directly (ADR-001, option D).
 
 ## 2. Component diagram
@@ -54,7 +55,8 @@ The fallback, if the FSKit backend cannot carry NTFS-3G, is a native FSKit modul
            | VFS                    |  - policy table           |
            v                        |  - session journal        |        +---------------------+
 +----------------------+            |  - opens /dev/diskNsM     |------->| /dev/diskNsM (IOKit)|
-| FSKit (fskitd, UBC)  |            |  - spawns probe + worker  |        +---------------------+
+| FSKit (fskitd, UBC)  |            |  - spawns probe, volmark  |        +---------------------+
+|                      |            |    and worker             |
 +----------+-----------+            +----+-----------------+----+
            | FSKit XPC                   | fd (O_RDONLY)   | fd (O_RDONLY or O_RDWR)
            v                             v                 v
@@ -70,6 +72,8 @@ The fallback, if the FSKit backend cannot carry NTFS-3G, is a native FSKit modul
  ntfsmac (CLI, user)  --- JSON over Unix socket /var/run/ntfsmacd.sock --->  ntfsmacd
 ```
 
+Not drawn: `ntfsmac-volmark`, a short-lived process (uid `nobody`, sandboxed) that receives the same `O_RDWR` descriptor as the worker, only for `rw` decisions, once before the worker starts and once after it exits cleanly (section 3.6, ADR-006).
+
 Third-party components that this project does not build: macFUSE (FSModule appex, `MFMount.framework`, `libfuse`), FSKit, Disk Arbitration.
 
 ## 3. Components and boundaries
@@ -77,12 +81,14 @@ Third-party components that this project does not build: macFUSE (FSModule appex
 | Component | Path in repo | Runs as | Links | Responsibility | Must never |
 |---|---|---|---|---|---|
 | `ntfsmac-probe` | `src/probe/` | `nobody`, sandboxed, read-only fd | `libntfs-3g` (static) | Classify volume state. Print one JSON verdict. | Write to the device. Open any path except the inherited fd. |
-| policy | `src/policy/` | library (pure C, no I/O) | none | Map probe verdict + user request + journal state to `rw` / `ro` / `refuse`. | Read the device or the environment. |
-| session journal | `src/journal/` | library used by daemon | none | Host-side record of volumes mounted read/write and not yet cleanly unmounted. | Store anything except volume serial, label, timestamps, state. |
-| `ntfsmacd` | `src/daemon/` | root (LaunchDaemon) | DiskArbitration, CoreFoundation | Detect disks, run probe, apply policy, create mount point, open device, spawn and supervise worker, journal, serve CLI. | Parse NTFS structures. Pass through a mount option outside the allow-list. |
-| `ntfsmac-worker` | built from `third_party/ntfs-3g` + `third_party/patches/ntfs-3g/` | console user, sandboxed | macFUSE `libfuse`, `libntfs-3g` | Serve the file system. | Run as root. Receive `recover`, `remove_hiberfile`, `dev`, `suid`. |
-| `ntfsmac` | `src/cli/` | user | none | `list`, `status`, `mount`, `unmount`, `doctor`, `repair` (explicit, confirmed). | Touch a device directly. |
-| ntfsprogs | built from the same tarball | user, on explicit request | `libntfs-3g` | `mkntfs`, `ntfsfix`, `ntfsinfo`, `ntfslabel`. Installed under `libexec`, not on `PATH`. | Run automatically. |
+| `ntfsmac-volmark` | `src/volmark/` | `nobody`, sandboxed (`integration/sandbox/volmark.sb`), inherited `O_RDWR` fd, hard timeout 20 s | `libntfs-3g` (static, built with patch 0002) | Set `VOLUME_IS_DIRTY` before a read/write session and clear it after a clean one; also the only writer for `ntfsmac repair --clear-dirty` (section 3.6, ADR-006, ADR-017). | Run for an `ro` decision. Touch any `$Volume` flag bit other than `VOLUME_IS_DIRTY`. Mount with `NTFS_MNT_RECOVER`, `NTFS_MNT_MAY_RDONLY` or `NTFS_MNT_IGNORE_HIBERFILE`. Open any path. |
+| policy | `src/policy/` | library (pure C, no I/O) | none | Map probe verdict + user request + journal state to `rw` / `ro` / `refuse` and a journal action (`keep`/`remove`); decide whether `journal-clear` and `repair` requests are allowed. | Read the device or the environment. |
+| sanitize | `src/sanitize/` | library (pure C, no I/O) used by the daemon | none | Strict parser for the probe's JSON verdict; volume-label sanitiser; final worker argv validator (ADR-016). | Pass an input byte through without checking it against the allow-list. |
+| session journal | `src/journal/` | library used by daemon | none | Host-side record of volumes mounted read/write and not yet cleanly unmounted (section 3.5). | Store anything except the fields listed in section 3.5. |
+| `ntfsmacd` | `src/daemon/` | root (LaunchDaemon) | DiskArbitration, CoreFoundation | Detect disks, run probe, apply policy, create mount point, open device, spawn volmark and worker, supervise worker and its error channel, journal, serve CLI. | Parse NTFS structures. Pass through a mount option outside the allow-list. Use a disk-derived string that has not passed the sanitiser. |
+| `ntfsmac-worker` | built from `third_party/ntfs-3g` + `third_party/patches/ntfs-3g/` | console user, sandboxed | macFUSE `libfuse`, `libntfs-3g` | Serve the file system. Report device I/O errors on the inherited error descriptor (patch 0006, section 7). | Run as root. Receive `recover`, `remove_hiberfile`, `dev`, `suid`. |
+| `ntfsmac` | `src/cli/` | user | none | `list`, `status`, `mount`, `unmount`, `doctor`, `journal-clear` and `repair` (both explicit, typed confirmation, `admin` only). | Touch a device directly. |
+| ntfsprogs | built from the same tarball | user, on explicit request | `libntfs-3g` | `mkntfs`, `ntfsfix`, `ntfsinfo`, `ntfslabel`. Installed under `libexec`, not on `PATH`. | Run automatically. Be invoked by the daemon or the CLI (repair uses `ntfsmac-volmark`, ADR-017). |
 | packaging | `packaging/` | installer | none | `.pkg`, launchd plist, uninstaller, preflight checks. | Bundle macFUSE. Change security settings. |
 
 ### 3.1 Safety probe interface
@@ -102,12 +108,17 @@ Output (stdout, one JSON object, schema version 1):
   "sector_size": 512,
   "volume_flags": ["DIRTY"],
   "logfile": "clean | unclean | v2_fast_startup | unreadable",
+  "logfile_lsn": "0x0000000001A2B3C4",
   "hiberfile": "absent | inactive | hibernated | unreadable",
   "bitlocker": false,
   "state": "clean | dirty_flag | unclean_log | hibernated | fast_startup | unsupported | corrupt | unknown",
   "reasons": ["VOLUME_IS_DIRTY set in $Volume"]
 }
 ```
+
+`logfile_lsn` is the `current_lsn` of the newer valid `$LogFile` restart area, or `null` when `logfile` is `unreadable`. It is used only as evidence that another system mounted the volume (section 3.5).
+
+Every field is derived from untrusted on-disk data by a parser that must be assumed exploitable (section 6). `label` in particular is attacker-controlled text. The daemon parses the output with the strict parser in `src/sanitize/` (at most 64 KiB, UTF-8 only, no `\u0000`, no duplicate keys, every enum checked; any failure means state `unknown`) and never uses `label` before the sanitiser in ADR-016 has run.
 
 | Exit | Meaning |
 |---|---|
@@ -131,11 +142,12 @@ Checks, in order. Each uses `libntfs-3g` opened with `NTFS_MNT_RDONLY | NTFS_MNT
 
 ### 3.2 Policy table
 
-| Probe `state` | Journal says we left it open | Default action | With explicit `--read-write` request | Notes |
+| Probe `state` | Journal entry for this serial (section 3.5) | Default action | With explicit `--read-write` request | Notes |
 |---|---|---|---|---|
-| `clean` | no | `rw` | `rw` | |
-| `clean` | yes | `ro` | `ro` | Our previous session ended uncleanly. Message tells the user to run `chkdsk` on Windows. |
-| `dirty_flag` | any | `ro` | `ro` | Cleared only by Windows `chkdsk`, or by the explicit `ntfsmac repair --clear-dirty` (wraps `ntfsfix -d`, typed confirmation, never automatic). |
+| `clean` | none | `rw` | `rw` | |
+| `clean` | present, and the external-check evidence rule of section 3.5 holds | `ro`, journal action `remove` | `ro` | The volume was checked on another system after our unclean session. This attach stays read-only; the next `mount` request (or the next attach) is decided again with no entry. The notification says so. |
+| `clean` | present, evidence rule does not hold | `ro` | `ro` | Our previous session ended uncleanly. Message: run `chkdsk` on Windows, then re-attach; or, if the user accepts the risk, `ntfsmac journal-clear` (section 3.5). |
+| `dirty_flag` | any | `ro` | `ro` | Cleared only by Windows `chkdsk`, or by the explicit `ntfsmac repair --clear-dirty` (ADR-017: typed confirmation, `admin` only, never automatic). With a journal entry present, the message says that this Mac left the volume open and that writes from that session may be incomplete. |
 | `unclean_log` | any | `ro` | `ro` | NTFS-3G's `recover` option would reset `$LogFile`; it is banned (ADR-005). |
 | `hibernated`, `fast_startup` | any | `ro` | `ro` | `remove_hiberfile` is banned. Message: boot Windows, run `powercfg /h off`, shut down fully. |
 | `unknown` | any | `ro` | `ro` | |
@@ -143,22 +155,52 @@ Checks, in order. Each uses `libntfs-3g` opened with `NTFS_MNT_RDONLY | NTFS_MNT
 
 There is no override that turns an unsafe state into a read/write mount. The only path back to `rw` is to make the volume clean.
 `ro` means both: the device fd is opened `O_RDONLY` by the daemon and the worker gets `-o ro`.
+Removing a journal entry (by the evidence rule, `journal-clear` or `repair`) never changes the mode of an existing mount. It only affects the next decision, which still goes through this table with a fresh probe.
+A `rw` decision becomes `ro` if `ntfsmac-volmark set` fails (section 3.6).
+
+The policy library also exposes the two gate functions used by the control requests in section 3.4, so that their rules are unit-tested with the table:
+
+| Gate | Allowed only when |
+|---|---|
+| `journal-clear` | A journal entry exists; a probe run by the daemon for this request returns `state` exactly `clean`; the volume is not mounted read/write. |
+| `repair --clear-dirty` | A probe run for this request returns `state` exactly `dirty_flag`, `logfile` `clean`, `hiberfile` `absent` or `inactive`, `volume_flags` exactly `["DIRTY"]`; the volume is not mounted (the CLI asks the user to unmount the read-only mount first). |
 
 ### 3.3 Worker invocation
 
 ```
-ntfsmac-worker /dev/fd/<N> /Volumes/<name> -o <options>
+ntfsmac-worker /dev/fd/<N> /Volumes/<leaf> -o <options>
 ```
+
+The daemon starts the worker with `posix_spawn` and a fixed five-element argument vector (no shell, no `-o` other than the one shown). `<leaf>` is the mount-point name produced by the label sanitiser (ADR-016); it is a separate argument, never part of the option string.
 
 | Option set | Options |
 |---|---|
-| Always | `backend=fskit,local,volname=<label>,fsname=<bsd name>,norecover,noatime,windows_names,big_writes,streams_interface=xattr,uid=<console uid>,gid=<console gid>,fmask=0133,dmask=0022` |
+| Always | `backend=fskit,local,norecover,noatime,windows_names,big_writes,streams_interface=xattr,uid=<console uid>,gid=<console gid>,fmask=0133,dmask=0022` |
+| Volume name | `volname=<leaf>`, only if T-M2-04 shows the FSKit backend needs it to name the volume (U14). The value is the same sanitised leaf as the mount point, never the raw label. If the backend names the volume from the mount point, `volname` is not passed at all. |
 | Read-only | add `ro` |
-| Opt-in (config) | `hide_hid_files`, `permissions` or `usermapping=<file>` (ADR-012) |
-| Banned (daemon rejects) | `recover`, `remove_hiberfile`, `dev`, `suid`, `allow_root`, `efs_raw`, any option not in the allow-list |
+| Opt-in (config) | `hide_hid_files`, `permissions` or `usermapping=<fixed path under /Library/Application Support/ntfs-macos/>` (ADR-012) |
+| Banned (daemon rejects) | `recover`, `remove_hiberfile`, `dev`, `suid`, `allow_root`, `efs_raw`, `fsname`, any option not in the allow-list |
 
 Option semantics are from the NTFS-3G man page [V:S11]. `recover` is NTFS-3G's default, so `norecover` is mandatory on every invocation.
-Whether `fsname`, `volname`, `big_writes` and `noatime` are accepted by the FSKit backend is [A]; macFUSE states that most kernel-handled options are not yet implemented there [V:S2]. T-M2-04 records the accepted set and this table is then corrected.
+`fsname` is removed from the earlier draft: `ntfs-3g` rejects it as an unsupported option and builds `fsname=` itself from the device argument, escaping `,` and `\` [V:S25, `src/ntfs-3g_common.c` option table and `parse_mount_options`].
+Whether `volname`, `big_writes` and `noatime` are accepted by the FSKit backend is [A]; macFUSE states that most kernel-handled options are not yet implemented there [V:S2]. T-M2-04 records the accepted set and this table is then corrected.
+
+How the option string is parsed, which is why disk-derived text must never reach it unchecked [V:S25]: `ntfs-3g` splits `-o` on every `,` with `strsep` (no escape character), splits each token at the first `=`, consumes the tokens it knows, and passes every unknown token through to libfuse, which splits again on `,` and treats `\` as an escape. A label `X,remove_hiberfile` would therefore become a separate engine option, and `X,allow_other` a separate FUSE option.
+
+**Final argv validator.** After the option builder runs and before `posix_spawn`, `argv_check()` in `src/sanitize/` re-parses the complete vector the same way the engine does and refuses the spawn unless all of the following hold. On refusal the volume goes to state `Failed` with reason `internal: worker arguments rejected`; nothing is "repaired" and no mount happens.
+
+| # | Rule |
+|---|---|
+| 1 | Exactly five elements: the worker path from the install manifest, `/dev/fd/<N>` with `N` decimal 3..255, `/Volumes/<leaf>`, `-o`, the option string. |
+| 2 | `<leaf>` satisfies every label rule of ADR-016 and is the name the daemon created in step 7 of section 4.1. |
+| 3 | The option string is at most 1024 bytes and contains no `\`, no NUL and no byte below `0x20` or equal to `0x7F`. Outside the `volname` value every byte is in `0x21..0x7E`; the `volname` value obeys rule 2 (it may contain spaces and non-ASCII UTF-8, never `,` `=` `\` `/` `:`). |
+| 4 | Splitting on `,` gives no empty token; each token splits at the first `=` into a key from the allow-list and, for keys that take one, a value with no `=`. No key appears twice. |
+| 5 | Values match per-key grammars: `uid`/`gid` decimal equal to the console user; `fmask=0133`, `dmask=0022` exactly; `streams_interface` is `xattr` or `none`; `backend=fskit`; `volname` equals `<leaf>` byte for byte; `usermapping` is the fixed configured path. |
+| 6 | `norecover` is present; `ro` is present if and only if the decision is `ro`; no banned key is present. |
+| 7 | The descriptor's access mode (`fcntl(F_GETFL)`) is `O_RDONLY` when the decision is `ro`, and `O_RDWR` only when it is `rw`. |
+
+The option builder is the only producer of the vector; `argv_check()` is the independent re-check. Both are unit-tested against each other: every builder output for every policy row validates, and every single-token mutation of it is rejected (TEST_STRATEGY.md section 4, `U-ARGV-*`).
+`ntfs-3g` itself then appends `allow_other,nonempty,` and `fsname=` to what it passes to libfuse; those come from the engine, not from the disk, and are accepted.
 
 ### 3.4 Daemon control protocol
 
@@ -172,13 +214,75 @@ The daemon authenticates the peer with `LOCAL_PEERCRED` and accepts mount and un
 | `mount` | `bsd`, `mode` (`auto`/`ro`) | result, mount point, effective mode, reason |
 | `unmount` | `bsd`, `force` (bool) | result |
 | `doctor` | none | macFUSE version, extension state, conflicting NTFS drivers found, journal entries |
+| `journal_clear` | `bsd`, `confirm_label` (the sanitised label as shown by `list`), `confirm_serial` (last 8 hex digits of the serial) | `cleared` or `refused` with reason |
+| `repair` | `bsd`, `action` (only `clear_dirty`), `confirm_label`, `confirm_serial` | `repaired` or `refused` with reason |
+
+`journal_clear` and `repair` are accepted only from a member of `admin` (stricter than `mount`), only for a volume that is attached and passes the gate in section 3.2, and only when both confirmation fields match. The CLI collects the confirmation by asking the user to type them after printing what the action does and does not do (ADR-017). Labels shown by `list`, by the CLI and in notifications are always the sanitised form (ADR-016).
 
 ### 3.5 Session journal
 
-Directory `/var/db/ntfs-macos/journal/`, one file per volume serial, mode 0600 root.
-Written and `F_FULLFSYNC`ed **before** the worker is started read/write; removed after the worker exits with status 0 following an unmount request.
-A file that exists when the volume next appears means the previous read/write session did not end cleanly (policy row 2).
-The journal is per host. A volume yanked from this Mac and then attached to another machine is covered by the on-disk dirty marker (ADR-006), not by the journal.
+Directory `/var/db/ntfs-macos/journal/`, one file per volume serial, mode 0600 root. Files are written to a temporary name, `F_FULLFSYNC`ed, renamed, and the directory is `fsync`ed.
+
+Entry fields (nothing else is stored): `serial`; sanitised `label`; `total_sectors`; `session_id`; `created` and `updated` timestamps; `logfile_lsn_at_start` (from the probe run that allowed `rw`); `marker` = `pending` | `set` | `failed` | `none` (section 3.6); `state` = `open` | `write_error`.
+
+| When | Journal change |
+|---|---|
+| Before the device is opened `O_RDWR` | Entry created: `state=open`, `marker=pending` (or `none` while the marker step is disabled, see ADR-006). |
+| `volmark set` succeeded | `marker=set`. Only then is the worker started. |
+| `volmark set` failed | `marker=failed`; the session continues as `ro` (section 3.6). |
+| The worker reported a device write or sync error (section 7) | `state=write_error`. |
+| Clean end of session (section 4.5) | Entry removed. |
+
+**How an entry is removed.** Exactly four ways, none of them by time or by count:
+
+| # | Path | Conditions | Effect on this attach |
+|---|---|---|---|
+| 1 | Clean end of our own session (section 4.5 step 3) | Worker exit 0 after an unmount; zero error records on the error channel; daemon `F_FULLFSYNC` succeeded; `volmark clear` exit 0 (or `marker=none`). Entry `state` is `open`. | Normal unmount. |
+| 2 | External-check evidence (automatic) | All of: entry `marker=set`; fresh probe `state` exactly `clean` (so `VOLUME_IS_DIRTY`, which we set, is now clear); probe `logfile_lsn` present and different from `logfile_lsn_at_start`; same `serial` and `total_sectors`. Disabled by default until U12 and U13 are resolved (below). | Stays `ro`; the clear applies to the next decision. Notification: "checked on another system; re-attach or `ntfsmac mount` for read/write". |
+| 3 | `ntfsmac journal-clear` (explicit) | Gate in section 3.2 (fresh probe exactly `clean`), `admin` peer, label and serial typed. Allowed for any `marker` and `state`, with a stronger warning when `state=write_error`. | Unchanged; the next `mount` decides again. |
+| 4 | `ntfsmac repair --clear-dirty` succeeded | Gate in section 3.2 (exactly `dirty_flag`), `admin` peer, label and serial typed (ADR-017). | Unchanged; the next `mount` decides again. |
+
+Removal renames the entry into `/var/db/ntfs-macos/journal/cleared/<serial>-<UTC time>` (kept for `doctor`, at most 32 kept) instead of deleting it, and logs which path removed it.
+
+Why rule 2 needs the log sequence number and not only the cleared flag: a drive that ignores cache flushes can lose our `VOLUME_IS_DIRTY` write, after which the flag is clear although nothing checked the volume. Windows writes `$LogFile` whenever it mounts a volume read/write, including `chkdsk`, so a changed `current_lsn` together with the cleared flag is evidence that Windows mounted the volume and cleared the flag (chkdsk or autochk clears it; plain Windows mounts do not) [A: U12]. NTFS-3G with `norecover` does not write `$LogFile` [A: U13; `ntfs_logfile_reset` is called only with `recover`, V:S25]. Until T-M3-01 (U13) and the Windows step of T-M5-10 (U12) confirm both, rule 2 is compiled in but disabled by configuration, and the only ways out are rules 1, 3 and 4. Rule 2 can never produce `rw` on the attach where it fires.
+
+What the evidence rule cannot do: the probe is itself a parser of untrusted data, so a crafted volume can fake a clean flag and a new LSN. That is not a new exposure, because the same volume can equally fake `clean` without any journal entry; the journal protects against our own unclean sessions, not against a hostile disk (section 9, D2).
+
+Key collisions: the key is the NTFS serial, which clones and copies of one image share. A clone of a volume with an open entry is therefore also mounted `ro` until cleared. This errs towards read-only and is accepted.
+
+The journal is per host. Another machine learns about an unclean session only through the on-disk dirty marker (section 3.6, ADR-006).
+
+### 3.6 On-disk dirty marker (`ntfsmac-volmark`)
+
+NTFS-3G 2026.9.28 never sets or clears `VOLUME_IS_DIRTY`: neither `libntfs-3g` nor `src/ntfs-3g.c` writes it; only the ntfsprogs tools `ntfsfix`, `ntfsresize`, `ntfsmove` and `mkntfs` change it, through `ntfs_volume_write_flags()` [V:S25]. Without this step nothing on the disk records an unclean session (U9).
+
+Command: `ntfsmac-volmark set|clear|clear-repair --fd 3`. Runs as `nobody` under `integration/sandbox/volmark.sb` (no network, no exec, no file system access, no Mach services; only the inherited descriptor 3, which is the daemon's `O_RDWR` device descriptor, the same one the worker later receives). It accesses the device through the same descriptor-backed device layer as the probe, never by path. Hard timeout 20 s (`SIGKILL`). Exit 0 means every step below succeeded; any other status or a timeout is a failure.
+
+| Step | `set` (before the worker) | `clear` (after a clean session) | `clear-repair` (ADR-017) |
+|---|---|---|---|
+| 1 | `ntfs_mount` read/write with flags `NTFS_MNT_NONE`: no `RECOVER`, no `MAY_RDONLY`, no `IGNORE_HIBERFILE`, no `FORENSIC`. The library's own hibernation and `$LogFile` checks therefore refuse the mount on those states [V:S25, `volume.c`]. | same | same |
+| 2 | Read `vol->flags`. If `VOLUME_IS_DIRTY` is already set: stop, exit 11. | If `VOLUME_IS_DIRTY` is not set: stop, exit 13 (anomaly: someone changed the volume during our session). | If any flag other than `VOLUME_IS_DIRTY` is set, or it is not set: stop, exit 13. |
+| 3 | `ntfs_volume_write_flags(vol, flags \| VOLUME_IS_DIRTY)`; all other bits unchanged. | `ntfs_volume_write_flags(vol, flags & ~VOLUME_IS_DIRTY)` | same as `clear` |
+| 4 | `ntfs_umount`; then `fcntl(3, F_FULLFSYNC)`. If the device rejects `F_FULLFSYNC`, `fsync` and a warning on stderr (R-30); any other error: exit 12. | same | same |
+| 5 | Mount again with `NTFS_MNT_RDONLY`, read the flag back, compare, unmount. Mismatch: exit 14. | same | same |
+
+Ordering in the daemon:
+
+1. `set`: journal entry `marker=pending` and synced; device opened `O_RDWR`; probe descriptor already closed; `volmark set`; on exit 0 journal `marker=set` and synced; then the worker is spawned with the same descriptor.
+2. If `set` fails for any reason (including exit 11: the engine or the flag disagrees with the probe), the daemon closes the writable descriptor, records `marker=failed`, opens `O_RDONLY`, and mounts `ro` with reason "could not mark the volume; mounted read-only". The volume is never written by the worker in that attach. A partially written `$Volume` record is possible after a mid-write failure; the journal entry stays so the next attach is also `ro`.
+3. `clear`: only on the clean path of section 4.5 (worker exit 0 after unmount, zero error records, daemon `F_FULLFSYNC` succeeded, journal `state=open`). On exit 0 the journal entry is removed. On failure the entry stays with `marker=set`, so the flag stays on disk and the next attach is `ro`; the notification says to run `chkdsk`.
+4. Crash windows: after `set` and before the worker: flag set, entry `pending` or `set`, next attach `ro` (correct). Between `clear` and journal removal: flag clear, entry present, LSN unchanged, next attach `ro` until `journal-clear` (conservative). There is no window in which the flag is clear, the entry is gone and the session was unclean.
+
+Interaction with other systems, all intended:
+
+| System | Sees `VOLUME_IS_DIRTY` set after an unclean session on a Mac |
+|---|---|
+| Windows | Runs `autochk` at boot for a fixed disk, or offers "Scan and fix" for a removable disk; `chkdsk` clears the flag. The flag is also set during every read/write session, so a disk moved to Windows without a clean eject is always checked. |
+| Linux `ntfs3` | Refuses a read/write mount without `force` [A]. |
+| NTFS-3G elsewhere | Does not check the flag at mount [V:S25]; ntfsprogs tools warn. |
+| This product on any Mac | Probe `dirty_flag`, mount `ro`. |
+
+Until T-M3-12 passes, the marker step is disabled (`marker=none` in the journal) and guarantee D3 is host-only (section 9).
 
 ## 4. Data flows
 
@@ -189,9 +293,9 @@ The journal is per host. A volume yanked from this Mac and then attached to anot
 3. In active mode the daemon answers the Disk Arbitration mount-approval callback with a dissenter for this disk, so Apple's read-only NTFS driver does not auto-mount it first [A: T-M4-02 verifies the dissenter is honoured on macOS 27].
 4. The daemon opens the device `O_RDONLY`, spawns `ntfsmac-probe` with that fd, and waits at most 20 s.
 5. Policy (section 3.2) gives `rw`, `ro` or `refuse`. On `refuse` the dissent is withdrawn and the system handles the disk.
-6. For `rw`: write the journal entry, then set the on-disk dirty marker (ADR-006, only when enabled). Open the device `O_RDWR`. For `ro`: open `O_RDONLY`.
-7. Create `/Volumes/<label>` (unique suffix on collision), owned by the console user.
-8. Spawn the worker as the console user inside the sandbox profile, with the fd inherited. Wait for the mount to appear (`statfs` on the mount point shows a new `f_fsid`) or for the worker to exit.
+6. For `rw`: write the journal entry, open the device `O_RDWR`, run `ntfsmac-volmark set` (section 3.6); if it fails, close the writable descriptor and continue as `ro`. For `ro`: open `O_RDONLY`.
+7. Create the mount point. The label from the probe goes through the sanitiser (ADR-016) to give `<leaf>`. The daemon opens `/Volumes` with `O_DIRECTORY | O_NOFOLLOW`, checks it is a root-owned directory, and calls `mkdirat(dirfd, leaf, 0700)`. On `EEXIST` it tries `<leaf> 2` to `<leaf> 99` in order; it never mounts on, adopts or changes a directory it did not create. If all are taken, the volume goes to `Failed` and is left unmounted. It records the new directory's device and inode, then `fchownat(..., AT_SYMLINK_NOFOLLOW)` to the console user.
+8. Build the worker vector (section 3.3) and run `argv_check()`. Spawn the worker as the console user inside the sandbox profile, with the device fd and the write end of the error channel (section 7) inherited. Wait for the mount to appear (`statfs` on the mount point shows a new `f_fsid`) or for the worker to exit.
 9. Record state `Mounted(rw|ro)`. Post a user notification that states the mode and, for `ro`, the reason.
 
 ### 4.2 Read
@@ -219,10 +323,11 @@ Worker side: `ntfs_fuse_fsync` calls `ntfs_device_sync`, which is plain `fsync` 
 
 1. Trigger: Finder eject, `diskutil unmount`, `umount`, or `ntfsmac unmount`. macFUSE 5.5.0 supports Finder unmount for `local` volumes [V:S1].
 2. FSKit calls `synchronize`, then `unmount`, on the FSModule; the worker receives `FUSE_DESTROY`, calls `ntfs_umount`, syncs the device and exits 0.
-3. The daemon sees the exit, runs `F_FULLFSYNC` on its own copy of the fd, clears the on-disk dirty marker (ADR-006), removes the journal entry, closes the fd, removes the mount point directory.
+3. The daemon sees the exit. For a `rw` session it treats the session as clean only if the worker exited 0 after an unmount, the error channel delivered zero records, and its own `F_FULLFSYNC` on its copy of the fd succeeded. Then it runs `ntfsmac-volmark clear` (when the marker step is enabled) and, on exit 0, removes the journal entry (section 3.5 rule 1). It closes the fd and removes the mount point directory only if its device and inode match the ones recorded in section 4.1 step 7 and it is empty (`unlinkat(..., AT_REMOVEDIR)`).
+   The user is told "ejected, all data written" only when every step of the clean path succeeded. Otherwise the notification says the session did not end cleanly and the volume will be read-only next time.
 4. For "eject" of the physical disk the daemon then calls `DADiskEject` on the whole disk. Whether Finder's eject button on a macFUSE `local` volume also ejects the underlying media without daemon help is [U]; T-M4-03 resolves it.
 
-A worker exit with non-zero status, or without a preceding unmount request, leaves the journal entry and the dirty marker in place.
+A worker exit with non-zero status, or without a preceding unmount request, or any error record on the error channel, leaves the journal entry and the dirty marker in place.
 
 ## 5. Threading and locking model
 
@@ -243,10 +348,11 @@ Threat: a malicious or corrupt NTFS volume (the user plugs in an untrusted USB d
 | Control | Detail |
 |---|---|
 | Privilege separation | Only `ntfsmacd` is root. It opens devices and creates `/Volumes` entries. It contains no NTFS parsing. |
-| Unprivileged parser | Probe runs as `nobody`; worker runs as the console user. Neither can open another device. |
+| Unprivileged parser | Probe and volmark run as `nobody`, never at the same time; worker runs as the console user. None can open another device. Volmark is the only one of the three that parses NTFS while holding a writable descriptor before the worker; it is short-lived and gets that descriptor only for `rw` decisions. |
+| Disk-derived strings | The volume label is attacker-controlled. It is used only after the sanitiser of ADR-016 (allow-listed characters, length cap, path-component rules) and only as the mount-point leaf and, if needed, `volname`. The probe verdict is parsed by a strict, fuzzed parser. |
 | Sandbox | Both run under a `sandbox_init` profile (`integration/sandbox/*.sb`): no network, no process exec, file access limited to the inherited fd, the mount point, and for the worker the Mach service `io.macfuse.mount` (required for sandboxed FUSE servers [V:S6]). `sandbox_init` is deprecated but functional [A: T-M4-06 verifies on macOS 27; if it fails, drop to uid separation only and record the residual risk]. |
-| Least access | Read-only decisions get an `O_RDONLY` descriptor. A parser bug cannot write to a volume that policy marked unsafe. |
-| Option allow-list | The daemon builds the worker command line itself. Client-supplied strings are limited to `bsd` and `mode`. |
+| Least access | Read-only decisions get an `O_RDONLY` descriptor, so once the probe has classified a volume as unsafe, a later bug in the worker or volmark cannot write to it. This does not protect against a probe that is fooled into reporting `clean` (section 9, D2). |
+| Option allow-list | The daemon builds the worker command line itself, and `argv_check()` re-parses it against the allow-list before every spawn (section 3.3). Client-supplied strings are limited to `bsd`, `mode` and the confirmation fields, which are compared, never used to build a command. Disk-supplied strings are limited to the sanitised label. |
 | Client authentication | `LOCAL_PEERCRED` on the control socket; console user or `admin` only. |
 | Mount flags | FSKit mounts are `nodev,nosuid` by construction [A]. `uid`/`gid`/`fmask`/`dmask` map every file to the console user; the execute bit is cleared on files (`fmask=0133`). |
 | Supply chain | Dependencies pinned by version and SHA-256 in `third_party/deps.lock`; the macFUSE installer package signature is checked before use (IMPLEMENTATION_PLAN.md section 3). |
@@ -259,15 +365,27 @@ Residual risk: a worker compromise gives the attacker the console user's identit
 
 | Event | Behaviour | Guarantee after the event |
 |---|---|---|
-| Device removed without eject | Device I/O returns `ENXIO`/`EIO`; the worker returns errors to FUSE; the daemon receives the Disk Arbitration disappearance, force-unmounts the mount point, kills the worker after 5 s. Journal entry and dirty marker remain. | Data not yet written by the worker is lost. Metadata may be mid-update. Next mount on this Mac is `ro` (journal). On Windows the dirty flag triggers a `chkdsk` prompt. |
+| Device removed without eject | Device I/O returns `ENXIO`/`EIO`; the worker returns errors to FUSE; the daemon receives the Disk Arbitration disappearance, force-unmounts the mount point, kills the worker after 5 s. Journal entry and dirty marker remain. | Data not yet written by the worker is lost. Metadata may be mid-update. Next mount on this Mac is `ro` (journal). Once the on-disk marker is enabled (T-M3-12 passed, section 3.6), `VOLUME_IS_DIRTY` stays set, so Windows runs or offers `chkdsk` and any Mac with this product mounts `ro`. Before that, only this Mac knows (D3). |
 | Worker crash or `SIGKILL` | macFUSE disconnects the volume (`daemon_timeout`, default 60 s [V:S4], supported on the FSKit backend since 5.5.0 [V:S1]); the daemon detects the exit immediately and force-unmounts. Journal and dirty marker remain. | Same as above. |
 | `ntfsmacd` crash | launchd restarts it. On start it reconciles: for each journal entry, if a live worker and mount exist it re-adopts them [A: T-M4-05; if re-adoption is impractical, the daemon force-unmounts and the volume becomes `ro` on next mount]. | No data path goes through the daemon, so open files are unaffected. |
 | macFUSE FSModule crash | Volume disappears or returns `EIO` [V:S7 describes this failure mode]. Worker exits non-zero. | Same as worker crash. |
-| I/O error from the device | `libntfs-3g` returns the error; the application gets `EIO` on `read`/`write`. Errors on `close` are lost (FSKit limit). After the first write error the daemon marks the session failed, requests unmount, and the next mount is `ro`. | Earlier acknowledged writes are not rolled back. |
+| I/O error from the device | `libntfs-3g` returns the error; the application gets `EIO` on `read`/`write`. Errors on `close` are lost to the application (FSKit limit). The daemon learns of device errors through the error channel below, independently of FSKit: on the first record it sets journal `state=write_error`, posts a notification, and requests unmount; the session can no longer end cleanly, so the marker stays set and the next mount is `ro`. | Earlier acknowledged writes are not rolled back. |
+| `ntfsmac-volmark set` fails or times out | Writable descriptor closed; volume mounted `ro`; journal `marker=failed` (section 3.6). | No worker write happened. A partial `$Volume` write by volmark is possible; the next attach is `ro`. |
 | Host panic or power loss | No clean unmount. Journal and dirty marker remain. | Same as device removal. |
 | Volume full | `ENOSPC` from `libntfs-3g` on `write`. | No corruption expected; tested in T-M5-06. |
 | Probe timeout or crash | State `unknown`, action `ro`. | No write happened. |
 | macFUSE missing, too old, or extension not approved | Daemon reports it in `doctor` and in the notification; the disk is left to the system (Apple read-only driver). | No change to the volume. |
+
+**Error channel (how the daemon learns of a write error).** The worker is stock `ntfs-3g`, whose errors otherwise reach only FUSE replies and its log. Patch 0006 (ADR-002, ADR-018) adds one thing to the Unix device layer of `libntfs-3g`: when a device `pwrite` fails or is short, or a device sync (`fsync` or `F_FULLFSYNC`) fails, it writes one fixed-format line `E <op> <errno>\n` to the descriptor named by the environment variable `NTFSMAC_ERRFD`, if set. The daemon creates a pipe, passes the write end to the worker (and to nothing else), and reads the other end on the volume's queue.
+
+| Signal | Daemon reaction |
+|---|---|
+| First error record | Journal `state=write_error` (synced), notification "write error on <label>: unmounting; data written after <time> may be lost", unmount requested. |
+| Worker exit status non-zero | Session not clean; journal and marker stay. |
+| Pipe closed without records, worker exit 0 after unmount | Counts as "zero error records" for the clean path (section 4.5). |
+| Unparseable data on the pipe | Treated as an error record. |
+
+The channel reports device-level failures only. Engine-level errors that are not device failures (`ENOSPC`, `EINVAL` on a bad name) are returned to the application and are not session failures. Log parsing is not used: NTFS-3G's log text is not a stable interface.
 
 ## 8. macOS integration
 
@@ -307,15 +425,26 @@ This project never unloads, disables or removes another vendor's driver.
 
 ## 9. Durability guarantees
 
-What the product **does** guarantee, once the tests named in TEST_STRATEGY.md pass:
+Each guarantee names what it depends on. A guarantee marked **conditional** must not be stated to users, in the README or in the release report, until the named tasks have passed; until then the "Until then" column is what may be said.
 
-| # | Guarantee | Mechanism |
+| # | Guarantee | Mechanism | Status | Until then |
+|---|---|---|---|---|
+| D1 | After an eject or unmount that the product reports as clean (section 4.5 step 3), every byte the applications wrote before the unmount started is on the device and the drive cache has been flushed. | FSKit `synchronize` + `unmount` deliver every dirty buffer to the worker [A: U4]; `ntfs_umount`; `F_FULLFSYNC` in worker (patch 0002) and daemon; the clean report requires worker exit 0, zero error records and a successful daemon `F_FULLFSYNC`. | **Conditional** on T-M2-06 (opcodes at unmount), T-M3-10 (`F_FULLFSYNC` at each sync point) and `I-SYNC-*`; real drive caches only after Environment C (T-M5-10). | "Unmount writes all data the file system received and asks the drive to flush; whether FSKit hands over every cached write before unmount is being verified." |
+| D2 | If the probe correctly classifies a volume as unsafe, no process of this product receives a writable descriptor for it, so no later parser bug (worker or volmark) can write to it. | Policy maps unsafe states to `ro`; `O_RDONLY` descriptor; `argv_check()` rule 7. | By design; tested by `U-POL-*`, `I-DMN-02..08`. | |
+| D3 | A volume left without clean unmount by this product is mounted read-only on next attach to this Mac. Once the on-disk marker is enabled, it is also flagged `VOLUME_IS_DIRTY` for Windows, Linux and other Macs. | Journal (section 3.5); marker (section 3.6). | This-Mac part: by design, tested by `U-JRN-*`, `I-DMN-14..16`. Other-machine part: **host-only until T-M3-12 passes** (and `I-DMN-22`). | "Read-only next time on this Mac." |
+| D4 | Windows hibernation state and `$LogFile` content are never discarded automatically. | `norecover` always; `remove_hiberfile` and `recover` banned by the option allow-list and `argv_check()`. | By design; `U-POL-*`, `U-ARGV-*`. | |
+| D5 | Data read back equals data written (hash equality across unmount and remount, and against Linux NTFS-3G). | Integrity suite. | Tested (`I-INT-*`, `C-REF-*`). | |
+
+**What D2 does not cover.** The verdict comes from `ntfsmac-probe`, which parses untrusted on-disk metadata with `libntfs-3g` and must be assumed exploitable (section 6). A probe bug, or a crafted volume that makes the probe report `clean` for a dirty, unclean-log or hibernated volume, leads to an `O_RDWR` descriptor. The product then has two further checks; they reduce the risk but are not guarantees, because they use the same parser family as the probe:
+
+| Second line | Covers | Does not cover |
 |---|---|---|
-| D1 | After a successful eject or unmount, every byte the applications wrote is on the device and the drive cache has been flushed. | FSKit `synchronize` + `unmount`, `ntfs_umount`, `F_FULLFSYNC` in worker and daemon. |
-| D2 | A volume that policy classified as unsafe is never written, even if the NTFS parser misbehaves. | `O_RDONLY` descriptor. |
-| D3 | A volume left without clean unmount by this product is mounted read-only on next attach to this Mac, and is flagged dirty for Windows. | Journal + dirty marker. |
-| D4 | Windows hibernation state and `$LogFile` content are never discarded automatically. | `norecover` always; `remove_hiberfile` and `recover` banned by the option allow-list. |
-| D5 | Data read back equals data written (hash equality across unmount and remount, and against Linux NTFS-3G). | Integrity suite. |
+| `ntfsmac-volmark set` mounts read/write without `RECOVER`, `MAY_RDONLY` or `IGNORE_HIBERFILE`, so `libntfs-3g` refuses hibernated (`hibr`/`HIBR` header or short `hiberfil.sys`), unclean-log and version-2 `$LogFile` volumes, and volmark refuses an already set `VOLUME_IS_DIRTY`; any refusal makes the mount `ro` (section 3.6). | `hibernated`, `fast_startup`, `unclean_log`, `dirty_flag` misreported as `clean` | Hibernation states the engine does not recognise either (it checks only the `hibr`/`HIBR` signature and the file size); a crafted volume that fools both. Absent while the marker step is disabled. |
+| The worker always gets `norecover` and never `remove_hiberfile`, so `ntfs-3g` sets `NTFS_MNT_MAY_RDONLY` and falls back to read-only on the same hibernation and `$LogFile` findings [V:S25, `ntfs-3g.c`, `volume.c`]. | `hibernated`, `fast_startup`, `unclean_log` | `dirty_flag` (the engine does not check it); a crafted volume that fools the engine. |
+
+`I-DMN-23` tests both lines with a probe stub that reports `clean` for every unsafe fixture and asserts that the image hash is unchanged.
+
+**What D1 depends on that the product cannot see.** If FSKit drops a flush error (N2) for data that never reached the worker, neither the worker nor the error channel can know. The clean report in section 4.5 only proves that everything the worker received was written and flushed without error.
 
 What the product **cannot** guarantee, and must not claim:
 
@@ -356,9 +485,12 @@ Target: arm64, deployment target macOS 27.0. External runtime prerequisite: macF
 | U6 | Can the FUSE server run as the console user when started by a root daemon (FSKit modules are enabled per user; root-run `mount -F` fails [V:S14])? | T-M4-01 | Daemon design |
 | U7 | Is a Disk Arbitration mount-approval dissenter still honoured for external NTFS disks on macOS 27? | T-M4-02; fallback: let Apple's driver mount read-only, then unmount and remount | Automount |
 | U8 | Does Finder eject of the volume also eject the media? | T-M4-03 | UX |
-| U9 | Does NTFS-3G already set `VOLUME_IS_DIRTY` during a read/write session? | T-M3-01 (source read + test) | ADR-006 |
+| U9 | Does NTFS-3G already set `VOLUME_IS_DIRTY` during a read/write session? Source answer: no, only ntfsprogs tools write it [V:S25]. Test confirmation pending. | T-M3-01 (test) | Nothing: ADR-006 phase 2 is the default plan either way |
 | U10 | Raw (`/dev/rdisk`) versus buffered (`/dev/disk`) device node: alignment handling in `unix_io.c` on Darwin, and performance. | T-M3-10 | Performance, D1 |
 | U11 | tart licence terms and macOS 27 guest support in the current release (only a secondary source found [V:S20]). | T-M1-04 | VM tooling |
+| U12 | Does a Windows read/write mount, and `chkdsk`, always advance `current_lsn` in the `$LogFile` restart area, and does `chkdsk` clear `VOLUME_IS_DIRTY`? | Windows step in T-M5-10 (`H-USB-08`); H6 | Enabling journal-clear rule 2 (section 3.5) |
+| U13 | Does an NTFS-3G read/write session with `norecover` leave the `$LogFile` restart area byte-identical? Source: `ntfs_logfile_reset` is only called with `recover` [V:S25]. | T-M3-01 (test) | Enabling journal-clear rule 2 |
+| U14 | Does the macFUSE FSKit backend name the volume from `volname` or from the mount-point leaf? | T-M2-04 | Whether `volname` is passed at all (section 3.3) |
 
 ## 12. Sources
 
@@ -388,3 +520,4 @@ Target: arm64, deployment target macOS 27.0. External runtime prerequisite: macF
 | S22 | macOS 27 drops Intel Macs (press): https://hothardware.com/news/apple-drops-intel-macs-macos-27 |
 | S23 | WWDC26 session 224 (Virtualization, USB accessory access): https://developer.apple.com/videos/play/wwdc2026/224/ |
 | S24 | Apple FSKit documentation: https://developer.apple.com/documentation/fskit |
+| S25 | NTFS-3G 2026.9.28 release tarball (digest in IMPLEMENTATION_PLAN.md section 3), read without building: `src/ntfs-3g_common.c` (`optionlist`, `parse_mount_options`, `ntfs_strappend_escaped`), `src/ntfs-3g.c` (mount flags from `recover`/`remove_hiberfile`), `libntfs-3g/volume.c` (read/write mount checks, `ntfs_logfile_reset`, `ntfs_volume_write_flags`), `ntfsprogs/*` (the only writers of `VOLUME_IS_DIRTY`) |

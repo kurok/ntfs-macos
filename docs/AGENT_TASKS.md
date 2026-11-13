@@ -13,7 +13,7 @@ Read [ARCHITECTURE.md](ARCHITECTURE.md) sections 1 to 5 before any task. Each ta
 | Env | A = Linux container, B = macOS VM, H = host (build and unit tests only, never a mount). |
 | Done | The acceptance test passes, a result file is written (TEST_STRATEGY.md section 10), and the commit touches only the listed files. A task that needs another file stops and asks the coordinator. |
 
-Hard rules for every task: no mount on the host; no write to a physical device; no `recover`, `remove_hiberfile`, `ntfsfix` without `-n` in automated code paths (only the fixture tools and the explicit repair command may differ, as stated in their tasks); no secrets in the repo.
+Hard rules for every task: no mount on the host; no write to a physical device; no `recover`, `remove_hiberfile`, `ntfsfix` without `-n` in automated code paths (only the fixture tools may differ, as stated in their tasks; the explicit repair command does not run `ntfsfix`, ADR-017); no disk-derived string used before the sanitiser (ADR-016); no secrets in the repo.
 
 ## M1 Groundwork
 
@@ -47,10 +47,10 @@ Hard rules for every task: no mount on the host; no write to a physical device; 
 | ID | Title | Role | Model | Depends | Files | Acceptance test | Size | Wave | Env |
 |---|---|---|---|---|---|---|---|---|---|
 | T-M3-00 | Freeze shared contracts: probe JSON schema, policy enum, journal API, worker option builder API | B | S | M2 gate | `include/ntfsmac/probe.h`, `include/ntfsmac/policy.h`, `include/ntfsmac/journal.h`, `include/ntfsmac/options.h`, `docs/schemas/probe.schema.json` | Headers compile; schema validates the example in ARCHITECTURE.md section 3.1 | S | a | H |
-| T-M3-01 | Establish NTFS-3G dirty-flag behaviour by source reading and test (U9) | E | S | T-M2-03 | `docs/spikes/M3-dirtyflag.md` | Note cites file and line for each finding; test shows `$Volume` flags before, during and after a read/write session and after `kill -9` | S | b | A |
+| T-M3-01 | Confirm by test the source finding that NTFS-3G never sets `VOLUME_IS_DIRTY` (U9), and that a `norecover` read/write session leaves the `$LogFile` restart area unchanged (U13) | E | S | T-M2-03 | `docs/spikes/M3-dirtyflag.md` | Note cites file and line for each finding; test shows `$Volume` flags and the restart-area bytes (incl. `current_lsn`) before, during and after a read/write session and after `kill -9` | S | b | A |
 | T-M3-02 | `ntfsmac-probe` (ARCHITECTURE.md section 3.1) | B | S+O | T-M3-00, T-M3-04 | `src/probe/*`, `tests/unit/probe/*` | `U-PROBE-*` all pass; image SHA-256 unchanged after every run; ASan clean. Opus review of check order and severity mapping | M | c | A, H |
-| T-M3-03 | Policy library and option builder (sections 3.2, 3.3; ADR-005) | B | S | T-M3-00 | `src/policy/*`, `src/options/*`, `tests/unit/policy/*` | `U-POL-*` pass, including the test that no input yields `recover` or `remove_hiberfile` | M | b | H, A |
-| T-M3-04 | Unsafe fixtures: dirty flag, unclean `$LogFile`, version-2 restart page, three hibernation variants, BitLocker signature, truncated image | D | S+O | T-M2-07 | `tests/fixtures/gen/unsafe.sh`, `tests/tools/setvolflags.c`, `tests/tools/logfile_mark.c`, `tests/tools/hiber_make.sh` | Linux `ntfs-3g -o norecover` refuses or falls back exactly as `volume.c` specifies for each fixture. Opus review of the `$LogFile` edit tool (multi-sector fix-ups) | M | b | A |
+| T-M3-03 | Policy library and option builder (sections 3.2, 3.3; ADR-005, ADR-017) | B | S | T-M3-00 | `src/policy/*`, `src/options/*`, `tests/unit/policy/*` | `U-POL-*` pass, including the test that no input yields `recover` or `remove_hiberfile`, every row with each journal state, the evidence rule (on and off), and the `journal-clear` and `repair` gates | M | b | H, A |
+| T-M3-04 | Unsafe fixtures: dirty flag, unclean `$LogFile`, version-2 restart page, three hibernation variants, BitLocker signature, truncated image; `logfile_mark --bump-lsn` (advances `current_lsn` in both restart areas, keeps the log clean) to simulate a Windows check | D | S+O | T-M2-07 | `tests/fixtures/gen/unsafe.sh`, `tests/tools/setvolflags.c`, `tests/tools/logfile_mark.c`, `tests/tools/hiber_make.sh` | Linux `ntfs-3g -o norecover` refuses or falls back exactly as `volume.c` specifies for each fixture; after `--bump-lsn` the image still mounts read/write with `norecover` and the probe reports the new LSN. Opus review of the `$LogFile` edit tool (multi-sector fix-ups) | M | b | A |
 | T-M3-05 | Functional operation suite (`I-FUNC-*`, `I-NAME-*`) | D | S | T-M2-08 | `tests/integration/functional/*` | Criteria 3.3 and 3.4 | M | b | B |
 | T-M3-06 | Metadata and timestamps (`I-META-*`) | D | S | T-M2-08 | `tests/integration/metadata/*` | Criterion 3.6 | S | b | B |
 | T-M3-07 | Read path at and across EOF, truncated files (`I-READ-*`) | D | S | T-M2-08 | `tests/integration/readpath/*` | Criterion 3.8 | S | b | B |
@@ -58,12 +58,14 @@ Hard rules for every task: no mount on the host; no write to a physical device; 
 | T-M3-09 | Large, sparse, compressed-file read/update (`I-BIG-*`) | D | S | T-M2-08 | `tests/integration/special/*` | Criterion 3.5; compressed fixture made on Linux reads back equal | S | b | B |
 | T-M3-10 | Patch 0002 (`F_FULLFSYNC`), raw versus buffered node, `sync` option cost, write-path trace (ADR-014, U10) | B | S+O | T-M2-06 | `third_party/patches/ntfs-3g/0002-*.patch`, `docs/spikes/M3-sync.md`, `tests/integration/sync/*` | Trace shows `F_FULLFSYNC` at each sync point; benchmark table for the three variants; Opus review of the patch | M | b | B |
 | T-M3-11 | `mmap` read and write tests, including `msync` and unmount with dirty mapped pages | D | S | T-M2-08 | `tests/integration/mmap/*` | Hashes equal after remount; behaviour on worker kill recorded | S | b | B |
-| T-M3-12 | On-disk dirty marker as a separate `libntfs-3g` step (ADR-006), only if T-M3-01 shows NTFS-3G does not do it | B | O | T-M3-01, T-M3-13 | `src/volmark/*`, `tests/unit/volmark/*` | Kill at every step leaves the volume either flagged or journalled; Windows-visible flag confirmed with `ntfsinfo -m` | M | d | A |
-| T-M3-13 | Session journal library (section 3.5) | B | S | T-M3-00 | `src/journal/*`, `tests/unit/journal/*` | `U-JRN-*` pass with process kill at each step | S | b | H, A |
+| T-M3-12 | `ntfsmac-volmark`: on-disk dirty marker `set`, `clear`, `clear-repair` (ADR-006 default plan, ARCHITECTURE.md section 3.6). When it passes, the coordinator enables the marker step and changes D3 from host-only | B | O | T-M3-01, T-M3-04, T-M3-10, T-M3-13 | `src/volmark/*`, `tests/unit/volmark/*` | `U-VMK-01..08` pass; kill at every step leaves the volume either flagged or journalled; flag confirmed with `ntfsinfo -m`; no bit other than `VOLUME_IS_DIRTY` changes (byte compare of `$Volume` record) | M | d | A |
+| T-M3-13 | Session journal library (section 3.5): entry fields, `marker`/`state` transitions, four removal paths, tombstones | B | S | T-M3-00 | `src/journal/*`, `tests/unit/journal/*` | `U-JRN-*` pass with process kill at each step | S | b | H, A |
 | T-M3-14 | Patch 0004 fault-injection device layer and crash-consistency sweeper | D | S+O | T-M2-01, T-M2-07 | `third_party/patches/ntfs-3g/0004-*.patch`, `tests/stress/crashsweep/*` | Criterion 3.9; release build proven not to contain the layer (`nm` check). Opus triage of any failing cut point | L | b | A |
 | T-M3-15 | Reference comparison: 12 operation scripts, Linux versus macOS tree dumps | D | S | T-M3-05 | `tests/compatibility/ref/*`, `tests/compatibility/expected-differences.md` | Criterion 3.10 | M | c | A, B |
 | T-M3-16 | Fuzz harnesses: probe; mount, walk and read; in-memory device ops; seed corpus from tiny fixtures | D | S | T-M3-02 | `tests/fuzz/*` | Criterion 3.11; crash triage file lists each finding with reproducer path | M | d | A |
-| T-M3-17 | M3 audit | E | O | all M3 | `docs/audits/M3.md` | Covers probe, policy, option builder, patches, journal and marker ordering; no open data-loss issue or a blocking list | M | e | A, B |
+| T-M3-18 | Patch 0006: device-error report line on `NTFSMAC_ERRFD` (ADR-018) | B | S+O | T-M3-10, T-M3-14 | `third_party/patches/ntfs-3g/0006-*.patch`, `tests/integration/errfd/*` | `I-ERR-01..03` pass; Linux reference suite still passes with the patched binary; Opus review of the patch | S | c | A, B |
+| T-M3-19 | Disk-string hardening: strict probe-verdict parser, label sanitiser, `argv_check()` (ADR-016); hostile-label fixtures | B | S+O | T-M3-00, T-M3-03 | `src/sanitize/*`, `tests/unit/sanitize/*`, `tests/fuzz/sanitize/*`, `tests/fixtures/gen/labels.sh` | `U-LABEL-*`, `U-ARGV-*`, `U-VERDICT-*` pass; `F-SANITIZE-*` 1 CPU-hour each without finding; Opus review of the allow-list and of `argv_check()` against `ntfs-3g`'s option parser | M | c | H, A |
+| T-M3-17 | M3 audit | E | O | all M3 | `docs/audits/M3.md` | Covers probe, policy, option builder, sanitiser and argv validator, patches (incl. 0006), journal and volmark ordering; no open data-loss issue or a blocking list | M | e | A, B |
 
 ## M4 macOS integration
 
@@ -72,16 +74,18 @@ Hard rules for every task: no mount on the host; no write to a physical device; 
 | T-M4-00 | Daemon skeleton: volume state machine, internal interfaces, stub modules that compile | C | S | T-M3-00 | `src/daemon/CMakeLists.txt`, `src/daemon/volume.c`, `src/daemon/internal.h`, `tests/unit/daemon/statemachine_*` | State machine unit tests cover every transition in ARCHITECTURE.md section 5 | M | a | H |
 | T-M4-01 | Spawn probe as `nobody` and worker as console user with inherited fd; supervise exit (U6) | C | S | T-M4-00, T-M2-05 | `src/daemon/spawn.c`, `tests/integration/daemon/spawn_*` | `I-DMN-09`; worker started from a root process mounts successfully as the user | M | b | B |
 | T-M4-02 | Disk Arbitration watcher, NTFS filter, mount-approval dissenter (U7) | C | S | T-M4-00 | `src/daemon/da.c`, `docs/spikes/M4-da.md` | Attaching an image triggers the callback; note states whether the dissenter stops Apple's read-only mount on 27.x and, if not, implements unmount-then-remount | M | b | B |
-| T-M4-03 | Unmount and eject flow, mount point lifecycle (section 4.5, U8) | C | S | T-M4-00 | `src/daemon/unmount.c`, `src/daemon/mountpoint.c` | `I-DMN-10..13` | M | b | B |
-| T-M4-04 | Control socket with peer authentication, and `ntfsmac` CLI (section 3.4) | C | S | T-M4-00 | `src/daemon/ctl.c`, `src/cli/*`, `tests/unit/ctl/*` | Requests from a non-console, non-admin uid are refused; malformed JSON never crashes the daemon (small fuzz loop) | M | b | H, B |
+| T-M4-03 | Unmount and eject flow, mount point lifecycle with sanitised leaf, `mkdirat` and collision suffixes (sections 4.1 step 7, 4.5; ADR-016; U8) | C | S | T-M4-00, T-M3-19 | `src/daemon/unmount.c`, `src/daemon/mountpoint.c` | `I-DMN-10..13`; `I-DMN-18` | M | b | B |
+| T-M4-04 | Control socket with peer authentication, and `ntfsmac` CLI (section 3.4); `journal_clear` and `repair` registered as `admin`-only stubs for T-M4-14 | C | S | T-M4-00 | `src/daemon/ctl.c`, `src/cli/*`, `tests/unit/ctl/*` | Requests from a non-console, non-admin uid are refused; `journal_clear`/`repair` from a non-`admin` console user are refused; malformed JSON never crashes the daemon (small fuzz loop) | M | b | H, B |
 | T-M4-05 | Restart reconciliation from journal and live mounts | C | S | T-M4-00, T-M3-13 | `src/daemon/reconcile.c` | `I-DMN-15` | S | b | B |
-| T-M4-06 | Sandbox profiles for probe and worker | C | S+O | T-M4-01 | `integration/sandbox/probe.sb`, `integration/sandbox/worker.sb`, `tests/integration/daemon/sandbox_*` | Worker cannot open `/etc/passwd`-class paths or sockets, can mount; Opus review of the profiles. If unworkable, record residual risk R-07 | S | c | B |
+| T-M4-06 | Sandbox profiles for probe, volmark and worker | C | S+O | T-M4-01 | `integration/sandbox/probe.sb`, `integration/sandbox/volmark.sb`, `integration/sandbox/worker.sb`, `tests/integration/daemon/sandbox_*` | Worker cannot open `/etc/passwd`-class paths or sockets, can mount; volmark and probe cannot open any path or socket; Opus review of the profiles. If unworkable, record residual risk R-07 | S | c | B |
 | T-M4-07 | Conflict detection, passive mode, `doctor` checks (section 8.4) | C | S | T-M4-00 | `src/daemon/conflict.c`, `src/daemon/doctor.c` | `I-DMN-17` | S | b | B |
-| T-M4-08 | Wire modules in `main.c`; launchd plist; notifications | C | S | T-M4-01..05, T-M4-07, T-M3-02, T-M3-03 | `src/daemon/main.c`, `integration/launchd/org.ntfs-macos.ntfsmacd.plist`, `src/daemon/notify.c` | `I-DMN-01..08` | M | d | B |
+| T-M4-08 | Wire modules in `main.c`; launchd plist; notifications | C | S | T-M4-01..05, T-M4-07, T-M4-13, T-M4-14, T-M3-02, T-M3-03 | `src/daemon/main.c`, `integration/launchd/org.ntfs-macos.ntfsmacd.plist`, `src/daemon/notify.c` | `I-DMN-01..08` | M | d | B |
 | T-M4-09 | Spike: legacy `/Library/Filesystems` bundle for `diskutil mount` support (ADR-003). Time box: one agent session | C | S | T-M4-08 | `docs/spikes/M4-fsbundle.md` | Recommendation with evidence; no product code | S | e | B |
 | T-M4-10 | Developer installer and uninstaller with manifest | C | S | T-M4-08 | `packaging/dev-install.sh`, `packaging/uninstall.sh`, `packaging/manifest.txt` | `I-PKG-01..02` | S | e | B |
-| T-M4-11 | Daemon integration tests and Finder tests | D | S | T-M4-08 | `tests/integration/daemon/dmn_*`, `tests/integration/finder/*` | Criteria 4.1 to 4.5, 4.7 | M | e | B |
-| T-M4-12 | M4 audit: privilege boundaries, option allow-list, socket authentication | E | S+O | all M4 | `docs/audits/M4.md` | No path from client input to a root-executed string or banned option | M | f | B |
+| T-M4-11 | Daemon integration tests and Finder tests, incl. the second-line test with a probe stub (`I-DMN-23`) | D | S | T-M4-08 | `tests/integration/daemon/dmn_*`, `tests/integration/finder/*` | Criteria 4.1 to 4.5, 4.7, 4.10 | M | e | B |
+| T-M4-13 | Error-channel watcher: pipe to the worker, session-failed handling, clean-unmount report only with zero records (ARCHITECTURE.md section 7, ADR-018) | C | S | T-M4-01, T-M3-13, T-M3-18 | `src/daemon/errwatch.c`, `tests/integration/daemon/errwatch_*` | `I-DMN-24` | S | c | B |
+| T-M4-14 | Session lifecycle: journal entry, `volmark set`/`clear` ordering, `ro` on volmark failure, journal evidence rule, `journal_clear` and `repair` requests and CLI commands (sections 3.4 to 3.6, ADR-017) | C | S+O | T-M4-01, T-M4-04, T-M3-03, T-M3-12, T-M3-13 | `src/daemon/session.c`, `src/daemon/ctl_journal.c`, `src/cli/cmd_journal.c`, `src/cli/cmd_repair.c`, `tests/integration/daemon/journal_*` | `I-DMN-19..22`; Opus review of the ordering against ARCHITECTURE.md section 3.6 | M | c | B |
+| T-M4-12 | M4 audit: privilege boundaries, option allow-list, socket authentication, disk-derived strings | E | S+O | all M4 | `docs/audits/M4.md` | No path from client or disk input to a root-executed string, a path outside `/Volumes`, or a banned option | M | f | B |
 
 ## M5 Validation
 
@@ -90,13 +94,13 @@ Hard rules for every task: no mount on the host; no write to a physical device; 
 | T-M5-01 | One-command suite per environment, result aggregation, README status table generator | D | S | M3, M4 | `scripts/test-all.sh`, `tests/harness/report.py`, `vm/macos/run-suite.sh` | Criterion 5.1 | M | a | A, B |
 | T-M5-02 | Soak and parallel workloads | D | S | T-M5-01 | `tests/stress/soak/*`, `tests/stress/parallel/*` | Criteria 5.2, 5.3 | M | b | B |
 | T-M5-03 | Leak detection run | D | S | T-M5-01 | `tests/stress/leaks/*` | Criterion 5.4 | S | b | B |
-| T-M5-04 | Disconnect simulation (force-detach image during write) | D | S | T-M5-01 | `tests/stress/disconnect/*` | Next mount read-only; image passes read-only checks; pre-synced files intact | S | b | B |
+| T-M5-04 | Disconnect simulation (force-detach image during write) | D | S | T-M5-01 | `tests/stress/disconnect/*` | Next mount read-only; image carries `VOLUME_IS_DIRTY` (once T-M3-12 has passed); image passes read-only checks; pre-synced files intact | S | b | B |
 | T-M5-05 | Kill tests: worker, daemon, macFUSE module process | D | S | T-M5-01 | `tests/stress/kill/*` | Criterion 4.4 repeated 20 times each without hang | S | b | B |
 | T-M5-06 | Low-space tests | D | S | T-M5-01 | `tests/stress/enospc/*` | Criterion 5.5 | S | b | B |
 | T-M5-07 | Benchmarks and Linux reference numbers | D | S | T-M5-01 | `tests/perf/*`, `docs/PERFORMANCE.md` | Criterion 5.6 | M | b | A, B |
 | T-M5-08 | Local CI runner `scripts/ci-local.sh` with `--quick` and full modes (TEST_STRATEGY.md section 9; no GitHub workflows, ADR-015) | D | S | T-M5-01 | `scripts/ci-local.sh` | Criterion 5.7 | M | b | CI |
 | T-M5-09 | Extended fuzz campaign (8 CPU-hours) and triage; upstream reports drafted, not sent without human approval | D | S+O | T-M3-16 | `tests/fuzz/findings/*`, `docs/SECURITY_FINDINGS.md` | Every crash classified: project code or engine, exploitable or not | M | b | A |
-| T-M5-10 | Hardware protocol document and execution with the human | D | S | H5, H6, H7 | `docs/HARDWARE_TEST_PROTOCOL.md`, `tests/results/hardware/*` | Criterion 5.8 | M | c | hardware |
+| T-M5-10 | Hardware protocol document and execution with the human, including `H-USB-08` (Windows `chkdsk` after an unclean session: records `current_lsn` and flags before and after, resolving U12) | D | S | H5, H6, H7 | `docs/HARDWARE_TEST_PROTOCOL.md`, `tests/results/hardware/*` | Criterion 5.8 | M | c | hardware |
 | T-M5-11 | M5 audit: look for tests that cannot fail, skipped cases, results not tied to a commit | E | O | all M5 | `docs/audits/M5.md` | Signed note or defect list | M | d | all |
 
 ## M6 Packaging
@@ -121,8 +125,8 @@ Hard rules for every task: no mount on the host; no write to a physical device; 
 
 | Use | Tasks |
 |---|---|
-| Review after Sonnet implementation | T-M2-03b (conditional), T-M3-02, T-M3-04, T-M3-10, T-M3-14, T-M4-06, T-M4-12, T-M5-09 |
-| Opus does the task | T-M3-12 (conditional), T-M3-17, T-M5-11, T-M7-01 |
+| Review after Sonnet implementation | T-M2-03b (conditional), T-M3-02, T-M3-04, T-M3-10, T-M3-14, T-M3-18, T-M3-19, T-M4-06, T-M4-12, T-M4-14, T-M5-09 |
+| Opus does the task | T-M3-12, T-M3-17, T-M5-11, T-M7-01 |
 | Escalation only | Any task after three failed Sonnet attempts; any reproducible hash mismatch |
 
 ## File ownership map (to prevent overlapping edits)
@@ -130,7 +134,10 @@ Hard rules for every task: no mount on the host; no write to a physical device; 
 | Area | Owner tasks |
 |---|---|
 | `include/ntfsmac/*.h` | T-M3-00 only; later changes are a coordinator-scheduled single task |
-| `third_party/patches/ntfs-3g/` | One patch file per task (0001: T-M2-03, 0002: T-M3-10, 0003: T-M2-05, 0004: T-M3-14, 0005: T-M2-03b) |
+| `third_party/patches/ntfs-3g/` | One patch file per task (0001: T-M2-03, 0002: T-M3-10, 0003: T-M2-05, 0004: T-M3-14, 0005: T-M2-03b, 0006: T-M3-18) |
+| `src/volmark/`, `src/sanitize/` | T-M3-12; T-M3-19 |
+| `tests/fuzz/` | `tests/fuzz/sanitize/` T-M3-19 (wave c); everything else T-M3-16 (wave d) |
+| `src/cli/` | T-M4-04; then `cmd_journal.c` and `cmd_repair.c` T-M4-14 |
 | `src/daemon/` | One source file per task as listed; `main.c` only T-M4-08 |
 | `tests/harness/` | T-M2-08, then T-M5-01 |
 | `tests/integration/<suite>/` | One directory per task |

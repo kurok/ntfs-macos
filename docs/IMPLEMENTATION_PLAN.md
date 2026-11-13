@@ -84,7 +84,7 @@ Source tags `[V:Sn]`, `[A]`, `[U]` are defined in [ARCHITECTURE.md](ARCHITECTURE
 | 5.4 | `leaks` on the worker after the functional suite reports zero leaks from project patches; engine leaks listed. | `S-LEAK-01`. |
 | 5.5 | Low space: filling the volume gives `ENOSPC`, no mismatch in pre-existing files, volume clean after unmount. | `S-NOSPC-01`. |
 | 5.6 | Performance report with sequential, random, small-file, directory-listing numbers for this product (VM), NTFS-3G on Linux (same image, same VM host), and CPU and memory use. Regressions above 2x against the Linux reference are explained. | `P-*`, `docs/PERFORMANCE.md`. |
-| 5.7 | CI green on GitHub Actions for the Linux jobs and the macOS build job. | Workflow runs. |
+| 5.7 | Full local CI run (`scripts/ci-local.sh`, TEST_STRATEGY.md section 9) green for Environments A and B and the host build. | Result file committed under `tests/results/` for the gate commit. |
 | 5.8 | Environment C protocol executed on disposable media: USB insert, read/write, eject, unplug during write, Windows `chkdsk` after each scenario. | `docs/HARDWARE_TEST_PROTOCOL.md` results, signed by the human. |
 
 **Exit gate M5:** 5.1 to 5.7 pass. 5.8 passes, or is recorded as "not done" and the release is labelled "VM-verified only, not production-ready" (brief section 9).
@@ -143,7 +143,7 @@ M3 and M4 run in parallel after the M2 gate: M3 work is in `src/probe`, `src/pol
 | H1 | Approve installing on the host: `cmake`, `ninja`, `pkgconf` (Homebrew), and the VM tool chosen in T-M1-04. | M1 | Host change; brief requires permission. |
 | H2 | Start a container runtime (Docker Desktop daemon) or approve installing Podman/colima. | M1 (Environment A) | Host change. |
 | H3 | In the golden macOS VM: enter the admin password for the macFUSE installer and enable the macFUSE file system extension in System Settings (General > Login Items & Extensions > File System Extensions [A: exact pane name to confirm on 27.2]). | M2 | GUI consent; scripted enabling is unknown (U3). One time per golden image. |
-| H4 | Confirm the GitHub repository visibility and that Actions minutes are free for it (macOS runners are billed at a multiple on private repositories). | M5 | Cost policy. |
+| H4 | Withdrawn 2026-11-13: the repository is public and the owner decided on no GitHub-hosted CI and no published binaries for now (ADR-015). Revisit only on the owner's request. | n/a | Owner decision. |
 | H5 | Provide disposable NTFS media (one USB flash drive, one USB HDD or SSD) and approve writes to them by serial number. | M5 (Environment C) | Brief: never write to physical media without approval. |
 | H6 | Provide a Windows 10/11 machine or VM to run `chkdsk` and to create real hibernated and Fast Startup volumes. | M5 | Licensing and hardware. |
 | H7 | Decide how to run hardware tests given Paragon NTFS on the host: a second Mac, an external macOS 27 boot volume, or disabling Paragon in its own settings for the test window. Agents will not disable it. | M5 | Third-party software on the user's machine. |

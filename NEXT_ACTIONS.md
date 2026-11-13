@@ -4,7 +4,6 @@
 
 1. **H1** — approve Homebrew installs on the host: `cmake`, `ninja`, `pkgconf`, and the VM tool (tart, pending T-M1-04 licence check).
 2. **H2** — start the Docker Desktop daemon (or approve Podman/colima) for the Linux environment.
-3. **H4** — confirm repo visibility; private repos pay a multiplier for GitHub Actions macOS minutes.
 
 ## Agent tasks ready now (no human dependency)
 

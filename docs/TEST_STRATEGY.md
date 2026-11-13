@@ -185,24 +185,26 @@ A failing cut point is not automatically a project bug: NTFS-3G has no journal, 
 
 Build: clang, `-fsanitize=fuzzer,address,undefined`, Environment A only. Mutation: generic byte mutation plus a custom mutator that re-computes multi-sector fix-ups so that mutated MFT records pass the first validity check and reach deeper code. Corpus and crashes live under `tests/fuzz/`; inputs are synthetic only.
 
-Budgets: 5 minutes per target in CI on each push; 1 CPU-hour per target for the M3 gate; 8 CPU-hours for M5 (local machine, 18 cores available).
+Budgets: 5 minutes per target in the local full CI run; 1 CPU-hour per target for the M3 gate; 8 CPU-hours for M5 (local machine, 18 cores available).
 
 Handling of findings: crashes in engine code are expected (four NTFS-3G security releases in 2026 [V:S10]). They are recorded in `docs/SECURITY_FINDINGS.md`, a report for the NTFS-3G maintainers is drafted, and sending it is a human decision. A finding reachable through a read-only mount of a crafted volume raises risk R-07 and is reviewed by Opus.
 
-## 9. Continuous integration
+## 9. Continuous integration (local only)
 
-| Job | Runner | Content | Blocking |
+There is no GitHub-hosted CI: no GitHub Actions workflows, no hosted runners and no binaries uploaded to GitHub (ADR-015). All checks run on the developer Mac through `scripts/ci-local.sh`, which wraps `scripts/test-all.sh`.
+
+| Stage | Where | Content | Blocking |
 |---|---|---|---|
-| `linux-build-test` | `ubuntu-latest` | Fetch pinned deps, build NTFS-3G and project (release, ASan, UBSan), unit tests, fixture generation, Linux reference suite with FUSE (`sudo` is available on hosted runners), probe tests on all fixtures | Yes |
-| `linux-crash-sweep-short` | `ubuntu-latest` | 50 cut points per workload | Yes |
-| `linux-fuzz-short` | `ubuntu-latest` | 5 minutes per target, corpus cached | Yes on crash in project code |
-| `static-analysis` | `ubuntu-latest` | `clang-tidy`, `cppcheck`, `shellcheck`, `-Wall -Wextra -Werror` on project code | Yes |
-| `macos-build` | GitHub's macOS 27 arm64 image (label `xcode-27` [V:S21]; confirm the label in the runner documentation when writing the workflow) | Build project code and NTFS-3G against macFUSE headers and libraries extracted from the verified package without installing it [A: extraction with `pkgutil --expand-full` gives usable headers and dylibs]; unit tests; unsigned package build | Yes |
-| `macos-mount-experiment` | same | Try to install macFUSE and mount. Expected to fail because the file system extension needs interactive approval and hosted runners are themselves VMs [A]. Kept non-blocking; if it ever passes it is promoted. | No |
+| `linux-build-test` | Environment A (local container) | Fetch pinned deps, build NTFS-3G and project (release, ASan, UBSan), unit tests, fixture generation, Linux reference suite with FUSE, probe tests on all fixtures | Yes |
+| `linux-crash-sweep-short` | Environment A | 50 cut points per workload | Yes |
+| `linux-fuzz-short` | Environment A | 5 minutes per target, corpus kept locally | Yes on crash in project code |
+| `static-analysis` | Environment A | `clang-tidy`, `cppcheck`, `shellcheck`, `-Wall -Wextra -Werror` on project code | Yes |
+| `macos-build` | Host (build only, never a mount) | Build project code and NTFS-3G against macFUSE headers and libraries extracted from the verified package without installing it [A: extraction with `pkgutil --expand-full` gives usable headers and dylibs]; unit tests; unsigned package build | Yes |
+| `macos-vm` | Environment B | Mount, integrity, stress, soak, performance and Finder tests | Yes for the stages a milestone gate names |
 
-Not in hosted CI: every Environment B mount test, stress, soak, performance, Finder tests. These run locally with `scripts/test-all.sh --env B`, and the result file is committed under `tests/results/` so that CI can check that a result exists for the commit being released (a `release-gate` job compares the SHA).
+When to run: `ci-local.sh --quick` (static analysis, unit tests, Linux build) before every push; the full run before each milestone gate and before a release. The result file for each run is committed under `tests/results/` (section 10), so every gate and release points at a recorded local run for the exact commit SHA.
 
-Cost control: Linux jobs on every push; `macos-build` on pull requests and `main` only; no scheduled workflows until H4 confirms the minutes are free.
+Build outputs, packages and release candidates stay on the local machine under `build/` and `dist/` (both git-ignored). Publishing binaries anywhere is a later, explicit human decision.
 
 ## 10. Recording results
 

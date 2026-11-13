@@ -239,3 +239,12 @@ Anything touching allocation, runlists, MFT or index code is out of scope for th
 **Reason.** Guarantee D1 depends on the drive cache being flushed; plain `fsync` on macOS does not do that.
 
 **Consequences.** Slower close on spinning USB disks. Measured and reported in the benchmark output.
+
+## ADR-015 Local-only CI and build artifacts
+
+**Context.** The owner decided on 2026-11-13 that, for the start of the project, nothing runs on GitHub: no GitHub Actions workflows, no macOS or Linux hosted runners, and no binaries uploaded as release assets or packages.
+
+**Decision.** All continuous integration runs locally through `scripts/ci-local.sh` (TEST_STRATEGY.md section 9) in Environment A (local container), Environment B (local macOS VM) and the host (build only). Result files are committed under `tests/results/`. Builds, packages and release candidates stay in git-ignored `build/` and `dist/` on the local machine. The repository holds source, docs and test results only.
+
+**Consequences.** No automatic checks on push or on outside pull requests; the coordinator runs `ci-local.sh --quick` before every push and the full run at each milestone gate. No hosted-CI cost (risk R-22). Human action H4 is withdrawn. Publishing CI or binaries later needs a new decision by the owner.
+

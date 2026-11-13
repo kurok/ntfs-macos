@@ -251,7 +251,7 @@ Threat: a malicious or corrupt NTFS volume (the user plugs in an untrusted USB d
 | Mount flags | FSKit mounts are `nodev,nosuid` by construction [A]. `uid`/`gid`/`fmask`/`dmask` map every file to the console user; the execute bit is cleared on files (`fmask=0133`). |
 | Supply chain | Dependencies pinned by version and SHA-256 in `third_party/deps.lock`; the macFUSE installer package signature is checked before use (IMPLEMENTATION_PLAN.md section 3). |
 | No system weakening | No kext, no SIP change, no Reduced Security, no replaced Apple binary. The installer writes only to `/Library/LaunchDaemons`, `/usr/local`, `/Library/Application Support/ntfs-macos`, `/var/db/ntfs-macos`. |
-| Hardening | Release build: hardened runtime, `-fstack-protector-strong`, `-D_FORTIFY_SOURCE=2`, `-ftrivial-auto-var-init=zero`. CI builds with ASan and UBSan (TEST_STRATEGY.md). |
+| Hardening | Release build: hardened runtime, `-fstack-protector-strong`, `-D_FORTIFY_SOURCE=2`, `-ftrivial-auto-var-init=zero`. Local CI builds with ASan and UBSan (TEST_STRATEGY.md section 9). |
 
 Residual risk: a worker compromise gives the attacker the console user's identity inside the sandbox plus write access to that one volume.
 
@@ -340,7 +340,7 @@ User-facing documentation must carry N1 to N5 verbatim in a "Limitations" sectio
 | `ntfsmac-probe`, `ntfsmacd`, `ntfsmac` | CMake + Ninja (ADR-007) | `/usr/local/libexec/ntfs-macos/`, `/usr/local/bin/ntfsmac` |
 | `org.ntfs-macos.ntfsmacd.plist` | static file | `/Library/LaunchDaemons/` |
 | sandbox profiles, default config | static files | `/Library/Application Support/ntfs-macos/` |
-| `ntfs-macos-<ver>.pkg`, `uninstall.sh` | `pkgbuild`/`productbuild` (present in base macOS) | release asset |
+| `ntfs-macos-<ver>.pkg`, `uninstall.sh` | `pkgbuild`/`productbuild` (present in base macOS) | local `dist/` only (ADR-015) |
 
 Target: arm64, deployment target macOS 27.0. External runtime prerequisite: macFUSE >= 5.5.0 installed by the user.
 

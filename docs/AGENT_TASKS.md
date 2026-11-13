@@ -94,7 +94,7 @@ Hard rules for every task: no mount on the host; no write to a physical device; 
 | T-M5-05 | Kill tests: worker, daemon, macFUSE module process | D | S | T-M5-01 | `tests/stress/kill/*` | Criterion 4.4 repeated 20 times each without hang | S | b | B |
 | T-M5-06 | Low-space tests | D | S | T-M5-01 | `tests/stress/enospc/*` | Criterion 5.5 | S | b | B |
 | T-M5-07 | Benchmarks and Linux reference numbers | D | S | T-M5-01 | `tests/perf/*`, `docs/PERFORMANCE.md` | Criterion 5.6 | M | b | A, B |
-| T-M5-08 | GitHub Actions workflows (TEST_STRATEGY.md section 9) | D | S | T-M5-01, H4 | `.github/workflows/*` | Criterion 5.7 | M | b | CI |
+| T-M5-08 | Local CI runner `scripts/ci-local.sh` with `--quick` and full modes (TEST_STRATEGY.md section 9; no GitHub workflows, ADR-015) | D | S | T-M5-01 | `scripts/ci-local.sh` | Criterion 5.7 | M | b | CI |
 | T-M5-09 | Extended fuzz campaign (8 CPU-hours) and triage; upstream reports drafted, not sent without human approval | D | S+O | T-M3-16 | `tests/fuzz/findings/*`, `docs/SECURITY_FINDINGS.md` | Every crash classified: project code or engine, exploitable or not | M | b | A |
 | T-M5-10 | Hardware protocol document and execution with the human | D | S | H5, H6, H7 | `docs/HARDWARE_TEST_PROTOCOL.md`, `tests/results/hardware/*` | Criterion 5.8 | M | c | hardware |
 | T-M5-11 | M5 audit: look for tests that cannot fail, skipped cases, results not tied to a commit | E | O | all M5 | `docs/audits/M5.md` | Signed note or defect list | M | d | all |

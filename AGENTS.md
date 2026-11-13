@@ -27,3 +27,5 @@ No Haiku, no Fable after Phase 1.
 - Don't claim macOS behavior from Linux-only tests.
 - Small, reviewable commits; tests with significant changes; no secrets.
 - Use git worktrees for parallel work; no two agents edit the same files.
+- Nothing runs on GitHub: no Actions workflows, no hosted runners, no uploaded binaries. CI is `scripts/ci-local.sh`; builds stay in local `build/` and `dist/` (ADR-015).
+- Commit identity is `kurok <22548029+kurok@users.noreply.github.com>`; no AI attribution lines anywhere.

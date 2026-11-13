@@ -1,6 +1,6 @@
 # Checkpoint
 
-- **Phase:** 1 complete (architecture). Milestone 1 implementation tasks not started.
+- **Phase:** M1 in progress. Done: T-M1-01, T-M1-02, T-M1-06 (audit: accept with fixes). Blocked on H1/H2: T-M1-03, T-M1-04, T-M1-05.
 - **Completed:**
   - Host and quota preflight (2026-11-13): macOS 27.2.1 arm64, Command Line Tools only (no Xcode),
     Docker CLI with no running daemon, no VM tool. Paragon NTFS and fuse-t 1.2.9 are installed;
@@ -16,7 +16,8 @@
   - Durability limited to volume sync points and clean unmount (ARCHITECTURE.md section 9).
   - 11 open unknowns in ARCHITECTURE.md section 11, each mapped to a task.
   - No mount tests on this host: Paragon NTFS claims NTFS volumes first. All mounts run in the VM.
-- **Last test results:** none (no code yet).
+- **Last test results:** `tests/unit/fetch/test_fetch_deps.sh` ALL PASSED (2026-11-13, host).
+- **Policy:** repo public; no GitHub-hosted CI or binaries (ADR-015); commits as `kurok` noreply.
 - **Git revision:** see `git log -1`.
 
 ## Resume

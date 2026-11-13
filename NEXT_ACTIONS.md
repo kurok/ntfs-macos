@@ -7,11 +7,14 @@
 
 ## Agent tasks ready now (no human dependency)
 
-| Task | What | Role |
-|------|------|------|
-| T-M1-01 | Licence files, SPDX policy, README licence section | C |
-| T-M1-02 | `deps.lock` + checksum-verifying fetch script (re-confirm NTFS-3G SHA-256) | C |
-| T-M1-06 | Independent audit of the six architecture docs; spot-check 15 sourced claims | E |
+Done: T-M1-01 (licences), T-M1-02 (deps lock, NTFS-3G digest confirmed), T-M1-06 (audit, `docs/audits/M1.md`).
+
+1. **Apply audit fixes 1-4 before M2** (docs/audits/M1.md section 6): volume-label sanitising in the
+   daemon, a defined way to clear the host journal, dirty marker (NTFS-3G never sets
+   `VOLUME_IS_DIRTY`; make ADR-006 phase 2 the plan), and durability wording. Design change with
+   data-loss impact: Opus 5.5.
+2. **Apply audit fixes 5-7** (missing tests, claim wording, structure): Sonnet 5.5.
+3. Independent re-check of the fixes by the audit role (Sonnet 5.5).
 
 ## Unblocked by H1/H2
 

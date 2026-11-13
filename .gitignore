@@ -11,3 +11,4 @@ dist/
 *.vhdx
 *.dmg
 vm/images/
+third_party/cache/

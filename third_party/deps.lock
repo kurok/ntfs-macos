@@ -1,0 +1,13 @@
+# deps.lock - single source of truth for downloaded dependencies.
+# Format: name version url sha256   (whitespace separated, one artifact per line)
+# Lines starting with # and blank lines are ignored.
+# Verified and consumed by scripts/fetch-deps.sh. Updating a pin is its own commit.
+
+# NTFS-3G + ntfsprogs. Digest re-confirmed (T-M1-02) three ways: release page body
+# (github.com/tuxera/ntfs-3g/releases/tag/2026.9.28), a fresh download, and this entry.
+ntfs-3g 2026.9.28 https://tuxera.com/opensource/ntfs-3g_ntfsprogs-2026.9.28.tgz 350d9415c59f7c3fa74e23985ad2d56423c6a168337368f672e2e362d8f295c8
+
+# macFUSE 5.5.0: trust on first use, needed only inside the VM. The SHA-256 and the expected
+# signer identity are recorded in T-M2-02 after the first verified download; until then no
+# line exists here and nothing downloads it.
+# macfuse 5.5.0 <pkg url from https://github.com/macfuse/macfuse/releases/tag/macfuse-5.5.0> <sha256 recorded in T-M2-02>

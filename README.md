@@ -29,9 +29,25 @@ definition of done. Progress is tracked in [CHECKPOINT.md](CHECKPOINT.md) and
 | `vm/` | Linux container and macOS VM test environments |
 | `scripts/` | Build and dev tooling |
 | `docs/` | Architecture, decisions, plan, test strategy, risks |
-| `LICENSES/` | Third-party licenses (NTFS-3G is GPL-2.0; macFUSE terms to be reviewed) |
+| `LICENSES/` | Licence texts (REUSE layout), SPDX policy, macFUSE notice |
 
-## License
+## Licence
 
-To be decided after the licensing review in Milestone 1 (NTFS-3G's GPL-2.0 constrains
-the options).
+All code in this repository is licensed under **GPL-2.0-or-later** (SPDX:
+`GPL-2.0-or-later`); see [COPYING](COPYING). The choice follows NTFS-3G, which is
+GPL-2.0-or-later and is linked into the probe and used as the worker (ADR-010 in
+[docs/TECHNICAL_DECISIONS.md](docs/TECHNICAL_DECISIONS.md)). Binary releases must
+offer the corresponding source, including the exact NTFS-3G tarball and patch
+series. Mac App Store distribution is out of scope.
+
+Every new source file starts with `SPDX-License-Identifier: GPL-2.0-or-later`.
+Code under `third_party/` keeps its own licence. Details are in
+[LICENSES/README.md](LICENSES/README.md).
+
+**macFUSE notice.** macFUSE is a prerequisite that you install yourself. It is not
+bundled with or downloaded by ntfs-macos, and it is not covered by this project's
+licence. Its terms restrict bundling and automated installation of its binaries
+with commercial software, and parts of it are closed source. Get it from the
+official site, <https://macfuse.github.io/>. See
+[LICENSES/LicenseRef-macFUSE-notice.txt](LICENSES/LicenseRef-macFUSE-notice.txt)
+and ADR-013.

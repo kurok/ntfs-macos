@@ -1,0 +1,13 @@
+.DS_Store
+build/
+dist/
+*.o
+*.a
+*.dylib
+*.dSYM/
+# test images are generated, never committed
+*.img
+*.vhd
+*.vhdx
+*.dmg
+vm/images/

@@ -91,12 +91,13 @@
         "fast_startup",
         "unsupported",
         "corrupt",
-        "unknown"
+        "unknown",
+        "mirror_split"
       ]
     },
     "reason_codes": {
       "type": "array",
-      "maxItems": 16,
+      "maxItems": 17,
       "uniqueItems": true,
       "items": {
         "type": "string",
@@ -116,7 +117,8 @@
           "HIBER_SHORT",
           "HIBER_UNREADABLE",
           "VERSION_UNKNOWN",
-          "CHECK_FAILED"
+          "CHECK_FAILED",
+          "MFTMIRR_STALE"
         ]
       }
     }

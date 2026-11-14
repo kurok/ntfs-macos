@@ -103,6 +103,7 @@ static void test_table(void)
 		{ NTFSMAC_PROBE_STATE_UNKNOWN, R(RO, KEEP, UNKNOWN), R(RO, KEEP, UNKNOWN) },
 		{ NTFSMAC_PROBE_STATE_CORRUPT, R(REFUSE, KEEP, REFUSED), R(REFUSE, KEEP, REFUSED) },
 		{ NTFSMAC_PROBE_STATE_UNSUPPORTED, R(REFUSE, KEEP, REFUSED), R(REFUSE, KEEP, REFUSED) },
+		{ NTFSMAC_PROBE_STATE_MIRROR_SPLIT, R(REFUSE, KEEP, MIRROR_SPLIT), R(REFUSE, KEEP, MIRROR_SPLIT) },
 	};
 	/* Clean rows: explicit per (journal case, mode, evidence switch). */
 	static const struct {
@@ -247,7 +248,7 @@ static void test_fail_closed(void)
 /*
  * U-POL-PROP: exhaustive enumeration over the enums (and a few field
  * variants). rw only for clean + no entry + auto; remove only on the
- * evidence row in auto; refuse only for corrupt and unsupported.
+ * evidence row in auto; refuse only for corrupt, unsupported and mirror_split.
  */
 static void test_property(void)
 {
@@ -306,7 +307,8 @@ static void test_property(void)
 			CHECK_EQ_INT(r.journal_action, NTFSMAC_POLICY_JOURNAL_REMOVE);
 		if (r.decision == NTFSMAC_POLICY_REFUSE)
 			CHECK(valid_mode && (st == (int)NTFSMAC_PROBE_STATE_CORRUPT ||
-					     st == (int)NTFSMAC_PROBE_STATE_UNSUPPORTED));
+					     st == (int)NTFSMAC_PROBE_STATE_UNSUPPORTED ||
+					     st == (int)NTFSMAC_PROBE_STATE_MIRROR_SPLIT));
 		if (!valid_mode || st < 0 || st >= (int)NTFSMAC_PROBE_STATE_COUNT_) {
 			CHECK_EQ_INT(r.decision, NTFSMAC_POLICY_RO);
 			CHECK_EQ_INT(r.note, NTFSMAC_POLICY_NOTE_UNKNOWN);

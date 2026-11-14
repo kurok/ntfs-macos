@@ -63,7 +63,9 @@ typedef enum ntfsmac_policy_note {
 	NTFSMAC_POLICY_NOTE_UNCLEAN_LOG,          /* unclean_log */
 	NTFSMAC_POLICY_NOTE_HIBERNATED,           /* hibernated or fast_startup */
 	NTFSMAC_POLICY_NOTE_UNKNOWN,              /* unknown (and any invalid input) */
-	NTFSMAC_POLICY_NOTE_REFUSED               /* corrupt or unsupported */
+	NTFSMAC_POLICY_NOTE_REFUSED,              /* corrupt or unsupported */
+	NTFSMAC_POLICY_NOTE_MIRROR_SPLIT          /* mirror_split: refused; text names
+	                                           * `repair --sync-mirror` and chkdsk (ADR-021) */
 } ntfsmac_policy_note;
 
 /*
@@ -72,7 +74,7 @@ typedef enum ntfsmac_policy_note {
  * `journal` is the entry for the verdict's serial, or NULL if none (the
  * "Journal entry for this serial" column). `evidence_rule_enabled` is the
  * configuration switch of section 3.5 ("compiled in but disabled by
- * configuration" until U12 and U13 are resolved); when false the evidence rule
+ * configuration" until U12 is resolved; U13 was confirmed by T-M3-01); when false the evidence rule
  * never holds. The evidence itself is computed here, from the verdict and the
  * entry, by ntfsmac_policy_evidence_holds().
  */

@@ -170,7 +170,7 @@
     },
     {
       "option": "streams_interface=none",
-      "note": "accepted; every xattr call fails with ENOTSUP; this is also the default"
+      "note": "accepted; every xattr call fails with ENOTSUP; this is also the default, which is why it is classed ignored. It is an allowed value (streams_interface_values.allowed): argv_check() accepts it, no streams are exposed; the builder emits openxattr"
     },
     {
       "option": "streams_interface=windows",

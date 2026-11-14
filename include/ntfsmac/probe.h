@@ -33,9 +33,13 @@ extern "C" {
 /* Label: at most 512 bytes of UTF-8 (section 3.1 grammar), no NUL. */
 #define NTFSMAC_PROBE_LABEL_MAX_BYTES 512u
 
-/* Section 3.1: at most 9 volume_flags, at most 16 reason_codes. */
+/*
+ * Section 3.1: at most 9 volume_flags, at most 17 reason_codes. Each cap
+ * equals the length of its list, so a verdict can carry every member once.
+ * The reason cap was 16 until MFTMIRR_STALE was added (ADR-021).
+ */
 #define NTFSMAC_PROBE_MAX_VOLUME_FLAGS 9
-#define NTFSMAC_PROBE_MAX_REASON_CODES 16
+#define NTFSMAC_PROBE_MAX_REASON_CODES 17
 
 /*
  * Enum lists as X-macros: X(IDENTIFIER, "wire string"). The wire strings are
@@ -43,7 +47,10 @@ extern "C" {
  * list exactly these strings.
  */
 
-/* `state` (section 3.1), in the order the document lists them. */
+/*
+ * `state` (section 3.1), in the order the document lists them; `mirror_split`
+ * (ADR-021) is appended so that the earlier values keep their numbers.
+ */
 #define NTFSMAC_PROBE_STATE_LIST(X)         \
 	X(CLEAN, "clean")                   \
 	X(DIRTY_FLAG, "dirty_flag")         \
@@ -52,7 +59,8 @@ extern "C" {
 	X(FAST_STARTUP, "fast_startup")     \
 	X(UNSUPPORTED, "unsupported")       \
 	X(CORRUPT, "corrupt")               \
-	X(UNKNOWN, "unknown")
+	X(UNKNOWN, "unknown")               \
+	X(MIRROR_SPLIT, "mirror_split")
 
 /* `logfile` (section 3.1). */
 #define NTFSMAC_PROBE_LOGFILE_LIST(X)           \
@@ -81,9 +89,9 @@ extern "C" {
 	X(UNKNOWN_BITS, "UNKNOWN_BITS")
 
 /*
- * `reason_codes` members: the fixed list of section 3.1. The document gives
- * these 16 "for example" and the same number as the cap; this header freezes
- * exactly these 16 (ambiguity A1 in the T-M3-00 report). Adding a code is a
+ * `reason_codes` members: the normative list of section 3.1 (ambiguity A1 of
+ * the T-M3-00 report resolved: the list is closed). MFTMIRR_STALE was added
+ * with state `mirror_split` (ADR-021). Adding a code is a
  * coordinator-scheduled change to this header and to the schema together.
  * Text for each code lives in the daemon and the CLI, never in the probe.
  */
@@ -103,7 +111,8 @@ extern "C" {
 	X(HIBER_SHORT, "HIBER_SHORT")                           \
 	X(HIBER_UNREADABLE, "HIBER_UNREADABLE")                 \
 	X(VERSION_UNKNOWN, "VERSION_UNKNOWN")                   \
-	X(CHECK_FAILED, "CHECK_FAILED")
+	X(CHECK_FAILED, "CHECK_FAILED")                         \
+	X(MFTMIRR_STALE, "MFTMIRR_STALE")
 
 typedef enum ntfsmac_probe_state {
 #define X(id, str) NTFSMAC_PROBE_STATE_##id,
@@ -248,9 +257,9 @@ const char *ntfsmac_probe_reason_name(ntfsmac_probe_reason r);
 
 /*
  * Severity rank for the "most severe finding" rule of section 3.1:
- * unsupported > corrupt > hibernated > fast_startup > unclean_log >
- * dirty_flag > unknown > clean. Higher is more severe; -1 for an
- * out-of-range value.
+ * unsupported > corrupt > mirror_split > hibernated > fast_startup >
+ * unclean_log > dirty_flag > unknown > clean. Higher is more severe; -1 for
+ * an out-of-range value.
  */
 int ntfsmac_probe_state_severity(ntfsmac_probe_state s);
 

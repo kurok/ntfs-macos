@@ -9,7 +9,7 @@ An unknown keyword in the schema fails the test, so the validator cannot
 silently skip a constraint.
 
 Checks:
-  1. the example of ARCHITECTURE.md section 3.1 (alternatives picked) validates;
+  1. the example of ARCHITECTURE.md section 3.1 validates;
   2. a few more valid documents validate;
   3. negative documents (bad serial, unknown reason code, missing key, ...) fail;
   4. the enum lists of the schema equal the X-macro lists of probe.h;
@@ -132,8 +132,9 @@ def loads_strict(text):
 
 
 def doc_example(architecture_md):
-    """The JSON block that follows 'schema version 1' in section 3.1, with
-    each `"a | b | c"` alternative replaced by one concrete value."""
+    """The JSON block that follows 'schema version 1' in section 3.1. The
+    block is concrete JSON; an older `"a | b | c"` alternative, if one is ever
+    reintroduced, is replaced by one concrete value."""
     sec = architecture_md.split("### 3.1 Safety probe interface", 1)[1]
     block = re.search(r"```json\n(.*?)\n```", sec, re.S).group(1)
     # The example lists DIRTY and FLAG_DIRTY, so the consistent choice is
@@ -206,7 +207,7 @@ class ProbeSchema(unittest.TestCase):
     def test_all_flags_and_codes_at_the_caps(self):
         flags = xmacro_strings(self.header, "NTFSMAC_PROBE_VOLFLAG_LIST")
         codes = xmacro_strings(self.header, "NTFSMAC_PROBE_REASON_LIST")
-        self.assertEqual((len(flags), len(codes)), (9, 16))
+        self.assertEqual((len(flags), len(codes)), (9, 17))
         self.ok(self.mutated(volume_flags=flags, reason_codes=codes))
 
     # --- negative ---------------------------------------------------------
@@ -290,7 +291,16 @@ class ProbeSchema(unittest.TestCase):
             with self.subTest(macro=macro):
                 self.assertEqual(xmacro_strings(self.header, macro), enum)
         self.assertEqual(props["volume_flags"]["maxItems"], 9)
-        self.assertEqual(props["reason_codes"]["maxItems"], 16)
+        self.assertEqual(props["reason_codes"]["maxItems"], 17)
+
+    def test_mirror_split_validates(self):
+        # ADR-021: the probe could not read the log through the overlay view
+        # in this example, so logfile is unreadable and the LSN null.
+        self.ok(self.mutated(state="mirror_split", volume_flags=["DIRTY"],
+                             reason_codes=["MFTMIRR_STALE", "FLAG_DIRTY"]))
+        self.ok(self.mutated(state="mirror_split", volume_flags=[], logfile="unreadable",
+                             logfile_lsn=None, reason_codes=["MFTMIRR_STALE", "LOG_UNREADABLE"]))
+        self.bad(self.mutated(state="mirror_split", reason_codes=[]), "reason_codes")
 
 
 if __name__ == "__main__":

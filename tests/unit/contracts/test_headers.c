@@ -22,11 +22,11 @@
 	} while (0)
 
 /* Section 3.1 counts. */
-_Static_assert(NTFSMAC_PROBE_STATE_COUNT_ == 8, "8 states");
+_Static_assert(NTFSMAC_PROBE_STATE_COUNT_ == 9, "9 states (mirror_split, ADR-021)");
 _Static_assert(NTFSMAC_PROBE_LOGFILE_COUNT_ == 4, "4 logfile values");
 _Static_assert(NTFSMAC_PROBE_HIBERFILE_COUNT_ == 4, "4 hiberfile values");
 _Static_assert(NTFSMAC_PROBE_VOLFLAG_COUNT_ == NTFSMAC_PROBE_MAX_VOLUME_FLAGS, "9 volume flags");
-_Static_assert(NTFSMAC_PROBE_REASON_COUNT_ == NTFSMAC_PROBE_MAX_REASON_CODES, "16 reason codes");
+_Static_assert(NTFSMAC_PROBE_REASON_COUNT_ == NTFSMAC_PROBE_MAX_REASON_CODES, "17 reason codes");
 _Static_assert(NTFSMAC_PROBE_REASON_COUNT_ <= 32, "reason set fits uint32_t");
 
 /* Section 3.5 names: 16 hex; ".<16>.tmp"; "<16>-<YYYYMMDDTHHMMSSZ>". */
@@ -82,6 +82,8 @@ int main(void)
 	for (i = 0; i + 1 < NTFSMAC_PROBE_REASON_COUNT_; i++)
 		CHECK(strcmp(k_reason_names[i], k_reason_names[i + 1]) != 0);
 	CHECK(NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_CHECK_FAILED) == UINT32_C(1) << 15);
+	CHECK(NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_MFTMIRR_STALE) == UINT32_C(1) << 16);
+	CHECK(strcmp(k_state_names[NTFSMAC_PROBE_STATE_MIRROR_SPLIT], "mirror_split") == 0);
 	CHECK(NTFSMAC_PROBE_VOLFLAG_BIT(NTFSMAC_PROBE_VOLFLAG_UNKNOWN_BITS) == UINT32_C(1) << 8);
 
 	memset(&v, 0, sizeof(v));

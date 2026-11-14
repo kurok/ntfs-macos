@@ -109,6 +109,10 @@ ntfsmac_policy_result ntfsmac_policy_decide(const ntfsmac_policy_input *in)
 	case NTFSMAC_PROBE_STATE_CORRUPT:
 		return make_result(NTFSMAC_POLICY_REFUSE, NTFSMAC_POLICY_JOURNAL_KEEP,
 				   NTFSMAC_POLICY_NOTE_REFUSED);
+	case NTFSMAC_PROBE_STATE_MIRROR_SPLIT:
+		/* ADR-021: refused, no read-only mount; only the note differs. */
+		return make_result(NTFSMAC_POLICY_REFUSE, NTFSMAC_POLICY_JOURNAL_KEEP,
+				   NTFSMAC_POLICY_NOTE_MIRROR_SPLIT);
 	case NTFSMAC_PROBE_STATE_UNKNOWN:
 	case NTFSMAC_PROBE_STATE_COUNT_:
 	default:

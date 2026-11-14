@@ -30,7 +30,7 @@ Case names are those of the log (`=== CASE <name>`, or `=== ECHO echo-<option>`,
 |---|---|---|---|---|
 | `backend=fskit` | E | `baseline`: mounts as `/dev/disk6s1 on ... (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)`. `backend-missing`, `backend-bogus`: exit 0, no mount for 15 s, `Mounted ... (Read-Write ...)` printed in the foreground and then it waits; SIGKILL needed | none (silent) | Keep, mandatory. Any other value behaves as absent. `argv_check()` rule 5 already fixes `backend=fskit` |
 | `local` | E | `baseline` source `/dev/disk6s1` and flag `local`; `local-absent`: source `macfuse://F18DF045-...`, no `local` flag | none | Keep |
-| `norecover` | E (by source) | Consumed by the engine (`ctx->recover = FALSE`, echo shows it is not passed on). It acts only when `$LogFile` is unclean: `volume.c` then falls back to read-only (`unclean_journal_msg`). The clean fixture cannot show it; needs the `unclean-log` fixture. `norecover-dirty-volume`: SIGKILL of a read/write driver leaves a volume that remounts read/write with `norecover` and passes `ntfsfix -n`, so NTFS-3G itself sets no dirty flag at mount | none | Keep, mandatory. Add a macOS case to the `unclean-log` fixture test (T-M3-12 / fixtures) |
+| `norecover` | E (by source) | Consumed by the engine (`ctx->recover = FALSE`, echo shows it is not passed on). It acts only when `$LogFile` is unclean: `volume.c` then falls back to read-only (`unclean_journal_msg`). The clean fixture cannot show it; needs the `unclean-log` fixture. `norecover-dirty-volume`: SIGKILL of a read/write driver leaves a volume that remounts read/write with `norecover` and passes `ntfsfix -n`, so NTFS-3G itself sets no dirty flag at mount | none | Keep, mandatory. Add a macOS case to the `unclean-log` fixture test (T-M3-12 / fixtures). See T-M3-01. |
 | `noatime` | E | `atime-reference`, `noatime`: on-disk atime of `/boundary/c.bin` (`ntfsinfo -F`) stays `11:38:33`; `atime` and `relatime`: becomes the read time. `stat` through the mount shows `11:38` in all cases (the backend does not expose atime changes, `touch -a -t` has no effect) | none | Keep; effect is only on disk and is not visible in macOS |
 | `windows_names` | E | `windows_names-off`: `a:b`, `CON`, `aux.txt`, `trail.`, `sp `, `q?x`, `a"b`, `lt<x`, `a*b`, `pipe\|x` all created. `windows_names-on`: all ten fail with `Invalid argument` (EINVAL) | `Invalid argument` | Keep. State in the user docs that such names cannot be created on the volume |
 | `big_writes` | I | Echo: consumed by the engine, not passed to libfuse. 5 GiB image with `debug`: with and without it the driver sees 16 writes of 1048576 bytes (plus 2 of 36 bytes) and `max_write=0x02000000`. Timing 256 MiB dd + sync, on: 0.27/0.33/0.26 s, off: 0.38/0.19/0.28 s | none | Drop from "Always" (no effect; below 4 GiB the engine would not apply it either). R-10 must not rely on it |
@@ -115,7 +115,7 @@ Case names are those of the log (`=== CASE <name>`, or `=== ECHO echo-<option>`,
 
 ## What this spike did not show
 
-- `norecover` on an unclean `$LogFile` (no such fixture exists yet; only the source path is cited).
+- `norecover` on an unclean `$LogFile` (no such fixture exists yet; only the source path is cited). See T-M3-01.
 - The Finder-visible volume name and `nobrowse`, which need a `/Volumes/<leaf>` mount and a Finder session.
 - `blkdev`/`blksize` on a real block device (T-M2-05) and `efs_raw` on an encrypted file.
 - Any mount of a volume larger than the 5 GiB sparse image, or with real contents there.

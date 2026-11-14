@@ -14,9 +14,10 @@
  * re-check), integration/mount-options.json (machine-readable allow-list).
  *
  * The builder (src/options/, T-M3-03) is the only producer of the worker
- * vector. argv_check() (src/sanitize/, T-M3-19) is written independently
- * against the same specification and re-parses the vector before every
- * posix_spawn. Declarations only.
+ * vector. argv_check() (src/options/argv_check.c, T-M3-03; reused, not
+ * duplicated, by T-M3-19) is a separate implementation of the same
+ * specification and re-parses the vector before every posix_spawn.
+ * Declarations only.
  *
  * The vector is exactly (rule 1):
  *   [0] worker path (install manifest)

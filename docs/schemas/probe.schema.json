@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ntfs-macos.invalid/schemas/probe.schema.json",
+  "title": "ntfsmac-probe verdict, schema version 1",
+  "description": "Field grammar of docs/ARCHITECTURE.md section 3.1 (T-M3-00). Not expressible in JSON Schema and enforced by the strict parser in src/sanitize/ (ADR-016): input at most 64 KiB; valid UTF-8; no \\u0000 anywhere; no duplicate keys; numbers without sign, fraction, exponent or leading zero; label at most 512 BYTES of UTF-8 (maxLength here counts characters, so it is only a necessary bound); nesting depth at most 2. The enum lists must equal the X-macro lists in include/ntfsmac/probe.h (checked by tests/unit/contracts).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "is_ntfs",
+    "ntfs_version",
+    "label",
+    "serial",
+    "total_sectors",
+    "cluster_size",
+    "sector_size",
+    "volume_flags",
+    "logfile",
+    "logfile_lsn",
+    "hiberfile",
+    "bitlocker",
+    "state",
+    "reason_codes"
+  ],
+  "properties": {
+    "schema": { "const": 1 },
+    "is_ntfs": { "type": "boolean" },
+    "bitlocker": { "type": "boolean" },
+    "ntfs_version": {
+      "oneOf": [
+        { "type": "string", "pattern": "^[1-3]\\.[0-9]$" },
+        { "type": "null" }
+      ]
+    },
+    "label": {
+      "type": "string",
+      "maxLength": 512,
+      "pattern": "^[^\\u0000]*$"
+    },
+    "serial": { "type": "string", "pattern": "^0x[0-9A-F]{16}$" },
+    "total_sectors": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9223372036854775807
+    },
+    "cluster_size": {
+      "type": "integer",
+      "enum": [512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576, 2097152]
+    },
+    "sector_size": { "type": "integer", "enum": [512, 1024, 2048, 4096] },
+    "volume_flags": {
+      "type": "array",
+      "maxItems": 9,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "DIRTY",
+          "RESIZE_LOG_FILE",
+          "UPGRADE_ON_MOUNT",
+          "MOUNTED_ON_NT4",
+          "DELETE_USN_UNDERWAY",
+          "REPAIR_OBJECT_ID",
+          "CHKDSK_UNDERWAY",
+          "MODIFIED_BY_CHKDSK",
+          "UNKNOWN_BITS"
+        ]
+      }
+    },
+    "logfile": {
+      "type": "string",
+      "enum": ["clean", "unclean", "v2_fast_startup", "unreadable"]
+    },
+    "logfile_lsn": {
+      "oneOf": [
+        { "type": "string", "pattern": "^0x[0-9A-F]{16}$" },
+        { "type": "null" }
+      ]
+    },
+    "hiberfile": {
+      "type": "string",
+      "enum": ["absent", "inactive", "hibernated", "unreadable"]
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "clean",
+        "dirty_flag",
+        "unclean_log",
+        "hibernated",
+        "fast_startup",
+        "unsupported",
+        "corrupt",
+        "unknown"
+      ]
+    },
+    "reason_codes": {
+      "type": "array",
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "NOT_NTFS",
+          "BITLOCKER",
+          "MOUNT_FAILED",
+          "FLAG_DIRTY",
+          "FLAG_CHKDSK_UNDERWAY",
+          "FLAG_PENDING_WORK",
+          "FLAG_UNKNOWN_BITS",
+          "LOG_UNCLEAN",
+          "LOG_V2",
+          "LOG_UNREADABLE",
+          "HIBER_SIGNATURE",
+          "HIBER_WAKE",
+          "HIBER_SHORT",
+          "HIBER_UNREADABLE",
+          "VERSION_UNKNOWN",
+          "CHECK_FAILED"
+        ]
+      }
+    }
+  },
+  "allOf": [
+    {
+      "description": "logfile_lsn is null if and only if logfile is unreadable (section 3.1 grammar table).",
+      "if": { "properties": { "logfile": { "const": "unreadable" } }, "required": ["logfile"] },
+      "then": { "properties": { "logfile_lsn": { "type": "null" } } },
+      "else": { "properties": { "logfile_lsn": { "type": "string" } } }
+    },
+    {
+      "description": "Cross-field rule (section 3.1): state clean with non-empty reason_codes, or a non-clean state with an empty one, is invalid.",
+      "if": { "properties": { "state": { "const": "clean" } }, "required": ["state"] },
+      "then": { "properties": { "reason_codes": { "maxItems": 0 } } },
+      "else": { "properties": { "reason_codes": { "minItems": 1 } } }
+    }
+  ]
+}

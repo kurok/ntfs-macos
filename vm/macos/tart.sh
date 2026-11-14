@@ -4,7 +4,7 @@
 # Usage: vm/macos/tart.sh pull
 #        vm/macos/tart.sh clone NAME
 #        vm/macos/tart.sh run NAME [--disk FILE[:opts]]...   (opts: ro, sync=none, comma-separated)
-#        vm/macos/tart.sh ssh NAME -- CMD...
+#        vm/macos/tart.sh exec NAME -- CMD...   (alias: ssh; transport from NTFSMAC_TRANSPORT=exec|ssh)
 #        vm/macos/tart.sh stop NAME
 #        vm/macos/tart.sh delete NAME
 #        vm/macos/tart.sh selftest
@@ -22,6 +22,9 @@ here=$(cd "$(dirname "$0")" && pwd)
 STATE=${NTFSMAC_STATE:-$HOME/.cache/ntfsmac-vm}
 IMAGE="$GUEST_IMAGE_REPO@$GUEST_IMAGE_DIGEST"
 SSH_WAIT=${NTFSMAC_SSH_WAIT:-240}
+# Guest transport: "exec" (tart guest agent over virtio, no host network; default) or "ssh".
+TRANSPORT=${NTFSMAC_TRANSPORT:-exec}
+case $TRANSPORT in exec|ssh) ;; *) echo "tart.sh: error: NTFSMAC_TRANSPORT must be exec or ssh" >&2; exit 1 ;; esac
 mkdir -p "$STATE"
 
 die() { echo "tart.sh: error: $*" >&2; exit 1; }
@@ -65,6 +68,19 @@ guest_ssh() { # guest_ssh IP [ssh-flags] -- CMD...  (flags before IP not support
 
 vm_ip() { tart ip --wait 5 "$1" 2>/dev/null; }
 
+# guest VM CMD...: run CMD (joined with spaces, as ssh does) in the guest's shell.
+# exec needs the tart guest agent in the image; ssh needs host-to-guest networking,
+# which macOS Local Network privacy can block for the calling app.
+guest() {
+    local vm=$1; shift
+    if [ "$TRANSPORT" = exec ]; then
+        tart exec "$vm" /bin/sh -c "$*" </dev/null
+    else
+        local ip; ip=$(vm_ip "$vm") || { echo "tart.sh: $vm has no IP" >&2; return 255; }
+        guest "$vm" "$*" </dev/null
+    fi
+}
+
 cmd_pull() {
     local v
     v=$(tart --version)
@@ -99,13 +115,19 @@ cmd_run() {
     nohup tart run --no-graphics --no-audio --no-clipboard "${args[@]+"${args[@]}"}" "$vm" \
         >"$logf" 2>&1 </dev/null &
     echo $! > "$pidf"
-    log "started $vm (pid $(cat "$pidf"), log $logf); waiting for SSH"
+    log "started $vm (pid $(cat "$pidf"), log $logf); waiting for guest ($TRANSPORT)"
     local ip="" t0; t0=$(date +%s)
     while :; do
         kill -0 "$(cat "$pidf")" 2>/dev/null || { tail -5 "$logf" >&2; die "tart run exited early"; }
         [ -n "$ip" ] || ip=$(vm_ip "$vm" || true)
-        if [ -n "$ip" ] && guest_ssh "$ip" -n true 2>/dev/null; then break; fi
-        [ $(( $(date +%s) - t0 )) -lt "$SSH_WAIT" ] || die "no SSH after ${SSH_WAIT}s (ip='${ip}'). If ping/nc to that IP says 'No route to host' while the lease exists, the calling app probably lacks macOS Local Network permission (System Settings > Privacy & Security > Local Network); see vm/macos/README.md"
+        # perl alarm: tart exec can hang when no agent answers yet.
+        if { perl -e 'alarm shift; exec @ARGV or exit 127' 15 "$0" exec "$vm" -- true >/dev/null 2>&1; } 2>/dev/null; then break; fi
+        if [ $(( $(date +%s) - t0 )) -ge "$SSH_WAIT" ]; then
+            if [ "$TRANSPORT" = exec ]; then
+                die "no guest agent after ${SSH_WAIT}s (ip='${ip}'). The image needs the tart guest agent (macos-*-base images have it); see vm/macos/README.md"
+            fi
+            die "no SSH after ${SSH_WAIT}s (ip='${ip}'). If the lease exists but nothing answers, the calling app probably lacks macOS Local Network permission; use NTFSMAC_TRANSPORT=exec or see vm/macos/README.md"
+        fi
         sleep 3
     done
     log "$vm up at $ip after $(( $(date +%s) - t0 ))s"
@@ -115,8 +137,7 @@ cmd_run() {
 cmd_ssh() {
     local vm; vm=$(vmname "${1:-}"); shift || true
     [ "${1:-}" = "--" ] && shift
-    local ip; ip=$(vm_ip "$vm") || die "$vm has no IP (not running?)"
-    guest_ssh "$ip" "$@"
+    guest "$vm" "$@"
 }
 
 cmd_stop() {
@@ -177,31 +198,31 @@ cmd_selftest() {
     local ip
     ip=$(cmd_run "$vm" --disk "$d1" --disk "$d2:ro" | tail -1)
     echo "guest IP: $ip"
-    echo "-- sw_vers"; local sw; sw=$(guest_ssh "$ip" sw_vers); echo "$sw"
-    echo "-- uname -m"; local arch; arch=$(guest_ssh "$ip" uname -m); echo "$arch"
+    echo "-- sw_vers"; local sw; sw=$(guest "$vm" sw_vers); echo "$sw"
+    echo "-- uname -m"; local arch; arch=$(guest "$vm" uname -m); echo "$arch"
     check "guest is macOS 27.x" grep -q 'ProductVersion:[[:space:]]*27\.' <<<"$sw"
     check "guest arch arm64" [ "$arch" = arm64 ]
 
     echo "-- FSKit probe"
-    guest_ssh "$ip" 'systemextensionsctl list 2>&1 | head -20' || true
-    guest_ssh "$ip" 'echo "pluginkit fskit.fsmodule:"; pluginkit -m -A -p com.apple.fskit.fsmodule 2>&1 | head -20; echo "(exit $?)"' || true
-    guest_ssh "$ip" 'ls /System/Library/Frameworks/FSKit.framework >/dev/null 2>&1 && echo "FSKit.framework: present" || echo "FSKit.framework: not on disk (dyld cache only?)"; ls -d /System/Library/ExtensionKit/Extensions/*FS* /Library/Filesystems/* 2>/dev/null | head; echo "fskitd:"; pgrep -lf fskitd || true'
+    guest "$vm" 'systemextensionsctl list 2>&1 | head -20' || true
+    guest "$vm" 'echo "pluginkit fskit.fsmodule:"; pluginkit -m -A -p com.apple.fskit.fsmodule 2>&1 | head -20; echo "(exit $?)"' || true
+    guest "$vm" 'ls /System/Library/Frameworks/FSKit.framework >/dev/null 2>&1 && echo "FSKit.framework: present" || echo "FSKit.framework: not on disk (dyld cache only?)"; ls -d /System/Library/ExtensionKit/Extensions/*FS* /Library/Filesystems/* 2>/dev/null | head; echo "fskitd:"; pgrep -lf fskitd || true'
 
     echo "-- diskutil list"
-    guest_ssh "$ip" 'diskutil list'
+    guest "$vm" 'diskutil list'
     local found_rw found_ro
     # shellcheck disable=SC2016 # expanded in the guest shell, not here
-    found_rw=$(guest_ssh "$ip" 'for d in $(diskutil list | awk "/^\\/dev\\/disk[0-9]+ /{print \$1}"); do diskutil info "$d" | grep -q "268435456 Bytes" && echo "$d"; done' | head -1)
+    found_rw=$(guest "$vm" 'for d in $(diskutil list | awk "/^\\/dev\\/disk[0-9]+ /{print \$1}"); do diskutil info "$d" | grep -q "268435456 Bytes" && echo "$d"; done; true' | head -1)
     # shellcheck disable=SC2016 # expanded in the guest shell, not here
-    found_ro=$(guest_ssh "$ip" 'for d in $(diskutil list | awk "/^\\/dev\\/disk[0-9]+ /{print \$1}"); do diskutil info "$d" | grep -q "67108864 Bytes" && echo "$d"; done' | head -1)
+    found_ro=$(guest "$vm" 'for d in $(diskutil list | awk "/^\\/dev\\/disk[0-9]+ /{print \$1}"); do diskutil info "$d" | grep -q "67108864 Bytes" && echo "$d"; done; true' | head -1)
     echo "rw disk device: ${found_rw:-none}; ro disk device: ${found_ro:-none}"
     check "guest sees 256 MiB rw disk as block device" [ -n "$found_rw" ]
     check "guest sees 64 MiB ro disk as block device" [ -n "$found_ro" ]
     if [ -n "$found_ro" ]; then
-        guest_ssh "$ip" "diskutil info $found_ro | grep -E 'Read-Only|Device Location|Protocol'"
-        check "ro disk reported read-only" guest_ssh "$ip" "diskutil info $found_ro | grep -E 'Media Read-Only|Read-Only Media' | grep -q Yes"
+        guest "$vm" "diskutil info $found_ro | grep -E 'Read-Only|Device Location|Protocol'"
+        check "ro disk reported read-only" guest "$vm" "diskutil info $found_ro | grep -E 'Media Read-Only|Read-Only Media' | grep -q Yes"
     fi
-    [ -z "$found_rw" ] || guest_ssh "$ip" "diskutil info $found_rw | grep -E 'Read-Only|Device Location|Protocol'"
+    [ -z "$found_rw" ] || guest "$vm" "diskutil info $found_rw | grep -E 'Read-Only|Device Location|Protocol'"
 
     echo "== stop and delete clone; base must survive =="
     cmd_stop "$vm"
@@ -218,7 +239,7 @@ case $sub in
     pull) cmd_pull ;;
     clone) cmd_clone "$@" ;;
     run) cmd_run "$@" ;;
-    ssh) cmd_ssh "$@" ;;
+    ssh|exec) cmd_ssh "$@" ;;
     stop) cmd_stop "$@" ;;
     delete) cmd_delete "$@" ;;
     selftest) cmd_selftest ;;

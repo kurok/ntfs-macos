@@ -2,18 +2,17 @@
 
 ## Human actions needed (details: docs/IMPLEMENTATION_PLAN.md section 5)
 
-1. **H1** — approve Homebrew installs on the host: `cmake`, `ninja`, `pkgconf`, and the VM tool (tart, pending T-M1-04 licence check).
-2. **H2** — start the Docker Desktop daemon (or approve Podman/colima) for the Linux environment.
+H1 and H2 are done (tools installed, Docker running, tart installed).
 
 ## Blocked on the owner
 
-- **T-M1-04 networking (diagnosed):** packets to the guest are dropped by Local Network privacy. Choose one: (a) allow Local Network for the desktop app (System Settings > Privacy & Security > Local Network); (b) switch to the `macos-golden-gate-base` image (32 GB pull) and use `tart exec` over the guest agent, no network needed; (c) run `vm/macos/tart.sh selftest` from Terminal.app.
-- Then: T-M2-02 (golden VM + macFUSE, needs H3), T-M2-08 (harness, VM transport), T-M2-03 (backend gate).
+- T-M2-02 (golden VM + macFUSE) needs H3: the one-time macFUSE installer password and extension approval in the VM GUI.
 
 ## Agent tasks ready now
 
-1. Run `scripts/ci-local.sh --quick` before every push (ADR-015).
-2. Confirm the three assumptions recorded by the N-05/N-07/N-08 fixes (`/dev/fd/N` sharing, `POSIX_SPAWN_CLOEXEC_DEFAULT`, peer code-signing checks) when T-M4-02/-04/-13 run.
+1. T-M2-08 test harness (Python stdlib; VM transport is `vm/macos/tart.sh exec`).
+2. Run `scripts/ci-local.sh --quick` before every push (ADR-015).
+3. Confirm the three assumptions recorded by the N-05/N-07/N-08 fixes (`/dev/fd/N` sharing, `POSIX_SPAWN_CLOEXEC_DEFAULT`, peer code-signing checks) when T-M4-02/-04/-13 run.
 
 ## Milestone 2 gate
 

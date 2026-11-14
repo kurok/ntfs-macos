@@ -1,20 +1,24 @@
 # macOS test VM (Environment B, tart)
 
-Task T-M1-04. Wrapper: `tart.sh` (`pull`, `clone`, `run`, `ssh`, `stop`, `delete`, `selftest`).
+Task T-M1-04. Wrapper: `tart.sh` (`pull`, `clone`, `run`, `exec`/`ssh`, `stop`, `delete`, `selftest`).
 Pins: `versions.env`. State (logs, pid files, scratch disks): `~/.cache/ntfsmac-vm`.
 All VMs are named `ntfsmac-*`; the script never clones, stops or deletes anything else.
 
-## Status: PARTIAL. Guest SSH is blocked on this host (see "Blocked")
+## Status: DONE (2026-11-14, `tart.sh selftest` exit 0)
 
 | Item | Result |
 |---|---|
 | tart licence | Verified, free for this use (below) |
-| macOS 27 image, pinned by digest | Verified, pulled |
-| Clone as disposable snapshot | Verified (0.8 s, no measurable space) |
-| `--disk` options | Documented in `tart run --help` (below); guest-side attach not yet seen |
-| Headless boot, VM gets a DHCP lease | Verified (`tart ip` returns 192.168.64.x) |
-| SSH into guest, `sw_vers`, FSKit probe, `diskutil list` | NOT verified: host cannot reach guest IP |
-| `tart.sh selftest` exit 0 | NOT reached; fails at "no SSH" |
+| macOS 27 image, pinned by digest | Verified, pulled (`-base`, see "Image") |
+| Clone as disposable snapshot | Verified (1.4 s, 0 MiB host space) |
+| Headless boot, guest reachable | Verified via `tart exec` (guest agent) in about 19 s |
+| `sw_vers`, arch | macOS 27.2 (26B123), arm64 |
+| FSKit | `FSKit.framework` present, `fskitd` running, built-in modules msdos, exfat, ftp; 0 system extensions |
+| `--disk` attach | 256 MiB rw and 64 MiB `:ro` images appear as whole-disk block devices; the `ro` one reports "Media Read-Only: Yes" |
+| Clone delete, base image kept | Verified |
+
+Guest disk numbers are not stable: the 256 MiB scratch disk was `disk2` on one boot and `disk0` on the
+next. Tools must find test disks by size or IORegistry identity, never by `diskN` number.
 
 ## Licence and cost (U11)
 
@@ -26,22 +30,22 @@ All VMs are named `ntfsmac-*`; the script never clones, stops or deletes anythin
   (https://tart.run/quick-start/) state no price or limit. Running it on one Mac for open-source
   testing is a permitted purpose. Each release becomes Apache-2.0 after two years.
   Not legal advice; the text of LICENSE governs.
-- Guest image: `ghcr.io/cirruslabs/macos-golden-gate-vanilla` (macOS 27 = "Golden Gate"; published by
-  https://github.com/cirruslabs/macos-image-templates, "vanilla macOS installation with auto-login, no
-  additional software"). The registry tags are `latest`, `27.2`, `27.0`; `latest` and `27.2` are the
-  pinned digest. The macOS guest itself is covered by the Apple macOS Software License Agreement
+- Guest image: `ghcr.io/cirruslabs/macos-golden-gate-base` (macOS 27 = "Golden Gate"; published by
+  https://github.com/cirruslabs/macos-image-templates: the vanilla image plus Homebrew and the tart guest
+  agent). Only tag `latest`, which was the pinned digest on 2026-11-14 (uploaded 2026-11-07). The macOS guest itself is covered by the Apple macOS Software License Agreement
   (https://www.apple.com/legal/sla/), which allows running macOS in virtual machines on Apple-branded
   hardware (limit: two additional virtual copies per Mac for development/testing, per the SLA
   virtualisation clause). One host, one concurrent guest here. Not independently re-read in this task;
   confirm the clause wording before any distribution of images (none is distributed).
-- Cost: zero. The image is a ~30 GB download, 50 GB on disk (sparse, ASIF). Host free space was 1.4 TB.
+- Cost: zero. The base image is a 32 GB download (38 GB uncompressed disk). Host free space was 1.3 TB.
 
-## Image
+## Image and transport
 
-- Repo `ghcr.io/cirruslabs/macos-golden-gate-vanilla`, digest in `versions.env`, tag at pin 27.2.
-- Login is the image's public test login (https://tart.run/quick-start/), stored in `versions.env`.
-- No tart guest agent in vanilla, so `tart exec` does not work; SSH only. (The `-base` image has the agent
-  and brew, but is not used.)
+- Repo `ghcr.io/cirruslabs/macos-golden-gate-base`, digest in `versions.env`.
+- Default transport is `tart exec` through the tart guest agent over virtio; it needs no host-to-guest
+  network. `NTFSMAC_TRANSPORT=ssh` uses SSH with the image's public test login (`versions.env`).
+- The earlier pin, `macos-golden-gate-vanilla@sha256:b35695ce...a873`, has no guest agent, so only SSH
+  works with it, and SSH is blocked from this app (next section).
 
 ## Clone as snapshot
 
@@ -58,27 +62,18 @@ storage: faster, data-loss risk). The default is read-write with synchronisation
 cache mode. For durability tests use the default (sync on) and treat `sync=none` as the "lost write cache"
 approximation. `tart.sh run` accepts only image files (refuses `/dev/*`) and passes the option string through.
 
-## Blocked: host cannot reach the guest
+## Why SSH does not work from the desktop app
 
-Observed: guest boots headless, DHCP lease appears in `/var/db/dhcpd_leases` (192.168.64.2, MAC matches
-the VM), `tart ip` returns it, `bridge100` (192.168.64.1) answers ping, but `ping` and `nc -z 192.168.64.2 22`
-from the Bash tool and from the app's Terminal panel both fail at once with "No route to host", for 240 s.
-Guest CPU is idle. No sudo, no packet capture was available (`/dev/bpf*` is root-only).
-
-Most likely cause (not proven): macOS Local Network privacy blocks the desktop agent app (the responsible
-process of both shells) from non-loopback LAN addresses including the vmnet bridge. Needs a human to check
-System Settings > Privacy & Security > Local Network for the app, or run the selftest from Terminal.app /
-iTerm once to see whether the prompt appears. A launch of Terminal.app by the agent was denied by the
-permission classifier and not retried. Other possible causes: OpenVPN full tunnel on the host (utun routes
-present), guest first-boot state. Tart's own install caveat (shorter DHCP lease via `sudo defaults write`)
-was skipped as instructed; only needed for many VMs a day.
+Diagnosed 2026-11-14: the guest has a DHCP lease, ARP resolves its MAC on `bridge100`, the host route to
+192.168.64.2 is via `bridge100`, the application firewall is off, yet ping and `nc` get no answer (earlier:
+"No route to host"). The packets are dropped on the host before the bridge, which matches macOS Local
+Network privacy for the app that runs the shell. SSH should work from a terminal app that has Local
+Network permission; `tart exec` avoids the question entirely, so it is the default.
 
 ## Unknowns left
 
-- Everything guest-side: `sw_vers`/arch, FSKit presence (`systemextensionsctl list`,
-  `pluginkit -m -A -p com.apple.fskit.fsmodule`), extra-disk device path, `ro` flag effect.
-  `tart.sh selftest` prints all of them once SSH works.
 - T-M2-02: macFUSE install and extension approval in the guest, whether it works without the GUI
-  (vanilla has auto-login; GUI access is via `tart run` without `--no-graphics`, or `--vnc`).
-- Whether a raw image attached with `--disk` shows up without a "disk not readable" dialog blocking headless runs.
+  (GUI access is via `tart run` without `--no-graphics`, or `--vnc`).
+- Whether an attached image that holds a file system triggers a "disk not readable" dialog that blocks
+  headless runs (the scratch images here are blank).
 - tart `--net-softnet` (needs the softnet helper with root) is an alternative network path; untested.

@@ -570,8 +570,8 @@ Target: arm64, deployment target macOS 27.0. External runtime prerequisite: macF
 | ID | Unknown | How to resolve | Blocks |
 |---|---|---|---|
 | U1 | Does macFUSE's libfuse2 accept `backend=fskit`? | T-M2-03 | Everything |
-| U2 | Does a macOS 27 guest under Virtualization.framework load and run the macFUSE FSKit module? (kexts do not load in VMs [V:S3]; FSKit is user space, so expected yes.) | T-M2-02 | VM testing |
-| U3 | Can the FSKit extension be enabled without the GUI (`pluginkit -e use`)? | T-M2-02 | VM automation |
+| U2 | Does a macOS 27 guest under Virtualization.framework load and run the macFUSE FSKit module? **Resolved 2026-11-14: yes.** macFUSE 5.5.0 in a macOS 27.2 tart guest mounts a libfuse3 file system with `-o backend=fskit` as user `admin` (`docs/VM_SETUP.md`). | T-M2-02 | VM testing |
+| U3 | Can the FSKit extension be enabled without the GUI (`pluginkit -e use`)? **Resolved 2026-11-14: no.** `pluginkit -e use` marks both macFUSE modules `+` but mounts still fail with "File system extension not enabled" until the user turns macFUSE on in System Settings > General > Login Items & Extensions. The approval survives reboot and `tart clone`, so it is once per golden image (H3). | T-M2-02 | VM automation |
 | U4 | Which FUSE opcodes result from `fsync`, `F_FULLFSYNC`, `sync`, unmount? | T-M2-06 | Section 9 wording |
 | U5 | Does `ntfs-3g` accept `/dev/fd/N` (device size and sector-size ioctls on a re-opened descriptor)? | T-M2-05; fallback patch `0003` | Privilege separation |
 | U6 | Can the FUSE server run as the console user when started by a root daemon (forum posters report that FSKit modules are enabled per user and that root-run `mount -F` fails [V:S14]; the Apple engineer in that thread is unsure about root mounts, so this is [A] until T-M4-01)? | T-M4-01 | Daemon design |

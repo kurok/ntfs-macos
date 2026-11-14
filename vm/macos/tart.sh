@@ -2,8 +2,8 @@
 # tart.sh - Environment B wrapper: disposable macOS guests on tart.
 #
 # Usage: vm/macos/tart.sh pull
-#        vm/macos/tart.sh clone NAME
-#        vm/macos/tart.sh run NAME [--disk FILE[:opts]]...   (opts: ro, sync=none, comma-separated)
+#        vm/macos/tart.sh clone NAME [--from SRC]   (SRC e.g. golden, the macFUSE-approved VM)
+#        vm/macos/tart.sh run NAME [--graphics] [--disk FILE[:opts]]...   (opts: ro, sync=none, comma-separated)
 #        vm/macos/tart.sh exec NAME -- CMD...   (alias: ssh; transport from NTFSMAC_TRANSPORT=exec|ssh)
 #        vm/macos/tart.sh stop NAME
 #        vm/macos/tart.sh delete NAME
@@ -89,16 +89,22 @@ cmd_pull() {
     tart pull "$IMAGE"
 }
 
-cmd_clone() {
-    local vm; vm=$(vmname "${1:-}")
+cmd_clone() { # clone NAME [--from SRC]  (SRC: another ntfsmac- VM, e.g. golden; default the pinned image)
+    local vm; vm=$(vmname "${1:-}"); shift || true
+    local src=$IMAGE
+    if [ "${1:-}" = --from ]; then
+        [ $# -ge 2 ] || die "--from needs a VM name"
+        src=$(vmname "$2")
+        vm_exists "$src" || die "source VM $src does not exist"
+    fi
     vm_exists "$vm" && die "$vm already exists"
-    tart clone "$IMAGE" "$vm"
-    log "cloned $IMAGE -> $vm"
+    tart clone "$src" "$vm"
+    log "cloned $src -> $vm"
 }
 
 cmd_run() {
     local vm; vm=$(vmname "${1:-}"); shift || true
-    local args=()
+    local args=() gfx=(--no-graphics)
     while [ $# -gt 0 ]; do
         case $1 in
             --disk) [ $# -ge 2 ] || die "--disk needs FILE[:opts]"
@@ -106,13 +112,14 @@ cmd_run() {
                     case $f in /dev/*) die "refusing a block device: $f" ;; esac
                     [ -f "$f" ] || die "disk image not found: $f"
                     args+=(--disk "$2"); shift 2 ;;
+            --graphics) gfx=(); shift ;;  # open a VM window (needed for one-time GUI approvals, H3)
             *) die "unknown option: $1" ;;
         esac
     done
     vm_exists "$vm" || die "$vm does not exist (clone first)"
     local pidf=$STATE/$vm.pid logf=$STATE/$vm.log
     if [ -f "$pidf" ] && kill -0 "$(cat "$pidf")" 2>/dev/null; then die "$vm already running"; fi
-    nohup tart run --no-graphics --no-audio --no-clipboard "${args[@]+"${args[@]}"}" "$vm" \
+    nohup tart run "${gfx[@]+"${gfx[@]}"}" --no-audio --no-clipboard "${args[@]+"${args[@]}"}" "$vm" \
         >"$logf" 2>&1 </dev/null &
     echo $! > "$pidf"
     log "started $vm (pid $(cat "$pidf"), log $logf); waiting for guest ($TRANSPORT)"
@@ -143,6 +150,14 @@ cmd_ssh() {
 cmd_stop() {
     local vm; vm=$(vmname "${1:-}")
     local pidf=$STATE/$vm.pid
+    # Clean guest shutdown first: a plain `tart stop` was seen to lose writes made seconds
+    # before it (T-M2-02). Best effort; tart stop below forces it after its timeout.
+    if [ "$TRANSPORT" = exec ]; then
+        { perl -e 'alarm shift; exec @ARGV or exit 127' 20 tart exec "$vm" /bin/sh -c 'sync; sudo -n /sbin/shutdown -h now' >/dev/null 2>&1; } 2>/dev/null || true
+        if [ -f "$pidf" ]; then
+            for _ in $(seq 1 60); do kill -0 "$(cat "$pidf")" 2>/dev/null || break; sleep 1; done
+        fi
+    fi
     tart stop "$vm" 2>/dev/null || true
     if [ -f "$pidf" ]; then
         local p; p=$(cat "$pidf")

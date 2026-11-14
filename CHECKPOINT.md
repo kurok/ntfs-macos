@@ -1,6 +1,6 @@
 # Checkpoint
 
-- **Phase:** M2 started: T-M2-01 (build-ntfs3g.sh), T-M2-07 (fixtures, treedump) and T-M2-08 (Python harness, I-INT-01/03) done. M1 tasks done. Done: T-M1-01, -02, -03, -05, -06, -07 (`scripts/ci-local.sh --quick`); audit fixes applied (b99d414, 6a3e5e0); re-audit `docs/audits/M1-recheck.md`: accept with fixes; all 15 findings applied (N-01..N-08 in 9d20cea, N-09..N-15 next commit; N-03 split-record crash accepted as residual R-33; new ADR-019/020, U15-U20). T-M1-04 done: `vm/macos/tart.sh selftest` OK on the `macos-golden-gate-base` image via `tart exec` (SSH from the desktop app is blocked by Local Network privacy).
+- **Phase:** M2 started: T-M2-01 (build-ntfs3g.sh), T-M2-07 (fixtures, treedump) and T-M2-08 (Python harness, I-INT-01/03) and T-M2-02 (golden VM with macFUSE 5.5.0 approved; U2 yes, U3 no) done. M1 tasks done. Done: T-M1-01, -02, -03, -05, -06, -07 (`scripts/ci-local.sh --quick`); audit fixes applied (b99d414, 6a3e5e0); re-audit `docs/audits/M1-recheck.md`: accept with fixes; all 15 findings applied (N-01..N-08 in 9d20cea, N-09..N-15 next commit; N-03 split-record crash accepted as residual R-33; new ADR-019/020, U15-U20). T-M1-04 done: `vm/macos/tart.sh selftest` OK on the `macos-golden-gate-base` image via `tart exec` (SSH from the desktop app is blocked by Local Network privacy).
 - **Completed:**
   - Host and quota preflight (2026-11-13): macOS 27.2.1 arm64, Command Line Tools only (no Xcode),
     Docker CLI with no running daemon, no VM tool. Paragon NTFS and fuse-t 1.2.9 are installed;

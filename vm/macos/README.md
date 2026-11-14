@@ -1,6 +1,7 @@
 # macOS test VM (Environment B, tart)
 
-Task T-M1-04. Wrapper: `tart.sh` (`pull`, `clone`, `run`, `exec`/`ssh`, `stop`, `delete`, `selftest`).
+Task T-M1-04. Wrapper: `tart.sh` (`pull`, `clone [--from golden]`, `run [--graphics]`, `exec`/`ssh`, `stop`, `delete`, `selftest`).
+Golden VM with macFUSE (T-M2-02): `provision-golden.sh`, documented in `docs/VM_SETUP.md`.
 Pins: `versions.env`. State (logs, pid files, scratch disks): `~/.cache/ntfsmac-vm`.
 All VMs are named `ntfsmac-*`; the script never clones, stops or deletes anything else.
 
@@ -72,8 +73,6 @@ Network permission; `tart exec` avoids the question entirely, so it is the defau
 
 ## Unknowns left
 
-- T-M2-02: macFUSE install and extension approval in the guest, whether it works without the GUI
-  (GUI access is via `tart run` without `--no-graphics`, or `--vnc`).
 - Whether an attached image that holds a file system triggers a "disk not readable" dialog that blocks
   headless runs (the scratch images here are blank).
 - tart `--net-softnet` (needs the softnet helper with root) is an alternative network path; untested.

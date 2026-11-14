@@ -1,0 +1,235 @@
+ntfs-macos patch 0003: accept an inherited descriptor "/dev/fd/N" as the device (macOS only)
+
+Rationale (T-M2-05, U5, docs/spikes/M2-fdpass.md): the daemon (root) opens the NTFS device and
+starts ntfs-3g as the console user with that descriptor inherited, named /dev/fd/N. The user has
+no permission on /dev/diskN (root:operator 0640). Unpatched NTFS-3G 2026.9.28 fails three ways
+on macOS 27:
+  1. realpath() of /dev/fd/N for a regular file returns "/dev/fd/<file name>" (e.g.
+     /dev/fd/img0.img), which does not exist: "Failed to access '/dev/fd/img0.img'".
+  2. main() refuses a block device for a non-root user with the external FUSE library
+     (unpriv_fuseblk_msg, exit 19), before opening anything.
+  3. unix_io.c open()s the name again; on macOS open("/dev/fd/N") by an unprivileged process
+     fails with EACCES when the process has no permission on the underlying file, even though it
+     holds N ("Error opening '/dev/fd/3': Permission denied").
+Hunks:
+  - include/ntfs-3g/device.h, libntfs-3g/unix_io.c: new exported ntfs_device_inherited_fd()
+    returns N only for the exact name "/dev/fd/N" (decimal, no leading zero, N >= 3) when N is
+    open in this process. unix_io open then uses fstat(N) instead of stat(name) and
+    F_DUPFD_CLOEXEC of N instead of open(name), and marks N close-on-exec (N stays open: a retry
+    duplicates it again, and closing any descriptor of the file would drop the POSIX lock).
+    The access mode is never widened: a write-only N is refused, and a read/write request on an
+    N that is not O_RDWR fails with EBADF. Not EROFS: ntfs_device_mount() (volume.c) retries
+    read-only on any EROFS, which would silently turn a read/write request into a read-only
+    mount. O_EXCL is not added (meaningless for a duplicate). The advisory lock is still taken
+    on the duplicate; it gives no lasting exclusivity (ntfs-3g calls daemon() after ntfs_open(),
+    and POSIX locks do not survive the fork). Exclusivity of the device comes from the caller
+    (ntfs-macos daemon: ADR-020 binding and the Disk Arbitration dissenter).
+  - src/ntfs-3g_common.c: keep the name "/dev/fd/N" as given instead of realpath().
+  - src/ntfs-3g.c: skip the non-root block device refusal only when the device is such an
+    inherited descriptor and fstat() of it is a block device. Any block device given by path is
+    still refused for a non-root user.
+Scope: the unix_io change is library-wide on macOS: every libntfs-3g user (ntfs-3g, ntfsfix,
+mkntfs and the other ntfsprogs, ntfs-3g.probe, ntfsmac-probe, ntfsmac-volmark) accepts
+"/dev/fd/N" this way, and the library exports one new symbol. lowntfs-3g gets the realpath
+change through ntfs-3g_common.c but keeps its own block device refusal (lowntfs-3g.c, main),
+so it still refuses inherited block devices; it is not patched and must not be shipped.
+Safety: every change applies only to a descriptor the process already holds open; a descriptor
+gives access the holder already has, so nothing here grants access to a device the process
+could not already read or write through N. Paths other than "/dev/fd/N" behave as upstream.
+All hunks are under __APPLE__; the Linux build (Environment A, internal FUSE) is unchanged.
+Upstream status: not submitted (macOS packaging specific).
+Test: I-SMOKE-02, tests/integration/smoke/fd_pass.sh (Environment B guest).
+
+diff -ruN a/include/ntfs-3g/device.h b/include/ntfs-3g/device.h
+--- a/include/ntfs-3g/device.h	2026-09-18 13:47:54.000000000 +0100
++++ b/include/ntfs-3g/device.h	2026-11-14 12:14:54.699237570 +0000
+@@ -141,5 +141,8 @@
+ extern int ntfs_device_sectors_per_track_get(struct ntfs_device *dev);
+ extern int ntfs_device_sector_size_get(struct ntfs_device *dev);
+ extern int ntfs_device_block_size_set(struct ntfs_device *dev, int block_size);
++#ifdef __APPLE__
++extern int ntfs_device_inherited_fd(const char *name);
++#endif
+ 
+ #endif /* defined _NTFS_DEVICE_H */
+diff -ruN a/libntfs-3g/unix_io.c b/libntfs-3g/unix_io.c
+--- a/libntfs-3g/unix_io.c	2026-09-18 13:47:54.000000000 +0100
++++ b/libntfs-3g/unix_io.c	2026-11-14 12:32:29.642759889 +0000
+@@ -66,6 +66,40 @@
+ 
+ #define DEV_FD(dev)	(*(int *)dev->d_private)
+ 
++#ifdef __APPLE__
++/**
++ * ntfs_device_inherited_fd - descriptor named by a "/dev/fd/N" device name
++ * @name:	device name as given by the user
++ *
++ * ntfs-macos patch 0003. Return N if @name is exactly "/dev/fd/N" (N decimal,
++ * no sign, no leading zero, N >= 3) and N is an open descriptor of this
++ * process; otherwise return -1. Such a descriptor was opened, and its access
++ * checked, by whoever passed it; using it grants nothing the process does not
++ * already hold. On macOS, open("/dev/fd/N") re-checks the permissions of the
++ * underlying file for the caller and fails with EACCES for an unprivileged
++ * process, and realpath() rewrites the name, so the descriptor is used directly.
++ */
++int ntfs_device_inherited_fd(const char *name)
++{
++	const char *p;
++	long n = 0;
++
++	if (!name || strncmp(name, "/dev/fd/", 8))
++		return -1;
++	p = name + 8;
++	if (*p < '1' || *p > '9')
++		return -1;
++	for (; *p; p++) {
++		if (*p < '0' || *p > '9' || n > 100000)
++			return -1;
++		n = n * 10 + (*p - '0');
++	}
++	if (n < 3 || fcntl((int)n, F_GETFD) == -1)
++		return -1;
++	return (int)n;
++}
++#endif /* __APPLE__ */
++
+ /* Define to nothing if not present on this system. */
+ #ifndef O_EXCL
+ #	define O_EXCL 0
+@@ -119,11 +153,22 @@
+ 	struct flock flk;
+ 	struct stat sbuf;
+ 	int err;
++#ifdef __APPLE__
++	int inherited = ntfs_device_inherited_fd(dev->d_name);
++#endif
+ 
+ 	if (NDevOpen(dev)) {
+ 		errno = EBUSY;
+ 		return -1;
+ 	}
++#ifdef __APPLE__
++	if (inherited >= 0) {
++		if (fstat(inherited, &sbuf)) {
++			ntfs_log_perror("Failed to access '%s'", dev->d_name);
++			return -1;
++		}
++	} else
++#endif
+ 	if (stat(dev->d_name, &sbuf)) {
+ 		ntfs_log_perror("Failed to access '%s'", dev->d_name);
+ 		return -1;
+@@ -138,9 +183,51 @@
+ 	 * Open file for exclusive access if mounting r/w.
+ 	 * Fuseblk takes care about block devices.
+ 	 */ 
++#ifdef __APPLE__
++	if (inherited >= 0) {
++		/*
++		 * Duplicate the inherited descriptor (same open file, same
++		 * access mode). Never widen its access mode: a read/write
++		 * request on a descriptor that is not O_RDWR fails with EBADF,
++		 * not EROFS, so that ntfs_device_mount() does not fall back to
++		 * a read-only mount (it retries read-only on any EROFS). A
++		 * write-only descriptor is refused for any request.
++		 */
++		int mode = fcntl(inherited, F_GETFL);
++
++		if (mode == -1) {
++			err = errno;
++			goto err_out;
++		}
++		if (((mode & O_ACCMODE) == O_WRONLY)
++		    || (((flags & O_RDWR) == O_RDWR)
++			&& ((mode & O_ACCMODE) != O_RDWR))) {
++			ntfs_log_error("Descriptor '%s' is %s, %s was "
++				"requested\n", dev->d_name,
++				((mode & O_ACCMODE) == O_WRONLY) ?
++					"write-only" : "read-only",
++				((flags & O_RDWR) == O_RDWR) ?
++					"read-write" : "read-only");
++			err = EBADF;
++			goto err_out;
++		}
++		*(int*)dev->d_private = fcntl(inherited, F_DUPFD_CLOEXEC, 3);
++		if (*(int*)dev->d_private == -1) {
++			err = errno;
++			goto err_out;
++		}
++		/* Keep N open (a retry duplicates it again; closing any
++		 * descriptor of the file drops the process's POSIX locks),
++		 * but do not pass it to any program this process runs. */
++		(void)fcntl(inherited, F_SETFD, FD_CLOEXEC);
++	} else {
++#endif
+ 	if (!NDevBlock(dev) && (flags & O_RDWR) == O_RDWR)
+ 		flags |= O_EXCL;
+ 	*(int*)dev->d_private = open(dev->d_name, flags);
++#ifdef __APPLE__
++	}
++#endif
+ 	if (*(int*)dev->d_private == -1) {
+ 		err = errno;
+ 			/* if permission error and rw, retry read-only */
+diff -ruN a/src/ntfs-3g.c b/src/ntfs-3g.c
+--- a/src/ntfs-3g.c	2026-09-18 13:47:54.000000000 +0100
++++ b/src/ntfs-3g.c	2026-11-14 12:32:29.643798220 +0000
+@@ -4020,6 +4020,20 @@
+ 	return 0;
+ }
+ 
++#if defined(__APPLE__) && !defined(FUSE_INTERNAL)
++/*
++ * ntfs-macos patch 0003: TRUE if device is "/dev/fd/N" and N is an open
++ * block device descriptor of this process.
++ */
++static BOOL inherited_blkdev(const char *device)
++{
++	struct stat fdbuf;
++	int fd = ntfs_device_inherited_fd(device);
++
++	return (fd >= 0) && !fstat(fd, &fdbuf) && S_ISBLK(fdbuf.st_mode);
++}
++#endif
++
+ static int ntfs_open(const char *device)
+ {
+ 	unsigned long flags = 0;
+@@ -4446,7 +4460,16 @@
+ #endif
+ 
+ #ifndef FUSE_INTERNAL
+-	if (getuid() && ctx->blkdev) {
++	if (getuid() && ctx->blkdev
++#ifdef __APPLE__
++	    /*
++	     * ntfs-macos patch 0003: a block device passed as an already
++	     * open descriptor "/dev/fd/N" of the same device. The device was
++	     * opened by the privileged parent; this process only uses it.
++	     */
++	    && !inherited_blkdev(opts.device)
++#endif
++	    ) {
+ 		ntfs_log_error("%s", unpriv_fuseblk_msg);
+ 		err = NTFS_VOLUME_NO_PRIVILEGE;
+ 		goto err2;
+diff -ruN a/src/ntfs-3g_common.c b/src/ntfs-3g_common.c
+--- a/src/ntfs-3g_common.c	2026-09-18 13:47:54.000000000 +0100
++++ b/src/ntfs-3g_common.c	2026-11-14 12:14:54.699683444 +0000
+@@ -678,6 +678,16 @@
+ 				
+ 				/* Canonicalize device name (mtab, etc) */
+ 				popts->arg_device = optarg;
++#ifdef __APPLE__
++				/*
++				 * ntfs-macos patch 0003: keep an inherited
++				 * descriptor name "/dev/fd/N" as given;
++				 * realpath() would rewrite it to another path.
++				 */
++				if (ntfs_device_inherited_fd(optarg) >= 0)
++					strcpy(popts->device, optarg);
++				else
++#endif
+ 				if (!ntfs_realpath_canonicalize(optarg,
+ 						popts->device)) {
+ 					ntfs_log_perror("%s: Failed to access "

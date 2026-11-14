@@ -21,7 +21,7 @@ The series is empty until a patch is needed.
 |---|---|---|
 | 0001 | Build fixes for macOS 27 + macFUSE 5.5.0 | Conditional: only if T-M2-03 shows a need |
 | 0002 | Withdrawn (upstream `ntfs_fsync()` already uses `F_FULLFSYNC`). The number is not reused; the build script refuses a `0002-*` file. | Withdrawn |
-| 0003 | Accept an inherited descriptor as the device | Conditional: only if `/dev/fd/N` fails (T-M2-05) |
+| 0003 | Accept an inherited descriptor as the device | **Applied** (T-M2-05): unpatched `/dev/fd/N` fails three ways; Opus-reviewed, changes applied. macOS only, library-wide; `lowntfs-3g` stays unpatched and must not ship (`docs/spikes/M2-fdpass.md`) |
 | 0004 | Test-only fault-injection layer (`--enable-faultio`) | Later task (T-M3-14) |
 | 0005 | libfuse3 port of `ntfs-3g.c` | Conditional: only per ADR-001 fallback 1 |
 | 0006 | Session channel on `NTFSMAC_ERRFD` (ADR-018) | Later task |

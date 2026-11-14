@@ -1,0 +1,12 @@
+uid=0 fd=3 realpath(/dev/fd/3)=/dev/fd/3
+stat(/dev/fd/3)=0 mode=60440 rdev=1000004
+F_GETPATH=/dev/disk1
+uid=501 fd=3 realpath(/dev/fd/3)=/dev/fd/3
+stat(/dev/fd/3)=0 mode=60440 rdev=1000004
+F_GETPATH=/dev/disk1
+uid=0 fd=3 realpath(/dev/fd/3)=/dev/fd/img0.img
+stat(/dev/fd/3)=0 mode=100444 rdev=0
+F_GETPATH=/Users/admin/fx/img0.img
+uid=501 fd=3 realpath(/dev/fd/3)=/dev/fd/img0.img
+stat(/dev/fd/3)=0 mode=100444 rdev=0
+F_GETPATH=/Users/admin/fx/img0.img

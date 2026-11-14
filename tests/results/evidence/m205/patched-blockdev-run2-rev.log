@@ -1,0 +1,93 @@
+== build fd_pass (cc -Wall -Wextra -Werror)
+PASS: fd_pass.c builds with -Wall -Wextra -Werror
+== target /dev/disk1 (expect 268435456 bytes)
+brw-r-----  1 root  operator  0x1000003 Nov 14 12:38 /dev/disk1
+crw-r-----  1 root  operator  0x1000003 Nov 14 12:36 /dev/rdisk1
+PASS: no other mount of /dev/disk1
+check: /dev/disk1 type=block size=268435456 expect=268435456
+check: /dev/disk1 has an NTFS boot sector
+== /dev/fd/N semantics
+target=/dev/disk1
+root.O_RDONLY.orig_mode=O_RDONLY
+root.O_RDONLY.open_rdonly=ok
+root.O_RDONLY.new_mode_after_O_RDONLY_open=O_RDONLY
+root.O_RDONLY.new_offset_at_open=4096 (orig at 4096)
+root.O_RDONLY.orig_offset_after_new_seek_8192=8192
+root.O_RDONLY.shares_offset=yes
+root.O_RDONLY.shares_status_flags=yes
+root.O_RDONLY.same_dev_ino_rdev=yes
+root.O_RDONLY.fd_cloexec_on_new=no
+root.O_RDONLY.open_rdwr=error:Permission denied
+root.O_RDONLY.open_rdwr_excl=error:Permission denied
+root.O_RDONLY.fcntl_setlk_rd=ok
+user.O_RDONLY.open_by_path=Permission denied
+user.O_RDONLY.orig_mode=O_RDONLY
+user.O_RDONLY.open_rdonly=error:Permission denied
+root.O_RDWR.orig_mode=O_RDWR
+root.O_RDWR.open_rdonly=ok
+root.O_RDWR.new_mode_after_O_RDONLY_open=O_RDWR
+root.O_RDWR.new_offset_at_open=4096 (orig at 4096)
+root.O_RDWR.orig_offset_after_new_seek_8192=8192
+root.O_RDWR.shares_offset=yes
+root.O_RDWR.shares_status_flags=yes
+root.O_RDWR.same_dev_ino_rdev=yes
+root.O_RDWR.fd_cloexec_on_new=no
+root.O_RDWR.open_rdwr=ok new_mode=O_RDWR
+root.O_RDWR.open_rdwr_excl=ok new_mode=O_RDWR
+root.O_RDWR.fcntl_setlk_wr=ok
+user.O_RDWR.open_by_path=Permission denied
+user.O_RDWR.orig_mode=O_RDWR
+user.O_RDWR.open_rdonly=error:Permission denied
+== case rw (O_RDWR descriptor)
+-- rw: sudo -n fd_pass run rw /dev/disk1 268435456 admin /Users/admin/ntfsmac/deps/bin/ntfs-3g @FD@ /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/fd_pass.l6zmte/mnt -o backend=fskit,local,norecover,uid=@UID@,gid=@GID@
+check: /dev/disk1 type=block size=268435456 expect=268435456
+check: /dev/disk1 has an NTFS boot sector
+parent: uid=0 opened /dev/disk1 O_RDWR as fd 3
+child: uid=501 gid=20 open(/dev/disk1) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps/bin/ntfs-3g /dev/fd/3 /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/fd_pass.l6zmte/mnt -o backend=fskit,local,norecover,uid=501,gid=20
+parent: child exit 0
+-- rw: ntfs-3g exit 0
+PASS: rw: mount appeared: /dev/disk7s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/fd_pass.l6zmte/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+-- rw: driver:  8700 admin /Users/admin/ntfsmac/deps/bin/ntfs-3g /dev/fd/3 /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/fd_pass.l6zmte/mnt -o backend=fskit,local,norecover,uid=501,gid=20
+PASS: rw: mount is read/write
+PASS: rw: write file
+PASS: rw: read back
+PASS: rw: umount
+PASS: rw: ntfs-3g exited
+== case ro (O_RDONLY descriptor)
+-- ro: sudo -n fd_pass run ro /dev/disk1 268435456 admin /Users/admin/ntfsmac/deps/bin/ntfs-3g @FD@ /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/fd_pass.l6zmte/mnt -o backend=fskit,local,norecover,uid=@UID@,gid=@GID@,ro
+check: /dev/disk1 type=block size=268435456 expect=268435456
+check: /dev/disk1 has an NTFS boot sector
+parent: uid=0 opened /dev/disk1 O_RDONLY as fd 3
+child: uid=501 gid=20 open(/dev/disk1) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps/bin/ntfs-3g /dev/fd/3 /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/fd_pass.l6zmte/mnt -o backend=fskit,local,norecover,uid=501,gid=20,ro
+parent: child exit 0
+-- ro: ntfs-3g exit 0
+PASS: ro: mount appeared: /dev/disk7s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/fd_pass.l6zmte/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+-- ro: driver:  8804 admin /Users/admin/ntfsmac/deps/bin/ntfs-3g /dev/fd/3 /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/fd_pass.l6zmte/mnt -o backend=fskit,local,norecover,uid=501,gid=20,ro
+PASS: ro: mount is read-only
+/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/fd_pass.l6zmte/mnt
+/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/fd_pass.l6zmte/mnt/.fseventsd
+/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/fd_pass.l6zmte/mnt/boundary
+/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/fd_pass.l6zmte/mnt/docs
+/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/fd_pass.l6zmte/mnt/empty
+PASS: ro: file from rw case intact
+PASS: ro: 1 MiB file sha256 intact
+PASS: ro: write refused
+PASS: ro: umount
+PASS: ro: ntfs-3g exited
+== ntfsfix -n through an inherited O_RDONLY descriptor
+check: /dev/disk1 type=block size=268435456 expect=268435456
+check: /dev/disk1 has an NTFS boot sector
+parent: uid=0 opened /dev/disk1 O_RDONLY as fd 3
+child: uid=501 gid=20 open(/dev/disk1) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps/bin/ntfsfix -n /dev/fd/3
+Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /dev/fd/3 was processed successfully.
+parent: child exit 0
+PASS: ntfsfix -n exit 0
+== result: 0 failure(s)
+exit=0

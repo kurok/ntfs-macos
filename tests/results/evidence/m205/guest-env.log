@@ -1,0 +1,39 @@
+ProductName:		macOS
+ProductVersion:		27.2
+BuildVersion:		26B123
+uid=501(admin) gid=20(staff) groups=20(staff),12(everyone),61(localaccounts),79(_appserverusr),80(admin),81(_appserveradm),264(_webdeveloper),701(com.apple.sharepoint.group.1),33(_appstore),98(_lpadmin),100(_lpoperator),204(_developer),250(_analyticsusers),395(com.apple.access_ftp),398(com.apple.access_screensharing),399(com.apple.access_ssh),400(com.apple.access_remote_ae)
+ntfs-3g 2026.9.28 external FUSE 29
+/dev/disk0 (internal, physical):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      GUID_partition_scheme                        *50.0 GB    disk0
+   1:             Apple_APFS_ISC Container disk2         524.3 MB   disk0s1
+   2:                 Apple_APFS Container disk4         44.1 GB    disk0s2
+   3:        Apple_APFS_Recovery Container disk3         5.4 GB     disk0s3
+
+/dev/disk1 (internal, physical):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:                            clean256m4k            *268.4 MB   disk1
+
+/dev/disk4 (synthesized):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      APFS Container Scheme -                      +44.1 GB    disk4
+                                 Physical Store disk0s2
+   1:                APFS Volume Macintosh HD            13.8 GB    disk4s1
+   2:              APFS Snapshot com.apple.os.update-... 13.8 GB    disk4s1s1
+   3:                APFS Volume Preboot                 9.5 GB     disk4s2
+   4:                APFS Volume Recovery                1.5 GB     disk4s3
+   5:                APFS Volume Data                    12.0 GB    disk4s5
+   6:                APFS Volume VM                      20.5 KB    disk4s6
+
+/dev/disk4s1s1 on / (apfs, sealed, local, read-only, journaled)
+devfs on /dev (devfs, local, nobrowse)
+/dev/disk4s6 on /System/Volumes/VM (apfs, local, noexec, journaled, noatime, nobrowse)
+/dev/disk4s2 on /System/Volumes/Preboot (apfs, local, journaled, nobrowse)
+/dev/disk4s4 on /System/Volumes/Update (apfs, local, journaled, nobrowse)
+/dev/disk2s2 on /System/Volumes/xarts (apfs, local, noexec, journaled, noatime, nobrowse)
+/dev/disk2s1 on /System/Volumes/iSCPreboot (apfs, local, journaled, nobrowse)
+/dev/disk2s3 on /System/Volumes/Hardware (apfs, local, journaled, nobrowse)
+/dev/disk4s5 on /System/Volumes/Data (apfs, local, journaled, nobrowse, root data)
+/dev/disk6s1 on /System/Library/AssetsV2/com_apple_MobileAsset_PKITrustStore/purpose_auto/d1b36c40ecf011c1a2dfeacc93215881ad4cf525.asset/.AssetData (apfs, sealed, local, read-only, journaled, nobrowse)
+/dev/disk1 on /Volumes/clean256m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit)
+map auto_home on /System/Volumes/Data/home (autofs, automounted, nobrowse)

@@ -1,0 +1,68 @@
+### R1: O_RDONLY descriptor, no ro (rw requested) -> must fail
+Descriptor '/dev/fd/3' is read-only, read-write was requested
+Error opening '/dev/fd/3': Bad file descriptor
+Failed to mount '/dev/fd/3': Bad file descriptor
+parent: uid=0 opened /dev/disk1 O_RDONLY as fd 3
+child: uid=501 gid=20 open(/dev/disk1) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps/bin/ntfs-3g /dev/fd/3 /private/tmp/edge-mnt -o backend=fskit,local,norecover,uid=501,gid=20
+parent: child exit 18
+rc=0
+RESULT: no mount within 10s
+### R2: O_WRONLY descriptor, ro -> must fail
+Descriptor '/dev/fd/3' is write-only, read-only was requested
+Error opening '/dev/fd/3': Bad file descriptor
+Failed to mount '/dev/fd/3': Bad file descriptor
+parent: uid=0 opened /dev/disk1 O_WRONLY as fd 3
+child: uid=501 gid=20 open(/dev/disk1) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps/bin/ntfs-3g /dev/fd/3 /private/tmp/edge-mnt -o backend=fskit,local,norecover,uid=501,gid=20,ro
+parent: child exit 18
+rc=0
+RESULT: no mount within 10s
+### R3: O_WRONLY descriptor, rw -> must fail
+Descriptor '/dev/fd/3' is write-only, read-write was requested
+Error opening '/dev/fd/3': Bad file descriptor
+Failed to mount '/dev/fd/3': Bad file descriptor
+parent: uid=0 opened /dev/disk1 O_WRONLY as fd 3
+child: uid=501 gid=20 open(/dev/disk1) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps/bin/ntfs-3g /dev/fd/3 /private/tmp/edge-mnt -o backend=fskit,local,norecover,uid=501,gid=20
+parent: child exit 18
+rc=0
+RESULT: no mount within 10s
+### R4: O_RDWR descriptor with ro -> mounts read-only
+parent: uid=0 opened /dev/disk1 O_RDWR as fd 3
+child: uid=501 gid=20 open(/dev/disk1) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps/bin/ntfs-3g /dev/fd/3 /private/tmp/edge-mnt -o backend=fskit,local,norecover,uid=501,gid=20,ro
+parent: child exit 0
+rc=0
+/dev/disk7s1 on /private/tmp/edge-mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+RESULT: mounted
+### R5: patched ntfs-3g, non-root, block device by path -> still refused
+Unprivileged user can not mount NTFS block devices using the external FUSE
+library. Either mount the volume as root, or rebuild NTFS-3G with integrated
+FUSE support and make it setuid root. Please see more information at
+https://github.com/tuxera/ntfs-3g/wiki/NTFS-3G-FAQ
+rc=19
+### R6: ntfsfix -n on an O_WRONLY descriptor -> must fail
+Descriptor '/dev/fd/3' is write-only, read-only was requested
+Error opening '/dev/fd/3': Bad file descriptor
+Descriptor '/dev/fd/3' is write-only, read-only was requested
+Error opening '/dev/fd/3': Bad file descriptor
+Failed to startup volume: Bad file descriptor
+Descriptor '/dev/fd/3' is write-only, read-only was requested
+Error opening '/dev/fd/3': Bad file descriptor
+Volume is corrupt. You should run chkdsk.
+parent: uid=0 opened /dev/disk1 O_WRONLY as fd 3
+child: uid=501 gid=20 open(/dev/disk1) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps/bin/ntfsfix -n /dev/fd/3
+Mounting volume... FAILED
+Attempting to correct errors... FAILED
+No change made
+parent: child exit 1
+### R7: inherited N close-on-exec after the duplicate (lsof of the running driver)
+parent: child exit 0
+COMMAND   PID  USER   FD   TYPE DEVICE SIZE/OFF                NODE NAME
+ntfs-3g 10043 admin    3r   BLK    1,3        0                 633 /dev/disk1
+ntfs-3g 10043 admin    4r   BLK    1,3        0                 633 /dev/disk1
+### R8: leftovers
+no macfuse mounts
+no ntfs-3g

@@ -1,0 +1,125 @@
+### E1: O_RDONLY descriptor, no ro option (rw requested)
+check: /dev/disk1 type=block size=268435456 expect=268435456
+check: /dev/disk1 has an NTFS boot sector
+parent: uid=0 opened /dev/disk1 O_RDONLY as fd 3
+child: uid=501 gid=20 open(/dev/disk1) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps/bin/ntfs-3g /dev/fd/3 /private/tmp/edge-mnt -o backend=fskit,local,norecover,uid=501,gid=20
+Error opening '/dev/fd/3' read-write
+Could not mount read-write, trying read-only
+parent: child exit 0
+rc=0
+/dev/disk7s1 on /private/tmp/edge-mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+mounted
+### E2: O_RDWR descriptor with ro option
+check: /dev/disk1 type=block size=268435456 expect=268435456
+check: /dev/disk1 has an NTFS boot sector
+parent: uid=0 opened /dev/disk1 O_RDWR as fd 3
+child: uid=501 gid=20 open(/dev/disk1) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps/bin/ntfs-3g /dev/fd/3 /private/tmp/edge-mnt -o backend=fskit,local,norecover,uid=501,gid=20,ro
+parent: child exit 0
+rc=0
+/dev/disk7s1 on /private/tmp/edge-mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+mounted
+### E3: patched ntfs-3g, non-root, block device by path (must still be refused)
+Unprivileged user can not mount NTFS block devices using the external FUSE
+library. Either mount the volume as root, or rebuild NTFS-3G with integrated
+FUSE support and make it setuid root. Please see more information at
+https://github.com/tuxera/ntfs-3g/wiki/NTFS-3G-FAQ
+rc=19
+### E4: patched ntfs-3g, non-root, /dev/fd/N not open in the process (fd 7)
+ntfs-3g: Failed to access volume '/dev/fd/7': Bad file descriptor
+
+ntfs-3g 2026.9.28 external FUSE 29 - Third Generation NTFS Driver
+		Configuration type 1, XATTRS are on, POSIX ACLS are off
+
+Copyright (C) 2005-2007 Yura Pakhuchiy
+Copyright (C) 2006-2009 Szabolcs Szakacsits
+Copyright (C) 2007-2022 Jean-Pierre Andre
+Copyright (C) 2009-2020 Erik Larsson
+
+Usage:    ntfs-3g [-o option[,...]] <device|image_file> <mount_point>
+
+Options:  ro (read-only mount), windows_names, uid=, gid=,
+          umask=, fmask=, dmask=, streams_interface=.
+          Please see the details in the manual (type: man ntfs-3g).
+
+Example: ntfs-3g /dev/sda1 /mnt/windows
+
+News, support and information:  https://github.com/tuxera/ntfs-3g/
+rc=11
+### E5: leading zero /dev/fd/03 is not treated as inherited
+check: /dev/disk1 type=block size=268435456 expect=268435456
+check: /dev/disk1 has an NTFS boot sector
+parent: uid=0 opened /dev/disk1 O_RDONLY as fd 3
+child: uid=501 gid=20 open(/dev/disk1) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps/bin/ntfs-3g /dev/fd/03 /private/tmp/edge-mnt -o backend=fskit,local,norecover,uid=501,gid=20,ro
+parent: child exit 0
+rc=0
+killed stray
+### E6: foreground (no_detach) to see the options NTFS-3G hands to libfuse
+/dev/disk7s1 on /private/tmp/edge-mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+mounted
+check: /dev/disk1 type=block size=268435456 expect=268435456
+check: /dev/disk1 has an NTFS boot sector
+parent: uid=0 opened /dev/disk1 O_RDONLY as fd 3
+child: uid=501 gid=20 open(/dev/disk1) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps/bin/ntfs-3g /dev/fd/3 /private/tmp/edge-mnt -o backend=fskit,local,norecover,uid=501,gid=20,ro,no_detach
+Version 2026.9.28 external FUSE 29
+Mounted /dev/fd/3 (Read-Only, label "clean256m4k", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,ro,no_detach
+Mount options: backend=fskit,local,ro,allow_other,nonempty,relatime,default_permissions,fsname=/dev/fd/3,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+killed stray
+Mount options: backend=fskit,local,ro,allow_other,nonempty,relatime,default_permissions,fsname=/dev/fd/3,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+parent: child killed by signal 9
+### E7: unpatched ntfs-3g on the same O_RDWR descriptor (for comparison)
+check: /dev/disk1 type=block size=268435456 expect=268435456
+check: /dev/disk1 has an NTFS boot sector
+parent: uid=0 opened /dev/disk1 O_RDWR as fd 3
+child: uid=501 gid=20 open(/dev/disk1) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps0/bin/ntfs-3g /dev/fd/3 /private/tmp/edge-mnt -o backend=fskit,local,norecover,uid=501,gid=20
+Unprivileged user can not mount NTFS block devices using the external FUSE
+library. Either mount the volume as root, or rebuild NTFS-3G with integrated
+FUSE support and make it setuid root. Please see more information at
+https://github.com/tuxera/ntfs-3g/wiki/NTFS-3G-FAQ
+parent: child exit 19
+rc=19
+### E8: /dev/fd/N semantics on a file the child CAN read (mode 644, owned by admin)
+user.O_RDONLY.open_by_path=ok
+user.O_RDONLY.orig_mode=O_RDONLY
+user.O_RDONLY.open_rdonly=ok
+user.O_RDONLY.new_mode_after_O_RDONLY_open=O_RDONLY
+user.O_RDONLY.new_offset_at_open=4096 (orig at 4096)
+user.O_RDONLY.orig_offset_after_new_seek_8192=8192
+user.O_RDONLY.shares_offset=yes
+user.O_RDONLY.shares_status_flags=yes
+user.O_RDONLY.same_dev_ino_rdev=yes
+user.O_RDONLY.fd_cloexec_on_new=no
+user.O_RDONLY.open_rdwr=error:Permission denied
+user.O_RDONLY.open_rdwr_excl=error:Permission denied
+user.O_RDONLY.fcntl_setlk_rd=ok
+user.O_RDWR.open_by_path=ok
+user.O_RDWR.orig_mode=O_RDWR
+user.O_RDWR.open_rdonly=ok
+user.O_RDWR.new_mode_after_O_RDONLY_open=O_RDWR
+user.O_RDWR.new_offset_at_open=4096 (orig at 4096)
+user.O_RDWR.orig_offset_after_new_seek_8192=8192
+user.O_RDWR.shares_offset=yes
+user.O_RDWR.shares_status_flags=yes
+user.O_RDWR.same_dev_ino_rdev=yes
+user.O_RDWR.fd_cloexec_on_new=no
+user.O_RDWR.open_rdwr=ok new_mode=O_RDWR
+user.O_RDWR.open_rdwr_excl=ok new_mode=O_RDWR
+user.O_RDWR.fcntl_setlk_wr=ok
+### E9: did DiskArbitration re-mount the disk after our unmounts?
+no automount of /dev/disk1
+### E10: diskutil list of the disk
+   Device Node:               /dev/disk1
+   Device / Media Name:       Apple Inc. VirtIO Block Media
+   Mounted:                   No
+   File System Personality:   NTFS
+   Name (User Visible):       Windows NT File System (NTFS)
+   Protocol:                  
+   Disk Size:                 268.4 MB (268435456 Bytes) (exactly 524288 512-Byte-Units)
+   Removable Media:           Fixed

@@ -1,0 +1,50 @@
+### F1: O_RDWR descriptor, ro option
+/dev/disk7s1 on /private/tmp/edge-mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+mounted after poll
+parent: uid=0 opened /dev/disk1 O_RDWR as fd 3
+child: uid=501 gid=20 open(/dev/disk1) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps/bin/ntfs-3g /dev/fd/3 /private/tmp/edge-mnt -o backend=fskit,local,norecover,uid=501,gid=20,ro,no_detach
+Version 2026.9.28 external FUSE 29
+Mounted /dev/fd/3 (Read-Only, label "clean256m4k", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,ro,no_detach
+Mount options: backend=fskit,local,ro,allow_other,nonempty,relatime,default_permissions,fsname=/dev/fd/3,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+Unmounting /dev/fd/3 (clean256m4k)
+parent: child exit 0
+### F2: O_RDONLY descriptor, no ro option (rw requested)
+/dev/disk7s1 on /private/tmp/edge-mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+mounted after poll
+parent: uid=0 opened /dev/disk1 O_RDONLY as fd 3
+child: uid=501 gid=20 open(/dev/disk1) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps/bin/ntfs-3g /dev/fd/3 /private/tmp/edge-mnt -o backend=fskit,local,norecover,uid=501,gid=20,no_detach
+Error opening '/dev/fd/3' read-write
+Could not mount read-write, trying read-only
+Version 2026.9.28 external FUSE 29
+Mounted /dev/fd/3 (Read-Only, label "clean256m4k", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,no_detach
+Mount options: backend=fskit,local,allow_other,nonempty,relatime,ro,default_permissions,fsname=/dev/fd/3,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+Unmounting /dev/fd/3 (clean256m4k)
+parent: child exit 0
+### F3: leading zero /dev/fd/03
+/dev/disk7s1 on /private/tmp/edge-mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+mounted after poll
+parent: uid=0 opened /dev/disk1 O_RDONLY as fd 3
+child: uid=501 gid=20 open(/dev/disk1) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps/bin/ntfs-3g /dev/fd/03 /private/tmp/edge-mnt -o backend=fskit,local,norecover,uid=501,gid=20,ro,no_detach
+Version 2026.9.28 external FUSE 29
+Requested device /dev/fd/03 canonicalized as /dev/fd/3
+Mounted /dev/fd/3 (Read-Only, label "clean256m4k", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,ro,no_detach
+Mount options: backend=fskit,local,ro,allow_other,nonempty,relatime,default_permissions,fsname=/dev/fd/3,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+Unmounting /dev/fd/3 (clean256m4k)
+parent: child exit 0
+### F4: O_RDWR descriptor, ro, detached (repeat of E2 with 20 s wait)
+parent: uid=0 opened /dev/disk1 O_RDWR as fd 3
+child: uid=501 gid=20 open(/dev/disk1) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps/bin/ntfs-3g /dev/fd/3 /private/tmp/edge-mnt -o backend=fskit,local,norecover,uid=501,gid=20,ro
+parent: child exit 0
+/dev/disk7s1 on /private/tmp/edge-mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+mounted
+end

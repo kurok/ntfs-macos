@@ -1,0 +1,84 @@
+== build fd_pass (cc -Wall -Wextra -Werror)
+PASS: fd_pass.c builds with -Wall -Wextra -Werror
+== target /Users/admin/fx/img0.img (expect 268435456 bytes)
+check: /Users/admin/fx/img0.img type=file size=268435456 expect=268435456
+check: /Users/admin/fx/img0.img has an NTFS boot sector
+----------  1 admin  staff  268435456 Nov 14 12:13 /Users/admin/fx/img0.img
+== /dev/fd/N semantics
+target=/Users/admin/fx/img0.img
+root.O_RDONLY.orig_mode=O_RDONLY
+root.O_RDONLY.open_rdonly=ok
+root.O_RDONLY.new_mode_after_O_RDONLY_open=O_RDONLY
+root.O_RDONLY.new_offset_at_open=4096 (orig at 4096)
+root.O_RDONLY.orig_offset_after_new_seek_8192=8192
+root.O_RDONLY.shares_offset=yes
+root.O_RDONLY.shares_status_flags=yes
+root.O_RDONLY.same_dev_ino_rdev=yes
+root.O_RDONLY.fd_cloexec_on_new=no
+root.O_RDONLY.open_rdwr=error:Permission denied
+root.O_RDONLY.open_rdwr_excl=error:Permission denied
+root.O_RDONLY.fcntl_setlk_rd=ok
+user.O_RDONLY.open_by_path=Permission denied
+user.O_RDONLY.orig_mode=O_RDONLY
+user.O_RDONLY.open_rdonly=error:Permission denied
+root.O_RDWR.orig_mode=O_RDWR
+root.O_RDWR.open_rdonly=ok
+root.O_RDWR.new_mode_after_O_RDONLY_open=O_RDWR
+root.O_RDWR.new_offset_at_open=4096 (orig at 4096)
+root.O_RDWR.orig_offset_after_new_seek_8192=8192
+root.O_RDWR.shares_offset=yes
+root.O_RDWR.shares_status_flags=yes
+root.O_RDWR.same_dev_ino_rdev=yes
+root.O_RDWR.fd_cloexec_on_new=no
+root.O_RDWR.open_rdwr=ok new_mode=O_RDWR
+root.O_RDWR.open_rdwr_excl=ok new_mode=O_RDWR
+root.O_RDWR.fcntl_setlk_wr=ok
+user.O_RDWR.open_by_path=Permission denied
+user.O_RDWR.orig_mode=O_RDWR
+user.O_RDWR.open_rdonly=error:Permission denied
+== case rw (O_RDWR descriptor)
+-- rw: sudo -n fd_pass run rw /Users/admin/fx/img0.img 268435456 admin /Users/admin/ntfsmac/deps0/bin/ntfs-3g @FD@ /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/fd_pass.DVR2em/mnt -o backend=fskit,local,norecover,uid=@UID@,gid=@GID@
+check: /Users/admin/fx/img0.img type=file size=268435456 expect=268435456
+check: /Users/admin/fx/img0.img has an NTFS boot sector
+parent: uid=0 opened /Users/admin/fx/img0.img O_RDWR as fd 3
+child: uid=501 gid=20 open(/Users/admin/fx/img0.img) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps0/bin/ntfs-3g /dev/fd/3 /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/fd_pass.DVR2em/mnt -o backend=fskit,local,norecover,uid=501,gid=20
+Failed to access '/dev/fd/img0.img': No such file or directory
+Please check '/dev/fd/img0.img' and the ntfs-3g binary permissions,
+and the mounting user ID. More explanation is provided at
+https://github.com/tuxera/ntfs-3g/wiki/NTFS-3G-FAQ
+parent: child exit 19
+-- rw: ntfs-3g exit 19
+FAIL: rw: ntfs-3g exit 19
+== case ro (O_RDONLY descriptor)
+-- ro: sudo -n fd_pass run ro /Users/admin/fx/img0.img 268435456 admin /Users/admin/ntfsmac/deps0/bin/ntfs-3g @FD@ /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/fd_pass.DVR2em/mnt -o backend=fskit,local,norecover,uid=@UID@,gid=@GID@,ro
+check: /Users/admin/fx/img0.img type=file size=268435456 expect=268435456
+check: /Users/admin/fx/img0.img has an NTFS boot sector
+parent: uid=0 opened /Users/admin/fx/img0.img O_RDONLY as fd 3
+child: uid=501 gid=20 open(/Users/admin/fx/img0.img) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps0/bin/ntfs-3g /dev/fd/3 /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/fd_pass.DVR2em/mnt -o backend=fskit,local,norecover,uid=501,gid=20,ro
+Failed to access '/dev/fd/img0.img': No such file or directory
+Please check '/dev/fd/img0.img' and the ntfs-3g binary permissions,
+and the mounting user ID. More explanation is provided at
+https://github.com/tuxera/ntfs-3g/wiki/NTFS-3G-FAQ
+parent: child exit 19
+-- ro: ntfs-3g exit 19
+FAIL: ro: ntfs-3g exit 19
+== ntfsfix -n through an inherited O_RDONLY descriptor
+check: /Users/admin/fx/img0.img type=file size=268435456 expect=268435456
+check: /Users/admin/fx/img0.img has an NTFS boot sector
+parent: uid=0 opened /Users/admin/fx/img0.img O_RDONLY as fd 3
+child: uid=501 gid=20 open(/Users/admin/fx/img0.img) by path: Permission denied (expected)
+child: exec /Users/admin/ntfsmac/deps0/bin/ntfsfix -n /dev/fd/3
+Mounting volume... Error opening '/dev/fd/3': Permission denied
+FAILED
+Attempting to correct errors... Error opening '/dev/fd/3': Permission denied
+FAILED
+Failed to startup volume: Permission denied
+Error opening '/dev/fd/3': Permission denied
+Volume is corrupt. You should run chkdsk.
+No change made
+parent: child exit 1
+FAIL: ntfsfix -n
+== result: 3 failure(s)
+exit=1

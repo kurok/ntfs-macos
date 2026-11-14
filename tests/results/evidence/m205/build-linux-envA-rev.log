@@ -1,0 +1,911 @@
+build-ntfs3g: unpacking ntfs-3g_ntfsprogs-2026.9.28.tgz into /tmp/b/src
+build-ntfs3g: applying 0003-inherited-device-descriptor.patch
+patching file include/ntfs-3g/device.h
+patching file libntfs-3g/unix_io.c
+patching file src/ntfs-3g.c
+patching file src/ntfs-3g_common.c
+build-ntfs3g: configure: /tmp/b/src/configure --prefix=/tmp/deps --exec-prefix=/tmp/deps --with-fuse=internal --enable-static --disable-shared --enable-ntfsprogs --disable-ldconfig --disable-mount-helper --disable-plugins
+checking build system type... aarch64-unknown-linux-gnu
+checking host system type... aarch64-unknown-linux-gnu
+checking target system type... aarch64-unknown-linux-gnu
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether sleep supports fractional seconds... yes
+checking filesystem timestamp resolution... 0.01
+checking whether build environment is sane... yes
+checking for a race-free mkdir -p... /usr/bin/mkdir -p
+checking for gawk... no
+checking for mawk... mawk
+checking whether make sets $(MAKE)... yes
+checking whether make supports nested variables... yes
+checking xargs -n works... yes
+checking whether UID '0' is supported by ustar format... yes
+checking whether GID '0' is supported by ustar format... yes
+checking how to create a ustar tar archive... gnutar
+checking whether to enable maintainer-specific portions of Makefiles... no
+checking whether make supports the include directive... yes (GNU style)
+checking for gcc... gcc
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether the compiler supports GNU C... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to enable C23 features... -std=gnu23
+checking whether gcc -std=gnu23 understands -c and -o together... yes
+checking dependency style of gcc -std=gnu23... gcc3
+checking for stdio.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for strings.h... yes
+checking for sys/stat.h... yes
+checking for sys/types.h... yes
+checking for unistd.h... yes
+checking for wchar.h... yes
+checking for minix/config.h... no
+checking for utime.h... yes
+checking whether it is safe to define __EXTENSIONS__... yes
+checking whether _XOPEN_SOURCE should be defined... no
+checking whether the compiler supports GNU C... (cached) yes
+checking whether gcc -std=gnu23 accepts -g... (cached) yes
+checking for gcc -std=gnu23 option to enable C23 features... (cached) -std=gnu23
+checking whether gcc -std=gnu23 -std=gnu23 understands -c and -o together... (cached) yes
+checking dependency style of gcc -std=gnu23 -std=gnu23... (cached) gcc3
+checking whether ln -s works... yes
+checking how to print strings... printf
+checking for a sed that does not truncate output... /usr/bin/sed
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+checking for fgrep... /usr/bin/grep -F
+checking for ld used by gcc -std=gnu23 -std=gnu23... /usr/bin/ld
+checking if the linker (/usr/bin/ld) is GNU ld... yes
+checking for BSD- or MS-compatible name lister (nm)... /usr/bin/nm -B
+checking the name lister (/usr/bin/nm -B) interface... BSD nm
+checking the maximum length of command line arguments... 1572864
+checking how to convert aarch64-unknown-linux-gnu file names to aarch64-unknown-linux-gnu format... func_convert_file_noop
+checking how to convert aarch64-unknown-linux-gnu file names to toolchain format... func_convert_file_noop
+checking for /usr/bin/ld option to reload object files... -r
+checking for file... file
+checking for objdump... objdump
+checking how to recognize dependent libraries... pass_all
+checking for dlltool... no
+checking how to associate runtime and link libraries... printf %s\n
+checking for ranlib... ranlib
+checking for ar... ar
+checking for archiver @FILE support... @
+checking for strip... strip
+checking command to parse /usr/bin/nm -B output from gcc -std=gnu23 -std=gnu23 object... ok
+checking for sysroot... no
+checking for a working dd... /usr/bin/dd
+checking how to truncate binary pipes... /usr/bin/dd bs=4096 count=1
+checking for mt... no
+checking if : is a manifest tool... no
+checking for dlfcn.h... yes
+checking which variant of shared library versioning to provide... (default) aix
+checking for objdir... .libs
+checking if gcc -std=gnu23 -std=gnu23 supports -fno-rtti -fno-exceptions... no
+checking for gcc -std=gnu23 -std=gnu23 option to produce PIC... -fPIC -DPIC
+checking if gcc -std=gnu23 -std=gnu23 PIC flag -fPIC -DPIC works... yes
+checking if gcc -std=gnu23 -std=gnu23 static flag -static works... yes
+checking if gcc -std=gnu23 -std=gnu23 supports -c -o file.o... yes
+checking if gcc -std=gnu23 -std=gnu23 supports -c -o file.o... (cached) yes
+checking whether the gcc -std=gnu23 -std=gnu23 linker (/usr/bin/ld) supports shared libraries... yes
+checking dynamic linker characteristics... GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... no
+checking whether to build static libraries... yes
+checking for pkg-config... /usr/bin/pkg-config
+checking pkg-config is at least version 0.9.0... yes
+checking for mv... /usr/bin/mv
+checking for rm... /usr/bin/rm
+checking for sed... (cached) /usr/bin/sed
+checking for ldconfig... /sbin/ldconfig
+checking Windows OS... no
+checking for pthread_create in -lpthread... yes
+checking Solaris OS... no
+checking for uuid/uuid.h... yes
+checking for uuid_generate... no
+checking for uuid_generate in -luuid... yes
+checking for hd.h... no
+configure: WARNING: ntfsprogs Windows compliant geometry code requires the hd library.
+checking for egrep... (cached) /usr/bin/grep -E
+checking for sys/mkdev.h... no
+checking for sys/sysmacros.h... yes
+checking for ctype.h... yes
+checking for fcntl.h... yes
+checking for libgen.h... yes
+checking for libintl.h... yes
+checking for limits.h... yes
+checking for locale.h... yes
+checking for mntent.h... yes
+checking for stddef.h... yes
+checking for stdint.h... (cached) yes
+checking for stdlib.h... (cached) yes
+checking for stdio.h... (cached) yes
+checking for stdarg.h... yes
+checking for string.h... (cached) yes
+checking for strings.h... (cached) yes
+checking for errno.h... yes
+checking for time.h... yes
+checking for unistd.h... (cached) yes
+checking for utime.h... (cached) yes
+checking for wchar.h... (cached) yes
+checking for getopt.h... yes
+checking for features.h... yes
+checking for regex.h... yes
+checking for endian.h... yes
+checking for byteswap.h... yes
+checking for sys/byteorder.h... no
+checking for sys/disk.h... no
+checking for sys/endian.h... no
+checking for sys/param.h... yes
+checking for sys/ioctl.h... yes
+checking for sys/mount.h... yes
+checking for sys/stat.h... (cached) yes
+checking for sys/types.h... (cached) yes
+checking for sys/vfs.h... yes
+checking for sys/statvfs.h... yes
+checking for linux/major.h... yes
+checking for linux/fd.h... yes
+checking for linux/fs.h... yes
+checking for inttypes.h... (cached) yes
+checking for linux/hdreg.h... yes
+checking for machine/endian.h... no
+checking for windows.h... no
+checking for syslog.h... yes
+checking for pwd.h... yes
+checking for malloc.h... yes
+checking for _Bool... yes
+checking for stdbool.h that conforms to C99 or later... yes
+checking whether byte ordering is bigendian... no
+checking for an ANSI C-conforming const... yes
+checking for inline... inline
+checking for off_t... yes
+checking for size_t... yes
+checking for struct stat.st_blocks... yes
+checking for struct stat.st_rdev... yes
+checking for struct stat.st_atim... yes
+checking for struct stat.st_atimespec... no
+checking for struct stat.st_atimensec... no
+checking for gcc -std=gnu23 -std=gnu23 options to detect undeclared functions... none needed
+checking for gcc -std=gnu23 -std=gnu23 options to ignore future-version functions... none needed
+checking whether optreset is declared... no
+checking for library containing getmntent... none required
+checking whether mbrtowc and mbstate_t are properly declared... yes
+checking for working memcmp... yes
+checking whether lstat correctly handles trailing slash... yes
+checking whether stat accepts an empty string... no
+checking for strftime... yes
+checking whether utime accepts a null argument... yes
+checking for vprintf... yes
+checking for atexit... yes
+checking for basename... yes
+checking for daemon... yes
+checking for dup2... yes
+checking for fdatasync... yes
+checking for ffs... yes
+checking for getopt_long... yes
+checking for hasmntopt... yes
+checking for mbsinit... yes
+checking for memmove... yes
+checking for memset... yes
+checking for realpath... yes
+checking for regcomp... yes
+checking for setlocale... yes
+checking for setxattr... yes
+checking for strcasecmp... yes
+checking for strchr... yes
+checking for strdup... yes
+checking for strerror... yes
+checking for strnlen... yes
+checking for strsep... yes
+checking for strtol... yes
+checking for strtoul... yes
+checking for sysconf... yes
+checking for utime... yes
+checking for utimensat... yes
+checking for gettimeofday... yes
+checking for clock_gettime... yes
+checking for fork... yes
+checking for memcpy... yes
+checking for random... yes
+checking for snprintf... yes
+checking for gcc -std=gnu23 -std=gnu23 option to support large files... none needed
+checking that generated files are newer than configure... done
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating include/Makefile
+config.status: creating include/fuse-lite/Makefile
+config.status: creating include/ntfs-3g/Makefile
+config.status: creating libfuse-lite/Makefile
+config.status: creating libntfs-3g/Makefile
+config.status: creating libntfs-3g/libntfs-3g.pc
+config.status: creating libntfs-3g/libntfs-3g.script.so
+config.status: creating ntfsprogs/Makefile
+config.status: creating ntfsprogs/mkntfs.8
+config.status: creating ntfsprogs/ntfscat.8
+config.status: creating ntfsprogs/ntfsclone.8
+config.status: creating ntfsprogs/ntfscluster.8
+config.status: creating ntfsprogs/ntfscmp.8
+config.status: creating ntfsprogs/ntfscp.8
+config.status: creating ntfsprogs/ntfsfix.8
+config.status: creating ntfsprogs/ntfsinfo.8
+config.status: creating ntfsprogs/ntfslabel.8
+config.status: creating ntfsprogs/ntfsls.8
+config.status: creating ntfsprogs/ntfsprogs.8
+config.status: creating ntfsprogs/ntfsresize.8
+config.status: creating ntfsprogs/ntfsundelete.8
+config.status: creating ntfsprogs/ntfsdecrypt.8
+config.status: creating ntfsprogs/ntfswipe.8
+config.status: creating ntfsprogs/ntfstruncate.8
+config.status: creating ntfsprogs/ntfsfallocate.8
+config.status: creating ntfsprogs/ntfsrecover.8
+config.status: creating ntfsprogs/ntfsusermap.8
+config.status: creating ntfsprogs/ntfssecaudit.8
+config.status: creating src/Makefile
+config.status: creating src/ntfs-3g.8
+config.status: creating src/ntfs-3g.probe.8
+config.status: creating config.h
+config.status: executing depfiles commands
+config.status: executing libtool commands
+rm: cannot remove 'libtoolT': No such file or directory
+You can type now 'make' to build ntfs-3g.
+build-ntfs3g: make -j18
+make  all-recursive
+make[1]: Entering directory '/tmp/b/src'
+Making all in include
+make[2]: Entering directory '/tmp/b/src/include'
+Making all in ntfs-3g
+make[3]: Entering directory '/tmp/b/src/include/ntfs-3g'
+make[3]: Nothing to be done for 'all'.
+make[3]: Leaving directory '/tmp/b/src/include/ntfs-3g'
+Making all in fuse-lite
+make[3]: Entering directory '/tmp/b/src/include/fuse-lite'
+make[3]: Nothing to be done for 'all'.
+make[3]: Leaving directory '/tmp/b/src/include/fuse-lite'
+make[3]: Entering directory '/tmp/b/src/include'
+make[3]: Nothing to be done for 'all-am'.
+make[3]: Leaving directory '/tmp/b/src/include'
+make[2]: Leaving directory '/tmp/b/src/include'
+Making all in libfuse-lite
+make[2]: Entering directory '/tmp/b/src/libfuse-lite'
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..   -I../include/fuse-lite    -g -O2 -Wall -MT libfuse_lite_la-fuse.lo -MD -MP -MF .deps/libfuse_lite_la-fuse.Tpo -c -o libfuse_lite_la-fuse.lo `test -f 'fuse.c' || echo './'`fuse.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..   -I../include/fuse-lite    -g -O2 -Wall -MT libfuse_lite_la-fuse_kern_chan.lo -MD -MP -MF .deps/libfuse_lite_la-fuse_kern_chan.Tpo -c -o libfuse_lite_la-fuse_kern_chan.lo `test -f 'fuse_kern_chan.c' || echo './'`fuse_kern_chan.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..   -I../include/fuse-lite    -g -O2 -Wall -MT libfuse_lite_la-fuse_loop.lo -MD -MP -MF .deps/libfuse_lite_la-fuse_loop.Tpo -c -o libfuse_lite_la-fuse_loop.lo `test -f 'fuse_loop.c' || echo './'`fuse_loop.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..   -I../include/fuse-lite    -g -O2 -Wall -MT libfuse_lite_la-fuse_lowlevel.lo -MD -MP -MF .deps/libfuse_lite_la-fuse_lowlevel.Tpo -c -o libfuse_lite_la-fuse_lowlevel.lo `test -f 'fuse_lowlevel.c' || echo './'`fuse_lowlevel.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..   -I../include/fuse-lite    -g -O2 -Wall -MT libfuse_lite_la-fuse_opt.lo -MD -MP -MF .deps/libfuse_lite_la-fuse_opt.Tpo -c -o libfuse_lite_la-fuse_opt.lo `test -f 'fuse_opt.c' || echo './'`fuse_opt.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..   -I../include/fuse-lite    -g -O2 -Wall -MT libfuse_lite_la-fuse_session.lo -MD -MP -MF .deps/libfuse_lite_la-fuse_session.Tpo -c -o libfuse_lite_la-fuse_session.lo `test -f 'fuse_session.c' || echo './'`fuse_session.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..   -I../include/fuse-lite    -g -O2 -Wall -MT libfuse_lite_la-fuse_signals.lo -MD -MP -MF .deps/libfuse_lite_la-fuse_signals.Tpo -c -o libfuse_lite_la-fuse_signals.lo `test -f 'fuse_signals.c' || echo './'`fuse_signals.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..   -I../include/fuse-lite    -g -O2 -Wall -MT libfuse_lite_la-fusermount.lo -MD -MP -MF .deps/libfuse_lite_la-fusermount.Tpo -c -o libfuse_lite_la-fusermount.lo `test -f 'fusermount.c' || echo './'`fusermount.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..   -I../include/fuse-lite    -g -O2 -Wall -MT libfuse_lite_la-helper.lo -MD -MP -MF .deps/libfuse_lite_la-helper.Tpo -c -o libfuse_lite_la-helper.lo `test -f 'helper.c' || echo './'`helper.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..   -I../include/fuse-lite    -g -O2 -Wall -MT libfuse_lite_la-mount.lo -MD -MP -MF .deps/libfuse_lite_la-mount.Tpo -c -o libfuse_lite_la-mount.lo `test -f 'mount.c' || echo './'`mount.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..   -I../include/fuse-lite    -g -O2 -Wall -MT libfuse_lite_la-mount_util.lo -MD -MP -MF .deps/libfuse_lite_la-mount_util.Tpo -c -o libfuse_lite_la-mount_util.lo `test -f 'mount_util.c' || echo './'`mount_util.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/fuse-lite -g -O2 -Wall -MT libfuse_lite_la-fuse.lo -MD -MP -MF .deps/libfuse_lite_la-fuse.Tpo -c fuse.c -o libfuse_lite_la-fuse.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/fuse-lite -g -O2 -Wall -MT libfuse_lite_la-fuse_kern_chan.lo -MD -MP -MF .deps/libfuse_lite_la-fuse_kern_chan.Tpo -c fuse_kern_chan.c -o libfuse_lite_la-fuse_kern_chan.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/fuse-lite -g -O2 -Wall -MT libfuse_lite_la-fuse_session.lo -MD -MP -MF .deps/libfuse_lite_la-fuse_session.Tpo -c fuse_session.c -o libfuse_lite_la-fuse_session.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/fuse-lite -g -O2 -Wall -MT libfuse_lite_la-fuse_loop.lo -MD -MP -MF .deps/libfuse_lite_la-fuse_loop.Tpo -c fuse_loop.c -o libfuse_lite_la-fuse_loop.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/fuse-lite -g -O2 -Wall -MT libfuse_lite_la-fuse_lowlevel.lo -MD -MP -MF .deps/libfuse_lite_la-fuse_lowlevel.Tpo -c fuse_lowlevel.c -o libfuse_lite_la-fuse_lowlevel.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/fuse-lite -g -O2 -Wall -MT libfuse_lite_la-fuse_signals.lo -MD -MP -MF .deps/libfuse_lite_la-fuse_signals.Tpo -c fuse_signals.c -o libfuse_lite_la-fuse_signals.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/fuse-lite -g -O2 -Wall -MT libfuse_lite_la-fusermount.lo -MD -MP -MF .deps/libfuse_lite_la-fusermount.Tpo -c fusermount.c -o libfuse_lite_la-fusermount.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/fuse-lite -g -O2 -Wall -MT libfuse_lite_la-fuse_opt.lo -MD -MP -MF .deps/libfuse_lite_la-fuse_opt.Tpo -c fuse_opt.c -o libfuse_lite_la-fuse_opt.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/fuse-lite -g -O2 -Wall -MT libfuse_lite_la-mount_util.lo -MD -MP -MF .deps/libfuse_lite_la-mount_util.Tpo -c mount_util.c -o libfuse_lite_la-mount_util.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/fuse-lite -g -O2 -Wall -MT libfuse_lite_la-helper.lo -MD -MP -MF .deps/libfuse_lite_la-helper.Tpo -c helper.c -o libfuse_lite_la-helper.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/fuse-lite -g -O2 -Wall -MT libfuse_lite_la-mount.lo -MD -MP -MF .deps/libfuse_lite_la-mount.Tpo -c mount.c -o libfuse_lite_la-mount.o
+mv -f .deps/libfuse_lite_la-fuse_loop.Tpo .deps/libfuse_lite_la-fuse_loop.Plo
+mv -f .deps/libfuse_lite_la-helper.Tpo .deps/libfuse_lite_la-helper.Plo
+mv -f .deps/libfuse_lite_la-fuse_signals.Tpo .deps/libfuse_lite_la-fuse_signals.Plo
+mv -f .deps/libfuse_lite_la-fuse_kern_chan.Tpo .deps/libfuse_lite_la-fuse_kern_chan.Plo
+mv -f .deps/libfuse_lite_la-fuse_session.Tpo .deps/libfuse_lite_la-fuse_session.Plo
+mv -f .deps/libfuse_lite_la-mount.Tpo .deps/libfuse_lite_la-mount.Plo
+mv -f .deps/libfuse_lite_la-mount_util.Tpo .deps/libfuse_lite_la-mount_util.Plo
+mv -f .deps/libfuse_lite_la-fuse_opt.Tpo .deps/libfuse_lite_la-fuse_opt.Plo
+mv -f .deps/libfuse_lite_la-fusermount.Tpo .deps/libfuse_lite_la-fusermount.Plo
+mv -f .deps/libfuse_lite_la-fuse_lowlevel.Tpo .deps/libfuse_lite_la-fuse_lowlevel.Plo
+mv -f .deps/libfuse_lite_la-fuse.Tpo .deps/libfuse_lite_la-fuse.Plo
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23   -g -O2 -Wall   -o libfuse-lite.la  libfuse_lite_la-fuse.lo libfuse_lite_la-fuse_kern_chan.lo libfuse_lite_la-fuse_loop.lo libfuse_lite_la-fuse_lowlevel.lo libfuse_lite_la-fuse_opt.lo libfuse_lite_la-fuse_session.lo libfuse_lite_la-fuse_signals.lo libfuse_lite_la-fusermount.lo libfuse_lite_la-helper.lo libfuse_lite_la-mount.lo libfuse_lite_la-mount_util.lo -lpthread 
+libtool: link: ar cr .libs/libfuse-lite.a libfuse_lite_la-fuse.o libfuse_lite_la-fuse_kern_chan.o libfuse_lite_la-fuse_loop.o libfuse_lite_la-fuse_lowlevel.o libfuse_lite_la-fuse_opt.o libfuse_lite_la-fuse_session.o libfuse_lite_la-fuse_signals.o libfuse_lite_la-fusermount.o libfuse_lite_la-helper.o libfuse_lite_la-mount.o libfuse_lite_la-mount_util.o
+libtool: link: ranlib .libs/libfuse-lite.a
+libtool: link: ( cd ".libs" && rm -f "libfuse-lite.la" && ln -s "../libfuse-lite.la" "libfuse-lite.la" )
+make[2]: Leaving directory '/tmp/b/src/libfuse-lite'
+Making all in libntfs-3g
+make[2]: Entering directory '/tmp/b/src/libntfs-3g'
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-acls.lo -MD -MP -MF .deps/libntfs_3g_la-acls.Tpo -c -o libntfs_3g_la-acls.lo `test -f 'acls.c' || echo './'`acls.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-attrib.lo -MD -MP -MF .deps/libntfs_3g_la-attrib.Tpo -c -o libntfs_3g_la-attrib.lo `test -f 'attrib.c' || echo './'`attrib.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-attrlist.lo -MD -MP -MF .deps/libntfs_3g_la-attrlist.Tpo -c -o libntfs_3g_la-attrlist.lo `test -f 'attrlist.c' || echo './'`attrlist.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-bitmap.lo -MD -MP -MF .deps/libntfs_3g_la-bitmap.Tpo -c -o libntfs_3g_la-bitmap.lo `test -f 'bitmap.c' || echo './'`bitmap.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-bootsect.lo -MD -MP -MF .deps/libntfs_3g_la-bootsect.Tpo -c -o libntfs_3g_la-bootsect.lo `test -f 'bootsect.c' || echo './'`bootsect.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-cache.lo -MD -MP -MF .deps/libntfs_3g_la-cache.Tpo -c -o libntfs_3g_la-cache.lo `test -f 'cache.c' || echo './'`cache.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-collate.lo -MD -MP -MF .deps/libntfs_3g_la-collate.Tpo -c -o libntfs_3g_la-collate.lo `test -f 'collate.c' || echo './'`collate.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-compat.lo -MD -MP -MF .deps/libntfs_3g_la-compat.Tpo -c -o libntfs_3g_la-compat.lo `test -f 'compat.c' || echo './'`compat.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-compress.lo -MD -MP -MF .deps/libntfs_3g_la-compress.Tpo -c -o libntfs_3g_la-compress.lo `test -f 'compress.c' || echo './'`compress.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-debug.lo -MD -MP -MF .deps/libntfs_3g_la-debug.Tpo -c -o libntfs_3g_la-debug.lo `test -f 'debug.c' || echo './'`debug.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-device.lo -MD -MP -MF .deps/libntfs_3g_la-device.Tpo -c -o libntfs_3g_la-device.lo `test -f 'device.c' || echo './'`device.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-dir.lo -MD -MP -MF .deps/libntfs_3g_la-dir.Tpo -c -o libntfs_3g_la-dir.lo `test -f 'dir.c' || echo './'`dir.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-ea.lo -MD -MP -MF .deps/libntfs_3g_la-ea.Tpo -c -o libntfs_3g_la-ea.lo `test -f 'ea.c' || echo './'`ea.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-efs.lo -MD -MP -MF .deps/libntfs_3g_la-efs.Tpo -c -o libntfs_3g_la-efs.lo `test -f 'efs.c' || echo './'`efs.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-index.lo -MD -MP -MF .deps/libntfs_3g_la-index.Tpo -c -o libntfs_3g_la-index.lo `test -f 'index.c' || echo './'`index.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-inode.lo -MD -MP -MF .deps/libntfs_3g_la-inode.Tpo -c -o libntfs_3g_la-inode.lo `test -f 'inode.c' || echo './'`inode.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-ioctl.lo -MD -MP -MF .deps/libntfs_3g_la-ioctl.Tpo -c -o libntfs_3g_la-ioctl.lo `test -f 'ioctl.c' || echo './'`ioctl.c
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-lcnalloc.lo -MD -MP -MF .deps/libntfs_3g_la-lcnalloc.Tpo -c -o libntfs_3g_la-lcnalloc.lo `test -f 'lcnalloc.c' || echo './'`lcnalloc.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-attrib.lo -MD -MP -MF .deps/libntfs_3g_la-attrib.Tpo -c attrib.c -o libntfs_3g_la-attrib.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-bitmap.lo -MD -MP -MF .deps/libntfs_3g_la-bitmap.Tpo -c bitmap.c -o libntfs_3g_la-bitmap.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-collate.lo -MD -MP -MF .deps/libntfs_3g_la-collate.Tpo -c collate.c -o libntfs_3g_la-collate.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-acls.lo -MD -MP -MF .deps/libntfs_3g_la-acls.Tpo -c acls.c -o libntfs_3g_la-acls.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-debug.lo -MD -MP -MF .deps/libntfs_3g_la-debug.Tpo -c debug.c -o libntfs_3g_la-debug.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-cache.lo -MD -MP -MF .deps/libntfs_3g_la-cache.Tpo -c cache.c -o libntfs_3g_la-cache.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-bootsect.lo -MD -MP -MF .deps/libntfs_3g_la-bootsect.Tpo -c bootsect.c -o libntfs_3g_la-bootsect.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-efs.lo -MD -MP -MF .deps/libntfs_3g_la-efs.Tpo -c efs.c -o libntfs_3g_la-efs.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-attrlist.lo -MD -MP -MF .deps/libntfs_3g_la-attrlist.Tpo -c attrlist.c -o libntfs_3g_la-attrlist.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-dir.lo -MD -MP -MF .deps/libntfs_3g_la-dir.Tpo -c dir.c -o libntfs_3g_la-dir.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-index.lo -MD -MP -MF .deps/libntfs_3g_la-index.Tpo -c index.c -o libntfs_3g_la-index.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-ea.lo -MD -MP -MF .deps/libntfs_3g_la-ea.Tpo -c ea.c -o libntfs_3g_la-ea.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-inode.lo -MD -MP -MF .deps/libntfs_3g_la-inode.Tpo -c inode.c -o libntfs_3g_la-inode.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-compat.lo -MD -MP -MF .deps/libntfs_3g_la-compat.Tpo -c compat.c -o libntfs_3g_la-compat.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-compress.lo -MD -MP -MF .deps/libntfs_3g_la-compress.Tpo -c compress.c -o libntfs_3g_la-compress.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-lcnalloc.lo -MD -MP -MF .deps/libntfs_3g_la-lcnalloc.Tpo -c lcnalloc.c -o libntfs_3g_la-lcnalloc.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-device.lo -MD -MP -MF .deps/libntfs_3g_la-device.Tpo -c device.c -o libntfs_3g_la-device.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-ioctl.lo -MD -MP -MF .deps/libntfs_3g_la-ioctl.Tpo -c ioctl.c -o libntfs_3g_la-ioctl.o
+collate.c: In function 'ntfs_collate_file_name':
+collate.c:230:36: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  230 |                         (ntfschar*)&file_name_attr1->file_name,
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+collate.c:232:36: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  232 |                         (ntfschar*)&file_name_attr2->file_name,
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+mv -f .deps/libntfs_3g_la-debug.Tpo .deps/libntfs_3g_la-debug.Plo
+index.c: In function 'ntfs_ie_filename_get':
+index.c:278:37: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  278 |         return ntfs_attr_name_get(fn->file_name, fn->file_name_length);
+      |                                   ~~^~~~~~~~~~~
+dir.c: In function 'ntfs_inode_lookup_by_name':
+dir.c:334:44: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  334 |                                 (ntfschar*)&ie->key.file_name.file_name,
+      |                                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+dir.c:455:44: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  455 |                                 (ntfschar*)&ie->key.file_name.file_name,
+      |                                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-logfile.lo -MD -MP -MF .deps/libntfs_3g_la-logfile.Tpo -c -o libntfs_3g_la-logfile.lo `test -f 'logfile.c' || echo './'`logfile.c
+inode.c: In function 'ntfs_inode_add_attrlist':
+inode.c:1264:61: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+ 1264 |                         if (!ntfs_attr_lookup(ale->type, ale->name,
+      |                                                          ~~~^~~~~~
+dir.c: In function 'ntfs_filldir':
+dir.c:1001:49: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+ 1001 |                         res = filldir(dirent, fn->file_name,
+      |                                               ~~^~~~~~~~~~~
+mv -f .deps/libntfs_3g_la-compat.Tpo .deps/libntfs_3g_la-compat.Plo
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-logging.lo -MD -MP -MF .deps/libntfs_3g_la-logging.Tpo -c -o libntfs_3g_la-logging.lo `test -f 'logging.c' || echo './'`logging.c
+dir.c: In function 'ntfs_delete':
+dir.c:1990:44: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+ 1990 |                 if (ntfs_names_are_equal(fn->file_name, fn->file_name_length,
+      |                                          ~~^~~~~~~~~~~
+inode.c:1163:60: warning: pointer 'al' may be used after 'realloc' [-Wuse-after-free]
+ 1163 |                 ale = (ATTR_LIST_ENTRY *)(aln + ((u8 *)ale - al));
+      |                                                 ~~~~~~~~~~~^~~~~
+inode.c:1157:23: note: call to 'realloc' here
+ 1157 |                 aln = realloc(al, al_len);
+      |                       ^~~~~~~~~~~~~~~~~~~
+ea.c: In function 'ntfs_ea_inconsistent':
+ea.c:235:39: warning: array subscript 255 is outside the bounds of an interior zero-length array 'const u8[0]' {aka 'const unsigned char[]'} [-Wzero-length-bounds]
+  235 |                         && !p_ea->name[p_ea->name_length];
+      |                             ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+In file included from ea.c:55:
+../include/ntfs-3g/layout.h:2514:12: note: while referencing 'name'
+ 2514 |         u8 name[0];             /* Name of the EA. */
+      |            ^~~~
+ea.c: In function 'ntfs_need_ea.part.0':
+ea.c:89:39: warning: 'dummy' may be used uninitialized [-Wmaybe-uninitialized]
+   89 |                                 res = ntfs_attr_add(ni, type,
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~
+   90 |                                         AT_UNNAMED,0,&dummy,(s64)size);
+      |                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from ea.c:56:
+../include/ntfs-3g/attrib.h:336:12: note: by argument 5 of type 'const u8 *' {aka 'const unsigned char *'} to 'ntfs_attr_add' declared here
+  336 | extern int ntfs_attr_add(ntfs_inode *ni, ATTR_TYPES type,
+      |            ^~~~~~~~~~~~~
+ea.c:77:12: note: 'dummy' declared here
+   77 |         u8 dummy;
+      |            ^~~~~
+mv -f .deps/libntfs_3g_la-collate.Tpo .deps/libntfs_3g_la-collate.Plo
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-mft.lo -MD -MP -MF .deps/libntfs_3g_la-mft.Tpo -c -o libntfs_3g_la-mft.lo `test -f 'mft.c' || echo './'`mft.c
+mv -f .deps/libntfs_3g_la-bootsect.Tpo .deps/libntfs_3g_la-bootsect.Plo
+mv -f .deps/libntfs_3g_la-bitmap.Tpo .deps/libntfs_3g_la-bitmap.Plo
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-misc.lo -MD -MP -MF .deps/libntfs_3g_la-misc.Tpo -c -o libntfs_3g_la-misc.lo `test -f 'misc.c' || echo './'`misc.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-logfile.lo -MD -MP -MF .deps/libntfs_3g_la-logfile.Tpo -c logfile.c -o libntfs_3g_la-logfile.o
+mv -f .deps/libntfs_3g_la-attrlist.Tpo .deps/libntfs_3g_la-attrlist.Plo
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-mst.lo -MD -MP -MF .deps/libntfs_3g_la-mst.Tpo -c -o libntfs_3g_la-mst.lo `test -f 'mst.c' || echo './'`mst.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-logging.lo -MD -MP -MF .deps/libntfs_3g_la-logging.Tpo -c logging.c -o libntfs_3g_la-logging.o
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-object_id.lo -MD -MP -MF .deps/libntfs_3g_la-object_id.Tpo -c -o libntfs_3g_la-object_id.lo `test -f 'object_id.c' || echo './'`object_id.c
+ea.c: In function 'ntfs_ea_check_wsldev':
+ea.c:502:41: warning: array subscript 256 is outside the bounds of an interior zero-length array 'const u8[0]' {aka 'const unsigned char[]'} [-Wzero-length-bounds]
+  502 |                         memcpy(&device, &p_ea->name[p_ea->name_length + 1],
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../include/ntfs-3g/layout.h:2514:12: note: while referencing 'name'
+ 2514 |         u8 name[0];             /* Name of the EA. */
+      |            ^~~~
+mv -f .deps/libntfs_3g_la-efs.Tpo .deps/libntfs_3g_la-efs.Plo
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-realpath.lo -MD -MP -MF .deps/libntfs_3g_la-realpath.Tpo -c -o libntfs_3g_la-realpath.lo `test -f 'realpath.c' || echo './'`realpath.c
+mv -f .deps/libntfs_3g_la-ioctl.Tpo .deps/libntfs_3g_la-ioctl.Plo
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-reparse.lo -MD -MP -MF .deps/libntfs_3g_la-reparse.Tpo -c -o libntfs_3g_la-reparse.lo `test -f 'reparse.c' || echo './'`reparse.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-mft.lo -MD -MP -MF .deps/libntfs_3g_la-mft.Tpo -c mft.c -o libntfs_3g_la-mft.o
+mv -f .deps/libntfs_3g_la-ea.Tpo .deps/libntfs_3g_la-ea.Plo
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-misc.lo -MD -MP -MF .deps/libntfs_3g_la-misc.Tpo -c misc.c -o libntfs_3g_la-misc.o
+mv -f .deps/libntfs_3g_la-cache.Tpo .deps/libntfs_3g_la-cache.Plo
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-runlist.lo -MD -MP -MF .deps/libntfs_3g_la-runlist.Tpo -c -o libntfs_3g_la-runlist.lo `test -f 'runlist.c' || echo './'`runlist.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-mst.lo -MD -MP -MF .deps/libntfs_3g_la-mst.Tpo -c mst.c -o libntfs_3g_la-mst.o
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-security.lo -MD -MP -MF .deps/libntfs_3g_la-security.Tpo -c -o libntfs_3g_la-security.lo `test -f 'security.c' || echo './'`security.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-object_id.lo -MD -MP -MF .deps/libntfs_3g_la-object_id.Tpo -c object_id.c -o libntfs_3g_la-object_id.o
+mv -f .deps/libntfs_3g_la-device.Tpo .deps/libntfs_3g_la-device.Plo
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-unistr.lo -MD -MP -MF .deps/libntfs_3g_la-unistr.Tpo -c -o libntfs_3g_la-unistr.lo `test -f 'unistr.c' || echo './'`unistr.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-realpath.lo -MD -MP -MF .deps/libntfs_3g_la-realpath.Tpo -c realpath.c -o libntfs_3g_la-realpath.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-reparse.lo -MD -MP -MF .deps/libntfs_3g_la-reparse.Tpo -c reparse.c -o libntfs_3g_la-reparse.o
+mv -f .deps/libntfs_3g_la-misc.Tpo .deps/libntfs_3g_la-misc.Plo
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-volume.lo -MD -MP -MF .deps/libntfs_3g_la-volume.Tpo -c -o libntfs_3g_la-volume.lo `test -f 'volume.c' || echo './'`volume.c
+mv -f .deps/libntfs_3g_la-logging.Tpo .deps/libntfs_3g_la-logging.Plo
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-xattrs.lo -MD -MP -MF .deps/libntfs_3g_la-xattrs.Tpo -c -o libntfs_3g_la-xattrs.lo `test -f 'xattrs.c' || echo './'`xattrs.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-runlist.lo -MD -MP -MF .deps/libntfs_3g_la-runlist.Tpo -c runlist.c -o libntfs_3g_la-runlist.o
+reparse.c: In function 'ntfs_fix_file_name':
+reparse.c:185:61: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  185 |                            && ntfs_names_are_equal(find.attr.file_name,
+      |                                                    ~~~~~~~~~^~~~~~~~~~
+reparse.c:187:38: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  187 |                                 found->file_name, found->file_name_length,
+      |                                 ~~~~~^~~~~~~~~~~
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-security.lo -MD -MP -MF .deps/libntfs_3g_la-security.Tpo -c security.c -o libntfs_3g_la-security.o
+mv -f .deps/libntfs_3g_la-lcnalloc.Tpo .deps/libntfs_3g_la-lcnalloc.Plo
+/bin/bash ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-unix_io.lo -MD -MP -MF .deps/libntfs_3g_la-unix_io.Tpo -c -o libntfs_3g_la-unix_io.lo `test -f 'unix_io.c' || echo './'`unix_io.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-unistr.lo -MD -MP -MF .deps/libntfs_3g_la-unistr.Tpo -c unistr.c -o libntfs_3g_la-unistr.o
+mv -f .deps/libntfs_3g_la-realpath.Tpo .deps/libntfs_3g_la-realpath.Plo
+mv -f .deps/libntfs_3g_la-mst.Tpo .deps/libntfs_3g_la-mst.Plo
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-volume.lo -MD -MP -MF .deps/libntfs_3g_la-volume.Tpo -c volume.c -o libntfs_3g_la-volume.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-xattrs.lo -MD -MP -MF .deps/libntfs_3g_la-xattrs.Tpo -c xattrs.c -o libntfs_3g_la-xattrs.o
+unistr.c: In function 'ntfs_file_value_upcase':
+unistr.c:432:37: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  432 |         ntfs_name_upcase((ntfschar*)&file_name_attr->file_name,
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-unix_io.lo -MD -MP -MF .deps/libntfs_3g_la-unix_io.Tpo -c unix_io.c -o libntfs_3g_la-unix_io.o
+mv -f .deps/libntfs_3g_la-logfile.Tpo .deps/libntfs_3g_la-logfile.Plo
+reparse.c:165:52: warning: array subscript 254 is outside the bounds of an interior zero-length array 'ntfschar[0]' {aka 'short unsigned int[]'} [-Wzero-length-bounds]
+  165 |                                 find.attr.file_name[i] = vol->upcase[cpuchar];
+      |                                 ~~~~~~~~~~~~~~~~~~~^~~
+In file included from reparse.c:50:
+../include/ntfs-3g/layout.h:1141:18: note: while referencing 'file_name'
+ 1141 | /* 42*/ ntfschar file_name[0];                  /* File name in Unicode. */
+      |                  ^~~~~~~~~
+reparse.c:167:52: warning: array subscript 254 is outside the bounds of an interior zero-length array 'ntfschar[0]' {aka 'short unsigned int[]'} [-Wzero-length-bounds]
+  167 |                                 find.attr.file_name[i] = uname[i];
+      |                                 ~~~~~~~~~~~~~~~~~~~^~~
+../include/ntfs-3g/layout.h:1141:18: note: while referencing 'file_name'
+ 1141 | /* 42*/ ntfschar file_name[0];                  /* File name in Unicode. */
+      |                  ^~~~~~~~~
+mv -f .deps/libntfs_3g_la-object_id.Tpo .deps/libntfs_3g_la-object_id.Plo
+mv -f .deps/libntfs_3g_la-inode.Tpo .deps/libntfs_3g_la-inode.Plo
+mv -f .deps/libntfs_3g_la-unix_io.Tpo .deps/libntfs_3g_la-unix_io.Plo
+mv -f .deps/libntfs_3g_la-xattrs.Tpo .deps/libntfs_3g_la-xattrs.Plo
+mv -f .deps/libntfs_3g_la-reparse.Tpo .deps/libntfs_3g_la-reparse.Plo
+mv -f .deps/libntfs_3g_la-compress.Tpo .deps/libntfs_3g_la-compress.Plo
+mv -f .deps/libntfs_3g_la-index.Tpo .deps/libntfs_3g_la-index.Plo
+mv -f .deps/libntfs_3g_la-mft.Tpo .deps/libntfs_3g_la-mft.Plo
+mv -f .deps/libntfs_3g_la-unistr.Tpo .deps/libntfs_3g_la-unistr.Plo
+mv -f .deps/libntfs_3g_la-acls.Tpo .deps/libntfs_3g_la-acls.Plo
+mv -f .deps/libntfs_3g_la-dir.Tpo .deps/libntfs_3g_la-dir.Plo
+mv -f .deps/libntfs_3g_la-runlist.Tpo .deps/libntfs_3g_la-runlist.Plo
+mv -f .deps/libntfs_3g_la-volume.Tpo .deps/libntfs_3g_la-volume.Plo
+mv -f .deps/libntfs_3g_la-security.Tpo .deps/libntfs_3g_la-security.Plo
+mv -f .deps/libntfs_3g_la-attrib.Tpo .deps/libntfs_3g_la-attrib.Plo
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall -version-info 91 -no-undefined  -o libntfs-3g.la -rpath /tmp/deps/lib libntfs_3g_la-acls.lo libntfs_3g_la-attrib.lo libntfs_3g_la-attrlist.lo libntfs_3g_la-bitmap.lo libntfs_3g_la-bootsect.lo libntfs_3g_la-cache.lo libntfs_3g_la-collate.lo libntfs_3g_la-compat.lo libntfs_3g_la-compress.lo libntfs_3g_la-debug.lo libntfs_3g_la-device.lo libntfs_3g_la-dir.lo libntfs_3g_la-ea.lo libntfs_3g_la-efs.lo libntfs_3g_la-index.lo libntfs_3g_la-inode.lo libntfs_3g_la-ioctl.lo libntfs_3g_la-lcnalloc.lo libntfs_3g_la-logfile.lo libntfs_3g_la-logging.lo libntfs_3g_la-mft.lo libntfs_3g_la-misc.lo libntfs_3g_la-mst.lo libntfs_3g_la-object_id.lo libntfs_3g_la-realpath.lo libntfs_3g_la-reparse.lo libntfs_3g_la-runlist.lo libntfs_3g_la-security.lo libntfs_3g_la-unistr.lo libntfs_3g_la-volume.lo libntfs_3g_la-xattrs.lo  libntfs_3g_la-unix_io.lo  
+libtool: link: ar cr .libs/libntfs-3g.a libntfs_3g_la-acls.o libntfs_3g_la-attrib.o libntfs_3g_la-attrlist.o libntfs_3g_la-bitmap.o libntfs_3g_la-bootsect.o libntfs_3g_la-cache.o libntfs_3g_la-collate.o libntfs_3g_la-compat.o libntfs_3g_la-compress.o libntfs_3g_la-debug.o libntfs_3g_la-device.o libntfs_3g_la-dir.o libntfs_3g_la-ea.o libntfs_3g_la-efs.o libntfs_3g_la-index.o libntfs_3g_la-inode.o libntfs_3g_la-ioctl.o libntfs_3g_la-lcnalloc.o libntfs_3g_la-logfile.o libntfs_3g_la-logging.o libntfs_3g_la-mft.o libntfs_3g_la-misc.o libntfs_3g_la-mst.o libntfs_3g_la-object_id.o libntfs_3g_la-realpath.o libntfs_3g_la-reparse.o libntfs_3g_la-runlist.o libntfs_3g_la-security.o libntfs_3g_la-unistr.o libntfs_3g_la-volume.o libntfs_3g_la-xattrs.o libntfs_3g_la-unix_io.o
+libtool: link: ranlib .libs/libntfs-3g.a
+libtool: link: ( cd ".libs" && rm -f "libntfs-3g.la" && ln -s "../libntfs-3g.la" "libntfs-3g.la" )
+make[2]: Leaving directory '/tmp/b/src/libntfs-3g'
+Making all in ntfsprogs
+make[2]: Entering directory '/tmp/b/src/ntfsprogs'
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfsfix.o -MD -MP -MF .deps/ntfsfix.Tpo -c -o ntfsfix.o ntfsfix.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT utils.o -MD -MP -MF .deps/utils.Tpo -c -o utils.o utils.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfsinfo.o -MD -MP -MF .deps/ntfsinfo.Tpo -c -o ntfsinfo.o ntfsinfo.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfscluster.o -MD -MP -MF .deps/ntfscluster.Tpo -c -o ntfscluster.o ntfscluster.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT cluster.o -MD -MP -MF .deps/cluster.Tpo -c -o cluster.o cluster.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfsls.o -MD -MP -MF .deps/ntfsls.Tpo -c -o ntfsls.o ntfsls.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfscat.o -MD -MP -MF .deps/ntfscat.Tpo -c -o ntfscat.o ntfscat.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfscmp.o -MD -MP -MF .deps/ntfscmp.Tpo -c -o ntfscmp.o ntfscmp.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g     -g -O2 -Wall -MT mkntfs-attrdef.o -MD -MP -MF .deps/mkntfs-attrdef.Tpo -c -o mkntfs-attrdef.o `test -f 'attrdef.c' || echo './'`attrdef.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g     -g -O2 -Wall -MT mkntfs-boot.o -MD -MP -MF .deps/mkntfs-boot.Tpo -c -o mkntfs-boot.o `test -f 'boot.c' || echo './'`boot.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g     -g -O2 -Wall -MT mkntfs-sd.o -MD -MP -MF .deps/mkntfs-sd.Tpo -c -o mkntfs-sd.o `test -f 'sd.c' || echo './'`sd.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g     -g -O2 -Wall -MT mkntfs-mkntfs.o -MD -MP -MF .deps/mkntfs-mkntfs.Tpo -c -o mkntfs-mkntfs.o `test -f 'mkntfs.c' || echo './'`mkntfs.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g     -g -O2 -Wall -MT mkntfs-utils.o -MD -MP -MF .deps/mkntfs-utils.Tpo -c -o mkntfs-utils.o `test -f 'utils.c' || echo './'`utils.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfslabel.o -MD -MP -MF .deps/ntfslabel.Tpo -c -o ntfslabel.o ntfslabel.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfsundelete.o -MD -MP -MF .deps/ntfsundelete.Tpo -c -o ntfsundelete.o ntfsundelete.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfsresize.o -MD -MP -MF .deps/ntfsresize.Tpo -c -o ntfsresize.o ntfsresize.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfsclone.o -MD -MP -MF .deps/ntfsclone.Tpo -c -o ntfsclone.o ntfsclone.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfscp.o -MD -MP -MF .deps/ntfscp.Tpo -c -o ntfscp.o ntfscp.c
+mv -f .deps/mkntfs-attrdef.Tpo .deps/mkntfs-attrdef.Po
+mv -f .deps/mkntfs-boot.Tpo .deps/mkntfs-boot.Po
+sd.c: In function 'init_system_file_sd':
+sd.c:124:27: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  124 |         sub_authorities = aa_ace->sid.sub_authority;
+      |                           ^~~~~~
+sd.c:158:27: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  158 |         sub_authorities = sid->sub_authority;
+      |                           ^~~
+sd.c: In function 'init_root_sd':
+sd.c:220:27: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  220 |         sub_authorities = ace->sid.sub_authority;
+      |                           ^~~
+sd.c:241:27: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  241 |         sub_authorities = ace->sid.sub_authority;
+      |                           ^~~
+utils.c: In function 'utils_inode_get_name':
+sd.c:344:27: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  344 |         sub_authorities = ace->sid.sub_authority;
+      |                           ^~~
+utils.c:577:47: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  577 |                         if (ntfs_ucstombs(attr->file_name, attr->file_name_length,
+      |                                           ~~~~^~~~~~~~~~~
+sd.c:365:27: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  365 |         sub_authorities = ace->sid.sub_authority;
+      |                           ^~~
+utils.c: In function 'utils_attr_get_name':
+ntfsinfo.c: In function 'ntfs_dump_attr_list':
+ntfsinfo.c:879:56: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  879 |                         name_size = ntfs_ucstombs(entry->name,
+      |                                                   ~~~~~^~~~~~
+utils.c:659:47: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  659 |                 namelen = ntfs_ucsnlen(attrdef->name, sizeof(attrdef->name));
+      |                                        ~~~~~~~^~~~~~
+utils.c:660:42: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  660 |                 if (ntfs_ucstombs(attrdef->name, namelen, &name, 0) < 0) {
+      |                                   ~~~~~~~^~~~~~
+ntfsinfo.c: In function 'ntfs_dump_filename':
+ntfsinfo.c:969:66: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  969 |                 mbs_file_name_size = ntfs_ucstombs(file_name_attr->file_name,
+      |                                                    ~~~~~~~~~~~~~~^~~~~~~~~~~
+utils.c: In function 'utils_inode_get_name':
+ntfsundelete.c: In function 'get_parent_name':
+utils.c:577:47: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  577 |                         if (ntfs_ucstombs(attr->file_name, attr->file_name_length,
+      |                                           ~~~~^~~~~~~~~~~
+ntfsundelete.c:1038:56: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+ 1038 |                         if (ntfs_ucstombs(filename_attr->file_name,
+      |                                           ~~~~~~~~~~~~~^~~~~~~~~~~
+ntfsundelete.c: In function 'get_filenames':
+utils.c: In function 'utils_attr_get_name':
+utils.c:659:47: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  659 |                 namelen = ntfs_ucsnlen(attrdef->name, sizeof(attrdef->name));
+      |                                        ~~~~~~~^~~~~~
+ntfsundelete.c:1176:36: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+ 1176 |                 name->uname      = attr->file_name;
+      |                                    ^~~~
+utils.c:660:42: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  660 |                 if (ntfs_ucstombs(attrdef->name, namelen, &name, 0) < 0) {
+      |                                   ~~~~~~~^~~~~~
+ntfsls.c: In function 'main':
+ntfsls.c:698:44: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  698 |                                 name     = attr->file_name;
+      |                                            ^~~~
+mkntfs.c: In function 'add_attr_file_name':
+mkntfs.c:2076:17: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+ 2076 |         uname = fn->file_name;
+      |                 ^~
+mkntfs.c: In function 'insert_index_entry_in_res_dir_index':
+mkntfs.c:2765:71: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+ 2765 |                         i = ntfs_names_full_collate(idx->key.file_name.file_name, idx->key.file_name.file_name_length,
+      |                                                     ~~~~~~~~~~~~~~~~~~^~~~~~~~~~
+mkntfs.c:2766:65: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+ 2766 |                                         idx_entry->key.file_name.file_name, idx_entry->key.file_name.file_name_length,
+      |                                         ~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~
+mkntfs.c:2789:71: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+ 2789 |                         i = ntfs_names_full_collate(idx->key.file_name.file_name, idx->key.file_name.file_name_length,
+      |                                                     ~~~~~~~~~~~~~~~~~~^~~~~~~~~~
+mkntfs.c:2790:65: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+ 2790 |                                         idx_entry->key.file_name.file_name, idx_entry->key.file_name.file_name_length,
+      |                                         ~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~
+mv -f .deps/cluster.Tpo .deps/cluster.Po
+mkntfs.c: In function 'insert_file_link_in_dir_index':
+mkntfs.c:3089:54: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+ 3089 |                 i = ntfs_names_full_collate(file_name->file_name, file_name->file_name_length,
+      |                                             ~~~~~~~~~^~~~~~~~~~~
+mkntfs.c:3090:70: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+ 3090 |                                 ((FILE_NAME_ATTR*)&ie->key.file_name)->file_name, ((FILE_NAME_ATTR*)&ie->key.file_name)->file_name_length,
+      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~
+mkntfs.c:3119:54: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+ 3119 |                 i = ntfs_names_full_collate(file_name->file_name, file_name->file_name_length,
+      |                                             ~~~~~~~~~^~~~~~~~~~~
+mkntfs.c:3120:70: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+ 3120 |                                 ((FILE_NAME_ATTR*)&ie->key.file_name)->file_name, ((FILE_NAME_ATTR*)&ie->key.file_name)->file_name_length,
+      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~
+mkntfs.c: In function 'create_hardlink_res':
+mkntfs.c:3210:17: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+ 3210 |         uname = fn->file_name;
+      |                 ^~
+mkntfs.c: In function 'create_hardlink':
+mkntfs.c:3325:17: warning: taking address of packed member of 'struct <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+ 3325 |         uname = fn->file_name;
+      |                 ^~
+In file included from ntfsls.c:52:
+In function '__ntfs_list_add',
+    inlined from 'ntfs_list_add_tail' at list.h:93:2,
+    inlined from 'readdir_recursive' at ntfsls.c:413:3:
+list.h:62:20: warning: storing the address of local variable 'comp' in 'paths.list.prev' [-Wdangling-pointer=]
+   62 |         next->prev = new;
+      |         ~~~~~~~~~~~^~~~~
+ntfsls.c: In function 'readdir_recursive':
+ntfsls.c:393:31: note: 'comp' declared here
+  393 |         struct path_component comp;
+      |                               ^~~~
+ntfsls.c:384:38: note: 'paths' declared here
+  384 |         static struct path_component paths = {
+      |                                      ^~~~~
+mv -f .deps/mkntfs-sd.Tpo .deps/mkntfs-sd.Po
+mv -f .deps/ntfscat.Tpo .deps/ntfscat.Po
+mv -f .deps/ntfslabel.Tpo .deps/ntfslabel.Po
+mv -f .deps/ntfsls.Tpo .deps/ntfsls.Po
+mv -f .deps/ntfscluster.Tpo .deps/ntfscluster.Po
+mv -f .deps/utils.Tpo .deps/utils.Po
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall   -o ntfscluster ntfscluster.o cluster.o utils.o ../libntfs-3g/libntfs-3g.la 
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall   -o ntfsls ntfsls.o utils.o ../libntfs-3g/libntfs-3g.la 
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall   -o ntfscat ntfscat.o utils.o ../libntfs-3g/libntfs-3g.la 
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall   -o ntfslabel ntfslabel.o utils.o ../libntfs-3g/libntfs-3g.la 
+mv -f .deps/mkntfs-utils.Tpo .deps/mkntfs-utils.Po
+mv -f .deps/ntfscmp.Tpo .deps/ntfscmp.Po
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall   -o ntfscmp ntfscmp.o utils.o ../libntfs-3g/libntfs-3g.la 
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfscat ntfscat.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfslabel ntfslabel.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfsls ntfsls.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfscluster ntfscluster.o cluster.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a
+mv -f .deps/ntfscp.Tpo .deps/ntfscp.Po
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall   -o ntfscp ntfscp.o utils.o ../libntfs-3g/libntfs-3g.la 
+In function 'ntfs_dump_attr_ea',
+    inlined from 'ntfs_dump_file_attributes' at ntfsinfo.c:2555:4,
+    inlined from 'main' at ntfsinfo.c:2651:4:
+ntfsinfo.c:2293:34: warning: 'strncmp' specified bound 11 exceeds source size 0 [-Wstringop-overread]
+ 2293 |                                 !strncmp((const char*)"SETFILEBITS",
+      |                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2294 |                                 (const char*)ea->name, 11)) {
+      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from ../include/ntfs-3g/inode.h:32,
+                 from ../include/ntfs-3g/volume.h:51,
+                 from ../include/ntfs-3g/mft.h:27,
+                 from ntfsinfo.c:71:
+../include/ntfs-3g/layout.h: In function 'main':
+../include/ntfs-3g/layout.h:2514:12: note: source object allocated here
+ 2514 |         u8 name[0];             /* Name of the EA. */
+      |            ^~~~
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfscmp ntfscmp.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfscp ntfscp.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a
+mv -f .deps/ntfsfix.Tpo .deps/ntfsfix.Po
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall   -o ntfsfix ntfsfix.o utils.o ../libntfs-3g/libntfs-3g.la 
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfsfix ntfsfix.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a
+mv -f .deps/ntfsundelete.Tpo .deps/ntfsundelete.Po
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall   -o ntfsundelete ntfsundelete.o utils.o ../libntfs-3g/libntfs-3g.la 
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfsundelete ntfsundelete.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a
+mv -f .deps/ntfsinfo.Tpo .deps/ntfsinfo.Po
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall   -o ntfsinfo ntfsinfo.o utils.o ../libntfs-3g/libntfs-3g.la 
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfsinfo ntfsinfo.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a
+mv -f .deps/ntfsclone.Tpo .deps/ntfsclone.Po
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall   -o ntfsclone ntfsclone.o utils.o ../libntfs-3g/libntfs-3g.la 
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfsclone ntfsclone.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a
+mv -f .deps/ntfsresize.Tpo .deps/ntfsresize.Po
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall   -o ntfsresize ntfsresize.o utils.o ../libntfs-3g/libntfs-3g.la 
+mv -f .deps/mkntfs-mkntfs.Tpo .deps/mkntfs-mkntfs.Po
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall   -o mkntfs mkntfs-attrdef.o mkntfs-boot.o mkntfs-sd.o mkntfs-mkntfs.o mkntfs-utils.o ../libntfs-3g/libntfs-3g.la -luuid 
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfsresize ntfsresize.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o mkntfs mkntfs-attrdef.o mkntfs-boot.o mkntfs-sd.o mkntfs-mkntfs.o mkntfs-utils.o  ../libntfs-3g/.libs/libntfs-3g.a -luuid
+make[2]: Leaving directory '/tmp/b/src/ntfsprogs'
+Making all in src
+make[2]: Entering directory '/tmp/b/src/src'
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..     -I../include/ntfs-3g -g -O2 -Wall -MT ntfs_3g_probe-ntfs-3g.probe.o -MD -MP -MF .deps/ntfs_3g_probe-ntfs-3g.probe.Tpo -c -o ntfs_3g_probe-ntfs-3g.probe.o `test -f 'ntfs-3g.probe.c' || echo './'`ntfs-3g.probe.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..     -DFUSE_USE_VERSION=26 -I../include/fuse-lite -I../include/ntfs-3g  -g -O2 -Wall -MT ntfs_3g-ntfs-3g.o -MD -MP -MF .deps/ntfs_3g-ntfs-3g.Tpo -c -o ntfs_3g-ntfs-3g.o `test -f 'ntfs-3g.c' || echo './'`ntfs-3g.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..     -DFUSE_USE_VERSION=26 -I../include/fuse-lite -I../include/ntfs-3g  -g -O2 -Wall -MT ntfs_3g-ntfs-3g_common.o -MD -MP -MF .deps/ntfs_3g-ntfs-3g_common.Tpo -c -o ntfs_3g-ntfs-3g_common.o `test -f 'ntfs-3g_common.c' || echo './'`ntfs-3g_common.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..     -DFUSE_USE_VERSION=26 -I../include/fuse-lite -I../include/ntfs-3g  -g -O2 -Wall -MT lowntfs_3g-lowntfs-3g.o -MD -MP -MF .deps/lowntfs_3g-lowntfs-3g.Tpo -c -o lowntfs_3g-lowntfs-3g.o `test -f 'lowntfs-3g.c' || echo './'`lowntfs-3g.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..     -DFUSE_USE_VERSION=26 -I../include/fuse-lite -I../include/ntfs-3g  -g -O2 -Wall -MT lowntfs_3g-ntfs-3g_common.o -MD -MP -MF .deps/lowntfs_3g-ntfs-3g_common.Tpo -c -o lowntfs_3g-ntfs-3g_common.o `test -f 'ntfs-3g_common.c' || echo './'`ntfs-3g_common.c
+ntfs-3g.c: In function 'ntfs_fuse_getattr':
+ntfs-3g.c:1008:66: warning: taking address of packed member of 'union <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+ 1008 |                                                         intx_file->target,
+      |                                                         ~~~~~~~~~^~~~~~~~
+lowntfs-3g.c: In function 'ntfs_fuse_getstat':
+lowntfs-3g.c:907:66: warning: taking address of packed member of 'union <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  907 |                                                         intx_file->target,
+      |                                                         ~~~~~~~~~^~~~~~~~
+ntfs-3g.c: In function 'ntfs_fuse_readlink':
+ntfs-3g.c:1238:36: warning: taking address of packed member of 'union <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+ 1238 |         if (ntfs_ucstombs(intx_file->target, (na->data_size -
+      |                           ~~~~~~~~~^~~~~~~~
+lowntfs-3g.c: In function 'ntfs_fuse_readlink':
+lowntfs-3g.c:1208:36: warning: taking address of packed member of 'union <anonymous>' may result in an unaligned pointer value [-Waddress-of-packed-member]
+ 1208 |         if (ntfs_ucstombs(intx_file->target, (na->data_size -
+      |                           ~~~~~~~~~^~~~~~~~
+mv -f .deps/ntfs_3g_probe-ntfs-3g.probe.Tpo .deps/ntfs_3g_probe-ntfs-3g.probe.Po
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -I../include/ntfs-3g -g -O2 -Wall   -o ntfs-3g.probe ntfs_3g_probe-ntfs-3g.probe.o ../libntfs-3g/libntfs-3g.la 
+libtool: link: gcc -std=gnu23 -std=gnu23 -I../include/ntfs-3g -g -O2 -Wall -o ntfs-3g.probe ntfs_3g_probe-ntfs-3g.probe.o  ../libntfs-3g/.libs/libntfs-3g.a
+mv -f .deps/ntfs_3g-ntfs-3g_common.Tpo .deps/ntfs_3g-ntfs-3g_common.Po
+mv -f .deps/lowntfs_3g-ntfs-3g_common.Tpo .deps/lowntfs_3g-ntfs-3g_common.Po
+ntfs-3g.c: In function 'ntfs_fuse_create':
+ntfs-3g.c:2190:20: warning: 'ni' may be used uninitialized [-Wmaybe-uninitialized]
+ 2190 |                 if (ni) {
+      |                    ^
+ntfs-3g.c:2063:37: note: 'ni' was declared here
+ 2063 |         ntfs_inode *dir_ni = NULL, *ni;
+      |                                     ^~
+mv -f .deps/ntfs_3g-ntfs-3g.Tpo .deps/ntfs_3g-ntfs-3g.Po
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -DFUSE_USE_VERSION=26 -I../include/fuse-lite -I../include/ntfs-3g  -g -O2 -Wall   -o ntfs-3g ntfs_3g-ntfs-3g.o ntfs_3g-ntfs-3g_common.o  ../libfuse-lite/libfuse-lite.la ../libntfs-3g/libntfs-3g.la 
+mv -f .deps/lowntfs_3g-lowntfs-3g.Tpo .deps/lowntfs_3g-lowntfs-3g.Po
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -DFUSE_USE_VERSION=26 -I../include/fuse-lite -I../include/ntfs-3g  -g -O2 -Wall   -o lowntfs-3g lowntfs_3g-lowntfs-3g.o lowntfs_3g-ntfs-3g_common.o  ../libfuse-lite/libfuse-lite.la ../libntfs-3g/libntfs-3g.la 
+libtool: link: gcc -std=gnu23 -std=gnu23 -DFUSE_USE_VERSION=26 -I../include/fuse-lite -I../include/ntfs-3g -g -O2 -Wall -o ntfs-3g ntfs_3g-ntfs-3g.o ntfs_3g-ntfs-3g_common.o  ../libfuse-lite/.libs/libfuse-lite.a -lpthread ../libntfs-3g/.libs/libntfs-3g.a
+libtool: link: gcc -std=gnu23 -std=gnu23 -DFUSE_USE_VERSION=26 -I../include/fuse-lite -I../include/ntfs-3g -g -O2 -Wall -o lowntfs-3g lowntfs_3g-lowntfs-3g.o lowntfs_3g-ntfs-3g_common.o  ../libfuse-lite/.libs/libfuse-lite.a -lpthread ../libntfs-3g/.libs/libntfs-3g.a
+make[2]: Leaving directory '/tmp/b/src/src'
+make[2]: Entering directory '/tmp/b/src'
+make[2]: Leaving directory '/tmp/b/src'
+make[1]: Leaving directory '/tmp/b/src'
+build-ntfs3g: make install
+Making install in include
+make[1]: Entering directory '/tmp/b/src/include'
+Making install in ntfs-3g
+make[2]: Entering directory '/tmp/b/src/include/ntfs-3g'
+make[3]: Entering directory '/tmp/b/src/include/ntfs-3g'
+make[3]: Nothing to be done for 'install-exec-am'.
+ /usr/bin/mkdir -p '/tmp/deps/include/ntfs-3g'
+ /usr/bin/install -c -m 644 acls.h attrib.h attrlist.h bitmap.h bootsect.h cache.h collate.h compat.h compress.h debug.h device.h device_io.h dir.h ea.h efs.h endians.h index.h inode.h ioctl.h layout.h lcnalloc.h logfile.h logging.h mft.h misc.h mst.h ntfstime.h object_id.h param.h plugin.h realpath.h reparse.h runlist.h security.h support.h types.h unistr.h volume.h xattrs.h '/tmp/deps/include/ntfs-3g'
+make[3]: Leaving directory '/tmp/b/src/include/ntfs-3g'
+make[2]: Leaving directory '/tmp/b/src/include/ntfs-3g'
+Making install in fuse-lite
+make[2]: Entering directory '/tmp/b/src/include/fuse-lite'
+make[3]: Entering directory '/tmp/b/src/include/fuse-lite'
+make[3]: Nothing to be done for 'install-exec-am'.
+make[3]: Nothing to be done for 'install-data-am'.
+make[3]: Leaving directory '/tmp/b/src/include/fuse-lite'
+make[2]: Leaving directory '/tmp/b/src/include/fuse-lite'
+make[2]: Entering directory '/tmp/b/src/include'
+make[3]: Entering directory '/tmp/b/src/include'
+make[3]: Nothing to be done for 'install-exec-am'.
+make[3]: Nothing to be done for 'install-data-am'.
+make[3]: Leaving directory '/tmp/b/src/include'
+make[2]: Leaving directory '/tmp/b/src/include'
+make[1]: Leaving directory '/tmp/b/src/include'
+Making install in libfuse-lite
+make[1]: Entering directory '/tmp/b/src/libfuse-lite'
+make[2]: Entering directory '/tmp/b/src/libfuse-lite'
+make[2]: Nothing to be done for 'install-exec-am'.
+make[2]: Nothing to be done for 'install-data-am'.
+make[2]: Leaving directory '/tmp/b/src/libfuse-lite'
+make[1]: Leaving directory '/tmp/b/src/libfuse-lite'
+Making install in libntfs-3g
+make[1]: Entering directory '/tmp/b/src/libntfs-3g'
+make[2]: Entering directory '/tmp/b/src/libntfs-3g'
+ /usr/bin/mkdir -p '/tmp/deps/lib'
+ /bin/bash ../libtool   --mode=install /usr/bin/install -c   libntfs-3g.la '/tmp/deps/lib'
+libtool: install: /usr/bin/install -c .libs/libntfs-3g.lai /tmp/deps/lib/libntfs-3g.la
+libtool: install: /usr/bin/install -c .libs/libntfs-3g.a /tmp/deps/lib/libntfs-3g.a
+libtool: install: chmod 644 /tmp/deps/lib/libntfs-3g.a
+libtool: install: ranlib /tmp/deps/lib/libntfs-3g.a
+libtool: finish: PATH="/opt/ntfs-3g/bin:/opt/ntfs-3g/sbin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/sbin" ldconfig -n /tmp/deps/lib
+----------------------------------------------------------------------
+Libraries have been installed in:
+   /tmp/deps/lib
+
+If you ever happen to want to link against installed libraries
+in a given directory, LIBDIR, you must either use libtool, and
+specify the full pathname of the library, or use the '-LLIBDIR'
+flag during linking and do at least one of the following:
+   - add LIBDIR to the 'LD_LIBRARY_PATH' environment variable
+     during execution
+   - add LIBDIR to the 'LD_RUN_PATH' environment variable
+     during linking
+   - use the '-Wl,-rpath -Wl,LIBDIR' linker flag
+   - have your system administrator add LIBDIR to '/etc/ld.so.conf'
+
+After a 'make install' for many GNU/Linux systems, 'ldconfig LIBDIR'
+may need to be executed to help locate newly installed libraries,
+but you should consult with a system administrator before updating
+the shared library cache as this should be done with great care
+and consideration. (See the 'Platform-specific configuration notes'
+section of the documentation for more information.)
+
+See any operating system documentation about shared libraries for
+more information, such as the ld(1) and ld.so(8) manual pages.
+----------------------------------------------------------------------
+make  install-exec-hook
+make[3]: Entering directory '/tmp/b/src/libntfs-3g'
+ /usr/bin/mkdir -p '/tmp/deps/lib'
+ /bin/bash ../libtool   --mode=install /usr/bin/install -c   libntfs-3g.la '/tmp/deps/lib'
+libtool: install: /usr/bin/install -c .libs/libntfs-3g.lai /tmp/deps/lib/libntfs-3g.la
+libtool: install: /usr/bin/install -c .libs/libntfs-3g.a /tmp/deps/lib/libntfs-3g.a
+libtool: install: chmod 644 /tmp/deps/lib/libntfs-3g.a
+libtool: install: ranlib /tmp/deps/lib/libntfs-3g.a
+libtool: finish: PATH="/opt/ntfs-3g/bin:/opt/ntfs-3g/sbin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/sbin" ldconfig -n /tmp/deps/lib
+----------------------------------------------------------------------
+Libraries have been installed in:
+   /tmp/deps/lib
+
+If you ever happen to want to link against installed libraries
+in a given directory, LIBDIR, you must either use libtool, and
+specify the full pathname of the library, or use the '-LLIBDIR'
+flag during linking and do at least one of the following:
+   - add LIBDIR to the 'LD_LIBRARY_PATH' environment variable
+     during execution
+   - add LIBDIR to the 'LD_RUN_PATH' environment variable
+     during linking
+   - use the '-Wl,-rpath -Wl,LIBDIR' linker flag
+   - have your system administrator add LIBDIR to '/etc/ld.so.conf'
+
+After a 'make install' for many GNU/Linux systems, 'ldconfig LIBDIR'
+may need to be executed to help locate newly installed libraries,
+but you should consult with a system administrator before updating
+the shared library cache as this should be done with great care
+and consideration. (See the 'Platform-specific configuration notes'
+section of the documentation for more information.)
+
+See any operating system documentation about shared libraries for
+more information, such as the ld(1) and ld.so(8) manual pages.
+----------------------------------------------------------------------
+if [ ! "/tmp/deps/lib" -ef "/tmp/deps/lib" ]; then \
+	/usr/bin/mv -f "//tmp/deps/lib"/libntfs-3g.so* "//tmp/deps/lib";  \
+fi
+if [ ! "/tmp/deps/lib" -ef "/tmp/deps/lib" ]; then \
+	ln -s "/tmp/deps/lib/libntfs-3g.so" "//tmp/deps/lib/libntfs-3g.so"; \
+fi
+make[3]: Leaving directory '/tmp/b/src/libntfs-3g'
+ /usr/bin/mkdir -p '/tmp/deps/lib/pkgconfig'
+ /usr/bin/install -c -m 644 libntfs-3g.pc '/tmp/deps/lib/pkgconfig'
+make[2]: Leaving directory '/tmp/b/src/libntfs-3g'
+make[1]: Leaving directory '/tmp/b/src/libntfs-3g'
+Making install in ntfsprogs
+make[1]: Entering directory '/tmp/b/src/ntfsprogs'
+make[2]: Entering directory '/tmp/b/src/ntfsprogs'
+ /usr/bin/mkdir -p '/tmp/deps/bin'
+  /bin/bash ../libtool   --mode=install /usr/bin/install -c ntfsfix ntfsinfo ntfscluster ntfsls ntfscat ntfscmp '/tmp/deps/bin'
+libtool: install: /usr/bin/install -c ntfsfix /tmp/deps/bin/ntfsfix
+libtool: install: /usr/bin/install -c ntfsinfo /tmp/deps/bin/ntfsinfo
+libtool: install: /usr/bin/install -c ntfscluster /tmp/deps/bin/ntfscluster
+libtool: install: /usr/bin/install -c ntfsls /tmp/deps/bin/ntfsls
+libtool: install: /usr/bin/install -c ntfscat /tmp/deps/bin/ntfscat
+libtool: install: /usr/bin/install -c ntfscmp /tmp/deps/bin/ntfscmp
+ /usr/bin/mkdir -p '/tmp/deps/sbin'
+  /bin/bash ../libtool   --mode=install /usr/bin/install -c mkntfs ntfslabel ntfsundelete ntfsresize ntfsclone ntfscp '/tmp/deps/sbin'
+libtool: install: /usr/bin/install -c mkntfs /tmp/deps/sbin/mkntfs
+libtool: install: /usr/bin/install -c ntfslabel /tmp/deps/sbin/ntfslabel
+libtool: install: /usr/bin/install -c ntfsundelete /tmp/deps/sbin/ntfsundelete
+libtool: install: /usr/bin/install -c ntfsresize /tmp/deps/sbin/ntfsresize
+libtool: install: /usr/bin/install -c ntfsclone /tmp/deps/sbin/ntfsclone
+libtool: install: /usr/bin/install -c ntfscp /tmp/deps/sbin/ntfscp
+make  install-exec-hook
+make[3]: Entering directory '/tmp/b/src/ntfsprogs'
+make[3]: Nothing to be done for 'install-exec-hook'.
+make[3]: Leaving directory '/tmp/b/src/ntfsprogs'
+ /usr/bin/mkdir -p '/tmp/deps/share/man/man8'
+ /usr/bin/install -c -m 644 mkntfs.8 ntfscat.8 ntfsclone.8 ntfscluster.8 ntfscmp.8 ntfscp.8 ntfsdecrypt.8 ntfsfallocate.8 ntfsfix.8 ntfsinfo.8 ntfslabel.8 ntfsls.8 ntfsprogs.8 ntfsresize.8 ntfsundelete.8 '/tmp/deps/share/man/man8'
+make  install-data-hook
+make[3]: Entering directory '/tmp/b/src/ntfsprogs'
+make[3]: Nothing to be done for 'install-data-hook'.
+make[3]: Leaving directory '/tmp/b/src/ntfsprogs'
+make[2]: Leaving directory '/tmp/b/src/ntfsprogs'
+make[1]: Leaving directory '/tmp/b/src/ntfsprogs'
+Making install in src
+make[1]: Entering directory '/tmp/b/src/src'
+make[2]: Entering directory '/tmp/b/src/src'
+ /usr/bin/mkdir -p '/tmp/deps/bin'
+  /bin/bash ../libtool   --mode=install /usr/bin/install -c ntfs-3g.probe '/tmp/deps/bin'
+libtool: install: /usr/bin/install -c ntfs-3g.probe /tmp/deps/bin/ntfs-3g.probe
+make  install-exec-hook
+make[3]: Entering directory '/tmp/b/src/src'
+make[3]: Nothing to be done for 'install-exec-hook'.
+make[3]: Leaving directory '/tmp/b/src/src'
+ /usr/bin/mkdir -p '/tmp/deps/share/man/man8'
+ /usr/bin/install -c -m 644 ntfs-3g.8 ntfs-3g.probe.8 '/tmp/deps/share/man/man8'
+ /usr/bin/mkdir -p '/tmp/deps/bin'
+  /bin/bash ../libtool   --mode=install /usr/bin/install -c ntfs-3g lowntfs-3g '/tmp/deps/bin'
+libtool: install: /usr/bin/install -c ntfs-3g /tmp/deps/bin/ntfs-3g
+libtool: install: /usr/bin/install -c lowntfs-3g /tmp/deps/bin/lowntfs-3g
+make[2]: Leaving directory '/tmp/b/src/src'
+make[1]: Leaving directory '/tmp/b/src/src'
+make[1]: Entering directory '/tmp/b/src'
+make[2]: Entering directory '/tmp/b/src'
+make[2]: Nothing to be done for 'install-exec-am'.
+ /usr/bin/mkdir -p '/tmp/deps/share/doc/ntfs-3g'
+ /usr/bin/install -c -m 644 README '/tmp/deps/share/doc/ntfs-3g'
+make[2]: Leaving directory '/tmp/b/src'
+make[1]: Leaving directory '/tmp/b/src'
+build-ntfs3g: done: /tmp/deps/lib/libntfs-3g.a

@@ -1,0 +1,15 @@
+mkntfs rc=0
+== C1: no backend=fskit, then SIGTERM
+ntfs-3g rc=0
+mount lines after 6s: 0
+pid=8251
+RESULT: alive 5s after SIGTERM
+gone after SIGKILL
+== C2: backend=fskit with a RELATIVE mount point
+ntfs-3g rc=0
+mount lines (relative) after 8s: 0
+pid=8280
+== C3: same with ABSOLUTE mount point (control)
+ntfs-3g rc=0
+/dev/disk6s1 on /Users/admin/claims/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+driver gone after umount

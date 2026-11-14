@@ -1,0 +1,27 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "00abf04937fcfe6b5e59cb5aa3e411ad8f198b81",
+  "dirty_tree": false,
+  "env": "host",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "macOS 27.2 (26B123) arm64",
+  "macfuse_version": "5.5.0",
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-14T13:20:17Z",
+  "finished": "2026-11-14T13:20:47Z",
+  "cases": [
+    {
+      "id": "C-REF-01",
+      "status": "pass",
+      "duration_s": 29.535,
+      "evidence": [
+        "evidence/2026-11-14-00abf04-host/C-REF-01.log",
+        "evidence/2026-11-14-00abf04-host/C-REF-01.ntfsfix-linux.txt",
+        "evidence/2026-11-14-00abf04-host/C-REF-01.sha256-linux.txt",
+        "evidence/2026-11-14-00abf04-host/C-REF-01.treedump-linux.txt",
+        "evidence/2026-11-14-00abf04-host/C-REF-01.treedump-macos.txt"
+      ],
+      "note": null
+    }
+  ]
+}

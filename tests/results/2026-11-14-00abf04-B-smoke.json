@@ -1,0 +1,36 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "00abf04937fcfe6b5e59cb5aa3e411ad8f198b81",
+  "dirty_tree": false,
+  "env": "B",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "macOS 27.2 (26B123) arm64",
+  "macfuse_version": "5.5.0",
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-14T13:18:53Z",
+  "finished": "2026-11-14T13:22:08Z",
+  "cases": [
+    {
+      "id": "I-SMOKE-01",
+      "status": "pass",
+      "duration_s": 0,
+      "evidence": [
+        "evidence/2026-11-14-00abf04-smoke/smoke-run1.log",
+        "evidence/2026-11-14-00abf04-smoke/smoke-run2.log",
+        "evidence/2026-11-14-00abf04-smoke/smoke-run3.log",
+        "evidence/2026-11-14-00abf04-smoke/build.log"
+      ],
+      "note": "3 of 3 runs in one disposable clone of ntfsmac-golden, fresh copy of clean-256m-4k each run (treedump hash b681baf0... matches manifest), 28 of 28 checks each, ntfsfix -n exit 0. No harness adapter exists for this shell case: duration_s is 0 (not measured) and the file was assembled by the M2 auditor with tests/harness/report.py from the script logs."
+    },
+    {
+      "id": "I-SMOKE-02",
+      "status": "pass",
+      "duration_s": 0,
+      "evidence": [
+        "evidence/2026-11-14-00abf04-fdpass/fd-pass.log",
+        "evidence/2026-11-14-00abf04-fdpass/build.log"
+      ],
+      "note": "1 run, attached 256 MiB virtual disk, 16 of 16 checks, patch 0003 applied by scripts/build-ntfs3g.sh. Same caveats as I-SMOKE-01 (duration_s 0, assembled by the auditor)."
+    }
+  ]
+}

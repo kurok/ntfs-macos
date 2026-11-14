@@ -10,9 +10,10 @@ Nothing. H3 is done for the current golden VM (`ntfsmac-golden`); a rebuilt gold
 
 ## Agent tasks ready now
 
-1. T-M2-10 M2 audit: from a fresh clone, re-run criteria 2.2 and 2.3 on a clean tree (the existing result files have `dirty_tree: true`), check spike notes against raw logs, and decide the gate.
-2. Run `scripts/ci-local.sh --quick` before every push (ADR-015).
-3. Confirm the three assumptions recorded by the N-05/N-07/N-08 fixes (`/dev/fd/N` sharing, `POSIX_SPAWN_CLOEXEC_DEFAULT`, peer code-signing checks) when T-M4-02/-04/-13 run.
+1. Fix M2 audit low findings F-02..F-07 (`docs/audits/M2.md`): sync-spike counts, `norecover` class in mount-options.json, D5 wording, warning-count wording, result-file naming for repeated runs.
+2. Start Milestone 3 (docs/IMPLEMENTATION_PLAN.md).
+3. Run `scripts/ci-local.sh --quick` before every push (ADR-015).
+4. Confirm the three assumptions recorded by the N-05/N-07/N-08 fixes (`/dev/fd/N` sharing, `POSIX_SPAWN_CLOEXEC_DEFAULT`, peer code-signing checks) when T-M4-02/-04/-13 run.
 
 ## Milestone 2 gate
 

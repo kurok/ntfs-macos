@@ -11,7 +11,7 @@ Nothing. H3 is done for the current golden VM (`ntfsmac-golden`); a rebuilt gold
 ## Agent tasks ready now
 
 1. Milestone 3, in this order (tasks and criteria: docs/AGENT_TASKS.md, docs/IMPLEMENTATION_PLAN.md section M3):
-   - **Step 1, no VM:** T-M3-00 contracts first (probe JSON schema, policy enum, journal API, option builder API). Then in parallel: T-M3-01 (U9 by test, Environment A), T-M3-03 (policy library and option builder, emits the corrected 3.3 set), T-M3-04 (unsafe fixtures, S+O), T-M3-13 (session journal library), T-M3-14 (patch 0004 fault injection and crash sweeper, S+O).
+   - **Step 1, no VM: DONE (f8b3815).** T-M3-00 contracts first (probe JSON schema, policy enum, journal API, option builder API). Then in parallel: T-M3-01 (U9 by test, Environment A), T-M3-03 (policy library and option builder, emits the corrected 3.3 set), T-M3-04 (unsafe fixtures, S+O), T-M3-13 (session journal library), T-M3-14 (patch 0004 fault injection and crash sweeper, S+O).
    - **Step 2, macOS VM suites, two at a time (two-VM limit):** T-M3-10 (sync path, first: T-M3-12 and T-M3-18 need it), T-M3-05 (names, U22), T-M3-08 (xattr, openxattr), T-M3-20 (ownership, N10), T-M3-06 (metadata), T-M3-07 (EOF reads), T-M3-09 (large, sparse, compressed), T-M3-11 (mmap).
    - **Step 3:** T-M3-02 (probe, S+O; needs 00 and 04), T-M3-19 (disk-string hardening, S+O; needs 00 and 03), T-M3-18 (patch 0006 session channel, S+O; needs 10 and 14), T-M3-15 (Linux vs macOS reference comparison; needs 05).
    - **Step 4:** T-M3-12 (`ntfsmac-volmark`, Opus; needs 01, 04, 10, 13, 14), T-M3-16 (fuzzing, needs 02).

@@ -43,6 +43,8 @@ vmname() {
 }
 
 vm_exists() { tart list --quiet 2>/dev/null | grep -qx -- "$1"; }
+not() { ! "$@"; }
+base_present() { tart list | grep -qF -- "$GUEST_IMAGE_REPO"; }
 now() { perl -MTime::HiRes=time -e 'printf "%.2f\n", time'; }
 free_kb() { df -k "${TART_HOME:-$HOME/.tart}" | awk 'NR==2{print $4}'; }
 
@@ -141,7 +143,7 @@ cmd_delete() {
 }
 
 cmd_selftest() {
-    local vm="${VM_PREFIX}selftest-$$" ok=0
+    local vm="${VM_PREFIX}selftest-$$"
     local d1=$STATE/$vm-rw.img d2=$STATE/$vm-ro.img
     cleanup() {
         set +e
@@ -151,6 +153,8 @@ cmd_selftest() {
     trap cleanup EXIT
     local fail=0
     chk() { if [ "$1" = 0 ]; then echo "PASS: $2"; else echo "FAIL: $2"; fail=1; fi; }
+    # check DESC CMD...: record PASS/FAIL without tripping set -e.
+    check() { local d=$1; shift; if "$@"; then chk 0 "$d"; else chk 1 "$d"; fi; }
 
     echo "== pull (pinned digest) =="
     cmd_pull
@@ -175,8 +179,8 @@ cmd_selftest() {
     echo "guest IP: $ip"
     echo "-- sw_vers"; local sw; sw=$(guest_ssh "$ip" sw_vers); echo "$sw"
     echo "-- uname -m"; local arch; arch=$(guest_ssh "$ip" uname -m); echo "$arch"
-    echo "$sw" | grep -q 'ProductVersion:[[:space:]]*27\.' ; chk $? "guest is macOS 27.x"
-    [ "$arch" = arm64 ]; chk $? "guest arch arm64"
+    check "guest is macOS 27.x" grep -q 'ProductVersion:[[:space:]]*27\.' <<<"$sw"
+    check "guest arch arm64" [ "$arch" = arm64 ]
 
     echo "-- FSKit probe"
     guest_ssh "$ip" 'systemextensionsctl list 2>&1 | head -20' || true
@@ -186,25 +190,27 @@ cmd_selftest() {
     echo "-- diskutil list"
     guest_ssh "$ip" 'diskutil list'
     local found_rw found_ro
+    # shellcheck disable=SC2016 # expanded in the guest shell, not here
     found_rw=$(guest_ssh "$ip" 'for d in $(diskutil list | awk "/^\\/dev\\/disk[0-9]+ /{print \$1}"); do diskutil info "$d" | grep -q "268435456 Bytes" && echo "$d"; done' | head -1)
+    # shellcheck disable=SC2016 # expanded in the guest shell, not here
     found_ro=$(guest_ssh "$ip" 'for d in $(diskutil list | awk "/^\\/dev\\/disk[0-9]+ /{print \$1}"); do diskutil info "$d" | grep -q "67108864 Bytes" && echo "$d"; done' | head -1)
     echo "rw disk device: ${found_rw:-none}; ro disk device: ${found_ro:-none}"
-    [ -n "$found_rw" ]; chk $? "guest sees 256 MiB rw disk as block device"
-    [ -n "$found_ro" ]; chk $? "guest sees 64 MiB ro disk as block device"
+    check "guest sees 256 MiB rw disk as block device" [ -n "$found_rw" ]
+    check "guest sees 64 MiB ro disk as block device" [ -n "$found_ro" ]
     if [ -n "$found_ro" ]; then
         guest_ssh "$ip" "diskutil info $found_ro | grep -E 'Read-Only|Device Location|Protocol'"
-        guest_ssh "$ip" "diskutil info $found_ro | grep -E 'Media Read-Only|Read-Only Media' | grep -q Yes"; chk $? "ro disk reported read-only"
+        check "ro disk reported read-only" guest_ssh "$ip" "diskutil info $found_ro | grep -E 'Media Read-Only|Read-Only Media' | grep -q Yes"
     fi
     [ -z "$found_rw" ] || guest_ssh "$ip" "diskutil info $found_rw | grep -E 'Read-Only|Device Location|Protocol'"
 
     echo "== stop and delete clone; base must survive =="
     cmd_stop "$vm"
     cmd_delete "$vm"
-    ! vm_exists "$vm"; chk $? "clone deleted"
-    tart list | grep -qF "$GUEST_IMAGE_REPO"; chk $? "base image still present"
+    check "clone deleted" not vm_exists "$vm"
+    check "base image still present" base_present
     trap - EXIT
     rm -f "$d1" "$d2"
-    [ "$fail" = 0 ] && echo "SELFTEST OK" || { echo "SELFTEST FAILED"; return 1; }
+    if [ "$fail" = 0 ]; then echo "SELFTEST OK"; else echo "SELFTEST FAILED"; return 1; fi
 }
 
 sub=${1:-}; [ $# -gt 0 ] && shift

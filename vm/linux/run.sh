@@ -11,7 +11,7 @@
 # Env: NTFS_LINUX_APPARMOR_UNCONFINED=1 adds --security-opt apparmor=unconfined.
 set -eu
 
-here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 repo=$(dirname "$(dirname "$here")")
 cache=$repo/third_party/cache
 lock=$repo/third_party/deps.lock

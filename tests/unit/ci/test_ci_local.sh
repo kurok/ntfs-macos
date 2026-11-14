@@ -7,8 +7,8 @@
 # Usage: tests/unit/ci/test_ci_local.sh   (exit 0 = all pass)
 set -eu
 
-here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-repo=$(CDPATH= cd -- "$here/../../.." && pwd)
+here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+repo=$(CDPATH='' cd -- "$here/../../.." && pwd)
 work=$(mktemp -d "${TMPDIR:-/tmp}/ci-local-test.XXXXXX")
 trap 'rm -rf "$work"' EXIT INT TERM
 
@@ -33,26 +33,26 @@ run() { # dir args...; sets rc, output in $work/out
 
 # 1. usage errors exit 2 (run from the real tree: they never build)
 run "$repo" --bogus
-check "unknown option exits 2" "$([ $rc -eq 2 ]; echo $?)"
+if [ $rc -eq 2 ]; then r=0; else r=1; fi; check "unknown option exits 2" "$r"
 run "$repo"
-check "no --quick exits 2" "$([ $rc -eq 2 ] && grep -q 'not implemented' "$work/out"; echo $?)"
+if [ $rc -eq 2 ] && grep -q 'not implemented' "$work/out"; then r=0; else r=1; fi; check "no --quick exits 2" "$r"
 run "$repo" --verify-result x
-check "--verify-result exits 2" "$([ $rc -eq 2 ] && grep -q 'not implemented' "$work/out"; echo $?)"
+if [ $rc -eq 2 ] && grep -q 'not implemented' "$work/out"; then r=0; else r=1; fi; check "--verify-result exits 2" "$r"
 run "$repo" --quick --preset
-check "missing --preset value exits 2" "$([ $rc -eq 2 ]; echo $?)"
+if [ $rc -eq 2 ]; then r=0; else r=1; fi; check "missing --preset value exits 2" "$r"
 
 # 2. clean copy passes
 copy_tree "$work/clean"
 run "$work/clean" --quick --build-dir "$work/clean-build"
-check "quick run on a clean copy exits 0" "$([ $rc -eq 0 ]; echo $?)"
-check "summary lists all four stages" "$(grep -c '^\(bootstrap\|configure\|build\|ctest\) .* ok ' "$work/out" | grep -qx 4; echo $?)"
+if [ $rc -eq 0 ]; then r=0; else r=1; fi; check "quick run on a clean copy exits 0" "$r"
+if grep -c '^\(bootstrap\|configure\|build\|ctest\) .* ok ' "$work/out" | grep -qx 4; then r=0; else r=1; fi; check "summary lists all four stages" "$r"
 
 # 3. compile error breaks the build -> exit 1
 copy_tree "$work/broken"
 printf '\nthis is not valid C;\n' >> "$work/broken/src/common/log.c"
 run "$work/broken" --quick --build-dir "$work/broken-build"
-check "broken build exits 1" "$([ $rc -eq 1 ] && grep -q '^build .* FAIL ' "$work/out"; echo $?)"
-check "real tree untouched by the broken-build run" "$(! grep -q 'not valid C' "$repo/src/common/log.c"; echo $?)"
+if [ $rc -eq 1 ] && grep -q '^build .* FAIL ' "$work/out"; then r=0; else r=1; fi; check "broken build exits 1" "$r"
+if ! grep -q 'not valid C' "$repo/src/common/log.c"; then r=0; else r=1; fi; check "real tree untouched by the broken-build run" "$r"
 
 # 4. failing test -> exit 1
 copy_tree "$work/failtest"
@@ -61,7 +61,7 @@ sed '/^int main(void)$/{n;s/^{$/{ if (1) return 1;/;}' "$work/failtest/src/commo
 	mv "$work/failtest/t.c" "$work/failtest/src/common/test_log.c"
 grep -q 'if (1) return 1;' "$work/failtest/src/common/test_log.c"
 run "$work/failtest" --quick --build-dir "$work/failtest-build"
-check "failing test exits 1" "$([ $rc -eq 1 ] && grep -q '^ctest .* FAIL ' "$work/out"; echo $?)"
+if [ $rc -eq 1 ] && grep -q '^ctest .* FAIL ' "$work/out"; then r=0; else r=1; fi; check "failing test exits 1" "$r"
 
 if [ "$fails" -eq 0 ]; then echo "ALL PASSED"; exit 0; fi
 echo "$fails FAILED"; exit 1

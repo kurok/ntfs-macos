@@ -11,7 +11,7 @@
 # --allow-file-urls permits file:// URLs; it exists for the offline unit test only.
 set -eu
 
-script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 repo_root=$(dirname "$script_dir")
 lock=${DEPS_LOCK:-$repo_root/third_party/deps.lock}
 cache=${DEPS_CACHE_DIR:-$repo_root/third_party/cache}

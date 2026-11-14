@@ -9,8 +9,8 @@
 # Exit:  0 all stages passed, 1 a stage failed, 2 usage error or not implemented.
 set -eu
 
-here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-root=$(CDPATH= cd -- "$here/.." && pwd)
+here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+root=$(CDPATH='' cd -- "$here/.." && pwd)
 
 die() { # message [exit-code]
 	printf 'ci-local: %s\n' "$1" >&2

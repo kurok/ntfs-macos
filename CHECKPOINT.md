@@ -1,6 +1,6 @@
 # Checkpoint
 
-- **Phase:** M1 nearly done. Done: T-M1-01, -02, -03, -05, -06, -07 (`scripts/ci-local.sh --quick`); audit fixes applied (b99d414, 6a3e5e0); re-audit `docs/audits/M1-recheck.md`: accept with fixes; all 15 findings applied (N-01..N-08 in 9d20cea, N-09..N-15 next commit; N-03 split-record crash accepted as residual R-33; new ADR-019/020, U15-U20). T-M1-04 partial: host gets "No route to host" to the tart guest (likely Local Network privacy for the desktop app).
+- **Phase:** M2 started: T-M2-01 (build-ntfs3g.sh) and T-M2-07 (fixtures, treedump) done. M1 nearly done. Done: T-M1-01, -02, -03, -05, -06, -07 (`scripts/ci-local.sh --quick`); audit fixes applied (b99d414, 6a3e5e0); re-audit `docs/audits/M1-recheck.md`: accept with fixes; all 15 findings applied (N-01..N-08 in 9d20cea, N-09..N-15 next commit; N-03 split-record crash accepted as residual R-33; new ADR-019/020, U15-U20). T-M1-04 partial: host cannot reach the tart guest. Diagnosed 2026-11-14: guest has a DHCP lease, ARP resolves on bridge100, route and firewall fine, so packets are dropped by macOS Local Network privacy for the calling app. The vanilla image has no tart guest agent, so `tart exec` is no workaround; the `macos-golden-gate-base` image (sha256:4859ea94..., 32 GB) has one.
 - **Completed:**
   - Host and quota preflight (2026-11-13): macOS 27.2.1 arm64, Command Line Tools only (no Xcode),
     Docker CLI with no running daemon, no VM tool. Paragon NTFS and fuse-t 1.2.9 are installed;

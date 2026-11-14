@@ -1,0 +1,15 @@
+T-M3-20 exploratory probes (macOS 27.2 guest, tart clone of ntfsmac-golden, macFUSE 5.5.0, NTFS-3G 2026.9.28).
+The scripts probe1.sh to probe3.sh ran by hand before the cases were written; the cases cover most of
+it. Facts seen only here, not covered by a case:
+
+probe1 (product options, then `permissions` alone), selected lines:
+  product: chmod 600/755/000/4755 f -> rc 0, ls -ln unchanged -rw-r--r--; chown 0 f as admin -> rc 0 (no EPERM)
+  permissions only: chmod 600 p -> -rw------- ; sudo chown 1234:4321 p -> rc 0, ls still shows 501 20
+  `Using default user mapping` is printed by the engine at mount
+  after remounting with `permissions`, files made under the product options show -rwxrwxrwx and
+  directories drwxrwxrwx (no stored descriptor, default mapping), files made under `permissions`
+  keep their modes (p 0600, s2.sh 0755)
+probe2 (other account, product options):
+  `sudo -n -u USER /path/on/volume/h` -> "command not found" for a file without x bit: sudo's own
+  stat check; `sh -c /path/h` as the same account runs it. Created with dscl, no password, deleted after.
+probe3: ntfsinfo -F f -v before and after chmod/chown on the product mount: identical.

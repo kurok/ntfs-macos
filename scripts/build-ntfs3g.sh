@@ -20,6 +20,12 @@
 #
 # Usage: scripts/build-ntfs3g.sh [--prefix DIR] [--build-dir DIR] [--fuse internal|external]
 #                                [--jobs N] [--force] [--print-configure] [--no-patches]
+#                                [--configure-arg ARG]...
+# --configure-arg appends ARG to the configure line. The only value accepted is --enable-faultio,
+# the test-only fault layer (patch 0004, tests/stress/crashsweep); anything else is refused. With it
+# both --prefix and --build-dir must be given and differ from the defaults, so the fault library can
+# never land in the product's dependency prefix (build/deps) or reuse its build directory.
+# Never use it for a product build.
 # --no-patches builds pristine upstream (no patch series), e.g. to re-check that U1 needs no patch
 # (M2 audit F-06); never use it for a product build.
 # Defaults: --prefix build/deps, --build-dir build/ntfs-3g-<fuse>.
@@ -34,7 +40,7 @@ cache=${DEPS_CACHE_DIR:-$repo/third_party/cache}
 patch_dir=$repo/third_party/patches/ntfs-3g
 
 die() { echo "build-ntfs3g: error: $*" >&2; exit 1; }
-usage_err() { echo "build-ntfs3g: $*" >&2; echo "usage: build-ntfs3g.sh [--prefix DIR] [--build-dir DIR] [--fuse internal|external] [--jobs N] [--force] [--print-configure] [--no-patches]" >&2; exit 2; }
+usage_err() { echo "build-ntfs3g: $*" >&2; echo "usage: build-ntfs3g.sh [--prefix DIR] [--build-dir DIR] [--fuse internal|external] [--jobs N] [--force] [--print-configure] [--no-patches] [--configure-arg ARG]" >&2; exit 2; }
 log() { printf 'build-ntfs3g: %s\n' "$*"; }
 
 prefix=
@@ -44,17 +50,27 @@ jobs=
 force=0
 no_patches=0
 print_only=0
+extra_args=
+prefix_given=0
+build_given=0
 
 while [ $# -gt 0 ]; do
 	case $1 in
-	--prefix) [ $# -ge 2 ] || usage_err "--prefix needs a value"; prefix=$2; shift 2 ;;
-	--build-dir) [ $# -ge 2 ] || usage_err "--build-dir needs a value"; build_dir=$2; shift 2 ;;
+	--prefix) [ $# -ge 2 ] || usage_err "--prefix needs a value"; prefix=$2; prefix_given=1; shift 2 ;;
+	--build-dir) [ $# -ge 2 ] || usage_err "--build-dir needs a value"; build_dir=$2; build_given=1; shift 2 ;;
 	--fuse) [ $# -ge 2 ] || usage_err "--fuse needs a value"; fuse=$2; shift 2 ;;
 	--jobs) [ $# -ge 2 ] || usage_err "--jobs needs a value"; jobs=$2; shift 2 ;;
 	--force) force=1; shift ;;
 	--print-configure) print_only=1; shift ;;
 	--no-patches) no_patches=1; shift ;;
-	-h | --help) sed -n '2,26p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+	--configure-arg)
+		[ $# -ge 2 ] || usage_err "--configure-arg needs a value"
+		case $2 in
+		--enable-faultio) extra_args=" --enable-faultio" ;;
+		*) usage_err "--configure-arg accepts only --enable-faultio, got: $2" ;;
+		esac
+		shift 2 ;;
+	-h | --help) sed -n '2,33p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
 	*) usage_err "unknown option: $1" ;;
 	esac
 done
@@ -76,6 +92,12 @@ abspath() { # DIR -> absolute path (need not exist)
 prefix=$(abspath "$prefix")
 build_dir=$(abspath "$build_dir")
 case $prefix$build_dir in *[[:space:]]*) die "paths with whitespace are not supported" ;; esac
+if [ -n "$extra_args" ]; then
+	[ "$prefix_given" = 1 ] && [ "$build_given" = 1 ] \
+		|| usage_err "--enable-faultio needs explicit --prefix and --build-dir"
+	[ "$prefix" != "$repo/build/deps" ] && [ "$build_dir" != "$repo/build/ntfs-3g-$fuse" ] \
+		|| usage_err "--enable-faultio must not use the default prefix or build directory"
+fi
 
 if [ -z "$jobs" ]; then
 	jobs=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)
@@ -84,7 +106,7 @@ fi
 # The configure line. Same flags as vm/linux/Dockerfile, plus a static library.
 macfuse_prefix=${MACFUSE_PREFIX:-/usr/local}
 src=$build_dir/src
-configure_args="--prefix=$prefix --exec-prefix=$prefix --with-fuse=$fuse --enable-static --disable-shared --enable-ntfsprogs --disable-ldconfig --disable-mount-helper --disable-plugins"
+configure_args="--prefix=$prefix --exec-prefix=$prefix --with-fuse=$fuse --enable-static --disable-shared --enable-ntfsprogs --disable-ldconfig --disable-mount-helper --disable-plugins$extra_args"
 configure_env=
 if [ "$fuse" = external ]; then
 	configure_env="PKG_CONFIG_PATH=$macfuse_prefix/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
@@ -187,6 +209,7 @@ fi
 log "configure: $configure_line"
 (
 	cd "$src"
+	set -f
 	[ -z "$configure_env" ] || export "${configure_env?}"
 	# shellcheck disable=SC2086
 	./configure $configure_args

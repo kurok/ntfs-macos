@@ -1,0 +1,7 @@
+release libntfs-3g.a: faultio symbols=0, NTFSMAC_FAULT strings=0
+release ntfs-3g: faultio symbols=0, NTFSMAC_FAULT strings=0
+release ntfsfix: faultio symbols=0, NTFSMAC_FAULT strings=0
+release mkntfs: faultio symbols=0, NTFSMAC_FAULT strings=0
+release unix_io.o equals the 0003-only reference: objdump -dr (.text .rodata .data) and nm identical (466 lines)
+faultio libntfs-3g.a: faultio symbols=6; ntfs-3g NTFSMAC_FAULT_PLAN strings=2 (positive control, must be >0)
+build proof: PASS

@@ -1,0 +1,128 @@
+release libntfs-3g.a: faultio symbols=0, NTFSMAC_FAULT strings=0
+release ntfs-3g: faultio symbols=0, NTFSMAC_FAULT strings=0
+release ntfsfix: faultio symbols=0, NTFSMAC_FAULT strings=0
+release mkntfs: faultio symbols=0, NTFSMAC_FAULT strings=0
+release unix_io.o equals the 0003-only reference: objdump -dr (.text .rodata .data) and nm identical (466 lines)
+faultio libntfs-3g.a: faultio symbols=6; ntfs-3g NTFSMAC_FAULT_PLAN strings=2 (positive control, must be >0)
+build proof: PASS
+[5/5] 16:02:17
+[20/555] 16:02:18
+[40/555] 16:02:18
+[60/555] 16:02:18
+[80/555] 16:02:19
+[100/555] 16:02:20
+[120/555] 16:02:20
+[140/555] 16:02:21
+[160/555] 16:02:22
+[180/555] 16:02:23
+[200/555] 16:02:24
+[220/555] 16:02:25
+[240/555] 16:02:26
+[260/555] 16:02:26
+[280/555] 16:02:27
+[300/555] 16:02:27
+[320/555] 16:02:28
+[340/555] 16:02:28
+[360/555] 16:02:28
+[380/555] 16:02:29
+[400/555] 16:02:29
+[420/555] 16:02:29
+[440/555] 16:02:30
+[460/555] 16:02:30
+[480/555] 16:02:31
+[500/555] 16:02:32
+[520/555] 16:02:32
+[540/555] 16:02:33
+[555/555] 16:02:34
+FAIL smallfiles short:68:512: ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 5  usn: 6: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 5  usn: 6: Input/output error | Volume is corrupt. You should run chkdsk.
+FAIL smallfiles short:85:512: ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 7  usn: 8: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 7  usn: 8: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+FAIL smallfiles short:102:512: ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 17  usn: 18: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+FAIL smallfiles short:119:512: ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 11  usn: 12: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 11  usn: 12: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+FAIL smallfiles short:254:512: ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 22  usn: 23: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 22  usn: 23: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+FAIL smallfiles short:355:512: ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 39  usn: 40: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+FAIL smallfiles short:389:512: ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 42  usn: 43: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+FAIL smallfiles short:473:512: claims: 1 of 4 broken, first: d6/f006.dat: Input/output error
+FAIL smallfiles short:558:512: ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 46  usn: 47: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 46  usn: 47: Input/output error | Volume is corrupt. You should run chkdsk.
+FAIL smallfiles short:591:512: ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 48  usn: 49: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 48  usn: 49: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+FAIL smallfiles short:608:512: ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 49  usn: 50: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 49  usn: 50: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+FAIL smallfiles short:625:512: ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 50  usn: 51: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 50  usn: 51: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+FAIL smallfiles short:676:512: ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 63  usn: 64: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+FAIL smallfiles short:693:512: ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 56  usn: 57: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 56  usn: 57: Input/output error | Volume is corrupt. You should run chkdsk.
+FAIL smallfiles short:760:512: ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 62  usn: 63: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 62  usn: 63: Input/output error | Volume is corrupt. You should run chkdsk.
+FAIL smallfiles short:777:512: ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 72  usn: 73: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+FAIL smallfiles short:811:512: claims: 1 of 8 broken, first: d0/f048.dat: No such file or directory
+FAIL smallfiles short:895:512: claims: 1 of 8 broken, first: d6/f006.dat: No such file or directory
+FAIL smallfiles short:929:512: ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 84  usn: 85: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+FAIL smallfiles short:1115:512: claims: 1 of 11 broken, first: d0/f048.dat: No such file or directory
+gate: fail
+{
+  "claims_broken": 115,
+  "claims_checked": 13497,
+  "controls": 10,
+  "controls_pass": 10,
+  "cut_points": 550,
+  "cuts_per_workload_requested": 110,
+  "fail": 204,
+  "mirror_split": 0,
+  "mount_options": "rw,norecover,big_writes",
+  "mount_refused": 89,
+  "ntfsfix_nonzero": 89,
+  "pass": 346,
+  "per_workload": {
+    "dirtree": {
+      "cut_points": 110,
+      "device_writes": 4997,
+      "fail": 47,
+      "mirror_split": 0,
+      "pass": 63,
+      "walk_dirty": 56,
+      "workload_hangs": 0
+    },
+    "overwrite_truncate": {
+      "cut_points": 110,
+      "device_writes": 1000,
+      "fail": 14,
+      "mirror_split": 0,
+      "pass": 96,
+      "walk_dirty": 94,
+      "workload_hangs": 0
+    },
+    "renamechurn": {
+      "cut_points": 110,
+      "device_writes": 1508,
+      "fail": 49,
+      "mirror_split": 0,
+      "pass": 61,
+      "walk_dirty": 71,
+      "workload_hangs": 0
+    },
+    "seqwrite": {
+      "cut_points": 110,
+      "device_writes": 25664,
+      "fail": 57,
+      "mirror_split": 0,
+      "pass": 53,
+      "walk_dirty": 88,
+      "workload_hangs": 0
+    },
+    "smallfiles": {
+      "cut_points": 110,
+      "device_writes": 1841,
+      "fail": 37,
+      "mirror_split": 0,
+      "pass": 73,
+      "walk_dirty": 56,
+      "workload_hangs": 0
+    }
+  },
+  "plan": "short",
+  "rw_norecover_outcomes": {
+    "mounted-rw": 461,
+    "refused": 89
+  },
+  "short_bytes": 512,
+  "strict_pass": 96,
+  "unclassified_fail": 204,
+  "walk_dirty": 365,
+  "workload_hangs": 0
+}

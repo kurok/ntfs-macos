@@ -1,0 +1,82 @@
+{
+  "claims_broken": 0,
+  "claims_checked": 4311,
+  "controls": 10,
+  "controls_pass": 10,
+  "cut_points": 250,
+  "cuts_per_workload_requested": 50,
+  "fail": 1,
+  "failures": [
+    {
+      "plan": "skip:1384",
+      "reasons": [
+        "ro,norecover mount refused (rc 13): $MFTMirr does not match $MFT (record 0).",
+        "ntfsfix -n exit 1: $MFTMirr does not match $MFT (record 0). | Remount failed: Input/output error"
+      ],
+      "workload": "renamechurn"
+    }
+  ],
+  "gate": "fail",
+  "mirror_split": 0,
+  "mount_options": "rw,norecover,big_writes",
+  "mount_refused": 1,
+  "ntfsfix_nonzero": 1,
+  "pass": 249,
+  "per_workload": {
+    "dirtree": {
+      "cut_points": 50,
+      "device_writes": 4997,
+      "fail": 0,
+      "mirror_split": 0,
+      "pass": 50,
+      "walk_dirty": 1,
+      "workload_hangs": 0
+    },
+    "overwrite_truncate": {
+      "cut_points": 50,
+      "device_writes": 1000,
+      "fail": 0,
+      "mirror_split": 0,
+      "pass": 50,
+      "walk_dirty": 1,
+      "workload_hangs": 0
+    },
+    "renamechurn": {
+      "cut_points": 50,
+      "device_writes": 1508,
+      "fail": 1,
+      "mirror_split": 0,
+      "pass": 49,
+      "walk_dirty": 4,
+      "workload_hangs": 0
+    },
+    "seqwrite": {
+      "cut_points": 50,
+      "device_writes": 25664,
+      "fail": 0,
+      "mirror_split": 0,
+      "pass": 50,
+      "walk_dirty": 1,
+      "workload_hangs": 0
+    },
+    "smallfiles": {
+      "cut_points": 50,
+      "device_writes": 1841,
+      "fail": 0,
+      "mirror_split": 0,
+      "pass": 50,
+      "walk_dirty": 3,
+      "workload_hangs": 0
+    }
+  },
+  "plan": "skip",
+  "rw_norecover_outcomes": {
+    "mounted-rw": 249,
+    "refused": 1
+  },
+  "short_bytes": null,
+  "strict_pass": 239,
+  "unclassified_fail": 1,
+  "walk_dirty": 10,
+  "workload_hangs": 0
+}

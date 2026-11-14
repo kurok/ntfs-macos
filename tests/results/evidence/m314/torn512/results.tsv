@@ -1,0 +1,561 @@
+workload	tag	plan	kind	writes_seen	mount_rc	files	claims	ntfsfix_rc	rw_norecover	walk_clean	workload_rc	pass	mirror_split	fail
+smallfiles	count	count	count	1841	0	140	20	0	mounted-rw	True	0	True	False	
+seqwrite	count	count	count	25664	0	2	2	0	mounted-rw	True	0	True	False	
+renamechurn	count	count	count	1508	0	39	39	0	mounted-rw	True	0	True	False	
+overwrite_truncate	count	count	count	1000	0	12	12	0	mounted-rw	True	0	True	False	
+dirtree	count	count	count	4997	0	178	138	0	mounted-rw	True	0	True	False	
+smallfiles	s1	short:1:512	short	1	0	0	0	0	mounted-rw	True	1	True	False	
+smallfiles	s17	short:17:512	short	17	0	0	0	0	mounted-rw	True	1	True	False	
+smallfiles	s34	short:34:512	short	34	0	0	0	0	mounted-rw	True	1	True	False	
+smallfiles	s51	short:51:512	short	51	0	0	0	0	mounted-rw	True	1	True	False	
+smallfiles	s68	short:68:512	short	68	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 5  usn: 6: Input/outpu		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 5  usn: 6: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 5  usn: 6: Input/output error | Volume is corrupt. You should run chkdsk.
+smallfiles	s85	short:85:512	short	85	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 7  usn: 8: Input/outpu		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 7  usn: 8: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 7  usn: 8: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+smallfiles	s102	short:102:512	short	102	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 17  usn: 18: Input/out		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 17  usn: 18: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+smallfiles	s119	short:119:512	short	119	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 11  usn: 12: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 11  usn: 12: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 11  usn: 12: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+smallfiles	s136	short:136:512	short	136	0	2	0	0	mounted-rw	False	1	True	False	
+smallfiles	s152	short:152:512	short	153	0	4	0	0	mounted-rw	True	1	True	False	
+smallfiles	s169	short:169:512	short	169	0	5	0	0	mounted-rw	False	1	True	False	
+smallfiles	s186	short:186:512	short	186	0	7	1	0	mounted-rw	True	1	True	False	
+smallfiles	s203	short:203:512	short	203	0	8	1	0	mounted-rw	True	1	True	False	
+smallfiles	s220	short:220:512	short	220	0	9	1	0	mounted-rw	False	1	True	False	
+smallfiles	s237	short:237:512	short	237	0	10	1	0	mounted-rw	False	1	True	False	
+smallfiles	s254	short:254:512	short	254	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 22  usn: 23: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 22  usn: 23: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 22  usn: 23: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+smallfiles	s271	short:271:512	short	271	0	12	1	0	mounted-rw	False	1	True	False	
+smallfiles	s287	short:287:512	short	287	0	15	2	0	mounted-rw	True	1	True	False	
+smallfiles	s304	short:304:512	short	304	0	16	2	0	mounted-rw	False	1	True	False	
+smallfiles	s321	short:321:512	short	321	0	17	2	0	mounted-rw	False	1	True	False	
+smallfiles	s338	short:338:512	short	338	0	17	2	0	mounted-rw	False	1	True	False	
+smallfiles	s355	short:355:512	short	355	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 39  usn: 40: Input/out		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 39  usn: 40: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+smallfiles	s372	short:372:512	short	373	0	22	3	0	mounted-rw	True	1	True	False	
+smallfiles	s389	short:389:512	short	389	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 42  usn: 43: Input/out		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 42  usn: 43: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+smallfiles	s406	short:406:512	short	407	0	25	3	0	mounted-rw	True	1	True	False	
+smallfiles	s423	short:423:512	short	423	0	26	3	0	mounted-rw	False	1	True	False	
+smallfiles	s439	short:439:512	short	439	0	27	3	0	mounted-rw	False	1	True	False	
+smallfiles	s456	short:456:512	short	456	0	28	4	0	mounted-rw	False	1	True	False	
+smallfiles	s473	short:473:512	short	473	0	27	4	0	mounted-rw	False	1	False	False	claims: 1 of 4 broken, first: d6/f006.dat: Input/output error
+smallfiles	s490	short:490:512	short	490	0	32	4	0	mounted-rw	True	1	True	False	
+smallfiles	s507	short:507:512	short	507	0	33	4	0	mounted-rw	True	1	True	False	
+smallfiles	s524	short:524:512	short	524	0	34	4	0	mounted-rw	True	1	True	False	
+smallfiles	s541	short:541:512	short	541	0	35	5	0	mounted-rw	True	1	True	False	
+smallfiles	s558	short:558:512	short	558	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 46  usn: 47: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 46  usn: 47: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 46  usn: 47: Input/output error | Volume is corrupt. You should run chkdsk.
+smallfiles	s574	short:574:512	short	574	0	37	5	0	mounted-rw	True	1	True	False	
+smallfiles	s591	short:591:512	short	591	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 48  usn: 49: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 48  usn: 49: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 48  usn: 49: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+smallfiles	s608	short:608:512	short	608	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 49  usn: 50: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 49  usn: 50: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 49  usn: 50: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+smallfiles	s625	short:625:512	short	625	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 50  usn: 51: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 50  usn: 51: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 50  usn: 51: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+smallfiles	s642	short:642:512	short	642	0	41	5	0	mounted-rw	False	1	True	False	
+smallfiles	s659	short:659:512	short	660	0	43	6	0	mounted-rw	True	1	True	False	
+smallfiles	s676	short:676:512	short	676	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 63  usn: 64: Input/out		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 63  usn: 64: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+smallfiles	s693	short:693:512	short	693	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 56  usn: 57: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 56  usn: 57: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 56  usn: 57: Input/output error | Volume is corrupt. You should run chkdsk.
+smallfiles	s709	short:709:512	short	709	0	47	6	0	mounted-rw	False	1	True	False	
+smallfiles	s726	short:726:512	short	726	0	49	7	0	mounted-rw	True	1	True	False	
+smallfiles	s743	short:743:512	short	743	0	50	7	0	mounted-rw	False	1	True	False	
+smallfiles	s760	short:760:512	short	760	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 62  usn: 63: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 62  usn: 63: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 62  usn: 63: Input/output error | Volume is corrupt. You should run chkdsk.
+smallfiles	s777	short:777:512	short	777	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 72  usn: 73: Input/out		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 72  usn: 73: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+smallfiles	s794	short:794:512	short	794	0	54	7	0	mounted-rw	False	1	True	False	
+smallfiles	s811	short:811:512	short	811	0	49	8	0	mounted-rw	False	1	False	False	claims: 1 of 8 broken, first: d0/f048.dat: No such file or directory
+smallfiles	s828	short:828:512	short	828	0	57	8	0	mounted-rw	False	1	True	False	
+smallfiles	s845	short:845:512	short	845	0	59	8	0	mounted-rw	True	1	True	False	
+smallfiles	s861	short:861:512	short	861	0	59	8	0	mounted-rw	False	1	True	False	
+smallfiles	s878	short:878:512	short	878	0	61	8	0	mounted-rw	False	1	True	False	
+smallfiles	s895	short:895:512	short	895	0	55	8	0	mounted-rw	False	1	False	False	claims: 1 of 8 broken, first: d6/f006.dat: No such file or directory
+smallfiles	s912	short:912:512	short	912	0	63	9	0	mounted-rw	False	1	True	False	
+smallfiles	s929	short:929:512	short	929	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 84  usn: 85: Input/out		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 84  usn: 85: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+smallfiles	s946	short:946:512	short	946	0	67	9	0	mounted-rw	True	1	True	False	
+smallfiles	s963	short:963:512	short	963	0	68	9	0	mounted-rw	False	1	True	False	
+smallfiles	s980	short:980:512	short	980	0	69	9	0	mounted-rw	False	1	True	False	
+smallfiles	s996	short:996:512	short	997	0	71	10	0	mounted-rw	True	1	True	False	
+smallfiles	s1013	short:1013:512	short	1013	0	71	10	0	mounted-rw	False	1	True	False	
+smallfiles	s1030	short:1030:512	short	1030	0	73	10	0	mounted-rw	False	1	True	False	
+smallfiles	s1047	short:1047:512	short	1048	0	75	10	0	mounted-rw	True	1	True	False	
+smallfiles	s1064	short:1064:512	short	1064	0	75	10	0	mounted-rw	False	1	True	False	
+smallfiles	s1081	short:1081:512	short	1081	0	77	11	0	mounted-rw	False	1	True	False	
+smallfiles	s1098	short:1098:512	short	1099	0	79	11	0	mounted-rw	True	1	True	False	
+smallfiles	s1115	short:1115:512	short	1115	0	70	11	0	mounted-rw	False	1	False	False	claims: 1 of 11 broken, first: d0/f048.dat: No such file or directory
+smallfiles	s1132	short:1132:512	short	1132	0	81	11	0	mounted-rw	False	1	True	False	
+smallfiles	s1148	short:1148:512	short	1149	0	83	11	0	mounted-rw	True	1	True	False	
+smallfiles	s1165	short:1165:512	short	1165	0	84	12	0	mounted-rw	False	1	True	False	
+smallfiles	s1182	short:1182:512	short	1182	0	85	12	0	mounted-rw	False	1	True	False	
+smallfiles	s1199	short:1199:512	short	1199	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 97  usn: 98: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 97  usn: 98: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 97  usn: 98: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+smallfiles	s1216	short:1216:512	short	1216	0	88	12	0	mounted-rw	False	1	True	False	
+smallfiles	s1233	short:1233:512	short	1234	0	90	12	0	mounted-rw	True	1	True	False	
+smallfiles	s1250	short:1250:512	short	1250	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 110  usn: 111: Input/o		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 110  usn: 111: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+smallfiles	s1267	short:1267:512	short	1267	0	92	13	0	mounted-rw	False	1	True	False	
+smallfiles	s1283	short:1283:512	short	1283	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 104  usn: 105: Input/o		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 104  usn: 105: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 104  usn: 105: Input/output error | Volume is corrupt. You should run chkdsk.
+smallfiles	s1300	short:1300:512	short	1300	0	95	13	0	mounted-rw	True	1	True	False	
+smallfiles	s1317	short:1317:512	short	1317	0	84	13	0	mounted-rw	False	1	False	False	claims: 1 of 13 broken, first: d0/f048.dat: Input/output error
+smallfiles	s1334	short:1334:512	short	1335	0	98	14	0	mounted-rw	True	1	True	False	
+smallfiles	s1351	short:1351:512	short	1351	0	87	14	0	mounted-rw	False	1	False	False	claims: 2 of 14 broken, first: d3/f027.dat: No such file or directory
+smallfiles	s1368	short:1368:512	short	1368	0	88	14	0	mounted-rw	False	1	False	False	claims: 2 of 14 broken, first: d4/f020.dat: No such file or directory
+smallfiles	s1385	short:1385:512	short	1385	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 112  usn: 113: Input/o		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 112  usn: 113: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 112  usn: 113: Input/output error | Volume is corrupt. You should run chkdsk.
+smallfiles	s1402	short:1402:512	short	1403	0	104	14	0	mounted-rw	True	1	True	False	
+smallfiles	s1418	short:1418:512	short	1418	0	105	15	0	mounted-rw	False	1	True	False	
+smallfiles	s1435	short:1435:512	short	1435	0	106	15	0	mounted-rw	False	1	True	False	
+smallfiles	s1452	short:1452:512	short	1452	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 118  usn: 119: Input/o		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 118  usn: 119: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 118  usn: 119: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+smallfiles	s1469	short:1469:512	short	1469	0	96	15	0	mounted-rw	False	1	False	False	claims: 2 of 15 broken, first: d5/f013.dat: Input/output error
+smallfiles	s1486	short:1486:512	short	1487	0	111	15	0	mounted-rw	True	1	True	False	
+smallfiles	s1503	short:1503:512	short	1503	0	111	15	0	mounted-rw	False	1	True	False	
+smallfiles	s1520	short:1520:512	short	1520	0	113	16	0	mounted-rw	False	1	True	False	
+smallfiles	s1537	short:1537:512	short	1537	0	114	16	0	mounted-rw	False	1	True	False	
+smallfiles	s1554	short:1554:512	short	1554	0	102	16	0	mounted-rw	False	1	False	False	claims: 2 of 16 broken, first: d4/f020.dat: No such file or directory
+smallfiles	s1570	short:1570:512	short	1570	0	117	16	0	mounted-rw	False	1	True	False	
+smallfiles	s1587	short:1587:512	short	1587	0	119	17	0	mounted-rw	True	1	True	False	
+smallfiles	s1604	short:1604:512	short	1604	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 130  usn: 131: Input/o		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 130  usn: 131: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 130  usn: 131: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+smallfiles	s1621	short:1621:512	short	1621	0	106	17	0	mounted-rw	False	1	False	False	claims: 2 of 17 broken, first: d1/f041.dat: Input/output error
+smallfiles	s1638	short:1638:512	short	1638	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 133  usn: 134: Input/o		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 133  usn: 134: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 133  usn: 134: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+smallfiles	s1655	short:1655:512	short	1655	0	109	17	0	mounted-rw	False	1	False	False	claims: 2 of 17 broken, first: d4/f020.dat: No such file or directory
+smallfiles	s1672	short:1672:512	short	1672	0	111	18	0	mounted-rw	False	1	False	False	claims: 3 of 18 broken, first: d6/f006.dat: No such file or directory
+smallfiles	s1689	short:1689:512	short	1689	0	127	18	0	mounted-rw	False	1	True	False	
+smallfiles	s1705	short:1705:512	short	1705	0	113	18	0	mounted-rw	False	1	False	False	claims: 2 of 18 broken, first: d1/f041.dat: No such file or directory
+smallfiles	s1722	short:1722:512	short	1722	0	130	18	0	mounted-rw	False	1	True	False	
+smallfiles	s1739	short:1739:512	short	1739	0	132	18	0	mounted-rw	True	1	True	False	
+smallfiles	s1756	short:1756:512	short	1756	0	133	19	0	mounted-rw	False	1	True	False	
+smallfiles	s1773	short:1773:512	short	1773	0	134	19	0	mounted-rw	False	1	True	False	
+smallfiles	s1790	short:1790:512	short	1790	0	136	19	0	mounted-rw	True	1	True	False	
+smallfiles	s1807	short:1807:512	short	1807	0	120	19	0	mounted-rw	False	1	False	False	claims: 2 of 19 broken, first: d1/f041.dat: Input/output error
+smallfiles	s1824	short:1824:512	short	1824	0	138	19	0	mounted-rw	False	1	True	False	
+smallfiles	s1841	short:1841:512	short	1841	0	139	19	0	mounted-rw	False	1	True	False	
+smallfiles	zero	cut:0	zero	1	0	0	0	0	mounted-rw	True	1	True	False	
+seqwrite	s1	short:1:512	short	1	0	0	0	0	mounted-rw	True	1	True	False	
+seqwrite	s236	short:236:512	short	236	0	0	0	0	mounted-rw	False	1	True	False	
+seqwrite	s471	short:471:512	short	471	0	0	0	0	mounted-rw	False	1	True	False	
+seqwrite	s707	short:707:512	short	707	0	0	0	0	mounted-rw	False	1	True	False	
+seqwrite	s942	short:942:512	short	942	0	0	0	0	mounted-rw	False	1	True	False	
+seqwrite	s1178	short:1178:512	short	1178	0	0	0	0	mounted-rw	False	1	True	False	
+seqwrite	s1413	short:1413:512	short	1413	0	0	0	0	mounted-rw	False	1	True	False	
+seqwrite	s1649	short:1649:512	short	1649	0	0	0	0	mounted-rw	False	1	True	False	
+seqwrite	s1884	short:1884:512	short	1884	0	0	0	0	mounted-rw	False	1	True	False	
+seqwrite	s2119	short:2119:512	short	2119	0	0	0	0	mounted-rw	False	1	True	False	
+seqwrite	s2355	short:2355:512	short	2355	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 466  usn: 467: Input/o		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 466  usn: 467: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s2590	short:2590:512	short	2590	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 513  usn: 514: Input/o		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 513  usn: 514: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s2826	short:2826:512	short	2826	0	0	0	0	mounted-rw	False	1	True	False	
+seqwrite	s3061	short:3061:512	short	3061	0	0	0	0	mounted-rw	False	1	True	False	
+seqwrite	s3297	short:3297:512	short	3297	0	0	0	0	mounted-rw	False	1	True	False	
+seqwrite	s3532	short:3532:512	short	3532	0	0	0	0	mounted-rw	False	1	True	False	
+seqwrite	s3768	short:3768:512	short	3768	0	0	0	0	mounted-rw	False	1	True	False	
+seqwrite	s4003	short:4003:512	short	4003	0	0	0	0	mounted-rw	False	1	True	False	
+seqwrite	s4238	short:4238:512	short	4238	0	0	0	0	mounted-rw	False	1	True	False	
+seqwrite	s4474	short:4474:512	short	4474	0	0	0	0	mounted-rw	False	1	True	False	
+seqwrite	s4709	short:4709:512	short	4709	0	0	0	0	mounted-rw	False	1	True	False	
+seqwrite	s4945	short:4945:512	short	4945	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 984  usn: 985: Input/o		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 984  usn: 985: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s5180	short:5180:512	short	5180	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 1031  usn: 1032: Input		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 1031  usn: 1032: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s5416	short:5416:512	short	5416	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s5651	short:5651:512	short	5651	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s5887	short:5887:512	short	5887	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s6122	short:6122:512	short	6122	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s6357	short:6357:512	short	6357	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s6593	short:6593:512	short	6593	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s6828	short:6828:512	short	6828	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s7064	short:7064:512	short	7064	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s7299	short:7299:512	short	7299	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s7535	short:7535:512	short	7535	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 1502  usn: 1503: Input		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 1502  usn: 1503: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s7770	short:7770:512	short	7770	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 1549  usn: 1550: Input		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 1549  usn: 1550: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s8005	short:8005:512	short	8005	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 1596  usn: 1597: Input		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 1596  usn: 1597: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s8241	short:8241:512	short	8241	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s8476	short:8476:512	short	8476	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s8712	short:8712:512	short	8712	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s8947	short:8947:512	short	8947	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s9183	short:9183:512	short	9183	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s9418	short:9418:512	short	9418	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s9654	short:9654:512	short	9654	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s9889	short:9889:512	short	9889	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s10124	short:10124:512	short	10124	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s10360	short:10360:512	short	10360	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 2067  usn: 2068: Input		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 2067  usn: 2068: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s10595	short:10595:512	short	10595	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 2114  usn: 2115: Input		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 2114  usn: 2115: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s10831	short:10831:512	short	10831	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s11066	short:11066:512	short	11066	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s11302	short:11302:512	short	11302	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s11537	short:11537:512	short	11537	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s11773	short:11773:512	short	11773	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s12008	short:12008:512	short	12008	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s12243	short:12243:512	short	12243	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s12479	short:12479:512	short	12479	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s12714	short:12714:512	short	12714	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s12950	short:12950:512	short	12950	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 2585  usn: 2586: Input		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 2585  usn: 2586: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s13185	short:13185:512	short	13185	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 2632  usn: 2633: Input		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 2632  usn: 2633: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s13421	short:13421:512	short	13421	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s13656	short:13656:512	short	13656	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s13891	short:13891:512	short	13891	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s14127	short:14127:512	short	14127	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s14362	short:14362:512	short	14362	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s14598	short:14598:512	short	14598	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s14833	short:14833:512	short	14833	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s15069	short:15069:512	short	15069	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s15304	short:15304:512	short	15304	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s15540	short:15540:512	short	15540	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 3103  usn: 3104: Input		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 3103  usn: 3104: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s15775	short:15775:512	short	15775	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 3150  usn: 3151: Input		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 3150  usn: 3151: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s16010	short:16010:512	short	16010	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 3197  usn: 3198: Input		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 3197  usn: 3198: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s16246	short:16246:512	short	16246	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s16481	short:16481:512	short	16481	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s16717	short:16717:512	short	16717	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s16952	short:16952:512	short	16952	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s17188	short:17188:512	short	17188	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s17423	short:17423:512	short	17423	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s17659	short:17659:512	short	17659	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s17894	short:17894:512	short	17894	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s18129	short:18129:512	short	18129	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s18365	short:18365:512	short	18365	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 3668  usn: 3669: Input		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 3668  usn: 3669: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s18600	short:18600:512	short	18600	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 3715  usn: 3716: Input		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 3715  usn: 3716: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s18836	short:18836:512	short	18836	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s19071	short:19071:512	short	19071	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s19307	short:19307:512	short	19307	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s19542	short:19542:512	short	19542	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s19777	short:19777:512	short	19777	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s20013	short:20013:512	short	20013	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s20248	short:20248:512	short	20248	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s20484	short:20484:512	short	20484	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s20719	short:20719:512	short	20719	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s20955	short:20955:512	short	20955	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 4186  usn: 4187: Input		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 4186  usn: 4187: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s21190	short:21190:512	short	21190	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 4233  usn: 4234: Input		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 4233  usn: 4234: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s21426	short:21426:512	short	21426	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s21661	short:21661:512	short	21661	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s21896	short:21896:512	short	21896	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s22132	short:22132:512	short	22132	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s22367	short:22367:512	short	22367	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s22603	short:22603:512	short	22603	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s22838	short:22838:512	short	22838	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s23074	short:23074:512	short	23074	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s23309	short:23309:512	short	23309	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s23545	short:23545:512	short	23545	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 4704  usn: 4705: Input		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 4704  usn: 4705: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s23780	short:23780:512	short	23780	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 4751  usn: 4752: Input		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 4751  usn: 4752: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s24015	short:24015:512	short	24015	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 4798  usn: 4799: Input		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 4798  usn: 4799: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+seqwrite	s24251	short:24251:512	short	24251	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s24486	short:24486:512	short	24486	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s24722	short:24722:512	short	24722	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s24957	short:24957:512	short	24957	0	0	1	0	mounted-rw	False	1	False	False	claims: 1 of 1 broken, first: big.bin: Input/output error
+seqwrite	s25193	short:25193:512	short	25193	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s25428	short:25428:512	short	25428	0	0	1	0	mounted-rw	False	1	True	False	
+seqwrite	s25664	short:25664:512	short	25664	0	1	1	0	mounted-rw	False	1	True	False	
+seqwrite	zero	cut:0	zero	1	0	0	0	0	mounted-rw	True	1	True	False	
+renamechurn	s1	short:1:512	short	1	0	0	0	0	mounted-rw	True	1	True	False	
+renamechurn	s14	short:14:512	short	14	0	0	0	0	mounted-rw	True	1	True	False	
+renamechurn	s28	short:28:512	short	28	0	0	0	0	mounted-rw	True	1	True	False	
+renamechurn	s42	short:42:512	short	42	0	0	0	0	mounted-rw	True	1	True	False	
+renamechurn	s56	short:56:512	short	56	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 6  usn: 7: Input/outpu		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 6  usn: 7: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+renamechurn	s70	short:70:512	short	70	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 5  usn: 6: Input/outpu		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 5  usn: 6: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 5  usn: 6: Input/output error | Volume is corrupt. You should run chkdsk.
+renamechurn	s83	short:83:512	short	83	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 6  usn: 7: Input/outpu		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 6  usn: 7: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 6  usn: 7: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+renamechurn	s97	short:97:512	short	97	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 10  usn: 11: Input/out		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 10  usn: 11: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+renamechurn	s111	short:111:512	short	111	0	4	0	0	mounted-rw	False	1	True	False	
+renamechurn	s125	short:125:512	short	125	0	0	0	0	mounted-rw	False	1	True	False	
+renamechurn	s139	short:139:512	short	139	0	0	0	0	mounted-rw	False	1	True	False	
+renamechurn	s153	short:153:512	short	153	0	6	0	0	mounted-rw	False	1	True	False	
+renamechurn	s166	short:166:512	short	166	0	7	0	0	mounted-rw	False	1	True	False	
+renamechurn	s180	short:180:512	short	180	0	8	0	0	mounted-rw	False	1	True	False	
+renamechurn	s194	short:194:512	short	194	0	0	0	0	mounted-rw	False	1	True	False	
+renamechurn	s208	short:208:512	short	208	0	0	0	0	mounted-rw	False	1	True	False	
+renamechurn	s222	short:222:512	short	222	0	11	0	0	mounted-rw	False	1	True	False	
+renamechurn	s236	short:236:512	short	236	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 19  usn: 20: Input/out		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 19  usn: 20: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+renamechurn	s249	short:249:512	short	249	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 20  usn: 21: Input/out		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 20  usn: 21: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+renamechurn	s263	short:263:512	short	263	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 18  usn: 19: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 18  usn: 19: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 18  usn: 19: Input/output error | Volume is corrupt. You should run chkdsk.
+renamechurn	s277	short:277:512	short	277	0	15	0	0	mounted-rw	False	1	True	False	
+renamechurn	s291	short:291:512	short	291	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 23  usn: 24: Input/out		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 23  usn: 24: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+renamechurn	s305	short:305:512	short	305	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 21  usn: 22: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 21  usn: 22: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 21  usn: 22: Input/output error | Volume is corrupt. You should run chkdsk.
+renamechurn	s318	short:318:512	short	318	0	17	0	0	mounted-rw	False	1	True	False	
+renamechurn	s332	short:332:512	short	333	0	19	0	0	mounted-rw	True	1	True	False	
+renamechurn	s346	short:346:512	short	346	0	19	0	0	mounted-rw	False	1	True	False	
+renamechurn	s360	short:360:512	short	360	0	20	0	0	mounted-rw	False	1	True	False	
+renamechurn	s374	short:374:512	short	375	0	22	0	0	mounted-rw	True	1	True	False	
+renamechurn	s388	short:388:512	short	388	0	23	0	0	mounted-rw	True	1	True	False	
+renamechurn	s401	short:401:512	short	401	0	24	0	0	mounted-rw	True	1	True	False	
+renamechurn	s415	short:415:512	short	415	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 29  usn: 30: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 29  usn: 30: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 29  usn: 30: Input/output error | Volume is corrupt. You should run chkdsk.
+renamechurn	s429	short:429:512	short	429	0	0	0	0	mounted-rw	False	1	True	False	
+renamechurn	s443	short:443:512	short	444	0	27	0	0	mounted-rw	True	1	True	False	
+renamechurn	s457	short:457:512	short	457	0	28	0	0	mounted-rw	True	1	True	False	
+renamechurn	s471	short:471:512	short	471	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 33  usn: 34: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 33  usn: 34: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 33  usn: 34: Input/output error | Volume is corrupt. You should run chkdsk.
+renamechurn	s484	short:484:512	short	484	0	0	0	0	mounted-rw	False	1	True	False	
+renamechurn	s498	short:498:512	short	498	0	31	0	0	mounted-rw	False	1	True	False	
+renamechurn	s512	short:512:512	short	512	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 39  usn: 40: Input/out		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 39  usn: 40: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+renamechurn	s526	short:526:512	short	526	0	0	0	0	mounted-rw	False	1	True	False	
+renamechurn	s540	short:540:512	short	540	0	34	0	0	mounted-rw	False	1	True	False	
+renamechurn	s554	short:554:512	short	554	0	35	0	0	mounted-rw	False	1	True	False	
+renamechurn	s567	short:567:512	short	567	0	36	0	0	mounted-rw	False	1	True	False	
+renamechurn	s581	short:581:512	short	581	0	37	0	0	mounted-rw	False	1	True	False	
+renamechurn	s595	short:595:512	short	595	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 45  usn: 46: Input/out		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 45  usn: 46: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+renamechurn	s609	short:609:512	short	609	0	39	0	0	mounted-rw	False	1	True	False	
+renamechurn	s623	short:623:512	short	623	0	38	38	0	mounted-rw	False	1	True	False	
+renamechurn	s636	short:636:512	short	637	0	37	36	0	mounted-rw	True	1	True	False	
+renamechurn	s650	short:650:512	short	650	0	37	36	0	mounted-rw	False	1	True	False	
+renamechurn	s664	short:664:512	short	664	0	37	35	0	mounted-rw	False	1	True	False	
+renamechurn	s678	short:678:512	short	679	0	39	35	0	mounted-rw	True	1	True	False	
+renamechurn	s692	short:692:512	short	692	0	1	34	0	mounted-rw	False	1	False	False	claims: 34 of 34 broken, first: a/f00: No such file or directory
+renamechurn	s706	short:706:512	short	706	0	40	34	0	mounted-rw	False	1	True	False	
+renamechurn	s719	short:719:512	short	719	0	1	39	0	mounted-rw	False	1	False	False	claims: 38 of 39 broken, first: a/f00: No such file or directory
+renamechurn	s733	short:733:512	short	733	0	1	37	0	mounted-rw	False	1	False	False	claims: 37 of 37 broken, first: a/f00: No such file or directory
+renamechurn	s747	short:747:512	short	747	0	1	36	0	mounted-rw	False	1	False	False	claims: 36 of 36 broken, first: a/f00: No such file or directory
+renamechurn	s761	short:761:512	short	761	0	1	34	0	mounted-rw	False	1	False	False	claims: 34 of 34 broken, first: a/f00: No such file or directory
+renamechurn	s775	short:775:512	short	775	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 72  usn: 73: Input/out		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 72  usn: 73: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+renamechurn	s789	short:789:512	short	789	0	1	34	0	mounted-rw	False	1	False	False	claims: 34 of 34 broken, first: a/f00: Input/output error
+renamechurn	s802	short:802:512	short	802	0	1	33	0	mounted-rw	False	1	False	False	claims: 33 of 33 broken, first: a/f00: No such file or directory
+renamechurn	s816	short:816:512	short	816	0	40	40	0	mounted-rw	False	1	True	False	
+renamechurn	s830	short:830:512	short	830	0	41	40	0	mounted-rw	False	1	True	False	
+renamechurn	s844	short:844:512	short	845	0	43	40	0	mounted-rw	True	1	True	False	
+renamechurn	s858	short:858:512	short	858	0	4	39	0	mounted-rw	False	1	False	False	claims: 38 of 39 broken, first: a/f00: Input/output error
+renamechurn	s872	short:872:512	short	872	0	4	38	0	mounted-rw	False	1	False	False	claims: 37 of 38 broken, first: a/f00: Input/output error
+renamechurn	s885	short:885:512	short	885	0	43	38	0	mounted-rw	False	1	True	False	
+renamechurn	s899	short:899:512	short	900	0	45	38	0	mounted-rw	True	1	True	False	
+renamechurn	s913	short:913:512	short	913	0	42	37	0	mounted-rw	False	1	False	False	claims: 1 of 37 broken, first: b/r108: Input/output error
+renamechurn	s927	short:927:512	short	927	0	44	44	0	mounted-rw	False	1	True	False	
+renamechurn	s941	short:941:512	short	941	0	4	42	0	mounted-rw	False	1	False	False	claims: 39 of 42 broken, first: a/f00: No such file or directory
+renamechurn	s954	short:954:512	short	954	0	41	40	0	mounted-rw	True	1	True	False	
+renamechurn	s968	short:968:512	short	968	0	5	38	0	mounted-rw	False	1	False	False	claims: 35 of 38 broken, first: a/f00: No such file or directory
+renamechurn	s982	short:982:512	short	982	0	5	37	0	mounted-rw	False	1	False	False	claims: 34 of 37 broken, first: a/f00: Input/output error
+renamechurn	s996	short:996:512	short	996	0	5	39	0	mounted-rw	False	1	False	False	claims: 34 of 39 broken, first: a/f00: No such file or directory
+renamechurn	s1010	short:1010:512	short	1010	0	5	38	0	mounted-rw	False	1	False	False	claims: 33 of 38 broken, first: a/f00: Input/output error
+renamechurn	s1024	short:1024:512	short	1024	0	5	37	0	mounted-rw	False	1	False	False	claims: 32 of 37 broken, first: a/f00: No such file or directory
+renamechurn	s1037	short:1037:512	short	1037	0	33	37	0	mounted-rw	False	1	False	False	claims: 5 of 37 broken, first: b/n118: Input/output error
+renamechurn	s1051	short:1051:512	short	1051	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 111  usn: 112: Input/o		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 111  usn: 112: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+renamechurn	s1065	short:1065:512	short	1065	0	32	36	0	mounted-rw	False	1	False	False	claims: 5 of 36 broken, first: b/n118: No such file or directory
+renamechurn	s1079	short:1079:512	short	1079	0	7	35	0	mounted-rw	False	1	False	False	claims: 30 of 35 broken, first: a/f00: No such file or directory
+renamechurn	s1093	short:1093:512	short	1093	0	38	35	0	mounted-rw	False	1	True	False	
+renamechurn	s1107	short:1107:512	short	1107	0	31	38	0	mounted-rw	False	1	False	False	claims: 7 of 38 broken, first: b/n118: No such file or directory
+renamechurn	s1120	short:1120:512	short	1120	0	8	37	0	mounted-rw	False	1	False	False	claims: 30 of 37 broken, first: a/f00: No such file or directory
+renamechurn	s1134	short:1134:512	short	1134	0	8	36	0	mounted-rw	False	1	False	False	claims: 29 of 36 broken, first: a/f00: No such file or directory
+renamechurn	s1148	short:1148:512	short	1148	0	39	36	0	mounted-rw	False	1	True	False	
+renamechurn	s1162	short:1162:512	short	1162	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 55  usn: 56: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 55  usn: 56: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 55  usn: 56: Input/output error | Volume is corrupt. You should run chkdsk.
+renamechurn	s1176	short:1176:512	short	1176	0	11	34	0	mounted-rw	False	1	False	False	claims: 27 of 34 broken, first: a/f00: No such file or directory
+renamechurn	s1190	short:1190:512	short	1190	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 128  usn: 129: Input/o		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 128  usn: 129: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+renamechurn	s1203	short:1203:512	short	1203	0	11	33	0	mounted-rw	False	1	False	False	claims: 26 of 33 broken, first: a/f04: No such file or directory
+renamechurn	s1217	short:1217:512	short	1217	0	11	33	0	mounted-rw	False	1	False	False	claims: 26 of 33 broken, first: a/f04: No such file or directory
+renamechurn	s1231	short:1231:512	short	1232	0	42	41	0	mounted-rw	True	1	True	False	
+renamechurn	s1245	short:1245:512	short	1245	0	32	41	0	mounted-rw	False	1	False	False	claims: 10 of 41 broken, first: b/n118: No such file or directory
+renamechurn	s1259	short:1259:512	short	1259	0	42	39	0	mounted-rw	True	1	True	False	
+renamechurn	s1272	short:1272:512	short	1272	0	30	38	0	mounted-rw	False	1	False	False	claims: 10 of 38 broken, first: b/n118: No such file or directory
+renamechurn	s1286	short:1286:512	short	1287	0	42	37	0	mounted-rw	True	1	True	False	
+renamechurn	s1300	short:1300:512	short	1300	0	42	37	0	mounted-rw	False	1	True	False	
+renamechurn	s1314	short:1314:512	short	1314	0	42	36	0	mounted-rw	False	1	True	False	
+renamechurn	s1328	short:1328:512	short	1328	0	14	41	0	mounted-rw	False	1	False	False	claims: 27 of 41 broken, first: a/f04: Input/output error
+renamechurn	s1342	short:1342:512	short	1342	0	42	40	0	mounted-rw	False	1	True	False	
+renamechurn	s1355	short:1355:512	short	1355	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 153  usn: 154: Input/o		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 153  usn: 154: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+renamechurn	s1369	short:1369:512	short	1369	0	42	38	0	mounted-rw	False	1	True	False	
+renamechurn	s1383	short:1383:512	short	1383	0	41	37	0	mounted-rw	True	1	True	False	
+renamechurn	s1397	short:1397:512	short	1397	0	41	36	0	mounted-rw	True	1	True	False	
+renamechurn	s1411	short:1411:512	short	1412	0	42	42	0	mounted-rw	True	1	True	False	
+renamechurn	s1425	short:1425:512	short	1425	0	42	42	0	mounted-rw	False	1	True	False	
+renamechurn	s1438	short:1438:512	short	1438	0	28	39	0	mounted-rw	False	1	False	False	claims: 11 of 39 broken, first: b/n118: No such file or directory
+renamechurn	s1452	short:1452:512	short	1452	0	13	38	0	mounted-rw	False	1	False	False	claims: 27 of 38 broken, first: a/f04: Input/output error
+renamechurn	s1466	short:1466:512	short	1466	0	13	36	0	mounted-rw	False	1	False	False	claims: 25 of 36 broken, first: a/f04: Input/output error
+renamechurn	s1480	short:1480:512	short	1480	0	37	35	0	mounted-rw	False	1	True	False	
+renamechurn	s1494	short:1494:512	short	1494	0	38	35	0	mounted-rw	False	1	True	False	
+renamechurn	s1508	short:1508:512	short	1508	0	26	26	0	mounted-rw	False	1	True	False	
+renamechurn	zero	cut:0	zero	1	0	0	0	0	mounted-rw	True	1	True	False	
+overwrite_truncate	s1	short:1:512	short	1	0	0	0	0	mounted-rw	True	1	True	False	
+overwrite_truncate	s10	short:10:512	short	10	0	0	0	0	mounted-rw	True	1	True	False	
+overwrite_truncate	s19	short:19:512	short	19	0	0	0	0	mounted-rw	True	1	True	False	
+overwrite_truncate	s28	short:28:512	short	28	0	0	0	0	mounted-rw	True	1	True	False	
+overwrite_truncate	s37	short:37:512	short	37	0	0	0	0	mounted-rw	True	1	True	False	
+overwrite_truncate	s46	short:46:512	short	46	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 3  usn: 4: Input/outpu		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 3  usn: 4: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+overwrite_truncate	s55	short:55:512	short	55	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 5  usn: 6: Input/outpu		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 5  usn: 6: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+overwrite_truncate	s65	short:65:512	short	65	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s74	short:74:512	short	74	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s83	short:83:512	short	83	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s92	short:92:512	short	92	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s101	short:101:512	short	101	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s110	short:110:512	short	110	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 4  usn: 5: Input/outpu		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 4  usn: 5: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 4  usn: 5: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+overwrite_truncate	s120	short:120:512	short	120	0	1	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s129	short:129:512	short	129	0	1	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s138	short:138:512	short	138	0	1	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s147	short:147:512	short	147	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s156	short:156:512	short	156	0	1	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s165	short:165:512	short	165	0	2	0	0	mounted-rw	True	1	True	False	
+overwrite_truncate	s175	short:175:512	short	175	0	2	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s184	short:184:512	short	184	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s193	short:193:512	short	193	0	2	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s202	short:202:512	short	202	0	2	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s211	short:211:512	short	211	0	2	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s220	short:220:512	short	220	0	2	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s230	short:230:512	short	230	0	3	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s239	short:239:512	short	239	0	3	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s248	short:248:512	short	248	0	3	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s257	short:257:512	short	257	0	3	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s266	short:266:512	short	266	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s275	short:275:512	short	275	0	3	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s285	short:285:512	short	285	0	4	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s294	short:294:512	short	294	0	4	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s303	short:303:512	short	303	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s312	short:312:512	short	312	0	4	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s321	short:321:512	short	321	0	4	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s330	short:330:512	short	330	0	4	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s340	short:340:512	short	340	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s349	short:349:512	short	349	0	5	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s358	short:358:512	short	358	0	5	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s367	short:367:512	short	367	0	5	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s376	short:376:512	short	376	0	5	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s385	short:385:512	short	385	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s395	short:395:512	short	395	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s404	short:404:512	short	404	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s413	short:413:512	short	413	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s422	short:422:512	short	422	0	6	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s431	short:431:512	short	431	0	6	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s440	short:440:512	short	440	0	6	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s450	short:450:512	short	450	0	6	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s459	short:459:512	short	459	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s468	short:468:512	short	468	0	7	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s477	short:477:512	short	477	0	7	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s486	short:486:512	short	486	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s495	short:495:512	short	495	0	7	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s505	short:505:512	short	505	0	7	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s514	short:514:512	short	514	0	8	0	0	mounted-rw	True	1	True	False	
+overwrite_truncate	s523	short:523:512	short	523	0	8	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s532	short:532:512	short	532	0	8	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s541	short:541:512	short	541	0	8	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s550	short:550:512	short	550	0	8	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s560	short:560:512	short	560	0	8	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s569	short:569:512	short	569	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s578	short:578:512	short	578	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s587	short:587:512	short	587	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s596	short:596:512	short	596	0	9	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s605	short:605:512	short	605	0	9	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s615	short:615:512	short	615	0	9	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s624	short:624:512	short	624	0	9	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s633	short:633:512	short	633	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s642	short:642:512	short	642	0	10	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s651	short:651:512	short	651	0	10	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s660	short:660:512	short	660	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s670	short:670:512	short	670	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s679	short:679:512	short	679	0	10	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s688	short:688:512	short	688	0	11	0	0	mounted-rw	True	1	True	False	
+overwrite_truncate	s697	short:697:512	short	697	0	11	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s706	short:706:512	short	706	0	11	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s715	short:715:512	short	715	0	11	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s725	short:725:512	short	725	0	11	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s734	short:734:512	short	734	0	0	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s743	short:743:512	short	743	0	11	0	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s752	short:752:512	short	752	0	0	10	0	mounted-rw	False	1	False	False	claims: 10 of 10 broken, first: t/f00: No such file or directory
+overwrite_truncate	s761	short:761:512	short	761	0	0	9	0	mounted-rw	False	1	False	False	claims: 9 of 9 broken, first: t/f00: No such file or directory
+overwrite_truncate	s770	short:770:512	short	770	0	0	11	0	mounted-rw	False	1	False	False	claims: 11 of 11 broken, first: t/f00: No such file or directory
+overwrite_truncate	s780	short:780:512	short	780	0	0	7	0	mounted-rw	False	1	False	False	claims: 7 of 7 broken, first: t/f01: No such file or directory
+overwrite_truncate	s789	short:789:512	short	789	0	11	10	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s798	short:798:512	short	799	0	12	9	0	mounted-rw	True	1	True	False	
+overwrite_truncate	s807	short:807:512	short	807	0	11	9	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s816	short:816:512	short	816	0	11	7	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s825	short:825:512	short	825	0	0	9	0	mounted-rw	False	1	False	False	claims: 9 of 9 broken, first: t/f02: No such file or directory
+overwrite_truncate	s835	short:835:512	short	835	0	11	8	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s844	short:844:512	short	844	0	11	10	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s853	short:853:512	short	853	0	0	9	0	mounted-rw	False	1	False	False	claims: 9 of 9 broken, first: t/f01: No such file or directory
+overwrite_truncate	s862	short:862:512	short	862	0	0	10	0	mounted-rw	False	1	False	False	claims: 10 of 10 broken, first: t/f00: No such file or directory
+overwrite_truncate	s871	short:871:512	short	871	0	11	8	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s880	short:880:512	short	880	0	12	10	0	mounted-rw	True	1	True	False	
+overwrite_truncate	s890	short:890:512	short	890	0	0	9	0	mounted-rw	False	1	False	False	claims: 9 of 9 broken, first: t/f00: No such file or directory
+overwrite_truncate	s899	short:899:512	short	899	0	11	9	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s908	short:908:512	short	909	0	12	9	0	mounted-rw	True	1	True	False	
+overwrite_truncate	s917	short:917:512	short	917	0	0	11	0	mounted-rw	False	1	False	False	claims: 11 of 11 broken, first: t/f01: No such file or directory
+overwrite_truncate	s926	short:926:512	short	926	0	11	9	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s935	short:935:512	short	936	0	12	10	0	mounted-rw	True	1	True	False	
+overwrite_truncate	s945	short:945:512	short	945	0	11	9	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s954	short:954:512	short	954	0	0	9	0	mounted-rw	False	1	False	False	claims: 9 of 9 broken, first: t/f00: No such file or directory
+overwrite_truncate	s963	short:963:512	short	963	0	12	9	0	mounted-rw	True	1	True	False	
+overwrite_truncate	s972	short:972:512	short	972	0	11	11	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s981	short:981:512	short	981	0	0	9	0	mounted-rw	False	1	False	False	claims: 9 of 9 broken, first: t/f00: No such file or directory
+overwrite_truncate	s990	short:990:512	short	990	0	11	7	0	mounted-rw	False	1	True	False	
+overwrite_truncate	s1000	short:1000:512	short	1000	0	11	7	0	mounted-rw	False	1	True	False	
+overwrite_truncate	zero	cut:0	zero	1	0	0	0	0	mounted-rw	True	1	True	False	
+dirtree	s1	short:1:512	short	1	0	0	0	0	mounted-rw	True	1	True	False	
+dirtree	s46	short:46:512	short	46	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 3  usn: 4: Input/outpu		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 3  usn: 4: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+dirtree	s92	short:92:512	short	92	0	2	0	0	mounted-rw	True	1	True	False	
+dirtree	s138	short:138:512	short	138	0	3	0	0	mounted-rw	False	1	True	False	
+dirtree	s184	short:184:512	short	184	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 19  usn: 20: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 19  usn: 20: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 19  usn: 20: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+dirtree	s230	short:230:512	short	230	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 8  usn: 9: Input/outpu		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 8  usn: 9: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+dirtree	s276	short:276:512	short	276	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 30  usn: 31: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 30  usn: 31: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 30  usn: 31: Input/output error | Volume is corrupt. You should run chkdsk.
+dirtree	s321	short:321:512	short	321	0	12	2	0	mounted-rw	False	1	True	False	
+dirtree	s367	short:367:512	short	367	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 41  usn: 42: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 41  usn: 42: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 41  usn: 42: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+dirtree	s413	short:413:512	short	413	0	18	3	0	mounted-rw	True	1	True	False	
+dirtree	s459	short:459:512	short	459	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 52  usn: 53: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 52  usn: 53: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 52  usn: 53: Input/output error | Volume is corrupt. You should run chkdsk.
+dirtree	s505	short:505:512	short	505	0	22	3	0	mounted-rw	False	1	True	False	
+dirtree	s551	short:551:512	short	551	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 63  usn: 64: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 63  usn: 64: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 63  usn: 64: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+dirtree	s596	short:596:512	short	596	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 68  usn: 69: Input/out		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 68  usn: 69: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 68  usn: 69: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+dirtree	s642	short:642:512	short	642	0	29	4	0	mounted-rw	True	1	True	False	
+dirtree	s688	short:688:512	short	688	0	30	5	0	mounted-rw	False	1	True	False	
+dirtree	s734	short:734:512	short	735	0	34	5	0	mounted-rw	True	1	True	False	
+dirtree	s780	short:780:512	short	780	0	36	6	0	mounted-rw	True	1	True	False	
+dirtree	s826	short:826:512	short	826	0	38	6	0	mounted-rw	True	1	True	False	
+dirtree	s871	short:871:512	short	871	0	39	6	0	mounted-rw	False	1	True	False	
+dirtree	s917	short:917:512	short	918	0	43	7	0	mounted-rw	True	1	True	False	
+dirtree	s963	short:963:512	short	963	0	45	7	0	mounted-rw	True	1	True	False	
+dirtree	s1009	short:1009:512	short	1009	0	47	7	0	mounted-rw	False	1	True	False	
+dirtree	s1055	short:1055:512	short	1055	0	50	8	0	mounted-rw	False	1	True	False	
+dirtree	s1101	short:1101:512	short	1101	0	54	8	0	mounted-rw	True	1	True	False	
+dirtree	s1146	short:1146:512	short	1146	0	58	8	0	mounted-rw	True	1	True	False	
+dirtree	s1192	short:1192:512	short	1192	0	61	8	0	mounted-rw	False	1	True	False	
+dirtree	s1238	short:1238:512	short	1238	0	66	8	0	mounted-rw	True	1	True	False	
+dirtree	s1284	short:1284:512	short	1284	0	69	28	0	mounted-rw	False	1	True	False	
+dirtree	s1330	short:1330:512	short	1330	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 54  usn: 55: Input/out		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 54  usn: 55: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+dirtree	s1376	short:1376:512	short	1376	0	76	28	0	mounted-rw	False	1	True	False	
+dirtree	s1421	short:1421:512	short	1422	0	81	28	0	mounted-rw	True	1	True	False	
+dirtree	s1467	short:1467:512	short	1468	0	85	28	0	mounted-rw	True	1	True	False	
+dirtree	s1513	short:1513:512	short	1513	0	88	48	0	mounted-rw	False	1	True	False	
+dirtree	s1559	short:1559:512	short	1559	0	92	48	0	mounted-rw	False	1	True	False	
+dirtree	s1605	short:1605:512	short	1605	0	48	48	0	mounted-rw	False	1	True	False	
+dirtree	s1651	short:1651:512	short	1651	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 171  usn: 172: Input/o		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 171  usn: 172: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 171  usn: 172: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+dirtree	s1696	short:1696:512	short	1696	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 175  usn: 176: Input/o		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 175  usn: 176: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 175  usn: 176: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+dirtree	s1742	short:1742:512	short	1742	0	48	48	0	mounted-rw	False	1	False	False	claims: 40 of 48 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-000.dat: Input/output error
+dirtree	s1788	short:1788:512	short	1788	0	110	68	0	mounted-rw	False	1	True	False	
+dirtree	s1834	short:1834:512	short	1834	0	114	68	0	mounted-rw	False	1	True	False	
+dirtree	s1880	short:1880:512	short	1880	0	118	68	0	mounted-rw	True	1	True	False	
+dirtree	s1926	short:1926:512	short	1927	0	122	68	0	mounted-rw	True	1	True	False	
+dirtree	s1971	short:1971:512	short	1971	0	125	68	0	mounted-rw	False	1	True	False	
+dirtree	s2017	short:2017:512	short	2017	0	48	88	0	mounted-rw	False	1	False	False	claims: 10 of 88 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-070.dat: No such file or directory
+dirtree	s2063	short:2063:512	short	2063	0	48	88	0	mounted-rw	False	1	False	False	claims: 10 of 88 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-070.dat: No such file or directory
+dirtree	s2109	short:2109:512	short	2109	0	136	88	0	mounted-rw	False	1	True	False	
+dirtree	s2155	short:2155:512	short	2155	0	140	88	0	mounted-rw	False	1	True	False	
+dirtree	s2201	short:2201:512	short	2201	0	144	88	0	mounted-rw	False	1	True	False	
+dirtree	s2246	short:2246:512	short	2246	0	148	108	0	mounted-rw	True	1	True	False	
+dirtree	s2292	short:2292:512	short	2292	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 224  usn: 225: Input/o		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 224  usn: 225: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 224  usn: 225: Input/output error | Volume is corrupt. You should run chkdsk.
+dirtree	s2338	short:2338:512	short	2338	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 228  usn: 229: Input/o		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 228  usn: 229: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 228  usn: 229: Input/output error | Volume is corrupt. You should run chkdsk.
+dirtree	s2384	short:2384:512	short	2384	0	48	108	0	mounted-rw	False	1	False	False	claims: 100 of 108 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-000.dat: Input/output error
+dirtree	s2430	short:2430:512	short	2430	0	48	108	0	mounted-rw	False	1	False	False	claims: 100 of 108 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-000.dat: Input/output error
+dirtree	s2476	short:2476:512	short	2476	0	48	108	0	mounted-rw	False	1	True	False	
+dirtree	s2521	short:2521:512	short	2521	0	170	128	0	mounted-rw	False	1	True	False	
+dirtree	s2567	short:2567:512	short	2567	0	174	128	0	mounted-rw	False	1	True	False	
+dirtree	s2613	short:2613:512	short	2613	0	48	128	0	mounted-rw	False	1	True	False	
+dirtree	s2659	short:2659:512	short	2659	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 254  usn: 255: Input/o		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 254  usn: 255: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 254  usn: 255: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+dirtree	s2705	short:2705:512	short	2705	0	48	128	0	mounted-rw	False	1	False	False	claims: 120 of 128 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-000.dat: Input/output error
+dirtree	s2751	short:2751:512	short	2751	0	48	148	0	mounted-rw	False	1	False	False	claims: 140 of 148 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-000.dat: Input/output error
+dirtree	s2796	short:2796:512	short	2796	0	193	148	0	mounted-rw	False	1	True	False	
+dirtree	s2842	short:2842:512	short	2843	0	197	148	0	mounted-rw	True	1	True	False	
+dirtree	s2888	short:2888:512	short	2888	0	201	148	0	mounted-rw	True	1	True	False	
+dirtree	s2934	short:2934:512	short	2934	0	205	148	0	mounted-rw	True	1	True	False	
+dirtree	s2980	short:2980:512	short	2980	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 189  usn: 190: Input/o		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 189  usn: 190: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+dirtree	s3026	short:3026:512	short	3026	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 193  usn: 194: Input/o		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 193  usn: 194: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+dirtree	s3071	short:3071:512	short	3071	0	48	168	0	mounted-rw	False	1	False	False	claims: 160 of 168 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-000.dat: Input/output error
+dirtree	s3117	short:3117:512	short	3117	0	48	168	0	mounted-rw	False	1	True	False	
+dirtree	s3163	short:3163:512	short	3163	0	48	168	0	mounted-rw	False	1	True	False	
+dirtree	s3209	short:3209:512	short	3209	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 299  usn: 300: Input/o		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 299  usn: 300: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 299  usn: 300: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+dirtree	s3255	short:3255:512	short	3255	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 303  usn: 304: Input/o		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 303  usn: 304: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 303  usn: 304: Input/output error | Volume is corrupt. You should run chkdsk.
+dirtree	s3301	short:3301:512	short	3301	0	48	188	0	mounted-rw	False	1	False	False	claims: 10 of 188 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-170.dat: No such file or directory
+dirtree	s3346	short:3346:512	short	3346	0	48	188	0	mounted-rw	False	1	True	False	
+dirtree	s3392	short:3392:512	short	3392	0	242	188	0	mounted-rw	True	1	True	False	
+dirtree	s3438	short:3438:512	short	3438	0	246	188	0	mounted-rw	True	1	True	False	
+dirtree	s3484	short:3484:512	short	3484	0	48	208	0	mounted-rw	False	1	False	False	claims: 10 of 208 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-190.dat: No such file or directory
+dirtree	s3530	short:3530:512	short	3530	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 325  usn: 326: Input/o		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 325  usn: 326: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 325  usn: 326: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+dirtree	s3576	short:3576:512	short	3576	0	256	208	0	mounted-rw	False	1	True	False	
+dirtree	s3621	short:3621:512	short	3621	0	48	208	0	mounted-rw	False	1	False	False	claims: 200 of 208 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-000.dat: Input/output error
+dirtree	s3667	short:3667:512	short	3667	0	264	208	0	mounted-rw	False	1	True	False	
+dirtree	s3713	short:3713:512	short	3714	0	268	228	0	mounted-rw	True	1	True	False	
+dirtree	s3759	short:3759:512	short	3760	0	272	228	0	mounted-rw	True	1	True	False	
+dirtree	s3805	short:3805:512	short	3805	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 348  usn: 349: Input/o		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 348  usn: 349: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 348  usn: 349: Input/output error | Volume is corrupt. You should run chkdsk.
+dirtree	s3851	short:3851:512	short	3851	0	48	228	0	mounted-rw	False	1	True	False	
+dirtree	s3896	short:3896:512	short	3896	0	283	228	0	mounted-rw	False	1	True	False	
+dirtree	s3942	short:3942:512	short	3942	0	286	228	0	mounted-rw	False	1	True	False	
+dirtree	s3988	short:3988:512	short	3988	0	290	248	0	mounted-rw	False	1	True	False	
+dirtree	s4034	short:4034:512	short	4034	0	48	248	0	mounted-rw	False	1	False	False	claims: 10 of 248 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-230.dat: No such file or directory
+dirtree	s4080	short:4080:512	short	4080	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 370  usn: 371: Input/o		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 370  usn: 371: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 370  usn: 371: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+dirtree	s4126	short:4126:512	short	4126	13			1	refused: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 374  usn: 375: Input/o		1	False	False	ro,norecover mount refused (rc 13): Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 374  usn: 375: Input/output error ; ntfsfix -n exit 1: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 374  usn: 375: Input/output error | $MFTMirr error: Incomplete multi sector transfer detected in $MFT.
+dirtree	s4171	short:4171:512	short	4171	0	48	248	0	mounted-rw	False	1	False	False	claims: 240 of 248 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-000.dat: Input/output error
+dirtree	s4217	short:4217:512	short	4217	0	48	264	0	mounted-rw	False	1	False	False	claims: 5 of 264 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-001.dat: No such file or directory
+dirtree	s4263	short:4263:512	short	4264	0	297	257	0	mounted-rw	True	1	True	False	
+dirtree	s4309	short:4309:512	short	4309	0	48	250	0	mounted-rw	False	1	False	False	claims: 242 of 250 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-001.dat: No such file or directory
+dirtree	s4355	short:4355:512	short	4356	0	282	242	0	mounted-rw	True	1	True	False	
+dirtree	s4401	short:4401:512	short	4401	0	48	235	0	mounted-rw	False	1	False	False	claims: 227 of 235 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-001.dat: No such file or directory
+dirtree	s4446	short:4446:512	short	4446	0	267	227	0	mounted-rw	True	1	True	False	
+dirtree	s4492	short:4492:512	short	4492	0	48	220	0	mounted-rw	False	1	False	False	claims: 212 of 220 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-001.dat: Input/output error
+dirtree	s4538	short:4538:512	short	4538	0	252	212	0	mounted-rw	True	1	True	False	
+dirtree	s4584	short:4584:512	short	4584	0	48	205	0	mounted-rw	False	1	False	False	claims: 197 of 205 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-001.dat: Input/output error
+dirtree	s4630	short:4630:512	short	4630	0	237	197	0	mounted-rw	True	1	True	False	
+dirtree	s4676	short:4676:512	short	4676	0	48	190	0	mounted-rw	False	1	False	False	claims: 182 of 190 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-001.dat: Input/output error
+dirtree	s4721	short:4721:512	short	4721	0	48	182	0	mounted-rw	False	1	False	False	claims: 8 of 182 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-171.dat: No such file or directory
+dirtree	s4767	short:4767:512	short	4767	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 381  usn: 382: Input/o		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 381  usn: 382: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+dirtree	s4813	short:4813:512	short	4813	0	48	167	0	mounted-rw	False	1	False	False	claims: 8 of 167 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-201.dat: No such file or directory
+dirtree	s4859	short:4859:512	short	4859	18			1	refused: Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 396  usn: 397: Input/o		1	False	False	ro,norecover mount refused (rc 18): Incomplete multi-sector transfer: magic: 0x58444e49  size: 4096  usa_ofs: 40  usa_count: 7  data: 396  usn: 397: Input/output error ; ntfsfix -n exit 1: Failed to open $Secure: No such file or directory | Remount failed: No such file or directory
+dirtree	s4905	short:4905:512	short	4905	0	48	152	0	mounted-rw	False	1	False	False	claims: 8 of 152 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-231.dat: No such file or directory
+dirtree	s4951	short:4951:512	short	4952	0	185	145	0	mounted-rw	True	1	True	False	
+dirtree	s4997	short:4997:512	short	4997	0	48	138	0	mounted-rw	False	1	False	False	claims: 130 of 138 broken, first: wide/longname-for-index-growth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-001.dat: No such file or directory
+dirtree	zero	cut:0	zero	1	0	0	0	0	mounted-rw	True	1	True	False	

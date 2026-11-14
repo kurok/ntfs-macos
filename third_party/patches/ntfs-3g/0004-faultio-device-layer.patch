@@ -1,0 +1,495 @@
+ntfs-macos patch 0004: test-only fault-injection device layer (`./configure --enable-faultio`)
+
+Rationale (T-M3-14, S-CRASH-*, U-VMK-07, TEST_STRATEGY.md sections 6 and 7): the crash-consistency
+sweep and the volmark crash table need to stop the device after write N, tear write N, fail it with
+EIO, or slow it down, on a real ntfs-3g mount. NTFS-3G has no such hook, so this patch adds one
+under the device layer.
+Hunks:
+  - include/ntfs-3g/faultio.h (new): everything lives here. Without ENABLE_FAULTIO it defines three
+    macros (FAULTIO_WRITE, FAULTIO_PWRITE, FAULTIO_FSYNC) that expand to exactly the upstream
+    write(), pwrite() and ntfs_fsync() calls. With ENABLE_FAULTIO it defines static functions in
+    unix_io.c and an environment-driven plan (the plan grammar, the NTFSMAC_FAULT_STATE counter
+    file and the optional NTFSMAC_FAULT_KILL=1 self-kill at the first dropped write are described at
+    the top of the header): count, cut:N, eio:N, dead:N, short:N:K, skip:N, delay:MS. NTFSMAC_FAULT_TRACE logs
+    offset, length and magic of every write. STATE and TRACE are opened with O_NOFOLLOW and every
+    NTFSMAC_FAULT_* variable is ignored in a setuid or setgid process; plan numbers that overflow
+    are rejected; the kept bytes of a torn write are written in a loop.
+    NTFSMAC_FAULT_PLAN unset means no behaviour change even in a faultio build.
+  - libntfs-3g/unix_io.c: five single-line edits, no line added or removed: one blank line becomes
+    the #include, and the write(), pwrite() and the two ntfs_fsync() call sites use the macros.
+    Because no line moves, the release object file of unix_io.c is byte-identical in .text and
+    .rodata to the one built without this patch (checked by tests/stress/crashsweep/build.sh, which
+    also runs nm over the release libntfs-3g.a, ntfs-3g and ntfsfix).
+  - configure.ac, configure, config.h.in: the option --enable-faultio (default no) defines
+    ENABLE_FAULTIO. The tarball ships a generated configure, so configure and config.h.in are
+    edited by hand with the text autoconf produces for the neighbouring --enable-debug option.
+    Regenerating configure with autoreconf gives the same result from configure.ac.
+Scope: device layer only; nothing touches allocation, runlists, MFT or index code. The layer sits
+below ntfs_pwrite(), so every library user (ntfs-3g, ntfsfix, mkntfs, the probe) is affected the same
+way and only in a faultio build.
+Safety: release builds must never pass --enable-faultio. The layer drops or fails writes on purpose;
+the build script's default configure line does not contain the option, and build.sh in
+tests/stress/crashsweep proves with nm that the release artefacts carry no trace of it.
+Upstream status: not submitted (test infrastructure specific to ntfs-macos).
+Test: S-CRASH-* (tests/stress/crashsweep), U-VMK-07 (T-M3-12).
+
+diff -ruN a/config.h.in b/config.h.in
+--- a/config.h.in	2026-09-29 05:23:14.000000000 +0100
++++ b/config.h.in	2026-11-14 15:30:59.998894924 +0000
+@@ -13,6 +13,9 @@
+ /* Define to 1 if debug should be enabled */
+ #undef ENABLE_DEBUG
+ 
++/* Define to 1 to compile the test-only fault-injection device layer */
++#undef ENABLE_FAULTIO
++
+ /* Define this to 1 if you want to enable use of Windows compliant disk
+    geometry. */
+ #undef ENABLE_HD
+diff -ruN a/configure b/configure
+--- a/configure	2026-09-29 05:23:13.000000000 +0100
++++ b/configure	2026-11-14 15:30:59.996882255 +0000
+@@ -834,6 +834,7 @@
+ enable_silent_rules
+ enable_maintainer_mode
+ enable_debug
++enable_faultio
+ enable_warnings
+ enable_pedantic
+ enable_really_static
+@@ -1522,6 +1523,8 @@
+                           enable make rules and dependencies not useful (and
+                           sometimes confusing) to the casual installer
+   --enable-debug          enable debugging code and output
++  --enable-faultio        TEST ONLY: compile the fault-injection device layer
++                          (NTFSMAC_FAULT_PLAN); never for a release
+   --enable-warnings       enable lots of compiler warnings
+   --enable-pedantic       enable compile pedantic mode
+   --enable-really-static  create fully static binaries
+@@ -4099,6 +4102,17 @@
+ fi
+ 
+ 
++# Check whether --enable-faultio was given.
++if test ${enable_faultio+y}
++then :
++  enableval=$enable_faultio;
++else case e in #(
++  e) enable_faultio="no"
++ ;;
++esac
++fi
++
++
+ # Check whether --enable-warnings was given.
+ if test ${enable_warnings+y}
+ then :
+@@ -18844,6 +18858,12 @@
+ 
+ fi
+ 
++if test "${enable_faultio}" = "yes"; then
++
++printf '%s\n' "#define ENABLE_FAULTIO 1" >>confdefs.h
++
++fi
++
+ test "${enable_device_default_io_ops}" = "no" &&
+ printf '%s\n' "#define NO_NTFS_DEVICE_DEFAULT_IO_OPS 1" >>confdefs.h
+ 
+diff -ruN a/configure.ac b/configure.ac
+--- a/configure.ac	2026-09-29 05:22:03.000000000 +0100
++++ b/configure.ac	2026-11-14 15:30:59.995186086 +0000
+@@ -47,6 +47,13 @@
+ )
+ 
+ AC_ARG_ENABLE(
++	[faultio],
++	[AS_HELP_STRING([--enable-faultio],[TEST ONLY: compile the fault-injection device layer (NTFSMAC_FAULT_PLAN); never for a release])],
++	,
++	[enable_faultio="no"]
++)
++
++AC_ARG_ENABLE(
+ 	[warnings],
+ 	[AS_HELP_STRING([--enable-warnings],[enable lots of compiler warnings])],
+ 	,
+@@ -588,6 +595,14 @@
+ 	)
+ fi
+ 
++if test "${enable_faultio}" = "yes"; then
++	AC_DEFINE(
++		[ENABLE_FAULTIO],
++		[1],
++		[Define to 1 to compile the test-only fault-injection device layer]
++	)
++fi
++
+ test "${enable_device_default_io_ops}" = "no" && AC_DEFINE(
+ 	[NO_NTFS_DEVICE_DEFAULT_IO_OPS],
+ 	[1],
+diff -ruN a/include/ntfs-3g/faultio.h b/include/ntfs-3g/faultio.h
+--- a/include/ntfs-3g/faultio.h	1970-01-01 01:00:00.000000000 +0100
++++ b/include/ntfs-3g/faultio.h	2026-11-14 16:00:04.796798153 +0000
+@@ -0,0 +1,312 @@
++/**
++ * faultio.h - ntfs-macos test-only fault-injection layer (patch 0004)
++ *
++ * Included by libntfs-3g/unix_io.c only. Without ENABLE_FAULTIO (the default, and the
++ * only configuration that is ever released) this header defines three macros that expand
++ * to exactly the upstream calls: no function, no data, no string is compiled in.
++ *
++ * With ./configure --enable-faultio the macros route every device write(), pwrite() and
++ * fsync() of unix_io.c through the functions below. Nothing happens unless the environment
++ * variable NTFSMAC_FAULT_PLAN is set. Writes are counted from 1 in the order the library
++ * issues them (write() and pwrite() share one counter; reads and syncs are not counted).
++ *
++ *   count      no fault; the number of device writes is published (see below)
++ *   cut:N      writes 1..N reach the device; every later write is dropped and reports
++ *              success (power loss with a volatile cache); later syncs do nothing
++ *   eio:N      write N fails with EIO; later writes succeed
++ *   dead:N     write N and every later write, and every later sync, fail with EIO (unplug)
++ *   short:N:K  writes 1..N-1 reach the device; of write N only the first K bytes do, and it
++ *              reports success; every later write is dropped as with cut (torn write at
++ *              power loss). K >= the size of write N behaves like cut:N.
++ *   skip:N     only write N is dropped (reports success); every other write reaches the device.
++ *              Models a device that persists writes out of order (no flush between them).
++ *   delay:MS   no fault; every write sleeps MS milliseconds first
++ *
++ * NTFSMAC_FAULT_KILL=1 (optional): where cut and short would drop a write, the process kills
++ * itself with SIGKILL instead (right after the partial write for short:N:K). A real power loss
++ * stops the process; dropping writes while it keeps running lets NTFS-3G read back stale
++ * metadata, which can make it fail oddly or loop. The sweep uses this.
++ *
++ * NTFSMAC_FAULT_TRACE=PATH (optional): one text line is appended per write, before the plan is
++ * applied (so the write that is about to be dropped or killed is listed too):
++ * "N OFFSET LENGTH MAGIC", N the write number, MAGIC the first four bytes in hex.
++ *
++ * NTFSMAC_FAULT_STATE=PATH (optional): the running write counter, as 20 decimal digits and
++ * a newline, is rewritten at offset 0 of PATH on every write (also dropped ones). A test
++ * that reads it right after an fsync() returned knows how many device writes preceded the
++ * sync. At process exit one line "ntfsmac-faultio: plan=... writes=N" goes to stderr.
++ * A malformed or overflowing plan makes every device write fail with EINVAL. STATE and TRACE are
++ * opened with O_NOFOLLOW; in a setuid or setgid process every NTFSMAC_FAULT_* variable is ignored.
++ * A plan number is a plain decimal. short:N:0 tears write N to nothing. Of a short write the
++ * kept bytes are written in a loop, so a short return of pwrite() does not tear further.
++ * This header is internal: it is not installed with the library headers.
++ *
++ * Test-only: never enable this in a build that ships (TEST_STRATEGY.md section 6).
++ */
++#ifndef _NTFS_FAULTIO_H
++#define _NTFS_FAULTIO_H
++
++#if !defined(ENABLE_FAULTIO)
++
++#define FAULTIO_WRITE(dev, buf, count)		write(DEV_FD(dev), (buf), (count))
++#define FAULTIO_PWRITE(dev, buf, count, off)	pwrite(DEV_FD(dev), (buf), (count), (off))
++#define FAULTIO_FSYNC(dev)			ntfs_fsync(DEV_FD(dev))
++
++#else /* defined(ENABLE_FAULTIO) */
++
++#include <signal.h>
++#include <time.h>
++
++#define FAULTIO_WRITE(dev, buf, count)		faultio_write(dev, buf, count, 0, 0)
++#define FAULTIO_PWRITE(dev, buf, count, off)	faultio_write(dev, buf, count, off, 1)
++#define FAULTIO_FSYNC(dev)			faultio_fsync(dev)
++
++static int ntfs_fsync(int fildes);
++
++enum { FAULTIO_NONE, FAULTIO_COUNT, FAULTIO_CUT, FAULTIO_EIO, FAULTIO_DEAD,
++	FAULTIO_SHORT, FAULTIO_SKIP, FAULTIO_DELAY, FAULTIO_BAD };
++
++static struct {
++	int init;
++	int kind;
++	unsigned long long n;		/* write number, or delay in ms */
++	unsigned long long k;		/* bytes kept of write n (short) */
++	unsigned long long writes;	/* writes seen so far */
++	int state_fd;
++	int trace_fd;
++	const char *plan;
++} faultio_st = { 0, FAULTIO_NONE, 0, 0, 0, -1, -1, NULL };
++
++static void faultio_publish(unsigned long long writes)
++{
++	char line[24];
++	int len;
++
++	if (faultio_st.state_fd < 0)
++		return;
++	len = snprintf(line, sizeof(line), "%020llu\n", writes);
++	if (len > 0 && pwrite(faultio_st.state_fd, line, len, 0) < 0)
++		faultio_st.state_fd = -1;
++}
++
++static void faultio_trace(unsigned long long idx, s64 offset, s64 count, const void *buf)
++{
++	char line[96];
++	unsigned char m[4] = { 0, 0, 0, 0 };
++	int len;
++
++	if (faultio_st.trace_fd < 0)
++		return;
++	if (count >= 4)
++		memcpy(m, buf, 4);
++	len = snprintf(line, sizeof(line), "%llu %lld %lld %02x%02x%02x%02x\n", idx,
++			(long long)offset, (long long)count, m[0], m[1], m[2], m[3]);
++	if (len > 0 && write(faultio_st.trace_fd, line, len) < 0)
++		faultio_st.trace_fd = -1;
++}
++
++static void faultio_report(void)
++{
++	if (faultio_st.kind != FAULTIO_NONE)
++		fprintf(stderr, "ntfsmac-faultio: plan=%s writes=%llu\n",
++				faultio_st.plan, faultio_st.writes);
++}
++
++static int faultio_number(const char *s, char **end, unsigned long long *out)
++{
++	if (*s < '0' || *s > '9')
++		return -1;
++	errno = 0;
++	*out = strtoull(s, end, 10);
++	if (errno == ERANGE)
++		return -1;
++	return 0;
++}
++
++static void faultio_init(void)
++{
++	const char *plan;
++	const char *state;
++	const char *trace;
++	char *end = NULL;
++
++	if (faultio_st.init)
++		return;
++	faultio_st.init = 1;
++	plan = getenv("NTFSMAC_FAULT_PLAN");
++	if (!plan || !*plan)
++		return;
++	if (getuid() != geteuid() || getgid() != getegid()) {
++		fprintf(stderr, "ntfsmac-faultio: setuid or setgid process, NTFSMAC_FAULT_* ignored\n");
++		return;
++	}
++	faultio_st.plan = plan;
++	faultio_st.kind = FAULTIO_BAD;
++	if (!strcmp(plan, "count")) {
++		faultio_st.kind = FAULTIO_COUNT;
++	} else if (!strncmp(plan, "cut:", 4)) {
++		if (!faultio_number(plan + 4, &end, &faultio_st.n) && !*end)
++			faultio_st.kind = FAULTIO_CUT;
++	} else if (!strncmp(plan, "eio:", 4)) {
++		if (!faultio_number(plan + 4, &end, &faultio_st.n) && !*end && faultio_st.n)
++			faultio_st.kind = FAULTIO_EIO;
++	} else if (!strncmp(plan, "dead:", 5)) {
++		if (!faultio_number(plan + 5, &end, &faultio_st.n) && !*end && faultio_st.n)
++			faultio_st.kind = FAULTIO_DEAD;
++	} else if (!strncmp(plan, "short:", 6)) {
++		if (!faultio_number(plan + 6, &end, &faultio_st.n) && *end == ':'
++				&& faultio_st.n
++				&& !faultio_number(end + 1, &end, &faultio_st.k) && !*end)
++			faultio_st.kind = FAULTIO_SHORT;
++	} else if (!strncmp(plan, "skip:", 5)) {
++		if (!faultio_number(plan + 5, &end, &faultio_st.n) && !*end && faultio_st.n)
++			faultio_st.kind = FAULTIO_SKIP;
++	} else if (!strncmp(plan, "delay:", 6)) {
++		if (!faultio_number(plan + 6, &end, &faultio_st.n) && !*end)
++			faultio_st.kind = FAULTIO_DELAY;
++	}
++	if (faultio_st.kind == FAULTIO_BAD)
++		fprintf(stderr, "ntfsmac-faultio: bad NTFSMAC_FAULT_PLAN '%s'\n", plan);
++	state = getenv("NTFSMAC_FAULT_STATE");
++	if (state && *state)
++		faultio_st.state_fd = open(state,
++				O_WRONLY | O_CREAT | O_NOFOLLOW | O_CLOEXEC, 0644);
++	trace = getenv("NTFSMAC_FAULT_TRACE");
++	if (trace && *trace)
++		faultio_st.trace_fd = open(trace,
++				O_WRONLY | O_CREAT | O_APPEND | O_NOFOLLOW | O_CLOEXEC, 0644);
++	faultio_publish(0);
++	atexit(faultio_report);
++}
++
++static void faultio_drop(void)
++{
++	const char *k = getenv("NTFSMAC_FAULT_KILL");
++
++	if (k && *k == '1')
++		kill(getpid(), SIGKILL);
++}
++
++/* Power is gone: later writes are dropped and later syncs do nothing. */
++static int faultio_power_lost(void)
++{
++	switch (faultio_st.kind) {
++	case FAULTIO_CUT:
++		return faultio_st.writes > faultio_st.n;
++	case FAULTIO_SHORT:
++		return faultio_st.writes >= faultio_st.n;
++	default:
++		return 0;
++	}
++}
++
++/* Write exactly n bytes (looping over short returns); n bytes or -1. */
++static s64 faultio_real(struct ntfs_device *dev, const void *buf, s64 n, s64 offset,
++		int positioned)
++{
++	s64 done = 0;
++
++	while (done < n) {
++		s64 r = positioned
++			? pwrite(DEV_FD(dev), (const char *)buf + done, n - done, offset + done)
++			: write(DEV_FD(dev), (const char *)buf + done, n - done);
++
++		if (r < 0)
++			return r;
++		if (r == 0) {
++			errno = EIO;
++			return -1;
++		}
++		done += r;
++	}
++	return n;
++}
++
++static s64 faultio_write(struct ntfs_device *dev, const void *buf, s64 count,
++		s64 offset, int positioned)
++{
++	unsigned long long idx;
++	s64 keep = count;
++
++	faultio_init();
++	if (faultio_st.kind == FAULTIO_NONE)
++		goto real;
++	if (faultio_st.kind == FAULTIO_BAD) {
++		errno = EINVAL;
++		return -1;
++	}
++	idx = __atomic_add_fetch(&faultio_st.writes, 1, __ATOMIC_SEQ_CST);
++	faultio_publish(idx);
++	faultio_trace(idx, positioned ? offset : (s64)lseek(DEV_FD(dev), 0, SEEK_CUR), count, buf);
++	switch (faultio_st.kind) {
++	case FAULTIO_CUT:
++		if (idx > faultio_st.n) {
++			faultio_drop();
++			return count;
++		}
++		break;
++	case FAULTIO_EIO:
++		if (idx == faultio_st.n) {
++			errno = EIO;
++			return -1;
++		}
++		break;
++	case FAULTIO_SKIP:
++		if (idx == faultio_st.n)
++			return count;
++		break;
++	case FAULTIO_DEAD:
++		if (idx >= faultio_st.n) {
++			errno = EIO;
++			return -1;
++		}
++		break;
++	case FAULTIO_SHORT:
++		if (idx > faultio_st.n) {
++			faultio_drop();
++			return count;
++		}
++		if (idx == faultio_st.n && faultio_st.k < (unsigned long long)count)
++			keep = (s64)faultio_st.k;
++		break;
++	case FAULTIO_DELAY: {
++		struct timespec ts;
++
++		ts.tv_sec = faultio_st.n / 1000;
++		ts.tv_nsec = (long)(faultio_st.n % 1000) * 1000000L;
++		nanosleep(&ts, NULL);
++		break;
++	}
++	default:
++		break;
++	}
++real:
++	if (keep < count) {
++		if (keep > 0) {
++			s64 r = faultio_real(dev, buf, keep, offset, positioned);
++
++			if (r < 0)
++				return r;
++		}
++		faultio_drop();
++		return count;
++	}
++	return positioned ? pwrite(DEV_FD(dev), buf, count, offset)
++			: write(DEV_FD(dev), buf, count);
++}
++
++static int faultio_fsync(struct ntfs_device *dev)
++{
++	faultio_init();
++	if (faultio_st.kind == FAULTIO_DEAD && faultio_st.writes >= faultio_st.n) {
++		errno = EIO;
++		return -1;
++	}
++	if (faultio_power_lost())
++		return 0;
++	return ntfs_fsync(DEV_FD(dev));
++}
++
++#endif /* defined(ENABLE_FAULTIO) */
++
++#endif /* defined _NTFS_FAULTIO_H */
+diff -ruN a/libntfs-3g/unix_io.c b/libntfs-3g/unix_io.c
+--- a/libntfs-3g/unix_io.c	2026-11-14 15:30:01.263547551 +0000
++++ b/libntfs-3g/unix_io.c	2026-11-14 15:30:50.543603118 +0000
+@@ -65,7 +65,7 @@
+ #include "misc.h"
+ 
+ #define DEV_FD(dev)	(*(int *)dev->d_private)
+-
++#include "faultio.h"
+ #ifdef __APPLE__
+ /**
+  * ntfs_device_inherited_fd - descriptor named by a "/dev/fd/N" device name
+@@ -297,7 +297,7 @@
+ 		return -1;
+ 	}
+ 	if (NDevDirty(dev))
+-		if (ntfs_fsync(DEV_FD(dev))) {
++		if (FAULTIO_FSYNC(dev)) {
+ 			ntfs_log_perror("Failed to fsync device %s", dev->d_name);
+ 			return -1;
+ 		}
+@@ -368,7 +368,7 @@
+ 		return -1;
+ 	}
+ 	NDevSetDirty(dev);
+-	return write(DEV_FD(dev), buf, count);
++	return FAULTIO_WRITE(dev, buf, count);
+ }
+ 
+ /**
+@@ -407,7 +407,7 @@
+ 		return -1;
+ 	}
+ 	NDevSetDirty(dev);
+-	return pwrite(DEV_FD(dev), buf, count, offset);
++	return FAULTIO_PWRITE(dev, buf, count, offset);
+ }
+ 
+ /**
+@@ -423,7 +423,7 @@
+ 	int res = 0;
+ 	
+ 	if (!NDevReadOnly(dev)) {
+-		res = ntfs_fsync(DEV_FD(dev));
++		res = FAULTIO_FSYNC(dev);
+ 		if (res)
+ 			ntfs_log_perror("Failed to sync device %s", dev->d_name);
+ 		else

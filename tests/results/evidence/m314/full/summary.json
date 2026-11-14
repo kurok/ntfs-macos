@@ -1,0 +1,73 @@
+{
+  "claims_broken": 0,
+  "claims_checked": 15626,
+  "controls": 10,
+  "controls_pass": 10,
+  "cut_points": 550,
+  "cuts_per_workload_requested": 110,
+  "fail": 18,
+  "failures": [],
+  "gate": "pass",
+  "mirror_split": 18,
+  "mount_options": "rw,norecover,big_writes",
+  "mount_refused": 18,
+  "ntfsfix_nonzero": 18,
+  "pass": 532,
+  "per_workload": {
+    "dirtree": {
+      "cut_points": 110,
+      "device_writes": 4997,
+      "fail": 6,
+      "mirror_split": 6,
+      "pass": 104,
+      "walk_dirty": 13,
+      "workload_hangs": 0
+    },
+    "overwrite_truncate": {
+      "cut_points": 110,
+      "device_writes": 1000,
+      "fail": 0,
+      "mirror_split": 0,
+      "pass": 110,
+      "walk_dirty": 60,
+      "workload_hangs": 0
+    },
+    "renamechurn": {
+      "cut_points": 110,
+      "device_writes": 1508,
+      "fail": 6,
+      "mirror_split": 6,
+      "pass": 104,
+      "walk_dirty": 24,
+      "workload_hangs": 0
+    },
+    "seqwrite": {
+      "cut_points": 110,
+      "device_writes": 25664,
+      "fail": 0,
+      "mirror_split": 0,
+      "pass": 110,
+      "walk_dirty": 86,
+      "workload_hangs": 0
+    },
+    "smallfiles": {
+      "cut_points": 110,
+      "device_writes": 1841,
+      "fail": 6,
+      "mirror_split": 6,
+      "pass": 104,
+      "walk_dirty": 23,
+      "workload_hangs": 0
+    }
+  },
+  "plan": "cut",
+  "rw_norecover_outcomes": {
+    "mounted-rw": 532,
+    "refused": 18
+  },
+  "short_bytes": null,
+  "strict_pass": 326,
+  "unclassified_fail": 0,
+  "walk_dirty": 206,
+  "workload_hangs": 0
+}

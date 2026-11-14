@@ -67,6 +67,10 @@ Command pattern: `mkntfs -F -Q -L <label> -c <cluster> -s <sector> <file>` from 
 | `bitlocker-sig` | 64 MiB of zeros with `-FVE-FS-` at offset 3 | `unsupported` | not NTFS |
 | `truncated` | `clean-64m-4k` cut to 60 percent | `corrupt` | mount fails |
 | `not-ntfs` | exFAT image | `unsupported` | not NTFS |
+| `chkdsk-flag` | `setvolflags` sets only `VOLUME_MODIFIED_BY_CHKDSK` (0x8000) | `clean` (informational flag, ARCHITECTURE.md section 3.1 check 3) | mounts (the engine does not check flags) |
+| `dirty-chkdsk-flag` | `VOLUME_IS_DIRTY` and `VOLUME_MODIFIED_BY_CHKDSK` | `dirty_flag`; `repair --clear-dirty` allowed | mounts |
+| `txf-nonresident` | `tests/tools/txf_make` makes the root directory's `$TXF_DATA` non-resident | `clean` | read/write mount runs `fix_txf_data()` and makes it resident (`volume.c`); `FORENSIC` and `RDONLY` mounts do not |
+| `vmk-split` | Made by T-M3-12: `clean-64m-4k` after `volmark set` cut between the `$MFT` and `$MFTMirr` writes of record 3 | `corrupt` | every mount fails ("$MFTMirr does not match $MFT"); used for U15 |
 
 Each generator finishes by running Linux `ntfs-3g -o norecover,ro` and `-o norecover` against the image and asserting the behaviour in the last column, so the fixtures are validated against the engine, not only against our probe.
 
@@ -131,27 +135,28 @@ Environment column: where the test must pass to count. `A*` means "also run on L
 | CPU and memory | `P-RES-*` | worker and FSModule CPU seconds, peak RSS per benchmark | B | T-M5-07 |
 | **Safety and security** | | | | |
 | Policy and options | `U-POL-*` | every policy row; banned options unreachable | H, A | T-M3-03 |
-| Journal | `U-JRN-*` | kill at each step; entry fields; `marker`/`state` transitions; four removal paths; tombstones (section 4.1) | H, A | T-M3-13 |
+| Journal | `U-JRN-*` | kill at each step; entry fields; `marker`/`state` transitions; four removal paths; tombstones; file names only from the parsed serial (section 4.1) | H, A | T-M3-13 |
 | Disk-derived strings | `U-LABEL-*`, `U-ARGV-*`, `U-VERDICT-*`, `F-SANITIZE-*`, `I-DMN-18` | label sanitiser, argv validator, probe-verdict parser; hostile-label fixtures end to end (section 4.1) | H, A, B | T-M3-19, T-M4-03 |
-| Journal clearing and repair | `I-DMN-19..21`, `H-USB-08` | `journal-clear`, evidence rule, `repair --clear-dirty` (section 4.1) | B, C | T-M4-14, T-M5-10 |
-| On-disk dirty marker | `U-VMK-01..08`, `I-DMN-22` | volmark steps, refusals, kill at each step; marker visible after force-detach (section 4.1) | A, B | T-M3-12, T-M4-14 |
+| Journal clearing and repair | `I-DMN-19..21`, `H-USB-08`, `H-USB-09` | `journal-clear`, evidence rule, `repair --clear-dirty`, peer checks and administrator prompt of ADR-019 (section 4.1) | B, C | T-M4-14, T-M5-10 |
+| On-disk dirty marker | `U-VMK-01..10`, `I-DMN-22`, `H-USB-10` | volmark steps, refusals, binding, cut at each write against the crash table; marker visible after force-detach (section 4.1) | A, B, C | T-M3-12, T-M4-14, T-M5-10 |
+| Device binding | `I-DMN-25` | disk swapped between probe and mount; disk mounted by another driver (section 4.1, ADR-020) | B | T-M4-14 |
 | Second line against a wrong probe verdict | `I-DMN-23` | probe stub reports `clean` for every unsafe fixture; image hash unchanged | B | T-M4-11 |
-| Device-error channel | `I-ERR-01..03`, `I-DMN-24` | patch 0006 records; daemon marks session failed and does not report a clean unmount (section 4.1) | A, B | T-M3-18, T-M4-13 |
-| Privilege | `I-DMN-09`, sandbox tests, ctl authentication tests | worker uid, sandbox denials, socket peer checks | B | T-M4-01, T-M4-04, T-M4-06 |
+| Session channel | `I-ERR-01..07`, `I-DMN-24` | patch 0006 records `S`, `E`, `W`, `U`; positive clean-session proof; bounds and `FD_CLOEXEC`; daemon marks session unclean and does not report a clean unmount (section 4.1) | A, B | T-M3-18, T-M4-13 |
+| Privilege | `I-DMN-09`, sandbox tests, ctl authentication tests | worker uid, sandbox denials (including `connect()` to the control socket), socket peer checks of ADR-019 | B | T-M4-01, T-M4-04, T-M4-06 |
 | Coexistence | `I-DMN-17` | dummy third-party NTFS bundle present: no dissent, no automount; `doctor` names the bundle | B | T-M4-07, T-M4-11 |
 | Permissions and ownership | `I-PERM-01..06` | uid/gid, modes, `chmod`/`chown` outcomes, execute bit (N9), opt-in mapping smoke (section 4.1) | B, A* | T-M3-20 |
 | Races in daemon logic | `U-TSAN-01..02` | state machine, control handler, journal and session under ThreadSanitizer with concurrent drivers (section 4.1) | H, A | T-M4-15 |
 | Read path edge (macFUSE mitigation) | `I-READ-*` | no `EIO` at EOF | B | T-M3-07 |
 | mmap | `I-MMAP-*` | mapped read and write, `msync`, unmount with dirty pages | B | T-M3-11 |
-| Sync semantics | `I-SYNC-*` | opcode trace; `F_FULLFSYNC` reaches the device at each sync point | B | T-M2-06, T-M3-10 |
+| Sync semantics | `I-SYNC-01..02` | opcode trace; upstream `F_FULLFSYNC` reaches the device at each sync point; fallback recorded (section 4.1) | B | T-M2-06, T-M3-10 |
 | Packaging | `I-PKG-*` | install, doctor, uninstall, manifest equality | B | T-M4-10, T-M6-01 |
 | Finder | `I-FND-*` | visible, copy in and out, eject | B, C | T-M4-11 |
 
-`I-DMN-*` ranges: 01..08 automount per fixture class (02..08 are the unsafe classes of section 3.2), 09 privilege, 10..13 unmount paths, 14..16 kill worker, kill daemon, force-detach, 17 passive mode, 18 hostile labels, 19..21 journal clear, evidence rule, repair, 22 marker, 23 second line, 24 error channel. Each implementing task writes the tests of its own range under its own file prefix in `tests/integration/daemon/` (T-M4-01: 09; T-M4-03: 10..13, 18; T-M4-05: 15; T-M4-07: 17; T-M4-14: 19..22; T-M4-13: 24); T-M4-11 writes the rest (01..08, 14, 16, 23) and runs the whole range; T-M5-05 repeats 14..16 twenty times.
+`I-DMN-*` ranges: 01..08 automount per fixture class (02..08 are the unsafe classes of section 3.2), 09 privilege, 10..13 unmount paths, 14..16 kill worker, kill daemon, force-detach, 17 passive mode, 18 hostile labels, 19..21 journal clear, evidence rule, repair, 22 marker, 23 second line, 24 session channel, 25 device binding. Each implementing task writes the tests of its own range under its own file prefix in `tests/integration/daemon/` (T-M4-01: 09; T-M4-03: 10..13, 18; T-M4-05: 15; T-M4-07: 17; T-M4-14: 19..22, 25; T-M4-13: 24); T-M4-11 writes the rest (01..08, 14, 16, 23) and runs the whole range; T-M5-05 repeats 14..16 twenty times.
 
 ### 4.1 Enumerated cases for disk strings, journal clearing, marker, error channel, permissions and races
 
-These ids come from the M1 audit fixes (ADR-016, ADR-017, ADR-006, ADR-018, ADR-012).
+These ids come from the M1 audit fixes (ADR-016, ADR-017, ADR-006, ADR-018, ADR-012) and the M1 re-check fixes (ADR-014, ADR-019, ADR-020).
 
 | Id | Case | Pass condition |
 |---|---|---|
@@ -172,25 +177,33 @@ These ids come from the M1 audit fixes (ADR-016, ADR-017, ADR-006, ADR-018, ADR-
 | `U-VERDICT-02` | Duplicate keys, unknown keys, unknown `state` or `logfile` enum, wrong types | State `unknown` |
 | `U-VERDICT-03` | `\u0000` or invalid UTF-8 inside `label` | State `unknown` |
 | `U-VERDICT-04` | Valid output for every fixture in section 3.2 | Parsed fields equal the probe's |
-| `F-SANITIZE-01` | libFuzzer on the probe-verdict parser | No crash, no sanitizer report; every accepted input re-serialises to an equivalent object |
+| `U-VERDICT-05` | Hostile values for every field of the ARCHITECTURE.md section 3.1 grammar: `serial` as `../../../Library/LaunchDaemons/x`, `0x1a2b...` (lower case), 15 or 17 hex digits, with NUL, `/`, newline or ESC; `logfile_lsn` likewise; integers with sign, fraction, exponent, leading zero or out of range; a `reasons` key with free text; `reason_codes` with an unknown code, a duplicate, 17 entries, or text containing ESC `[`; `state` `clean` with a reason code | State `unknown` for each; for every accepted verdict the journal path the daemon would build is `<journal dir>/<16 upper-case hex>` and no output text contains a byte the probe sent other than through the label sanitiser |
+| `U-JRN-NAME-01` | Journal library given serials 0, 1, 2^64 - 1 and a pre-planted symlink at the entry and temporary names | Names are exactly 16 upper-case hex digits; the symlink is never followed (`O_NOFOLLOW`, `O_EXCL`); tombstone names match `cleared/<16 hex>-<YYYYMMDDTHHMMSSZ>` |
+| `F-SANITIZE-01` | libFuzzer on the probe-verdict parser, seeded with hostile `serial`, `logfile_lsn` and `reason_codes` values | No crash, no sanitizer report; every accepted input re-serialises to an equivalent object and satisfies the section 3.1 grammar of ARCHITECTURE.md |
 | `F-SANITIZE-02` | libFuzzer on label sanitiser followed by `argv_check()` of the resulting builder output | No crash; every output satisfies ADR-016; `argv_check()` always accepts the builder's vector |
 | `I-DMN-18` | Attach each section 3.3 image in the VM | Mount point and Finder name equal the expected leaf; `ps -o args` of the worker shows no option beyond the allow-list; nothing created outside `/Volumes` |
 | `U-JRN-*` additions | Create, `marker` `pending`->`set`, `pending`->`failed`, `state`->`write_error`, each removal path, tombstone limit 32, kill between temporary write and rename | Entry is either the old or the new version, never partial; removal always leaves a tombstone |
-| `I-DMN-19` | `journal-clear`: refused for non-`admin`, wrong label, wrong serial, probe not `clean`, volume mounted `rw`; accepted on a `clean` volume with an entry | Refusals leave the entry; acceptance moves it to tombstones; current mount mode unchanged; next `mount` is `rw` |
+| `I-DMN-19` | `journal-clear`: refused for non-`admin`, wrong label, wrong serial, probe not `clean`, volume mounted `rw`, a request sent from inside the worker's process group, a request from a re-signed copy of the CLI, a request without or with a reused authorization; accepted on a `clean` volume with an entry, and on `chkdsk-flag` with an entry (N-04: informational flag only) | Refusals leave the entry; acceptance moves it to tombstones; current mount mode unchanged; next `mount` is `rw` |
 | `I-DMN-20` | Evidence rule: unclean session (force-detach), then in Environment A `setvolflags` clears the flag and `logfile_mark --bump-lsn` advances the LSN; re-attach with rule enabled, then disabled | Enabled: attach is `ro`, entry removed, next `mount` is `rw`. Disabled: attach `ro`, entry kept. Flag cleared without LSN change: entry kept in both modes |
-| `I-DMN-21` | `repair --clear-dirty`: refused unless probe exactly `dirty_flag` with clean log (tested with `unclean-log`, `hiber-lower`, a fixture with an extra flag), refused while mounted, refused for non-`admin`; accepted on `dirty-flag`; extra warning text present when a journal entry exists | On success the flag is clear (`ntfsinfo -m`), no other byte of the `$Volume` record changed, journal entry removed; `$LogFile` unchanged |
+| `I-DMN-21` | `repair --clear-dirty`: refused unless probe exactly `dirty_flag` with clean log (tested with `unclean-log`, `hiber-lower`, a fixture with an extra non-informational flag), refused while mounted, refused for non-`admin`, refused without the ADR-019 checks (same peer cases as `I-DMN-19`); accepted on `dirty-flag` and on `dirty-chkdsk-flag` (which keeps 0x8000); extra warning text present when a journal entry exists | On success the flag is clear (`ntfsinfo -m`), no other byte of the `$Volume` record changed, journal entry removed; `$LogFile` unchanged |
 | `I-DMN-22` | Marker in the daemon flow: during a `rw` session the image has `VOLUME_IS_DIRTY`; after clean eject it does not; after force-detach it does; volmark replaced by a test binary that exits 1 | Flag states as stated; failing volmark gives a `ro` mount and `marker=failed` |
 | `U-VMK-01` | `set` on `clean-64m-4k` | Exit 0; flag set; every other byte of the `$Volume` record unchanged |
 | `U-VMK-02` | `set` on `dirty-flag` | Exit 11; image hash unchanged |
-| `U-VMK-03` | `set` on `unclean-log`, `log-v2`, `hiber-lower`, `hiber-upper`, `hiber-short` | Non-zero exit (library refusal); image hash unchanged |
+| `U-VMK-03` | `set` on `unclean-log`, `log-v2`, `hiber-lower`, `hiber-upper`, `hiber-short` | Exit 10 (volmark's own checks through the public API); image hash unchanged |
 | `U-VMK-04` | `clear` after `set` | Exit 0; record byte-identical to before `set` |
 | `U-VMK-05` | `clear` on a volume without the flag | Exit 13; image hash unchanged |
-| `U-VMK-06` | `clear-repair` on `dirty-flag`, and on a volume with an extra flag | Exit 0 and flag clear; exit 13 and image unchanged |
-| `U-VMK-07` | `SIGKILL` at each step of `set` and `clear` (fault layer `count` then `cut:N` over every write) | Afterwards the image mounts read-only and is either flagged or unchanged; never a torn `$Volume` record that the probe classifies `clean` |
+| `U-VMK-06` | `clear-repair` on `dirty-flag` and `dirty-chkdsk-flag`, and on a volume with an extra non-informational flag | Exit 0, `VOLUME_IS_DIRTY` clear and 0x8000 unchanged; exit 13 and image unchanged |
+| `U-VMK-07` | `SIGKILL` before step 4 and a fault-layer cut (`count`, then `cut:N` and `short:N:K` over every write) inside step 4, for `set` and `clear` | Each outcome equals its row in the crash table of ARCHITECTURE.md section 3.6: unchanged, or flag value new on both copies (probe `dirty_flag` or `clean`), or `$MFT`/`$MFTMirr` record 3 torn or different (probe `corrupt`); in every case no byte outside the two copies of record 3 changed; never a probe `clean` with the flag lost after `set` reported exit 0 |
 | `U-VMK-08` | Read-back mismatch injected with `short:N:K` on the flag write | Exit 14 |
-| `I-ERR-01` | Linux reference mount with the faultio build, `eio:N` on a data write | Exactly one `E pwrite 5` line on `NTFSMAC_ERRFD` |
-| `I-ERR-02` | `eio` on the device sync | One `E sync <errno>` line |
-| `I-ERR-03` | No fault, full functional workload | No line; `NTFSMAC_ERRFD` unset behaves exactly like the unpatched build |
+| `U-VMK-09` | `set` with `--expect-serial` or `--expect-sectors` different from the image | Exit 15; image hash unchanged |
+| `U-VMK-10` | `set` and `clear` on `txf-nonresident`, and `set` on a volume with a bit outside `VOLUME_FLAGS_MASK` | First: exit 0, `$TXF_DATA` still non-resident, fault layer `count` shows exactly the two record-3 writes; second: exit 11, image unchanged |
+| `I-ERR-01` | Linux reference mount with the faultio build, `eio:N` on a data write | `S rw` first; exactly one `E pwrite 5` line; last line `U 1` (or `E umount` if the unmount failed) |
+| `I-ERR-02` | `eio` on the device sync, and on the close-path `fsync` | One `E sync <errno>`, one `E close <errno>` line; no `U 0` |
+| `I-ERR-03` | No fault, full functional workload, clean unmount | Exactly `S rw` then `U 0`; `NTFSMAC_ERRFD` unset behaves exactly like the unpatched build |
+| `I-ERR-04` | `ntfs_umount` made to fail (fault layer `dead:N` from the first unmount-time write) | `E` records then `E umount <errno>`; no `U` line; worker exit status 0 (shows exit status is not evidence) |
+| `I-ERR-05` | Read-only mount (`-o ro`), and a `norecover` read/write request on `unclean-log` (engine fallback) | `S ro` first |
+| `I-ERR-06` | Faultio build with `F_FULLFSYNC` forced to fail (macOS VM) | `W fullfsync <errno>` line at each sync point; sync still returns 0 |
+| `I-ERR-07` | Inspect the worker's descriptor table and a child it starts (test hook `system("true")` in the faultio build) | `NTFSMAC_ERRFD` has `FD_CLOEXEC`; the child has no copy of it; the write end is non-blocking |
 | `I-PERM-01` | In the VM, create files and directories with `touch`, `mkdir` and `cp`, and stat files made on Linux before the run | Every entry reports the console uid and gid |
 | `I-PERM-02` | Same tree | Files mode 0644 and directories 0755, whatever the Windows ACLs of the fixture; the Linux tree dump of the result shows no ACL change |
 | `I-PERM-03` | `chmod` 0600, 0755, `+x` on a file and a directory | Outcome recorded as error or no-op, identical on three runs; on re-stat the mode is the mapped one or the documented value; Linux tree dump shows no change in NTFS attributes or ACLs |
@@ -200,7 +213,11 @@ These ids come from the M1 audit fixes (ADR-016, ADR-017, ADR-006, ADR-018, ADR-
 | `U-TSAN-01` | Daemon state machine driven from four threads with random events, built with `-fsanitize=thread` (host and Environment A) | No data-race report; final state satisfies the transition invariants |
 | `U-TSAN-02` | Control-protocol handler with concurrent clients plus concurrent journal and session updates (kill at random points) | No data-race report; journal entries never partial |
 | `I-DMN-23` | Daemon with a probe stub that reports `clean` for `dirty-flag`, `unclean-log`, `log-v2`, `hiber-lower`; marker step enabled | No write reaches the image (hash unchanged); mode reported `ro` with reason; with the marker step disabled, the four outcomes are recorded (expected: `dirty-flag` is written, the others fall back to read-only) |
-| `I-DMN-24` | VM faultio worker with `eio:N` during a copy | Journal `state=write_error`; notification text; unmount requested; no "all data written" report; next attach `ro` |
+| `I-DMN-24` | (a) VM faultio worker with `eio:N` during a copy; (b) worker started without `NTFSMAC_ERRFD`; (c) unpatched worker binary; (d) worker that writes 100 KiB without newline, and one that writes 65 valid records; (e) daemon killed and restarted mid-session (re-adoption); (f) a child of the worker that keeps the write end open after the worker exits | (a) journal `state=write_error`, notification text, unmount requested; (a) to (f) no "all data written" report, journal entry and marker kept, next attach `ro`; (d) daemon memory stays bounded and the worker never blocks |
+| `I-DMN-25` | (a) Probe runs on image X; before the `O_RDWR` open the test detaches X and attaches image Y under the same BSD name; (b) the disk is mounted read-only by Apple's driver before the `O_RDWR` open; (c) volmark stub that changes sector 0 | (a) and (c): hash or `st_rdev` mismatch, no `O_RDWR` descriptor kept, volume `ro` or `Failed`, image Y unchanged; (b) no `O_RDWR` open, state as ARCHITECTURE.md section 4.1 step 6 |
+| `I-SYNC-01` | `sync_trace.sh` with `fs_usage`-style tracing of the worker during `sync`, unmount and FUSE fsync | `F_FULLFSYNC` issued on the device descriptor at each sync point; any fallback to `fsync` recorded |
+| `I-SYNC-02` | Same trace on the raw and the buffered device node | Table of sync points and fallbacks per node, used by ADR-014 and D1 |
+| `U-POL-FLAGS` | Probe verdicts with `volume_flags` `["MODIFIED_BY_CHKDSK"]`, `["MOUNTED_ON_NT4"]`, `["DIRTY","MODIFIED_BY_CHKDSK"]`, `["CHKDSK_UNDERWAY"]`, `["UNKNOWN_BITS"]` | First two: `clean` path, `journal-clear` gate open; third: `repair` gate open; last two: `dirty_flag`, `repair` refused |
 
 ## 5. Reference comparison against NTFS-3G on Linux
 
@@ -318,6 +335,8 @@ Full steps are written in T-M5-10. Minimum scenarios, each on one flash drive an
 | H-USB-06 | Sleep and wake the Mac with the volume mounted | Volume usable; hashes equal |
 | H-USB-07 | BitLocker volume | Not mounted; clear message |
 | H-FND-01 | Finder: drag-copy a folder, rename, move to Trash, empty Trash, eject button | All succeed; Windows sees the same tree |
-| H-USB-08 | After H-USB-03: record `$Volume` flags and `$LogFile` `current_lsn` (Linux `ntfsinfo` on the Mac side, read-only), run Windows `chkdsk /f`, record both again, re-attach to the Mac | Flag cleared and LSN changed by Windows (resolves U12); with the evidence rule enabled the attach is `ro` and the next `mount` is `rw`; with it disabled, `journal-clear` succeeds |
+| H-USB-08 | After H-USB-03: record all `$Volume` flags and `$LogFile` `current_lsn` (Linux `ntfsinfo` on the Mac side, read-only), run Windows `chkdsk /f`, record both again, re-attach to the Mac | Flag cleared and LSN changed by Windows (resolves the positive half of U12); every flag left set is recorded, and a lone `MODIFIED_BY_CHKDSK` probes `clean` (N-04); with the evidence rule enabled the attach is `ro` and the next `mount` is `rw`; with it disabled, `journal-clear` succeeds |
+| H-USB-09 | After a second H-USB-03: plug the drive into Windows and decline "Scan and fix", write one file, eject safely; record flags and `current_lsn` before and after (negative case of U12) | `VOLUME_IS_DIRTY` still set although the LSN may have changed; on the Mac the attach is `ro` (`dirty_flag`) with the evidence rule enabled and disabled. If the flag is cleared, rule 2 stays disabled permanently and the finding goes to the coordinator |
+| H-USB-10 | The `vmk-split` image written to a flash drive: run Windows `chkdsk /f`, then re-attach to the Mac (U15) | Recorded: whether `chkdsk` repairs `$MFTMirr` and what it reports; afterwards the probe gives `clean` or `dirty_flag`, never `corrupt` |
 
 No scenario may run on a drive that the human has not named by serial number.

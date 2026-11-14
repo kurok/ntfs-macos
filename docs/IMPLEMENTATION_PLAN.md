@@ -58,12 +58,13 @@ Source tags `[V:Sn]`, `[A]`, `[U]` are defined in [ARCHITECTURE.md](ARCHITECTURE
 | 3.10 | Reference comparison: the same 12 operation scripts run through NTFS-3G on Linux and through this product on macOS give identical tree dumps (paths, sizes, hashes, stream names), except the listed expected differences. | `C-REF-*`. |
 | 3.11 | Fuzz harness runs 1 CPU-hour on the probe and 1 CPU-hour on mount-and-walk with ASan and UBSan; no crash in project code; engine crashes filed upstream and listed. | `F-*` logs. |
 | 3.12 | Session journal unit tests pass, including crash between steps (simulated by killing the process at each step). | `U-JRN-*`. |
-| 3.13 | `ntfsmac-volmark` sets and clears only `VOLUME_IS_DIRTY`, refuses every unsafe fixture without writing, and a kill at every step leaves the image flagged or unchanged (ADR-006). | `U-VMK-01..08`. |
-| 3.14 | Disk-derived strings: label sanitiser, argv validator and probe-verdict parser pass their unit tests and 1 CPU-hour of fuzzing each with no finding (ADR-016). | `U-LABEL-*`, `U-ARGV-*`, `U-VERDICT-*`, `F-SANITIZE-*`. |
-| 3.15 | Patch 0006 reports every injected device write and sync error exactly once and changes nothing without `NTFSMAC_ERRFD` (ADR-018). | `I-ERR-01..03`. |
+| 3.13 | `ntfsmac-volmark` sets and clears only `VOLUME_IS_DIRTY`, writes nothing but the two copies of the `$Volume` record (no `$TXF_DATA` fix-up), refuses every unsafe fixture and a wrong expected serial or size without writing, and a cut at every write gives exactly the outcome stated in the crash table of ARCHITECTURE.md section 3.6 (ADR-006, ADR-020). | `U-VMK-01..10`. |
+| 3.14 | Disk-derived strings: label sanitiser, argv validator and probe-verdict parser (with the per-field grammar and reason codes) pass their unit tests and 1 CPU-hour of fuzzing each with no finding; journal file names come only from the parsed serial (ADR-016). | `U-LABEL-*`, `U-ARGV-*`, `U-VERDICT-01..05`, `F-SANITIZE-*`, `U-JRN-NAME-01`. |
+| 3.15 | Patch 0006 writes `S` at mount, every injected device write, sync, close and unmount error exactly once as `E`, the `F_FULLFSYNC` fallback as `W`, and `U 0` only after a successful `ntfs_umount`; the channel descriptor is `FD_CLOEXEC`; nothing changes without `NTFSMAC_ERRFD` (ADR-018). | `I-ERR-01..07`. |
+| 3.17 | Sync path: upstream `ntfs_fsync()` issues `F_FULLFSYNC` at each sync point on the VM disk, and whether its `fsync` fallback runs is recorded (ADR-014). | `I-SYNC-01..02` (T-M3-10). |
 | 3.16 | Ownership and permissions: every file and directory reports the console uid and gid and modes 0644 and 0755 (`fmask=0133`, `dmask=0022`); `chmod` and `chown` outcomes are recorded, consistent, and change no NTFS ACL or attribute; the execute-bit limitation (N9) is demonstrated; the opt-in `permissions`/`usermapping` path passes a smoke test (ADR-012). | `I-PERM-01..06`. |
 
-**Exit gate M3:** 3.1 to 3.16 pass; Opus audit (T-M3-17) of probe, policy, sanitiser, patches 0002/0004/0006 and the dirty-marker ordering finds no open data-loss issue. When 3.13 passes, the coordinator enables the marker step and updates D3 in ARCHITECTURE.md section 9.
+**Exit gate M3:** 3.1 to 3.17 pass; Opus audit (T-M3-17) of probe, policy, sanitiser, patches 0004/0006 and the dirty-marker ordering finds no open data-loss issue. When 3.13 passes, the coordinator enables the marker step and updates D3 in ARCHITECTURE.md section 9.
 
 ### M4 macOS integration
 
@@ -71,14 +72,14 @@ Source tags `[V:Sn]`, `[A]`, `[U]` are defined in [ARCHITECTURE.md](ARCHITECTURE
 |---|---|---|
 | 4.1 | Attaching an NTFS disk image in the VM results in an automatic mount within 10 s, in the mode the policy table requires, for each fixture class. | `I-DMN-01..08`. |
 | 4.2 | The worker runs as the console user, not root; the probe as `nobody`; verified with `ps`. | `I-DMN-09`. |
-| 4.3 | Unmount through `ntfsmac unmount`, `umount`, `diskutil unmount` and Finder eject (AppleScript) each end with: worker exit 0, journal entry gone, mount point removed, hashes intact on remount. | `I-DMN-10..13`. |
+| 4.3 | Unmount through `ntfsmac unmount`, `umount`, `diskutil unmount` and Finder eject (AppleScript) each end with: the positive clean-session proof (`S rw`, `U 0`, no `E`, worker exit 0), journal entry gone, mount point removed, hashes intact on remount. | `I-DMN-10..13`. |
 | 4.4 | Killing the worker, killing the daemon, and force-detaching the image each leave the journal entry in place, and the next attach mounts read-only with the documented reason. | `I-DMN-14..16`. |
 | 4.5 | Passive mode: with a dummy third-party NTFS bundle present, no dissent is issued and no automount happens. | `I-DMN-17`. |
 | 4.6 | Developer installer installs, `ntfsmac doctor` is green, uninstaller removes every installed path (list compared to a manifest). | `I-PKG-01..02`. |
 | 4.7 | Finder: volume visible on the desktop and sidebar, copy of a 1,000-file tree in and out with equal hashes. | `I-FND-01..02` (scripted with `osascript`; screenshots stored). |
 | 4.8 | Hostile labels never change the worker options or the mount path. | `I-DMN-18`. |
-| 4.9 | Journal clearing and repair follow ADR-017: `journal-clear`, evidence rule (both settings), `repair --clear-dirty`; the dirty marker is set during `rw` sessions and cleared only after a clean one; a failing volmark gives `ro`. | `I-DMN-19..22`. |
-| 4.10 | A probe stub that reports `clean` for unsafe fixtures causes no write; a device write error marks the session failed and suppresses the clean-unmount report. | `I-DMN-23`, `I-DMN-24`. |
+| 4.9 | Journal clearing and repair follow ADR-017 and ADR-019: `journal-clear`, evidence rule (both settings), `repair --clear-dirty`, each refused without the peer checks and the administrator prompt; the dirty marker is set during `rw` sessions and cleared only after a clean one; a failing volmark gives `ro`. | `I-DMN-19..22`. |
+| 4.10 | A probe stub that reports `clean` for unsafe fixtures causes no write; a device write error, a missing `S` or `U` record, a broken or overflowing channel, or a re-adopted session each mark the session unclean and suppress the clean-unmount report; a device swapped between probe and mount, or mounted by another driver, never gets an `O_RDWR` descriptor (ADR-020). | `I-DMN-23`, `I-DMN-24`, `I-DMN-25`. |
 | 4.11 | Race detection: the daemon's logic modules (state machine, control-protocol handler, journal, session) run under ThreadSanitizer with concurrent drivers and report no race. Kernel, FSKit and Disk Arbitration races are out of scope for this check and are covered by the stress suites. | `U-TSAN-01..02`. |
 
 **Exit gate M4:** 4.1 to 4.11 pass in the VM; audit T-M4-12 signed. Items that the VM cannot show (real USB insertion) are listed for M5 hardware validation.
@@ -165,7 +166,7 @@ M3 and M4 run in parallel after the M2 gate: M3 work is in `src/probe`, `src/pol
 | Work | Model |
 |---|---|
 | All tasks by default | Sonnet 5.5 |
-| Reviews marked "Opus review" in AGENT_TASKS.md (probe checks, patches 0002/0003/0004/0005/0006 (0001 is build-only), label sanitiser and argv validator, daemon session ordering, sandbox profile, crash-sweep findings, M3/M5/M7 audits) | Opus 5.5, one bounded review each, input limited to the diff and the named design section |
+| Reviews marked "Opus review" in AGENT_TASKS.md (probe checks, patches 0003/0004/0005/0006 (0001 is build-only; 0002 withdrawn), label sanitiser, verdict grammar and argv validator, control-socket peer checks, daemon session ordering and device binding, sandbox profile, crash-sweep findings, M3/M5/M7 audits) | Opus 5.5, one bounded review each, input limited to the diff and the named design section |
 | `ntfsmac-volmark` (T-M3-12) | Opus 5.5 does the task |
 | Fable | Not used after this document set |
 

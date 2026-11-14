@@ -10,7 +10,7 @@ Status values: **Accepted**, **Accepted, gated** (a named task can overturn it),
 | 003 | Disk Arbitration integration | Root daemon with DA callbacks | Accepted, gated by T-M4-02 |
 | 004 | Privilege model | Root broker passes a device fd to unprivileged sandboxed workers | Accepted, gated by T-M2-05, T-M4-01 |
 | 005 | Unsafe volume states | Own read-only probe; `norecover` always; never `remove_hiberfile` | Accepted |
-| 006 | Unclean-session marker | Host journal plus on-disk dirty flag set by `ntfsmac-volmark` around every read/write session (default plan) | Accepted; flag enabled when T-M3-12 passes |
+| 006 | Unclean-session marker | Host journal plus on-disk dirty flag set by `ntfsmac-volmark` around every read/write session (default plan); `FORENSIC` library mount so only the `$Volume` record is written; stated crash outcome per write | Accepted; flag enabled when T-M3-12 passes |
 | 007 | Build system | CMake + Ninja for our code; upstream autotools for NTFS-3G; C11 only | Accepted |
 | 008 | Test VM tooling | tart for macOS guests; Docker or Podman for Linux | Accepted, gated by T-M1-04 |
 | 009 | Intel support | Not supported; arm64 only | Accepted |
@@ -18,11 +18,13 @@ Status values: **Accepted**, **Accepted, gated** (a named task can overturn it),
 | 011 | Signing and distribution | Developer ID + notarized `.pkg`; unsigned developer builds until credentials exist | Accepted |
 | 012 | Permissions, xattrs, names | uid/gid mapping, xattrs as named streams, `windows_names` | Accepted |
 | 013 | macFUSE distribution | Prerequisite, never bundled | Accepted |
-| 014 | Device sync | `F_FULLFSYNC` at sync points | Accepted |
+| 014 | Device sync | Upstream `ntfs_fsync()` already uses `F_FULLFSYNC`; its silent `fsync` fallback is reported, not hidden; patch 0002 withdrawn | Accepted |
 | 015 | Local-only CI | `scripts/ci-local.sh`; no GitHub-hosted CI, no published binaries | Accepted |
-| 016 | Disk-derived strings | Sanitised label as mount-point leaf only; final argv validator; strict probe-verdict parser | Accepted |
+| 016 | Disk-derived strings | Sanitised label as mount-point leaf only; final argv validator; strict probe-verdict parser with a grammar for every field; file names only from parsed integers; reason codes instead of text | Accepted |
 | 017 | Clearing the session journal; repair | Four clearing paths; evidence rule off until verified; repair through `ntfsmac-volmark`, not `ntfsfix` | Accepted (evidence rule gated by U12, U13) |
-| 018 | Device-error reporting | Patch 0006 error channel from the worker's device layer to the daemon | Accepted, gated by T-M3-18 |
+| 018 | Device-error reporting and clean-session proof | Patch 0006 session channel: positive `S` and `U` records, `E` and `W` records, bounded, `FD_CLOEXEC`; silence is never clean | Accepted, gated by T-M3-18 |
+| 019 | Authorising journal clearing and repair | Peer is not a spawned process, is the signed CLI, and an administrator authenticates per request through Authorization Services; typed confirmation is only a guard against mistakes | Accepted, gated by T-M4-04 (U17) |
+| 020 | Binding the probed volume to the opened device | Probe descriptor reused for `ro`; for `rw` same device number and boot-area hash, expected serial and size checked by volmark, no other mount | Accepted, gated by T-M4-02 (U18) |
 
 ---
 
@@ -67,11 +69,11 @@ Status values: **Accepted**, **Accepted, gated** (a named task can overturn it),
 | Patch | Purpose | Needed |
 |---|---|---|
 | 0001 | Build fixes for macOS 27 + macFUSE 5.5.0 (pkg-config module name, header paths, warnings) | Only if T-M2-03 shows a need |
-| 0002 | `F_FULLFSYNC` in the Darwin device-sync path | Yes (ADR-014) |
+| 0002 | Withdrawn. Its premise was wrong: `libntfs-3g/unix_io.c` `ntfs_fsync()` already calls `fcntl(F_FULLFSYNC)` on `__APPLE__` and falls back to `fsync` [V:S25]. The number is not reused. | No (ADR-014) |
 | 0003 | Accept an inherited descriptor as the device | Only if `/dev/fd/N` fails (T-M2-05) |
 | 0004 | Test-only fault-injection device layer, compiled with `--enable-faultio`, absent from release builds | Yes (TEST_STRATEGY.md section 6) |
 | 0005 | libfuse3 port of `ntfs-3g.c` | Only per ADR-001 fallback 1 |
-| 0006 | Device-error report line on `NTFSMAC_ERRFD` from the Unix device layer (ADR-018) | Yes |
+| 0006 | Session channel on `NTFSMAC_ERRFD` (ADR-018): `E` and `W` records from `libntfs-3g/unix_io.c`, `S` and `U` records and the `umount` `E` record from `src/ntfs-3g.c` (`main`, `ntfs_close`) | Yes |
 
 Anything touching allocation, runlists, MFT or index code is out of scope for this project and goes upstream as a bug report instead.
 
@@ -122,10 +124,10 @@ Anything touching allocation, runlists, MFT or index code is out of scope for th
 2. Every worker invocation carries `norecover`.
 3. `remove_hiberfile` and `recover` are not reachable through any interface of this product, including configuration. The daemon's option builder has no code path that emits them, a unit test asserts it, and the independent argv validator (ADR-016) rejects them if they ever appear.
 4. Unsafe state means read-only with an `O_RDONLY` descriptor.
-5. Manual repair is exposed only as `ntfsmac repair --clear-dirty <bsd>`, implemented by `ntfsmac-volmark clear-repair` (ADR-017), not by `ntfsfix`. It requires `admin`, typing the volume label and serial, is refused unless the probe state is exactly `dirty_flag`, prints that this is not a consistency check, and is never suggested as the first remedy. There is no wrapper for hibernation-file removal.
+5. Manual repair is exposed only as `ntfsmac repair --clear-dirty <bsd>`, implemented by `ntfsmac-volmark clear-repair` (ADR-017), not by `ntfsfix`. It requires the peer checks and the administrator prompt of ADR-019, typing the volume label and serial, is refused unless the probe state is exactly `dirty_flag`, prints that this is not a consistency check, and is never suggested as the first remedy. There is no wrapper for hibernation-file removal.
 6. Disk-derived strings (the label) never enter the worker option string unsanitised (ADR-016).
 
-**What this decision does not guarantee.** The probe is the parser that produces the verdict. A probe that is fooled into `clean` defeats decisions 1 and 4; the engine's own checks (with `norecover`) and the volmark step's read/write library mount are a second line, not a guarantee (ARCHITECTURE.md section 9, D2).
+**What this decision does not guarantee.** The probe is the parser that produces the verdict. A probe that is fooled into `clean` defeats decisions 1 and 4; the engine's own checks (with `norecover`) and the volmark step's own hibernation and `$LogFile` checks are a second line, not a guarantee (ARCHITECTURE.md section 9, D2).
 
 **Consequences.** Users of dual-boot or Fast Startup machines get read-only mounts until Windows is shut down fully. This is intended.
 
@@ -137,14 +139,16 @@ Anything touching allocation, runlists, MFT or index code is out of scope for th
 |---|---|---|
 | Host journal only | No extra on-disk writes. | Invisible to Windows and to other Macs. D3 is host-only. |
 | On-disk dirty flag set by the worker (patch) | One process. | Changes NTFS-3G's mount path; a worker crash before the flag is written leaves no marker. |
-| On-disk dirty flag set by a separate short `libntfs-3g` step (`ntfsmac-volmark`) before the worker starts and cleared after it exits cleanly (chosen) | NTFS-3G unpatched for this. Uses the library's own `ntfs_volume_write_flags`. The read/write library mount without `RECOVER`/`MAY_RDONLY` is also a second check against a misreported unsafe state. Windows checks the volume after an unclean detach. | Two extra short mount cycles per session (each a few `$MFT` reads and one record write). A second NTFS parser holding a writable descriptor. Windows also checks a volume that was merely moved without a clean eject (intended). |
+| On-disk dirty flag set by a separate short `libntfs-3g` step (`ntfsmac-volmark`) before the worker starts and cleared after it exits cleanly (chosen) | NTFS-3G unpatched for this. Uses the library's own `ntfs_volume_write_flags`. Volmark's own hibernation and `$LogFile` checks are also a second check against a misreported unsafe state. Windows checks the volume after an unclean detach. | Two extra short mount cycles per session (each a few `$MFT` reads and one record write). A second NTFS parser holding a writable descriptor. Windows also checks a volume that was merely moved without a clean eject (intended). |
 
 **Decision.** The on-disk marker is the **default plan** (phase 2 is no longer optional). Component, ordering, uid, sandbox, descriptor and failure handling are specified in ARCHITECTURE.md section 3.6:
 
 1. `ntfsmac-volmark` runs as `nobody` in its own sandbox profile, receives only the daemon's `O_RDWR` device descriptor, and only for `rw` decisions.
-2. `set`: after the journal entry is written and synced, before the worker starts; `F_FULLFSYNC` and a read-back before exit 0. If `set` fails for any reason, the session is mounted `ro`.
-3. `clear`: only after a clean session (worker exit 0 after unmount, zero error records on the ADR-018 channel, daemon `F_FULLFSYNC` succeeded); journal entry removed only after `clear` exits 0.
-4. Only the `VOLUME_IS_DIRTY` bit is changed; all other bits are preserved.
+2. `set`: after the journal entry is written and synced and the device is bound to the probed volume (ADR-020), before the worker starts; `F_FULLFSYNC` and a read-back before exit 0. If `set` fails for any reason, the session is mounted `ro`.
+3. `clear`: only after a clean session proven by the positive records of ADR-018 (`S rw`, `U 0`, no `E`), and a successful daemon `F_FULLFSYNC`; journal entry removed only after `clear` exits 0.
+4. Only the `VOLUME_IS_DIRTY` bit is changed; all other bits are preserved, and volmark refuses a volume with bits outside `VOLUME_FLAGS_MASK`, which `ntfs_volume_write_flags()` would drop [V:S25].
+5. Volmark mounts with `NTFS_MNT_FORENSIC` and no `RDONLY`. In `volume.c` `ntfs_device_mount` that skips the check block that also contains `fix_txf_data()`, so volmark writes nothing but the `$Volume` record; the `$TXF_DATA` fix-up moves to the worker's mount, after the flag is set (audit M1-recheck N-03). Volmark runs the hibernation and `$LogFile` refusals itself with the public functions `ntfs_volume_check_hiberfile()`, `ntfs_check_logfile()` and `ntfs_is_logfile_clean()` plus the restart-page 2.0 test [V:S25].
+6. The flag write is two writes: `ntfs_mft_records_write()` (`mft.c`) writes record 3 to `$MFT`, then to `$MFTMirr`. Every NTFS-3G mount compares the two. A cut between or inside them leaves a volume that NTFS-3G refuses (probe `corrupt`, policy `refuse`), not one that mounts read-only. No write order avoids it. This is accepted as a stated residual risk (R-33, U15): the window is two 1 KiB writes and one flush per session edge, the data region is never touched, the daemon never `SIGKILL`s volmark between its `w` and `d` progress marks, the notification names the cause, and `automount_mode=ro` removes the exposure for users who mostly read. The crash outcome of every cut point is the table in ARCHITECTURE.md section 3.6, tested by `U-VMK-07`.
 
 T-M3-12 (Opus) implements it with the kill-at-every-step tests; until it passes, the step is disabled, the journal records `marker=none`, and D3 is documented as "host-only". T-M3-01 still confirms the source finding by test; if it unexpectedly shows NTFS-3G setting the flag, the coordinator re-opens this ADR rather than dropping the marker.
 
@@ -251,11 +255,19 @@ T-M3-12 (Opus) implements it with the kill-at-every-step tests; until it passes,
 
 ## ADR-014 Device sync
 
-**Decision.** At every sync point (FUSE fsync/fsyncdir, flush on close, unmount, and the daemon's post-exit step) the device descriptor gets `fcntl(F_FULLFSYNC)`, falling back to `fsync` when the device rejects it. The `sync` mount option of NTFS-3G (synchronous device writes) is evaluated in T-M3-10 and enabled if the throughput cost is below 30 percent on the sequential-write benchmark.
+**Facts** [V:S25]. In `libntfs-3g/unix_io.c`, `ntfs_fsync()` issues `fcntl(fd, F_FULLFSYNC)` on `__APPLE__`; if that call fails for any reason it calls plain `fsync(fd)` and returns that result, with no message. Both the device sync operation (`ntfs_device_unix_io_sync()`) and the close path (`ntfs_device_unix_io_close()`, when the device is dirty) use it. The earlier plan for a patch 0002 that adds `F_FULLFSYNC` rested on a wrong premise (audit M1-recheck N-06).
 
-**Reason.** Guarantee D1 depends on the drive cache being flushed; plain `fsync` on macOS does not do that.
+**Decision.**
 
-**Consequences.** Slower close on spinning USB disks. Measured and reported in the benchmark output.
+1. No patch adds `F_FULLFSYNC`; patch 0002 is withdrawn.
+2. The fallback is made visible: patch 0006 writes `W fullfsync <errno>` on the session channel whenever `ntfs_fsync()` falls back (ADR-018). It does not change the return value, because failing every sync on a drive that lacks `F_FULLFSYNC` would make such drives unusable without making them safer.
+3. The daemon's own post-exit sync and volmark's step 5 use `fcntl(F_FULLFSYNC)` with the same fallback and record whether it was used.
+4. A clean report says the drive cache was flushed only when no `W` record arrived and neither the daemon nor volmark fell back (ARCHITECTURE.md section 4.5, D1).
+5. The `sync` mount option of NTFS-3G (synchronous device writes) is evaluated in T-M3-10 and enabled if the throughput cost is below 30 percent on the sequential-write benchmark.
+
+**Reason.** Guarantee D1 depends on the drive cache being flushed; plain `fsync` on macOS does not do that, and a silent fallback would let D1 be claimed when it is false.
+
+**Consequences.** Slower close on spinning USB disks (from upstream behaviour, measured in T-M3-10). Drives that reject `F_FULLFSYNC` get a weaker "all data written" report. One patch less to carry (R-06).
 
 ## ADR-015 Local-only CI and build artifacts
 
@@ -278,7 +290,9 @@ T-M3-12 (Opus) implements it with the kill-at-every-step tests; until it passes,
 
 **Decision.**
 
-1. The daemon parses the probe output with a strict parser in `src/sanitize/`: at most 64 KiB, valid UTF-8, no `\u0000`, no duplicate keys, known keys and enum values only. Any failure gives state `unknown` (read-only).
+1. The daemon parses the probe output with a strict parser in `src/sanitize/`: at most 64 KiB, valid UTF-8, no `\u0000`, no duplicate keys, known keys and enum values only, and the per-field grammar of ARCHITECTURE.md section 3.1 (types, ranges, lengths, character sets; `serial` and `logfile_lsn` exactly `0x` and 16 upper-case hex digits). Any failure gives state `unknown` (read-only).
+   - `serial` and `logfile_lsn` are converted to 64-bit integers and the input strings are discarded. Every file name and every displayed serial is formatted by the daemon from the integer (journal entry `<16 hex>`, tombstone `cleared/<16 hex>-<UTC>`), and created relative to an `O_NOFOLLOW` directory descriptor (audit M1-recheck N-02).
+   - The probe sends no human text. `reasons` is replaced by `reason_codes`, an array of enum codes from `include/ntfsmac/probe.h`; the daemon and the CLI map codes to their own fixed text, so no probe byte can reach a terminal, a notification or a log line except the sanitised label.
 2. The label sanitiser maps the raw label to `<leaf>`:
 
 | Rule | Detail |
@@ -291,12 +305,12 @@ T-M3-12 (Opus) implements it with the kill-at-every-step tests; until it passes,
 | Fallback | Empty result: `NTFS-<last 8 hex digits of the serial>`. |
 | Collisions | `/Volumes/<leaf>` is created with `mkdirat` relative to an `O_NOFOLLOW` descriptor of `/Volumes`; on `EEXIST` the daemon tries `<leaf> 2` to `<leaf> 99`; it never reuses an existing directory and removes only the directory it created (device and inode checked). |
 
-3. The sanitised leaf is the only form of the label that leaves the sanitiser: mount point, `volname` (if T-M2-04 shows it is needed, U14), journal, `list` replies, CLI output and notifications. The raw label is not logged except hex-encoded in debug logs.
+3. The sanitised leaf is the only form of the label that leaves the sanitiser: mount point, `volname` (if T-M2-04 shows it is needed, U14), journal, `list` replies, CLI output and notifications. The raw label is not logged except hex-encoded in debug logs. No other probe string leaves the parser at all (decision 1).
 4. `argv_check()` re-parses the complete worker vector before every spawn and refuses it unless it matches the allow-list and per-key grammars (ARCHITECTURE.md section 3.3, rules 1 to 7). It is independent of the option builder: different source file, written against the same specification, and fuzzed.
 
 **Proof that `volname=<leaf>` is safe.** The option metacharacters are `,` and `=` (`ntfs-3g`), `,` and `\` (libfuse), plus NUL and control bytes; the path metacharacters are `/`, NUL and, in Finder, `:`. None is in the sanitiser's output alphabet, and `argv_check()` rule 3 checks the same property at run time. If either check is ever weakened, `volname` is dropped and the leaf is still safe as a path argument because it is a separate `argv` element.
 
-**Consequences.** Some labels display differently from Windows (for example `Backup,2026` becomes `Backup_2026`). Tested by `U-LABEL-*`, `U-ARGV-*`, `U-VERDICT-*`, `F-SANITIZE-*` and `I-DMN-18` (TEST_STRATEGY.md section 4). Task T-M3-19.
+**Consequences.** Some labels display differently from Windows (for example `Backup,2026` becomes `Backup_2026`). Tested by `U-LABEL-*`, `U-ARGV-*`, `U-VERDICT-*` (including `U-VERDICT-05` for hostile serials and reason codes), `F-SANITIZE-*` and `I-DMN-18` (TEST_STRATEGY.md section 4). Task T-M3-19; the journal naming rule is tested in T-M3-13 (`U-JRN-*`).
 
 ## ADR-017 Clearing the session journal; repair
 
@@ -309,32 +323,81 @@ T-M3-12 (Opus) implements it with the kill-at-every-step tests; until it passes,
 | Clear on evidence that another system checked the volume: our flag was set and is now clear, and the `$LogFile` sequence number moved (chosen, gated) | Matches what Windows `chkdsk` does; does not fire on a lost flag write alone. Needs U12 and U13 confirmed. |
 | Explicit, confirmed user command (chosen) | Always available; the user takes the decision with a stated warning. |
 
-**Decision.** Four clearing paths, specified in ARCHITECTURE.md section 3.5: (1) clean end of our own session; (2) the external-check evidence rule, shipped disabled until T-M3-01 confirms U13 and the Windows step of T-M5-10 confirms U12, and even then only effective from the next decision, never on the attach where it fires; (3) `ntfsmac journal-clear`, allowed only when a fresh probe returns exactly `clean`; (4) a successful `ntfsmac repair --clear-dirty`. Paths 3 and 4 are control requests `journal_clear` and `repair` (ARCHITECTURE.md section 3.4), `admin` only, with the sanitised label and the last 8 hex digits of the serial typed by the user. Cleared entries are kept as tombstones for `doctor`.
+**Decision.** Four clearing paths, specified in ARCHITECTURE.md section 3.5: (1) clean end of our own session; (2) the external-check evidence rule, shipped disabled until T-M3-01 confirms U13 and the Windows step of T-M5-10 confirms U12, and even then only effective from the next decision, never on the attach where it fires; (3) `ntfsmac journal-clear`, allowed only when a fresh probe returns exactly `clean`; (4) a successful `ntfsmac repair --clear-dirty`. Paths 3 and 4 are control requests `journal_clear` and `repair` (ARCHITECTURE.md section 3.4), authorised as in ADR-019 (not a spawned process, signed CLI, administrator password per request), with the sanitised label and the last 8 hex digits of the serial typed by the user as a guard against mistakes. Cleared entries are kept as tombstones for `doctor`.
 
 `repair --clear-dirty`:
 
 | Item | Rule |
 |---|---|
-| Allowed when | Fresh probe `state` exactly `dirty_flag`, `logfile` `clean`, no hibernation, and `VOLUME_IS_DIRTY` the only flag set; volume not mounted. Otherwise refused with the reason (run Windows `chkdsk`). |
+| Allowed when | Fresh probe `state` exactly `dirty_flag`, `logfile` `clean`, no hibernation, and `VOLUME_IS_DIRTY` set with no other flag except the informational `VOLUME_MODIFIED_BY_CHKDSK` and `VOLUME_MOUNTED_ON_NT4`; volume not mounted. Otherwise refused with the reason (run Windows `chkdsk`). |
+| Leftover `chkdsk` flags | A lone `VOLUME_MODIFIED_BY_CHKDSK` does not make a volume `dirty_flag` (ARCHITECTURE.md section 3.1 check 3), so a `chkdsk` that leaves it set does not trap the volume read-only: `journal-clear` (fresh probe `clean`) is available. No NTFS-3G or ntfsprogs code clears that bit (`layout.h` defines it; `ntfsinfo.c` only prints it) [V:S25], so treating it as dirty would have recreated the M1 deadlock (audit M1-recheck N-04). `H-USB-08` records the flags `chkdsk /f` leaves; `H-USB-09` checks that a plain Windows mount leaves our flag set. |
 | Who writes | `ntfsmac-volmark clear-repair`, `nobody`, sandboxed, on a daemon-opened `O_RDWR` descriptor (ARCHITECTURE.md section 3.6). `ntfsfix` is not run: besides clearing the flag it also empties `$LogFile` and rewrites `$MFTMirr` and `$UpCase` when it finds differences [V:S25, `ntfsprogs/ntfsfix.c`]. |
 | Warning | Always: "this does not check or repair the file system". If a journal entry exists: "this Mac left the volume open on <date>; files written in that session may be incomplete or damaged; Windows `chkdsk` is strongly preferred". The user must type the confirmation after the warning. |
 | After success | Journal entry removed (path 4). The volume is not remounted automatically; the next `mount` decides with a fresh probe. |
 
 **What this does not guarantee.** The probe output that feeds every gate comes from untrusted data. A crafted volume can satisfy the gates; it could equally probe `clean` with no journal entry, so these paths add no new exposure against a hostile disk. They protect only against our own unclean sessions.
 
-**Consequences.** The user has a defined way back to read/write after `chkdsk`. Tests `U-POL-*` (gates), `U-JRN-*`, `I-DMN-19`, `I-DMN-20`, `I-DMN-21`, `H-USB-08`. Task T-M4-14.
+**Consequences.** The user has a defined way back to read/write after `chkdsk`. Tests `U-POL-*` (gates, including the informational-flag cases), `U-JRN-*`, `I-DMN-19`, `I-DMN-20`, `I-DMN-21`, `H-USB-08`, `H-USB-09`. Task T-M4-14.
 
-## ADR-018 How the daemon learns of a device write error
+## ADR-018 How the daemon learns of a device write error, and how a session proves it ended cleanly
 
-**Context.** The architecture promised that the daemon "marks the session failed after the first write error", but the worker is stock `ntfs-3g`, FSKit drops close errors on macOS 27 [V:S1], and nothing reported device errors to the daemon (audit M1, C6).
+**Context.** The architecture promised that the daemon "marks the session failed after the first write error", but the worker is stock `ntfs-3g`, FSKit drops close errors on macOS 27 [V:S1], and nothing reported device errors to the daemon (audit M1, C6). The first version of this decision called a session clean on "worker exit 0 and no error record". The re-check showed that this fails open (audit M1-recheck N-01): `src/ntfs-3g.c` `main()` sets `err = 0` after `fuse_loop()` returns, whatever happened, and `ntfs_close()` only logs a failed `ntfs_umount()` [V:S25]; and a channel that is not set, not patched, lost or leaked is also silent. The channel was also unbounded and could leak into other processes (N-07).
 
 | Option | Assessment |
 |---|---|
-| Worker exit status only | Arrives at the end of the session; a session with a lost write could still be reported clean if the worker exits 0. Kept as a second signal. |
+| Worker exit status only | Exit status is 0 after every `fuse_loop()` return [V:S25]. Not evidence. Kept as a necessary condition. |
 | Parse the worker's log | NTFS-3G log text is not a stable interface, and not every device failure is logged with a distinguishable message [A]. Rejected. |
 | FUSE-level error counters | Not available from the closed macFUSE FSModule. Rejected. |
-| Small patch in the Unix device layer writing one line per device failure to an inherited descriptor (chosen) | Device layer only, like patches 0002 and 0004; no change to allocation, MFT or index code; independent of FSKit. |
+| Error records only, clean when none arrive | Fails open on every channel failure (N-01). Rejected. |
+| Small patch writing error records plus positive start and clean-unmount records to an inherited descriptor (chosen) | Device layer plus two hooks in `src/ntfs-3g.c`; no change to allocation, MFT or index code; independent of FSKit; silence means unclean. |
 
-**Decision.** Patch 0006: in `libntfs-3g`'s Unix device operations, a failed or short `pwrite`, or a failed device sync, writes `E <op> <errno>\n` to the descriptor in `NTFSMAC_ERRFD` (ignored if unset). The daemon owns the pipe and reacts as specified in ARCHITECTURE.md section 7 (journal `state=write_error`, notification, unmount request; the session can no longer end cleanly). A clean unmount is reported to the user only with zero records.
+**Decision.** Patch 0006, specified in ARCHITECTURE.md section 7:
 
-**Consequences.** One more patch to carry and re-base on each NTFS-3G update; Opus review at merge (R-06). Errors that never reach the worker (FSKit buffer-cache write-back failures) remain invisible (N2, N3). Tests `I-ERR-01..03`, `I-DMN-24`. Tasks T-M3-18, T-M4-13.
+1. Records `S rw|ro` (after `mount_fuse()` succeeded in `main()`), `E <op> <errno>` (failed or short device write, failed device sync or close in `unix_io.c`, failed `ntfs_umount()` in `ntfs_close()`), `W fullfsync <errno>` (the silent fallback in `ntfs_fsync()`, ADR-014) and `U <n>` (in `ntfs_close()`, only when `ntfs_umount()` returned 0; `n` counts the `E` records attempted).
+2. A session is clean only on positive proof: `S rw` first, `U 0` last, no `E`, channel within bounds and at end-of-file after the worker exit, unmount seen before the exit, session not re-adopted after a daemon restart, exit status 0. Anything else, including silence, is unclean and keeps the journal entry and the on-disk marker.
+3. Bounds: records at most 32 bytes, at most 64 per session, strict grammar; on a violation the session is unclean and the daemon keeps draining into a fixed buffer without closing the read end. No unbounded buffer exists in the root daemon.
+4. Descriptor hygiene: daemon descriptors `O_CLOEXEC`; every spawn uses `POSIX_SPAWN_CLOEXEC_DEFAULT` with explicit file actions; the worker sets `FD_CLOEXEC` on the channel and writes non-blocking. End-of-file must arrive within 2 s of the worker exit.
+
+**What this does not guarantee.** A compromised worker can forge `S rw` and `U 0`. That only makes its own volume look clean, which it can already achieve by writing that device; it is the residual risk of section 6 and D2. Errors that never reach the worker (FSKit buffer-cache write-back failures) remain invisible (N2, N3).
+
+**Consequences.** One more patch to carry and re-base on each NTFS-3G update, now touching `src/ntfs-3g.c` as well as `unix_io.c`; Opus review at merge (R-06). A broken channel turns every session unclean, so a packaging or spawn mistake shows up as "read-only next time", which `I-DMN-24` tests. Tests `I-ERR-01..07`, `I-DMN-24`. Tasks T-M3-18, T-M4-13.
+
+## ADR-019 Authorising journal clearing and repair
+
+**Context.** `journal_clear` and `repair` let an unsafe volume reach `rw` on a later attach. They were gated by `admin` membership (`LOCAL_PEERCRED`) and by typing the sanitised label and the last 8 hex digits of the serial. Both values are published by `list` and `status` to every peer, and on a typical Mac the console user is an administrator, so every process of that user, including a compromised worker, passed the check (audit M1-recheck N-05). The sandbox that would stop the worker is [A] (T-M4-06), and the stated fallback is uid separation only.
+
+| Option | Assessment |
+|---|---|
+| Typed confirmation only | Not a boundary: the values are public. Kept as a guard against mistakes. |
+| Root-only requests (`sudo ntfsmac ...`) | Stops other users' processes but not a compromised process of an admin user who has a cached `sudo` ticket; also makes the normal path need a terminal. Rejected as the only control. |
+| Refuse peers that are spawned processes, require the signed CLI, and require a per-request administrator authentication validated by the daemon (chosen) | Each part closes one path: the worker and its children; any other process of the user; and any process without a human present. Uses public APIs. |
+
+**Decision.** For `journal_clear` and `repair` the daemon requires, in this order (ARCHITECTURE.md section 3.4):
+
+1. Peer uid in `admin` (`LOCAL_PEERCRED`).
+2. Peer is not a process the daemon spawned, nor a descendant of one. Every spawn gets its own process group; the daemon checks the peer's process group and parent chain (`LOCAL_PEERPID`, `proc_pidinfo`).
+3. Peer executable is the installed, hardened-runtime `ntfsmac` CLI, checked from the peer's audit token against the code requirement recorded at install time (Developer ID team for release builds, exact cdhash for ad-hoc development builds).
+4. A fresh administrator authentication: the CLI acquires the right `org.ntfs-macos.journal-modify` (rule `authenticate-admin-nonshared`, timeout 0, created by the package's `postinstall` with `AuthorizationRightSet` and removed by the uninstaller) and sends the external form; the daemon calls `AuthorizationCopyRights` on it itself. No cached credential can satisfy the rule.
+5. The typed label and serial, and the policy gates.
+
+The worker sandbox also denies `connect()` to the control socket; the boundary no longer depends on it. Plain `mount` and `unmount` keep the console-user-or-`admin` rule: a `rw` mount only follows a fresh `clean` probe with no journal entry, so it cannot turn an unsafe volume writable.
+
+**Gate.** T-M4-04 verifies on macOS 27 that the daemon can validate the external form, how the prompt behaves without a GUI session (U17), and that the code-requirement check works for ad-hoc development builds [A]. If Authorization Services cannot be used from the daemon, the fallback is a root-only request (`sudo`) plus checks 2 and 3, recorded as a residual risk in R-34.
+
+**Consequences.** One password prompt per `journal-clear` or `repair`. The package installs one authorization right (a new entry, not a change to an existing system right; no security setting is lowered). Tests: `I-DMN-19`, `I-DMN-21` and ctl tests in T-M4-04 cover refusal of a spawned-process peer, an unsigned or re-signed client, and a missing or cached authorization. Audit T-M4-12 checks this boundary. Risk R-34.
+
+## ADR-020 Binding the probed volume to the opened device
+
+**Context.** The probe verdict (serial, total sectors, state) decided the mode, but the daemon then opened the device again and volmark and the worker never re-checked that it was the same volume (audit M1-recheck N-08). A disk swapped between the two opens, a BSD name reused by another device, or another driver mounting the disk in between would make the journal entry name one volume while another is flagged and written.
+
+| Option | Assessment |
+|---|---|
+| Open once `O_RDWR` and give the probe a read-only view of it | Not possible: on macOS, opening `/dev/fd/N` shares the open file description, so the probe would hold a writable descriptor and D2 would be lost [A]. Rejected. |
+| Re-run the probe on the writable descriptor | Gives a parser of hostile data a writable descriptor. Rejected. |
+| Reuse the probe descriptor for `ro`; for `rw` open the writable descriptor while the probe's is still open and compare device number and a hash of the first 4096 bytes; volmark checks the expected serial and size; Disk Arbitration shows no other mount (chosen) | No NTFS parsing in the daemon (a hash compare only); the checks that need NTFS parsing run in the unprivileged volmark. |
+
+**Decision.** ARCHITECTURE.md section 4.1 step 6: (1) `ro` sessions use the probe's own descriptor; (2) for `rw`, `st_rdev` of both descriptors equal and the first 4096 bytes hash to the value read before the probe ran, then the probe descriptor is closed; (3) volmark gets `--expect-serial` and `--expect-sectors`, formatted from the parsed verdict, and exits 15 on a mismatch with the boot sector; (4) the hash is checked again after volmark; (5) before any `O_RDWR` open, the Disk Arbitration description shows no mount path for the disk [A: U18]. Any mismatch gives `ro` or `Failed`, never `rw`.
+
+**What this does not guarantee.** A device whose firmware answers the same reads differently at different times defeats any binding; it can equally change its content during a session. That is the hostile-disk exposure of D2.
+
+**Consequences.** One extra 4 KiB read per attach and one per volmark run. Tests `I-DMN-25` (swap between probe and mount, simulated by re-attaching another image under the same BSD name; and a volume already mounted by another driver) and `U-VMK-09` (volmark with wrong expected values). Tasks T-M4-14, T-M3-12, T-M4-02. Risk R-35.

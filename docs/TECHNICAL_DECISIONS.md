@@ -37,7 +37,7 @@ Status values: **Accepted**, **Accepted, gated** (a named task can overturn it),
 | A | NTFS-3G on **macFUSE FSKit backend** | No kext, no Reduced Security. macFUSE's module is already signed and notarized, so this project needs no restricted entitlement and no Xcode to develop [V:S3]. NTFS-3G's FUSE glue is reused unchanged. 5.5.0 targets the macOS 27 SDK, adds Finder eject for `local` volumes, read-only mounts, `FUSE_FLUSH` on close, a corruption mitigation [V:S1]. Works in VMs in principle (user space). | FSKit backend is not at parity: no FUSE notification API, most kernel mount options missing, slower than the kext [V:S2]. No per-file fsync; close errors lost [V:S1]. libfuse2 support for `backend=fskit` is unproven [V:S5][V:S6][V:S9]. Closed-source module. User must install macFUSE and approve its extension. Volume is not owned by Disk Arbitration as a block-device file system, so automount needs our daemon. |
 | B | NTFS-3G on **macFUSE kernel backend** | Full feature set, best performance, real fsync path, 15 years of use [V:S2]. | Apple silicon needs Recovery Mode and Reduced Security to allow third-party kexts [V:S3]. Kexts do not load in VMs, so Environment B could not test it [V:S3]. Conflicts with "no unnecessary kernel modifications". |
 | C | NTFS-3G on **fuse-t** (NFS or its FSKit module) | Already on the host (1.2.9, module `org.fuset.fskit-srv.module`) [V:S17]. libfuse-compatible. | Closed source. Binary licence: free for non-commercial use, commercial use or bundling needs a paid licence [V:S17]. NFS backend has NFS client caching semantics. Not named by the brief. A second closed dependency with a smaller user base. |
-| D | **Native FSKit module** linking `libntfs-3g` (no FUSE layer): `FSUnaryFileSystem` + `FSBlockDeviceResource` | Removes the macFUSE dependency. FSKit hands the module the block device, so no root broker is needed [V:S16]. Proper `fsck`/format hooks (`FSManageableResourceMaintenanceOperations`). Commercial products ship this design (vendor claims) [V:S19]. | New code: every `FSVolume` operation must be re-implemented against `libntfs-3g` (the equivalent of `src/ntfs-3g.c`, about 4,500 lines of data-path glue), which is exactly where data-loss bugs come from. Needs full Xcode and the restricted entitlement `com.apple.developer.fskit.fsmodule`, authorised by a provisioning profile, so an Apple Developer Program membership is needed even to run a development build [A: stated in an Apple forum answer surfaced by a web search and not opened directly; whether a Developer ID profile can carry the entitlement is U]. Automount is still masked by Apple's read-only NTFS kext, and third-party modules had permission failures on physical disks in 2025 with no fixed release named [V:S14]. Same FSKit durability limits as A. `libntfs-3g` is GPL, which is incompatible with Mac App Store distribution terms [A]. |
+| D | **Native FSKit module** linking `libntfs-3g` (no FUSE layer): `FSUnaryFileSystem` + `FSBlockDeviceResource` | Removes the macFUSE dependency. FSKit hands the module the block device, so no root broker is needed [V:S16]. Proper `fsck`/format hooks (`FSManageableResourceMaintenanceOperations`). Commercial products ship this design (vendor claims) [V:S19]. | New code: every `FSVolume` operation must be re-implemented against `libntfs-3g` (the equivalent of `src/ntfs-3g.c`, about 4,500 lines of data-path glue), which is exactly where data-loss bugs come from. Needs full Xcode and the restricted entitlement `com.apple.developer.fskit.fsmodule`, authorised by a provisioning profile, so an Apple Developer Program membership is needed even to run a development build [A: stated in an Apple forum answer surfaced by a web search and not opened directly; whether a Developer ID profile can carry the entitlement is U]. Automount is still masked by Apple's read-only NTFS kext, and forum posters reported permission failures for third-party modules on physical disks in 2025 with no fixed release named [V:S14]. Same FSKit durability limits as A. `libntfs-3g` is GPL, which is incompatible with Mac App Store distribution terms [A]. |
 
 **Decision.** Option **A**. It is the brief's preference, it has the least new data-path code, and it is the only option that can start today without a paid developer account or Xcode.
 
@@ -55,7 +55,7 @@ Status values: **Accepted**, **Accepted, gated** (a named task can overturn it),
 
 | Option | Assessment |
 |---|---|
-| NTFS-3G 2026.9.28 | Exists; stable release of 28 Sep 2026; preceded in 2026 by two security releases (2026.7.7, 2026.9.18) and 2026.2.25 with CVE fixes [V:S10]. Actively hardened against crafted volumes. Darwin is a supported `configure` target: external FUSE by default, `fuse >= 2.6.0`, CoreFoundation-based Unicode normalisation (`nfconv`) on by default [V:S11]. Has macFUSE-specific hooks (`getxtimes`, `setcrtime`, `setchgtime`, xattr `position`) [V:S11]. |
+| NTFS-3G 2026.9.28 | Exists; stable release, tagged 28 Sep 2026 and published 29 Sep 2026 UTC; preceded in 2026 by two security releases (2026.7.7, 2026.9.18) and 2026.2.25 with CVE fixes [V:S10]. Actively hardened against crafted volumes. Darwin is a supported `configure` target: external FUSE by default, `fuse >= 2.6.0`, CoreFoundation-based Unicode normalisation (`nfconv`) on by default [V:S11]. Has macFUSE-specific hooks (`getxtimes`, `setcrtime`, `setchgtime`, xattr `position`) [V:S11]. |
 | Linux `ntfs3` (Paragon, GPL-2.0) | Kernel code tied to Linux VFS and page cache. Porting is a rewrite. Rejected. |
 | Apple `ntfs.fs` | Read-only. Not usable. |
 | New implementation | Forbidden by the brief. |
@@ -69,7 +69,7 @@ Status values: **Accepted**, **Accepted, gated** (a named task can overturn it),
 | 0001 | Build fixes for macOS 27 + macFUSE 5.5.0 (pkg-config module name, header paths, warnings) | Only if T-M2-03 shows a need |
 | 0002 | `F_FULLFSYNC` in the Darwin device-sync path | Yes (ADR-014) |
 | 0003 | Accept an inherited descriptor as the device | Only if `/dev/fd/N` fails (T-M2-05) |
-| 0004 | Test-only fault-injection device layer, compiled with `--enable-faultio`, absent from release builds | Yes (TEST_STRATEGY.md section 7) |
+| 0004 | Test-only fault-injection device layer, compiled with `--enable-faultio`, absent from release builds | Yes (TEST_STRATEGY.md section 6) |
 | 0005 | libfuse3 port of `ntfs-3g.c` | Only per ADR-001 fallback 1 |
 | 0006 | Device-error report line on `NTFSMAC_ERRFD` from the Unix device layer (ADR-018) | Yes |
 
@@ -98,9 +98,9 @@ Anything touching allocation, runlists, MFT or index code is out of scope for th
 
 | Option | Assessment |
 |---|---|
-| Run `ntfs-3g` as root (historical macOS practice) | A parser exploit is a root compromise. FSKit modules are enabled per user and root-run FSKit mounts failed for others [V:S14]. Rejected. |
-| `chown` the device node to the user | Described by Apple as a testing hack that must not ship [V:S14]. Rejected. |
-| Root broker opens the device and passes the fd to an unprivileged, sandboxed worker (chosen) | Parser never has root. Read-only decisions are enforced by the descriptor mode. macFUSE 5.2.0+ supports unprivileged and sandboxed servers through its XPC mount API [V:S6]. |
+| Run `ntfs-3g` as root (historical macOS practice) | A parser exploit is a root compromise. Forum posters report that FSKit modules are enabled per user and that root-run FSKit mounts failed [V:S14]; this is not an Apple statement (the Apple engineer says he is unsure about root mounts), so [A] until U6 is resolved. Rejected mainly on the parser-exploit ground. |
+| `chown` the device node to the user | A forum poster in the same thread calls it a testing hack that must not ship [V:S14]; that is a user's view, not Apple's. Rejected on our own grounds: it changes system device ownership persistently. |
+| Root broker opens the device and passes the fd to an unprivileged, sandboxed worker (chosen) | Parser never has root. Read-only decisions are enforced by the descriptor mode. macFUSE 5.2.0 notes say libfuse already uses the new FSKit mount API and name the Mach exception `io.macfuse.mount` that sandboxed servers need [V:S6]; they do not say unprivileged servers are supported, so that is [A] until T-M4-01. |
 
 **Decision.** Broker + fd passing. Worker uid is the console user, so the user's approval of the macFUSE extension applies.
 
@@ -217,7 +217,7 @@ T-M3-12 (Opus) implements it with the kill-at-every-step tests; until it passes,
 
 ## ADR-011 Signing, notarization, distribution
 
-**Facts.** Option A needs no restricted entitlement: the only FSKit module involved is macFUSE's, which is signed and notarized by its developer [V:S3]. macFUSE supports unsigned FUSE server binaries [V:S1, 5.5.0 fixed a crash with unsigned binaries]. `pkgbuild`, `productbuild`, `codesign` are part of base macOS; `notarytool` and `stapler` come with Xcode [A].
+**Facts.** Option A needs no restricted entitlement: the only FSKit module involved is macFUSE's, which is signed and notarized by its developer [V:S3]. Unsigned FUSE server binaries are [A] until T-M2-03 shows an ad-hoc-signed worker mounting on arm64: the 5.5.0 notes only say that a crash when mounting with unsigned binaries on Intel Macs was fixed [V:S1], and this product is arm64-only. `pkgbuild`, `productbuild`, `codesign` are part of base macOS; `notarytool` and `stapler` come with Xcode [A].
 
 **Decision.**
 
@@ -233,8 +233,8 @@ T-M3-12 (Opus) implements it with the kill-at-every-step tests; until it passes,
 
 | Topic | Decision | Reason |
 |---|---|---|
-| Ownership | All files appear owned by the console user (`uid=`, `gid=`), `dmask=0022`, `fmask=0133`. | Matches how macOS treats removable FAT/exFAT volumes (Apple's exFAT module sets `FSVolumeAlwaysIgnoreOwnership` [V:S17]). NTFS ACLs are not modified. |
-| Full POSIX mapping | Opt-in only: `permissions` or `usermapping=` with a `.NTFS-3G/UserMapping` file [V:S11]. Not tested in v1 beyond a smoke test. | Mapping errors can lock Windows users out of files. |
+| Ownership | All files appear owned by the console user (`uid=`, `gid=`), `dmask=0022`, `fmask=0133`. | Matches how macOS treats removable FAT/exFAT volumes (Apple's exFAT module sets `FSVolumeAlwaysIgnoreOwnership` [V:S17]). NTFS ACLs are not modified. Consequence: no file on the volume is executable and `chmod +x` does not persist (ARCHITECTURE.md section 9, N9; tests `I-PERM-*`). Relaxing `fmask` is a later, explicit decision. |
+| Full POSIX mapping | Opt-in only: `permissions` or `usermapping=` with a `.NTFS-3G/UserMapping` file [V:S11]. Not tested in v1 beyond a smoke test (`I-PERM-06`). | Mapping errors can lock Windows users out of files. |
 | Extended attributes | `streams_interface=xattr`: macOS xattrs are stored as NTFS named data streams [V:S11]. | Keeps Finder metadata on the volume without `._` files. T-M3-08 verifies; if Finder copy fails, fall back to `streams_interface=none` and document xattrs as unsupported. |
 | Alternate data streams | Readable and writable through the xattr interface. `streams_interface=windows` (`file:stream` syntax) is not offered. | `:` handling in macOS paths is error-prone. |
 | File names | `windows_names` on: creation of names Windows cannot open is refused [V:S11]. `nfconv` normalisation stays at NTFS-3G's Darwin default [V:S11]. Case: NTFS-3G is case-sensitive in the POSIX namespace; no `ignore_case` (that is `lowntfs-3g` only) [V:S11]. | Interoperability first. The case-sensitivity difference from Windows is documented and tested (two names differing only in case). |
@@ -263,7 +263,7 @@ T-M3-12 (Opus) implements it with the kill-at-every-step tests; until it passes,
 
 **Decision.** All continuous integration runs locally through `scripts/ci-local.sh` (TEST_STRATEGY.md section 9) in Environment A (local container), Environment B (local macOS VM) and the host (build only). Result files are committed under `tests/results/`. Builds, packages and release candidates stay in git-ignored `build/` and `dist/` on the local machine. The repository holds source, docs and test results only.
 
-**Consequences.** No automatic checks on push or on outside pull requests; the coordinator runs `ci-local.sh --quick` before every push and the full run at each milestone gate. No hosted-CI cost (risk R-22). Human action H4 is withdrawn. Publishing CI or binaries later needs a new decision by the owner.
+**Consequences.** No automatic checks on push or on outside pull requests; the coordinator runs `ci-local.sh --quick` before every push once T-M1-07 has created the minimal script (until then: `scripts/bootstrap.sh` and a manual `cmake --build` and `ctest`), and the full run at each milestone gate (T-M5-08 completes the script). No hosted-CI cost (risk R-22). Human action H4 is withdrawn. Publishing CI or binaries later needs a new decision by the owner.
 
 
 ## ADR-016 Disk-derived strings in the root daemon

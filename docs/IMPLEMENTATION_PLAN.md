@@ -25,8 +25,9 @@ Source tags `[V:Sn]`, `[A]`, `[U]` are defined in [ARCHITECTURE.md](ARCHITECTURE
 | 1.4 | CMake skeleton configures and builds an empty target on macOS (CLT) and Linux. | `cmake --preset release && cmake --build` exit 0 on both. |
 | 1.5 | Environment A image builds NTFS-3G 2026.9.28 and `mkntfs` runs on a plain file. | `vm/linux/run.sh selftest` exit 0. |
 | 1.6 | VM tool chosen and a macOS 27 guest boots headless with SSH. | `vm/macos/tart.sh selftest` prints guest `sw_vers` 27.x. |
+| 1.7 | Minimal `scripts/ci-local.sh --quick` exists (bootstrap check, configure, build, `ctest`) and exits non-zero on any failure, so the "before every push" rule of ADR-015 is real from M1. | `tests/unit/ci/*`: a deliberately broken build makes it exit 1. |
 
-**Exit gate M1:** 1.1 to 1.6 pass. Human actions H1 and H2 done.
+**Exit gate M1:** 1.1 to 1.7 pass. Human actions H1 and H2 done.
 
 ### M2 Working prototype
 
@@ -45,7 +46,7 @@ Source tags `[V:Sn]`, `[A]`, `[U]` are defined in [ARCHITECTURE.md](ARCHITECTURE
 
 | # | Acceptance criterion | Measured by |
 |---|---|---|
-| 3.1 | `ntfsmac-probe` classifies all fixture classes correctly: clean, dirty flag, unclean log, version-2 log, hibernated (`hibr`, `HIBR`, short file), BitLocker signature, non-NTFS, truncated image. Zero device writes (image hash unchanged). | Unit tests `U-PROBE-*`, 100 percent pass; hash check in each. |
+| 3.1 | `ntfsmac-probe` classifies all fixture classes correctly: clean, dirty flag, unclean log, version-2 log, hibernated (`hibr`, `HIBR`, `wake`, short file), BitLocker signature, non-NTFS, truncated image. Zero device writes (image hash unchanged). | Unit tests `U-PROBE-*`, 100 percent pass; hash check in each. |
 | 3.2 | Policy unit tests cover every row of the table in ARCHITECTURE.md section 3.2, and a test proves the option builder cannot emit `recover` or `remove_hiberfile`. | `U-POL-*`. |
 | 3.3 | Functional suite passes in the VM: create, read, write, append, truncate (shrink, extend), rename (same dir, cross dir, overwrite), delete, mkdir/rmdir, nested depth 32, 10,000 files in one directory. | `I-FUNC-*`, 100 percent pass. |
 | 3.4 | Names: Unicode (NFC, NFD, emoji, CJK, RTL), 255-unit names, case-only differences, Windows-forbidden names refused with a defined errno. | `I-NAME-*`. |
@@ -60,8 +61,9 @@ Source tags `[V:Sn]`, `[A]`, `[U]` are defined in [ARCHITECTURE.md](ARCHITECTURE
 | 3.13 | `ntfsmac-volmark` sets and clears only `VOLUME_IS_DIRTY`, refuses every unsafe fixture without writing, and a kill at every step leaves the image flagged or unchanged (ADR-006). | `U-VMK-01..08`. |
 | 3.14 | Disk-derived strings: label sanitiser, argv validator and probe-verdict parser pass their unit tests and 1 CPU-hour of fuzzing each with no finding (ADR-016). | `U-LABEL-*`, `U-ARGV-*`, `U-VERDICT-*`, `F-SANITIZE-*`. |
 | 3.15 | Patch 0006 reports every injected device write and sync error exactly once and changes nothing without `NTFSMAC_ERRFD` (ADR-018). | `I-ERR-01..03`. |
+| 3.16 | Ownership and permissions: every file and directory reports the console uid and gid and modes 0644 and 0755 (`fmask=0133`, `dmask=0022`); `chmod` and `chown` outcomes are recorded, consistent, and change no NTFS ACL or attribute; the execute-bit limitation (N9) is demonstrated; the opt-in `permissions`/`usermapping` path passes a smoke test (ADR-012). | `I-PERM-01..06`. |
 
-**Exit gate M3:** 3.1 to 3.15 pass; Opus audit (T-M3-17) of probe, policy, sanitiser, patches 0002/0004/0006 and the dirty-marker ordering finds no open data-loss issue. When 3.13 passes, the coordinator enables the marker step and updates D3 in ARCHITECTURE.md section 9.
+**Exit gate M3:** 3.1 to 3.16 pass; Opus audit (T-M3-17) of probe, policy, sanitiser, patches 0002/0004/0006 and the dirty-marker ordering finds no open data-loss issue. When 3.13 passes, the coordinator enables the marker step and updates D3 in ARCHITECTURE.md section 9.
 
 ### M4 macOS integration
 
@@ -77,8 +79,9 @@ Source tags `[V:Sn]`, `[A]`, `[U]` are defined in [ARCHITECTURE.md](ARCHITECTURE
 | 4.8 | Hostile labels never change the worker options or the mount path. | `I-DMN-18`. |
 | 4.9 | Journal clearing and repair follow ADR-017: `journal-clear`, evidence rule (both settings), `repair --clear-dirty`; the dirty marker is set during `rw` sessions and cleared only after a clean one; a failing volmark gives `ro`. | `I-DMN-19..22`. |
 | 4.10 | A probe stub that reports `clean` for unsafe fixtures causes no write; a device write error marks the session failed and suppresses the clean-unmount report. | `I-DMN-23`, `I-DMN-24`. |
+| 4.11 | Race detection: the daemon's logic modules (state machine, control-protocol handler, journal, session) run under ThreadSanitizer with concurrent drivers and report no race. Kernel, FSKit and Disk Arbitration races are out of scope for this check and are covered by the stress suites. | `U-TSAN-01..02`. |
 
-**Exit gate M4:** 4.1 to 4.10 pass in the VM; audit T-M4-12 signed. Items that the VM cannot show (real USB insertion) are listed for M5 hardware validation.
+**Exit gate M4:** 4.1 to 4.11 pass in the VM; audit T-M4-12 signed. Items that the VM cannot show (real USB insertion) are listed for M5 hardware validation.
 
 ### M5 Automated validation
 
@@ -90,7 +93,7 @@ Source tags `[V:Sn]`, `[A]`, `[U]` are defined in [ARCHITECTURE.md](ARCHITECTURE
 | 5.4 | `leaks` on the worker after the functional suite reports zero leaks from project patches; engine leaks listed. | `S-LEAK-01`. |
 | 5.5 | Low space: filling the volume gives `ENOSPC`, no mismatch in pre-existing files, volume clean after unmount. | `S-NOSPC-01`. |
 | 5.6 | Performance report with sequential, random, small-file, directory-listing numbers for this product (VM), NTFS-3G on Linux (same image, same VM host), and CPU and memory use. Regressions above 2x against the Linux reference are explained. | `P-*`, `docs/PERFORMANCE.md`. |
-| 5.7 | Full local CI run (`scripts/ci-local.sh`, TEST_STRATEGY.md section 9) green for Environments A and B and the host build. | Result file committed under `tests/results/` for the gate commit. |
+| 5.7 | Full local CI run (`scripts/ci-local.sh`, TEST_STRATEGY.md section 9) green for Environments A and B and the host build. | Result file under `tests/results/` that covers the gate commit by the rule "result for the exact commit" in TEST_STRATEGY.md section 10. |
 | 5.8 | Environment C protocol executed on disposable media: USB insert, read/write, eject, unplug during write, Windows `chkdsk` after each scenario. | `docs/HARDWARE_TEST_PROTOCOL.md` results, signed by the human. |
 
 **Exit gate M5:** 5.1 to 5.7 pass. 5.8 passes, or is recorded as "not done" and the release is labelled "VM-verified only, not production-ready" (brief section 9).
@@ -103,8 +106,9 @@ Source tags `[V:Sn]`, `[A]`, `[U]` are defined in [ARCHITECTURE.md](ARCHITECTURE
 | 6.2 | Two builds from the same commit give byte-identical binaries, or the differences are listed and explained. | `scripts/repro-check.sh`. |
 | 6.3 | Install and uninstall tested on a fresh VM clone; `pkgutil --files` matches the manifest. | `I-PKG-03..04`. |
 | 6.4 | Signed and notarized package passes `spctl -a -t install` (only if credentials exist; otherwise recorded as unsigned per ADR-011). | Command output. |
-| 6.5 | Source release archive contains this repository, the NTFS-3G tarball and the patch series (GPL obligation). | `scripts/make-source-release.sh` + checksum file. |
-| 6.6 | `docs/INSTALL.md` and `docs/LIMITATIONS.md` exist; limitations include N1 to N8 from ARCHITECTURE.md section 9. | Audit check. |
+| 6.5 | Source release archive contains this repository, the NTFS-3G tarball and the patch series (GPL obligation; required before any binary is distributed, ADR-015). | `scripts/make-source-release.sh` + checksum file. |
+| 6.6 | `docs/INSTALL.md` and `docs/LIMITATIONS.md` exist; limitations include N1 to N9 from ARCHITECTURE.md section 9. | Audit check. |
+| 6.7 | Independent audit of the installer scripts that run as root, the package contents and the uninstall manifest. | `docs/audits/M6.md` (T-M6-06). |
 
 ### M7 Release readiness
 
@@ -113,7 +117,7 @@ Source tags `[V:Sn]`, `[A]`, `[U]` are defined in [ARCHITECTURE.md](ARCHITECTURE
 | 7.1 | Independent Opus review of every change to the data path, probe, policy and daemon privilege code since M3. | `docs/audits/M7.md`. |
 | 7.2 | Zero open findings with severity "data corruption" or "privilege escalation". | Risk register and issue list. |
 | 7.3 | `docs/RELEASE_READINESS.md` has a row for every Definition-of-Done item with status and evidence link. | Document. |
-| 7.4 | Full suite re-run on the release commit. | Result file with the release SHA. |
+| 7.4 | Full suite re-run on the release commit. | Result file that covers the release commit by the same rule (TEST_STRATEGY.md section 10). |
 
 ## 3. Pinned dependencies
 
@@ -161,8 +165,8 @@ M3 and M4 run in parallel after the M2 gate: M3 work is in `src/probe`, `src/pol
 | Work | Model |
 |---|---|
 | All tasks by default | Sonnet 5.5 |
-| Reviews marked "Opus review" in AGENT_TASKS.md (probe checks, patches 0002/0004/0005/0006, label sanitiser and argv validator, daemon session ordering, sandbox profile, crash-sweep findings, M3/M5/M7 audits) | Opus 5.5, one bounded review each, input limited to the diff and the named design section |
+| Reviews marked "Opus review" in AGENT_TASKS.md (probe checks, patches 0002/0003/0004/0005/0006 (0001 is build-only), label sanitiser and argv validator, daemon session ordering, sandbox profile, crash-sweep findings, M3/M5/M7 audits) | Opus 5.5, one bounded review each, input limited to the diff and the named design section |
 | `ntfsmac-volmark` (T-M3-12) | Opus 5.5 does the task |
 | Fable | Not used after this document set |
 
-Expected Opus invocations for the whole project: 13 to 17. Each is listed in AGENT_TASKS.md so the coordinator can budget them.
+Expected Opus invocations for the whole project: 13 to 17 (16 counted in the AGENT_TASKS.md budget table, including the conditional reviews of T-M2-03b and T-M2-05). Each is listed in AGENT_TASKS.md so the coordinator can budget them.

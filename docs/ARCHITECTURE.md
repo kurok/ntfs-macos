@@ -16,7 +16,7 @@ Fact labels used in all six documents:
 
 | Question | Answer |
 |---|---|
-| Is read/write NTFS on macOS 27 with NTFS-3G over the macFUSE FSKit backend achievable? | Probably yes. Both named versions exist: macFUSE 5.5.0 (17 Oct 2026) and NTFS-3G 2026.9.28 (29 Sep 2026) [V:S1][V:S10]. macFUSE 5.5.0 is built with the macOS 27 SDK and its FSKit backend supports local volumes, read-only mounts, xattrs, preallocation and Finder eject [V:S1]. No source shows NTFS-3G itself running on that backend, so the end-to-end path is unproven until milestone M2. |
+| Is read/write NTFS on macOS 27 with NTFS-3G over the macFUSE FSKit backend achievable? | Probably yes. Both named versions exist: macFUSE 5.5.0 (17 Oct 2026) and NTFS-3G 2026.9.28 (tagged 28 Sep 2026, published 29 Sep 2026 UTC) [V:S1][V:S10]. macFUSE 5.5.0 is built with the macOS 27 SDK and its FSKit backend supports local volumes, read-only mounts, xattrs, preallocation and Finder eject [V:S1]. No source shows NTFS-3G itself running on that backend, so the end-to-end path is unproven until milestone M2. |
 | Is "full durability" achievable? | No. FSKit has no per-file `fsync` callback, and on macOS 27 its close callback cannot return an error, so a failed flush never reaches `close(2)` [V:S1]. Durability is guaranteed only at volume-level sync points and at clean unmount (section 9). |
 | Is Intel support achievable? | No, for macOS 27+. macOS 27 runs on Apple silicon only [V:S22, press coverage; confirm on Apple's compatibility page]. The release is arm64-only (ADR-009). |
 | Is it "minimal installation"? | Partly. The user must install macFUSE separately and approve its file system extension once in System Settings. No kernel extension, no Reduced Security, no SIP change. |
@@ -127,15 +127,15 @@ Every field is derived from untrusted on-disk data by a parser that must be assu
 | 3 | I/O error reading the device (daemon treats the volume as `unknown`). |
 | 4 | Internal error or timeout (daemon treats the volume as `unknown`). |
 
-Checks, in order. Each uses `libntfs-3g` opened with `NTFS_MNT_RDONLY | NTFS_MNT_FORENSIC`, which skips the hibernation and log checks inside the library and performs no writes [V:S11]:
+Checks, in order. Each uses `libntfs-3g` opened with `NTFS_MNT_RDONLY | NTFS_MNT_FORENSIC`, which skips the hibernation and log checks inside the library and performs no writes [V:S11]. (In `volume.c` that check block is guarded by `!(flags & (RDONLY | FORENSIC))`, so `RDONLY` alone already skips it; `FORENSIC` additionally skips the `$TXF_DATA` fix-up. Both flags are passed so that the probe does not depend on that detail. This is not a reason to believe `FORENSIC` is required for safety.)
 
 | # | Check | Source of truth | Result |
 |---|---|---|---|
 | 1 | Boot sector OEM ID `NTFS    `; `-FVE-FS-` means BitLocker | bytes 3..10 of sector 0 | `unsupported` if not NTFS or BitLocker |
 | 2 | `ntfs_mount` read-only succeeds | `libntfs-3g` | `corrupt` on failure |
 | 3 | `$Volume` flags: `VOLUME_IS_DIRTY`, `VOLUME_MODIFIED_BY_CHKDSK`, upgrade/resize flags | `vol->flags` | `dirty_flag` |
-| 4 | `$LogFile`: `ntfs_check_logfile` + `ntfs_is_logfile_clean`; restart page major version 2 | `logfile.h` API; version-2 rule is the same one `volume.c` applies [V:S11] | `unclean_log` or `fast_startup` |
-| 5 | `/hiberfil.sys`: absent is safe; size < 4096 or header `hibr`/`HIBR` is hibernated | same rule as `ntfs_volume_check_hiberfile` [V:S11] | `hibernated` |
+| 4 | `$LogFile`: `ntfs_check_logfile` + `ntfs_is_logfile_clean`; restart page version 2.0 (major 2 and minor 0) | `logfile.h` API; the 2.0 rule is the one `volume.c` applies [V:S11] | `unclean_log` or `fast_startup` |
+| 5 | `/hiberfil.sys`: absent is safe; size < 4096 or header `hibr`/`HIBR` is hibernated; header `wake`/`WAKE` (a resume in progress) is also treated as `hibernated` | the `hibr`/`HIBR` and size rule of `ntfs_volume_check_hiberfile` [V:S11]; the engine does not recognise `wake`/`WAKE` (decision: the probe is deliberately stricter than the engine, which can only make a volume read-only) | `hibernated` |
 | 6 | Anything unexpected (unknown NTFS version, check could not run) | | `unknown` |
 
 `state` is the most severe finding in the order `unsupported > corrupt > hibernated > fast_startup > unclean_log > dirty_flag > unknown > clean`.
@@ -301,7 +301,7 @@ Until T-M3-12 passes, the marker step is disabled (`marker=none` in the journal)
 ### 4.2 Read
 
 `read(2)` -> VFS -> FSKit (unified buffer cache; a cached page returns without reaching the module) -> macFUSE FSModule -> `FUSE_READ` -> `ntfs-3g` `ntfs_fuse_read` -> `libntfs-3g` runlist lookup -> `pread` on the device fd.
-macFUSE 5.5.0 turns an empty `FUSE_READ` reply into `EIO` and zero-fills short-read tails to mitigate an FSKit corruption bug [V:S1][V:S7]. NTFS-3G must therefore never answer a non-EOF read with zero bytes; T-M3-07 tests reads at and across EOF.
+macFUSE 5.5.0 rejects an empty `FUSE_READ` reply with `EIO` [V:S1]; a module crash on empty replies, fixed in 5.4.0, is described in [V:S7]. Neither source says anything about zero-filling short reads, so no such behaviour is assumed. NTFS-3G must never answer a non-EOF read with an empty reply; T-M3-07 tests reads at and across EOF, including short reads, and records what the backend returns.
 
 ### 4.3 Write
 
@@ -343,7 +343,7 @@ Advisory locks: the FSKit backend does not forward `fcntl`/`flock` locks to the 
 
 ## 6. Security model
 
-Threat: a malicious or corrupt NTFS volume (the user plugs in an untrusted USB drive). NTFS-3G had four security releases in 2026 fixing heap overflows, use-after-free and out-of-bounds bugs triggered by crafted volumes [V:S10]. The metadata parser must be assumed exploitable.
+Threat: a malicious or corrupt NTFS volume (the user plugs in an untrusted USB drive). NTFS-3G had two releases labelled Security Release in 2026 (2026.7.7, 2026.9.18) and two further releases with a CVE or memory-safety fixes (2026.2.25, 2026.9.28), fixing heap overflows, use-after-free and out-of-bounds bugs triggered by crafted volumes [V:S10]. The metadata parser must be assumed exploitable.
 
 | Control | Detail |
 |---|---|
@@ -354,7 +354,7 @@ Threat: a malicious or corrupt NTFS volume (the user plugs in an untrusted USB d
 | Least access | Read-only decisions get an `O_RDONLY` descriptor, so once the probe has classified a volume as unsafe, a later bug in the worker or volmark cannot write to it. This does not protect against a probe that is fooled into reporting `clean` (section 9, D2). |
 | Option allow-list | The daemon builds the worker command line itself, and `argv_check()` re-parses it against the allow-list before every spawn (section 3.3). Client-supplied strings are limited to `bsd`, `mode` and the confirmation fields, which are compared, never used to build a command. Disk-supplied strings are limited to the sanitised label. |
 | Client authentication | `LOCAL_PEERCRED` on the control socket; console user or `admin` only. |
-| Mount flags | FSKit mounts are `nodev,nosuid` by construction [A]. `uid`/`gid`/`fmask`/`dmask` map every file to the console user; the execute bit is cleared on files (`fmask=0133`). |
+| Mount flags | FSKit mounts are `nodev,nosuid` by construction [A]. `uid`/`gid`/`fmask`/`dmask` map every file to the console user; the execute bit is cleared on files (`fmask=0133`, limitation N9). |
 | Supply chain | Dependencies pinned by version and SHA-256 in `third_party/deps.lock`; the macFUSE installer package signature is checked before use (IMPLEMENTATION_PLAN.md section 3). |
 | No system weakening | No kext, no SIP change, no Reduced Security, no replaced Apple binary. The installer writes only to `/Library/LaunchDaemons`, `/usr/local`, `/Library/Application Support/ntfs-macos`, `/var/db/ntfs-macos`. |
 | Hardening | Release build: hardened runtime, `-fstack-protector-strong`, `-D_FORTIFY_SOURCE=2`, `-ftrivial-auto-var-init=zero`. Local CI builds with ASan and UBSan (TEST_STRATEGY.md section 9). |
@@ -401,7 +401,7 @@ Facts from this host (macOS 27.2.1) that shape the design [V:S17]:
 | Apple `ntfs.fs` | system bundle, read-only | 1000 |
 | Apple `com.apple.fskit.exfat` | FSKit module | 2000 (probes NTFS-typed partitions for exFAT) |
 
-Kext-backed bundles are probed before FSKit modules, and Apple's read-only NTFS driver masks a third-party NTFS FSKit module in automount; Apple called this hard to change [V:S14]. A probe result of "usable but limited" suppresses automount [V:S13]. These are the reasons a native FSKit module would also need a Disk Arbitration helper.
+Kext-backed bundles are probed before FSKit modules, and Apple's read-only NTFS driver masks a third-party NTFS FSKit module in automount; an Apple engineer called the kext priority "difficult to address" [V:S14]. A probe result of "usable but limited" suppresses automount [V:S13]. These are the reasons a native FSKit module would also need a Disk Arbitration helper.
 
 ### 8.2 Finder
 
@@ -439,7 +439,7 @@ Each guarantee names what it depends on. A guarantee marked **conditional** must
 
 | Second line | Covers | Does not cover |
 |---|---|---|
-| `ntfsmac-volmark set` mounts read/write without `RECOVER`, `MAY_RDONLY` or `IGNORE_HIBERFILE`, so `libntfs-3g` refuses hibernated (`hibr`/`HIBR` header or short `hiberfil.sys`), unclean-log and version-2 `$LogFile` volumes, and volmark refuses an already set `VOLUME_IS_DIRTY`; any refusal makes the mount `ro` (section 3.6). | `hibernated`, `fast_startup`, `unclean_log`, `dirty_flag` misreported as `clean` | Hibernation states the engine does not recognise either (it checks only the `hibr`/`HIBR` signature and the file size); a crafted volume that fools both. Absent while the marker step is disabled. |
+| `ntfsmac-volmark set` mounts read/write without `RECOVER`, `MAY_RDONLY` or `IGNORE_HIBERFILE`, so `libntfs-3g` refuses hibernated (`hibr`/`HIBR` header or short `hiberfil.sys`), unclean-log and version-2 `$LogFile` volumes, and volmark refuses an already set `VOLUME_IS_DIRTY`; any refusal makes the mount `ro` (section 3.6). | `hibernated`, `fast_startup`, `unclean_log`, `dirty_flag` misreported as `clean` | Hibernation states the engine does not recognise either (it checks only the `hibr`/`HIBR` signature and the file size; a `wake`/`WAKE` header is caught by the probe only, fixture `hiber-wake`); a crafted volume that fools both. Absent while the marker step is disabled. |
 | The worker always gets `norecover` and never `remove_hiberfile`, so `ntfs-3g` sets `NTFS_MNT_MAY_RDONLY` and falls back to read-only on the same hibernation and `$LogFile` findings [V:S25, `ntfs-3g.c`, `volume.c`]. | `hibernated`, `fast_startup`, `unclean_log` | `dirty_flag` (the engine does not check it); a crafted volume that fools the engine. |
 
 `I-DMN-23` tests both lines with a probe stub that reports `clean` for every unsafe fixture and asserts that the image hash is unchanged.
@@ -458,8 +458,9 @@ What the product **cannot** guarantee, and must not claim:
 | N6 | Correct behaviour when a file is changed behind the mount. | FSKit is slow to observe remote changes; the 5.5.0 mitigation can return `EIO` [V:S1]. Not applicable while the daemon enforces exclusive access. |
 | N7 | `mmap` write-back ordering and error reporting. | [U]; a report of `SIGBUS` on mapped files after a module crash exists [V:S7]. T-M3-11 tests mapped I/O. |
 | N8 | POSIX and BSD advisory locks visible to another host. | Local only. |
+| N9 | Executable files on the volume. `fmask=0133` clears the execute bit on every file, so scripts and binaries cannot be run from an NTFS volume, and `chmod +x` has no lasting effect (error or silent no-op: recorded by `I-PERM-03`). | Deliberate conservative mapping (ADR-012); the backend's `chmod` behaviour is [A] until `I-PERM-*`. |
 
-User-facing documentation must carry N1 to N5 verbatim in a "Limitations" section.
+User-facing documentation must carry N1 to N5 and N9 verbatim in a "Limitations" section.
 
 ## 10. Build and deployment view
 
@@ -482,7 +483,7 @@ Target: arm64, deployment target macOS 27.0. External runtime prerequisite: macF
 | U3 | Can the FSKit extension be enabled without the GUI (`pluginkit -e use`)? | T-M2-02 | VM automation |
 | U4 | Which FUSE opcodes result from `fsync`, `F_FULLFSYNC`, `sync`, unmount? | T-M2-06 | Section 9 wording |
 | U5 | Does `ntfs-3g` accept `/dev/fd/N` (device size and sector-size ioctls on a re-opened descriptor)? | T-M2-05; fallback patch `0003` | Privilege separation |
-| U6 | Can the FUSE server run as the console user when started by a root daemon (FSKit modules are enabled per user; root-run `mount -F` fails [V:S14])? | T-M4-01 | Daemon design |
+| U6 | Can the FUSE server run as the console user when started by a root daemon (forum posters report that FSKit modules are enabled per user and that root-run `mount -F` fails [V:S14]; the Apple engineer in that thread is unsure about root mounts, so this is [A] until T-M4-01)? | T-M4-01 | Daemon design |
 | U7 | Is a Disk Arbitration mount-approval dissenter still honoured for external NTFS disks on macOS 27? | T-M4-02; fallback: let Apple's driver mount read-only, then unmount and remount | Automount |
 | U8 | Does Finder eject of the volume also eject the media? | T-M4-03 | UX |
 | U9 | Does NTFS-3G already set `VOLUME_IS_DIRTY` during a read/write session? Source answer: no, only ntfsprogs tools write it [V:S25]. Test confirmation pending. | T-M3-01 (test) | Nothing: ADR-006 phase 2 is the default plan either way |

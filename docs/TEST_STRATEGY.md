@@ -62,6 +62,7 @@ Command pattern: `mkntfs -F -Q -L <label> -c <cluster> -s <sector> <file>` from 
 | `hiber-lower` | create `/hiberfil.sys`, 8 KiB, first bytes `hibr` | `hibernated` | `EPERM` |
 | `hiber-upper` | same with `HIBR` | `hibernated` | `EPERM` |
 | `hiber-short` | `/hiberfil.sys` of 100 bytes | `hibernated` | `EPERM` |
+| `hiber-wake` | `/hiberfil.sys`, 8 KiB, first bytes `wake` | `hibernated` | mounts read/write (the engine does not recognise `wake`; the probe is the only guard, ARCHITECTURE.md section 3.1 check 5) |
 | `hiber-inactive` | `/hiberfil.sys`, 8 KiB of zeros | `clean` | mounts |
 | `bitlocker-sig` | 64 MiB of zeros with `-FVE-FS-` at offset 3 | `unsupported` | not NTFS |
 | `truncated` | `clean-64m-4k` cut to 60 percent | `corrupt` | mount fails |
@@ -97,7 +98,7 @@ Environment column: where the test must pass to count. `A*` means "also run on L
 | Brief area | Id prefix | Cases | Env | Task |
 |---|---|---|---|---|
 | **Functional** | | | | |
-| Mount and unmount | `I-SMOKE-01`, `I-DMN-01..13` | manual worker mount; daemon automount per fixture class; four unmount paths | B | T-M2-03, T-M4-11 |
+| Mount and unmount | `I-SMOKE-01`, `I-SMOKE-02`, `I-DMN-01..08`, `I-DMN-10..13` | manual worker mount (`I-SMOKE-01`); mount by inherited device fd (`I-SMOKE-02`); daemon automount per fixture class (`I-DMN-01..08`); four unmount paths (`I-DMN-10..13`) | B | T-M2-03, T-M2-05, T-M4-03, T-M4-11 |
 | Create, read, write, rename, move, delete | `I-FUNC-*` | create/append/overwrite/truncate up and down; rename same and cross directory, over existing; delete open file; rmdir non-empty fails | B, A* | T-M3-05 |
 | Directories and nested paths | `I-FUNC-DIR-*` | depth 32; 10,000 entries; rename directory with contents | B, A* | T-M3-05 |
 | Unicode and special names | `I-NAME-*` | NFC/NFD pairs, emoji, CJK, RTL, 255 UTF-16 units, trailing dot/space and reserved names refused (`windows_names`), case-only pairs | B, A* | T-M3-05 |
@@ -110,8 +111,8 @@ Environment column: where the test must pass to count. `A*` means "also run on L
 | Hash before and after remount | `I-INT-01..03` | 100 random files; `tree-1g` full copy in and out; negative control | B | T-M2-08 |
 | Repeated write/read cycles | `I-INT-CYCLE-*` | 200 overwrite cycles on 50 files | B | T-M3-05 |
 | Interrupted writes | `S-CRASH-*` (Linux sweep), `S-KILL-*` | cut after write N; kill worker mid-copy | A, B | T-M3-14, T-M5-05 |
-| Forced process termination | `S-KILL-*`, `I-DMN-14..15` | `SIGKILL` worker, daemon, macFUSE module process | B | T-M5-05 |
-| Unclean unmount | `S-DISC-*`, `I-DMN-16` | force-detach image during write; next mount is read-only | B, C | T-M5-04 |
+| Forced process termination | `S-KILL-*`, `I-DMN-14..15` | `SIGKILL` worker, daemon, macFUSE module process | B | T-M4-05, T-M4-11, T-M5-05 |
+| Unclean unmount | `S-DISC-*`, `I-DMN-16` | force-detach image during write; next mount is read-only | B, C | T-M4-11, T-M5-04 |
 | Dirty and hibernated refusal | `U-PROBE-*`, `I-DMN-02..08` | every image in 3.2: probe verdict, daemon mode, image hash unchanged after a read-only session | A, B | T-M3-02, T-M4-11 |
 | Cross-platform interoperability | `C-REF-*`, `H-WIN-*` | Linux reads macOS-written image and the reverse; Windows `chkdsk` clean | A+B, C | T-M3-15, T-M5-10 |
 | **Reliability** | | | | |
@@ -121,7 +122,7 @@ Environment column: where the test must pass to count. `A*` means "also run on L
 | Device disconnection | `S-DISC-*`, `H-USB-*` | image force-detach; real unplug | B, C | T-M5-04, T-M5-10 |
 | Low disk space | `S-NOSPC-01` | fill to `ENOSPC`, verify earlier files | B, A* | T-M5-06 |
 | Corruption detection | `U-PROBE-*`, `F-*` | truncated and mutated images never crash the probe or the daemon | A | T-M3-16 |
-| Recoverability | `S-CRASH-*`, `I-DMN-14..16` | after each failure: read-only mount works, synced data intact | A, B | T-M3-14 |
+| Recoverability | `S-CRASH-*`, `I-DMN-14..16` | after each failure: read-only mount works, synced data intact | A, B | T-M3-14, T-M4-11 |
 | **Performance** | | | | |
 | Sequential read/write | `P-SEQ-*` | 1 GiB, 1 MiB blocks | B, A* | T-M5-07 |
 | Random read/write | `P-RND-*` | 4 KiB blocks over a 1 GiB file | B, A* | T-M5-07 |
@@ -137,15 +138,20 @@ Environment column: where the test must pass to count. `A*` means "also run on L
 | Second line against a wrong probe verdict | `I-DMN-23` | probe stub reports `clean` for every unsafe fixture; image hash unchanged | B | T-M4-11 |
 | Device-error channel | `I-ERR-01..03`, `I-DMN-24` | patch 0006 records; daemon marks session failed and does not report a clean unmount (section 4.1) | A, B | T-M3-18, T-M4-13 |
 | Privilege | `I-DMN-09`, sandbox tests, ctl authentication tests | worker uid, sandbox denials, socket peer checks | B | T-M4-01, T-M4-04, T-M4-06 |
+| Coexistence | `I-DMN-17` | dummy third-party NTFS bundle present: no dissent, no automount; `doctor` names the bundle | B | T-M4-07, T-M4-11 |
+| Permissions and ownership | `I-PERM-01..06` | uid/gid, modes, `chmod`/`chown` outcomes, execute bit (N9), opt-in mapping smoke (section 4.1) | B, A* | T-M3-20 |
+| Races in daemon logic | `U-TSAN-01..02` | state machine, control handler, journal and session under ThreadSanitizer with concurrent drivers (section 4.1) | H, A | T-M4-15 |
 | Read path edge (macFUSE mitigation) | `I-READ-*` | no `EIO` at EOF | B | T-M3-07 |
 | mmap | `I-MMAP-*` | mapped read and write, `msync`, unmount with dirty pages | B | T-M3-11 |
 | Sync semantics | `I-SYNC-*` | opcode trace; `F_FULLFSYNC` reaches the device at each sync point | B | T-M2-06, T-M3-10 |
 | Packaging | `I-PKG-*` | install, doctor, uninstall, manifest equality | B | T-M4-10, T-M6-01 |
 | Finder | `I-FND-*` | visible, copy in and out, eject | B, C | T-M4-11 |
 
-### 4.1 Enumerated cases for disk strings, journal clearing, marker and error channel
+`I-DMN-*` ranges: 01..08 automount per fixture class (02..08 are the unsafe classes of section 3.2), 09 privilege, 10..13 unmount paths, 14..16 kill worker, kill daemon, force-detach, 17 passive mode, 18 hostile labels, 19..21 journal clear, evidence rule, repair, 22 marker, 23 second line, 24 error channel. Each implementing task writes the tests of its own range under its own file prefix in `tests/integration/daemon/` (T-M4-01: 09; T-M4-03: 10..13, 18; T-M4-05: 15; T-M4-07: 17; T-M4-14: 19..22; T-M4-13: 24); T-M4-11 writes the rest (01..08, 14, 16, 23) and runs the whole range; T-M5-05 repeats 14..16 twenty times.
 
-These ids come from the M1 audit fixes (ADR-016, ADR-017, ADR-006, ADR-018).
+### 4.1 Enumerated cases for disk strings, journal clearing, marker, error channel, permissions and races
+
+These ids come from the M1 audit fixes (ADR-016, ADR-017, ADR-006, ADR-018, ADR-012).
 
 | Id | Case | Pass condition |
 |---|---|---|
@@ -185,6 +191,14 @@ These ids come from the M1 audit fixes (ADR-016, ADR-017, ADR-006, ADR-018).
 | `I-ERR-01` | Linux reference mount with the faultio build, `eio:N` on a data write | Exactly one `E pwrite 5` line on `NTFSMAC_ERRFD` |
 | `I-ERR-02` | `eio` on the device sync | One `E sync <errno>` line |
 | `I-ERR-03` | No fault, full functional workload | No line; `NTFSMAC_ERRFD` unset behaves exactly like the unpatched build |
+| `I-PERM-01` | In the VM, create files and directories with `touch`, `mkdir` and `cp`, and stat files made on Linux before the run | Every entry reports the console uid and gid |
+| `I-PERM-02` | Same tree | Files mode 0644 and directories 0755, whatever the Windows ACLs of the fixture; the Linux tree dump of the result shows no ACL change |
+| `I-PERM-03` | `chmod` 0600, 0755, `+x` on a file and a directory | Outcome recorded as error or no-op, identical on three runs; on re-stat the mode is the mapped one or the documented value; Linux tree dump shows no change in NTFS attributes or ACLs |
+| `I-PERM-04` | `chown` to another uid and to root (as root inside the VM) | Same pass condition as `I-PERM-03`; ownership on re-stat is still the console user |
+| `I-PERM-05` | A file with a `#!/bin/sh` header and a small native binary, `chmod +x`, execute | `EACCES` (limitation N9); directories remain traversable; a read-only mount behaves the same |
+| `I-PERM-06` | Opt-in `permissions`/`usermapping=` with a `.NTFS-3G/UserMapping` file, in Environment A (reference) and B (mount accepted by the builder's test-only switch) | Mount succeeds, one file created and read back with equal hash; no data claim beyond that (ADR-012) |
+| `U-TSAN-01` | Daemon state machine driven from four threads with random events, built with `-fsanitize=thread` (host and Environment A) | No data-race report; final state satisfies the transition invariants |
+| `U-TSAN-02` | Control-protocol handler with concurrent clients plus concurrent journal and session updates (kill at random points) | No data-race report; journal entries never partial |
 | `I-DMN-23` | Daemon with a probe stub that reports `clean` for `dirty-flag`, `unclean-log`, `log-v2`, `hiber-lower`; marker step enabled | No write reaches the image (hash unchanged); mode reported `ro` with reason; with the marker step disabled, the four outcomes are recorded (expected: `dirty-flag` is written, the others fall back to read-only) |
 | `I-DMN-24` | VM faultio worker with `eio:N` during a copy | Journal `state=write_error`; notification text; unmount requested; no "all data written" report; next attach `ro` |
 
@@ -255,7 +269,7 @@ Build: clang, `-fsanitize=fuzzer,address,undefined`, Environment A only. Mutatio
 
 Budgets: 5 minutes per target in the local full CI run; 1 CPU-hour per target for the M3 gate; 8 CPU-hours for M5 (local machine, 18 cores available).
 
-Handling of findings: crashes in engine code are expected (four NTFS-3G security releases in 2026 [V:S10]). They are recorded in `docs/SECURITY_FINDINGS.md`, a report for the NTFS-3G maintainers is drafted, and sending it is a human decision. A finding reachable through a read-only mount of a crafted volume raises risk R-07 and is reviewed by Opus.
+Handling of findings: crashes in engine code are expected (two NTFS-3G releases labelled Security Release in 2026 and two further releases with CVE or memory-safety fixes [V:S10]). They are recorded in `docs/SECURITY_FINDINGS.md`, a report for the NTFS-3G maintainers is drafted, and sending it is a human decision. A finding reachable through a read-only mount of a crafted volume raises risk R-07 and is reviewed by Opus.
 
 ## 9. Continuous integration (local only)
 
@@ -263,14 +277,16 @@ There is no GitHub-hosted CI: no GitHub Actions workflows, no hosted runners and
 
 | Stage | Where | Content | Blocking |
 |---|---|---|---|
-| `linux-build-test` | Environment A (local container) | Fetch pinned deps, build NTFS-3G and project (release, ASan, UBSan), unit tests, fixture generation, Linux reference suite with FUSE, probe tests on all fixtures | Yes |
+| `linux-build-test` | Environment A (local container) | Fetch pinned deps, build NTFS-3G and project (release, ASan, UBSan), unit tests (daemon-logic unit tests also under ThreadSanitizer, `U-TSAN-*`), fixture generation, Linux reference suite with FUSE, probe tests on all fixtures | Yes |
 | `linux-crash-sweep-short` | Environment A | 50 cut points per workload | Yes |
 | `linux-fuzz-short` | Environment A | 5 minutes per target, corpus kept locally | Yes on crash in project code |
 | `static-analysis` | Environment A | `clang-tidy`, `cppcheck`, `shellcheck`, `-Wall -Wextra -Werror` on project code | Yes |
 | `macos-build` | Host (build only, never a mount) | Build project code and NTFS-3G against macFUSE headers and libraries extracted from the verified package without installing it [A: extraction with `pkgutil --expand-full` gives usable headers and dylibs]; unit tests; unsigned package build | Yes |
 | `macos-vm` | Environment B | Mount, integrity, stress, soak, performance and Finder tests | Yes for the stages a milestone gate names |
 
-When to run: `ci-local.sh --quick` (static analysis, unit tests, Linux build) before every push; the full run before each milestone gate and before a release. The result file for each run is committed under `tests/results/` (section 10), so every gate and release points at a recorded local run for the exact commit SHA.
+When to run: `ci-local.sh --quick` before every push, from the day T-M1-07 merges (it starts as bootstrap check, configure, build and `ctest`, and gains static analysis and the Linux stages as their tasks land; T-M5-08 completes it); the full run before each milestone gate and before a release. The result file for each run is committed under `tests/results/` (section 10), so every gate and release points at a recorded local run of the tested commit (section 10 defines the exact rule).
+
+No test in the `macos-build` stage may attach or mount a disk image; that stage only builds and runs unit tests on the host.
 
 Build outputs, packages and release candidates stay on the local machine under `build/` and `dist/` (both git-ignored). Publishing binaries anywhere is a later, explicit human decision.
 
@@ -281,6 +297,7 @@ Build outputs, packages and release candidates stay on the local machine under `
 | Result file | `tests/results/<UTC date>-<short sha>-<env>.json`, produced by `tests/harness/report.py` |
 | Schema | `{ schema, git_sha, dirty_tree, env, host_os, guest_os, macfuse_version, ntfs3g_version, started, finished, cases: [ { id, status: pass/fail/skip/error, duration_s, evidence: [paths], note } ] }` |
 | Dirty tree | A result from an uncommitted tree is marked `dirty_tree: true` and cannot satisfy a milestone gate |
+| "Result for the exact commit" | A result file cannot contain the SHA of the commit that adds it. `git_sha` is the commit that was tested (HEAD at the start of the run, clean tree). A gate or release commit G is covered by a result file when `git_sha` is G or an ancestor of G and `git diff --name-only <git_sha> G` lists only paths under `tests/results/`, `CHECKPOINT.md`, `NEXT_ACTIONS.md` and the generated README status table. `scripts/ci-local.sh --verify-result <file>` performs this check (T-M5-08); the milestone audit repeats it. |
 | Skips | A skipped case needs a `note`; skips are listed in the milestone audit |
 | Evidence | Logs and small artifacts under `tests/results/evidence/<run>/`; images are not stored, only their hashes |
 | Status table | `README.md` section generated from the newest result per environment: each feature is `Verified (VM)`, `Verified (hardware)`, `Linux only`, or `Untested` |

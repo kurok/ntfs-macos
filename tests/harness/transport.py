@@ -25,6 +25,34 @@ class Transport(object):
     def run(self, cmd, input=None, timeout=None, stream_stderr=False):
         raise NotImplementedError
 
+    def _argv(self, cmd, stdin):
+        """argv that runs `cmd` in the environment; stdin says whether stdin must carry data."""
+        raise NotImplementedError
+
+    def run_to_file(self, cmd, out_path, timeout=None):
+        """Run cmd, stream its stdout into out_path (no copy in memory; for images). Result.out is empty."""
+        with open(out_path, "wb") as f:
+            p = subprocess.Popen(self._argv(cmd, False), stdin=subprocess.DEVNULL, stdout=f, stderr=subprocess.PIPE)
+            try:
+                _o, err = p.communicate(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                p.kill()
+                _o, err = p.communicate()
+                return Result(124, b"", (err or b"") + b"\ntimeout")
+        return Result(p.returncode, b"", err or b"")
+
+    def run_from_file(self, cmd, in_path, timeout=None):
+        """Run cmd with in_path streamed to its stdin (no copy in memory); stdout and stderr are captured."""
+        with open(in_path, "rb") as f:
+            p = subprocess.Popen(self._argv(cmd, True), stdin=f, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            try:
+                out, err = p.communicate(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                p.kill()
+                out, err = p.communicate()
+                return Result(124, out or b"", (err or b"") + b"\ntimeout")
+        return Result(p.returncode, out or b"", err or b"")
+
     def put_tree(self, local_root, names, remote_dir):
         """Copy local_root/<name> for each name into remote_dir (created)."""
         data = make_tar(local_root, names)
@@ -70,8 +98,11 @@ def _popen(argv, input, timeout, stream_stderr):
 
 
 class LocalTransport(Transport):
+    def _argv(self, cmd, stdin):
+        return ["/bin/sh", "-c", cmd]
+
     def run(self, cmd, input=None, timeout=None, stream_stderr=False):
-        return _popen(["/bin/sh", "-c", cmd], input, timeout, stream_stderr)
+        return _popen(self._argv(cmd, input is not None), input, timeout, stream_stderr)
 
 
 class ContainerTransport(Transport):
@@ -80,8 +111,11 @@ class ContainerTransport(Transport):
     def __init__(self, run_sh):
         self.run_sh = run_sh
 
+    def _argv(self, cmd, stdin):
+        return [self.run_sh, "run", "--", "sh", "-c", cmd]
+
     def run(self, cmd, input=None, timeout=None, stream_stderr=False):
-        return _popen([self.run_sh, "run", "--", "sh", "-c", cmd], input, timeout, stream_stderr)
+        return _popen(self._argv(cmd, input is not None), input, timeout, stream_stderr)
 
 
 class VmTransport(Transport):
@@ -97,12 +131,13 @@ class VmTransport(Transport):
         n = self.vm
         return n if n.startswith("ntfsmac-") else "ntfsmac-" + n
 
+    def _argv(self, cmd, stdin):
+        if not stdin:
+            return [self.tart_sh, "exec", self.vm, "--", cmd]
+        return [self.tart, "exec", "-i", self._full(), "/bin/sh", "-c", cmd]
+
     def run(self, cmd, input=None, timeout=None, stream_stderr=False):
-        if input is None:
-            argv = [self.tart_sh, "exec", self.vm, "--", cmd]
-        else:
-            argv = [self.tart, "exec", "-i", self._full(), "/bin/sh", "-c", cmd]
-        return _popen(argv, input, timeout, stream_stderr)
+        return _popen(self._argv(cmd, input is not None), input, timeout, stream_stderr)
 
 
 def _skip_member(name):

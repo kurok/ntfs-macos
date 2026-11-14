@@ -117,6 +117,9 @@ class Ctx(object):
         self.transport = transport
         self.quiet = quiet
         self._cleanups = []
+        # A case may fill in guest_os, macfuse_version, ntfs3g_version for the result file when it
+        # drives another environment itself (env "host" cases); run.py then uses them.
+        self.meta = {}
         os.makedirs(evidence_dir, exist_ok=True)
         self.log_path = os.path.join(evidence_dir, case_obj.id + ".log")
         self._log = open(self.log_path, "a", encoding="utf-8")

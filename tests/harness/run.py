@@ -81,7 +81,8 @@ def run_local(args):
     t = transport.LocalTransport()
     results_dir = os.path.abspath(args.out)
     os.makedirs(results_dir, exist_ok=True)
-    records = runner.run_cases(cases, args.env, rid, results_dir, t, tmp_root=args.tmp, quiet=args.quiet)
+    meta = {}
+    records = runner.run_cases(cases, args.env, rid, results_dir, t, tmp_root=args.tmp, quiet=args.quiet, meta=meta)
     finished = report.utc_now()
     local_os = detect_os(t)
     if args.env == "host":
@@ -90,6 +91,10 @@ def run_local(args):
         host_os, guest_os = args.host_os or "unknown (--host-os not given)", local_os
     macfuse = volume.detect_macfuse(t) if args.env in ("B", "host") else None
     ntfs3g = volume.detect_ntfs3g(t)
+    # Cases that drive another environment themselves (env host, e.g. C-REF-01) report what they used.
+    guest_os = meta.get("guest_os", guest_os)
+    macfuse = meta.get("macfuse_version", macfuse)
+    ntfs3g = meta.get("ntfs3g_version", ntfs3g)
     doc = report.build_result(sha, dirty, args.env, host_os, guest_os, macfuse, ntfs3g, started, finished, records)
     path = report.write_result(doc, results_dir)
     sys.stderr.write("result: %s\n" % path)

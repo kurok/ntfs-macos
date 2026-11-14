@@ -11,9 +11,9 @@ import traceback
 from .core import Ctx, Fail, Skip
 
 
-def run_cases(cases, env, run_id, results_dir, transport, tmp_root=None, quiet=False):
+def run_cases(cases, env, run_id, results_dir, transport, tmp_root=None, quiet=False, meta=None):
     """Run cases in order. Evidence goes to <results_dir>/evidence/<run_id>/<ID>.*;
-    returned evidence paths are relative to results_dir."""
+    returned evidence paths are relative to results_dir. `meta`, if given, collects ctx.meta of every case."""
     records = []
     ev_rel = "evidence/%s" % run_id
     ev_dir = os.path.join(results_dir, "evidence", run_id)
@@ -39,6 +39,8 @@ def run_cases(cases, env, run_id, results_dir, transport, tmp_root=None, quiet=F
             status, note = "error", "%s: %s" % (type(e).__name__, e)
             ctx.log("traceback:\n" + traceback.format_exc())
         dur = round(time.monotonic() - t0, 3)
+        if meta is not None:
+            meta.update(ctx.meta)
         if ctx.close() and status == "pass":
             status, note = "error", "cleanup failed (see log)"
         ctx.log_final("end %s: %s%s" % (c.id, status, (" - " + note) if note else ""))

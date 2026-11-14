@@ -8,7 +8,9 @@
 # run the cases in the guest through the tart guest agent, copy the result back,
 # and always delete the VM (also on failure or interrupt).
 #
-# Usage: tests/harness/run-env-b.sh [--out DIR] [run.py options, e.g. --cases I-INT-01]
+# Usage: tests/harness/run-env-b.sh [--orchestrate] [--out DIR] [run.py options, e.g. --cases I-INT-01]
+#   --orchestrate  run.py runs on the host with --env host (cases that drive the guest and the Linux
+#                  container themselves, e.g. C-REF-01); the VM name is passed in NTFSMAC_B_VM.
 # Env:   NTFSMAC_B_BUILD_LOG=FILE  also write the guest build log to FILE
 # Exit:  run.py's exit code (0 ok, 1 case failed or errored, 2 setup error).
 set -eu
@@ -48,4 +50,9 @@ else
 	"$tart_sh" exec "$name" -- "$build_cmd" >&2 || { echo "run-env-b: guest build failed" >&2; exit 2; }
 fi
 
-python3 "$here/run.py" --env B --vm "$name" "$@"
+if [ "${1:-}" = "--orchestrate" ]; then
+	shift
+	NTFSMAC_B_VM=$name python3 "$here/run.py" --env host --local --vm "$name" "$@"
+else
+	python3 "$here/run.py" --env B --vm "$name" "$@"
+fi

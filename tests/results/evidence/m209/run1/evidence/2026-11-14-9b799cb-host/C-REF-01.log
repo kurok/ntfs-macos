@@ -1,0 +1,118 @@
+12:57:28 start C-REF-01 (env host)
+12:57:44 phase B (guest) -> rc=0
+12:57:44 phase B (guest) stderr:
+[C-REF-01] seed=20261114 files=100 total=810370409 bytes image=926941184 bytes
+[C-REF-01] $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /tmp/ntfsmac-xr.RLIMaY/out/vol.img -> rc=0
+[C-REF-01] Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+[C-REF-01] stderr: /tmp/ntfsmac-xr.RLIMaY/out/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/ntfsmac-xr.RLIMaY/out/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/ntfsmac-xr.RLIMaY/out/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/ntfsmac-xr.RLIMaY/out/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/ntfsmac-xr.RLIMaY/out/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+[C-REF-01] $ cc -std=c17 -O2 -o /tmp/ntfsmac-xr.RLIMaY/out/treedump /tmp/ntfsmac-xr.RLIMaY/tools/treedump.c -> rc=0
+[C-REF-01] $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 /tmp/ntfsmac-xr.RLIMaY/out/vol.img /tmp/ntfsmac-xr.RLIMaY/out/mnt -> rc=0
+[C-REF-01] mount: /dev/disk6s1 on /private/tmp/ntfsmac-xr.RLIMaY/out/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+[C-REF-01] wrote 106 files, 20 directories
+[C-REF-01] $ sync -> rc=0
+[C-REF-01] $ /sbin/umount /tmp/ntfsmac-xr.RLIMaY/out/mnt -> rc=0
+[C-REF-01] $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro /tmp/ntfsmac-xr.RLIMaY/out/vol.img /tmp/ntfsmac-xr.RLIMaY/out/mnt -> rc=0
+[C-REF-01] mount: /dev/disk6s1 on /private/tmp/ntfsmac-xr.RLIMaY/out/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+[C-REF-01] macOS listed 2 names in a non-NFC form: ['uni/café.txt', 'uni/日本語/файл.bin']
+[C-REF-01] $ /tmp/ntfsmac-xr.RLIMaY/out/treedump /tmp/ntfsmac-xr.RLIMaY/out/mnt -> rc=0
+[C-REF-01] 6776e3291c74df1fb649c80556e6ff2d
+f	d08/f058.bin	1818952	4ae4a03cc3cf9fe79956cd76d1dd90b8bc01aeb88a3a738828d17ff1668b1ef0
+f	d08/f068.bin	47831384	c91f935ca45e4191c359f431bb30a16a0b682fbe879542e33d46af9ddc00f27f
+f	d08/f078.bin	47966879	bd295b64100175f40919def4b7d754efd85658679b48e121c3a670c451a547f7
+f	d08/f088.bin	3124	23ea58aa0c535929800622b01b934122ce5440b4702d41412674e4afd7110926
+f	d08/f098.bin	8667	573233e1493ffddfcd89d12562367cbf4d91df81fdbf0906b8c2a61ae892929c
+d	d09
+f	d09/f009.bin	75035	ba0584d6b927cc9570deb98b898b4e764da0f4503bb5840240ccb15fbf1d853a
+f	d09/f019.bin	65740	a00f4c08d4fae0776d13e34fc3e734875e700c94bf875d1900ddabf6ae0ea09e
+f	d09/f029.bin	1878053	c0c2bfdc796ded5a63a55316e4d7b548d2fbe7cdf5ee4d59ad7364e3818a0cdc
+f	d09/f039.bin	33055598	0d7524b23e093ab3e42219071c6df75bf59161156f76756d8f7adcb60f3022ea
+f	d09/f049.bin	1218	abb88b72ea773c0db1fe7b8b28dcc6df2a186934feade857f43127340eb05400
+f	d09/f059.bin	4893118	bff3f87eab3d374a747ea763852d7926eec1602e662aee2638e1dcfd6bda0400
+f	d09/f069.bin	485805	83db0d277b20bee38442749553789f24445432f7d1a67346b98433cfe923ee13
+f	d09/f079.bin	4955	9739c10f19c2401a7d50412499bcb7884cbea880b9d21280adf5f82de6b89c77
+f	d09/f089.bin	1437	92887881f940c3ce1bce96b41383549e99afa9bd7937e5d459f83c65c7557778
+f	d09/f099.bin	3384082	12d778390849bc41ab55b04d2f712c3dfc39c6c3787657f35cf5e8dcaf9f378c
+d	deep
+d	deep/a
+d	deep/a/b
+d	deep/a/b/c
+d	deep/a/b/c/d
+f	deep/a/b/c/d/leaf.txt	1	bbf3f11cb5b43e700273a78d12de55e4a7eab741ed2abf13787a4d2dc832b8ec
+d	empty-dir
+d	uni
+f	uni/café.txt	4097	fc796e98660dfb2a86146f71d5ef980e9a9271b0fff892b95666f071b77a521e
+f	uni/emoji 🙂.bin	513	cffef5643e569a4fcdbfe22dc5a8a47c3ec44345453c01d071ab9657fad4af95
+d	uni/empty sub dir
+d	uni/with space
+f	uni/with space/trailing.dot.txt	100	c4bd6f0d4555ab5ef6a8a9c93e85b7f3c889beda39a1fed05390ee6d97c8bf2c
+d	uni/日本語
+f	uni/日本語/файл.bin	70000	ffad9a0e834bfc03301bdaf3603b4b6da806057a34df12620e24a2703c49186b
+f	zero-length	0	e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+[C-REF-01] $ sync -> rc=0
+[C-REF-01] $ /sbin/umount /tmp/ntfsmac-xr.RLIMaY/out/mnt -> rc=0
+[C-REF-01] $ sync -> rc=0
+[C-REF-01] image sha256 af476fd5db9aa1561b226414151bc86fef277afe2abaf4c9e01d4c9261ecd26e
+12:57:44 phase B took 15 s
+12:57:48 copy image out -> rc=0
+12:57:48 image on host: 926941184 bytes, sha256 af476fd5db9aa1561b226414151bc86fef277afe2abaf4c9e01d4c9261ecd26e (4 s)
+12:57:59 phase A (container) -> rc=0
+12:57:59 phase A (container) stderr:
+[C-REF-01] $ ntfsfix -n /tmp/xr/vol.img -> rc=0
+[C-REF-01] Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /tmp/xr/vol.img was processed successfully.
+[C-REF-01] $ cc -std=c17 -O2 -o /tmp/xr/treedump /work/tests/tools/treedump.c -> rc=0
+[C-REF-01] $ ntfs-3g /tmp/xr/vol.img /tmp/xr/mnt -o ro -> rc=0
+[C-REF-01] $ /tmp/xr/treedump /tmp/xr/mnt -> rc=0
+[C-REF-01] 336776e3291c74df1fb649c80556e6ff2d
+f	d08/f058.bin	1818952	4ae4a03cc3cf9fe79956cd76d1dd90b8bc01aeb88a3a738828d17ff1668b1ef0
+f	d08/f068.bin	47831384	c91f935ca45e4191c359f431bb30a16a0b682fbe879542e33d46af9ddc00f27f
+f	d08/f078.bin	47966879	bd295b64100175f40919def4b7d754efd85658679b48e121c3a670c451a547f7
+f	d08/f088.bin	3124	23ea58aa0c535929800622b01b934122ce5440b4702d41412674e4afd7110926
+f	d08/f098.bin	8667	573233e1493ffddfcd89d12562367cbf4d91df81fdbf0906b8c2a61ae892929c
+d	d09
+f	d09/f009.bin	75035	ba0584d6b927cc9570deb98b898b4e764da0f4503bb5840240ccb15fbf1d853a
+f	d09/f019.bin	65740	a00f4c08d4fae0776d13e34fc3e734875e700c94bf875d1900ddabf6ae0ea09e
+f	d09/f029.bin	1878053	c0c2bfdc796ded5a63a55316e4d7b548d2fbe7cdf5ee4d59ad7364e3818a0cdc
+f	d09/f039.bin	33055598	0d7524b23e093ab3e42219071c6df75bf59161156f76756d8f7adcb60f3022ea
+f	d09/f049.bin	1218	abb88b72ea773c0db1fe7b8b28dcc6df2a186934feade857f43127340eb05400
+f	d09/f059.bin	4893118	bff3f87eab3d374a747ea763852d7926eec1602e662aee2638e1dcfd6bda0400
+f	d09/f069.bin	485805	83db0d277b20bee38442749553789f24445432f7d1a67346b98433cfe923ee13
+f	d09/f079.bin	4955	9739c10f19c2401a7d50412499bcb7884cbea880b9d21280adf5f82de6b89c77
+f	d09/f089.bin	1437	92887881f940c3ce1bce96b41383549e99afa9bd7937e5d459f83c65c7557778
+f	d09/f099.bin	3384082	12d778390849bc41ab55b04d2f712c3dfc39c6c3787657f35cf5e8dcaf9f378c
+d	deep
+d	deep/a
+d	deep/a/b
+d	deep/a/b/c
+d	deep/a/b/c/d
+f	deep/a/b/c/d/leaf.txt	1	bbf3f11cb5b43e700273a78d12de55e4a7eab741ed2abf13787a4d2dc832b8ec
+d	empty-dir
+d	uni
+f	uni/café.txt	4097	fc796e98660dfb2a86146f71d5ef980e9a9271b0fff892b95666f071b77a521e
+f	uni/emoji 🙂.bin	513	cffef5643e569a4fcdbfe22dc5a8a47c3ec44345453c01d071ab9657fad4af95
+d	uni/empty sub dir
+d	uni/with space
+f	uni/with space/trailing.dot.txt	100	c4bd6f0d4555ab5ef6a8a9c93e85b7f3c889beda39a1fed05390ee6d97c8bf2c
+d	uni/日本語
+f	uni/日本語/файл.bin	70000	ffad9a0e834bfc03301bdaf3603b4b6da806057a34df12620e24a2703c49186b
+f	zero-length	0	e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+[C-REF-01] $ sync -> rc=0
+[C-REF-01] $ umount /tmp/xr/mnt -> rc=0
+12:57:59 phase A took 10 s; Environment A NTFS-3G 2026.9.28, Debian GNU/Linux 13 (trixie) aarch64
+12:57:59 image sha256 (guest, host, Linux): af476fd5db9aa1561b226414151bc86fef277afe2abaf4c9e01d4c9261ecd26e af476fd5db9aa1561b226414151bc86fef277afe2abaf4c9e01d4c9261ecd26e af476fd5db9aa1561b226414151bc86fef277afe2abaf4c9e01d4c9261ecd26e
+12:57:59 observation: macOS lists 2 name(s) in NFD, the bytes on disk are NFC (Linux lists them as written): ['uni/café.txt', 'uni/日本語/файл.bin']
+12:57:59 compared: 106 expected files, 106 read on Linux, 20 directories, 0 problems; ntfsfix -n rc=0
+12:57:59 PASS: 106 files equal on Linux and macOS
+12:58:00 end C-REF-01: pass

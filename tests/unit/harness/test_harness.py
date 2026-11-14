@@ -241,6 +241,109 @@ class RemountHashLogicTests(unittest.TestCase):
             self.assertTrue(any("extra" in b for b in bad))
 
 
+class StreamingTransportTests(unittest.TestCase):
+    def test_run_to_file_and_from_file(self):
+        t = transport.LocalTransport()
+        with tempfile.TemporaryDirectory() as d:
+            src = os.path.join(d, "src.bin")
+            dst = os.path.join(d, "dst.bin")
+            data = bytes(range(256)) * 5000
+            with open(src, "wb") as f:
+                f.write(data)
+            r = t.run_to_file("cat %s" % src, dst)
+            self.assertEqual(r.rc, 0)
+            with open(dst, "rb") as f:
+                self.assertEqual(f.read(), data)
+            r = t.run_from_file("wc -c", src)
+            self.assertEqual(r.rc, 0)
+            self.assertEqual(int(r.out.strip()), len(data))
+            self.assertEqual(t.run_to_file("exit 3", dst).rc, 3)
+
+    def test_vm_and_container_argv(self):
+        vm = transport.VmTransport("x", "/t/tart.sh")
+        self.assertEqual(vm._argv("c", False), ["/t/tart.sh", "exec", "x", "--", "c"])
+        self.assertEqual(vm._argv("c", True), ["tart", "exec", "-i", "ntfsmac-x", "/bin/sh", "-c", "c"])
+        ct = transport.ContainerTransport("/r/run.sh")
+        self.assertEqual(ct._argv("c", True), ["/r/run.sh", "run", "--", "sh", "-c", "c"])
+
+
+class CrossReadLogicTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        path = os.path.join(TESTS, "compatibility", "cross_read.py")
+        spec = importlib.util.spec_from_file_location("cross_read_under_test", path)
+        cls.m = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.m)
+
+    def docs(self):
+        files = {"d00/f000.bin": [1024, "aa"], "uni/caf\u00e9.txt": [3, "bb"]}
+        td = "d\td00\nf\td00/f000.bin\t1024\taa\nd\t.fseventsd\nf\t.fseventsd/uuid\t36\tcc\n"
+        manifest = {"expected": files, "readback": dict(files), "dirs": ["d00", "uni"], "treedump": td,
+                    "image_sha256": "11"}
+        a = {"files": dict(files), "dirs": ["d00", "uni", ".other"], "treedump": td.replace("cc", "dd"),
+             "image_sha256": "11", "ntfsfix": {"rc": 0, "out": ""}}
+        return manifest, a
+
+    def test_equal_inputs_pass(self):
+        m, a = self.docs()
+        bad, counts = self.m.judge(m, a, "11")
+        self.assertEqual(bad, [])
+        self.assertEqual(counts["files_linux"], 2)
+
+    def test_each_kind_of_difference_is_reported(self):
+        m, a = self.docs()
+        a["files"]["d00/f000.bin"] = [1024, "zz"]
+        a["files"]["extra"] = [1, "q"]
+        a["dirs"] = ["d00"]
+        a["treedump"] += "f\tx\t1\tq\n"
+        a["ntfsfix"]["rc"] = 1
+        a["image_sha256"] = "22"
+        bad, _ = self.m.judge(m, a, "33")
+        text = "\n".join(bad)
+        for needle in ("sha256 zz", "unexpected extra file", "directory missing: uni", "treedump differs",
+                       "ntfsfix -n", "guest and host copy", "guest and Linux copy"):
+            self.assertIn(needle, text)
+
+    def test_treedump_filter_only_drops_root_fseventsd(self):
+        t = "d\t.fseventsd\nf\t.fseventsd/u\t1\tx\nd\tsub/.fseventsd\nf\ta\t1\ty\n"
+        self.assertEqual(self.m.filter_treedump(t), "d\tsub/.fseventsd\nf\ta\t1\ty\n")
+
+    def test_nfd_names_from_macos_are_normalised_for_comparison(self):
+        import unicodedata
+        nfc = "caf\u00e9"
+        nfd = unicodedata.normalize("NFD", nfc)
+        self.assertNotEqual(nfc, nfd)
+        out, changed = self.m.nfc_keys({nfd + ".txt": 1, "plain": 2})
+        self.assertEqual(out, {nfc + ".txt": 1, "plain": 2})
+        self.assertEqual(changed, [nfd + ".txt"])
+        self.assertEqual(self.m.filter_treedump("f\t" + nfd + "\t1\tx\n"), "f\t" + nfc + "\t1\tx\n")
+
+    def test_extras_are_deterministic_nfc_and_listed(self):
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as e:
+            x, dirs = self.m.write_extras(d, 5)
+            y, _ = self.m.write_extras(e, 5)
+            self.assertEqual(x, y)
+            self.assertEqual(x["zero-length"][0], 0)
+            self.assertEqual(self.m.hash_tree(d), {k: tuple(v) for k, v in x.items()})
+            self.assertEqual(set(dirs) - set(self.m.list_dirs(d)), set())
+
+    def test_case_skips_without_vm(self):
+        with tempfile.TemporaryDirectory() as d:
+            old = os.environ.pop("NTFSMAC_B_VM", None)
+            try:
+                r = subprocess.run([sys.executable, "-B", os.path.join(TESTS, "harness", "run.py"), "--env", "host",
+                                    "--cases", "C-REF-01", "--out", d, "--git-sha", SHA, "--dirty", "true", "--quiet"],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            finally:
+                if old is not None:
+                    os.environ["NTFSMAC_B_VM"] = old
+            self.assertEqual(r.returncode, 0, r.stderr.decode())
+            with open(r.stdout.decode().strip()) as f:
+                doc = json.load(f)
+            self.assertEqual(doc["cases"][0]["status"], "skip")
+            self.assertEqual(report.validate(doc), [])
+
+
 class CliTests(unittest.TestCase):
     def test_host_run_writes_valid_result_and_exit_codes(self):
         with tempfile.TemporaryDirectory() as d:

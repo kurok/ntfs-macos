@@ -1,0 +1,140 @@
+mount_begin                                                        | INIT x1@+3253ms STATFS x32@+3253ms GETATTR x6@+3257ms ACCESS x2@+3262ms LOOKUP x19@+3263ms GETXATTR x18@+3265ms MKDIR x1@+3321ms SETATTR x2@+3322ms OPENDIR x1@+3323ms READDIR x2@+3323ms BATCH_FORGET x1@+3323ms RELEASEDIR x1@+3323ms CREATE x1@+3324ms RELEASE x2@+3325ms OPEN x1@+3325ms FSYNC x4@+3326ms WRITE x1@+3334ms FLUSH x1@+3334ms
+mount_end                                                          | STATFS x26@+0ms LOOKUP x5@+88ms GETXATTR x37@+88ms OPEN x3@+95ms READ x2@+95ms GETATTR x2@+96ms RELEASE x3@+97ms
+run size=4096 n=1                                                  | -
+section delay size=4096 hold_ms=6000                               | LOOKUP x1@+1ms CREATE x1@+2ms SETATTR x1@+2ms GETATTR x1@+2ms RELEASE x1@+2ms STATFS x1@+3ms OPEN x1@+3ms
+open_create_end rc=3 errno=0                                       | -
+write_begin size=4096                                              | WRITE x1@+0ms GETATTR x2@+0ms STATFS x1@+1ms GETXATTR x2@+3ms
+write_end rc=4096 errno=0                                          | STATFS x14@+1ms GETXATTR x23@+1ms OPEN x3@+8ms RELEASE x3@+8ms LOOKUP x1@+20ms FSYNC x1@+169ms
+close_begin                                                        | RELEASE x1@+1ms
+close_end rc=0 errno=0                                             | STATFS x6@+0ms GETXATTR x8@+58ms
+unlink_begin                                                       | LOOKUP x1@+2ms GETATTR x3@+3ms UNLINK x1@+4ms STATFS x2@+5ms
+unlink_end rc=0 errno=0                                            | STATFS x1@+1ms FORGET x1@+1ms GETATTR x1@+12ms LOOKUP x2@+13ms
+run size=4096 n=2                                                  | GETXATTR x2@+2ms
+section delay size=4096 hold_ms=6000                               | CREATE x1@+1ms SETATTR x1@+1ms GETATTR x1@+1ms RELEASE x1@+1ms STATFS x1@+1ms OPEN x1@+2ms
+open_create_end rc=3 errno=0                                       | -
+write_begin size=4096                                              | WRITE x1@+1ms GETATTR x3@+1ms STATFS x1@+2ms
+write_end rc=4096 errno=0                                          | STATFS x23@+0ms GETXATTR x44@+1ms OPEN x3@+8ms RELEASE x3@+8ms LOOKUP x1@+20ms
+close_begin                                                        | RELEASE x1@+1ms
+close_end rc=0 errno=0                                             | STATFS x6@+0ms GETXATTR x8@+60ms
+unlink_begin                                                       | LOOKUP x1@+3ms GETATTR x3@+3ms UNLINK x1@+4ms STATFS x2@+4ms
+unlink_end rc=0 errno=0                                            | FORGET x1@+0ms STATFS x1@+0ms GETATTR x1@+11ms LOOKUP x1@+11ms
+run size=4096 n=3                                                  | GETXATTR x2@+1ms
+section delay size=4096 hold_ms=6000                               | CREATE x1@+1ms SETATTR x1@+1ms GETATTR x1@+1ms RELEASE x1@+1ms STATFS x1@+1ms OPEN x1@+2ms
+open_create_end rc=3 errno=0                                       | -
+write_begin size=4096                                              | WRITE x1@+1ms GETATTR x3@+1ms
+write_end rc=4096 errno=0                                          | STATFS x25@+0ms GETXATTR x48@+1ms OPEN x4@+8ms RELEASE x4@+8ms LOOKUP x1@+61ms
+close_begin                                                        | RELEASE x1@+1ms
+close_end rc=0 errno=0                                             | STATFS x6@+0ms GETXATTR x8@+53ms
+unlink_begin                                                       | LOOKUP x1@+2ms GETATTR x3@+2ms UNLINK x1@+3ms STATFS x2@+4ms
+unlink_end rc=0 errno=0                                            | FORGET x1@+0ms STATFS x1@+0ms
+run size=4096 n=4                                                  | LOOKUP x1@+2ms
+section delay size=4096 hold_ms=6000                               | GETATTR x2@+1ms CREATE x1@+1ms SETATTR x1@+2ms RELEASE x1@+2ms STATFS x1@+2ms OPEN x1@+2ms
+open_create_end rc=3 errno=0                                       | -
+write_begin size=4096                                              | WRITE x1@+0ms GETATTR x1@+1ms
+write_end rc=4096 errno=0                                          | STATFS x19@+0ms GETATTR x1@+361ms GETXATTR x33@+365ms OPEN x3@+416ms RELEASE x3@+417ms LOOKUP x1@+472ms
+close_begin                                                        | RELEASE x1@+1ms
+close_end rc=0 errno=0                                             | STATFS x6@+0ms GETXATTR x8@+57ms
+unlink_begin                                                       | LOOKUP x1@+2ms GETATTR x3@+2ms UNLINK x1@+3ms STATFS x2@+3ms
+unlink_end rc=0 errno=0                                            | FORGET x1@+0ms STATFS x1@+0ms
+run size=4096 n=5                                                  | LOOKUP x2@+2ms GETATTR x1@+2ms
+section delay size=4096 hold_ms=6000                               | CREATE x1@+1ms SETATTR x1@+1ms GETATTR x1@+1ms RELEASE x1@+1ms STATFS x1@+1ms GETXATTR x2@+1ms OPEN x1@+1ms
+open_create_end rc=3 errno=0                                       | -
+write_begin size=4096                                              | WRITE x1@+0ms GETATTR x3@+1ms
+write_end rc=4096 errno=0                                          | STATFS x20@+0ms GETXATTR x33@+1ms OPEN x3@+8ms RELEASE x3@+8ms LOOKUP x1@+21ms FSYNC x1@+1472ms
+close_begin                                                        | RELEASE x1@+1ms
+close_end rc=0 errno=0                                             | STATFS x6@+0ms GETXATTR x8@+58ms
+unlink_begin                                                       | LOOKUP x1@+2ms GETATTR x3@+3ms UNLINK x1@+4ms STATFS x2@+4ms
+unlink_end rc=0 errno=0                                            | STATFS x1@+0ms FORGET x1@+0ms
+run size=1048576 n=1                                               | GETATTR x1@+3ms LOOKUP x1@+3ms
+section delay size=1048576 hold_ms=6000                            | CREATE x1@+1ms SETATTR x1@+1ms GETATTR x1@+1ms GETXATTR x2@+2ms RELEASE x1@+2ms STATFS x1@+2ms OPEN x1@+2ms
+open_create_end rc=3 errno=0                                       | -
+write_begin size=1048576                                           | WRITE x1@+1ms GETATTR x3@+1ms
+write_end rc=1048576 errno=0                                       | STATFS x19@+0ms GETXATTR x33@+1ms OPEN x3@+8ms RELEASE x3@+8ms LOOKUP x1@+20ms
+close_begin                                                        | RELEASE x1@+1ms
+close_end rc=0 errno=0                                             | STATFS x6@+0ms GETXATTR x8@+58ms
+unlink_begin                                                       | LOOKUP x2@+2ms GETATTR x4@+3ms UNLINK x1@+4ms STATFS x3@+4ms FORGET x1@+5ms
+unlink_end rc=0 errno=0                                            | GETXATTR x6@+3ms STATFS x3@+4ms
+run size=1048576 n=2                                               | OPEN x1@+0ms RELEASE x1@+1ms STATFS x1@+1ms
+section delay size=1048576 hold_ms=6000                            | CREATE x1@+1ms SETATTR x1@+1ms GETATTR x1@+1ms RELEASE x1@+1ms STATFS x1@+2ms OPEN x1@+2ms
+open_create_end rc=3 errno=0                                       | -
+write_begin size=1048576                                           | WRITE x8@+0ms GETATTR x9@+1ms STATFS x9@+1ms GETXATTR x2@+5ms
+write_end rc=1048576 errno=0                                       | STATFS x15@+0ms LOOKUP x1@+1ms GETXATTR x31@+3ms OPEN x4@+13ms RELEASE x4@+13ms
+close_begin                                                        | RELEASE x1@+1ms
+close_end rc=0 errno=0                                             | STATFS x6@+0ms GETXATTR x8@+162ms
+unlink_begin                                                       | LOOKUP x1@+2ms GETATTR x3@+3ms UNLINK x1@+4ms STATFS x2@+4ms
+unlink_end rc=0 errno=0                                            | FORGET x1@+0ms STATFS x1@+0ms
+run size=1048576 n=3                                               | GETATTR x1@+2ms LOOKUP x1@+2ms GETXATTR x2@+4ms
+section delay size=1048576 hold_ms=6000                            | CREATE x1@+1ms SETATTR x1@+1ms GETATTR x1@+1ms RELEASE x1@+1ms STATFS x1@+1ms OPEN x1@+2ms
+open_create_end rc=3 errno=0                                       | -
+write_begin size=1048576                                           | WRITE x1@+1ms GETATTR x3@+1ms
+write_end rc=1048576 errno=0                                       | STATFS x19@+0ms GETXATTR x33@+1ms OPEN x3@+8ms RELEASE x3@+8ms LOOKUP x1@+21ms
+close_begin                                                        | RELEASE x1@+1ms
+close_end rc=0 errno=0                                             | STATFS x6@+0ms GETXATTR x8@+57ms
+unlink_begin                                                       | LOOKUP x1@+3ms GETATTR x3@+3ms UNLINK x1@+4ms STATFS x2@+4ms
+unlink_end rc=0 errno=0                                            | STATFS x1@+0ms FORGET x1@+0ms
+run size=1048576 n=4                                               | LOOKUP x2@+2ms GETATTR x1@+2ms GETXATTR x2@+5ms
+section delay size=1048576 hold_ms=6000                            | CREATE x1@+1ms SETATTR x1@+1ms GETATTR x1@+1ms RELEASE x1@+1ms STATFS x1@+1ms OPEN x1@+1ms
+open_create_end rc=3 errno=0                                       | -
+write_begin size=1048576                                           | WRITE x1@+1ms GETATTR x3@+1ms
+write_end rc=1048576 errno=0                                       | STATFS x21@+0ms GETXATTR x37@+1ms OPEN x4@+8ms RELEASE x4@+8ms LOOKUP x1@+61ms FSYNC x1@+2879ms
+close_begin                                                        | RELEASE x1@+1ms
+close_end rc=0 errno=0                                             | STATFS x6@+0ms GETXATTR x8@+56ms
+unlink_begin                                                       | LOOKUP x1@+2ms GETATTR x3@+2ms UNLINK x1@+3ms STATFS x2@+4ms
+unlink_end rc=0 errno=0                                            | FORGET x1@+0ms STATFS x1@+0ms
+run size=1048576 n=5                                               | LOOKUP x1@+2ms
+section delay size=1048576 hold_ms=6000                            | GETATTR x2@+1ms CREATE x1@+1ms SETATTR x1@+1ms RELEASE x1@+2ms STATFS x1@+2ms OPEN x1@+2ms
+open_create_end rc=3 errno=0                                       | -
+write_begin size=1048576                                           | WRITE x8@+0ms GETATTR x8@+1ms STATFS x7@+1ms
+write_end rc=1048576 errno=0                                       | STATFS x19@+0ms GETATTR x1@+417ms GETXATTR x33@+421ms OPEN x3@+471ms RELEASE x3@+472ms LOOKUP x1@+485ms
+close_begin                                                        | RELEASE x1@+1ms
+close_end rc=0 errno=0                                             | STATFS x6@+0ms GETXATTR x8@+432ms
+unlink_begin                                                       | LOOKUP x1@+2ms GETATTR x3@+3ms UNLINK x1@+4ms STATFS x2@+4ms
+unlink_end rc=0 errno=0                                            | STATFS x1@+0ms FORGET x1@+0ms
+run size=67108864 n=1                                              | GETATTR x1@+2ms LOOKUP x1@+2ms GETXATTR x25@+5ms STATFS x13@+44ms OPEN x3@+49ms RELEASE x3@+49ms
+section delay size=67108864 hold_ms=6000                           | CREATE x1@+1ms SETATTR x1@+1ms GETATTR x1@+1ms RELEASE x1@+1ms STATFS x1@+2ms OPEN x1@+2ms
+open_create_end rc=3 errno=0                                       | -
+write_begin size=67108864                                          | WRITE x64@+1ms GETATTR x64@+1ms STATFS x63@+1ms
+write_end rc=67108864 errno=0                                      | STATFS x13@+0ms GETATTR x1@+331ms GETXATTR x25@+370ms OPEN x2@+380ms RELEASE x2@+381ms LOOKUP x1@+396ms
+close_begin                                                        | RELEASE x1@+1ms
+close_end rc=0 errno=0                                             | STATFS x6@+0ms GETXATTR x8@+58ms
+unlink_begin                                                       | LOOKUP x1@+2ms GETATTR x3@+2ms UNLINK x1@+3ms STATFS x3@+4ms
+unlink_end rc=0 errno=0                                            | FORGET x1@+0ms GETATTR x1@+11ms LOOKUP x1@+11ms
+run size=67108864 n=2                                              | GETXATTR x21@+1ms STATFS x11@+41ms OPEN x3@+46ms RELEASE x3@+46ms
+section delay size=67108864 hold_ms=6000                           | CREATE x1@+1ms SETATTR x1@+1ms GETATTR x1@+1ms RELEASE x1@+1ms STATFS x1@+1ms OPEN x1@+1ms
+open_create_end rc=3 errno=0                                       | -
+write_begin size=67108864                                          | WRITE x64@+0ms GETATTR x65@+1ms STATFS x66@+1ms LOOKUP x1@+11ms GETXATTR x4@+12ms
+write_end rc=67108864 errno=0                                      | GETXATTR x25@+427ms STATFS x12@+429ms OPEN x2@+438ms RELEASE x2@+439ms
+close_begin                                                        | RELEASE x1@+1ms
+close_end rc=0 errno=0                                             | STATFS x6@+0ms GETXATTR x8@+59ms
+unlink_begin                                                       | LOOKUP x1@+1ms GETATTR x3@+2ms UNLINK x1@+2ms STATFS x3@+3ms
+unlink_end rc=0 errno=0                                            | FORGET x1@+0ms
+run size=67108864 n=3                                              | GETATTR x1@+4ms LOOKUP x2@+4ms GETXATTR x25@+6ms STATFS x13@+45ms OPEN x3@+49ms RELEASE x3@+50ms
+section delay size=67108864 hold_ms=6000                           | CREATE x1@+1ms SETATTR x1@+1ms GETATTR x1@+1ms RELEASE x1@+1ms STATFS x1@+1ms OPEN x1@+1ms
+open_create_end rc=3 errno=0                                       | -
+write_begin size=67108864                                          | WRITE x78@+1ms GETATTR x78@+1ms STATFS x78@+1ms
+write_end rc=67108864 errno=0                                      | GETATTR x1@+78ms LOOKUP x1@+79ms GETXATTR x14@+367ms STATFS x8@+368ms OPEN x2@+372ms RELEASE x2@+373ms FSYNC x1@+4012ms
+close_begin                                                        | RELEASE x1@+1ms
+close_end rc=0 errno=0                                             | STATFS x6@+0ms GETXATTR x8@+59ms
+unlink_begin                                                       | LOOKUP x1@+2ms GETATTR x3@+2ms UNLINK x1@+3ms STATFS x3@+4ms
+unlink_end rc=0 errno=0                                            | FORGET x1@+0ms GETATTR x1@+10ms LOOKUP x1@+10ms
+run size=67108864 n=4                                              | GETXATTR x25@+1ms STATFS x13@+40ms OPEN x3@+44ms RELEASE x3@+45ms
+section delay size=67108864 hold_ms=6000                           | CREATE x1@+1ms SETATTR x1@+1ms GETATTR x1@+1ms RELEASE x1@+1ms STATFS x1@+1ms OPEN x1@+1ms
+open_create_end rc=3 errno=0                                       | -
+write_begin size=67108864                                          | WRITE x64@+0ms GETATTR x64@+1ms STATFS x64@+1ms
+write_end rc=67108864 errno=0                                      | GETATTR x1@+132ms LOOKUP x1@+134ms GETXATTR x25@+411ms STATFS x12@+412ms OPEN x2@+422ms RELEASE x2@+423ms
+close_begin                                                        | RELEASE x1@+1ms
+close_end rc=0 errno=0                                             | STATFS x6@+0ms GETXATTR x8@+59ms
+unlink_begin                                                       | LOOKUP x1@+2ms GETATTR x3@+2ms UNLINK x1@+3ms STATFS x3@+4ms
+unlink_end rc=0 errno=0                                            | FORGET x1@+0ms
+run size=67108864 n=5                                              | GETATTR x1@+1ms LOOKUP x1@+2ms GETXATTR x25@+4ms STATFS x13@+48ms OPEN x3@+52ms RELEASE x3@+53ms
+section delay size=67108864 hold_ms=6000                           | CREATE x1@+1ms SETATTR x1@+1ms GETATTR x1@+1ms RELEASE x1@+1ms STATFS x1@+1ms OPEN x1@+1ms
+open_create_end rc=3 errno=0                                       | -
+write_begin size=67108864                                          | WRITE x64@+1ms GETATTR x64@+1ms STATFS x64@+1ms
+write_end rc=67108864 errno=0                                      | GETATTR x1@+92ms LOOKUP x1@+93ms GETXATTR x14@+392ms STATFS x7@+393ms OPEN x2@+401ms RELEASE x2@+402ms
+close_begin                                                        | RELEASE x1@+1ms
+close_end rc=0 errno=0                                             | STATFS x6@+0ms GETXATTR x8@+61ms
+unlink_begin                                                       | LOOKUP x1@+3ms GETATTR x3@+3ms UNLINK x1@+4ms STATFS x3@+5ms
+unlink_end rc=0 errno=0                                            | FORGET x1@+0ms GETATTR x1@+10ms LOOKUP x2@+10ms GETXATTR x2@+13ms
+umount_begin                                                       | STATFS x7@+8ms FORGET x3@+9ms DESTROY x1@+11ms
+umount_end rc=0                                                    | -
+worker_exited                                                      | -

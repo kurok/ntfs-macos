@@ -1,0 +1,9 @@
+mount_begin                                                        | INIT x1@+3002ms STATFS x48@+3002ms GETATTR x8@+3008ms ACCESS x2@+3015ms LOOKUP x24@+3016ms GETXATTR x33@+3018ms MKDIR x1@+3072ms SETATTR x2@+3074ms OPENDIR x1@+3075ms READDIR x2@+3075ms BATCH_FORGET x1@+3075ms RELEASEDIR x1@+3076ms CREATE x1@+3077ms RELEASE x4@+3078ms OPEN x3@+3078ms FSYNC x4@+3078ms WRITE x1@+3086ms FLUSH x1@+3086ms READ x2@+3362ms
+mount_end                                                          | GETXATTR x28@+315ms STATFS x12@+316ms OPEN x2@+323ms RELEASE x2@+323ms
+dd_begin                                                           | LOOKUP x2@+3ms CREATE x1@+4ms SETATTR x1@+4ms GETATTR x73@+4ms RELEASE x5@+5ms STATFS x86@+5ms OPEN x4@+5ms WRITE x71@+5ms GETXATTR x25@+18ms
+dd_end                                                             | -
+sync_begin                                                         | STATFS x1@+6ms
+sync_end                                                           | GETXATTR x19@+262ms STATFS x10@+263ms
+umount_begin                                                       | STATFS x8@+6ms FORGET x4@+8ms DESTROY x1@+11ms
+umount_end rc=0                                                    | -
+worker_exited                                                      | -

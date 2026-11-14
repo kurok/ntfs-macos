@@ -1,0 +1,139 @@
+mount_begin                                                        | INIT x1@+4413ms STATFS x54@+4414ms GETATTR x8@+4433ms ACCESS x15@+4454ms GETXATTR x37@+4459ms LOOKUP x24@+4460ms OPEN x3@+4498ms READ x2@+4499ms FLUSH x2@+4500ms RELEASE x4@+4500ms MKDIR x1@+4510ms SETATTR x2@+4522ms OPENDIR x1@+4525ms READDIR x2@+4525ms BATCH_FORGET x1@+4525ms RELEASEDIR x1@+4526ms CREATE x1@+4527ms FSYNC x5@+4528ms WRITE x1@+4541ms
+mount_end                                                          | GETXATTR x19@+147ms STATFS x7@+148ms OPEN x2@+153ms RELEASE x2@+153ms
+section size=4096 file=p4k                                         | -
+open_create_begin size=4096                                        | LOOKUP x1@+1ms CREATE x1@+1ms SETATTR x1@+1ms GETATTR x1@+2ms RELEASE x1@+2ms STATFS x1@+2ms OPEN x1@+2ms
+open_create_end rc=3 errno=0                                       | -
+write_begin size=4096                                              | WRITE x1@+0ms GETATTR x1@+0ms
+write_end rc=4096 errno=0                                          | STATFS x1@+0ms
+close_begin size=4096                                              | RELEASE x1@+0ms
+close_end rc=0 errno=0                                             | STATFS x8@+0ms GETATTR x1@+49ms GETXATTR x14@+92ms OPEN x3@+96ms RELEASE x2@+97ms LOOKUP x2@+103ms
+reopen_end rc=3 errno=0 for=fsync                                  | WRITE x1@+0ms GETATTR x1@+0ms
+write2_end rc=4096 errno=0                                         | -
+fsync_begin size=4096                                              | STATFS x2@+0ms FSYNC x1@+0ms
+fsync_end rc=0 errno=0                                             | RELEASE x1@+1503ms
+close2_end rc=0 errno=0                                            | STATFS x6@+0ms GETXATTR x8@+527ms OPEN x1@+1575ms
+reopen_end rc=3 errno=0 for=fullfsync                              | WRITE x1@+1ms GETATTR x1@+2ms STATFS x1@+2ms
+write3_end rc=4096 errno=0                                         | -
+fullfsync_begin size=4096                                          | FSYNC x1@+1ms STATFS x1@+9ms
+fullfsync_end rc=0 errno=0                                         | RELEASE x1@+1522ms
+close3_end rc=0 errno=0                                            | STATFS x6@+0ms GETXATTR x8@+55ms OPEN x1@+1579ms
+reopen_end rc=3 errno=0 for=sync                                   | WRITE x1@+0ms GETATTR x1@+0ms STATFS x1@+1ms
+write4_end rc=4096 errno=0                                         | -
+sync_begin size=4096                                               | FSYNC x1@+0ms STATFS x1@+21ms
+sync_end size=4096                                                 | RELEASE x1@+1504ms
+close4_end rc=0 errno=0                                            | STATFS x6@+0ms GETXATTR x8@+183ms OPEN x1@+1570ms
+reopen_end rc=3 errno=0 for=sync_clean_fd                          | -
+sync_clean_fd_begin size=4096                                      | FSYNC x1@+0ms STATFS x1@+1ms
+sync_clean_fd_end size=4096                                        | RELEASE x1@+1514ms STATFS x1@+1515ms OPEN x1@+3093ms
+reopen_end rc=3 errno=0 for=sync_closed                            | WRITE x1@+0ms GETATTR x1@+0ms
+write5_end rc=4096 errno=0                                         | STATFS x1@+0ms RELEASE x1@+0ms
+close5_end rc=0 errno=0                                            | STATFS x6@+0ms GETXATTR x8@+297ms
+sync_closed_begin size=4096                                        | STATFS x1@+1ms
+sync_closed_end size=4096                                          | OPEN x1@+1520ms
+reopen_end rc=3 errno=0 for=clean_fsync                            | -
+clean_fsync_begin size=4096                                        | FSYNC x1@+0ms STATFS x1@+4ms
+clean_fsync_end rc=0 errno=0                                       | -
+clean_fullfsync_begin size=4096                                    | FSYNC x1@+0ms STATFS x1@+0ms
+clean_fullfsync_end rc=0 errno=0                                   | RELEASE x1@+0ms STATFS x2@+1ms
+dir_open_end rc=3 errno=0                                          | -
+dir_fsync_begin size=4096                                          | STATFS x1@+0ms
+dir_fsync_end rc=0 errno=0                                         | -
+dir_fullfsync_begin size=4096                                      | STATFS x1@+0ms
+dir_fullfsync_end rc=0 errno=0                                     | -
+rename_begin size=4096                                             | LOOKUP x3@+1ms GETATTR x4@+1ms RENAME x1@+5ms STATFS x1@+5ms
+rename_end rc=0 errno=0                                            | LOOKUP x4@+11ms GETATTR x3@+12ms GETXATTR x14@+424ms STATFS x7@+425ms OPEN x2@+431ms READ x2@+432ms RELEASE x2@+433ms
+unlink_begin size=4096                                             | LOOKUP x1@+1ms GETATTR x3@+1ms UNLINK x1@+1ms STATFS x1@+2ms
+unlink_end rc=0 errno=0                                            | STATFS x9@+0ms FORGET x1@+0ms LOOKUP x1@+9ms GETATTR x1@+306ms GETXATTR x14@+350ms OPEN x2@+398ms RELEASE x2@+398ms
+section size=1048576 file=p1m                                      | -
+open_create_begin size=1048576                                     | LOOKUP x1@+4ms CREATE x1@+5ms SETATTR x1@+5ms GETATTR x1@+5ms RELEASE x1@+5ms STATFS x1@+5ms OPEN x1@+5ms
+open_create_end rc=3 errno=0                                       | -
+write_begin size=1048576                                           | WRITE x8@+0ms GETATTR x8@+1ms STATFS x8@+1ms
+write_end rc=1048576 errno=0                                       | -
+close_begin size=1048576                                           | RELEASE x1@+0ms
+close_end rc=0 errno=0                                             | STATFS x8@+0ms GETATTR x1@+284ms GETXATTR x14@+327ms OPEN x3@+333ms RELEASE x2@+333ms LOOKUP x1@+385ms
+reopen_end rc=3 errno=0 for=fsync                                  | WRITE x1@+0ms GETATTR x1@+2ms
+write2_end rc=4096 errno=0                                         | -
+fsync_begin size=1048576                                           | STATFS x2@+0ms FSYNC x1@+0ms
+fsync_end rc=0 errno=0                                             | RELEASE x1@+1575ms
+close2_end rc=0 errno=0                                            | STATFS x6@+0ms GETXATTR x8@+231ms OPEN x1@+1555ms
+reopen_end rc=3 errno=0 for=fullfsync                              | WRITE x1@+0ms GETATTR x1@+1ms
+write3_end rc=4096 errno=0                                         | STATFS x1@+0ms
+fullfsync_begin size=1048576                                       | FSYNC x1@+0ms STATFS x1@+25ms
+fullfsync_end rc=0 errno=0                                         | RELEASE x1@+1520ms
+close3_end rc=0 errno=0                                            | STATFS x6@+0ms GETXATTR x8@+56ms OPEN x1@+1580ms
+reopen_end rc=3 errno=0 for=sync                                   | WRITE x1@+0ms GETATTR x1@+1ms STATFS x1@+1ms
+write4_end rc=4096 errno=0                                         | -
+sync_begin size=1048576                                            | FSYNC x1@+0ms STATFS x1@+34ms
+sync_end size=1048576                                              | RELEASE x1@+1571ms
+close4_end rc=0 errno=0                                            | STATFS x6@+0ms GETXATTR x8@+58ms OPEN x1@+1573ms
+reopen_end rc=3 errno=0 for=sync_clean_fd                          | -
+sync_clean_fd_begin size=1048576                                   | FSYNC x1@+0ms STATFS x1@+1ms
+sync_clean_fd_end size=1048576                                     | RELEASE x1@+1513ms STATFS x1@+1514ms OPEN x1@+3019ms
+reopen_end rc=3 errno=0 for=sync_closed                            | WRITE x1@+1ms GETATTR x1@+1ms STATFS x1@+1ms
+write5_end rc=4096 errno=0                                         | RELEASE x1@+0ms
+close5_end rc=0 errno=0                                            | STATFS x6@+0ms GETXATTR x8@+57ms
+sync_closed_begin size=1048576                                     | STATFS x1@+2ms
+sync_closed_end size=1048576                                       | OPEN x1@+1523ms
+reopen_end rc=3 errno=0 for=clean_fsync                            | -
+clean_fsync_begin size=1048576                                     | FSYNC x1@+1ms STATFS x1@+6ms
+clean_fsync_end rc=0 errno=0                                       | -
+clean_fullfsync_begin size=1048576                                 | FSYNC x1@+1ms STATFS x1@+1ms
+clean_fullfsync_end rc=0 errno=0                                   | RELEASE x1@+0ms STATFS x1@+1ms
+dir_open_end rc=3 errno=0                                          | -
+dir_fsync_begin size=1048576                                       | STATFS x1@+1ms
+dir_fsync_end rc=0 errno=0                                         | -
+dir_fullfsync_begin size=1048576                                   | STATFS x1@+0ms
+dir_fullfsync_end rc=0 errno=0                                     | -
+rename_begin size=1048576                                          | LOOKUP x3@+2ms GETATTR x4@+3ms RENAME x1@+4ms STATFS x1@+5ms
+rename_end rc=0 errno=0                                            | LOOKUP x4@+13ms GETATTR x1@+55ms GETXATTR x14@+56ms STATFS x7@+58ms OPEN x2@+66ms RELEASE x2@+67ms
+unlink_begin size=1048576                                          | LOOKUP x1@+1ms GETATTR x3@+1ms UNLINK x1@+1ms STATFS x2@+2ms
+unlink_end rc=0 errno=0                                            | FORGET x1@+0ms STATFS x8@+0ms LOOKUP x1@+12ms GETATTR x1@+22ms GETXATTR x14@+66ms OPEN x2@+70ms RELEASE x2@+70ms
+section size=67108864 file=p64m                                    | -
+open_create_begin size=67108864                                    | LOOKUP x1@+1ms CREATE x1@+1ms SETATTR x1@+1ms GETATTR x1@+2ms RELEASE x1@+2ms STATFS x1@+2ms OPEN x1@+2ms
+open_create_end rc=3 errno=0                                       | -
+write_begin size=67108864                                          | WRITE x64@+1ms GETATTR x65@+1ms STATFS x64@+1ms
+write_end rc=67108864 errno=0                                      | -
+close_begin size=67108864                                          | RELEASE x1@+0ms
+close_end rc=0 errno=0                                             | STATFS x13@+0ms GETXATTR x22@+12ms OPEN x3@+16ms RELEASE x2@+17ms LOOKUP x1@+63ms
+reopen_end rc=3 errno=0 for=fsync                                  | WRITE x1@+0ms GETATTR x1@+4ms STATFS x1@+4ms
+write2_end rc=4096 errno=0                                         | -
+fsync_begin size=67108864                                          | FSYNC x1@+0ms STATFS x1@+51ms
+fsync_end rc=0 errno=0                                             | FSYNC x1@+519ms STATFS x1@+521ms RELEASE x1@+1535ms
+close2_end rc=0 errno=0                                            | STATFS x6@+0ms GETXATTR x8@+56ms OPEN x1@+1577ms
+reopen_end rc=3 errno=0 for=fullfsync                              | WRITE x1@+0ms GETATTR x1@+1ms STATFS x1@+1ms
+write3_end rc=4096 errno=0                                         | -
+fullfsync_begin size=67108864                                      | FSYNC x1@+0ms STATFS x1@+10ms
+fullfsync_end rc=0 errno=0                                         | RELEASE x1@+1533ms
+close3_end rc=0 errno=0                                            | STATFS x6@+0ms GETXATTR x8@+60ms OPEN x1@+1582ms
+reopen_end rc=3 errno=0 for=sync                                   | WRITE x1@+0ms GETATTR x1@+1ms
+write4_end rc=4096 errno=0                                         | STATFS x1@+0ms
+sync_begin size=67108864                                           | FSYNC x1@+0ms STATFS x1@+10ms
+sync_end size=67108864                                             | RELEASE x1@+1512ms
+close4_end rc=0 errno=0                                            | STATFS x6@+0ms GETXATTR x8@+55ms OPEN x1@+1505ms
+reopen_end rc=3 errno=0 for=sync_clean_fd                          | -
+sync_clean_fd_begin size=67108864                                  | FSYNC x1@+0ms STATFS x1@+0ms
+sync_clean_fd_end size=67108864                                    | RELEASE x1@+1505ms STATFS x1@+1505ms OPEN x1@+3010ms
+reopen_end rc=3 errno=0 for=sync_closed                            | WRITE x1@+1ms GETATTR x1@+1ms STATFS x1@+2ms
+write5_end rc=4096 errno=0                                         | RELEASE x1@+0ms
+close5_end rc=0 errno=0                                            | STATFS x6@+0ms GETXATTR x8@+55ms
+sync_closed_begin size=67108864                                    | STATFS x1@+2ms
+sync_closed_end size=67108864                                      | OPEN x1@+1578ms
+reopen_end rc=3 errno=0 for=clean_fsync                            | -
+clean_fsync_begin size=67108864                                    | FSYNC x1@+0ms STATFS x1@+7ms
+clean_fsync_end rc=0 errno=0                                       | -
+clean_fullfsync_begin size=67108864                                | FSYNC x1@+0ms STATFS x1@+1ms
+clean_fullfsync_end rc=0 errno=0                                   | RELEASE x1@+1ms STATFS x1@+1ms
+dir_open_end rc=3 errno=0                                          | -
+dir_fsync_begin size=67108864                                      | STATFS x1@+1ms
+dir_fsync_end rc=0 errno=0                                         | -
+dir_fullfsync_begin size=67108864                                  | STATFS x1@+0ms
+dir_fullfsync_end rc=0 errno=0                                     | -
+rename_begin size=67108864                                         | LOOKUP x3@+2ms GETATTR x4@+3ms RENAME x1@+5ms STATFS x1@+6ms
+rename_end rc=0 errno=0                                            | LOOKUP x5@+14ms GETATTR x1@+15ms GETXATTR x14@+57ms STATFS x7@+59ms OPEN x2@+68ms RELEASE x2@+69ms
+unlink_begin size=67108864                                         | LOOKUP x1@+1ms GETATTR x3@+1ms UNLINK x1@+1ms STATFS x3@+2ms
+unlink_end rc=0 errno=0                                            | FORGET x1@+0ms LOOKUP x2@+13ms GETATTR x1@+13ms GETXATTR x14@+55ms STATFS x7@+56ms OPEN x2@+59ms RELEASE x2@+60ms
+steps_done                                                         | -
+pre_umount_idle                                                    | GETXATTR x22@+2ms STATFS x10@+4ms
+umount_begin                                                       | GETXATTR x2@+14ms STATFS x8@+15ms FORGET x3@+16ms DESTROY x1@+18ms
+umount_end rc=0                                                    | -
+worker_exited                                                      | -

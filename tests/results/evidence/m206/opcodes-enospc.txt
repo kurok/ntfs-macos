@@ -1,0 +1,33 @@
+mount_begin                                                        | INIT x1@+3111ms STATFS x33@+3112ms GETATTR x6@+3115ms ACCESS x2@+3120ms LOOKUP x19@+3121ms GETXATTR x18@+3122ms MKDIR x1@+3176ms SETATTR x2@+3177ms OPENDIR x1@+3178ms READDIR x2@+3179ms BATCH_FORGET x1@+3179ms RELEASEDIR x1@+3179ms CREATE x1@+3180ms RELEASE x2@+3180ms OPEN x1@+3180ms FSYNC x4@+3181ms WRITE x1@+3188ms FLUSH x1@+3189ms
+mount_end                                                          | GETXATTR x32@+74ms STATFS x21@+74ms LOOKUP x5@+95ms OPEN x2@+100ms READ x2@+100ms GETATTR x2@+101ms RELEASE x2@+101ms
+section enospc chunk=1048576                                       | LOOKUP x1@+1ms CREATE x1@+1ms SETATTR x1@+2ms GETATTR x1@+2ms RELEASE x1@+2ms STATFS x1@+2ms OPEN x1@+2ms
+open_create_end rc=3 errno=0                                       | WRITE x22@+0ms GETATTR x21@+1ms STATFS x21@+1ms
+fill_write_failed rc=-1 errno=28 (No space left on device)         | -
+fill_summary accepted_bytes=22020096 chunks_ok=21 first_errno=28   | WRITE x2@+0ms GETATTR x1@+0ms STATFS x1@+1ms
+retry_write1_end rc=-1 errno=28 (No space left on device)          | -
+fsync_begin after_full                                             | FSYNC x1@+0ms GETATTR x1@+15ms STATFS x1@+15ms
+fsync_end rc=0 errno=0                                             | -
+fullfsync_begin after_full                                         | FSYNC x1@+0ms STATFS x2@+1ms GETXATTR x2@+1ms
+fullfsync_end rc=0 errno=0                                         | -
+close_begin after_full                                             | GETXATTR x4@+0ms RELEASE x1@+0ms
+close_end rc=0 errno=0                                             | STATFS x12@+0ms OPEN x2@+2ms RELEASE x2@+2ms GETXATTR x16@+9ms LOOKUP x1@+10ms
+stat_after_close st_size=23068673 accepted_bytes=22020096 lost=-1048577 | -
+sync_begin after_full                                              | STATFS x1@+1ms
+sync_end after_full                                                | STATFS x1@+175ms
+second_file begin                                                  | LOOKUP x1@+0ms CREATE x1@+1ms SETATTR x1@+1ms GETATTR x1@+1ms RELEASE x1@+1ms STATFS x1@+1ms OPEN x1@+1ms
+open_create2_end rc=3 errno=0                                      | WRITE x1@+0ms GETATTR x1@+0ms
+write2_end rc=65536 errno=0                                        | STATFS x2@+0ms FSYNC x1@+0ms
+fsync2_end rc=0 errno=0                                            | RELEASE x1@+0ms
+close2_end rc=0 errno=0                                            | STATFS x8@+0ms GETATTR x1@+90ms GETXATTR x14@+132ms OPEN x2@+137ms RELEASE x2@+137ms LOOKUP x1@+146ms
+stat2_after_close st_size=65536                                    | -
+unlink_begin fill                                                  | LOOKUP x1@+0ms GETATTR x3@+1ms UNLINK x1@+1ms STATFS x3@+1ms
+unlink_end rc=0 errno=0                                            | FORGET x1@+0ms LOOKUP x1@+2ms GETATTR x1@+50ms GETXATTR x14@+92ms STATFS x8@+93ms OPEN x3@+97ms RELEASE x2@+97ms SETATTR x1@+1548ms
+open_create3_end rc=3 errno=0                                      | STATFS x2@+0ms WRITE x1@+0ms GETATTR x1@+1ms
+write3_end rc=65536 errno=0                                        | FSYNC x1@+0ms STATFS x1@+14ms
+fsync3_end rc=0 errno=0                                            | RELEASE x1@+0ms
+close3_end rc=0 errno=0                                            | STATFS x3@+0ms LOOKUP x1@+0ms GETATTR x3@+1ms UNLINK x1@+1ms
+enospc_done                                                        | FORGET x1@+0ms STATFS x1@+0ms
+pre_umount_idle                                                    | LOOKUP x1@+3ms GETATTR x1@+482ms GETXATTR x25@+485ms STATFS x12@+524ms OPEN x2@+531ms RELEASE x2@+531ms
+umount_begin                                                       | STATFS x7@+6ms FORGET x3@+7ms DESTROY x1@+9ms
+umount_end rc=0                                                    | -
+worker_exited                                                      | -

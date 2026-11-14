@@ -30,7 +30,7 @@ Fact labels used in all six documents:
 5. A decision on the Paragon NTFS driver on the host before any hardware test on this Mac (section 8.4).
 
 **Riskiest assumption:** that the libfuse2-based `ntfs-3g` binary can mount through the macFUSE FSKit backend at all.
-macFUSE 5.1.0 documented `-o backend=fskit` for libfuse3 only, and a third party reported that libfuse2 rejects the option [V:S5][V:S9].
+macFUSE 5.1.0 documented `-o backend=fskit` for libfuse3 only, and a third party reported that libfuse2 rejects the option [V:S5][V:S9]. T-M2-03 showed that macFUSE 5.5.0's libfuse2 accepts it: unpatched NTFS-3G 2026.9.28 mounts an image read/write on FSKit as a normal user (`docs/spikes/M2-backend.md`).
 macFUSE 5.2.0 says libfuse (v2) now uses the new FSKit mount API, which suggests support, but does not say so explicitly [V:S6].
 NTFS-3G requires `fuse >= 2.6.0` and has no libfuse3 support [V:S11].
 Task T-M2-03 resolves this on day one of M2. The fallbacks are ordered in ADR-001.
@@ -198,6 +198,8 @@ The daemon starts the worker with `posix_spawn` and a fixed five-element argumen
 | Option set | Options |
 |---|---|
 | Always | `backend=fskit,local,norecover,noatime,windows_names,big_writes,streams_interface=xattr,uid=<console uid>,gid=<console gid>,fmask=0133,dmask=0022` |
+
+`backend=fskit` is not optional: without it, or with an unknown backend, `ntfs-3g` prints "Mounted ... Read-Write" and exits 0 but no mount appears, and the daemonised worker ignores `SIGTERM` (T-M2-03). `ntfs-3g` also returns before the mount is visible, because it calls `daemon()` first. The section 4.1 step 8 wait therefore polls for the mount, and on its deadline sends `SIGKILL` to the worker's process group.
 | Volume name | `volname=<leaf>`, only if T-M2-04 shows the FSKit backend needs it to name the volume (U14). The value is the same sanitised leaf as the mount point, never the raw label. If the backend names the volume from the mount point, `volname` is not passed at all. |
 | Read-only | add `ro` |
 | Opt-in (config) | `hide_hid_files`, `permissions` or `usermapping=/usr/local/etc/ntfs-macos/UserMapping` (fixed path without a space, root-owned, mode 0644; ADR-012) |
@@ -569,11 +571,11 @@ Target: arm64, deployment target macOS 27.0. External runtime prerequisite: macF
 
 | ID | Unknown | How to resolve | Blocks |
 |---|---|---|---|
-| U1 | Does macFUSE's libfuse2 accept `backend=fskit`? | T-M2-03 | Everything |
+| U1 | Does macFUSE's libfuse2 accept `backend=fskit`? **Resolved 2026-11-14: yes** for image files, no patch needed (`docs/spikes/M2-backend.md`); T-M2-03b not needed. | T-M2-03 | Everything |
 | U2 | Does a macOS 27 guest under Virtualization.framework load and run the macFUSE FSKit module? **Resolved 2026-11-14: yes.** macFUSE 5.5.0 in a macOS 27.2 tart guest mounts a libfuse3 file system with `-o backend=fskit` as user `admin` (`docs/VM_SETUP.md`). | T-M2-02 | VM testing |
 | U3 | Can the FSKit extension be enabled without the GUI (`pluginkit -e use`)? **Resolved 2026-11-14: no.** `pluginkit -e use` marks both macFUSE modules `+` but mounts still fail with "File system extension not enabled" until the user turns macFUSE on in System Settings > General > Login Items & Extensions. The approval survives reboot and `tart clone`, so it is once per golden image (H3). | T-M2-02 | VM automation |
 | U4 | Which FUSE opcodes result from `fsync`, `F_FULLFSYNC`, `sync`, unmount? | T-M2-06 | Section 9 wording |
-| U5 | Does `ntfs-3g` accept `/dev/fd/N` (device size and sector-size ioctls on a re-opened descriptor)? | T-M2-05; fallback patch `0003` | Privilege separation |
+| U5 | Does `ntfs-3g` accept `/dev/fd/N` (device size and sector-size ioctls on a re-opened descriptor)? T-M2-03 found two obstacles: `/dev/diskN` is `root:operator 0640`, and `src/ntfs-3g.c` `main` refuses any block device for a non-root user when built with external FUSE (`getuid() && ctx->blkdev`, "Unprivileged user can not mount NTFS block devices"); a `/dev/fd/N` that `stat`s as a block device likely hits the same check, and NTFS-3G adds `blkdev,blksize=` to the FUSE options for block devices. | T-M2-05; fallback patch `0003` | Privilege separation |
 | U6 | Can the FUSE server run as the console user when started by a root daemon (forum posters report that FSKit modules are enabled per user and that root-run `mount -F` fails [V:S14]; the Apple engineer in that thread is unsure about root mounts, so this is [A] until T-M4-01)? | T-M4-01 | Daemon design |
 | U7 | Is a Disk Arbitration mount-approval dissenter still honoured for external NTFS disks on macOS 27? | T-M4-02; fallback: let Apple's driver mount read-only, then unmount and remount | Automount |
 | U8 | Does Finder eject of the volume also eject the media? | T-M4-03 | UX |
@@ -589,6 +591,7 @@ Target: arm64, deployment target macOS 27.0. External runtime prerequisite: macF
 | U18 | Does the Disk Arbitration description show `DAVolumePath` for a disk mounted by Apple's `ntfs.fs` or another driver, and does an `O_RDWR` open of such a disk fail? | T-M4-02 | Binding step of section 4.1 step 6 (ADR-020) |
 | U19 | Does Windows resume only from `\hiberfil.sys` in the root (never another directory), and does the probe's root listing with `$UpCase` comparison find every case variant that NTFS-3G's lookup misses? | T-M3-02 (probe) with fixtures from T-M3-04, run against the probe and the engine; Windows part in T-M5-10 | Check 5 of section 3.1; second-line table of section 9 |
 | U20 | Does `getfsstat(MNT_NOWAIT)` on macOS 27 list a macFUSE FSKit mount promptly and without a call into the worker (Apple's `getfsstat(2)` describes `MNT_NOWAIT` as returning kernel-retained data), including while the worker is stopped with `SIGSTOP`? (Not testable from the NTFS-3G tarball.) | T-M4-01 (VM: stop the worker, poll for 30 s, check the daemon queue stays responsive) | Mount-wait step of section 4.1 step 8; fallback is a helper process that does the `statfs` under a timeout |
+| U21 | macOS 27 automounts an attached NTFS disk read-only with its own FSKit `ntfs.fs` (`/Volumes/<label>`), which holds the device busy. Does the daemon's Disk Arbitration claim prevent that reliably, or must it unmount first (`diskutil unmount` worked as a normal user)? | T-M4-02 | Attach path of section 4.1 |
 
 ## 12. Sources
 

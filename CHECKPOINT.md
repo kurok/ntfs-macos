@@ -1,6 +1,6 @@
 # Checkpoint
 
-- **Phase:** M2 started: T-M2-01 (build-ntfs3g.sh), T-M2-07 (fixtures, treedump) and T-M2-08 (Python harness, I-INT-01/03) and T-M2-02 (golden VM with macFUSE 5.5.0 approved; U2 yes, U3 no) done. M1 tasks done. Done: T-M1-01, -02, -03, -05, -06, -07 (`scripts/ci-local.sh --quick`); audit fixes applied (b99d414, 6a3e5e0); re-audit `docs/audits/M1-recheck.md`: accept with fixes; all 15 findings applied (N-01..N-08 in 9d20cea, N-09..N-15 next commit; N-03 split-record crash accepted as residual R-33; new ADR-019/020, U15-U20). T-M1-04 done: `vm/macos/tart.sh selftest` OK on the `macos-golden-gate-base` image via `tart exec` (SSH from the desktop app is blocked by Local Network privacy).
+- **Phase:** M2 started: T-M2-01 (build-ntfs3g.sh), T-M2-07 (fixtures, treedump) and T-M2-08 (Python harness, I-INT-01/03) T-M2-02 (golden VM with macFUSE 5.5.0 approved; U2 yes, U3 no) and T-M2-03 (**gate passed**: unpatched NTFS-3G mounts rw on FSKit as a normal user, U1 yes; T-M2-03b not needed) done. M1 tasks done. Done: T-M1-01, -02, -03, -05, -06, -07 (`scripts/ci-local.sh --quick`); audit fixes applied (b99d414, 6a3e5e0); re-audit `docs/audits/M1-recheck.md`: accept with fixes; all 15 findings applied (N-01..N-08 in 9d20cea, N-09..N-15 next commit; N-03 split-record crash accepted as residual R-33; new ADR-019/020, U15-U20). T-M1-04 done: `vm/macos/tart.sh selftest` OK on the `macos-golden-gate-base` image via `tart exec` (SSH from the desktop app is blocked by Local Network privacy).
 - **Completed:**
   - Host and quota preflight (2026-11-13): macOS 27.2.1 arm64, Command Line Tools only (no Xcode),
     Docker CLI with no running daemon, no VM tool. Paragon NTFS and fuse-t 1.2.9 are installed;
@@ -12,7 +12,7 @@
   banned; arm64 only; GPL-2.0-or-later; macFUSE is a user-installed prerequisite, never bundled.
 - **Open:** see [NEXT_ACTIONS.md](NEXT_ACTIONS.md) and `docs/AGENT_TASKS.md`.
 - **Known issues / unverified:**
-  - R-01: whether libfuse2-based `ntfs-3g` can use `backend=fskit` at all is unproven (T-M2-03).
+  - R-01 resolved for image files (T-M2-03). Block devices: non-root refusal in ntfs-3g and root-only device nodes (U5, T-M2-05).
   - Durability limited to volume sync points and clean unmount (ARCHITECTURE.md section 9).
   - Open unknowns in ARCHITECTURE.md section 11 (now up to U20), each mapped to a task.
   - No mount tests on this host: Paragon NTFS claims NTFS volumes first. All mounts run in the VM.

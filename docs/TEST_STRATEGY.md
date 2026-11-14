@@ -114,7 +114,7 @@ Environment column: where the test must pass to count. `A*` means "also run on L
 | xattrs and named streams | `I-XATTR-*` | set/get/list/remove; 1 B to 64 KiB values; stream visible in Linux tree dump; `ditto`, `cp -c`, Finder copy | B | T-M3-08 |
 | Concurrent access | `S-PAR-*` | 16 writers, readers during writes, rename storms | B | T-M5-02 |
 | **Integrity** | | | | |
-| Hash before and after remount | `I-INT-01..03` | 100 random files; `tree-1g` full copy in and out; negative control | B | T-M2-08 |
+| Hash before and after remount | `I-INT-01..03` | 100 random files; `tree-1g` full copy in and out; negative control; the root `.fseventsd` that macOS creates on every mount is not test data and is skipped | B | T-M2-08 |
 | Repeated write/read cycles | `I-INT-CYCLE-*` | 200 overwrite cycles on 50 files | B | T-M3-05 |
 | Interrupted writes | `S-CRASH-*` (Linux sweep), `S-KILL-*` | cut after write N; kill worker mid-copy | A, B | T-M3-14, T-M5-05 |
 | Forced process termination | `S-KILL-*`, `I-DMN-14..15` | `SIGKILL` worker, daemon, macFUSE module process | B | T-M4-05, T-M4-11, T-M5-05 |

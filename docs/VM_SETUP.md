@@ -52,3 +52,6 @@ Then: `vm/macos/tart.sh clone NAME --from golden`, `tart.sh run NAME`, `tart.sh 
   `/sbin/shutdown`, `/usr/sbin/installer`.
 - **Disk numbers** in the guest change between boots (`vm/macos/README.md`); find test disks by size or
   identity.
+- **Building NTFS-3G in a clone** needs no extra installs: `scripts/build-ntfs3g.sh --fuse external` finds
+  macFUSE's libfuse2 through pkg-config in about 15 s (`tests/harness/run-env-b.sh` builds into
+  `~/ntfsmac/deps`). macOS creates `.fseventsd` in the root of every mounted volume.

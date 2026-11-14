@@ -10,7 +10,7 @@ Nothing. H3 is done for the current golden VM (`ntfsmac-golden`); a rebuilt gold
 
 ## Agent tasks ready now
 
-1. T-M2-03 backend gate: build NTFS-3G in a clone of `ntfsmac-golden` against macFUSE libfuse (see `docs/VM_SETUP.md` findings), first rw mount (I-SMOKE-01), Environment B mount adapter in `tests/harness/volume.py`. Then T-M2-04/-05/-06/-09.
+1. T-M2-04 option matrix, T-M2-05 device by fd (start from U5 notes: non-root block-device refusal, root:operator nodes, read-only automount U21), T-M2-06 sync trace, T-M2-09 cross-read; then T-M2-10 audit.
 2. Run `scripts/ci-local.sh --quick` before every push (ADR-015).
 3. Confirm the three assumptions recorded by the N-05/N-07/N-08 fixes (`/dev/fd/N` sharing, `POSIX_SPAWN_CLOEXEC_DEFAULT`, peer code-signing checks) when T-M4-02/-04/-13 run.
 

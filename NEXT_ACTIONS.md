@@ -5,24 +5,20 @@
 1. **H1** — approve Homebrew installs on the host: `cmake`, `ninja`, `pkgconf`, and the VM tool (tart, pending T-M1-04 licence check).
 2. **H2** — start the Docker Desktop daemon (or approve Podman/colima) for the Linux environment.
 
-## Agent tasks ready now (no human dependency)
+## Blocked on the owner
 
-Done: T-M1-01 (licences), T-M1-02 (deps lock, NTFS-3G digest confirmed), T-M1-06 (audit, `docs/audits/M1.md`).
+- **T-M1-04 networking:** allow Local Network for the desktop app (System Settings > Privacy & Security > Local Network), or run `vm/macos/tart.sh selftest` from Terminal.app.
 
-1. **Apply audit fixes 1-4 before M2** (docs/audits/M1.md section 6): volume-label sanitising in the
-   daemon, a defined way to clear the host journal, dirty marker (NTFS-3G never sets
-   `VOLUME_IS_DIRTY`; make ADR-006 phase 2 the plan), and durability wording. Design change with
-   data-loss impact: Opus 5.5.
-2. **Apply audit fixes 5-7** (missing tests, claim wording, structure): Sonnet 5.5.
-3. Independent re-check of the fixes by the audit role (Sonnet 5.5).
+## Agent tasks ready now
 
-## Unblocked by H1/H2
-
-- T-M1-03 CMake skeleton and presets (H1)
-- T-M1-04 VM tool verification and wrapper (H1)
-- T-M1-05 Linux image building pinned NTFS-3G (T-M1-02, H2)
+1. **Re-audit fixes, high first** (`docs/audits/M1-recheck.md`, Opus 5.5 for N-01..N-08):
+   - N-01 clean-session decision must need positive records, not silence/exit 0 (ntfs-3g sets `err = 0` after `fuse_loop` unconditionally — verified).
+   - N-02 grammar for every probe field; journal file names from the parsed serial; `reasons` as enum codes.
+   - N-03..N-08 (volmark `$Volume`/`$MFTMirr` non-atomic write, U12 negative case, admin-peer boundary, `ntfs_fsync` already uses F_FULLFSYNC with silent fallback — verified, error-channel bounds, binding probed volume to opened device).
+   - N-09..N-15 low items: Sonnet 5.5.
+2. T-M1-07 minimal `scripts/ci-local.sh --quick` (Sonnet).
 
 ## Milestone 2 gate
 
-T-M2-03 decides whether NTFS-3G runs on the macFUSE FSKit backend (risk R-01). It needs the
-golden macOS 27 VM (T-M2-02) and the one-time GUI approval of the macFUSE extension (H3).
+T-M2-03 decides whether NTFS-3G runs on the macFUSE FSKit backend (risk R-01). Needs T-M1-04 finished,
+the golden macOS 27 VM (T-M2-02) and the one-time GUI approval of the macFUSE extension (H3).

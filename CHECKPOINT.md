@@ -1,6 +1,6 @@
 # Checkpoint
 
-- **Phase:** M1 in progress. Done: T-M1-01, T-M1-02, T-M1-06 (audit: accept with fixes). Blocked on H1/H2: T-M1-03, T-M1-04, T-M1-05.
+- **Phase:** M1 nearly done. Done: T-M1-01, -02, -03, -05, -06; audit fixes applied (b99d414, 6a3e5e0); re-audit `docs/audits/M1-recheck.md`: accept with fixes (2 high, 6 medium, 7 low). T-M1-04 partial: host gets "No route to host" to the tart guest (likely Local Network privacy for the desktop app). T-M1-07 not started.
 - **Completed:**
   - Host and quota preflight (2026-11-13): macOS 27.2.1 arm64, Command Line Tools only (no Xcode),
     Docker CLI with no running daemon, no VM tool. Paragon NTFS and fuse-t 1.2.9 are installed;
@@ -16,7 +16,7 @@
   - Durability limited to volume sync points and clean unmount (ARCHITECTURE.md section 9).
   - 11 open unknowns in ARCHITECTURE.md section 11, each mapped to a task.
   - No mount tests on this host: Paragon NTFS claims NTFS volumes first. All mounts run in the VM.
-- **Last test results:** `tests/unit/fetch/test_fetch_deps.sh` ALL PASSED (2026-11-13, host).
+- **Last test results (2026-11-13/14):** fetch test ALL PASSED (host); CMake release/asan/ubsan + linux ctest 100% (host, debian:13-slim); `vm/linux/run.sh selftest` OK release and ASan; `vm/macos/tart.sh selftest` FAILS at SSH (no route to guest).
 - **Policy:** repo public; no GitHub-hosted CI or binaries (ADR-015); commits as `kurok` noreply.
 - **Git revision:** see `git log -1`.
 

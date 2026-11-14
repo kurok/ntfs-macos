@@ -133,8 +133,24 @@ def short_sha(sha):
     return sha[:7]
 
 
-def run_id(started, sha, env):
-    return "%s-%s-%s" % (started[:10], short_sha(sha), env)
+def run_id(started, sha, env, suffix=""):
+    """<date>-<short sha>-<env>[<suffix>]; suffix is "" or "-runN" for repeated runs."""
+    return "%s-%s-%s%s" % (started[:10], short_sha(sha), env, suffix)
+
+
+def free_suffix(out_dir, started, sha, env):
+    """"" if no result or evidence of that run id exists in out_dir, else the first free "-runN" (N >= 2).
+    Repeated runs of one commit on one day must not overwrite each other (M2 audit F-07)."""
+    def taken(sfx):
+        rid = run_id(started, sha, env, sfx)
+        return (os.path.exists(os.path.join(out_dir, rid + ".json"))
+                or os.path.exists(os.path.join(out_dir, "evidence", rid)))
+    if not taken(""):
+        return ""
+    n = 2
+    while taken("-run%d" % n):
+        n += 1
+    return "-run%d" % n
 
 
 def build_result(sha, dirty, env, host_os, guest_os, macfuse_version, ntfs3g_version, started, finished, cases):
@@ -153,13 +169,13 @@ def build_result(sha, dirty, env, host_os, guest_os, macfuse_version, ntfs3g_ver
     }
 
 
-def write_result(doc, out_dir):
-    """Validate and write <date>-<short sha>-<env>.json; refuse an invalid document."""
+def write_result(doc, out_dir, rid=None):
+    """Validate and write <rid>.json (default <date>-<short sha>-<env>); refuse an invalid document."""
     errs = validate(doc)
     if errs:
         raise ValueError("invalid result: " + "; ".join(errs))
     os.makedirs(out_dir, exist_ok=True)
-    path = os.path.join(out_dir, run_id(doc["started"], doc["git_sha"], doc["env"]) + ".json")
+    path = os.path.join(out_dir, (rid or run_id(doc["started"], doc["git_sha"], doc["env"])) + ".json")
     with open(path, "w", encoding="utf-8") as f:
         json.dump(doc, f, indent=2)
         f.write("\n")

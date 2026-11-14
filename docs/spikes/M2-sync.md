@@ -30,11 +30,11 @@ Findings about the tooling itself:
 
 - `-o debug` works as the per-request log on macFUSE (the log starts with `INIT: 7.19`); `no_detach` keeps the worker in the
   foreground. The FUSE `pid` field is always 0 on this backend, so requests cannot be tied to the calling process.
-- **The mount point must be an absolute path.** With a relative one `ntfs-3g` prints "Mounted ...", stays alive and no
+- **The mount point must be an absolute path** (logged by the M2 audit, `tests/results/evidence/2026-11-14-00abf04-claims.log` cases C2 and C3). With a relative one `ntfs-3g` prints "Mounted ...", stays alive and no
   mount ever appears (the same silent failure as without `backend=fskit`; a note for ARCHITECTURE.md 3.3 / 4.1).
 - On every mount macOS itself opens files on the volume (the `.fseventsd/fseventsd-uuid` file is created, written (36
-  bytes), fsynced four times and closed; `.VolumeIcon.icns`, `getxattr`s). Those
-  are the `FSYNC x4`, `WRITE x1` and `FLUSH x1` entries in the `mount_begin` rows; they are not the probe.
+  bytes), fsynced four times (five times in the steps session) and closed; `.VolumeIcon.icns`, `getxattr`s). Those
+  are the `FSYNC x4`, `WRITE x1` and `FLUSH x1` entries in the `mount_begin` rows (`FSYNC x5` and `FLUSH x2` in `opcodes-steps.txt`); they are not the probe.
 
 ## Opcode table (application call -> FUSE opcodes)
 
@@ -48,7 +48,7 @@ left out.
 | `open(O_CREAT)` | `LOOKUP`, `CREATE`, `SETATTR`, `GETATTR`, `RELEASE` (of the create handle), `OPEN` (a second handle) | all within 3 ms |
 | `write(fd, buf, N)` | 4 KiB: 1 `WRITE`. 1 MiB: 1 or 8 `WRITE` (8 in 2 of 5 delay runs). 64 MiB: 64 `WRITE` of 1 MiB (78 in one run) | **all `WRITE`s arrive before `write()` returns**; the last one 0.3 to 0.5 ms before it |
 | `close(fd)` | `RELEASE` | 0.5 to 1.5 ms after `close()` starts, before it returns. **No `FLUSH`** for any file the probe opened |
-| `fsync(fd)` after a write | `FSYNC` (`fsync[0] datasync: 1`), on the file's node id | request at +0 ms; reply (device sync in `ntfs_fuse_fsync`) 0 to 50 ms, mean 8.7 ms over the 24 `FSYNC` of the steps log |
+| `fsync(fd)` after a write | `FSYNC` (`fsync[0] datasync: 1`), on the file's node id | request at +0 ms; reply (device sync in `ntfs_fuse_fsync`) 0 to 50 ms, mean 10.5 ms over the 19 `FSYNC` of the probe in the steps log (8.7 ms if the 5 mount-time `FSYNC`s of macOS are included) |
 | `fcntl(fd, F_FULLFSYNC)` after a write | `FSYNC`, byte-for-byte the same line (`datasync: 1`, `insize: 56`) | `fcntl` returned 0, errno 0 in every call |
 | `sync(2)` with the written file still open | `FSYNC` for that file | at +0 ms |
 | `sync(2)` with a clean file open | `FSYNC` for that file | at +0 ms |
@@ -164,7 +164,7 @@ Replace the whole table with:
 | `fcntl(F_FULLFSYNC)` | The same `FUSE_FSYNC` as `fsync`, not distinguishable at the FUSE level. `fcntl` returns 0. | [V: T-M2-06] |
 | `fsync` or `F_FULLFSYNC` on a directory | No request. Returns 0. | [V: T-M2-06] |
 | `close(fd)` | `FUSE_RELEASE`, before `close` returns. No `FUSE_FLUSH` for the files tested (macOS's own mount-time opens do get one, answered `ENOSYS` because `ntfs_3g_ops` has no `.flush`). A flush error cannot occur, since there is no flush. | [V: T-M2-06] |
-| `sync(2)` | `FUSE_FSYNC` for each file that is open at that moment (dirty or clean); when no file is open, no request at all. | [V: T-M2-06] |
+| `sync(2)` | `FUSE_FSYNC` for each file that is open at that moment (dirty or clean); when no file is open, no request at all (one `sync(2)` call per size in the steps session). | [V: T-M2-06] |
 | unmount | `FUSE_DESTROY` (after `STATFS` and `FORGET`s); no `FUSE_FSYNC`, `FUSE_FSYNCDIR` or `FUSE_FLUSH`. | [V: T-M2-06] |
 
 and replace the sentence after the table's first paragraph "Worker side [V:S25]: ..." by prefixing:

@@ -92,7 +92,7 @@ nonempty,relatime,default_permissions,fsname=/dev/fd/3,blkdev,blksize=4096`, mou
 Scope: the `unix_io.c` change is library-wide on macOS. Every libntfs-3g user (`ntfs-3g`, `ntfsfix`, `mkntfs` and the other ntfsprogs, `ntfs-3g.probe`, and our probe and volmark) accepts `/dev/fd/N` this way, and the library exports one new symbol. `lowntfs-3g` gets the `realpath` change through `ntfs-3g_common.c` but keeps its own block-device refusal (`lowntfs-3g.c` ~4721), so it still refuses inherited block devices; it is not patched and must not be shipped. Upstream status: not submitted.
 
 Build checks: `scripts/build-ntfs3g.sh` applies it in the guest (`build-patched.log`: "applying
-0003-inherited-device-descriptor.patch", 17 warning lines, same as unpatched `build-unpatched.log`,
+0003-inherited-device-descriptor.patch", 17 `warning:` lines, same as unpatched `build-unpatched.log`,
 none in patched code) and in Environment A (`build-linux-envA.log`, `vm/linux/run.sh run -- sh -c
 'sh /work/scripts/build-ntfs3g.sh --build-dir /tmp/b --prefix /tmp/deps'`, exit 0). No change to
 `scripts/build-ntfs3g.sh` was needed.
@@ -158,7 +158,7 @@ Applied to patch 0003 and re-verified in a fresh clone of the golden VM (deleted
 `fd_pass.c` got a `wo` mode (O_WRONLY descriptor, negative tests only), and `run` now checks the target
 through its own read-only descriptor before opening the requested mode.
 
-Results (`*-rev.log`): guest build with the patch applied, 17 warning lines as before, none in patched
+Results (`*-rev.log`): guest build with the patch applied, 17 `warning:` lines as before, none in patched
 code (`build-patched-rev.log`); Environment A build exit 0 (`build-linux-envA-rev.log`); I-SMOKE-02 block
 device 3 runs x 16/16 PASS, image 1 run 15/15 PASS (`patched-blockdev-run{1,2,3}-rev.log`,
 `patched-image-run1-rev.log`). Edge cases (`edge-cases-rev.log`):

@@ -85,7 +85,7 @@ Every variation below exited 0 from `ntfs-3g`; the question is whether a mount a
 | `backend=fskit` (no `local`) | mounts, source is `macfuse://41243B74-...` instead of `/dev/disk6s1`, no `local` flag. Use `local` |
 | `backend=fskit,local,noatime,windows_names,big_writes,streams_interface=xattr,fmask=0133,dmask=0022` (the ARCHITECTURE.md 3.3 set) | mounts, all accepted, files `-rw-r--r--`, dirs `drwxr-xr-x`: `fmask`/`dmask` take effect |
 | `backend=fskit,local,noowners` / `allow_other` / `volname=NTFSMAC` / `streams_interface=windows` / `sync` / `noappledouble` | each mounts, no error. Whether each has an effect is T-M2-04's job (`volname` did not change the mount's name in `mount` output) |
-| `local` only (no `backend`) | **no mount, no error.** `ntfs-3g` exits 0, the daemon stays alive, `mount` shows nothing after 10 s and the daemon ignores `SIGTERM` (needed `kill -9`) |
+| `local` only (no `backend`) | **no mount, no error.** `ntfs-3g` exits 0, the daemon stays alive, `mount` shows nothing after 10 s and the daemon ignores `SIGTERM` (needed `kill -9`; logged by the M2 audit, `tests/results/evidence/2026-11-14-00abf04-claims.log` case C1) |
 | `backend=bogus,local` | same as above: the value is not validated, behaves like no `backend` |
 
 Foreground run (`-o no_detach`, which this NTFS-3G has; `-f` is "Unknown option"): without `backend=fskit`,

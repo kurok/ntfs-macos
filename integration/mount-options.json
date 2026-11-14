@@ -15,7 +15,8 @@
     "effective": "accepted and the effect was observed",
     "ignored": "accepted (exit 0, mount appears) with no observable effect",
     "rejected": "ntfs-3g or libfuse refuses it: non-zero exit status and a message",
-    "silent": "accepted but the stated behaviour is not delivered; the daemon must check the precondition itself"
+    "silent": "accepted but the stated behaviour is not delivered; the daemon must check the precondition itself",
+    "by-source": "accepted; the effect is known from the NTFS-3G source but was not observed in the matrix"
   },
   "mount_command": "ntfs-3g -o <options> <image-or-fd-path> <mountpoint>",
   "always": [
@@ -32,9 +33,10 @@
     },
     {
       "option": "norecover",
-      "class": "effective",
+      "class": "by-source",
       "mandatory": true,
-      "note": "consumed by the engine (ctx->recover = FALSE); acts only on an unclean $LogFile, not exercised here (needs the unclean-log fixture)"
+      "note": "consumed by the engine (ctx->recover = FALSE); acts only on an unclean $LogFile, not exercised here (needs the unclean-log fixture)",
+      "observed": false
     },
     {
       "option": "noatime",

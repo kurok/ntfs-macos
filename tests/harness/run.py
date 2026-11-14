@@ -61,6 +61,7 @@ def parse_args(argv):
     p.add_argument("--host-os", default=os.environ.get("NTFSMAC_HOST_OS"))
     p.add_argument("--tmp", default=None, help="scratch directory root (default: system temp)")
     p.add_argument("--quiet", action="store_true")
+    p.add_argument("--run-suffix", default=None, help=argparse.SUPPRESS)
     return p.parse_args(argv)
 
 
@@ -77,10 +78,11 @@ def run_local(args):
         return 0
     sha, dirty = report.git_info(REPO, args.git_sha, None if args.dirty is None else args.dirty == "true")
     started = report.utc_now()
-    rid = report.run_id(started, sha, args.env)
-    t = transport.LocalTransport()
     results_dir = os.path.abspath(args.out)
     os.makedirs(results_dir, exist_ok=True)
+    suffix = args.run_suffix if args.run_suffix is not None else report.free_suffix(results_dir, started, sha, args.env)
+    rid = report.run_id(started, sha, args.env, suffix)
+    t = transport.LocalTransport()
     meta = {}
     records = runner.run_cases(cases, args.env, rid, results_dir, t, tmp_root=args.tmp, quiet=args.quiet, meta=meta)
     finished = report.utc_now()
@@ -96,7 +98,7 @@ def run_local(args):
     macfuse = meta.get("macfuse_version", macfuse)
     ntfs3g = meta.get("ntfs3g_version", ntfs3g)
     doc = report.build_result(sha, dirty, args.env, host_os, guest_os, macfuse, ntfs3g, started, finished, records)
-    path = report.write_result(doc, results_dir)
+    path = report.write_result(doc, results_dir, rid)
     sys.stderr.write("result: %s\n" % path)
     print(path)
     return 1 if any(r["status"] in ("fail", "error") for r in records) else 0
@@ -111,6 +113,9 @@ def forwarded(args, sha, dirty, host_os):
         out += ["--roots", args.roots]
     if args.quiet:
         out += ["--quiet"]
+    # The remote side writes into an empty directory, so the host picks the free run suffix.
+    suffix = report.free_suffix(os.path.abspath(args.out), report.utc_now(), sha, args.env)
+    out += ["--run-suffix=" + suffix]  # "=" form: the value starts with "-"
     return out
 
 

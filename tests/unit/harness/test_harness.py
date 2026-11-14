@@ -170,6 +170,18 @@ class SchemaTests(unittest.TestCase):
                 report.write_result(bad, d)
             self.assertEqual(os.listdir(d), ["2026-11-14-0123456-A.json"])
 
+    def test_repeated_runs_get_a_free_suffix(self):
+        doc = good_doc()
+        args = (doc["started"], doc["git_sha"], doc["env"])
+        with tempfile.TemporaryDirectory() as d:
+            self.assertEqual(report.free_suffix(d, *args), "")
+            report.write_result(doc, d)
+            self.assertEqual(report.free_suffix(d, *args), "-run2")
+            p = report.write_result(doc, d, report.run_id(*args, suffix="-run2"))
+            self.assertEqual(os.path.basename(p), "2026-11-14-0123456-A-run2.json")
+            os.makedirs(os.path.join(d, "evidence", "2026-11-14-0123456-A-run3"))
+            self.assertEqual(report.free_suffix(d, *args), "-run4")
+
 
 class TransportTests(unittest.TestCase):
     def test_local_run_and_tree_roundtrip(self):

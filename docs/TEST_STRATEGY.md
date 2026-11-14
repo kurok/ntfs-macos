@@ -337,7 +337,7 @@ Build outputs, packages and release candidates stay on the local machine under `
 | "Result for the exact commit" | A result file cannot contain the SHA of the commit that adds it. `git_sha` is the commit that was tested (HEAD at the start of the run, clean tree). A gate or release commit G is covered by a result file when `git_sha` is G or an ancestor of G and `git diff --name-only <git_sha> G` lists only paths under `tests/results/`, `docs/audits/`, `CHECKPOINT.md`, `NEXT_ACTIONS.md` and the generated README status table. `scripts/ci-local.sh --verify-result <file>` performs this check (T-M5-08); the milestone audit repeats it. |
 | Skips | A skipped case needs a `note`; skips are listed in the milestone audit |
 | Evidence | Logs and small artifacts under `tests/results/evidence/<run>/`; images are not stored, only their hashes |
-| Status table | `README.md` section generated from the newest result per environment: each feature is `Verified (VM)`, `Verified (hardware)`, `Linux only`, or `Untested` |
+| Status table | `README.md` section generated from the newest result per environment that has at least one case not `skip` (a skip-only result, such as `2026-11-14-3593b7c-B.json`, is ignored): each feature is `Verified (VM)`, `Verified (hardware)`, `Linux only`, or `Untested` |
 | Hardware runs | `tests/results/hardware/<date>.md`, written from the protocol, with device serial numbers and the human's confirmation |
 | Flaky tests | A test that fails once and passes on retry is recorded as `fail` with a note, and gets a task; no silent retries |
 

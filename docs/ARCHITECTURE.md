@@ -204,6 +204,8 @@ The daemon starts the worker with `posix_spawn` and a fixed five-element argumen
 
 Each option's class (effective, ignored, rejected, or accepted but silently not delivered) is measured in `docs/spikes/M2-options.md`; `integration/mount-options.json` is the machine-readable allow-list [V: T-M2-04]. Option semantics are from the NTFS-3G man page [V:S11]. `recover` is NTFS-3G's default, so `norecover` is mandatory on every invocation.
 
+The worker's device descriptor number N is never equal to any other descriptor the worker inherits (for example the session channel of section 7): patch 0003 accepts any open descriptor >= 3 named as `/dev/fd/N`, so `argv_check()` rule 1 is the real control (M2 audit).
+
 `backend=fskit` is not optional: without it, or with any other value, `ntfs-3g` exits 0 with no output in daemon mode (in the foreground it prints "Mounted ... Read-Write"), no mount appears, and the daemonised worker ignores `SIGTERM` (T-M2-03, T-M2-04). `ntfs-3g` also returns before the mount is visible, because it calls `daemon()` first. The section 4.1 step 8 wait therefore polls for the mount, and on its deadline sends `SIGKILL` to the worker's process group.
 
 The backend and libfuse reject almost no option: unknown tokens, an empty token and malformed macFUSE values (`iosize=abc`, `daemon_timeout=abc`) mount normally. Only `allow_root` (exit 21) and malformed engine values (`uid=abc`, an unknown `streams_interface`, exit 11) fail with a status. The allow-list in `argv_check()` is the only validation [V: T-M2-04].
@@ -532,7 +534,7 @@ Each guarantee names what it depends on. A guarantee marked **conditional** must
 | D2 | If the probe correctly classifies a volume as unsafe, no process of this product receives a writable descriptor for it, so no later parser bug (worker or volmark) can write to it. | Policy maps unsafe states to `ro`; `O_RDONLY` descriptor; `argv_check()` rule 7. | By design; tested by `U-POL-*`, `I-DMN-02..08`. | |
 | D3 | A volume left without clean unmount by this product is mounted read-only on next attach to this Mac. Once the on-disk marker is enabled, it is also flagged `VOLUME_IS_DIRTY` for Windows, Linux and other Macs. | Journal (section 3.5); marker (section 3.6). | This-Mac part: by design, tested by `U-JRN-*`, `I-DMN-14..16`. Other-machine part: **host-only until T-M3-12 passes** (and `I-DMN-22`). | "Read-only next time on this Mac." |
 | D4 | Windows hibernation state and `$LogFile` content are never discarded automatically. | `norecover` always; `remove_hiberfile` and `recover` banned by the option allow-list and `argv_check()`. | By design; `U-POL-*`, `U-ARGV-*`. | |
-| D5 | Data read back equals data written (hash equality across unmount and remount, and against Linux NTFS-3G). | Integrity suite. | Tested (`I-INT-*`, `C-REF-*`). | |
+| D5 | Data read back equals data written (hash equality across unmount and remount, and against Linux NTFS-3G). | Integrity suite. | Tested: `I-INT-01`/`03` and `C-REF-01`, 3 clean runs each at 00abf04 (`tests/results/2026-11-14-00abf04-{B,host}*.json`, M2 audit). | |
 
 **What D2 does not cover.** The verdict comes from `ntfsmac-probe`, which parses untrusted on-disk metadata with `libntfs-3g` and must be assumed exploitable (section 6). A probe bug, or a crafted volume that makes the probe report `clean` for a dirty, unclean-log or hibernated volume, leads to an `O_RDWR` descriptor. The product then has two further checks; they reduce the risk but are not guarantees, because they use the same parser family as the probe:
 

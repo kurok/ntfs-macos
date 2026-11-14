@@ -19,7 +19,9 @@
 # --exec-prefix equals --prefix so nothing lands in /bin or /lib (upstream default).
 #
 # Usage: scripts/build-ntfs3g.sh [--prefix DIR] [--build-dir DIR] [--fuse internal|external]
-#                                [--jobs N] [--force] [--print-configure]
+#                                [--jobs N] [--force] [--print-configure] [--no-patches]
+# --no-patches builds pristine upstream (no patch series), e.g. to re-check that U1 needs no patch
+# (M2 audit F-06); never use it for a product build.
 # Defaults: --prefix build/deps, --build-dir build/ntfs-3g-<fuse>.
 # Env:   MACFUSE_PREFIX (default /usr/local), CFLAGS, LDFLAGS, DEPS_CACHE_DIR
 # Exit:  0 built or up to date (or --print-configure), 1 error, 2 usage error.
@@ -32,7 +34,7 @@ cache=${DEPS_CACHE_DIR:-$repo/third_party/cache}
 patch_dir=$repo/third_party/patches/ntfs-3g
 
 die() { echo "build-ntfs3g: error: $*" >&2; exit 1; }
-usage_err() { echo "build-ntfs3g: $*" >&2; echo "usage: build-ntfs3g.sh [--prefix DIR] [--build-dir DIR] [--fuse internal|external] [--jobs N] [--force] [--print-configure]" >&2; exit 2; }
+usage_err() { echo "build-ntfs3g: $*" >&2; echo "usage: build-ntfs3g.sh [--prefix DIR] [--build-dir DIR] [--fuse internal|external] [--jobs N] [--force] [--print-configure] [--no-patches]" >&2; exit 2; }
 log() { printf 'build-ntfs3g: %s\n' "$*"; }
 
 prefix=
@@ -40,6 +42,7 @@ build_dir=
 fuse=
 jobs=
 force=0
+no_patches=0
 print_only=0
 
 while [ $# -gt 0 ]; do
@@ -50,6 +53,7 @@ while [ $# -gt 0 ]; do
 	--jobs) [ $# -ge 2 ] || usage_err "--jobs needs a value"; jobs=$2; shift 2 ;;
 	--force) force=1; shift ;;
 	--print-configure) print_only=1; shift ;;
+	--no-patches) no_patches=1; shift ;;
 	-h | --help) sed -n '2,26p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
 	*) usage_err "unknown option: $1" ;;
 	esac
@@ -138,7 +142,9 @@ fi
 
 # --- patch series: NNNN-*.patch in order; hash covers names and contents ---
 series=
-if [ -d "$patch_dir" ]; then
+if [ "$no_patches" = 1 ]; then
+	log "--no-patches: building pristine upstream without the patch series"
+elif [ -d "$patch_dir" ]; then
 	for p in "$patch_dir"/[0-9][0-9][0-9][0-9]-*.patch; do
 		[ -f "$p" ] || continue
 		case ${p##*/} in 0002-*) die "patch 0002 is withdrawn and its number is not reused: $p" ;; esac

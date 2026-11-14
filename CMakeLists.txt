@@ -36,3 +36,4 @@ include(cmake/NtfsmacFlags.cmake)
 enable_testing()
 
 add_subdirectory(src/common)
+add_subdirectory(tests/tools)

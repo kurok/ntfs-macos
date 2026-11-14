@@ -10,7 +10,7 @@ Nothing. H3 is done for the current golden VM (`ntfsmac-golden`); a rebuilt gold
 
 ## Agent tasks ready now
 
-1. T-M2-04 option matrix, T-M2-05 device by fd (start from U5 notes: non-root block-device refusal, root:operator nodes, read-only automount U21), T-M2-06 sync trace, T-M2-09 cross-read; then T-M2-10 audit.
+1. T-M2-10 M2 audit: from a fresh clone, re-run criteria 2.2 and 2.3 on a clean tree (the existing result files have `dirty_tree: true`), check spike notes against raw logs, and decide the gate.
 2. Run `scripts/ci-local.sh --quick` before every push (ADR-015).
 3. Confirm the three assumptions recorded by the N-05/N-07/N-08 fixes (`/dev/fd/N` sharing, `POSIX_SPAWN_CLOEXEC_DEFAULT`, peer code-signing checks) when T-M4-02/-04/-13 run.
 

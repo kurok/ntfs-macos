@@ -5,10 +5,10 @@ Status values: **Accepted**, **Accepted, gated** (a named task can overturn it),
 
 | ADR | Topic | Decision | Status |
 |---|---|---|---|
-| 001 | Backend | macFUSE 5.5.0 FSKit backend; native FSKit port is the fallback | Accepted, gated by T-M2-03/04 |
+| 001 | Backend | macFUSE 5.5.0 FSKit backend; native FSKit port is the fallback | Accepted, gated by the M2 gate (T-M2-03/04 done; audit T-M2-10) |
 | 002 | NTFS engine | NTFS-3G 2026.9.28, minimal patch series | Accepted |
 | 003 | Disk Arbitration integration | Root daemon with DA callbacks | Accepted, gated by T-M4-02 |
-| 004 | Privilege model | Root broker passes a device fd to unprivileged sandboxed workers | Accepted, gated by T-M2-05, T-M4-01 |
+| 004 | Privilege model | Root broker passes a device fd to unprivileged sandboxed workers | Accepted, gated by T-M4-01 (T-M2-05 passed with patch 0003) |
 | 005 | Unsafe volume states | Own read-only probe; `norecover` always; never `remove_hiberfile` | Accepted |
 | 006 | Unclean-session marker | Host journal plus on-disk dirty flag set by `ntfsmac-volmark` around every read/write session (default plan); `FORENSIC` library mount so only the `$Volume` record is written; stated crash outcome per write | Accepted; flag enabled when T-M3-12 passes |
 | 007 | Build system | CMake + Ninja for our code; upstream autotools for NTFS-3G; C11 only | Accepted |
@@ -16,11 +16,11 @@ Status values: **Accepted**, **Accepted, gated** (a named task can overturn it),
 | 009 | Intel support | Not supported; arm64 only | Accepted |
 | 010 | Licence | GPL-2.0-or-later for the whole repository | Accepted |
 | 011 | Signing and distribution | Developer ID + notarized `.pkg`; unsigned developer builds until credentials exist | Accepted |
-| 012 | Permissions, xattrs, names | uid/gid mapping, xattrs as named streams, `windows_names` | Accepted |
+| 012 | Permissions, xattrs, names | uid/gid mapping (display only, not access control), xattrs as named streams through `streams_interface=openxattr`, `windows_names` | Accepted |
 | 013 | macFUSE distribution | Prerequisite, never bundled | Accepted |
 | 014 | Device sync | Upstream `ntfs_fsync()` already uses `F_FULLFSYNC`; its silent `fsync` fallback is reported, not hidden; patch 0002 withdrawn | Accepted |
 | 015 | Local-only CI | `scripts/ci-local.sh`; no GitHub-hosted CI, no published binaries | Accepted |
-| 016 | Disk-derived strings | Sanitised label as mount-point leaf only; final argv validator; strict probe-verdict parser with a grammar for every field; file names only from parsed integers; reason codes instead of text | Accepted |
+| 016 | Disk-derived strings | Sanitised label as mount-point leaf only, never in the option string (`volname` dropped); final argv validator; strict probe-verdict parser with a grammar for every field; file names only from parsed integers; reason codes instead of text | Accepted |
 | 017 | Clearing the session journal; repair | Four clearing paths; evidence rule off until verified; repair through `ntfsmac-volmark`, not `ntfsfix` | Accepted (evidence rule gated by U12, U13) |
 | 018 | Device-error reporting and clean-session proof | Patch 0006 session channel: positive `S` and `U` records, `E` and `W` records, bounded, `FD_CLOEXEC`; silence is never clean | Accepted, gated by T-M3-18 |
 | 019 | Authorising journal clearing and repair | Peer is not a spawned process, is the signed CLI, and an administrator authenticates per request through Authorization Services; typed confirmation is only a guard against mistakes | Accepted, gated by T-M4-04 (U17) |
@@ -36,7 +36,7 @@ Status values: **Accepted**, **Accepted, gated** (a named task can overturn it),
 
 | | Option | For | Against |
 |---|---|---|---|
-| A | NTFS-3G on **macFUSE FSKit backend** | No kext, no Reduced Security. macFUSE's module is already signed and notarized, so this project needs no restricted entitlement and no Xcode to develop [V:S3]. NTFS-3G's FUSE glue is reused unchanged. 5.5.0 targets the macOS 27 SDK, adds Finder eject for `local` volumes, read-only mounts, `FUSE_FLUSH` on close, a corruption mitigation [V:S1]. Works in VMs in principle (user space). | FSKit backend is not at parity: no FUSE notification API, most kernel mount options missing, slower than the kext [V:S2]. No per-file fsync; close errors lost [V:S1]. libfuse2 support for `backend=fskit` is unproven [V:S5][V:S6][V:S9]. Closed-source module. User must install macFUSE and approve its extension. Volume is not owned by Disk Arbitration as a block-device file system, so automount needs our daemon. |
+| A | NTFS-3G on **macFUSE FSKit backend** | No kext, no Reduced Security. macFUSE's module is already signed and notarized, so this project needs no restricted entitlement and no Xcode to develop [V:S3]. NTFS-3G's FUSE glue is reused unchanged. 5.5.0 targets the macOS 27 SDK, adds Finder eject for `local` volumes, read-only mounts, `FUSE_FLUSH` on close, a corruption mitigation [V:S1]. Works in VMs in principle (user space). | FSKit backend is not at parity: no FUSE notification API, most kernel mount options missing, slower than the kext [V:S2]. No per-file fsync; close errors lost [V:S1] (T-M2-06 later showed that `fsync` does arrive per file as `FUSE_FSYNC` and that `close` sends no flush at all). libfuse2 support for `backend=fskit` is unproven [V:S5][V:S6][V:S9]. Closed-source module. User must install macFUSE and approve its extension. Volume is not owned by Disk Arbitration as a block-device file system, so automount needs our daemon. |
 | B | NTFS-3G on **macFUSE kernel backend** | Full feature set, best performance, real fsync path, 15 years of use [V:S2]. | Apple silicon needs Recovery Mode and Reduced Security to allow third-party kexts [V:S3]. Kexts do not load in VMs, so Environment B could not test it [V:S3]. Conflicts with "no unnecessary kernel modifications". |
 | C | NTFS-3G on **fuse-t** (NFS or its FSKit module) | Already on the host (1.2.9, module `org.fuset.fskit-srv.module`) [V:S17]. libfuse-compatible. | Closed source. Binary licence: free for non-commercial use, commercial use or bundling needs a paid licence [V:S17]. NFS backend has NFS client caching semantics. Not named by the brief. A second closed dependency with a smaller user base. |
 | D | **Native FSKit module** linking `libntfs-3g` (no FUSE layer): `FSUnaryFileSystem` + `FSBlockDeviceResource` | Removes the macFUSE dependency. FSKit hands the module the block device, so no root broker is needed [V:S16]. Proper `fsck`/format hooks (`FSManageableResourceMaintenanceOperations`). Commercial products ship this design (vendor claims) [V:S19]. | New code: every `FSVolume` operation must be re-implemented against `libntfs-3g` (the equivalent of `src/ntfs-3g.c`, about 4,500 lines of data-path glue), which is exactly where data-loss bugs come from. Needs full Xcode and the restricted entitlement `com.apple.developer.fskit.fsmodule`, authorised by a provisioning profile, so an Apple Developer Program membership is needed even to run a development build [A: stated in an Apple forum answer surfaced by a web search and not opened directly; whether a Developer ID profile can carry the entitlement is U]. Automount is still masked by Apple's read-only NTFS kext, and forum posters reported permission failures for third-party modules on physical disks in 2025 with no fixed release named [V:S14]. Same FSKit durability limits as A. `libntfs-3g` is GPL, which is incompatible with Mac App Store distribution terms [A]. |
@@ -48,6 +48,8 @@ Status values: **Accepted**, **Accepted, gated** (a named task can overturn it),
 1. If libfuse2 rejects `backend=fskit`: port the FUSE glue of `ntfs-3g.c` to the libfuse3 high-level API (task T-M2-03b, Opus-reviewed; mechanical signature changes in about 40 callbacks). libfuse3 3.18.3 ships with macFUSE 5.5.0 and is documented to support the option [V:S1][V:S5].
 2. If the FSKit backend itself cannot carry NTFS-3G correctly (data mismatch, hangs, no usable sync point) after 3 Sonnet attempts and 1 Opus analysis: stop, write `CHECKPOINT.md`, and ask the human to choose between option D (needs Xcode + Developer Program) and option B as an opt-in power-user mode. Do not start D without that decision.
 3. Option C is used only as an optional comparison target in tests, never shipped.
+
+**Results so far (2026-11-14).** libfuse2 accepts `backend=fskit`, so fallback 1 (T-M2-03b) is not needed; `I-SMOKE-01` passed 3 of 3, `I-INT-01` passed in Environment B and `C-REF-01` 3 of 3 (`docs/spikes/M2-backend.md`, `tests/compatibility/cross_read.py`). Whether the gate is passed is decided by the M2 audit (T-M2-10).
 
 **Consequences.** The probe, policy, journal, CLI and test suite are backend-independent and are reused if option D is taken later. Durability limits N1 to N5 in ARCHITECTURE.md section 9 are permanent for A and D.
 
@@ -68,11 +70,11 @@ Status values: **Accepted**, **Accepted, gated** (a named task can overturn it),
 
 | Patch | Purpose | Needed |
 |---|---|---|
-| 0001 | Build fixes for macOS 27 + macFUSE 5.5.0 (pkg-config module name, header paths, warnings) | Only if T-M2-03 shows a need |
+| 0001 | Build fixes for macOS 27 + macFUSE 5.5.0 (pkg-config module name, header paths, warnings) | No: T-M2-03 built with 0 errors and 17 upstream warnings, no change |
 | 0002 | Withdrawn. Its premise was wrong: `libntfs-3g/unix_io.c` `ntfs_fsync()` already calls `fcntl(F_FULLFSYNC)` on `__APPLE__` and falls back to `fsync` [V:S25]. The number is not reused. | No (ADR-014) |
-| 0003 | Accept an inherited descriptor as the device | Only if `/dev/fd/N` fails (T-M2-05) |
+| 0003 | Accept an inherited descriptor as the device | **Applied** (T-M2-05, reviewed, review changes applied): unpatched NTFS-3G fails three ways with `/dev/fd/N` for a worker without device permission (ARCHITECTURE.md section 11, U5). macOS only (`__APPLE__`); the Linux build is unchanged. The `unix_io.c` part is library-wide: every `libntfs-3g` user (`ntfs-3g`, `ntfsfix`, `mkntfs` and the other ntfsprogs, `ntfs-3g.probe`, `ntfsmac-probe`, `ntfsmac-volmark`) accepts `/dev/fd/N` by duplicating the held descriptor, and the library exports one new symbol (`ntfs_device_inherited_fd`). It never widens the access mode. `lowntfs-3g` is not patched and must not be shipped. |
 | 0004 | Test-only fault-injection device layer, compiled with `--enable-faultio`, absent from release builds | Yes (TEST_STRATEGY.md section 6) |
-| 0005 | libfuse3 port of `ntfs-3g.c` | Only per ADR-001 fallback 1 |
+| 0005 | libfuse3 port of `ntfs-3g.c` | No: ADR-001 fallback 1 not needed (T-M2-03) |
 | 0006 | Session channel on `NTFSMAC_ERRFD` (ADR-018): `E` and `W` records from `libntfs-3g/unix_io.c`, `S` and `U` records and the `umount` `E` record from `src/ntfs-3g.c` (`main`, `ntfs_close`) | Yes |
 
 Anything touching allocation, runlists, MFT or index code is out of scope for this project and goes upstream as a bug report instead.
@@ -92,7 +94,7 @@ Anything touching allocation, runlists, MFT or index code is out of scope for th
 
 **Decision.** LaunchDaemon. The legacy bundle is evaluated as a time-boxed spike (T-M4-09) and adopted only if it gives `diskutil mount` support without a regression.
 
-**Consequences.** Passive mode when another NTFS driver is present (ARCHITECTURE.md section 8.4). With no GUI session, automount is off and only root or `admin` can mount through the CLI.
+**Consequences.** Passive mode when another NTFS driver is present (ARCHITECTURE.md section 8.4). With no GUI session, automount is off and only root or `admin` can mount through the CLI. The claim must hold, or Apple's automount must be unmounted, before the probe opens the device: while `ntfs.fs` has the disk mounted, even a root `O_RDONLY` open fails with `EBUSY` (T-M2-05, U21).
 
 ## ADR-004 Privilege model
 
@@ -106,7 +108,7 @@ Anything touching allocation, runlists, MFT or index code is out of scope for th
 
 **Decision.** Broker + fd passing. Worker uid is the console user, so the user's approval of the macFUSE extension applies.
 
-**Consequences.** Requires U5 and U6 to resolve positively. If the sandbox profile cannot be made to work, uid separation alone remains and the residual risk is recorded (R-07).
+**Consequences.** Requires U5 and U6 to resolve positively. U5 is resolved with patch 0003 (T-M2-05): a root parent opens the device, and a child without device permission mounts it read/write and read-only from the inherited descriptor. U6 remains (T-M4-01). If the sandbox profile cannot be made to work, uid separation alone remains and the residual risk is recorded (R-07).
 
 ## ADR-005 Handling hibernated, Fast Startup and dirty volumes
 
@@ -120,7 +122,7 @@ Anything touching allocation, runlists, MFT or index code is out of scope for th
 
 **Decision.**
 
-1. The decision is made **before** NTFS-3G starts, by `ntfsmac-probe` and the policy table. NTFS-3G's internal fallback is defence in depth, not the mechanism.
+1. The decision is made **before** NTFS-3G starts, by `ntfsmac-probe` and the policy table. NTFS-3G's internal fallback is defence in depth, not the mechanism. The worker's exit status does not show that fallback, so the daemon compares the mount's `MNT_RDONLY` flag with its decision after every mount (ARCHITECTURE.md section 4.1 step 8).
 2. Every worker invocation carries `norecover`.
 3. `remove_hiberfile` and `recover` are not reachable through any interface of this product, including configuration. The daemon's option builder has no code path that emits them, a unit test asserts it, and the independent argv validator (ADR-016) rejects them if they ever appear.
 4. Unsafe state means read-only with an `O_RDONLY` descriptor.
@@ -237,12 +239,12 @@ T-M3-12 (Opus) implements it with the kill-at-every-step tests; until it passes,
 
 | Topic | Decision | Reason |
 |---|---|---|
-| Ownership | All files appear owned by the console user (`uid=`, `gid=`), `dmask=0022`, `fmask=0133`. | Matches how macOS treats removable FAT/exFAT volumes (Apple's exFAT module sets `FSVolumeAlwaysIgnoreOwnership` [V:S17]). NTFS ACLs are not modified. Consequence: no file on the volume is executable and `chmod +x` does not persist (ARCHITECTURE.md section 9, N9; tests `I-PERM-*`). Relaxing `fmask` is a later, explicit decision. |
-| Full POSIX mapping | Opt-in only: `permissions` or `usermapping=/usr/local/etc/ntfs-macos/UserMapping` (a path without a space, so `argv_check()` rule 3 stays unchanged) [V:S11, S25]. Not tested in v1 beyond a smoke test (`I-PERM-06`). | Mapping errors can lock Windows users out of files. |
-| Extended attributes | `streams_interface=xattr`: macOS xattrs are stored as NTFS named data streams [V:S11]. | Keeps Finder metadata on the volume without `._` files. T-M3-08 verifies; if Finder copy fails, fall back to `streams_interface=none` and document xattrs as unsupported. |
+| Ownership | All files appear owned by the console user (`uid=`, `gid=`), `dmask=0022`, `fmask=0133`. On this backend the mount is always `noowners`: it shows the mounting user whatever `uid`/`gid` say, and modes are not enforced (a mode-000 file is readable by the mounting user). `uid`, `gid`, `fmask` and `dmask` are kept because they set the engine's defaults and the shown modes [V: T-M2-04]. | Matches how macOS treats removable FAT/exFAT volumes (Apple's exFAT module sets `FSVolumeAlwaysIgnoreOwnership` [V:S17]). NTFS ACLs are not modified. Consequences: modes are metadata, not access control (ARCHITECTURE.md section 9, N10); the execute bit is cleared and `chmod +x` does not persist, but whether that stops execution is open (N9; tests `I-PERM-*`). Relaxing `fmask` is a later, explicit decision. |
+| Full POSIX mapping | Opt-in only: `permissions` or `usermapping=/usr/local/etc/ntfs-macos/UserMapping` (a path without a space, so `argv_check()` rule 3 holds) [V:S11, S25]. `permissions` works only without `uid`, `gid`, `fmask` and `dmask` (with them `chmod` returns success and changes nothing), so it replaces those four. A missing `usermapping` file is accepted silently, so the daemon checks the file before the spawn [V: T-M2-04]. Not tested in v1 beyond a smoke test (`I-PERM-06`). | Mapping errors can lock Windows users out of files. |
+| Extended attributes | `streams_interface=openxattr`: macOS xattrs of every namespace are stored as NTFS named data streams and survive a remount [V:S11; V: T-M2-04]. `xattr` is not used: it stores only `user.*` names and fails every `com.apple.*` name with `ENOTSUP`. | Keeps Finder metadata on the volume without `._` files (`cp -p` copies the xattr and makes no `._` file). Known gap: a `com.apple.FinderInfo` write returns success but cannot be read back (T-M2-04). T-M3-08 verifies FinderInfo, quarantine and resource fork; if Finder copy fails, fall back to `streams_interface=none` and document xattrs as unsupported. |
 | Alternate data streams | Readable and writable through the xattr interface. `streams_interface=windows` (`file:stream` syntax) is not offered. | `:` handling in macOS paths is error-prone. |
-| File names | `windows_names` on: creation of names Windows cannot open is refused [V:S11]. `nfconv` normalisation stays at NTFS-3G's Darwin default [V:S11]. Case: NTFS-3G is case-sensitive in the POSIX namespace; no `ignore_case` (that is `lowntfs-3g` only) [V:S11]. | Interoperability first. The case-sensitivity difference from Windows is documented and tested (two names differing only in case). |
-| Timestamps | `noatime`. Creation time through the macFUSE `getxtimes`/`setcrtime` hooks [V:S11]; whether the FSKit backend forwards them is [A], covered by T-M3-06. | |
+| File names | `windows_names` on: creation of names Windows cannot open is refused with `EINVAL` [V:S11; V: T-M2-04, ten names such as `a:b`, `CON`, `trail.`]. `nfconv` normalisation stays at NTFS-3G's Darwin default [V:S11]. macOS lists non-ASCII names in NFD while the bytes on disk are NFC (T-M2-09); which layer converts and how normalisation-only pairs behave is U22. Case: NTFS-3G is case-sensitive in the POSIX namespace; no `ignore_case` (that is `lowntfs-3g` only) [V:S11]. | Interoperability first. The case-sensitivity difference from Windows is documented and tested (two names differing only in case). |
+| Timestamps | `noatime` (it acts on disk; the backend does not show atime changes in `stat`, T-M2-04). Creation time through the macFUSE `getxtimes`/`setcrtime` hooks [V:S11]; T-M2-03 saw a birth time of 1970-01-01 for new files through the backend, so creation time is not exposed there [A until T-M3-06]. | |
 | Compression, EFS | Read and update of compressed files as NTFS-3G supports; no new compressed files (`nocompression` is considered in T-M3-09); EFS files unreadable (no `efs_raw`). | |
 
 ## ADR-013 macFUSE as a prerequisite, not a bundled component
@@ -257,13 +259,15 @@ T-M3-12 (Opus) implements it with the kill-at-every-step tests; until it passes,
 
 **Facts** [V:S25]. In `libntfs-3g/unix_io.c`, `ntfs_fsync()` issues `fcntl(fd, F_FULLFSYNC)` on `__APPLE__`; if that call fails for any reason it calls plain `fsync(fd)` and returns that result, with no message. Both the device sync operation (`ntfs_device_unix_io_sync()`) and the close path (`ntfs_device_unix_io_close()`, when the device is dirty) use it. The earlier plan for a patch 0002 that adds `F_FULLFSYNC` rested on a wrong premise (audit M1-recheck N-06).
 
+What reaches the worker [V: T-M2-06]: an application's `fsync` and `F_FULLFSYNC` both arrive as the same `FUSE_FSYNC`, which `ntfs_fuse_fsync()` turns into a whole-device sync through `ntfs_fsync()`; `sync(2)` sends `FUSE_FSYNC` only for open files; unmount sends only `FUSE_DESTROY`, whose `ntfs_umount()` syncs the device. So the drive flush is the worker's own doing at those points, never something the application's `F_FULLFSYNC` asks for.
+
 **Decision.**
 
 1. No patch adds `F_FULLFSYNC`; patch 0002 is withdrawn.
 2. The fallback is made visible: patch 0006 writes `W fullfsync <errno>` on the session channel whenever `ntfs_fsync()` falls back (ADR-018). It does not change the return value, because failing every sync on a drive that lacks `F_FULLFSYNC` would make such drives unusable without making them safer.
 3. The daemon's own post-exit sync and volmark's step 5 use `fcntl(F_FULLFSYNC)` with the same fallback and record whether it was used.
 4. A clean report says the drive cache was flushed only when no `W` record arrived and neither the daemon nor volmark fell back (ARCHITECTURE.md section 4.5, D1).
-5. The `sync` mount option of NTFS-3G (synchronous device writes) is evaluated in T-M3-10 and enabled if the throughput cost is below 30 percent on the sequential-write benchmark.
+5. The `sync` mount option of NTFS-3G (synchronous device writes) is evaluated in T-M3-10 and enabled if the throughput cost is below 30 percent on the sequential-write benchmark. T-M2-04 found that it sets no synchronous flag on the FSKit mount, so any effect is engine-side only; it stays out of the allow-list until T-M3-10 shows one.
 
 **Reason.** Guarantee D1 depends on the drive cache being flushed; plain `fsync` on macOS does not do that, and a silent fallback would let D1 be claimed when it is false.
 
@@ -286,7 +290,7 @@ T-M3-12 (Opus) implements it with the kill-at-every-step tests; until it passes,
 |---|---|
 | Escape the label inside `-o` | Not possible: `ntfs-3g`'s own `strsep` split has no escape, so `\,` still splits. Rejected. |
 | Never use the label; name every mount point `NTFS-<serial>` | Safe, but every volume looks alike in Finder. Kept as the fallback name. |
-| Sanitise to an allow-listed leaf, use it only as the mount-point name and (only if needed) `volname`, and re-validate the final argv (chosen) | Keeps a readable name; the allow-list excludes every byte that is special to either option parser or to paths. |
+| Sanitise to an allow-listed leaf, use it only as the mount-point name, and re-validate the final argv (chosen) | Keeps a readable name; the allow-list excludes every byte that is special to either option parser or to paths. |
 
 **Decision.**
 
@@ -305,12 +309,12 @@ T-M3-12 (Opus) implements it with the kill-at-every-step tests; until it passes,
 | Fallback | Empty result: `NTFS-<last 8 hex digits of the serial>`. |
 | Collisions | `/Volumes/<leaf>` is created with `mkdirat` relative to an `O_NOFOLLOW` descriptor of `/Volumes`; on `EEXIST` the daemon tries `<leaf> 2` to `<leaf> 99`; it never reuses an existing directory and removes only the directory it created (device and inode checked). |
 
-3. The sanitised leaf is the only form of the label that leaves the sanitiser: mount point, `volname` (if T-M2-04 shows it is needed, U14), journal, `list` replies, CLI output and notifications. The raw label is not logged except hex-encoded in debug logs. No other probe string leaves the parser at all (decision 1).
+3. The sanitised leaf is the only form of the label that leaves the sanitiser: mount point, journal, `list` replies, CLI output and notifications. The raw label is not logged except hex-encoded in debug logs. No other probe string leaves the parser at all (decision 1).
 4. `argv_check()` re-parses the complete worker vector before every spawn and refuses it unless it matches the allow-list and per-key grammars (ARCHITECTURE.md section 3.3, rules 1 to 7). It is independent of the option builder: different source file, written against the same specification, and fuzzed.
 
-**Proof that `volname=<leaf>` is safe.** The option metacharacters are `,` and `=` (`ntfs-3g`), `,` and `\` (libfuse), plus NUL and control bytes; the path metacharacters are `/`, NUL and, in Finder, `:`. None is in the sanitiser's output alphabet, and `argv_check()` rule 3 checks the same property at run time. If either check is ever weakened, `volname` is dropped and the leaf is still safe as a path argument because it is a separate `argv` element.
+**No label in the option string.** `volname` is not passed: the FSKit backend ignores it (T-M2-04, U14), so the label never enters `-o`, and `argv_check()` rule 3 allows only bytes `0x21..0x7E` there. The leaf is a separate `argv` element. The path metacharacters are `/`, NUL and, in Finder, `:`; none is in the sanitiser's output alphabet.
 
-**Accepted display risk.** Look-alikes other than slash and colon stay allowed: Cyrillic or full-width letters that imitate another name (`Macintosh HD`), full-width comma and similar. All such bytes are `0x80` or above, so no option or path injection follows (rules 3 and 5 of `argv_check()` hold), but notifications and the typed confirmation of ADR-017 and ADR-019 can show an attacker-chosen name. The confirmation also asks for the last 8 hex digits of the serial, which the label does not control, and `list` shows the BSD name; no further filtering is done because a confusables table is never complete. NFC and NFD forms of one name differ in bytes but collide in APFS name comparison; the `mkdirat` `EEXIST` rule gives the second one a suffix (`U-LABEL-08`).
+**Accepted display risk.** Look-alikes other than slash and colon stay allowed: Cyrillic or full-width letters that imitate another name (`Macintosh HD`), full-width comma and similar. All such bytes are `0x80` or above, so no option or path injection follows (rules 2 and 3 of `argv_check()` hold), but notifications and the typed confirmation of ADR-017 and ADR-019 can show an attacker-chosen name. The confirmation also asks for the last 8 hex digits of the serial, which the label does not control, and `list` shows the BSD name; no further filtering is done because a confusables table is never complete. NFC and NFD forms of one name differ in bytes but collide in APFS name comparison; the `mkdirat` `EEXIST` rule gives the second one a suffix (`U-LABEL-08`).
 
 **Consequences.** Some labels display differently from Windows (for example `Backup,2026` becomes `Backup_2026`). Tested by `U-LABEL-*`, `U-ARGV-*`, `U-VERDICT-*` (including `U-VERDICT-05` for hostile serials and reason codes), `F-SANITIZE-*` and `I-DMN-18` (TEST_STRATEGY.md section 4). Task T-M3-19; the journal naming rule is tested in T-M3-13 (`U-JRN-*`).
 
@@ -360,7 +364,7 @@ T-M3-12 (Opus) implements it with the kill-at-every-step tests; until it passes,
 3. Bounds: records at most 32 bytes, at most 64 per session, strict grammar; on a violation the session is unclean and the daemon keeps draining into a fixed buffer without closing the read end. No unbounded buffer exists in the root daemon.
 4. Descriptor hygiene: daemon descriptors `O_CLOEXEC`; every spawn uses `POSIX_SPAWN_CLOEXEC_DEFAULT` with explicit file actions; the worker sets `FD_CLOEXEC` on the channel and writes non-blocking. End-of-file must arrive within 2 s of the worker exit.
 
-**What this does not guarantee.** A compromised worker can forge `S rw` and `U 0`. That only makes its own volume look clean, which it can already achieve by writing that device; it is the residual risk of section 6 and D2. Errors that never reach the worker (FSKit buffer-cache write-back failures) remain invisible (N2, N3).
+**What this does not guarantee.** A compromised worker can forge `S rw` and `U 0`. That only makes its own volume look clean, which it can already achieve by writing that device; it is the residual risk of section 6 and D2. Errors that never reach the worker remain invisible. For `write(2)` data T-M2-06 found no FSKit buffer and the worker's error comes back from `write()` itself; `mmap` writes are not traced yet (N7, T-M3-11).
 
 **Consequences.** One more patch to carry and re-base on each NTFS-3G update, now touching `src/ntfs-3g.c` as well as `unix_io.c`; Opus review at merge (R-06). A broken channel turns every session unclean, so a packaging or spawn mistake shows up as "read-only next time", which `I-DMN-24` tests. Tests `I-ERR-01..07`, `I-DMN-24`. Tasks T-M3-18, T-M4-13.
 
@@ -394,12 +398,14 @@ The worker sandbox also denies `connect()` to the control socket; the boundary n
 
 | Option | Assessment |
 |---|---|
-| Open once `O_RDWR` and give the probe a read-only view of it | Not possible: on macOS, opening `/dev/fd/N` shares the open file description, so the probe would hold a writable descriptor and D2 would be lost [A]. Rejected. |
+| Open once `O_RDWR` and give the probe a read-only view of it | Not possible: on macOS, opening `/dev/fd/N` shares the open file description, so the probe would hold a writable descriptor and D2 would be lost [V: T-M2-05]. It is worse than assumed: the re-opened descriptor keeps the original access mode (an `O_RDONLY` request on an `O_RDWR` descriptor gives `O_RDWR`), and an unprivileged process cannot re-open `/dev/fd/N` at all without permission on the device (`EACCES`). Rejected. |
 | Re-run the probe on the writable descriptor | Gives a parser of hostile data a writable descriptor. Rejected. |
 | Reuse the probe descriptor for `ro`; for `rw` open the writable descriptor while the probe's is still open and compare device number and a hash of the first 4096 bytes; volmark checks the expected serial and size; Disk Arbitration shows no other mount (chosen) | No NTFS parsing in the daemon (a hash compare only); the checks that need NTFS parsing run in the unprivileged volmark. |
 
 **Decision.** ARCHITECTURE.md section 4.1 step 6: (1) `ro` sessions use the probe's own descriptor; (2) for `rw`, `st_rdev` of both descriptors equal and the first 4096 bytes hash to the value read before the probe ran, then the probe descriptor is closed; (3) volmark gets `--expect-serial` and `--expect-sectors`, formatted from the parsed verdict, and exits 15 on a mismatch with the boot sector; (4) the hash is checked again after volmark; (5) before any `O_RDWR` open, the Disk Arbitration description shows no mount path for the disk [A: U18]. Any mismatch gives `ro` or `Failed`, never `rw`.
 
 **What this does not guarantee.** A device whose firmware answers the same reads differently at different times defeats any binding; it can equally change its content during a session. That is the hostile-disk exposure of D2.
+
+**Device exclusivity.** The binding and the Disk Arbitration dissenter (ADR-003) are what keep the device exclusive. The advisory lock that NTFS-3G takes on its duplicate of the descriptor gives no lasting exclusivity: `ntfs-3g` calls `daemon()` after opening the volume, and POSIX locks do not survive the fork (T-M2-05, patch 0003 header).
 
 **Consequences.** One extra 4 KiB read per attach and one per volmark run. Tests `I-DMN-25` (swap between probe and mount, simulated by re-attaching another image under the same BSD name; and a volume already mounted by another driver) and `U-VMK-09` (volmark with wrong expected values). Tasks T-M4-14, T-M3-12, T-M4-02. Risk R-35.

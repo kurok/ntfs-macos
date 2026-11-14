@@ -33,14 +33,14 @@ Source tags `[V:Sn]`, `[A]`, `[U]` are defined in [ARCHITECTURE.md](ARCHITECTURE
 
 | # | Acceptance criterion | Measured by |
 |---|---|---|
-| 2.1 | NTFS-3G 2026.9.28 builds on macOS 27 arm64 against macFUSE 5.5.0 `libfuse`, zero errors; warnings listed. | Build log in `tests/results/`. |
-| 2.2 | In the VM, a 256 MiB image made by `mkntfs` on Linux mounts read/write through `-o backend=fskit` as a non-root user. | `mount` output shows the volume; test `I-SMOKE-01`. |
-| 2.3 | Write 100 files (1 KiB to 64 MiB, random data), unmount, remount, SHA-256 of every file equal. Then the same image is read on Linux with NTFS-3G and hashes are equal. | `I-INT-01`, `C-REF-01`. |
-| 2.4 | Accepted and rejected mount options recorded. | `docs/spikes/M2-options.md`; ARCHITECTURE.md section 3.3 corrected. |
-| 2.5 | FUSE opcodes observed for `write`, `close`, `fsync`, `F_FULLFSYNC`, `sync`, unmount recorded. | `docs/spikes/M2-sync.md`; ARCHITECTURE.md sections 4.4 and 9 corrected. |
-| 2.6 | Device fd passing works, or patch 0003 exists and works. | `I-SMOKE-02`. |
+| 2.1 | NTFS-3G 2026.9.28 builds on macOS 27 arm64 against macFUSE 5.5.0 `libfuse`, zero errors; warnings listed. | Build log in `tests/results/`. Met per T-M2-03: 0 errors, 17 upstream warnings listed in `docs/spikes/M2-backend.md`, log `tests/results/evidence/m203/build-ntfs3g.log`; also with patch 0003 (`m205/build-patched-rev.log`). |
+| 2.2 | In the VM, a 256 MiB image made by `mkntfs` on Linux mounts read/write through `-o backend=fskit` as a non-root user. | `mount` output shows the volume; test `I-SMOKE-01`. Met per T-M2-03: `I-SMOKE-01` 3 of 3 on `clean-256m-4k` from Environment A (`m203/smoke-run{1,2,3}.log`). |
+| 2.3 | Write 100 files (1 KiB to 64 MiB, random data), unmount, remount, SHA-256 of every file equal. Then the same image is read on Linux with NTFS-3G and hashes are equal. | `I-INT-01`, `C-REF-01`. Met per T-M2-03 and T-M2-09: `I-INT-01` pass in B (`tests/results/2026-11-14-2ee449b-B.json`); `C-REF-01` 106 of 106 files equal in 3 of 3 runs (`tests/results/2026-11-14-9b799cb-host.json`, `evidence/m209/`). Both result files are from dirty trees (`dirty_tree: true`), which cannot satisfy the gate (TEST_STRATEGY.md section 10). |
+| 2.4 | Accepted and rejected mount options recorded. | `docs/spikes/M2-options.md`; ARCHITECTURE.md section 3.3 corrected. Met per T-M2-04: 79 mount cases classified, allow-list in `integration/mount-options.json`; section 3.3 corrected from it. |
+| 2.5 | FUSE opcodes observed for `write`, `close`, `fsync`, `F_FULLFSYNC`, `sync`, unmount recorded. | `docs/spikes/M2-sync.md`; ARCHITECTURE.md sections 4.4 and 9 corrected. Met per T-M2-06 (raw logs `tests/results/evidence/m206/`); sections 4.3, 4.4, 4.5 and 9 corrected with the spike's wording. |
+| 2.6 | Device fd passing works, or patch 0003 exists and works. | `I-SMOKE-02`. Met per T-M2-05 with patch 0003: block device 3 runs of 16/16, image file 1 run of 15/15, after the review changes (`m205/patched-*-rev.log`); unpatched fails. |
 
-**Exit gate M2 (backend gate, ADR-001):** 2.2 and 2.3 pass on three consecutive runs. If they cannot pass, follow the ADR-001 fallback order and stop for a human decision before any native FSKit work.
+**Exit gate M2 (backend gate, ADR-001):** 2.2 and 2.3 pass on three consecutive runs. The "met" notes above are the task results; the gate itself is decided by the M2 audit (T-M2-10), which reproduces 2.2 and 2.3 from a fresh clone. If they cannot pass, follow the ADR-001 fallback order and stop for a human decision before any native FSKit work.
 
 ### M3 File system correctness
 
@@ -62,7 +62,7 @@ Source tags `[V:Sn]`, `[A]`, `[U]` are defined in [ARCHITECTURE.md](ARCHITECTURE
 | 3.14 | Disk-derived strings: label sanitiser, argv validator and probe-verdict parser (with the per-field grammar and reason codes) pass their unit tests and 1 CPU-hour of fuzzing each with no finding; journal file names come only from the parsed serial (ADR-016). | `U-LABEL-*`, `U-ARGV-*`, `U-VERDICT-01..05`, `F-SANITIZE-*`, `U-JRN-NAME-01`. |
 | 3.15 | Patch 0006 writes `S` at mount, every injected device write, sync, close and unmount error exactly once as `E`, the `F_FULLFSYNC` fallback as `W`, and `U 0` only after a successful `ntfs_umount`; the channel descriptor is `FD_CLOEXEC`; nothing changes without `NTFSMAC_ERRFD` (ADR-018). | `I-ERR-01..07`. |
 | 3.17 | Sync path: upstream `ntfs_fsync()` issues `F_FULLFSYNC` at each sync point on the VM disk, and whether its `fsync` fallback runs is recorded (ADR-014). | `I-SYNC-01..02` (T-M3-10). |
-| 3.16 | Ownership and permissions: every file and directory reports the console uid and gid and modes 0644 and 0755 (`fmask=0133`, `dmask=0022`); `chmod` and `chown` outcomes are recorded, consistent, and change no NTFS ACL or attribute; the execute-bit limitation (N9) is demonstrated; the opt-in `permissions`/`usermapping` path passes a smoke test (ADR-012). | `I-PERM-01..06`. |
+| 3.16 | Ownership and permissions: every file and directory reports the console uid and gid and modes 0644 and 0755 (`fmask=0133`, `dmask=0022`); `chmod` and `chown` outcomes are recorded, consistent, and change no NTFS ACL or attribute; the execute-bit limitation (N9) is demonstrated or corrected; the access of another local account is recorded (N10); the opt-in `permissions`/`usermapping` path passes a smoke test (ADR-012). | `I-PERM-01..07`. |
 
 **Exit gate M3:** 3.1 to 3.17 pass; Opus audit (T-M3-17) of probe, policy, sanitiser, patches 0004/0006 and the dirty-marker ordering finds no open data-loss issue. When 3.13 passes, the coordinator enables the marker step and updates D3 in ARCHITECTURE.md section 9.
 
@@ -108,7 +108,7 @@ Source tags `[V:Sn]`, `[A]`, `[U]` are defined in [ARCHITECTURE.md](ARCHITECTURE
 | 6.3 | Install and uninstall tested on a fresh VM clone; `pkgutil --files` matches the manifest. | `I-PKG-03..04`. |
 | 6.4 | Signed and notarized package passes `spctl -a -t install` (only if credentials exist; otherwise recorded as unsigned per ADR-011). | Command output. |
 | 6.5 | Source release archive contains this repository, the NTFS-3G tarball and the patch series (GPL obligation; required before any binary is distributed, ADR-015). | `scripts/make-source-release.sh` + checksum file. |
-| 6.6 | `docs/INSTALL.md` and `docs/LIMITATIONS.md` exist; limitations include N1 to N9 from ARCHITECTURE.md section 9. | Audit check. |
+| 6.6 | `docs/INSTALL.md` and `docs/LIMITATIONS.md` exist; limitations include N1 to N10 from ARCHITECTURE.md section 9. | Audit check. |
 | 6.7 | Independent audit of the installer scripts that run as root, the package contents and the uninstall manifest. | `docs/audits/M6.md` (T-M6-06). |
 
 ### M7 Release readiness
@@ -127,7 +127,7 @@ Source tags `[V:Sn]`, `[A]`, `[U]` are defined in [ARCHITECTURE.md](ARCHITECTURE
 | Dependency | Version | Source | Integrity |
 |---|---|---|---|
 | NTFS-3G + ntfsprogs | 2026.9.28 | Tarball `ntfs-3g_ntfsprogs-2026.9.28.tgz` linked from https://github.com/tuxera/ntfs-3g/releases/tag/2026.9.28 (hosted on tuxera.com) | SHA-256 published on the release page: `350d9415c59f7c3fa74e23985ad2d56423c6a168337368f672e2e362d8f295c8` [V:S10]. T-M1-02 re-reads the page and confirms the digest before pinning. |
-| macFUSE | 5.5.0 (minimum and tested version) | https://github.com/macfuse/macfuse/releases/tag/macfuse-5.5.0 | Not bundled. For the VM: download once, record the SHA-256 in `deps.lock` (trust on first use), and require `pkgutil --check-signature` to show a valid Developer ID Installer signature and notarization before install. The expected signer identity is recorded in `deps.lock` at first verification [U until then]. |
+| macFUSE | 5.5.0 (minimum and tested version) | https://github.com/macfuse/macfuse/releases/tag/macfuse-5.5.0 | Not bundled. For the VM: download once, record the SHA-256 in `deps.lock` (trust on first use), and require `pkgutil --check-signature` to show a valid Developer ID Installer signature and notarization before install. The expected signer identity is recorded in `deps.lock` at first verification: `Developer ID Installer: Benjamin Fleischer (3T5GSNBU6W)`, pinned in T-M2-02. |
 | libfuse (v2) / libfuse3 3.18.3 | as shipped inside macFUSE 5.5.0 [V:S1] | macFUSE package | Covered by the macFUSE check. |
 | CMake | >= 3.28 | Homebrew | Version check in `scripts/bootstrap.sh`. |
 | Ninja, pkgconf | any current | Homebrew | Version recorded in build log. |
@@ -153,7 +153,7 @@ M3 and M4 run in parallel after the M2 gate: M3 work is in `src/probe`, `src/pol
 |---|---|---|---|
 | H1 | Approve installing on the host: `cmake`, `ninja`, `pkgconf` (Homebrew), and the VM tool chosen in T-M1-04. | M1 | Host change; brief requires permission. |
 | H2 | Start a container runtime (Docker Desktop daemon) or approve installing Podman/colima. | M1 (Environment A) | Host change. |
-| H3 | In the golden macOS VM: enter the admin password for the macFUSE installer and enable the macFUSE file system extension in System Settings (General > Login Items & Extensions > File System Extensions [A: exact pane name to confirm on 27.2]). | M2 | GUI consent; scripted enabling is unknown (U3). One time per golden image. |
+| H3 | In the golden macOS VM: enter the admin password for the macFUSE installer and enable the macFUSE file system extension in System Settings (General > Login Items & Extensions [V: T-M2-02]). Done for `ntfsmac-golden`; the approval survives reboot and `tart clone`. | M2 | GUI consent; `pluginkit -e use` is not enough (U3, T-M2-02). One time per golden image. |
 | H4 | Withdrawn 2026-11-13: the repository is public and the owner decided on no GitHub-hosted CI and no published binaries for now (ADR-015). Revisit only on the owner's request. | n/a | Owner decision. |
 | H5 | Provide disposable NTFS media (one USB flash drive, one USB HDD or SSD) and approve writes to them by serial number. | M5 (Environment C) | Brief: never write to physical media without approval. |
 | H6 | Provide a Windows 10/11 machine or VM to run `chkdsk` and to create real hibernated and Fast Startup volumes. | M5 | Licensing and hardware. |
@@ -170,4 +170,4 @@ M3 and M4 run in parallel after the M2 gate: M3 work is in `src/probe`, `src/pol
 | `ntfsmac-volmark` (T-M3-12) | Opus 5.5 does the task |
 | Fable | Not used after this document set |
 
-Expected Opus invocations for the whole project: 13 to 17 (16 counted in the AGENT_TASKS.md budget table, including the conditional reviews of T-M2-03b and T-M2-05). Each is listed in AGENT_TASKS.md so the coordinator can budget them.
+Expected Opus invocations for the whole project: 13 to 17 (16 counted in the AGENT_TASKS.md budget table, including the conditional reviews of T-M2-03b, not needed, and T-M2-05, done). Each is listed in AGENT_TASKS.md so the coordinator can budget them.

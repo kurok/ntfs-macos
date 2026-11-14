@@ -18,9 +18,9 @@ Source tags `[V:Sn]`, `[A]`, `[U]` are defined in [ARCHITECTURE.md](ARCHITECTURE
 |---|---|---|---|
 | Purpose | Build pinned NTFS-3G; generate fixtures; reference behaviour; unit tests; crash-consistency sweep; fuzzing; sanitizers | The real product path: macFUSE FSKit backend, daemon, Finder | USB media, real unplug, drive caches, Windows interoperability |
 | Tool | Docker or Podman, image `vm/linux/Dockerfile` (Debian 13, pinned digest). Needs `--device /dev/fuse --cap-add SYS_ADMIN` for reference mounts. Fallback: Linux guest under tart. | tart (ADR-008). Golden image = vanilla macOS 27 + macFUSE 5.5.0 with its extension approved once by the human (H3). Each run uses a fresh `tart clone` and deletes it afterwards. | The human's test Mac or boot volume (H7), disposable media (H5), Windows machine or VM (H6) |
-| Disk under test | Plain image file (`mkntfs -F`), mounted with `ntfs-3g` on the file | Raw image attached to the guest as a second virtual disk (`tart run --disk`), or attached inside the guest with `hdiutil attach -imagekey diskimage-class=CRawDiskImage -nomount`; both give a `/dev/diskN` [A: T-M1-04 confirms] | Physical USB flash drive and USB SSD/HDD, identified by serial number in the approval |
+| Disk under test | Plain image file (`mkntfs -F`), mounted with `ntfs-3g` on the file | Image file mounted directly by the worker, or a raw image attached to the guest as a second virtual disk (`tart run --disk`), which the guest sees as a whole `/dev/diskN` [V: T-M2-03, T-M2-05]. Find it by size, never by number (numbers change between boots). macOS automounts it read-only with `ntfs.fs` first; tests run `diskutil unmount` before any open (U21). `hdiutil attach -imagekey diskimage-class=CRawDiskImage -nomount` inside the guest is an alternative [A] | Physical USB flash drive and USB SSD/HDD, identified by serial number in the approval |
 | Rollback | Container is ephemeral | Clone per run; golden image never modified by tests | Re-format with `mkntfs` between scenarios |
-| Automation | Full | Full after H3, over SSH | Scripted steps with human hands for plug and unplug |
+| Automation | Full | Full after H3, through the tart guest agent (`tart exec`) | Scripted steps with human hands for plug and unplug |
 | Diagnostics collected | stdout/stderr, ASan reports, core files | `log show` for `fskitd`, `io.macfuse`, `ntfsmacd`; worker FUSE debug log; `~/Library/Logs/DiagnosticReports`; `sysdiagnose` on hang | Same as B plus Windows `chkdsk` output |
 
 ### What the VM cannot show
@@ -32,7 +32,7 @@ Source tags `[V:Sn]`, `[A]`, `[U]` are defined in [ARCHITECTURE.md](ARCHITECTURE
 | Sleep/wake with a mounted volume | Guest sleep is not representative | Environment C |
 | Coexistence with Paragon or other NTFS drivers | Not installed in the guest; a dummy bundle tests only the detection logic | Environment C, only if the human chooses (H7) |
 | Kernel backend | Kexts do not load in VMs [V:S3] | Not in scope (ADR-001) |
-| Whether FSKit extensions work in a guest at all | [U2] | T-M2-02; if they do not, Environment B is impossible and a dedicated test Mac is required (brief section 4) |
+| Whether FSKit extensions work in a guest at all | Resolved: they do (U2, T-M2-02) | Environment B |
 
 ## 3. Fixtures
 
@@ -107,11 +107,11 @@ Environment column: where the test must pass to count. `A*` means "also run on L
 | Mount and unmount | `I-SMOKE-01`, `I-SMOKE-02`, `I-DMN-01..08`, `I-DMN-10..13` | manual worker mount (`I-SMOKE-01`); mount by inherited device fd (`I-SMOKE-02`); daemon automount per fixture class (`I-DMN-01..08`); four unmount paths (`I-DMN-10..13`) | B | T-M2-03, T-M2-05, T-M4-03, T-M4-11 |
 | Create, read, write, rename, move, delete | `I-FUNC-*` | create/append/overwrite/truncate up and down; rename same and cross directory, over existing; delete open file; rmdir non-empty fails | B, A* | T-M3-05 |
 | Directories and nested paths | `I-FUNC-DIR-*` | depth 32; 10,000 entries; rename directory with contents | B, A* | T-M3-05 |
-| Unicode and special names | `I-NAME-*` | NFC/NFD pairs, emoji, CJK, RTL, 255 UTF-16 units, trailing dot/space and reserved names refused (`windows_names`), case-only pairs | B, A* | T-M3-05 |
+| Unicode and special names | `I-NAME-*` | NFC/NFD pairs, emoji, CJK, RTL, 255 UTF-16 units, trailing dot/space and reserved names refused (`windows_names`), case-only pairs; U22: pairs that differ only in normalisation written from Environment A, then listed and looked up by both forms in B | B, A* | T-M3-05 |
 | Small and large files | `I-BIG-*` | 0 B, 1 B, cluster size +/- 1, 4 GiB + 1, 5 GiB | B | T-M3-09 |
 | Sparse files | `I-BIG-SPARSE-*` | hole at start, middle, end; hash and allocated size | B, A* | T-M3-09 |
 | Metadata and timestamps | `I-META-*` | mtime/ctime/creation time round trip; `touch -t`; read-only attribute; hidden flag | B, A* | T-M3-06 |
-| xattrs and named streams | `I-XATTR-*` | set/get/list/remove; 1 B to 64 KiB values; stream visible in Linux tree dump; `ditto`, `cp -c`, Finder copy | B | T-M3-08 |
+| xattrs and named streams | `I-XATTR-*` | set/get/list/remove with `streams_interface=openxattr`; 1 B to 64 KiB values; stream visible in Linux tree dump; `ditto`, `cp -c`, Finder copy; `com.apple.FinderInfo` explicitly (tags, colours: T-M2-04 saw the write return success and the read-back fail), `com.apple.quarantine`, `com.apple.ResourceFork` | B | T-M3-08 |
 | Concurrent access | `S-PAR-*` | 16 writers, readers during writes, rename storms | B | T-M5-02 |
 | **Integrity** | | | | |
 | Hash before and after remount | `I-INT-01..03` | 100 random files; `tree-1g` full copy in and out; negative control; the root `.fseventsd` that macOS creates on every mount is not test data and is skipped | B | T-M2-08 |
@@ -120,7 +120,7 @@ Environment column: where the test must pass to count. `A*` means "also run on L
 | Forced process termination | `S-KILL-*`, `I-DMN-14..15` | `SIGKILL` worker, daemon, macFUSE module process | B | T-M4-05, T-M4-11, T-M5-05 |
 | Unclean unmount | `S-DISC-*`, `I-DMN-16` | force-detach image during write; next mount is read-only | B, C | T-M4-11, T-M5-04 |
 | Dirty and hibernated refusal | `U-PROBE-*`, `I-DMN-02..08` | every image in 3.2: probe verdict, daemon mode, image hash unchanged after a read-only session | A, B | T-M3-02, T-M4-11 |
-| Cross-platform interoperability | `C-REF-*`, `H-WIN-*` | Linux reads macOS-written image and the reverse; Windows `chkdsk` clean | A+B, C | T-M3-15, T-M5-10 |
+| Cross-platform interoperability | `C-REF-*`, `H-WIN-*` | Linux reads macOS-written image and the reverse (`C-REF-01`: section 4.2); Windows `chkdsk` clean | A+B, C | T-M2-09, T-M3-15, T-M5-10 |
 | **Reliability** | | | | |
 | Long-running workload | `S-SOAK-01` | 6 h mixed workload | B | T-M5-02 |
 | Parallel operations | `S-PAR-01` | 16 processes, 30 min | B | T-M5-02 |
@@ -136,7 +136,7 @@ Environment column: where the test must pass to count. `A*` means "also run on L
 | Directory enumeration | `P-DIR-*` | list 10,000 and 100,000 entries | B, A* | T-M5-07 |
 | CPU and memory | `P-RES-*` | worker and FSModule CPU seconds, peak RSS per benchmark | B | T-M5-07 |
 | **Safety and security** | | | | |
-| Policy and options | `U-POL-*` | every policy row; banned options unreachable | H, A | T-M3-03 |
+| Policy and options | `U-POL-*`, `U-ARGV-06` | every policy row; banned options unreachable; argv validator against the measured option classes | H, A | T-M3-03, T-M3-19 |
 | Journal | `U-JRN-*` | kill at each step; entry fields; `marker`/`state` transitions; four removal paths; tombstones; file names only from the parsed serial (section 4.1) | H, A | T-M3-13 |
 | Disk-derived strings | `U-LABEL-*`, `U-ARGV-*`, `U-VERDICT-*`, `F-SANITIZE-*`, `I-DMN-18` | label sanitiser, argv validator, probe-verdict parser; hostile-label fixtures end to end (section 4.1) | H, A, B | T-M3-19, T-M4-03 |
 | Journal clearing and repair | `I-DMN-19..21`, `H-USB-08`, `H-USB-09` | `journal-clear`, evidence rule, `repair --clear-dirty`, peer checks and administrator prompt of ADR-019 (section 4.1) | B, C | T-M4-14, T-M5-10 |
@@ -147,7 +147,7 @@ Environment column: where the test must pass to count. `A*` means "also run on L
 | Session channel | `I-ERR-01..07`, `I-DMN-24` | patch 0006 records `S`, `E`, `W`, `U`; positive clean-session proof; bounds and `FD_CLOEXEC`; daemon marks session unclean and does not report a clean unmount (section 4.1) | A, B | T-M3-18, T-M4-13 |
 | Privilege | `I-DMN-09`, sandbox tests, ctl authentication tests | worker uid, sandbox denials (including `connect()` to the control socket), socket peer checks of ADR-019 | B | T-M4-01, T-M4-04, T-M4-06 |
 | Coexistence | `I-DMN-17` | dummy third-party NTFS bundle present: no dissent, no automount; `doctor` names the bundle | B | T-M4-07, T-M4-11 |
-| Permissions and ownership | `I-PERM-01..06` | uid/gid, modes, `chmod`/`chown` outcomes, execute bit (N9), opt-in mapping smoke (section 4.1) | B, A* | T-M3-20 |
+| Permissions and ownership | `I-PERM-01..07` | uid/gid, modes, `chmod`/`chown` outcomes, execute bit (N9), opt-in mapping smoke (section 4.1) | B, A* | T-M3-20 |
 | Races in daemon logic | `U-TSAN-01..02` | state machine, control handler, journal and session under ThreadSanitizer with concurrent drivers (section 4.1) | H, A | T-M4-15 |
 | Read path edge (macFUSE mitigation) | `I-READ-*` | no `EIO` at EOF | B | T-M3-07 |
 | mmap | `I-MMAP-*` | mapped read and write, `msync`, unmount with dirty pages | B | T-M3-11 |
@@ -172,10 +172,11 @@ These ids come from the M1 audit fixes (ADR-016, ADR-017, ADR-006, ADR-018, ADR-
 | `U-LABEL-07` | Empty, all spaces, all dots, all disallowed | `NTFS-<last 8 hex digits of serial>` |
 | `U-LABEL-08` | Collision sequence with existing `DATA`, `DATA 2`..`DATA 99` in a temporary directory standing in for `/Volumes` | Next free name chosen with `mkdirat`; after 99, refusal; a pre-existing symlink named `DATA` is never followed; an NFC name with an existing NFD directory of the same name (`e` U+0065 U+0301 against U+00E9) gets the suffix, never the existing directory |
 | `U-ARGV-01` | Builder output for every policy row and option set, including the opt-in `permissions` and `usermapping=/usr/local/etc/ntfs-macos/UserMapping` rows | `argv_check()` accepts |
-| `U-ARGV-02` | Every single-token mutation of a valid vector: add, drop, duplicate, reorder argv elements; insert each banned key; drop `norecover`; add or drop `ro`; change `uid`, `fmask`, `streams_interface`, `volname` | `argv_check()` rejects each |
+| `U-ARGV-02` | Every single-token mutation of a valid vector: add, drop, duplicate, reorder argv elements; insert each banned key; drop `norecover`; add or drop `ro`; change `uid`, `fmask`, `streams_interface`; add `volname`, `big_writes` or `rdonly`; add `permissions` next to `uid` | `argv_check()` rejects each |
 | `U-ARGV-03` | `ro` decision with an `O_RDWR` descriptor, and the reverse | Rejected (rule 7) |
 | `U-ARGV-04` | Option string with `\`, NUL, control byte, empty token, value containing `=`, length 1025; `usermapping=` with a path containing a space or any path other than the fixed one | Rejected |
 | `U-ARGV-05` | Mount point outside `/Volumes`, with `/` in the leaf, or not equal to the created leaf | Rejected |
+| `U-ARGV-06` | Every option of `integration/mount-options.json` (T-M2-04) as a single-token addition to a valid vector | Keys of `always` and `opt_in` accepted only with their grammar; every key under `ignored`, `rejected`, `banned` and `not_rejected_by_backend` rejected; `streams_interface` accepted only as `openxattr` or `none` |
 | `U-VERDICT-01` | Probe output over 64 KiB, truncated JSON, trailing garbage | State `unknown` |
 | `U-VERDICT-02` | Duplicate keys, unknown keys, unknown `state` or `logfile` enum, wrong types | State `unknown` |
 | `U-VERDICT-03` | `\u0000` or invalid UTF-8 inside `label` | State `unknown` |
@@ -204,7 +205,7 @@ These ids come from the M1 audit fixes (ADR-016, ADR-017, ADR-006, ADR-018, ADR-
 | `I-ERR-02` | `eio` on the device sync, and on the close-path `fsync` | One `E sync <errno>`, one `E close <errno>` line; no `U 0` |
 | `I-ERR-03` | No fault, full functional workload, clean unmount | Exactly `S rw` then `U 0`; `NTFSMAC_ERRFD` unset behaves exactly like the unpatched build |
 | `I-ERR-04` | `ntfs_umount` made to fail (fault layer `dead:N` from the first unmount-time write) | `E` records then `E umount <errno>`; no `U` line; worker exit status 0 (shows exit status is not evidence) |
-| `I-ERR-05` | Read-only mount (`-o ro`), and a `norecover` read/write request on `unclean-log` (engine fallback) | `S ro` first |
+| `I-ERR-05` | Read-only mount (`-o ro`), and a `norecover` read/write request on `unclean-log` (engine fallback); both in Environment A and with the macOS worker in B (`backend=fskit,local,norecover`), because T-M2-04 could not show `norecover` on a clean fixture | `S ro` first; in B the mount has `MNT_RDONLY` and the image hash is unchanged |
 | `I-ERR-06` | Faultio build with `F_FULLFSYNC` forced to fail (macOS VM) | `W fullfsync <errno>` line at each sync point; sync still returns 0 |
 | `I-ERR-07` | Inspect the worker's descriptor table and a child it starts (test hook `system("true")` in the faultio build) | `NTFSMAC_ERRFD` has `FD_CLOEXEC`; the child has no copy of it; the write end is non-blocking |
 | `I-PERM-01` | In the VM, create files and directories with `touch`, `mkdir` and `cp`, and stat files made on Linux before the run | Every entry reports the console uid and gid |
@@ -212,16 +213,31 @@ These ids come from the M1 audit fixes (ADR-016, ADR-017, ADR-006, ADR-018, ADR-
 | `I-PERM-03` | `chmod` 0600, 0755, `+x` on a file and a directory | Outcome recorded as error or no-op, identical on three runs; on re-stat the mode is the mapped one or the documented value; Linux tree dump shows no change in NTFS attributes or ACLs |
 | `I-PERM-04` | `chown` to another uid and to root (as root inside the VM) | Same pass condition as `I-PERM-03`; ownership on re-stat is still the console user |
 | `I-PERM-05` | A file with a `#!/bin/sh` header and a small native binary, `chmod +x`, execute | `EACCES` (limitation N9); directories remain traversable; a read-only mount behaves the same |
-| `I-PERM-06` | Opt-in `permissions` with an on-volume `.NTFS-3G/UserMapping` file, and `usermapping=/usr/local/etc/ntfs-macos/UserMapping` read through the worker sandbox, in Environment A (reference) and B (mount accepted by the builder's test-only switch) | Mount succeeds, one file created and read back with equal hash; no data claim beyond that (ADR-012) |
+| `I-PERM-06` | Opt-in `permissions` (without `uid`, `gid`, `fmask`, `dmask`, which make it a silent no-op, T-M2-04) with an on-volume `.NTFS-3G/UserMapping` file, and `usermapping=/usr/local/etc/ntfs-macos/UserMapping` read through the worker sandbox, in Environment A (reference) and B (mount accepted by the builder's test-only switch) | Mount succeeds, one file created and read back with equal hash; no data claim beyond that (ADR-012) |
+| `I-PERM-07` | A second, non-admin local account reads, writes and lists a file on a mount owned by the console user, including a mode-000 file (N10) | Outcome recorded per operation; the limitation text of N10 matches it |
 | `U-TSAN-01` | Daemon state machine driven from four threads with random events, built with `-fsanitize=thread` (host and Environment A) | No data-race report; final state satisfies the transition invariants |
 | `U-TSAN-02` | Control-protocol handler with concurrent clients plus concurrent journal and session updates (kill at random points) | No data-race report; journal entries never partial |
-| `I-DMN-23` | Daemon with a probe stub that reports `clean` for `dirty-flag`, `unclean-log`, `log-v2`, `hiber-lower`; marker step enabled | No write reaches the image (hash unchanged); mode reported `ro` with reason; with the marker step disabled, the four outcomes are recorded (expected: `dirty-flag` is written, the others fall back to read-only) |
+| `I-DMN-23` | Daemon with a probe stub that reports `clean` for `dirty-flag`, `unclean-log`, `log-v2`, `hiber-lower`; marker step enabled | No write reaches the image (hash unchanged); mode reported `ro` with reason; with the marker step disabled, the four outcomes are recorded (expected: `dirty-flag` is written, the others fall back to read-only, and the daemon reports them `ro` with reason from its `MNT_RDONLY` check of section 4.1 step 8 of ARCHITECTURE.md) |
 | `I-DMN-24` | (a) VM faultio worker with `eio:N` during a copy; (b) worker started without `NTFSMAC_ERRFD`; (c) unpatched worker binary; (d) worker that writes 100 KiB without newline, and one that writes 65 valid records; (e) daemon killed and restarted mid-session (re-adoption); (f) a child of the worker that keeps the write end open after the worker exits | (a) journal `state=write_error`, notification text, unmount requested; (a) to (f) no "all data written" report, journal entry and marker kept, next attach `ro`; (d) daemon memory stays bounded and the worker never blocks |
-| `I-DMN-26` | Mount-point handling: (a) test hook swaps the created leaf for a symlink to another directory between `mkdirat` and `openat`; (b) worker stopped with `SIGSTOP` right after spawn | (a) attach fails, the symlink target is not chowned or removed; (b) the mount wait ends at its 30 s deadline, the volume goes to `Failed`, and the daemon answers `list` for other volumes throughout |
+| `I-DMN-26` | Mount-point handling: (a) test hook swaps the created leaf for a symlink to another directory between `mkdirat` and `openat`; (b) worker stopped with `SIGSTOP` right after spawn; (c) test hook drops `backend=fskit` from the vector after `argv_check()` (the worker then exits 0, mounts nothing and ignores `SIGTERM`, T-M2-03) | (a) attach fails, the symlink target is not chowned or removed; (b) and (c) the mount wait ends at its 30 s deadline, the worker's process group gets `SIGKILL` and no worker process is left, the volume goes to `Failed`, and the daemon answers `list` for other volumes throughout |
 | `I-DMN-25` | (a) Probe runs on image X; before the `O_RDWR` open the test detaches X and attaches image Y under the same BSD name; (b) the disk is mounted read-only by Apple's driver before the `O_RDWR` open; (c) volmark stub that changes sector 0 | (a) and (c): hash or `st_rdev` mismatch, no `O_RDWR` descriptor kept, volume `ro` or `Failed`, image Y unchanged; (b) no `O_RDWR` open, state as ARCHITECTURE.md section 4.1 step 6 |
 | `I-SYNC-01` | `sync_trace.sh` with `fs_usage`-style tracing of the worker during `sync`, unmount and FUSE fsync | `F_FULLFSYNC` issued on the device descriptor at each sync point; any fallback to `fsync` recorded |
 | `I-SYNC-02` | Same trace on the raw and the buffered device node | Table of sync points and fallbacks per node, used by ADR-014 and D1 |
 | `U-POL-FLAGS` | Probe verdicts with `volume_flags` `["MODIFIED_BY_CHKDSK"]`, `["MOUNTED_ON_NT4"]`, `["DIRTY","MODIFIED_BY_CHKDSK"]`, `["CHKDSK_UNDERWAY"]`, `["UNKNOWN_BITS"]` | First two: `clean` path, `journal-clear` gate open; third: `repair` gate open; last two: `dirty_flag`, `repair` refused |
+
+### 4.2 Cases registered in M2
+
+| Id | Script | Environment and how it runs | Pass condition |
+|---|---|---|---|
+| `I-SMOKE-01` | `tests/integration/smoke/mount_smoke.sh` | B, as the guest user, on a fresh copy of `clean-256m-4k` | rw mount with `fskit` and not read-only; file operations; read-only remount refuses a write; `ntfsfix -n` exit 0 (28 checks) |
+| `I-SMOKE-02` | `tests/integration/smoke/fd_pass.sh` (with `fd_pass.c`) | B; `fd_pass` is the only command run with `sudo -n` (passwordless sudo in the guest); target is an attached virtual disk or an image file | A root parent opens the device `O_RDWR` or `O_RDONLY`, a child without device permission mounts it from `/dev/fd/N` read/write and read-only, writes, reads back, unmounts, `ntfsfix -n` exit 0. Needs patch 0003 |
+| `I-INT-01`, `I-INT-03` | `tests/integration/integrity/remount_hash.py` | A and B (`tests/harness/run-env-b.sh` clones the golden VM and builds NTFS-3G in it) | Section 4 matrix |
+| `C-REF-01` | `tests/compatibility/cross_read.py` | Host case driving both environments: `tests/harness/run-env-b.sh --orchestrate --cases C-REF-01` (clones and deletes the VM). Without a running VM it skips with a note | 106 files written on macOS (100 seeded plus Unicode names, nesting, an empty file and directories) read on Linux with equal size and SHA-256; image hash equal at every hop; treedumps equal; `ntfsfix -n` exit 0. macOS lists non-ASCII names in NFD while the disk holds NFC (U22), so macOS names are compared in NFC; the root `.fseventsd` is skipped |
+| `U-ARGV-06` | unit test of `argv_check()` (T-M3-19) | H, A | Section 4.1 |
+
+Evidence-only scripts (not regression cases): `tests/integration/smoke/option_matrix.sh` (T-M2-04; re-run on each macFUSE update, R-09) and `tests/integration/smoke/sync_trace.sh` with `sync_probe.c` (T-M2-06, FUSE opcode trace). A trace that asserts on `FUSE_FSYNC` must filter by node id or time window: macOS itself fsyncs `.fseventsd/fseventsd-uuid` four times at every mount, and the FUSE `pid` field is always 0 on this backend.
+
+A read/write mount always changes the image, even when the test writes nothing, because macOS creates `.fseventsd` in the root (T-M2-04 `rw-noop`). A read-only mount leaves the image byte-identical (`ro-noop`). "Image hash unchanged" checks therefore apply to read-only sessions and to refusals only.
 
 ## 5. Reference comparison against NTFS-3G on Linux
 
@@ -231,7 +247,7 @@ Purpose: show that running the same engine behind macFUSE FSKit does not change 
 2. Run 1: Environment A, Linux `ntfs-3g` (internal FUSE) on a copy of the fixture.
 3. Run 2: Environment B, this product on another copy.
 4. Both resulting images are dumped in Environment A by `tests/tools/treedump` (links `libntfs-3g`, read-only): path, type, size, allocated size, SHA-256 of the unnamed stream, each named stream with its hash, NTFS times, file attribute flags.
-5. The dumps must be equal after removing entries listed in `tests/compatibility/expected-differences.md`. Expected classes: macOS-created metadata (`.fseventsd`, `.Spotlight-V100`, `.DS_Store`, `com.apple.*` streams), access times, and MFT record numbers.
+5. The dumps must be equal after removing entries listed in `tests/compatibility/expected-differences.md`. Expected classes: macOS-created metadata (`.fseventsd`, `.Spotlight-V100`, `.DS_Store`, `com.apple.*` streams), access times, and MFT record numbers. Names are compared on disk bytes from Environment A dumps; names listed by macOS are NFD (U22) and are not compared byte for byte.
 6. Second independent reader: the Linux kernel `ntfs3` driver mounts the macOS-written image read-only and file hashes are compared again [A: `ntfs3` is available in the container host kernel; if not, this step is skipped and reported as skipped].
 7. Structural check on every resulting image: `ntfsfix -n` (no-action mode), `ntfsinfo -m`, and a full read of every file. NTFS-3G has no full `fsck`; Windows `chkdsk` in Environment C is the authoritative structural check.
 
@@ -242,12 +258,12 @@ Performance comparison uses the same scripts as `P-*` in both environments on th
 | Technique | Environment | What it proves |
 |---|---|---|
 | Crash-consistency sweep (below) | A | State of the image if the device stops accepting writes after write N, for many N |
-| `SIGKILL` of worker during copy | B | Daemon cleanup, journal, read-only on next mount, no hang of applications beyond `daemon_timeout` |
+| `SIGKILL` of worker during copy | B | Daemon cleanup, journal, read-only on next mount, no hang of applications (`daemon_timeout` is not relied on: T-M2-04 found an explicit value ignored) |
 | `SIGKILL` of `ntfsmacd` | B | Open files keep working; restart reconciliation |
 | Kill of the macFUSE FSModule process | B | Volume failure mode and cleanup [V:S7 describes the mode] |
 | Force-detach of the disk image during write (`hdiutil detach -force` in guest, or removing the virtual disk) | B | Approximation of unplug |
 | Real unplug during write | C | The real thing |
-| Guest hard power-off during write (`tart stop` without shutdown) | B | Host-panic approximation; journal survives; next boot mounts read-only |
+| Guest hard power-off during write (`tart stop` without shutdown) | B | Power-cut approximation; journal survives; next boot mounts read-only. A plain `tart stop` is not a clean shutdown: files written seconds before it were missing after the next boot (T-M2-02), so `vm/macos/tart.sh stop` syncs and shuts the guest down first, and no durability test may treat a plain `tart stop` as clean. Its use as a power cut is an approximation only: which layer loses the data (guest page cache, virtual disk, host cache) is not measured, so it is not shown to be equivalent to a power cut |
 
 After every scenario the checks are the same: (1) the next attach mounts read-only with the documented reason; (2) every file that had been synced before the event (the test records these) has the right hash; (3) `ntfsfix -n` reports no fatal error; (4) in Environment C, `chkdsk /scan` output is stored; (5) once T-M3-12 has passed, the image carries `VOLUME_IS_DIRTY`.
 

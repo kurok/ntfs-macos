@@ -1,0 +1,908 @@
+option_matrix: 2026-11-14T12:43:54Z user=admin uid=501 gid=20
+host: macOS 27.2 (26B123) arm64; macFUSE: 5.5.0
+ntfs-3g 2026.9.28 external FUSE 29
+image: /Users/admin/ntfsmac/m204/base.img (268435456 bytes); work dir: /Users/admin/ntfsmac/m204/work
+
+=== CASE baseline: -o backend=fskit,local,norecover,uid=501,gid=20
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxrwxrwx 1 501 20 6 Nov 14 12:43 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxrwxrwx 1 501 20 144 Nov 14 12:43 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|baseline|backend=fskit,local,norecover,uid=501,gid=20|rc=0|mounted
+
+=== CASE always-set: -o backend=fskit,local,norecover,noatime,windows_names,big_writes,streams_interface=xattr,uid=501,gid=20,fmask=0133,dmask=0022
++ ntfs-3g -o backend=fskit,local,norecover,noatime,windows_names,big_writes,streams_interface=xattr,uid=501,gid=20,fmask=0133,dmask=0022 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rw-r--r-- 1 501 20 6 Nov 14 12:44 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxr-xr-x 1 501 20 144 Nov 14 12:44 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|always-set|backend=fskit,local,norecover,noatime,windows_names,big_writes,streams_interface=xattr,uid=501,gid=20,fmask=0133,dmask=0022|rc=0|mounted
+
+=== CASE backend-missing: -o local,norecover,uid=501,gid=20
++ ntfs-3g -o local,norecover,uid=501,gid=20 WORK/var.img WORK/mnt
+  killing stray ntfs-3g (SIGKILL): 8574
+RESULT: no-mount (ntfs-3g exit status 0)
+-- diagnosis: same options in the foreground
++ ntfs-3g -o local,norecover,uid=501,gid=20,no_detach WORK/var.img WORK/mnt   (foreground job)
+  foreground: no-mount (rc=running)
+  | Version 2026.9.28 external FUSE 29
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: local,norecover,uid=501,gid=20,no_detach
+  | Mount options: local,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+  | Global ownership and permissions enforced, configuration type 1
+/Users/admin/ntfsmac/tree/tests/integration/smoke/option_matrix.sh: line 174:  9001 Killed: 9               "$ntfs3g" -o "$o,no_detach" "$img" "$mnt" > "$out" 2>&1
+SUMMARY|backend-missing|local,norecover,uid=501,gid=20|rc=running|no-mount
+
+=== CASE backend-bogus: -o backend=bogus,local,norecover,uid=501,gid=20
++ ntfs-3g -o backend=bogus,local,norecover,uid=501,gid=20 WORK/var.img WORK/mnt
+  killing stray ntfs-3g (SIGKILL): 9261
+RESULT: no-mount (ntfs-3g exit status 0)
+-- diagnosis: same options in the foreground
++ ntfs-3g -o backend=bogus,local,norecover,uid=501,gid=20,no_detach WORK/var.img WORK/mnt   (foreground job)
+  foreground: no-mount (rc=running)
+  | Version 2026.9.28 external FUSE 29
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=bogus,local,norecover,uid=501,gid=20,no_detach
+  | Mount options: backend=bogus,local,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+  | Global ownership and permissions enforced, configuration type 1
+/Users/admin/ntfsmac/tree/tests/integration/smoke/option_matrix.sh: line 174:  9646 Killed: 9               "$ntfs3g" -o "$o,no_detach" "$img" "$mnt" > "$out" 2>&1
+SUMMARY|backend-bogus|backend=bogus,local,norecover,uid=501,gid=20|rc=running|no-mount
+
+=== CASE local-absent: -o backend=fskit,norecover,uid=501,gid=20
++ ntfs-3g -o backend=fskit,norecover,uid=501,gid=20 WORK/var.img WORK/mnt
+mount: macfuse://F18DF045-6DF3-438C-99C5-73021CF1B4FD on WORK/mnt (macfuse, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: mount line: macfuse://F18DF045-6DF3-438C-99C5-73021CF1B4FD on WORK/mnt (macfuse, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: diskutil info: 
+EVIDENCE: df: macfuse://F18DF045-6DF3-438C-99C5-73021CF1B4FD 256Mi 0Bi 237Mi 0% 394 275k 0% WORK/mnt
+EVIDENCE: /Volumes entries: Macintosh HD,
+EVIDENCE: getattrlist ATTR_VOL_NAME: ''
+SUMMARY|local-absent|backend=fskit,norecover,uid=501,gid=20|rc=0|mounted
+
+=== CASE uid-gid-other: -o backend=fskit,local,norecover,uid=1234,gid=4321
++ ntfs-3g -o backend=fskit,local,norecover,uid=1234,gid=4321 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxrwxrwx 1 501 20 6 Nov 14 12:45 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxrwxrwx 1 501 20 144 Nov 14 12:45 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|uid-gid-other|backend=fskit,local,norecover,uid=1234,gid=4321|rc=0|mounted
+
+=== CASE fmask-dmask: -o backend=fskit,local,norecover,uid=501,gid=20,fmask=0133,dmask=0022
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,fmask=0133,dmask=0022 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rw-r--r-- 1 501 20 6 Nov 14 12:45 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxr-xr-x 1 501 20 144 Nov 14 12:45 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|fmask-dmask|backend=fskit,local,norecover,uid=501,gid=20,fmask=0133,dmask=0022|rc=0|mounted
+
+=== CASE fmask-dmask-strict: -o backend=fskit,local,norecover,uid=501,gid=20,fmask=0177,dmask=0077
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,fmask=0177,dmask=0077 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rw------- 1 501 20 6 Nov 14 12:45 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwx------ 1 501 20 144 Nov 14 12:45 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|fmask-dmask-strict|backend=fskit,local,norecover,uid=501,gid=20,fmask=0177,dmask=0077|rc=0|mounted
+
+=== CASE umask: -o backend=fskit,local,norecover,uid=501,gid=20,umask=0027
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,umask=0027 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxr-x--- 1 501 20 6 Nov 14 12:45 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxr-x--- 1 501 20 144 Nov 14 12:45 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|umask|backend=fskit,local,norecover,uid=501,gid=20,umask=0027|rc=0|mounted
+
+=== CASE uid-not-a-number: -o backend=fskit,local,norecover,uid=abc,gid=20
++ ntfs-3g -o backend=fskit,local,norecover,uid=abc,gid=20 WORK/var.img WORK/mnt
+RESULT: rejected (ntfs-3g exit status 11)
+  | 'uid' option needs a decimal value
+SUMMARY|uid-not-a-number|backend=fskit,local,norecover,uid=abc,gid=20|rc=11|rejected
+
+=== CASE no-uid-gid: -o backend=fskit,local,norecover
++ ntfs-3g -o backend=fskit,local,norecover WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxrwxrwx 1 501 20 6 Nov 14 12:45 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxrwxrwx 1 501 20 144 Nov 14 12:45 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|no-uid-gid|backend=fskit,local,norecover|rc=0|mounted
+
+=== CASE windows_names-off: -o backend=fskit,local,norecover,uid=501,gid=20
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: create 'a:b': OK
+EVIDENCE: create 'CON': OK
+EVIDENCE: create 'aux.txt': OK
+EVIDENCE: create 'trail.': OK
+EVIDENCE: create 'sp ': OK
+EVIDENCE: create 'q?x': OK
+EVIDENCE: create 'a"b': OK
+EVIDENCE: create 'lt<x': OK
+EVIDENCE: create 'a*b': OK
+EVIDENCE: create 'pipe|x': OK
+SUMMARY|windows_names-off|backend=fskit,local,norecover,uid=501,gid=20|rc=0|mounted
+
+=== CASE windows_names-on: -o backend=fskit,local,norecover,uid=501,gid=20,windows_names
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,windows_names WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: create 'a:b': FAILED (Invalid argument)
+EVIDENCE: create 'CON': FAILED (Invalid argument)
+EVIDENCE: create 'aux.txt': FAILED (Invalid argument)
+EVIDENCE: create 'trail.': FAILED (Invalid argument)
+EVIDENCE: create 'sp ': FAILED (Invalid argument)
+EVIDENCE: create 'q?x': FAILED (Invalid argument)
+EVIDENCE: create 'a"b': FAILED (Invalid argument)
+EVIDENCE: create 'lt<x': FAILED (Invalid argument)
+EVIDENCE: create 'a*b': FAILED (Invalid argument)
+EVIDENCE: create 'pipe|x': FAILED (Invalid argument)
+SUMMARY|windows_names-on|backend=fskit,local,norecover,uid=501,gid=20,windows_names|rc=0|mounted
+
+=== CASE streams-none: -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=none
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=none WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: xattr -w user.test: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w com.test.x: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w com.apple.metadata:test: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w com.apple.quarantine: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w com.apple.ResourceFork: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w system.test: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -wx com.apple.FinderInfo (32 bytes): FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -l: 
+EVIDENCE: xattr -p user.test: xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt'
+EVIDENCE: ls -l (size of main stream): 3
+SUMMARY|streams-none|backend=fskit,local,norecover,uid=501,gid=20,streams_interface=none|rc=0|mounted
+
+=== CASE streams-xattr: -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=xattr
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=xattr WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: xattr -w user.test: OK
+EVIDENCE: xattr -w com.test.x: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w com.apple.metadata:test: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w com.apple.quarantine: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w com.apple.ResourceFork: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w system.test: OK
+EVIDENCE: xattr -wx com.apple.FinderInfo (32 bytes): FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -l: user.test: val;
+EVIDENCE: xattr -p user.test: val
+EVIDENCE: ls -l (size of main stream): 3
+-- remount with the same options
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=xattr WORK/var.img WORK/mnt
+EVIDENCE: after remount, xattr -l: user.test: val;
+SUMMARY|streams-xattr|backend=fskit,local,norecover,uid=501,gid=20,streams_interface=xattr|rc=0|mounted
+
+=== CASE streams-openxattr: -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=openxattr
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=openxattr WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: xattr -w user.test: OK
+EVIDENCE: xattr -w com.test.x: OK
+EVIDENCE: xattr -w com.apple.metadata:test: OK
+EVIDENCE: xattr -w com.apple.quarantine: OK
+EVIDENCE: xattr -w com.apple.ResourceFork: OK
+EVIDENCE: xattr -w system.test: OK
+EVIDENCE: xattr -wx com.apple.FinderInfo (32 bytes): OK
+EVIDENCE: xattr -l: xattr: /Users/admin/ntfsmac/m204/work/mnt/t/x.txt: No such xattr: com.apple.FinderInfo;com.apple.metadata:test: val;com.apple.quarantine: val;com.apple.ResourceFork: val;com.test.x: val;system.test: val;user.test: val;
+EVIDENCE: xattr -p user.test: val
+EVIDENCE: ls -l (size of main stream): 3
+-- remount with the same options
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=openxattr WORK/var.img WORK/mnt
+EVIDENCE: after remount, xattr -l: xattr: /Users/admin/ntfsmac/m204/work/mnt/t/x.txt: No such xattr: com.apple.FinderInfo;com.apple.metadata:test: val;com.apple.quarantine: val;com.apple.ResourceFork: val;com.test.x: val;system.test: val;user.test: val;
+SUMMARY|streams-openxattr|backend=fskit,local,norecover,uid=501,gid=20,streams_interface=openxattr|rc=0|mounted
+
+=== CASE user_xattr: -o backend=fskit,local,norecover,uid=501,gid=20,user_xattr
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,user_xattr WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: xattr -w user.test: OK
+EVIDENCE: xattr -w com.test.x: OK
+EVIDENCE: xattr -w com.apple.metadata:test: OK
+EVIDENCE: xattr -w com.apple.quarantine: OK
+EVIDENCE: xattr -w com.apple.ResourceFork: OK
+EVIDENCE: xattr -w system.test: OK
+EVIDENCE: xattr -wx com.apple.FinderInfo (32 bytes): OK
+EVIDENCE: xattr -l: xattr: /Users/admin/ntfsmac/m204/work/mnt/t/x.txt: No such xattr: com.apple.FinderInfo;com.apple.metadata:test: val;com.apple.quarantine: val;com.apple.ResourceFork: val;com.test.x: val;system.test: val;user.test: val;
+EVIDENCE: xattr -p user.test: val
+EVIDENCE: ls -l (size of main stream): 3
+SUMMARY|user_xattr|backend=fskit,local,norecover,uid=501,gid=20,user_xattr|rc=0|mounted
+
+=== CASE streams-default: -o backend=fskit,local,norecover,uid=501,gid=20
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: xattr -w user.test: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w com.test.x: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w com.apple.metadata:test: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w com.apple.quarantine: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w com.apple.ResourceFork: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w system.test: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -wx com.apple.FinderInfo (32 bytes): FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -l: 
+EVIDENCE: xattr -p user.test: xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt'
+EVIDENCE: ls -l (size of main stream): 3
+SUMMARY|streams-default|backend=fskit,local,norecover,uid=501,gid=20|rc=0|mounted
+
+=== CASE streams-windows: -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=windows
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=windows WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: xattr -w user.test: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w com.test.x: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w com.apple.metadata:test: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w com.apple.quarantine: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w com.apple.ResourceFork: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w system.test: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -wx com.apple.FinderInfo (32 bytes): FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -l: 
+EVIDENCE: xattr -p user.test: xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt'
+EVIDENCE: ls -l (size of main stream): 3
+SUMMARY|streams-windows|backend=fskit,local,norecover,uid=501,gid=20,streams_interface=windows|rc=0|mounted
+
+=== CASE streams-bogus: -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=bogus
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=bogus WORK/var.img WORK/mnt
+RESULT: rejected (ntfs-3g exit status 11)
+  | Invalid named data streams access interface.
+SUMMARY|streams-bogus|backend=fskit,local,norecover,uid=501,gid=20,streams_interface=bogus|rc=11|rejected
+
+=== CASE streams-noval: -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface WORK/var.img WORK/mnt
+RESULT: rejected (ntfs-3g exit status 11)
+  | 'streams_interface' option should have a value.
+SUMMARY|streams-noval|backend=fskit,local,norecover,uid=501,gid=20,streams_interface|rc=11|rejected
+
+=== CASE atime-reference: -o backend=fskit,local,norecover,uid=501,gid=20
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: reference: file /boundary/c.bin, listed only, not read or touched
+EVIDENCE: after unmount, ntfsinfo -F /boundary/c.bin: 	Last Accessed Time:	 Sat Nov 14 11:38:33 2026 UTC;	Last Accessed Time:	 Sat Nov 14 11:38:33 2026 UTC;			ACE:		 type:allow  flags:0x3  access:0x1f01ff;
+SUMMARY|atime-reference|backend=fskit,local,norecover,uid=501,gid=20|rc=0|mounted
+
+=== CASE noatime: -o backend=fskit,local,norecover,uid=501,gid=20,noatime
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: file /boundary/c.bin: atime after touch -a -t 200001010000: 2026-11-14 11:38; after a read: 2026-11-14 11:38
+EVIDENCE: after unmount, ntfsinfo -F /boundary/c.bin: 	Last Accessed Time:	 Sat Nov 14 11:38:33 2026 UTC;	Last Accessed Time:	 Sat Nov 14 11:38:33 2026 UTC;			ACE:		 type:allow  flags:0x3  access:0x1f01ff;
+SUMMARY|noatime|backend=fskit,local,norecover,uid=501,gid=20,noatime|rc=0|mounted
+
+=== CASE atime: -o backend=fskit,local,norecover,uid=501,gid=20,atime
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,atime WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: file /boundary/c.bin: atime after touch -a -t 200001010000: 2026-11-14 11:38; after a read: 2026-11-14 11:38
+EVIDENCE: after unmount, ntfsinfo -F /boundary/c.bin: 	Last Accessed Time:	 Sat Nov 14 12:46:23 2026 UTC;	Last Accessed Time:	 Sat Nov 14 11:38:33 2026 UTC;			ACE:		 type:allow  flags:0x3  access:0x1f01ff;
+SUMMARY|atime|backend=fskit,local,norecover,uid=501,gid=20,atime|rc=0|mounted
+
+=== CASE relatime: -o backend=fskit,local,norecover,uid=501,gid=20,relatime
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,relatime WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: file /boundary/c.bin: atime after touch -a -t 200001010000: 2026-11-14 11:38; after a read: 2026-11-14 11:38
+EVIDENCE: after unmount, ntfsinfo -F /boundary/c.bin: 	Last Accessed Time:	 Sat Nov 14 12:46:28 2026 UTC;	Last Accessed Time:	 Sat Nov 14 11:38:33 2026 UTC;			ACE:		 type:allow  flags:0x3  access:0x1f01ff;
+SUMMARY|relatime|backend=fskit,local,norecover,uid=501,gid=20,relatime|rc=0|mounted
+
+5 GiB sparse test image made with mkntfs (-F -Q)
+=== CASE big_writes-on-5GiB-debug: -o backend=fskit,local,norecover,uid=501,gid=20,big_writes,debug
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,big_writes,debug,no_detach WORK/var.img WORK/mnt   (foreground job)
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: trace lines in the driver output: 672
+EVIDENCE: lines mentioning write: 30
+EVIDENCE: sample write lines: Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,big_writes,debug,no_detach|   write[0] 1048576 bytes to 1048576|unique: 117, opcode: WRITE (16), nodeid: 5, insize: 1048656, pid: 0|
+EVIDENCE: FUSE write sizes (libfuse2 -odebug 'WRITE[fh] N bytes'): 
+EVIDENCE: first lines of driver output: FUSE library version: 2.9.9|nullpath_ok: 0|nopath: 0|utime_omit_ok: 0|
+SUMMARY|big_writes-on-5GiB-debug|backend=fskit,local,norecover,uid=501,gid=20,big_writes,debug|rc=running|mounted
+
+=== CASE big_writes-off-5GiB-debug: -o backend=fskit,local,norecover,uid=501,gid=20,debug
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,debug,no_detach WORK/var.img WORK/mnt   (foreground job)
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: trace lines in the driver output: 613
+EVIDENCE: lines mentioning write: 29
+EVIDENCE: sample write lines:    max_write=0x02000000|unique: 108, opcode: WRITE (16), nodeid: 5, insize: 1048656, pid: 0|write[0] 1048576 bytes to 5242880 flags: 0x0|
+EVIDENCE: FUSE write sizes (libfuse2 -odebug 'WRITE[fh] N bytes'): 
+EVIDENCE: first lines of driver output: FUSE library version: 2.9.9|nullpath_ok: 0|nopath: 0|utime_omit_ok: 0|
+SUMMARY|big_writes-off-5GiB-debug|backend=fskit,local,norecover,uid=501,gid=20,debug|rc=running|mounted
+
+=== CASE big_writes-on-5GiB-timing: -o backend=fskit,local,norecover,uid=501,gid=20,big_writes
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,big_writes WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: 256 MiB dd + sync, run 1: 0.27 s
+EVIDENCE: 256 MiB dd + sync, run 2: 0.33 s
+EVIDENCE: 256 MiB dd + sync, run 3: 0.26 s
+SUMMARY|big_writes-on-5GiB-timing|backend=fskit,local,norecover,uid=501,gid=20,big_writes|rc=0|mounted
+
+=== CASE big_writes-off-5GiB-timing: -o backend=fskit,local,norecover,uid=501,gid=20
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: 256 MiB dd + sync, run 1: 0.38 s
+EVIDENCE: 256 MiB dd + sync, run 2: 0.19 s
+EVIDENCE: 256 MiB dd + sync, run 3: 0.28 s
+SUMMARY|big_writes-off-5GiB-timing|backend=fskit,local,norecover,uid=501,gid=20|rc=0|mounted
+
+
+=== CASE volname: -o backend=fskit,local,norecover,uid=501,gid=20,volname=NTFSMAC
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,volname=NTFSMAC WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: mount line: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: diskutil info:  Device Node: /dev/disk6s1; Volume Name: Not applicable (no file system); Mount Point: WORK/mnt;
+EVIDENCE: df: /dev/disk6s1 256Mi 0Bi 237Mi 0% 396 275k 0% WORK/mnt
+EVIDENCE: /Volumes entries: Macintosh HD,
+EVIDENCE: getattrlist ATTR_VOL_NAME: ''
+SUMMARY|volname|backend=fskit,local,norecover,uid=501,gid=20,volname=NTFSMAC|rc=0|mounted
+
+=== CASE no-volname: -o backend=fskit,local,norecover,uid=501,gid=20
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: mount line: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: diskutil info:  Device Node: /dev/disk6s1; Volume Name: Not applicable (no file system); Mount Point: WORK/mnt;
+EVIDENCE: df: /dev/disk6s1 256Mi 0Bi 237Mi 0% 396 275k 0% WORK/mnt
+EVIDENCE: /Volumes entries: Macintosh HD,
+EVIDENCE: getattrlist ATTR_VOL_NAME: ''
+SUMMARY|no-volname|backend=fskit,local,norecover,uid=501,gid=20|rc=0|mounted
+
+=== CASE ro: -o backend=fskit,local,norecover,uid=501,gid=20,ro
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write on this mount: REFUSED (touch: /Users/admin/ntfsmac/m204/work/mnt/ro-write-test: Read-only file system)
+SUMMARY|ro|backend=fskit,local,norecover,uid=501,gid=20,ro|rc=0|mounted
+
+=== CASE rdonly: -o backend=fskit,local,norecover,uid=501,gid=20,rdonly
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,rdonly WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write on this mount: REFUSED (touch: /Users/admin/ntfsmac/m204/work/mnt/ro-write-test: Read-only file system)
+SUMMARY|rdonly|backend=fskit,local,norecover,uid=501,gid=20,rdonly|rc=0|mounted
+
+=== CASE rw-explicit: -o backend=fskit,local,norecover,uid=501,gid=20,rw
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,rw WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write on this mount: ALLOWED
+SUMMARY|rw-explicit|backend=fskit,local,norecover,uid=501,gid=20,rw|rc=0|mounted
+
+=== CASE hide_hid_files-off: -o backend=fskit,local,norecover,uid=501,gid=20
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: set DOS hidden attribute via system.ntfs_attrib_be: OK
+EVIDENCE: listing: .,..,hid.txt,vis.txt,
+EVIDENCE: stat of hid.txt still works: 2
+SUMMARY|hide_hid_files-off|backend=fskit,local,norecover,uid=501,gid=20|rc=0|mounted
+
+=== CASE hide_hid_files-on: -o backend=fskit,local,norecover,uid=501,gid=20,hide_hid_files
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,hide_hid_files WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: set DOS hidden attribute via system.ntfs_attrib_be: OK
+EVIDENCE: listing: .,..,vis.txt,
+EVIDENCE: stat of hid.txt still works: 2
+SUMMARY|hide_hid_files-on|backend=fskit,local,norecover,uid=501,gid=20,hide_hid_files|rc=0|mounted
+
+=== CASE permissions-off: -o backend=fskit,local,norecover,uid=501,gid=20
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: chmod 600: OK
+EVIDENCE: ls -ln after chmod: -rwxrwxrwx 1 501 20 2 Nov 14 12:47 /Users/admin/ntfsmac/m204/work/mnt/t/p.txt
+-- remount with the same options
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 WORK/var.img WORK/mnt
+EVIDENCE: after remount, ls -ln: -rwxrwxrwx 1 501 20 2 Nov 14 12:47 /Users/admin/ntfsmac/m204/work/mnt/t/p.txt
+SUMMARY|permissions-off|backend=fskit,local,norecover,uid=501,gid=20|rc=0|mounted
+
+=== CASE permissions-on: -o backend=fskit,local,norecover,uid=501,gid=20,permissions
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,permissions WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: chmod 600: OK
+EVIDENCE: ls -ln after chmod: -rwxrwxrwx 1 501 20 2 Nov 14 12:47 /Users/admin/ntfsmac/m204/work/mnt/t/p.txt
+-- remount with the same options
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,permissions WORK/var.img WORK/mnt
+EVIDENCE: after remount, ls -ln: -rwxrwxrwx 1 501 20 2 Nov 14 12:47 /Users/admin/ntfsmac/m204/work/mnt/t/p.txt
+SUMMARY|permissions-on|backend=fskit,local,norecover,uid=501,gid=20,permissions|rc=0|mounted
+
+=== CASE permissions-only: -o backend=fskit,local,norecover,permissions
++ ntfs-3g -o backend=fskit,local,norecover,permissions WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: chmod 600: OK
+EVIDENCE: ls -ln after chmod: -rw------- 1 501 20 2 Nov 14 12:47 /Users/admin/ntfsmac/m204/work/mnt/t/p.txt
+-- remount with the same options
++ ntfs-3g -o backend=fskit,local,norecover,permissions WORK/var.img WORK/mnt
+EVIDENCE: after remount, ls -ln: -rw------- 1 501 20 2 Nov 14 12:47 /Users/admin/ntfsmac/m204/work/mnt/t/p.txt
+SUMMARY|permissions-only|backend=fskit,local,norecover,permissions|rc=0|mounted
+
+=== CASE usermapping-file: -o backend=fskit,local,norecover,uid=501,gid=20,usermapping=/Users/admin/ntfsmac/m204/work/UserMapping
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,usermapping=/Users/admin/ntfsmac/m204/work/UserMapping WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: chmod 600: OK
+EVIDENCE: ls -ln after chmod: -rw------- 1 501 20 2 Nov 14 12:47 /Users/admin/ntfsmac/m204/work/mnt/t/p.txt
+-- remount with the same options
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,usermapping=/Users/admin/ntfsmac/m204/work/UserMapping WORK/var.img WORK/mnt
+EVIDENCE: after remount, ls -ln: -rw------- 1 501 20 2 Nov 14 12:47 /Users/admin/ntfsmac/m204/work/mnt/t/p.txt
+SUMMARY|usermapping-file|backend=fskit,local,norecover,uid=501,gid=20,usermapping=/Users/admin/ntfsmac/m204/work/UserMapping|rc=0|mounted
+
+=== CASE usermapping-only: -o backend=fskit,local,norecover,usermapping=/Users/admin/ntfsmac/m204/work/UserMapping
++ ntfs-3g -o backend=fskit,local,norecover,usermapping=/Users/admin/ntfsmac/m204/work/UserMapping WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: chmod 600: OK
+EVIDENCE: ls -ln after chmod: -rw------- 1 501 20 2 Nov 14 12:47 /Users/admin/ntfsmac/m204/work/mnt/t/p.txt
+-- remount with the same options
++ ntfs-3g -o backend=fskit,local,norecover,usermapping=/Users/admin/ntfsmac/m204/work/UserMapping WORK/var.img WORK/mnt
+EVIDENCE: after remount, ls -ln: -rw------- 1 501 20 2 Nov 14 12:47 /Users/admin/ntfsmac/m204/work/mnt/t/p.txt
+SUMMARY|usermapping-only|backend=fskit,local,norecover,usermapping=/Users/admin/ntfsmac/m204/work/UserMapping|rc=0|mounted
+
+=== CASE usermapping-missing: -o backend=fskit,local,norecover,uid=501,gid=20,usermapping=/Users/admin/ntfsmac/m204/work/does-not-exist
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,usermapping=/Users/admin/ntfsmac/m204/work/does-not-exist WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxrwxrwx 1 501 20 6 Nov 14 12:47 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxrwxrwx 1 501 20 144 Nov 14 12:47 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|usermapping-missing|backend=fskit,local,norecover,uid=501,gid=20,usermapping=/Users/admin/ntfsmac/m204/work/does-not-exist|rc=0|mounted
+
+=== CASE dev: -o backend=fskit,local,norecover,uid=501,gid=20,dev
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,dev WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxrwxrwx 1 501 20 6 Nov 14 12:47 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxrwxrwx 1 501 20 144 Nov 14 12:47 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|dev|backend=fskit,local,norecover,uid=501,gid=20,dev|rc=0|mounted
+
+=== CASE suid: -o backend=fskit,local,norecover,uid=501,gid=20,suid
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,suid WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxrwxrwx 1 501 20 6 Nov 14 12:47 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxrwxrwx 1 501 20 144 Nov 14 12:47 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|suid|backend=fskit,local,norecover,uid=501,gid=20,suid|rc=0|mounted
+
+=== CASE allow_root: -o backend=fskit,local,norecover,uid=501,gid=20,allow_root
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,allow_root WORK/var.img WORK/mnt
+RESULT: rejected (ntfs-3g exit status 21)
+  | fuse: allow_other and allow_root are mutually exclusive
+SUMMARY|allow_root|backend=fskit,local,norecover,uid=501,gid=20,allow_root|rc=21|rejected
+
+=== CASE efs_raw: -o backend=fskit,local,norecover,uid=501,gid=20,efs_raw
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,efs_raw WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxrwxrwx 1 501 20 6 Nov 14 12:47 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxrwxrwx 1 501 20 144 Nov 14 12:47 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|efs_raw|backend=fskit,local,norecover,uid=501,gid=20,efs_raw|rc=0|mounted
+
+=== CASE allow_other: -o backend=fskit,local,norecover,uid=501,gid=20,allow_other
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,allow_other WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxrwxrwx 1 501 20 6 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxrwxrwx 1 501 20 144 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|allow_other|backend=fskit,local,norecover,uid=501,gid=20,allow_other|rc=0|mounted
+
+=== CASE nonempty-on-empty-dir: -o backend=fskit,local,norecover,uid=501,gid=20,nonempty
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,nonempty WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxrwxrwx 1 501 20 6 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxrwxrwx 1 501 20 144 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|nonempty-on-empty-dir|backend=fskit,local,norecover,uid=501,gid=20,nonempty|rc=0|mounted
+
+=== CASE nonempty-on-busy-dir: -o backend=fskit,local,norecover,uid=501,gid=20
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: listing of mount point: .,..,.fseventsd,boundary,docs,empty,large,link-to-readme,long,many,small,sparse,unicode,with spaces,
+EVIDENCE: pre-existing local file visible: no (hidden by the mount)
+SUMMARY|nonempty-on-busy-dir|backend=fskit,local,norecover,uid=501,gid=20|rc=0|mounted
+
+=== CASE default_permissions: -o backend=fskit,local,norecover,uid=501,gid=20,default_permissions
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,default_permissions WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxrwxrwx 1 501 20 6 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxrwxrwx 1 501 20 144 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|default_permissions|backend=fskit,local,norecover,uid=501,gid=20,default_permissions|rc=0|mounted
+
+=== CASE defperm-effect-with: -o backend=fskit,local,norecover,uid=0,gid=0,fmask=0777,dmask=0777
++ ntfs-3g -o backend=fskit,local,norecover,uid=0,gid=0,fmask=0777,dmask=0777 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: ls -ln: ---------- 1 501 20 2 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t/d.txt
+EVIDENCE: read of a mode-000 file owned by uid 0 as uid 501: ALLOWED
+EVIDENCE: create in a directory with mode 000: ALLOWED
+SUMMARY|defperm-effect-with|backend=fskit,local,norecover,uid=0,gid=0,fmask=0777,dmask=0777|rc=0|mounted
+
+=== CASE no_def_opts: -o backend=fskit,local,norecover,uid=0,gid=0,fmask=0777,dmask=0777,no_def_opts
++ ntfs-3g -o backend=fskit,local,norecover,uid=0,gid=0,fmask=0777,dmask=0777,no_def_opts WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+mkdir: /Users/admin/ntfsmac/m204/work/mnt/t: Operation not supported on socket
+/Users/admin/ntfsmac/tree/tests/integration/smoke/option_matrix.sh: line 313: /Users/admin/ntfsmac/m204/work/mnt/t/d.txt: Operation not supported on socket
+EVIDENCE: ls -ln: ---------- 1 501 20 0 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t/d.txt
+EVIDENCE: read of a mode-000 file owned by uid 0 as uid 501: ALLOWED
+EVIDENCE: create in dir: REFUSED (Operation not supported on socket)
+SUMMARY|no_def_opts|backend=fskit,local,norecover,uid=0,gid=0,fmask=0777,dmask=0777,no_def_opts|rc=0|mounted
+
+=== CASE blkdev: -o backend=fskit,local,norecover,uid=501,gid=20,blkdev
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,blkdev WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxrwxrwx 1 501 20 6 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxrwxrwx 1 501 20 144 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|blkdev|backend=fskit,local,norecover,uid=501,gid=20,blkdev|rc=0|mounted
+
+=== CASE blksize: -o backend=fskit,local,norecover,uid=501,gid=20,blksize=4096
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,blksize=4096 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxrwxrwx 1 501 20 6 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxrwxrwx 1 501 20 144 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|blksize|backend=fskit,local,norecover,uid=501,gid=20,blksize=4096|rc=0|mounted
+
+=== CASE bogus-unknown-token: -o backend=fskit,local,norecover,uid=501,gid=20,bogusopt
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,bogusopt WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxrwxrwx 1 501 20 6 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxrwxrwx 1 501 20 144 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|bogus-unknown-token|backend=fskit,local,norecover,uid=501,gid=20,bogusopt|rc=0|mounted
+
+=== CASE bogus-unknown-kv: -o backend=fskit,local,norecover,uid=501,gid=20,bogusopt=1
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,bogusopt=1 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxrwxrwx 1 501 20 6 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxrwxrwx 1 501 20 144 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|bogus-unknown-kv|backend=fskit,local,norecover,uid=501,gid=20,bogusopt=1|rc=0|mounted
+
+=== CASE empty-token: -o backend=fskit,local,norecover,,uid=501,gid=20
++ ntfs-3g -o backend=fskit,local,norecover,,uid=501,gid=20 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxrwxrwx 1 501 20 6 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxrwxrwx 1 501 20 144 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|empty-token|backend=fskit,local,norecover,,uid=501,gid=20|rc=0|mounted
+
+=== CASE noowners: -o backend=fskit,local,norecover,uid=501,gid=20,noowners
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noowners WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxrwxrwx 1 501 20 6 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxrwxrwx 1 501 20 144 Nov 14 12:48 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|noowners|backend=fskit,local,norecover,uid=501,gid=20,noowners|rc=0|mounted
+
+=== CASE noappledouble-off: -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=none
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=none WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: cp -p of a file with an xattr: rc=1 cp: /Users/admin/ntfsmac/m204/work/src.txt: could not copy extended attributes to /Users/admin/ntfsmac/m204/work/mnt/t/ad.txt: Operation not supported on socket
+EVIDENCE: directory listing: .,..,ad.txt,
+EVIDENCE: xattrs on the copy: 
+EVIDENCE: AppleDouble '._ad.txt' present: no
+SUMMARY|noappledouble-off|backend=fskit,local,norecover,uid=501,gid=20,streams_interface=none|rc=0|mounted
+
+=== CASE noappledouble-on: -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=none,noappledouble
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=none,noappledouble WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: cp -p of a file with an xattr: rc=1 cp: /Users/admin/ntfsmac/m204/work/src.txt: could not copy extended attributes to /Users/admin/ntfsmac/m204/work/mnt/t/ad.txt: Operation not supported on socket
+EVIDENCE: directory listing: .,..,ad.txt,
+EVIDENCE: xattrs on the copy: 
+EVIDENCE: AppleDouble '._ad.txt' present: no
+SUMMARY|noappledouble-on|backend=fskit,local,norecover,uid=501,gid=20,streams_interface=none,noappledouble|rc=0|mounted
+
+=== CASE noappledouble-on-xattr: -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=xattr,noappledouble
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=xattr,noappledouble WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: cp -p of a file with an xattr: rc=1 cp: /Users/admin/ntfsmac/m204/work/src.txt: could not copy extended attributes to /Users/admin/ntfsmac/m204/work/mnt/t/ad.txt: Operation not supported on socket
+EVIDENCE: directory listing: .,..,ad.txt,
+EVIDENCE: xattrs on the copy: 
+EVIDENCE: AppleDouble '._ad.txt' present: no
+SUMMARY|noappledouble-on-xattr|backend=fskit,local,norecover,uid=501,gid=20,streams_interface=xattr,noappledouble|rc=0|mounted
+
+=== CASE noapplexattr: -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=xattr,noapplexattr
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=xattr,noapplexattr WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: xattr -w user.test: OK
+EVIDENCE: xattr -w com.test.x: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w com.apple.metadata:test: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w com.apple.quarantine: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w com.apple.ResourceFork: FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -w system.test: OK
+EVIDENCE: xattr -wx com.apple.FinderInfo (32 bytes): FAILED (xattr: [Errno 102] Operation not supported on socket: '/Users/admin/ntfsmac/m204/work/mnt/t/x.txt')
+EVIDENCE: xattr -l: user.test: val;
+EVIDENCE: xattr -p user.test: val
+EVIDENCE: ls -l (size of main stream): 3
+SUMMARY|noapplexattr|backend=fskit,local,norecover,uid=501,gid=20,streams_interface=xattr,noapplexattr|rc=0|mounted
+
+=== CASE nobrowse: -o backend=fskit,local,norecover,uid=501,gid=20,nobrowse
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,nobrowse WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: mount line: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: diskutil info:  Device Node: /dev/disk6s1; Volume Name: Not applicable (no file system); Mount Point: WORK/mnt;
+EVIDENCE: df: /dev/disk6s1 256Mi 0Bi 237Mi 0% 396 275k 0% WORK/mnt
+EVIDENCE: /Volumes entries: Macintosh HD,
+EVIDENCE: getattrlist ATTR_VOL_NAME: ''
+SUMMARY|nobrowse|backend=fskit,local,norecover,uid=501,gid=20,nobrowse|rc=0|mounted
+
+=== CASE daemon_timeout: -o backend=fskit,local,norecover,uid=501,gid=20,daemon_timeout=10
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,daemon_timeout=10 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxrwxrwx 1 501 20 6 Nov 14 12:49 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxrwxrwx 1 501 20 144 Nov 14 12:49 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|daemon_timeout|backend=fskit,local,norecover,uid=501,gid=20,daemon_timeout=10|rc=0|mounted
+
+=== CASE daemon_timeout-bogus: -o backend=fskit,local,norecover,uid=501,gid=20,daemon_timeout=abc
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,daemon_timeout=abc WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxrwxrwx 1 501 20 6 Nov 14 12:49 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxrwxrwx 1 501 20 144 Nov 14 12:49 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|daemon_timeout-bogus|backend=fskit,local,norecover,uid=501,gid=20,daemon_timeout=abc|rc=0|mounted
+
+=== CASE iosize-default: -o backend=fskit,local,norecover,uid=501,gid=20
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: stat -f %k (preferred I/O size) on file: 1048576; on mount root: 1048576
+EVIDENCE: df block size line: /dev/disk6s1 524280 0 469616 0% 398 267178 0% WORK/mnt
+SUMMARY|iosize-default|backend=fskit,local,norecover,uid=501,gid=20|rc=0|mounted
+
+=== CASE iosize-65536: -o backend=fskit,local,norecover,uid=501,gid=20,iosize=65536
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,iosize=65536 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: stat -f %k (preferred I/O size) on file: 1048576; on mount root: 1048576
+EVIDENCE: df block size line: /dev/disk6s1 524280 0 469616 0% 398 267178 0% WORK/mnt
+SUMMARY|iosize-65536|backend=fskit,local,norecover,uid=501,gid=20,iosize=65536|rc=0|mounted
+
+=== CASE iosize-1048576: -o backend=fskit,local,norecover,uid=501,gid=20,iosize=1048576
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,iosize=1048576 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: stat -f %k (preferred I/O size) on file: 1048576; on mount root: 1048576
+EVIDENCE: df block size line: /dev/disk6s1 524280 0 469616 0% 398 267178 0% WORK/mnt
+SUMMARY|iosize-1048576|backend=fskit,local,norecover,uid=501,gid=20,iosize=1048576|rc=0|mounted
+
+=== CASE iosize-bogus: -o backend=fskit,local,norecover,uid=501,gid=20,iosize=abc
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,iosize=abc WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rwxrwxrwx 1 501 20 6 Nov 14 12:49 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxrwxrwx 1 501 20 144 Nov 14 12:49 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|iosize-bogus|backend=fskit,local,norecover,uid=501,gid=20,iosize=abc|rc=0|mounted
+
+=== CASE sync: -o backend=fskit,local,norecover,uid=501,gid=20,sync
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,sync WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: mount line: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: mount flags include synchronous: no
+SUMMARY|sync|backend=fskit,local,norecover,uid=501,gid=20,sync|rc=0|mounted
+
+=== CASE async: -o backend=fskit,local,norecover,uid=501,gid=20,async
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,async WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: mount line: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: mount flags include synchronous: no
+SUMMARY|async|backend=fskit,local,norecover,uid=501,gid=20,async|rc=0|mounted
+
+=== ECHO echo-volname=NTFSMAC: -o backend=fskit,local,norecover,uid=501,gid=20,volname=NTFSMAC
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,volname=NTFSMAC,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,volname=NTFSMAC,no_detach
+  | Mount options: backend=fskit,local,volname=NTFSMAC,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-nobrowse: -o backend=fskit,local,norecover,uid=501,gid=20,nobrowse
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,nobrowse,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,nobrowse,no_detach
+  | Mount options: backend=fskit,local,nobrowse,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-noappledouble: -o backend=fskit,local,norecover,uid=501,gid=20,noappledouble
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noappledouble,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,noappledouble,no_detach
+  | Mount options: backend=fskit,local,noappledouble,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-noapplexattr: -o backend=fskit,local,norecover,uid=501,gid=20,noapplexattr
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noapplexattr,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,noapplexattr,no_detach
+  | Mount options: backend=fskit,local,noapplexattr,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-dev: -o backend=fskit,local,norecover,uid=501,gid=20,dev
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,dev,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,dev,no_detach
+  | Mount options: backend=fskit,local,dev,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-suid: -o backend=fskit,local,norecover,uid=501,gid=20,suid
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,suid,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,suid,no_detach
+  | Mount options: backend=fskit,local,suid,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-blkdev: -o backend=fskit,local,norecover,uid=501,gid=20,blkdev
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,blkdev,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,blkdev,no_detach
+  | Mount options: backend=fskit,local,blkdev,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-blksize=4096: -o backend=fskit,local,norecover,uid=501,gid=20,blksize=4096
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,blksize=4096,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | WARNING: blksize option is ignored because ntfs-3g must calculate it.
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,blksize=4096,no_detach
+  | Mount options: backend=fskit,local,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-daemon_timeout=10: -o backend=fskit,local,norecover,uid=501,gid=20,daemon_timeout=10
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,daemon_timeout=10,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,daemon_timeout=10,no_detach
+  | Mount options: backend=fskit,local,daemon_timeout=10,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-iosize=65536: -o backend=fskit,local,norecover,uid=501,gid=20,iosize=65536
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,iosize=65536,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,iosize=65536,no_detach
+  | Mount options: backend=fskit,local,iosize=65536,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-sync: -o backend=fskit,local,norecover,uid=501,gid=20,sync
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,sync,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,sync,no_detach
+  | Mount options: backend=fskit,local,sync,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-async: -o backend=fskit,local,norecover,uid=501,gid=20,async
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,async,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,async,no_detach
+  | Mount options: backend=fskit,local,async,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-rdonly: -o backend=fskit,local,norecover,uid=501,gid=20,rdonly
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,rdonly,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,rdonly,no_detach
+  | Mount options: backend=fskit,local,rdonly,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-allow_other: -o backend=fskit,local,norecover,uid=501,gid=20,allow_other
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,allow_other,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,allow_other,no_detach
+  | Mount options: backend=fskit,local,allow_other,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-nonempty: -o backend=fskit,local,norecover,uid=501,gid=20,nonempty
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,nonempty,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,nonempty,no_detach
+  | Mount options: backend=fskit,local,nonempty,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-default_permissions: -o backend=fskit,local,norecover,uid=501,gid=20,default_permissions
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,default_permissions,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,default_permissions,no_detach
+  | Mount options: backend=fskit,local,allow_other,nonempty,default_permissions,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-bogusopt: -o backend=fskit,local,norecover,uid=501,gid=20,bogusopt
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,bogusopt,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,bogusopt,no_detach
+  | Mount options: backend=fskit,local,bogusopt,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-big_writes: -o backend=fskit,local,norecover,uid=501,gid=20,big_writes
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,big_writes,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,big_writes,no_detach
+  | Mount options: backend=fskit,local,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-usermapping-missing: -o backend=fskit,local,norecover,uid=501,gid=20,usermapping=/Users/admin/ntfsmac/m204/work/does-not-exist
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,usermapping=/Users/admin/ntfsmac/m204/work/does-not-exist,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,usermapping=WORK/does-not-exist,no_detach
+  | Mount options: backend=fskit,local,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-usermapping-file: -o backend=fskit,local,norecover,uid=501,gid=20,usermapping=/Users/admin/ntfsmac/m204/work/UserMapping
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,usermapping=/Users/admin/ntfsmac/m204/work/UserMapping,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,usermapping=WORK/UserMapping,no_detach
+  | Mount options: backend=fskit,local,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+
+=== ECHO echo-permissions: -o backend=fskit,local,norecover,permissions
++ ntfs-3g -o backend=fskit,local,norecover,permissions,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Cmdline options: backend=fskit,local,norecover,permissions,no_detach
+  | Mount options: backend=fskit,local,allow_other,nonempty,default_permissions,relatime,fsname=WORK/var.img
+
+=== NOOP rw-noop: -o backend=fskit,local,norecover,uid=501,gid=20
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted; mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Mount options: backend=fskit,local,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+  EVIDENCE: image CHANGED by a mount with no writes
+
+=== NOOP ro-noop: -o backend=fskit,local,norecover,uid=501,gid=20,ro
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted; mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+  | Mounted WORK/var.img (Read-Only, label "clean256m4k", NTFS 3.1)
+  | Mount options: backend=fskit,local,ro,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+  EVIDENCE: image unchanged by a mount with no writes
+
+=== NOOP rdonly-noop: -o backend=fskit,local,norecover,uid=501,gid=20,rdonly
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,rdonly,no_detach WORK/var.img WORK/mnt   (foreground job)
+  state=mounted; mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+  | Mounted WORK/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+  | Mount options: backend=fskit,local,rdonly,allow_other,nonempty,relatime,default_permissions,fsname=WORK/var.img
+  EVIDENCE: image unchanged by a mount with no writes
+
+=== CASE sync-repeat-1: -o backend=fskit,local,norecover,uid=501,gid=20,sync
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,sync WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: mount line: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: mount flags include synchronous: no
+SUMMARY|sync-repeat-1|backend=fskit,local,norecover,uid=501,gid=20,sync|rc=0|mounted
+
+=== CASE sync-repeat-2: -o backend=fskit,local,norecover,uid=501,gid=20,sync
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,sync WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: mount line: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: mount flags include synchronous: no
+SUMMARY|sync-repeat-2|backend=fskit,local,norecover,uid=501,gid=20,sync|rc=0|mounted
+
+=== CASE async-repeat-1: -o backend=fskit,local,norecover,uid=501,gid=20,async
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,async WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: mount line: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: mount flags include synchronous: no
+SUMMARY|async-repeat-1|backend=fskit,local,norecover,uid=501,gid=20,async|rc=0|mounted
+
+=== CASE fmask-dmask-without-uid: -o backend=fskit,local,norecover,fmask=0133,dmask=0022
++ ntfs-3g -o backend=fskit,local,norecover,fmask=0133,dmask=0022 WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: write+read: hello
+EVIDENCE: ls -ln file: -rw-r--r-- 1 501 20 6 Nov 14 12:51 /Users/admin/ntfsmac/m204/work/mnt/t/f.txt
+EVIDENCE: ls -ldn dir: drwxr-xr-x 1 501 20 144 Nov 14 12:51 /Users/admin/ntfsmac/m204/work/mnt/t
+SUMMARY|fmask-dmask-without-uid|backend=fskit,local,norecover,fmask=0133,dmask=0022|rc=0|mounted
+
+=== CASE noappledouble-on-openxattr: -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=openxattr,noappledouble
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=openxattr,noappledouble WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: cp -p of a file with an xattr: rc=0 
+EVIDENCE: directory listing: .,..,ad.txt,
+EVIDENCE: xattrs on the copy: com.apple.test: 1;
+EVIDENCE: AppleDouble '._ad.txt' present: no
+SUMMARY|noappledouble-on-openxattr|backend=fskit,local,norecover,uid=501,gid=20,streams_interface=openxattr,noappledouble|rc=0|mounted
+
+=== CASE noapplexattr-openxattr: -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=openxattr,noapplexattr
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=openxattr,noapplexattr WORK/var.img WORK/mnt
+mount: /dev/disk6s1 on WORK/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+EVIDENCE: xattr -w user.test: OK
+EVIDENCE: xattr -w com.test.x: OK
+EVIDENCE: xattr -w com.apple.metadata:test: OK
+EVIDENCE: xattr -w com.apple.quarantine: OK
+EVIDENCE: xattr -w com.apple.ResourceFork: OK
+EVIDENCE: xattr -w system.test: OK
+EVIDENCE: xattr -wx com.apple.FinderInfo (32 bytes): OK
+EVIDENCE: xattr -l: xattr: /Users/admin/ntfsmac/m204/work/mnt/t/x.txt: No such xattr: com.apple.FinderInfo;com.apple.metadata:test: val;com.apple.quarantine: val;com.apple.ResourceFork: val;com.test.x: val;system.test: val;user.test: val;
+EVIDENCE: xattr -p user.test: val
+EVIDENCE: ls -l (size of main stream): 3
+SUMMARY|noapplexattr-openxattr|backend=fskit,local,norecover,uid=501,gid=20,streams_interface=openxattr,noapplexattr|rc=0|mounted
+
+=== CASE norecover-dirty-volume (volume left dirty by SIGKILL of the driver)
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 WORK/var.img WORK/mnt
+  killing stray ntfs-3g (SIGKILL): 21822
+  ntfsfix -n after the kill:
+  | Mounting volume... OK
+  | Processing of $MFT and $MFTMirr completed successfully.
+  | Checking the alternate boot sector... OK
+  | NTFS volume version is 3.1.
+  | NTFS partition /Users/admin/ntfsmac/m204/work/var.img was processed successfully.
+  rw mount with norecover on the dirty volume:
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 WORK/var.img WORK/mnt
+  state=mounted rc=0
+  ro mount with norecover on the dirty volume:
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro WORK/var.img WORK/mnt
+  state=mounted rc=0
+SUMMARY|norecover-dirty-volume|backend=fskit,local,norecover,uid=501,gid=20|rc=0|mounted
+
+=== CASE daemon_timeout-effect (SIGSTOP the driver, daemon_timeout=3)
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,daemon_timeout=3 WORK/var.img WORK/mnt
+  driver pid(s): 22154
+  after 8 s: still mounted
+  killing stray ntfs-3g (SIGKILL): 22154
+SUMMARY|daemon_timeout-effect|backend=fskit,local,norecover,uid=501,gid=20,daemon_timeout=3|rc=0|mounted
+
+option_matrix: done, nothing left behind

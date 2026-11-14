@@ -1,0 +1,267 @@
+{
+  "schema": "ntfsmac-mount-options",
+  "schema_version": 1,
+  "task": "T-M2-04",
+  "date": "2026-11-14",
+  "measured_on": {
+    "guest": "macOS 27.2 (26B123) arm64, tart clone of ntfsmac-golden",
+    "macfuse": "5.5.0, FSKit backend, libfuse2 (FUSE API 29)",
+    "ntfs3g": "2026.9.28 external FUSE 29, no patches",
+    "mount_as": "normal user, image file (not a block device)",
+    "evidence": "tests/results/evidence/m204/option-matrix.log",
+    "reproduce": "tests/integration/smoke/option_matrix.sh"
+  },
+  "classes": {
+    "effective": "accepted and the effect was observed",
+    "ignored": "accepted (exit 0, mount appears) with no observable effect",
+    "rejected": "ntfs-3g or libfuse refuses it: non-zero exit status and a message",
+    "silent": "accepted but the stated behaviour is not delivered; the daemon must check the precondition itself"
+  },
+  "mount_command": "ntfs-3g -o <options> <image-or-fd-path> <mountpoint>",
+  "always": [
+    {
+      "option": "backend=fskit",
+      "class": "effective",
+      "mandatory": true,
+      "note": "without it (or with any other value) ntfs-3g exits 0, no mount appears, SIGTERM is ignored; SIGKILL needed"
+    },
+    {
+      "option": "local",
+      "class": "effective",
+      "note": "mount source becomes /dev/diskNsM and the mount gets the local flag; without it the source is macfuse://UUID"
+    },
+    {
+      "option": "norecover",
+      "class": "effective",
+      "mandatory": true,
+      "note": "consumed by the engine (ctx->recover = FALSE); acts only on an unclean $LogFile, not exercised here (needs the unclean-log fixture)"
+    },
+    {
+      "option": "noatime",
+      "class": "effective",
+      "note": "checked on disk with ntfsinfo: atime unchanged after a read; with atime/relatime it is updated. Not visible in stat through the backend"
+    },
+    {
+      "option": "windows_names",
+      "class": "effective",
+      "note": "creating a:b, CON, aux.txt, trail., 'sp ', q?x, a\"b, lt<x, a*b, pipe|x fails with EINVAL; without it all succeed"
+    },
+    {
+      "option": "streams_interface=openxattr",
+      "class": "effective",
+      "replaces": "streams_interface=xattr",
+      "note": "all xattr names work (com.apple.*, com.test.x, user.*) and survive a remount; xattr only keeps user.* and fails the rest with ENOTSUP"
+    },
+    {
+      "option": "uid=<console uid>",
+      "class": "effective",
+      "note": "accepted; ownership shown by the mount is the mounting user regardless (noowners); decimal required"
+    },
+    {
+      "option": "gid=<console gid>",
+      "class": "effective",
+      "note": "as uid"
+    },
+    {
+      "option": "fmask=0133",
+      "class": "effective",
+      "note": "files show -rw-r--r--"
+    },
+    {
+      "option": "dmask=0022",
+      "class": "effective",
+      "note": "directories show drwxr-xr-x"
+    }
+  ],
+  "opt_in": [
+    {
+      "option": "ro",
+      "class": "effective",
+      "note": "engine opens the volume read-only (Mounted ... Read-Only), mount shows read-only, image bytes unchanged"
+    },
+    {
+      "option": "hide_hid_files",
+      "class": "effective",
+      "note": "files with the DOS hidden attribute leave the listing; stat by name still works"
+    },
+    {
+      "option": "usermapping=<absolute path>",
+      "class": "effective",
+      "requires": "the file must exist: a missing file is accepted silently (class silent) and the mount behaves as without it",
+      "note": "turns on NTFS permissions; chmod works and persists across remounts, also together with uid/gid"
+    },
+    {
+      "option": "permissions",
+      "class": "silent",
+      "requires": "do not combine with uid, gid, fmask or dmask: with them chmod returns success but the mode does not change",
+      "note": "works alone (chmod 600 shown as -rw-------, persists)"
+    }
+  ],
+  "ignored": [
+    {
+      "option": "big_writes",
+      "note": "consumed by the engine, not passed to libfuse; FSKit issues 1 MiB writes with and without it; also inactive below 4 GiB volumes in NTFS-3G"
+    },
+    {
+      "option": "volname=<name>",
+      "note": "passed to libfuse, no effect on mount output, diskutil info, df or getattrlist ATTR_VOL_NAME"
+    },
+    {
+      "option": "noappledouble",
+      "note": "no AppleDouble file is created with or without it"
+    },
+    {
+      "option": "noapplexattr",
+      "note": "com.apple.* xattrs behave the same with and without it"
+    },
+    {
+      "option": "nobrowse",
+      "note": "no change in mount flags; Finder effect not testable headless"
+    },
+    {
+      "option": "daemon_timeout=<n>",
+      "note": "any value accepted (also abc); a driver stopped with SIGSTOP stays mounted after 8 s with daemon_timeout=3"
+    },
+    {
+      "option": "iosize=<n>",
+      "note": "any value accepted (also abc); st_blksize is 1048576 in every case"
+    },
+    {
+      "option": "sync",
+      "note": "no synchronous flag in mount output"
+    },
+    {
+      "option": "async",
+      "note": "accepted, no effect"
+    },
+    {
+      "option": "noowners",
+      "note": "always present in the mount flags anyway"
+    },
+    {
+      "option": "dev",
+      "note": "mount stays nodev"
+    },
+    {
+      "option": "suid",
+      "note": "mount stays nosuid"
+    },
+    {
+      "option": "blkdev",
+      "note": "ignored for an image file; real block devices are T-M2-05"
+    },
+    {
+      "option": "blksize=<n>",
+      "note": "engine prints 'WARNING: blksize option is ignored because ntfs-3g must calculate it.'"
+    },
+    {
+      "option": "allow_other",
+      "note": "NTFS-3G adds it itself; a second copy is harmless"
+    },
+    {
+      "option": "nonempty",
+      "note": "NTFS-3G adds it itself; mounting over a non-empty directory works and hides its content"
+    },
+    {
+      "option": "default_permissions",
+      "note": "NTFS-3G adds it itself; the kernel does not enforce modes on this backend (a mode-000 file is readable by the mounting user)"
+    },
+    {
+      "option": "streams_interface=none",
+      "note": "accepted; every xattr call fails with ENOTSUP; this is also the default"
+    },
+    {
+      "option": "streams_interface=windows",
+      "note": "accepted; xattr calls fail with ENOTSUP, file:stream path syntax is not offered"
+    },
+    {
+      "option": "efs_raw",
+      "note": "accepted by the engine; effect needs an EFS-encrypted file, not available"
+    }
+  ],
+  "rejected": [
+    {
+      "option": "uid=<not a number> (gid uses the same decimal check in the source; not run)",
+      "exit_status": 11,
+      "message": "'uid' option needs a decimal value"
+    },
+    {
+      "option": "streams_interface=<unknown value>",
+      "exit_status": 11,
+      "message": "Invalid named data streams access interface."
+    },
+    {
+      "option": "streams_interface (no value)",
+      "exit_status": 11,
+      "message": "'streams_interface' option should have a value."
+    },
+    {
+      "option": "allow_root",
+      "exit_status": 21,
+      "message": "fuse: allow_other and allow_root are mutually exclusive"
+    }
+  ],
+  "not_rejected_by_backend": [
+    "bogusopt",
+    "bogusopt=1",
+    "an empty token (,,)",
+    "backend=<any value other than fskit>",
+    "usermapping=<missing file>",
+    "iosize=abc",
+    "daemon_timeout=abc"
+  ],
+  "banned": [
+    {
+      "option": "recover",
+      "reason": "never passed (task rule); NTFS-3G default, replays the journal"
+    },
+    {
+      "option": "remove_hiberfile",
+      "reason": "never passed (task rule); deletes hiberfil.sys"
+    },
+    {
+      "option": "fsname",
+      "reason": "never passed (task rule); NTFS-3G marks it FLGOPT_NOSUPPORT and builds fsname=<device> itself"
+    },
+    {
+      "option": "rdonly",
+      "reason": "mount shows read-only but the engine opens the volume Read-Write; use ro"
+    },
+    {
+      "option": "no_def_opts",
+      "reason": "drops NTFS-3G's default FUSE options; with it mkdir failed with ENOTSUP in the test"
+    },
+    {
+      "option": "dev",
+      "reason": "ignored by the backend, banned as defence in depth"
+    },
+    {
+      "option": "suid",
+      "reason": "ignored by the backend, banned as defence in depth"
+    },
+    {
+      "option": "allow_root",
+      "reason": "rejected (exit 21)"
+    },
+    {
+      "option": "efs_raw",
+      "reason": "effect not testable, exposes raw EFS data"
+    },
+    {
+      "option": "any key not in always or opt_in",
+      "reason": "the backend does not reject unknown tokens, so argv_check() is the only guard"
+    }
+  ],
+  "streams_interface_values": {
+    "allowed": [
+      "openxattr",
+      "none"
+    ],
+    "recommended": "openxattr",
+    "usable_not_offered": [
+      "xattr (user.* names only)",
+      "user_xattr (same as openxattr on macOS)",
+      "windows (xattr calls fail)"
+    ]
+  }
+}

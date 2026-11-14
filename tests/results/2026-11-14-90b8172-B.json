@@ -1,0 +1,188 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "90b8172d0136708d047bc10cc5ece72a1aa07a8e",
+  "dirty_tree": false,
+  "env": "B",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "macOS 27.2 (26B123) arm64",
+  "macfuse_version": "5.5.0",
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-14T20:43:05Z",
+  "finished": "2026-11-14T20:49:28Z",
+  "cases": [
+    {
+      "id": "I-FUNC-01",
+      "status": "pass",
+      "duration_s": 9.249,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-B/I-FUNC-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-02",
+      "status": "pass",
+      "duration_s": 11.008,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-B/I-FUNC-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-03",
+      "status": "pass",
+      "duration_s": 6.682,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-B/I-FUNC-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-04",
+      "status": "pass",
+      "duration_s": 6.72,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-B/I-FUNC-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-05",
+      "status": "pass",
+      "duration_s": 6.548,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-B/I-FUNC-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-06",
+      "status": "pass",
+      "duration_s": 7.198,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-B/I-FUNC-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-07",
+      "status": "pass",
+      "duration_s": 6.314,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-B/I-FUNC-07.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-08",
+      "status": "pass",
+      "duration_s": 6.235,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-B/I-FUNC-08.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-DIR-01",
+      "status": "pass",
+      "duration_s": 12.829,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-B/I-FUNC-DIR-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-DIR-02",
+      "status": "pass",
+      "duration_s": 106.638,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-B/I-FUNC-DIR-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-DIR-03",
+      "status": "pass",
+      "duration_s": 6.792,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-B/I-FUNC-DIR-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-INT-CYCLE-01",
+      "status": "pass",
+      "duration_s": 42.356,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-B/I-INT-CYCLE-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-01",
+      "status": "pass",
+      "duration_s": 10.229,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-B/I-NAME-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-02",
+      "status": "pass",
+      "duration_s": 10.164,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-B/I-NAME-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-03",
+      "status": "pass",
+      "duration_s": 19.225,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-B/I-NAME-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-04",
+      "status": "pass",
+      "duration_s": 6.713,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-B/I-NAME-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-05",
+      "status": "pass",
+      "duration_s": 6.732,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-B/I-NAME-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-06",
+      "status": "pass",
+      "duration_s": 6.652,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-B/I-NAME-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-08",
+      "status": "pass",
+      "duration_s": 94.495,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-B/I-NAME-08.log",
+        "evidence/2026-11-14-90b8172-B/I-NAME-08.matrix.txt",
+        "evidence/2026-11-14-90b8172-B/I-NAME-08.worker-default.log",
+        "evidence/2026-11-14-90b8172-B/I-NAME-08.worker-nonfconv.log"
+      ],
+      "note": null
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+== device kind: buffered
+point                                      fuse_fsync  fuse_destroy  device_fullfsync  fullfsync_rc  fullfsync_errno  fullfsync_ms  dirty_writes_before  device_fsync  fallback_ran  app_ret  app_ms
+fsync after write                          1           0             1                 -1            25               0.0           18                   1             True          None     67.2  
+fsync, nothing new written                 1           0             0                 None          None             None          None                 0             False         None     0.7   
+F_FULLFSYNC after write                    1           0             1                 -1            25               0.0           6                    1             True          0        10.4  
+F_FULLFSYNC, nothing new written           1           0             0                 None          None             None          None                 0             False         0        8.7   
+sync(2), file open and dirty               1           0             1                 -1            25               0.0           6                    1             True          None     42.6  
+sync(2), file open, nothing new            1           0             0                 None          None             None          None                 0             False         None     16.6  
+sync(2), written and closed, no file open  0           0             0                 None          None             None          None                 0             False         None     12.3  
+unmount (FUSE_DESTROY)                     0           1             1                 -1            25               0.01          6                    1             True          0        11.8  

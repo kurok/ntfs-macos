@@ -1,0 +1,13 @@
+1794688805.794992 open pid=8412 fd=3 path=/dev/null
+1794688805.795955 open pid=8412 fd=6 path=/dev/null
+1794688805.799262 open pid=8412 fd=6 path=/dev/null
+1794688808.824535 fullfsync pid=8412 fd=3 path=/dev/disk6 rc=-1 errno=25 us=3 writes=62 bytes=162810
+1794688808.825218 fsync pid=8412 fd=3 path=/dev/disk6 rc=0 errno=0 us=653 writes=0 bytes=0
+1794688811.938694 fullfsync pid=8412 fd=3 path=/dev/disk6 rc=-1 errno=25 us=3 writes=18 bytes=45057
+1794688811.996925 fsync pid=8412 fd=3 path=/dev/disk6 rc=0 errno=0 us=58215 writes=0 bytes=0
+1794688814.534466 fullfsync pid=8412 fd=3 path=/dev/disk6 rc=-1 errno=25 us=2 writes=6 bytes=20480
+1794688814.534740 fsync pid=8412 fd=3 path=/dev/disk6 rc=0 errno=0 us=263 writes=0 bytes=0
+1794688817.094837 fullfsync pid=8412 fd=3 path=/dev/disk6 rc=-1 errno=25 us=3 writes=6 bytes=24576
+1794688817.130674 fsync pid=8412 fd=3 path=/dev/disk6 rc=0 errno=0 us=35824 writes=0 bytes=0
+1794688820.881250 fullfsync pid=8412 fd=3 path=/dev/disk6 rc=-1 errno=25 us=5 writes=6 bytes=28672
+1794688820.881846 fsync pid=8412 fd=3 path=/dev/disk6 rc=0 errno=0 us=552 writes=0 bytes=0

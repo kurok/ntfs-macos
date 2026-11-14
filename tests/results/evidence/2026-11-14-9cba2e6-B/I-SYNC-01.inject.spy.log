@@ -1,0 +1,14 @@
+1794688824.374526 open pid=8564 fd=3 path=/dev/null
+1794688824.374730 open pid=8564 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/inject.img
+1794688824.374849 open pid=8564 fd=5 path=/dev/null
+1794688824.379556 open pid=8564 fd=5 path=/dev/null
+1794688827.273077 fullfsync pid=8564 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/inject.img rc=-1 errno=25 us=0 writes=62 bytes=162810
+1794688827.273924 fsync pid=8564 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/inject.img rc=0 errno=0 us=827 writes=0 bytes=0
+1794688830.449098 fullfsync pid=8564 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/inject.img rc=-1 errno=25 us=1 writes=18 bytes=45057
+1794688830.450285 fsync pid=8564 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/inject.img rc=0 errno=0 us=1160 writes=0 bytes=0
+1794688832.876236 fullfsync pid=8564 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/inject.img rc=-1 errno=25 us=0 writes=6 bytes=20480
+1794688832.876879 fsync pid=8564 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/inject.img rc=0 errno=0 us=620 writes=0 bytes=0
+1794688835.381133 fullfsync pid=8564 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/inject.img rc=-1 errno=25 us=0 writes=6 bytes=24576
+1794688835.381414 fsync pid=8564 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/inject.img rc=0 errno=0 us=2 writes=0 bytes=0
+1794688839.117031 fullfsync pid=8564 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/inject.img rc=-1 errno=25 us=0 writes=6 bytes=28672
+1794688839.117085 fsync pid=8564 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/inject.img rc=0 errno=0 us=3 writes=0 bytes=0

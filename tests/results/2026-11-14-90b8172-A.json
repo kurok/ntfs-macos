@@ -1,0 +1,167 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "90b8172d0136708d047bc10cc5ece72a1aa07a8e",
+  "dirty_tree": false,
+  "env": "A",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "Debian GNU/Linux 13 (trixie) aarch64",
+  "macfuse_version": null,
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-14T20:42:58Z",
+  "finished": "2026-11-14T20:43:13Z",
+  "cases": [
+    {
+      "id": "I-FUNC-01",
+      "status": "pass",
+      "duration_s": 0.612,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-A/I-FUNC-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-02",
+      "status": "pass",
+      "duration_s": 0.065,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-A/I-FUNC-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-03",
+      "status": "pass",
+      "duration_s": 0.112,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-A/I-FUNC-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-04",
+      "status": "pass",
+      "duration_s": 0.076,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-A/I-FUNC-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-05",
+      "status": "pass",
+      "duration_s": 0.032,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-A/I-FUNC-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-06",
+      "status": "pass",
+      "duration_s": 0.044,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-A/I-FUNC-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-07",
+      "status": "pass",
+      "duration_s": 0.322,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-A/I-FUNC-07.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-08",
+      "status": "pass",
+      "duration_s": 0.026,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-A/I-FUNC-08.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-DIR-01",
+      "status": "pass",
+      "duration_s": 0.067,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-A/I-FUNC-DIR-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-DIR-02",
+      "status": "pass",
+      "duration_s": 4.29,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-A/I-FUNC-DIR-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-DIR-03",
+      "status": "pass",
+      "duration_s": 0.118,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-A/I-FUNC-DIR-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-INT-CYCLE-01",
+      "status": "pass",
+      "duration_s": 8.675,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-A/I-INT-CYCLE-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-01",
+      "status": "pass",
+      "duration_s": 0.017,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-A/I-NAME-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-02",
+      "status": "pass",
+      "duration_s": 0.054,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-A/I-NAME-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-04",
+      "status": "pass",
+      "duration_s": 0.229,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-A/I-NAME-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-05",
+      "status": "pass",
+      "duration_s": 0.021,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-A/I-NAME-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-06",
+      "status": "pass",
+      "duration_s": 0.02,
+      "evidence": [
+        "evidence/2026-11-14-90b8172-A/I-NAME-06.log"
+      ],
+      "note": null
+    }
+  ]
+}

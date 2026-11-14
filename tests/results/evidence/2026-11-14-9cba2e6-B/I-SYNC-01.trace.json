@@ -1,0 +1,495 @@
+{
+ "kinds": {
+  "buffered": {
+   "data_mismatch": [],
+   "mounted": true,
+   "ntfsfix_rc": 0,
+   "points": [
+    {
+     "app_ms": 67.2,
+     "app_ret": null,
+     "device_fsync": 1,
+     "device_fullfsync": 1,
+     "device_node": "/dev/disk6",
+     "dirty_bytes_before": 45057,
+     "dirty_writes_before": 18,
+     "fallback_ran": true,
+     "fullfsync_errno": 25,
+     "fullfsync_ms": 0.0,
+     "fullfsync_rc": -1,
+     "fuse_destroy": 0,
+     "fuse_fsync": 1,
+     "fuse_nodeids": [
+      5
+     ],
+     "point": "fsync after write"
+    },
+    {
+     "app_ms": 0.7,
+     "app_ret": null,
+     "device_fsync": 0,
+     "device_fullfsync": 0,
+     "device_node": null,
+     "dirty_bytes_before": null,
+     "dirty_writes_before": null,
+     "fallback_ran": false,
+     "fullfsync_errno": null,
+     "fullfsync_ms": null,
+     "fullfsync_rc": null,
+     "fuse_destroy": 0,
+     "fuse_fsync": 1,
+     "fuse_nodeids": [
+      5
+     ],
+     "point": "fsync, nothing new written"
+    },
+    {
+     "app_ms": 10.4,
+     "app_ret": 0,
+     "device_fsync": 1,
+     "device_fullfsync": 1,
+     "device_node": "/dev/disk6",
+     "dirty_bytes_before": 20480,
+     "dirty_writes_before": 6,
+     "fallback_ran": true,
+     "fullfsync_errno": 25,
+     "fullfsync_ms": 0.0,
+     "fullfsync_rc": -1,
+     "fuse_destroy": 0,
+     "fuse_fsync": 1,
+     "fuse_nodeids": [
+      5
+     ],
+     "point": "F_FULLFSYNC after write"
+    },
+    {
+     "app_ms": 8.7,
+     "app_ret": 0,
+     "device_fsync": 0,
+     "device_fullfsync": 0,
+     "device_node": null,
+     "dirty_bytes_before": null,
+     "dirty_writes_before": null,
+     "fallback_ran": false,
+     "fullfsync_errno": null,
+     "fullfsync_ms": null,
+     "fullfsync_rc": null,
+     "fuse_destroy": 0,
+     "fuse_fsync": 1,
+     "fuse_nodeids": [
+      5
+     ],
+     "point": "F_FULLFSYNC, nothing new written"
+    },
+    {
+     "app_ms": 42.6,
+     "app_ret": null,
+     "device_fsync": 1,
+     "device_fullfsync": 1,
+     "device_node": "/dev/disk6",
+     "dirty_bytes_before": 24576,
+     "dirty_writes_before": 6,
+     "fallback_ran": true,
+     "fullfsync_errno": 25,
+     "fullfsync_ms": 0.0,
+     "fullfsync_rc": -1,
+     "fuse_destroy": 0,
+     "fuse_fsync": 1,
+     "fuse_nodeids": [
+      5
+     ],
+     "point": "sync(2), file open and dirty"
+    },
+    {
+     "app_ms": 16.6,
+     "app_ret": null,
+     "device_fsync": 0,
+     "device_fullfsync": 0,
+     "device_node": null,
+     "dirty_bytes_before": null,
+     "dirty_writes_before": null,
+     "fallback_ran": false,
+     "fullfsync_errno": null,
+     "fullfsync_ms": null,
+     "fullfsync_rc": null,
+     "fuse_destroy": 0,
+     "fuse_fsync": 1,
+     "fuse_nodeids": [
+      5
+     ],
+     "point": "sync(2), file open, nothing new"
+    },
+    {
+     "app_ms": 12.3,
+     "app_ret": null,
+     "device_fsync": 0,
+     "device_fullfsync": 0,
+     "device_node": null,
+     "dirty_bytes_before": null,
+     "dirty_writes_before": null,
+     "fallback_ran": false,
+     "fullfsync_errno": null,
+     "fullfsync_ms": null,
+     "fullfsync_rc": null,
+     "fuse_destroy": 0,
+     "fuse_fsync": 0,
+     "fuse_nodeids": [],
+     "point": "sync(2), written and closed, no file open"
+    },
+    {
+     "app_ms": 11.8,
+     "app_ret": 0,
+     "device_fsync": 1,
+     "device_fullfsync": 1,
+     "device_node": "/dev/disk6",
+     "dirty_bytes_before": 28672,
+     "dirty_writes_before": 6,
+     "fallback_ran": true,
+     "fullfsync_errno": 25,
+     "fullfsync_ms": 0.01,
+     "fullfsync_rc": -1,
+     "fuse_destroy": 1,
+     "fuse_fsync": 0,
+     "fuse_nodeids": [],
+     "point": "unmount (FUSE_DESTROY)"
+    }
+   ]
+  },
+  "file": {
+   "data_mismatch": [],
+   "mounted": true,
+   "ntfsfix_rc": 0,
+   "points": [
+    {
+     "app_ms": 6.6,
+     "app_ret": null,
+     "device_fsync": 0,
+     "device_fullfsync": 1,
+     "device_node": "/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/file.img",
+     "dirty_bytes_before": 45057,
+     "dirty_writes_before": 18,
+     "fallback_ran": false,
+     "fullfsync_errno": 0,
+     "fullfsync_ms": 6.03,
+     "fullfsync_rc": 0,
+     "fuse_destroy": 0,
+     "fuse_fsync": 1,
+     "fuse_nodeids": [
+      5
+     ],
+     "point": "fsync after write"
+    },
+    {
+     "app_ms": 0.6,
+     "app_ret": null,
+     "device_fsync": 0,
+     "device_fullfsync": 0,
+     "device_node": null,
+     "dirty_bytes_before": null,
+     "dirty_writes_before": null,
+     "fallback_ran": false,
+     "fullfsync_errno": null,
+     "fullfsync_ms": null,
+     "fullfsync_rc": null,
+     "fuse_destroy": 0,
+     "fuse_fsync": 1,
+     "fuse_nodeids": [
+      5
+     ],
+     "point": "fsync, nothing new written"
+    },
+    {
+     "app_ms": 14.9,
+     "app_ret": 0,
+     "device_fsync": 0,
+     "device_fullfsync": 1,
+     "device_node": "/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/file.img",
+     "dirty_bytes_before": 20480,
+     "dirty_writes_before": 6,
+     "fallback_ran": false,
+     "fullfsync_errno": 0,
+     "fullfsync_ms": 10.72,
+     "fullfsync_rc": 0,
+     "fuse_destroy": 0,
+     "fuse_fsync": 1,
+     "fuse_nodeids": [
+      5
+     ],
+     "point": "F_FULLFSYNC after write"
+    },
+    {
+     "app_ms": 10.4,
+     "app_ret": 0,
+     "device_fsync": 0,
+     "device_fullfsync": 0,
+     "device_node": null,
+     "dirty_bytes_before": null,
+     "dirty_writes_before": null,
+     "fallback_ran": false,
+     "fullfsync_errno": null,
+     "fullfsync_ms": null,
+     "fullfsync_rc": null,
+     "fuse_destroy": 0,
+     "fuse_fsync": 1,
+     "fuse_nodeids": [
+      5
+     ],
+     "point": "F_FULLFSYNC, nothing new written"
+    },
+    {
+     "app_ms": 58.3,
+     "app_ret": null,
+     "device_fsync": 0,
+     "device_fullfsync": 1,
+     "device_node": "/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/file.img",
+     "dirty_bytes_before": 24576,
+     "dirty_writes_before": 6,
+     "fallback_ran": false,
+     "fullfsync_errno": 0,
+     "fullfsync_ms": 20.15,
+     "fullfsync_rc": 0,
+     "fuse_destroy": 0,
+     "fuse_fsync": 1,
+     "fuse_nodeids": [
+      5
+     ],
+     "point": "sync(2), file open and dirty"
+    },
+    {
+     "app_ms": 23.3,
+     "app_ret": null,
+     "device_fsync": 0,
+     "device_fullfsync": 0,
+     "device_node": null,
+     "dirty_bytes_before": null,
+     "dirty_writes_before": null,
+     "fallback_ran": false,
+     "fullfsync_errno": null,
+     "fullfsync_ms": null,
+     "fullfsync_rc": null,
+     "fuse_destroy": 0,
+     "fuse_fsync": 1,
+     "fuse_nodeids": [
+      5
+     ],
+     "point": "sync(2), file open, nothing new"
+    },
+    {
+     "app_ms": 16.4,
+     "app_ret": null,
+     "device_fsync": 0,
+     "device_fullfsync": 0,
+     "device_node": null,
+     "dirty_bytes_before": null,
+     "dirty_writes_before": null,
+     "fallback_ran": false,
+     "fullfsync_errno": null,
+     "fullfsync_ms": null,
+     "fullfsync_rc": null,
+     "fuse_destroy": 0,
+     "fuse_fsync": 0,
+     "fuse_nodeids": [],
+     "point": "sync(2), written and closed, no file open"
+    },
+    {
+     "app_ms": 34.4,
+     "app_ret": 0,
+     "device_fsync": 0,
+     "device_fullfsync": 1,
+     "device_node": "/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/file.img",
+     "dirty_bytes_before": 28672,
+     "dirty_writes_before": 6,
+     "fallback_ran": false,
+     "fullfsync_errno": 0,
+     "fullfsync_ms": 9.74,
+     "fullfsync_rc": 0,
+     "fuse_destroy": 1,
+     "fuse_fsync": 0,
+     "fuse_nodeids": [],
+     "point": "unmount (FUSE_DESTROY)"
+    }
+   ]
+  },
+  "file-fullfsync-fails": {
+   "data_mismatch": [],
+   "mounted": true,
+   "ntfsfix_rc": 0,
+   "points": [
+    {
+     "app_ms": 1.6,
+     "app_ret": null,
+     "device_fsync": 1,
+     "device_fullfsync": 1,
+     "device_node": "/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/inject.img",
+     "dirty_bytes_before": 45057,
+     "dirty_writes_before": 18,
+     "fallback_ran": true,
+     "fullfsync_errno": 25,
+     "fullfsync_ms": 0.0,
+     "fullfsync_rc": -1,
+     "fuse_destroy": 0,
+     "fuse_fsync": 1,
+     "fuse_nodeids": [
+      5
+     ],
+     "point": "fsync after write"
+    },
+    {
+     "app_ms": 2.0,
+     "app_ret": null,
+     "device_fsync": 0,
+     "device_fullfsync": 0,
+     "device_node": null,
+     "dirty_bytes_before": null,
+     "dirty_writes_before": null,
+     "fallback_ran": false,
+     "fullfsync_errno": null,
+     "fullfsync_ms": null,
+     "fullfsync_rc": null,
+     "fuse_destroy": 0,
+     "fuse_fsync": 1,
+     "fuse_nodeids": [
+      5
+     ],
+     "point": "fsync, nothing new written"
+    },
+    {
+     "app_ms": 5.7,
+     "app_ret": 0,
+     "device_fsync": 1,
+     "device_fullfsync": 1,
+     "device_node": "/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/inject.img",
+     "dirty_bytes_before": 20480,
+     "dirty_writes_before": 6,
+     "fallback_ran": true,
+     "fullfsync_errno": 25,
+     "fullfsync_ms": 0.0,
+     "fullfsync_rc": -1,
+     "fuse_destroy": 0,
+     "fuse_fsync": 1,
+     "fuse_nodeids": [
+      5
+     ],
+     "point": "F_FULLFSYNC after write"
+    },
+    {
+     "app_ms": 1.7,
+     "app_ret": 0,
+     "device_fsync": 0,
+     "device_fullfsync": 0,
+     "device_node": null,
+     "dirty_bytes_before": null,
+     "dirty_writes_before": null,
+     "fallback_ran": false,
+     "fullfsync_errno": null,
+     "fullfsync_ms": null,
+     "fullfsync_rc": null,
+     "fuse_destroy": 0,
+     "fuse_fsync": 1,
+     "fuse_nodeids": [
+      5
+     ],
+     "point": "F_FULLFSYNC, nothing new written"
+    },
+    {
+     "app_ms": 14.7,
+     "app_ret": null,
+     "device_fsync": 1,
+     "device_fullfsync": 1,
+     "device_node": "/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/inject.img",
+     "dirty_bytes_before": 24576,
+     "dirty_writes_before": 6,
+     "fallback_ran": true,
+     "fullfsync_errno": 25,
+     "fullfsync_ms": 0.0,
+     "fullfsync_rc": -1,
+     "fuse_destroy": 0,
+     "fuse_fsync": 1,
+     "fuse_nodeids": [
+      5
+     ],
+     "point": "sync(2), file open and dirty"
+    },
+    {
+     "app_ms": 10.7,
+     "app_ret": null,
+     "device_fsync": 0,
+     "device_fullfsync": 0,
+     "device_node": null,
+     "dirty_bytes_before": null,
+     "dirty_writes_before": null,
+     "fallback_ran": false,
+     "fullfsync_errno": null,
+     "fullfsync_ms": null,
+     "fullfsync_rc": null,
+     "fuse_destroy": 0,
+     "fuse_fsync": 1,
+     "fuse_nodeids": [
+      5
+     ],
+     "point": "sync(2), file open, nothing new"
+    },
+    {
+     "app_ms": 6.5,
+     "app_ret": null,
+     "device_fsync": 0,
+     "device_fullfsync": 0,
+     "device_node": null,
+     "dirty_bytes_before": null,
+     "dirty_writes_before": null,
+     "fallback_ran": false,
+     "fullfsync_errno": null,
+     "fullfsync_ms": null,
+     "fullfsync_rc": null,
+     "fuse_destroy": 0,
+     "fuse_fsync": 0,
+     "fuse_nodeids": [],
+     "point": "sync(2), written and closed, no file open"
+    },
+    {
+     "app_ms": 13.5,
+     "app_ret": 0,
+     "device_fsync": 1,
+     "device_fullfsync": 1,
+     "device_node": "/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/inject.img",
+     "dirty_bytes_before": 28672,
+     "dirty_writes_before": 6,
+     "fallback_ran": true,
+     "fullfsync_errno": 25,
+     "fullfsync_ms": 0.0,
+     "fullfsync_rc": -1,
+     "fuse_destroy": 1,
+     "fuse_fsync": 0,
+     "fuse_nodeids": [],
+     "point": "unmount (FUSE_DESTROY)"
+    }
+   ]
+  },
+  "file-read-only": {
+   "mounted": true,
+   "points": [
+    {
+     "app_ms": 13.1,
+     "app_ret": 0,
+     "device_fsync": 0,
+     "device_fullfsync": 0,
+     "device_node": null,
+     "dirty_bytes_before": null,
+     "dirty_writes_before": null,
+     "fallback_ran": false,
+     "fullfsync_errno": null,
+     "fullfsync_ms": null,
+     "fullfsync_rc": null,
+     "fuse_destroy": 1,
+     "fuse_fsync": 0,
+     "fuse_nodeids": [],
+     "point": "unmount, read-only mount"
+    }
+   ]
+  },
+  "raw": {
+   "mounted": false,
+   "reason": "no mount on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-kkuczs92/mnt-raw (worker exited rc=12); worker output tail:\nntfs_attr_pread_i: ntfs_pread failed: Invalid argument\nFailed to calculate free MFT records: Invalid argument\nFailed to read NTFS $Bitmap: Invalid argument\nThe device '/dev/fd/5' doesn't seem to have a valid NTFS.\nMaybe the wrong device is used? Or the whole disk instead of a\npartition (e.g. /dev/sda, not /dev/sda1)? Or the other way around?"
+  }
+ }
+}

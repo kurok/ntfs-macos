@@ -10,7 +10,7 @@ H1 and H2 are done (tools installed, Docker running, tart installed).
 
 ## Agent tasks ready now
 
-1. T-M2-08 test harness (Python stdlib; VM transport is `vm/macos/tart.sh exec`).
+1. After H3: T-M2-02 golden VM, then T-M2-03 (backend gate; adds the Environment B mount adapter to `tests/harness/volume.py`), then T-M2-04/-05/-06/-09.
 2. Run `scripts/ci-local.sh --quick` before every push (ADR-015).
 3. Confirm the three assumptions recorded by the N-05/N-07/N-08 fixes (`/dev/fd/N` sharing, `POSIX_SPAWN_CLOEXEC_DEFAULT`, peer code-signing checks) when T-M4-02/-04/-13 run.
 

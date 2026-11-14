@@ -1,0 +1,2 @@
+10:24:36 start I-INT-03 (env B)
+10:24:36 end I-INT-03: skip - macFUSE is not installed in the guest (checked /Library/Filesystems/macfuse.fs); it is installed by T-M2-02, no NTFS mount is possible yet

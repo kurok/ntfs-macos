@@ -12,3 +12,6 @@ dist/
 *.dmg
 vm/images/
 third_party/cache/
+# python bytecode
+__pycache__/
+*.pyc

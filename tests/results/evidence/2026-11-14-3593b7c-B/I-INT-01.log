@@ -1,0 +1,3 @@
+10:24:36 start I-INT-01 (env B)
+10:24:36 seed=20261114 files=100 min=1024 max=67108864 total=810295698 bytes
+10:24:36 end I-INT-01: skip - macFUSE is not installed in the guest (checked /Library/Filesystems/macfuse.fs); it is installed by T-M2-02, no NTFS mount is possible yet

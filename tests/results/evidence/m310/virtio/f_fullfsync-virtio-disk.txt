@@ -1,0 +1,11 @@
+found: /dev/disk0
+   Device / Media Name:       Apple Inc. VirtIO Block Media
+   Protocol:                  
+   Device Block Size:         512 Bytes
+   Device Location:           Internal
+/dev/disk0 F_FULLFSYNC errno 25 0.01 ms
+/dev/disk0 fsync ok 0 0.08 ms
+/dev/disk0 F_FULLFSYNC-after-write errno 25 0.01 ms
+/dev/rdisk0 F_FULLFSYNC errno 25 0.01 ms
+/dev/rdisk0 fsync ok 0 0.00 ms
+/dev/rdisk0 F_FULLFSYNC-after-write errno 25 0.00 ms

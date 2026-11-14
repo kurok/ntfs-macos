@@ -1,0 +1,24 @@
+ProductName:		macOS
+ProductVersion:		27.2
+BuildVersion:		26B123
+System Integrity Protection status: disabled.
+/dev/disk0 (internal, physical):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:                                                   *268.4 MB   disk0
+
+/dev/disk1 (internal, physical):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      GUID_partition_scheme                        *50.0 GB    disk1
+   1:             Apple_APFS_ISC Container disk2         524.3 MB   disk1s1
+   2:                 Apple_APFS Container disk4         44.1 GB    disk1s2
+   3:        Apple_APFS_Recovery Container disk3         5.4 GB     disk1s3
+
+/dev/disk4 (synthesized):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      APFS Container Scheme -                      +44.1 GB    disk4
+                                 Physical Store disk1s2
+   1:                APFS Volume Macintosh HD            13.8 GB    disk4s1
+   2:              APFS Snapshot com.apple.os.update-... 13.8 GB    disk4s1s1
+   3:                APFS Volume Preboot                 9.5 GB     disk4s2
+   4:                APFS Volume Recovery                1.5 GB     disk4s3
+   5:                APFS Volume Data                    12.0 GB    disk4s5

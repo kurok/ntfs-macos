@@ -1,0 +1,6 @@
+1794687722455 STEP fsync after write
+1794687724515 STEP F_FULLFSYNC after write
+1794687726541 STEP sync(2), file open and dirty
+1794687728625 STEP fsync, nothing new written
+1794687730639 STEP closed, unmount follows
+1794687730714 STEP umount returned

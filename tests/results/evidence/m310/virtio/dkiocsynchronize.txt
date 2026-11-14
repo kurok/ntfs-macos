@@ -1,0 +1,14 @@
+41: * DKIOCSYNCHRONIZE                      flush media
+124:} dk_synchronize_t;
+181:#define DKIOCSYNCHRONIZE                      _IOW('d', 22, dk_synchronize_t)
+220:#define DKIOCSYNCHRONIZECACHE                 _IO('d', 22)
+built
+/dev/disk7 DKIOCSYNCHRONIZE(0,0,0) -> 0 errno 0 (sizeof 24)
+/dev/disk7 DKIOCSYNCHRONIZE barrier -> 0 errno 0
+/dev/rdisk7 DKIOCSYNCHRONIZE(0,0,0) -> 0 errno 0 (sizeof 24)
+/dev/rdisk7 DKIOCSYNCHRONIZE barrier -> 0 errno 0
+virtio=/dev/disk0
+/dev/disk0 DKIOCSYNCHRONIZE(0,0,0) -> 0 errno 0 (sizeof 24)
+/dev/disk0 DKIOCSYNCHRONIZE barrier -> 0 errno 0
+/dev/rdisk0 DKIOCSYNCHRONIZE(0,0,0) -> 0 errno 0 (sizeof 24)
+/dev/rdisk0 DKIOCSYNCHRONIZE barrier -> 0 errno 0

@@ -1,0 +1,10 @@
+1794687743323 fcntl(fd 3, F_FULLFSYNC) = -1 errno 25
+1794687743323 fsync(fd 3) = 0 errno 0
+1794687745350 fcntl(fd 3, F_FULLFSYNC) = -1 errno 25
+1794687745351 fsync(fd 3) = 0 errno 0
+1794687747418 fcntl(fd 3, F_FULLFSYNC) = -1 errno 25
+1794687747419 fsync(fd 3) = 0 errno 0
+1794687751512 fcntl(fd 3, F_FULLFSYNC) = -1 errno 25
+1794687751512 fsync(fd 3) = 0 errno 0
+
+

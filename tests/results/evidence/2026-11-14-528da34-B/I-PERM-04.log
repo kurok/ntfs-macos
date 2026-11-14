@@ -1,0 +1,87 @@
+21:33:39 start I-PERM-04 (env B)
+21:33:39 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/vol.img -> rc=0
+21:33:39 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+21:33:39 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+21:33:39 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt -> rc=0
+21:33:42 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+21:33:42 $ sync -> rc=0
+21:33:42 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt -> rc=0
+21:33:42 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt -> rc=0
+21:33:45 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+21:33:45 run 1: user chown 1501:1020 f04 -> ok, now 501:20
+21:33:45 run 1: user chown 0:0 f04 -> ok, now 501:20
+21:33:45 run 1: user chown 501:20 f04 -> ok, now 501:20
+21:33:45 run 1: root chown 1234:4321 f04 -> ok, now 501:20
+21:33:45 run 1: root chown 0:0 f04 -> ok, now 501:20
+21:33:45 run 1: user chown 1501:1020 d04 -> ok, now 501:20
+21:33:45 run 1: user chown 0:0 d04 -> ok, now 501:20
+21:33:45 run 1: user chown 501:20 d04 -> ok, now 501:20
+21:33:45 run 1: root chown 1234:4321 d04 -> ok, now 501:20
+21:33:45 run 1: root chown 0:0 d04 -> ok, now 501:20
+21:33:45 $ sync -> rc=0
+21:33:45 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt -> rc=0
+21:33:45 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt -> rc=0
+21:33:48 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+21:33:48 run 1: after remount f04 owner 501:20
+21:33:48 run 1: after remount d04 owner 501:20
+21:33:48 $ sync -> rc=0
+21:33:48 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt -> rc=0
+21:33:48 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt -> rc=0
+21:33:51 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+21:33:51 run 2: user chown 1501:1020 f04 -> ok, now 501:20
+21:33:51 run 2: user chown 0:0 f04 -> ok, now 501:20
+21:33:51 run 2: user chown 501:20 f04 -> ok, now 501:20
+21:33:51 run 2: root chown 1234:4321 f04 -> ok, now 501:20
+21:33:51 run 2: root chown 0:0 f04 -> ok, now 501:20
+21:33:51 run 2: user chown 1501:1020 d04 -> ok, now 501:20
+21:33:51 run 2: user chown 0:0 d04 -> ok, now 501:20
+21:33:51 run 2: user chown 501:20 d04 -> ok, now 501:20
+21:33:51 run 2: root chown 1234:4321 d04 -> ok, now 501:20
+21:33:51 run 2: root chown 0:0 d04 -> ok, now 501:20
+21:33:51 $ sync -> rc=0
+21:33:51 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt -> rc=0
+21:33:51 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt -> rc=0
+21:33:54 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+21:33:54 run 2: after remount f04 owner 501:20
+21:33:54 run 2: after remount d04 owner 501:20
+21:33:54 $ sync -> rc=0
+21:33:54 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt -> rc=0
+21:33:54 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt -> rc=0
+21:33:57 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+21:33:57 run 3: user chown 1501:1020 f04 -> ok, now 501:20
+21:33:57 run 3: user chown 0:0 f04 -> ok, now 501:20
+21:33:57 run 3: user chown 501:20 f04 -> ok, now 501:20
+21:33:57 run 3: root chown 1234:4321 f04 -> ok, now 501:20
+21:33:57 run 3: root chown 0:0 f04 -> ok, now 501:20
+21:33:57 run 3: user chown 1501:1020 d04 -> ok, now 501:20
+21:33:57 run 3: user chown 0:0 d04 -> ok, now 501:20
+21:33:57 run 3: user chown 501:20 d04 -> ok, now 501:20
+21:33:57 run 3: root chown 1234:4321 d04 -> ok, now 501:20
+21:33:57 run 3: root chown 0:0 d04 -> ok, now 501:20
+21:33:57 $ sync -> rc=0
+21:33:57 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt -> rc=0
+21:33:58 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt -> rc=0
+21:34:00 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+21:34:00 run 3: after remount f04 owner 501:20
+21:34:00 run 3: after remount d04 owner 501:20
+21:34:00 $ sync -> rc=0
+21:34:00 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/mnt -> rc=0
+21:34:00 chown outcomes seen: ['ok']
+21:34:00 f04: ntfsinfo -v identical before and after (89 lines)
+21:34:00 d04: ntfsinfo -v identical before and after (99 lines)
+21:34:00 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/vol.img -> rc=0
+21:34:00 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-9kft_nkg/vol.img was processed successfully.
+21:34:00 end I-PERM-04: pass

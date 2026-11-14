@@ -1,0 +1,119 @@
+{
+ "default": {
+  "ditto.txt": {
+   "user.com.apple.FinderInfo": "32:437a01c162d41f5d128fb56fdfd5807cbfd0fab4f5bf992baae20fc16bc3f9d9",
+   "user.com.apple.quarantine": "57:4b558bb8103da2b0ec0094884338968f7768c9a8c4c9df7db5f2a3b4603dcc69",
+   "user.user.k": "2:3bfc269594ef649228e9a74bab00f042efc91d5acc6fbee31a382e80d42388fe"
+  },
+  "ldir": {
+   "user.dnote": "10:56631749a2db4990420f85af2b2119d2fbff794b56c64c73ce68e9036a860f86"
+  },
+  "mac.txt": {
+   "user.com.apple.FinderInfo": "32:437a01c162d41f5d128fb56fdfd5807cbfd0fab4f5bf992baae20fc16bc3f9d9",
+   "user.com.apple.ResourceFork": "3000:ee5b86cfd1e05ae7583e9a8bd38071a28c56bb23e93e06f26990b5791406ed23",
+   "user.com.apple.lastuseddate#PS": "16:292afde3b64e6636d68f1120d9242f1f85e38ef7bf306e4407c2303eb63791ef",
+   "user.com.apple.quarantine": "57:4b558bb8103da2b0ec0094884338968f7768c9a8c4c9df7db5f2a3b4603dcc69",
+   "user.user.big": "65536:e73a8f518e1e9827081b4bc43b7d966dc569b2b856c922c248e6ec8d932cd316",
+   "user.user.huge": "errno 7",
+   "user.user.k": "2:3bfc269594ef649228e9a74bab00f042efc91d5acc6fbee31a382e80d42388fe"
+  },
+  "macdir": {
+   "user.com.apple.FinderInfo": "32:7e931fd7b1c3c7b5188e0fc47c6e5ce2857eafe6994befac071e8a1a5ceb36c6",
+   "user.user.dk": "3:2b64c6d9afd8a34ed0dbf35f7de171a8825a50d9f42f05e98fe2b1addf00ab44"
+  },
+  "uni.txt": {
+   "user.user.na\u00efve": "1:0bfe935e70c321c7ca3afc75ce0d0ca2f98b5422e008bb31c00c6d7f1f1c0ad6"
+  },
+  "zero.txt": {
+   "user.com.apple.FinderInfo": "32:66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925"
+  },
+  "zone.txt": {
+   "user.Zone.Identifier": "26:eacd09517ce90d34ba562171d15ac40d302f0e691b439f91be1b6406e25f5913",
+   "user.com.apple.quarantine": "57:4b558bb8103da2b0ec0094884338968f7768c9a8c4c9df7db5f2a3b4603dcc69",
+   "user.note": "13:fd251903d913a294e3e7a2335ae9feb1424b7a028e382bed9d3e5923fe6ee34c"
+  }
+ },
+ "default_listing": [
+  ".fseventsd",
+  "ditto.txt",
+  "ldir",
+  "mac.txt",
+  "macdir",
+  "uni.txt",
+  "zero.txt",
+  "zone.txt"
+ ],
+ "default_uni_raw_names": [
+  "757365722e757365722e6e61c3af7665"
+ ],
+ "image_sha256": "fc2354ae8401e95f64de5ce2ae1bff5adc35bfcb7e584dc4f1c508d3c49df4d9",
+ "ntfs3g_version": "2026.9.28",
+ "ntfscat": {
+  "ditto.txt com.apple.FinderInfo": "32:437a01c162d41f5d128fb56fdfd5807cbfd0fab4f5bf992baae20fc16bc3f9d9",
+  "ditto.txt com.apple.quarantine": "57:4b558bb8103da2b0ec0094884338968f7768c9a8c4c9df7db5f2a3b4603dcc69",
+  "ditto.txt user.k": "2:3bfc269594ef649228e9a74bab00f042efc91d5acc6fbee31a382e80d42388fe",
+  "ldir dnote": "10:56631749a2db4990420f85af2b2119d2fbff794b56c64c73ce68e9036a860f86",
+  "mac.txt com.apple.FinderInfo": "32:437a01c162d41f5d128fb56fdfd5807cbfd0fab4f5bf992baae20fc16bc3f9d9",
+  "mac.txt com.apple.ResourceFork": "3000:ee5b86cfd1e05ae7583e9a8bd38071a28c56bb23e93e06f26990b5791406ed23",
+  "mac.txt com.apple.lastuseddate#PS": "16:292afde3b64e6636d68f1120d9242f1f85e38ef7bf306e4407c2303eb63791ef",
+  "mac.txt com.apple.quarantine": "57:4b558bb8103da2b0ec0094884338968f7768c9a8c4c9df7db5f2a3b4603dcc69",
+  "mac.txt user.big": "65536:e73a8f518e1e9827081b4bc43b7d966dc569b2b856c922c248e6ec8d932cd316",
+  "mac.txt user.huge": "200000:6192e2622a4774e6c1a61da72b561c292ec8e8166310f8b591503a8c545c66ee",
+  "mac.txt user.k": "2:3bfc269594ef649228e9a74bab00f042efc91d5acc6fbee31a382e80d42388fe",
+  "macdir com.apple.FinderInfo": "32:7e931fd7b1c3c7b5188e0fc47c6e5ce2857eafe6994befac071e8a1a5ceb36c6",
+  "macdir user.dk": "3:2b64c6d9afd8a34ed0dbf35f7de171a8825a50d9f42f05e98fe2b1addf00ab44",
+  "zero.txt com.apple.FinderInfo": "32:66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",
+  "zone.txt Zone.Identifier": "26:eacd09517ce90d34ba562171d15ac40d302f0e691b439f91be1b6406e25f5913",
+  "zone.txt com.apple.quarantine": "57:4b558bb8103da2b0ec0094884338968f7768c9a8c4c9df7db5f2a3b4603dcc69",
+  "zone.txt note": "13:fd251903d913a294e3e7a2335ae9feb1424b7a028e382bed9d3e5923fe6ee34c"
+ },
+ "ntfsfix_rc": 0,
+ "openxattr": {
+  "ditto.txt": {
+   "com.apple.FinderInfo": "32:437a01c162d41f5d128fb56fdfd5807cbfd0fab4f5bf992baae20fc16bc3f9d9",
+   "com.apple.quarantine": "57:4b558bb8103da2b0ec0094884338968f7768c9a8c4c9df7db5f2a3b4603dcc69",
+   "user.k": "2:3bfc269594ef649228e9a74bab00f042efc91d5acc6fbee31a382e80d42388fe"
+  },
+  "ldir": {
+   "dnote": "10:56631749a2db4990420f85af2b2119d2fbff794b56c64c73ce68e9036a860f86"
+  },
+  "mac.txt": {
+   "com.apple.FinderInfo": "32:437a01c162d41f5d128fb56fdfd5807cbfd0fab4f5bf992baae20fc16bc3f9d9",
+   "com.apple.ResourceFork": "3000:ee5b86cfd1e05ae7583e9a8bd38071a28c56bb23e93e06f26990b5791406ed23",
+   "com.apple.lastuseddate#PS": "16:292afde3b64e6636d68f1120d9242f1f85e38ef7bf306e4407c2303eb63791ef",
+   "com.apple.quarantine": "57:4b558bb8103da2b0ec0094884338968f7768c9a8c4c9df7db5f2a3b4603dcc69",
+   "user.big": "65536:e73a8f518e1e9827081b4bc43b7d966dc569b2b856c922c248e6ec8d932cd316",
+   "user.huge": "errno 7",
+   "user.k": "2:3bfc269594ef649228e9a74bab00f042efc91d5acc6fbee31a382e80d42388fe"
+  },
+  "macdir": {
+   "com.apple.FinderInfo": "32:7e931fd7b1c3c7b5188e0fc47c6e5ce2857eafe6994befac071e8a1a5ceb36c6",
+   "user.dk": "3:2b64c6d9afd8a34ed0dbf35f7de171a8825a50d9f42f05e98fe2b1addf00ab44"
+  },
+  "uni.txt": {
+   "user.na\u00efve": "1:0bfe935e70c321c7ca3afc75ce0d0ca2f98b5422e008bb31c00c6d7f1f1c0ad6"
+  },
+  "zero.txt": {
+   "com.apple.FinderInfo": "32:66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925"
+  },
+  "zone.txt": {
+   "Zone.Identifier": "26:eacd09517ce90d34ba562171d15ac40d302f0e691b439f91be1b6406e25f5913",
+   "com.apple.quarantine": "57:4b558bb8103da2b0ec0094884338968f7768c9a8c4c9df7db5f2a3b4603dcc69",
+   "note": "13:fd251903d913a294e3e7a2335ae9feb1424b7a028e382bed9d3e5923fe6ee34c"
+  }
+ },
+ "openxattr_listing": [
+  ".fseventsd",
+  "ditto.txt",
+  "ldir",
+  "mac.txt",
+  "macdir",
+  "uni.txt",
+  "zero.txt",
+  "zone.txt"
+ ],
+ "openxattr_uni_raw_names": [
+  "757365722e6e61c3af7665"
+ ],
+ "os": "Debian GNU/Linux 13 (trixie) aarch64"
+}

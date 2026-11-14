@@ -1,0 +1,68 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "528da3439f32880d45e1624984d1076b48103490",
+  "dirty_tree": false,
+  "env": "A",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "Debian GNU/Linux 13 (trixie) aarch64",
+  "macfuse_version": null,
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-14T21:32:05Z",
+  "finished": "2026-11-14T21:32:05Z",
+  "cases": [
+    {
+      "id": "I-PERM-01",
+      "status": "pass",
+      "duration_s": 0.037,
+      "evidence": [
+        "evidence/2026-11-14-528da34-A/I-PERM-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-02",
+      "status": "pass",
+      "duration_s": 0.046,
+      "evidence": [
+        "evidence/2026-11-14-528da34-A/I-PERM-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-03",
+      "status": "pass",
+      "duration_s": 0.057,
+      "evidence": [
+        "evidence/2026-11-14-528da34-A/I-PERM-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-04",
+      "status": "pass",
+      "duration_s": 0.145,
+      "evidence": [
+        "evidence/2026-11-14-528da34-A/I-PERM-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-05",
+      "status": "pass",
+      "duration_s": 0.028,
+      "evidence": [
+        "evidence/2026-11-14-528da34-A/I-PERM-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-06",
+      "status": "pass",
+      "duration_s": 0.116,
+      "evidence": [
+        "evidence/2026-11-14-528da34-A/I-PERM-06.log"
+      ],
+      "note": null
+    }
+  ]
+}

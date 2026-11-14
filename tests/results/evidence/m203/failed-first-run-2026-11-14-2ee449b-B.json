@@ -1,0 +1,33 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "2ee449beb220380ab75b51d316e528cbf5aafe70",
+  "dirty_tree": true,
+  "env": "B",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "macOS 27.2 (26B123) arm64",
+  "macfuse_version": "5.5.0",
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-14T11:52:11Z",
+  "finished": "2026-11-14T11:52:33Z",
+  "cases": [
+    {
+      "id": "I-INT-01",
+      "status": "fail",
+      "duration_s": 10.998,
+      "evidence": [
+        "evidence/2026-11-14-2ee449b-B/I-INT-01.log",
+        "evidence/2026-11-14-2ee449b-B/I-INT-01.sha256.txt"
+      ],
+      "note": "1 of 100 files differ after remount, first: .fseventsd/fseventsd-uuid: unexpected extra file"
+    },
+    {
+      "id": "I-INT-03",
+      "status": "fail",
+      "duration_s": 10.497,
+      "evidence": [
+        "evidence/2026-11-14-2ee449b-B/I-INT-03.log"
+      ],
+      "note": "one flipped byte was not reported exactly once: ['d03/f003.bin: sha256 53c0ff3364dc36ebc420ede4cde898a6822016fe925b93871ae6c90d489da7b9 != expected 0b3d03414dee248abf0a39504702e05986d4ed2207b37ca98ac151d4629bde40', '.fseventsd/fseventsd-uuid: unexpected extra file']"
+    }
+  ]
+}

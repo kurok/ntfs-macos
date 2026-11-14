@@ -1,0 +1,21 @@
+=== no_detach with <default backend>
+-- output:
+Version 2026.9.28 external FUSE 29
+Mounted /Users/admin/fx/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+Cmdline options: no_detach,local,norecover,uid=501,gid=20
+Mount options: local,allow_other,nonempty,relatime,default_permissions,fsname=/Users/admin/fx/var.img
+Global ownership and permissions enforced, configuration type 1
+-- mount:
+none
+11472 S      00:08 ntfs-3g -o no_detach,local,norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+=== no_detach with backend=bogus,
+-- output:
+Version 2026.9.28 external FUSE 29
+Mounted /Users/admin/fx/var.img (Read-Write, label "clean256m4k", NTFS 3.1)
+Cmdline options: backend=bogus,no_detach,local,norecover,uid=501,gid=20
+Mount options: backend=bogus,local,allow_other,nonempty,relatime,default_permissions,fsname=/Users/admin/fx/var.img
+Global ownership and permissions enforced, configuration type 1
+-- mount:
+none
+11490 S      00:08 ntfs-3g -o backend=bogus,no_detach,local,norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+done

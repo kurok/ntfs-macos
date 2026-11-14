@@ -62,9 +62,16 @@ def write_files(root, seed, sizes):
     return expected
 
 
+# macOS creates these in the volume root of every mount, whatever the file system driver does
+# (observed: .fseventsd/fseventsd-uuid, T-M2-03). They are not test data.
+MACOS_ROOT_METADATA = (".fseventsd",)
+
+
 def hash_tree(root):
     out = {}
-    for dp, _dn, fns in os.walk(root):
+    for dp, dn, fns in os.walk(root):
+        if dp == root:
+            dn[:] = [d for d in dn if d not in MACOS_ROOT_METADATA]
         for fn in fns:
             path = os.path.join(dp, fn)
             h = hashlib.sha256()

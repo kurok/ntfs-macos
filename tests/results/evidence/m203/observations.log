@@ -1,0 +1,51 @@
+Sat Nov 14 11:50:58 GMT 2026
+--- root listing at mount
+total 169
+drwxrwxrwx@  1 admin  staff  -  4096 Nov 14 11:50 .
+drwxr-x---+ 31 admin  staff  -   992 Nov 14 11:47 ..
+drwxrwxrwx   1 admin  staff  -   160 Nov 14 11:50 .fseventsd
+drwxrwxrwx   1 admin  staff  -     0 Nov 14 11:38 boundary
+drwxrwxrwx   1 admin  staff  -     0 Nov 14 11:38 docs
+drwxrwxrwx   1 admin  staff  -     0 Nov 14 11:38 empty
+drwxrwxrwx   1 admin  staff  -     0 Nov 14 11:38 large
+lrwxrwxrwx   1 admin  staff  -    15 Nov 14 11:38 link-to-readme -> docs/readme.txt
+drwxrwxrwx   1 admin  staff  -  4096 Nov 14 11:38 long
+drwxrwxrwx   1 admin  staff  - 65536 Nov 14 11:38 many
+drwxrwxrwx   1 admin  staff  -  8192 Nov 14 11:38 small
+drwxrwxrwx   1 admin  staff  -     0 Nov 14 11:38 sparse
+drwxrwxrwx   1 admin  staff  -  4096 Nov 14 11:38 unicode
+drwxrwxrwx   1 admin  staff  -     0 Nov 14 11:38 with spaces
+--- write 128 MiB (dd bs=1m)
+134217728 bytes transferred in 0.107218 secs (1251820851 bytes/sec)
+real	0m0.111s
+user	0m0.001s
+sys	0m0.019s
+--- sync
+real	0m0.019s
+--- read 128 MiB
+134217728 bytes transferred in 0.006445 secs (20825093561 bytes/sec)
+real	0m0.055s
+user	0m0.001s
+sys	0m0.008s
+--- 200 small files
+real	0m0.439s
+--- timestamps
+mtime=2026-11-14 11:50:58 +0000 birth=1970-01-01 00:00:00 +0000 atime=2026-11-14 11:50:58 +0000
+now=2026-11-14 11:50:58 +0000
+--- xattr / AppleDouble
+xattr: [Errno 102] Operation not supported on socket: 'ad.txt'
+(dotfiles:)
+.
+..
+.fseventsd
+--- after 8 s idle
+.:
+.
+..
+.fseventsd
+.
+..
+/System/Volumes/Data/Users/admin/mnt:
+	Error: unknown indexing state.
+umount=0
+done

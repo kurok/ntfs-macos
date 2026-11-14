@@ -101,6 +101,85 @@ class LinuxNtfs3g(Volume):
             time.sleep(0.2)
 
 
+def deps_prefix():
+    """Install prefix of the guest-built NTFS-3G (NTFSMAC_DEPS_PREFIX, default ~/ntfsmac/deps)."""
+    return os.environ.get("NTFSMAC_DEPS_PREFIX") or os.path.expanduser("~/ntfsmac/deps")
+
+
+def guest_tool(name):
+    """Absolute path of an NTFS-3G tool: the guest-built prefix first (bin, sbin), then PATH."""
+    for sub in ("bin", "sbin"):
+        p = os.path.join(deps_prefix(), sub, name)
+        if os.access(p, os.X_OK):
+            return p
+    for d in os.environ.get("PATH", "").split(os.pathsep):
+        p = os.path.join(d, name)
+        if d and os.access(p, os.X_OK):
+            return p
+    return None
+
+
+class MacosNtfs3g(Volume):
+    """Environment B: guest-built ntfs-3g on macFUSE's libfuse2 with -o backend=fskit, run as the
+    normal guest user on an image file. norecover is mandatory (ARCHITECTURE.md 3.3); recover,
+    remove_hiberfile and fsname are never passed. See docs/spikes/M2-backend.md."""
+
+    MOUNT_WAIT = 30
+
+    def create(self):
+        c = self.ctx
+        os.makedirs(self.mnt, exist_ok=True)
+        with open(self.img, "wb") as f:
+            f.truncate(self.size)
+        c.sh("%s -F -Q -L ntfsmac %s" % (shlex.quote(guest_tool("mkntfs")), shlex.quote(self.img)))
+        c.add_cleanup(self.cleanup)
+
+    def _mount_line(self):
+        r = self.ctx.transport.run("/sbin/mount")
+        marker = " on %s (" % os.path.realpath(self.mnt)
+        for line in r.out.decode("utf-8", "replace").splitlines():
+            if marker in line:
+                return line
+        return None
+
+    def _driver_running(self):
+        r = self.ctx.transport.run("pgrep -f %s" % shlex.quote("ntfs-3g .*" + re.escape(self.img)))
+        return r.rc == 0 and r.out.strip() != b""
+
+    def mount(self, rw=True):
+        opts = "backend=fskit,local,norecover,uid=%d,gid=%d%s" % (os.getuid(), os.getgid(), "" if rw else ",ro")
+        self.ctx.sh("%s -o %s %s %s" % (shlex.quote(guest_tool("ntfs-3g")), opts,
+                                         shlex.quote(self.img), shlex.quote(self.mnt)))
+        # ntfs-3g daemonises and returns before the FSKit mount is visible; without
+        # backend=fskit it would never appear (docs/spikes/M2-backend.md).
+        deadline = time.time() + self.MOUNT_WAIT
+        line = None
+        while time.time() < deadline:
+            line = self._mount_line()
+            if line:
+                break
+            time.sleep(0.2)
+        if not line:
+            raise VolumeError("no mount on %s %d s after ntfs-3g returned" % (self.mnt, self.MOUNT_WAIT))
+        self.ctx.log("mount: %s" % line)
+        if "fskit" not in line:
+            raise VolumeError("mount is not an fskit mount: %s" % line)
+        if rw == ("read-only" in line):
+            raise VolumeError("mount read-only flag does not match rw=%s: %s" % (rw, line))
+        self.mounted = True
+
+    def unmount(self):
+        self.ctx.sh("sync")
+        self.ctx.sh("/sbin/umount %s" % shlex.quote(self.mnt))
+        self.mounted = False
+        # Same rule as Linux: the image is not safe to reopen until the driver has exited.
+        deadline = time.time() + self.MOUNT_WAIT
+        while self._driver_running():
+            if time.time() > deadline:
+                raise VolumeError("ntfs-3g still running %d s after umount" % self.MOUNT_WAIT)
+            time.sleep(0.2)
+
+
 def open_volume(ctx, size_bytes):
     """Return a created, unmounted Volume for ctx.env, or raise Skip with a note."""
     from .core import Skip
@@ -118,6 +197,12 @@ def open_volume(ctx, size_bytes):
         if ver is None:
             raise Skip("macFUSE is not installed in the guest (checked %s); it is installed by T-M2-02, "
                        "no NTFS mount is possible yet" % MACFUSE_BUNDLE)
-        raise Skip("macFUSE %s is present, but the Environment B mount adapter is not written yet "
-                   "(lands with T-M2-03)" % ver)
+        missing = [x for x in ("ntfs-3g", "mkntfs") if guest_tool(x) is None]
+        if missing:
+            raise Skip("macFUSE %s is present, but %s not found in the guest (looked under %s and PATH); "
+                       "build it with scripts/build-ntfs3g.sh --fuse external (run-env-b.sh does this)"
+                       % (ver, " and ".join(missing), deps_prefix()))
+        vol = MacosNtfs3g(ctx, size_bytes)
+        vol.create()
+        return vol
     raise Skip("no volume adapter for env %s" % ctx.env)

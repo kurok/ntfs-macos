@@ -1,0 +1,132 @@
+=== -o backend=fskit,local,norecover,uid=501,gid=20
+ntfs-3g rc=0
+/dev/disk6s1 on /Users/admin/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+probe: -rwxrwxrwx admin:staff
+dir: drwxrwxrwx admin:staff
+.
+..
+.fseventsd
+boundary
+docs
+umount rc=0
+=== -o backend=fskit,norecover,uid=501,gid=20
+ntfs-3g rc=0
+macfuse://41243B74-07B1-46BF-A09C-442B48895624 on /Users/admin/mnt (macfuse, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+probe: -rwxrwxrwx admin:staff
+dir: drwxrwxrwx admin:staff
+.
+..
+.fseventsd
+boundary
+docs
+umount rc=0
+=== -o backend=fskit,local,norecover,noatime,windows_names,big_writes,streams_interface=xattr,uid=501,gid=20,fmask=0133,dmask=0022
+ntfs-3g rc=0
+/dev/disk6s1 on /Users/admin/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+probe: -rw-r--r-- admin:staff
+dir: drwxr-xr-x admin:staff
+.
+..
+.fseventsd
+boundary
+docs
+umount rc=0
+=== -o local,norecover,uid=501,gid=20
+ntfs-3g rc=0
+(not mounted after 10s)
+9338 ntfs-3g -o local,norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+=== -o norecover,uid=501,gid=20
+ntfs-3g rc=0
+(not mounted after 10s)
+9338 ntfs-3g -o local,norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+9583 ntfs-3g -o norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+=== -o backend=bogus,local,norecover,uid=501,gid=20
+ntfs-3g rc=0
+(not mounted after 10s)
+9338 ntfs-3g -o local,norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+9583 ntfs-3g -o norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+9815 ntfs-3g -o backend=bogus,local,norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+=== -o backend=fskit,local,norecover,noowners,uid=501,gid=20
+ntfs-3g rc=0
+/dev/disk6s1 on /Users/admin/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+probe: -rwxrwxrwx admin:staff
+dir: drwxrwxrwx admin:staff
+.
+..
+.fseventsd
+boundary
+docs
+umount rc=0
+9338 ntfs-3g -o local,norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+9583 ntfs-3g -o norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+9815 ntfs-3g -o backend=bogus,local,norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+=== -o backend=fskit,local,norecover,allow_other,uid=501,gid=20
+ntfs-3g rc=0
+/dev/disk6s1 on /Users/admin/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+probe: -rwxrwxrwx admin:staff
+dir: drwxrwxrwx admin:staff
+.
+..
+.fseventsd
+boundary
+docs
+umount rc=0
+9338 ntfs-3g -o local,norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+9583 ntfs-3g -o norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+9815 ntfs-3g -o backend=bogus,local,norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+=== -o backend=fskit,local,norecover,volname=NTFSMAC,uid=501,gid=20
+ntfs-3g rc=0
+/dev/disk6s1 on /Users/admin/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+probe: -rwxrwxrwx admin:staff
+dir: drwxrwxrwx admin:staff
+.
+..
+.fseventsd
+boundary
+docs
+umount rc=0
+9338 ntfs-3g -o local,norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+9583 ntfs-3g -o norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+9815 ntfs-3g -o backend=bogus,local,norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+=== -o backend=fskit,local,norecover,streams_interface=windows,uid=501,gid=20
+ntfs-3g rc=0
+/dev/disk6s1 on /Users/admin/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+probe: -rwxrwxrwx admin:staff
+dir: drwxrwxrwx admin:staff
+.
+..
+.fseventsd
+boundary
+docs
+umount rc=0
+9338 ntfs-3g -o local,norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+9583 ntfs-3g -o norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+9815 ntfs-3g -o backend=bogus,local,norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+=== -o backend=fskit,local,norecover,sync,uid=501,gid=20
+ntfs-3g rc=0
+/dev/disk6s1 on /Users/admin/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+probe: -rwxrwxrwx admin:staff
+dir: drwxrwxrwx admin:staff
+.
+..
+.fseventsd
+boundary
+docs
+umount rc=0
+9338 ntfs-3g -o local,norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+9583 ntfs-3g -o norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+9815 ntfs-3g -o backend=bogus,local,norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+=== -o backend=fskit,local,norecover,noappledouble,uid=501,gid=20
+ntfs-3g rc=0
+/dev/disk6s1 on /Users/admin/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+probe: -rwxrwxrwx admin:staff
+dir: drwxrwxrwx admin:staff
+.
+..
+.fseventsd
+boundary
+docs
+umount rc=0
+9338 ntfs-3g -o local,norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+9583 ntfs-3g -o norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt
+9815 ntfs-3g -o backend=bogus,local,norecover,uid=501,gid=20 /Users/admin/fx/var.img /Users/admin/mnt

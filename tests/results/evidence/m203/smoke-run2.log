@@ -1,0 +1,51 @@
+user: admin (uid 501); image: /Users/admin/fx/run.img; mount point: /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-smoke.SxCBCh
+ntfs-3g 2026.9.28 external FUSE 29
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 /Users/admin/fx/run.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-smoke.SxCBCh
+ntfs-3g exit status: 0
+PASS: rw mount (-o backend=fskit,local,norecover,uid=501,gid=20)
+mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-smoke.SxCBCh (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+PASS: mount output shows fskit
+PASS: mounted read-write
+PASS: volume root is listable
+PASS: mkdir
+PASS: write small file
+PASS: read small file back
+PASS: write 1 MiB file
+PASS: 1 MiB file hash after write
+PASS: rename file
+PASS: old name gone after rename
+PASS: renamed file content
+PASS: append to file
+PASS: append content
+PASS: write Unicode name
+PASS: create and delete file
+PASS: stat reports a size
+root listing after writes:
+total 2058
+drwxrwxrwx  1 admin  staff      360 Nov 14 11:40 .
+drwxrwxrwx@ 1 admin  staff     4096 Nov 14 11:40 ..
+-rwxrwxrwx  1 admin  staff  1048576 Nov 14 11:40 blob.bin
+-rwxrwxrwx  1 admin  staff        1 Nov 14 11:40 café-日本.txt
+-rwxrwxrwx  1 admin  staff       16 Nov 14 11:40 renamed.txt
+PASS: unmount and driver exit
+PASS: mount point is gone from mount output
++ ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro /Users/admin/fx/run.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-smoke.SxCBCh
+ntfs-3g exit status: 0
+PASS: ro mount
+mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-smoke.SxCBCh (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+PASS: mount output shows read-only
+PASS: ro: hash of 1 MiB file survives remount
+PASS: ro: renamed file content survives
+PASS: ro: deleted file stays deleted
+PASS: ro: Unicode name survives
+PASS: ro: write is refused
+PASS: ro unmount and driver exit
++ ntfsfix -n /Users/admin/fx/run.img
+Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /Users/admin/fx/run.img was processed successfully.
+ntfsfix exit status: 0
+PASS: ntfsfix -n finds no problem
+I-SMOKE-01: PASS

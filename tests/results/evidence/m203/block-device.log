@@ -1,0 +1,70 @@
+found by size: /dev/disk1
+brw-r-----  1 root  operator  0x1000001 Nov 14 11:48 /dev/disk1
+crw-r-----  1 root  operator  0x1000001 Nov 14 11:48 /dev/rdisk1
+/dev/disk1 on /Volumes/clean256m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit)
+   Whole:                     Yes
+   Part of Whole:             disk1
+   Mounted:                   Yes
+   File System Personality:   NTFS
+   Name (User Visible):       Windows NT File System (NTFS)
+   Protocol:                  
+   Media Read-Only:           No
+   Volume Read-Only:          Yes (read-only mount flag set)
+   Device Location:           Internal
+--- open as admin:
+dd: /dev/disk1: Permission denied
+dd: /dev/rdisk1: Permission denied
+--- ntfsfix -n as admin:
+Mounting volume... Error opening '/dev/disk1': Permission denied
+FAILED
+Attempting to correct errors... Error opening '/dev/disk1': Permission denied
+FAILED
+Failed to startup volume: Permission denied
+--- ntfs-3g as admin:
+Unprivileged user can not mount NTFS block devices using the external FUSE
+library. Either mount the volume as root, or rebuild NTFS-3G with integrated
+FUSE support and make it setuid root. Please see more information at
+https://github.com/tuxera/ntfs-3g/wiki/NTFS-3G-FAQ
+rc=19
+--- ntfs-3g as root (sudo -n):
+Mounting volume... Error opening '/dev/disk1': Resource busy
+FAILED
+Attempting to correct errors... Error opening '/dev/disk1': Resource busy
+FAILED
+229-#if defined(linux) || defined(__uClinux__)
+230-static int restore_privs(void) { return 0; }
+231-#endif
+232-
+233-static const char *setuid_msg =
+234-"Mount is denied because setuid and setgid root ntfs-3g is insecure with the\n"
+235-"external FUSE library. Either remove the setuid/setgid bit from the binary\n"
+236-"or rebuild NTFS-3G with integrated FUSE support and make it setuid root.\n"
+237-"Please see more information at\n"
+238-"https://github.com/tuxera/ntfs-3g/wiki/NTFS-3G-FAQ\n";
+239-
+240-static const char *unpriv_fuseblk_msg =
+241:"Unprivileged user can not mount NTFS block devices using the external FUSE\n"
+---
+Volume clean256m4k on disk1 unmounted
+   Mounted:                   No
+/Library/Filesystems:
+NetFSPlugins
+macfuse.fs
+
+/System/Library/Filesystems:
+NetFSPlugins
+acfs.fs
+apfs.fs
+cd9660.fs
+cddafs.fs
+exfat.fs
+ftp.fs
+hfs.fs
+msdos.fs
+nfs.fs
+ntfs.fs
+smbfs.fs
+tmpfs.fs
+udf.fs
+virtiofs.fs
+webdav.fs

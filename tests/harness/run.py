@@ -154,6 +154,8 @@ def orchestrate(args):
         remote_tests = d.out.decode().strip()
         t.put_tree(TESTS, SHIP, remote_tests)
         py = "$(if [ -x /usr/bin/python3 ]; then echo /usr/bin/python3; else echo python3; fi)"
+        # The guest-built NTFS-3G (run-env-b.sh, scripts/build-ntfs3g.sh) lives under ~/ntfsmac/deps.
+        pyenv += ' PATH="$HOME/ntfsmac/deps/bin:$HOME/ntfsmac/deps/sbin:$PATH"'
     else:
         sys.stderr.write("env host runs with --local only\n")
         return 2

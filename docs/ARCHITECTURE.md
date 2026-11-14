@@ -114,11 +114,11 @@ Output (stdout, one JSON object, schema version 1). Example: a volume with the d
   "hiberfile": "absent",
   "bitlocker": false,
   "state": "dirty_flag",
-  "reason_codes": ["FLAG_DIRTY"],
-  "nonnfc_count": 0,
-  "nonnfc_paths": []
+  "reason_codes": ["FLAG_DIRTY"]
 }
 ```
+
+The example follows the current schema (`docs/schemas/probe.schema.json`). The ADR-023 additions below (state `names_not_nfc`, code `NAMES_NOT_NFC`, keys `nonnfc_count` and `nonnfc_paths`) enter the header and the schema with T-M3-02; from then on every verdict carries both keys.
 
 `logfile_lsn` is the `current_lsn` of the newer valid `$LogFile` restart area, or `null` when `logfile` is `unreadable`. An empty `$LogFile` (all `0xff`, no restart page, as `mkntfs` leaves it) is `clean` with `logfile_lsn` `0x0000000000000000`; the engine also treats it as clean [V: T-M3-01, T-M3-04 fixtures `dirty-flag`, `hiber-*`]. `logfile_lsn` is used only as evidence that another system mounted the volume (section 3.5).
 

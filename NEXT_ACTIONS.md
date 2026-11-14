@@ -11,7 +11,7 @@
 
 ## Agent tasks ready now
 
-1. T-M1-07 minimal `scripts/ci-local.sh --quick` (Sonnet).
+1. Run `scripts/ci-local.sh --quick` before every push (ADR-015).
 2. Confirm the three assumptions recorded by the N-05/N-07/N-08 fixes (`/dev/fd/N` sharing, `POSIX_SPAWN_CLOEXEC_DEFAULT`, peer code-signing checks) when T-M4-02/-04/-13 run.
 
 ## Milestone 2 gate

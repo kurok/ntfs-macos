@@ -11,12 +11,8 @@
 
 ## Agent tasks ready now
 
-1. **Re-audit fixes, high first** (`docs/audits/M1-recheck.md`, Opus 5.5 for N-01..N-08):
-   - N-01 clean-session decision must need positive records, not silence/exit 0 (ntfs-3g sets `err = 0` after `fuse_loop` unconditionally — verified).
-   - N-02 grammar for every probe field; journal file names from the parsed serial; `reasons` as enum codes.
-   - N-03..N-08 (volmark `$Volume`/`$MFTMirr` non-atomic write, U12 negative case, admin-peer boundary, `ntfs_fsync` already uses F_FULLFSYNC with silent fallback — verified, error-channel bounds, binding probed volume to opened device).
-   - N-09..N-15 low items: Sonnet 5.5.
-2. T-M1-07 minimal `scripts/ci-local.sh --quick` (Sonnet).
+1. T-M1-07 minimal `scripts/ci-local.sh --quick` (Sonnet).
+2. Confirm the three assumptions recorded by the N-05/N-07/N-08 fixes (`/dev/fd/N` sharing, `POSIX_SPAWN_CLOEXEC_DEFAULT`, peer code-signing checks) when T-M4-02/-04/-13 run.
 
 ## Milestone 2 gate
 

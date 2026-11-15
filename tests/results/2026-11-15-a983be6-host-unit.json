@@ -1,0 +1,23 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "a983be67b9f1bfbc28dffd5d105548173846cfd4",
+  "dirty_tree": false,
+  "env": "host",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": null,
+  "macfuse_version": null,
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-15T18:20:00Z",
+  "finished": "2026-11-15T18:20:47Z",
+  "cases": [
+    {
+      "id": "U-UNIT-HOST",
+      "status": "pass",
+      "duration_s": 0,
+      "evidence": [
+        "tests/results/evidence/2026-11-15-a983be6-audit/ci-local-quick-host.log"
+      ],
+      "note": "scripts/ci-local.sh --quick on the macOS host: 20/20 ctest incl. journal.unit and journal.crash (U-JRN-*, U-JRN-NAME-01), policy.table and policy.options (U-POL-*, U-ARGV-*), sanitize.* (U-LABEL-*, U-VERDICT-*), volmark.args. Unit-level evidence produced by the M3 audit outside the harness (ctest via the named scripts); run on the clean tree at this commit; duration_s 0 means not measured per case."
+    }
+  ]
+}

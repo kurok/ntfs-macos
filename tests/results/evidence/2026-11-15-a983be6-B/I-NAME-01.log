@@ -1,0 +1,42 @@
+18:38:20 start I-NAME-01 (env B)
+18:38:20 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/vol.img -> rc=0
+18:38:20 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+18:38:20 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+18:38:20 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/mnt -> rc=0
+18:38:23 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:38:23 after creating the NFC name, the listing holds [('63616665cc81', 'NFD')]
+18:38:23 O_EXCL create by the NFD form -> errno 17 (EEXIST)
+18:38:23 observed: read by NFC after a write by NFD (stale if it is the old text) -> b'written as NFC'
+18:38:23 observed: stat size by NFC / by NFD -> (14, 17)
+18:38:23 mkdir by the other form -> errno 17 (EEXIST)
+18:38:23 observed: read d-NFC/inside after creating it below d-NFD -> b'in'
+18:38:23 observed: stat of the old NFC name after a rename of the NFD name -> os.stat_result(st_mode=33279, st_ino=68, st_dev=16777240, st_nlink=1, st_uid=501, st_gid=20, st_size=14, st_atime=1794767903, st_mtime=1794767903, st_ctime=1794767903)
+18:38:23 $ sync -> rc=0
+18:38:23 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/mnt -> rc=0
+18:38:24 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/vol.img -> rc=0
+18:38:24 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/vol.img was processed successfully.
+18:38:24 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/mnt -> rc=0
+18:38:27 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+18:38:27 $ sync -> rc=0
+18:38:27 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/mnt -> rc=0
+18:38:27 remount check (I-NAME-01): 2 files, 1 directories compared, 0 problems
+18:38:27 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/mnt -> rc=0
+18:38:30 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+18:38:30 old name after the remount -> errno 2 (ENOENT)
+18:38:30 $ sync -> rc=0
+18:38:30 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-_lazxbp1/mnt -> rc=0
+18:38:30 stale read by NFC in the same session: True
+18:38:30 end I-NAME-01: pass

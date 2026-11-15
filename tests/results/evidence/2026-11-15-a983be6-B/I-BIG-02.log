@@ -1,0 +1,75 @@
+18:21:32 start I-BIG-02 (env B)
+18:21:32 image 4498 MiB, free on the work directory's disk 20210 MiB
+18:21:32 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/vol.img -> rc=0
+18:21:32 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+18:21:32 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+18:21:32 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/mnt -> rc=0
+18:21:35 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:21:42 written 4294967297 bytes in 4096 MiB in 7.0 s (587 MiB/s)
+18:21:42 st_size 4294967297, st_blocks 8388616 (4096 MiB)
+18:21:46 warm: hash of 4294967297 bytes equal in 4096 MiB in 2.5 s (1636 MiB/s)
+18:21:48 $ sync -> rc=0
+18:21:48 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/mnt -> rc=0
+18:21:48 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/vol.img -> rc=0
+18:21:48 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/vol.img was processed successfully.
+18:21:48 on disk big.bin: non-resident, size 4294967297 alloc 4294971392 init 4294967297; file attributes 0x20
+18:21:48 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/mnt -> rc=0
+18:21:52 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:21:56 cold: hash of 4294967297 bytes equal in 4096 MiB in 2.7 s (1526 MiB/s)
+18:21:56 $ sync -> rc=0
+18:21:56 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/mnt -> rc=0
+18:21:56 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/mnt -> rc=0
+18:22:00 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:22:00 updated 1048583 bytes at 2146959363 (across 2 GiB)
+18:22:00 updated 65541 bytes at 4294937296 (across 4 GiB)
+18:22:00 updated 1 bytes at 4294967296 (last byte)
+18:22:00 updated 5 bytes at 0 (first bytes)
+18:22:00 updated 100003 bytes at 2147483659 (middle)
+18:22:04 after update: hash of 4295002837 bytes equal in 4096 MiB in 2.5 s (1612 MiB/s)
+18:22:04 $ sync -> rc=0
+18:22:04 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/mnt -> rc=0
+18:22:04 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/mnt -> rc=0
+18:22:07 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:22:11 cold: hash of 4295002837 bytes equal in 4096 MiB in 2.2 s (1837 MiB/s)
+18:22:11 $ sync -> rc=0
+18:22:11 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/mnt -> rc=0
+18:22:11 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/vol.img -> rc=0
+18:22:11 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/vol.img was processed successfully.
+18:22:11 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/mnt -> rc=0
+18:22:15 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:22:15 truncated to 4294967295
+18:22:16 grown to 4296015880
+18:22:20 after truncate and grow: hash of 4296015880 bytes equal in 4097 MiB in 2.4 s (1725 MiB/s)
+18:22:20 $ sync -> rc=0
+18:22:20 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/mnt -> rc=0
+18:22:20 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/mnt -> rc=0
+18:22:23 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:22:27 cold: hash of 4296015880 bytes equal in 4097 MiB in 2.6 s (1552 MiB/s)
+18:22:27 $ sync -> rc=0
+18:22:27 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/mnt -> rc=0
+18:22:27 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/vol.img -> rc=0
+18:22:27 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-634lfq0m/vol.img was processed successfully.
+18:22:27 on disk final big.bin: non-resident, size 4296015880 alloc 4296019968 init 4294967295, sparse (unit 2^4 clusters, compressed size 4294967296); file attributes 0x220
+18:22:27 PASS: 4294967297 byte file written, read after remount, updated across 2 GiB and 4 GiB, truncated and grown; every hash equals the model
+18:22:27 end I-BIG-02: pass

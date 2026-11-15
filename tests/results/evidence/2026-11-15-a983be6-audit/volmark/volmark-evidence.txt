@@ -1,0 +1,178 @@
+count set clean-64m-4k: 0 writes when stopped right before step 4; then 2 writes: 1 19456 1024 46494c45; 2 33553408 1024 46494c45
+count clear clean-64m-4k: 0 writes when stopped right before step 4; then 2 writes: 1 19456 1024 46494c45; 2 33553408 1024 46494c45
+count set txf-nonresident: 0 writes when stopped right before step 4; then 2 writes: 1 19456 1024 46494c45; 2 33553408 1024 46494c45
+U-VMK-07 crash table (mode, plan, NTFSMAC_FAULT_KILL, exit, record 3, probe, row):
+  set                 cut:0          kill=1 exit=-9   unchanged   probe=clean        before step 4 / nothing persisted: unchanged
+  set                 cut:0          kill=0 exit=14   unchanged   probe=clean        before step 4 / nothing persisted: unchanged
+  set                 cut:1          kill=1 exit=-9   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  set                 cut:1          kill=0 exit=14   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  set                 cut:2          kill=1 exit=0    equal       probe=dirty_flag   after step 5: new value on both copies
+  set                 cut:2          kill=0 exit=0    equal       probe=dirty_flag   after step 5: new value on both copies
+  set                 short:1:0      kill=1 exit=-9   unchanged   probe=clean        before step 4 / nothing persisted: unchanged
+  set                 short:1:0      kill=0 exit=14   unchanged   probe=clean        before step 4 / nothing persisted: unchanged
+  set                 short:1:1      kill=1 exit=-9   unchanged   probe=clean        before step 4 / nothing persisted: unchanged
+  set                 short:1:1      kill=0 exit=14   unchanged   probe=clean        before step 4 / nothing persisted: unchanged
+  set                 short:1:2      kill=1 exit=-9   unchanged   probe=clean        before step 4 / nothing persisted: unchanged
+  set                 short:1:2      kill=0 exit=14   unchanged   probe=clean        before step 4 / nothing persisted: unchanged
+  set                 short:1:256    kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  set                 short:1:256    kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  set                 short:1:510    kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  set                 short:1:510    kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  set                 short:1:511    kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  set                 short:1:511    kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  set                 short:1:512    kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  set                 short:1:512    kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  set                 short:1:513    kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  set                 short:1:513    kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  set                 short:1:767    kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  set                 short:1:767    kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  set                 short:1:1022   kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  set                 short:1:1022   kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  set                 short:1:1023   kill=1 exit=-9   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  set                 short:1:1023   kill=0 exit=14   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  set                 short:2:0      kill=1 exit=-9   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  set                 short:2:0      kill=0 exit=14   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  set                 short:2:1      kill=1 exit=-9   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  set                 short:2:1      kill=0 exit=14   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  set                 short:2:2      kill=1 exit=-9   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  set                 short:2:2      kill=0 exit=14   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  set                 short:2:256    kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  set                 short:2:256    kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  set                 short:2:510    kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  set                 short:2:510    kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  set                 short:2:511    kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  set                 short:2:511    kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  set                 short:2:512    kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  set                 short:2:512    kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  set                 short:2:513    kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  set                 short:2:513    kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  set                 short:2:767    kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  set                 short:2:767    kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  set                 short:2:1022   kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  set                 short:2:1022   kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  set                 short:2:1023   kill=1 exit=-9   equal       probe=dirty_flag   after step 5: new value on both copies
+  set                 short:2:1023   kill=0 exit=0    equal       probe=dirty_flag   after step 5: new value on both copies
+  set                 skip:1         kill=0 exit=14   mirr-ahead  probe=corrupt      after W2, before the flush (drive kept W2, lost W1): mirror ahead
+  set                 skip:2         kill=0 exit=14   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear               cut:0          kill=1 exit=-9   unchanged   probe=dirty_flag   before step 4 / nothing persisted: unchanged
+  clear               cut:0          kill=0 exit=14   unchanged   probe=dirty_flag   before step 4 / nothing persisted: unchanged
+  clear               cut:1          kill=1 exit=-9   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear               cut:1          kill=0 exit=14   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear               cut:2          kill=1 exit=0    equal       probe=clean        after step 5: new value on both copies
+  clear               cut:2          kill=0 exit=0    equal       probe=clean        after step 5: new value on both copies
+  clear               short:1:0      kill=1 exit=-9   unchanged   probe=dirty_flag   before step 4 / nothing persisted: unchanged
+  clear               short:1:0      kill=0 exit=14   unchanged   probe=dirty_flag   before step 4 / nothing persisted: unchanged
+  clear               short:1:1      kill=1 exit=-9   unchanged   probe=dirty_flag   before step 4 / nothing persisted: unchanged
+  clear               short:1:1      kill=0 exit=14   unchanged   probe=dirty_flag   before step 4 / nothing persisted: unchanged
+  clear               short:1:2      kill=1 exit=-9   unchanged   probe=dirty_flag   before step 4 / nothing persisted: unchanged
+  clear               short:1:2      kill=0 exit=14   unchanged   probe=dirty_flag   before step 4 / nothing persisted: unchanged
+  clear               short:1:256    kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear               short:1:256    kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear               short:1:510    kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear               short:1:510    kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear               short:1:511    kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear               short:1:511    kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear               short:1:512    kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear               short:1:512    kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear               short:1:513    kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear               short:1:513    kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear               short:1:767    kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear               short:1:767    kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear               short:1:1022   kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear               short:1:1022   kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear               short:1:1023   kill=1 exit=-9   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear               short:1:1023   kill=0 exit=14   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear               short:2:0      kill=1 exit=-9   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear               short:2:0      kill=0 exit=14   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear               short:2:1      kill=1 exit=-9   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear               short:2:1      kill=0 exit=14   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear               short:2:2      kill=1 exit=-9   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear               short:2:2      kill=0 exit=14   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear               short:2:256    kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear               short:2:256    kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear               short:2:510    kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear               short:2:510    kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear               short:2:511    kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear               short:2:511    kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear               short:2:512    kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear               short:2:512    kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear               short:2:513    kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear               short:2:513    kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear               short:2:767    kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear               short:2:767    kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear               short:2:1022   kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear               short:2:1022   kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear               short:2:1023   kill=1 exit=-9   equal       probe=clean        after step 5: new value on both copies
+  clear               short:2:1023   kill=0 exit=0    equal       probe=clean        after step 5: new value on both copies
+  clear               skip:1         kill=0 exit=14   mirr-ahead  probe=corrupt      after W2, before the flush (drive kept W2, lost W1): mirror ahead
+  clear               skip:2         kill=0 exit=14   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear-repair        cut:0          kill=1 exit=-9   unchanged   probe=dirty_flag   before step 4 / nothing persisted: unchanged
+  clear-repair        cut:0          kill=0 exit=14   unchanged   probe=dirty_flag   before step 4 / nothing persisted: unchanged
+  clear-repair        cut:1          kill=1 exit=-9   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear-repair        cut:1          kill=0 exit=14   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear-repair        cut:2          kill=1 exit=0    equal       probe=clean        after step 5: new value on both copies
+  clear-repair        cut:2          kill=0 exit=0    equal       probe=clean        after step 5: new value on both copies
+  clear-repair        short:1:0      kill=1 exit=-9   unchanged   probe=dirty_flag   before step 4 / nothing persisted: unchanged
+  clear-repair        short:1:0      kill=0 exit=14   unchanged   probe=dirty_flag   before step 4 / nothing persisted: unchanged
+  clear-repair        short:1:1      kill=1 exit=-9   unchanged   probe=dirty_flag   before step 4 / nothing persisted: unchanged
+  clear-repair        short:1:1      kill=0 exit=14   unchanged   probe=dirty_flag   before step 4 / nothing persisted: unchanged
+  clear-repair        short:1:2      kill=1 exit=-9   unchanged   probe=dirty_flag   before step 4 / nothing persisted: unchanged
+  clear-repair        short:1:2      kill=0 exit=14   unchanged   probe=dirty_flag   before step 4 / nothing persisted: unchanged
+  clear-repair        short:1:256    kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear-repair        short:1:256    kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear-repair        short:1:510    kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear-repair        short:1:510    kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear-repair        short:1:511    kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear-repair        short:1:511    kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear-repair        short:1:512    kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear-repair        short:1:512    kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear-repair        short:1:513    kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear-repair        short:1:513    kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear-repair        short:1:767    kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear-repair        short:1:767    kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear-repair        short:1:1022   kill=1 exit=-9   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear-repair        short:1:1022   kill=0 exit=14   mft-torn    probe=corrupt      inside W1: $MFT record 3 torn
+  clear-repair        short:1:1023   kill=1 exit=-9   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear-repair        short:1:1023   kill=0 exit=14   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear-repair        short:2:0      kill=1 exit=-9   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear-repair        short:2:0      kill=0 exit=14   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear-repair        short:2:1      kill=1 exit=-9   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear-repair        short:2:1      kill=0 exit=14   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear-repair        short:2:2      kill=1 exit=-9   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear-repair        short:2:2      kill=0 exit=14   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+  clear-repair        short:2:256    kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear-repair        short:2:256    kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear-repair        short:2:510    kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear-repair        short:2:510    kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear-repair        short:2:511    kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear-repair        short:2:511    kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear-repair        short:2:512    kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear-repair        short:2:512    kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear-repair        short:2:513    kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear-repair        short:2:513    kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear-repair        short:2:767    kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear-repair        short:2:767    kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear-repair        short:2:1022   kill=1 exit=-9   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear-repair        short:2:1022   kill=0 exit=14   mirr-torn   probe=corrupt      inside W2: $MFTMirr record 3 torn
+  clear-repair        short:2:1023   kill=1 exit=-9   equal       probe=clean        after step 5: new value on both copies
+  clear-repair        short:2:1023   kill=0 exit=0    equal       probe=clean        after step 5: new value on both copies
+  clear-repair        skip:1         kill=0 exit=14   mirr-ahead  probe=corrupt      after W2, before the flush (drive kept W2, lost W1): mirror ahead
+  clear-repair        skip:2         kill=0 exit=14   mft-ahead   probe=mirror_split between W1 and W2: copies differ, $MFT one step ahead
+vmk-split (U15):
+  vmk-split: record 3 ($Volume), record size 1024, $MFT copy at byte 19456, $MFTMirr copy at byte 33553408
+  update sequence array at record offset 0x30, 3 entries; sector tails at 0x1fe, 0x3fe
+  $VOLUME_INFORMATION flags word at record offset 0x1ba
+  USN: $MFT 0x0003, $MFTMirr 0x0002 (the $MFT copy is the successor: True)
+  flags: $MFT 0x0001, $MFTMirr 0x0000 (differ only in VOLUME_IS_DIRTY: True)
+  raw (on-disk) bytes that differ, record offsets: 0x30: 03/02, 0x1ba: 01/00, 0x1fe: 03/02, 0x3fe: 03/02
+  after the fix-up (sector tails restored), record offsets that differ: 0x30: 03/02, 0x1ba: 01/00
+  difference confined to the USN (update sequence number and sector tails) and the VOLUME_IS_DIRTY bit: True
+  engine (ntfsinfo -m, NTFS-3G 2026.9.28): refused with "$MFTMirr does not match $MFT (record 3)."
+  probe (rule M4, k = 3): state mirror_split, reason codes ['FLAG_DIRTY', 'MFTMIRR_STALE']
+write error eio:1: exit 12, stdout b'w\n', device writes 1, record 3 unchanged
+write error eio:2: exit 12, stdout b'w\n', device writes 2, record 3 mft-ahead
+write error dead:1: exit 12, stdout b'w\n', device writes 1, record 3 unchanged
+write error dead:2: exit 12, stdout b'w\n', device writes 2, record 3 mft-ahead
+U-VMK-01/04: set then clear on clean-64m-4k: exit 0, 0; ntfsinfo -m 'Volume Flags: 0x0001 DIRTY' after set, '0x0000' after clear; only record 3 (both copies) changed, USN 2 -> 4
+U-VMK-02/03 and the manifest: set exit per fixture: clean-64m-4k=0, dirty-flag=11, unclean-log=10, log-v2=10, hiber-lower=10, hiber-upper=10, hiber-short=10, hiber-wake=0, hiber-case=0, hiber-subdir=0, hiber-inactive=0, bitlocker-sig=10, truncated=10, truncated-60=10, chkdsk-flag=0, dirty-chkdsk-flag=11, txf-nonresident=0, log-init=0, log-bumped=0
+U-VMK-07 SIGKILL before step 4 (set, clear, clear-repair): no output, image unchanged

@@ -1,0 +1,48 @@
+ok (cached)  ntfs-3g 2026.9.28  ntfs-3g_ntfsprogs-2026.9.28.tgz
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 2.32kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/debian:13-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/6] FROM docker.io/library/debian:13-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2
+#4 resolve docker.io/library/debian:13-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2 done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 1.34MB 0.0s done
+#5 DONE 0.0s
+
+#6 [3/6] COPY ntfs-3g_ntfsprogs-2026.9.28.tgz /usr/src/ntfs-3g_ntfsprogs-2026.9.28.tgz
+#6 CACHED
+
+#7 [4/6] RUN set -eux;     cd /usr/src;     echo "350d9415c59f7c3fa74e23985ad2d56423c6a168337368f672e2e362d8f295c8  ntfs-3g_ntfsprogs-2026.9.28.tgz" | sha256sum -c -;     mkdir ntfs-3g-src; tar -xzf "ntfs-3g_ntfsprogs-2026.9.28.tgz" -C ntfs-3g-src --strip-components=1;     cd ntfs-3g-src;     if [ "1" = 1 ]; then         export CFLAGS="-g -O1 -fsanitize=address,undefined -fno-omit-frame-pointer"                LDFLAGS="-fsanitize=address,undefined";     else         export CFLAGS="-g -O2";     fi;     ./configure --prefix="/opt/ntfs-3g" --with-fuse=internal         --enable-ntfsprogs --disable-ldconfig --disable-static         --disable-mount-helper --disable-plugins;     make -j"$(nproc)";     make install;     cd /; rm -rf /usr/src/ntfs-3g-src "/usr/src/ntfs-3g_ntfsprogs-2026.9.28.tgz";     echo "/opt/ntfs-3g/lib" > /etc/ld.so.conf.d/ntfs-3g.conf; ldconfig
+#7 CACHED
+
+#8 [5/6] RUN mkdir -p /tmp/asan && chmod 1777 /tmp/asan
+#8 CACHED
+
+#9 [2/6] RUN apt-get update && apt-get install -y --no-install-recommends         build-essential clang lld libclang-rt-dev cmake ninja-build pkg-config         autoconf automake libtool         libgcrypt20-dev libgnutls28-dev uuid-dev libattr1-dev         fuse3 kmod util-linux         python3 xxd coreutils file ca-certificates git gdb valgrind     && rm -rf /var/lib/apt/lists/*
+#9 CACHED
+
+#10 [6/6] WORKDIR /work
+#10 CACHED
+
+#11 exporting to image
+#11 exporting layers done
+#11 exporting manifest sha256:ca47ed5f286cf5fed6c46ddbfa9482df0a50397c5bdf30f4d8fb9287481f7eff done
+#11 exporting config sha256:7e4376cd2dc1ece78c696558583a93527a50a2067a7e6d1d4528cdef17bc4ef5 done
+#11 exporting attestation manifest sha256:6e3c294f43a4cc791d88badc5d05f535e355254f3880f50185eaf5d1f1156873 done
+#11 exporting manifest list sha256:b4e14db4ec49342c025d73b811cc3e2856094f252966f060bdda4a98239ec2bb done
+#11 naming to docker.io/library/ntfs-macos-linux:asan done
+#11 unpacking to docker.io/library/ntfs-macos-linux:asan done
+#11 DONE 0.0s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/ft48b7l7h83ydagnbg4ou35q7

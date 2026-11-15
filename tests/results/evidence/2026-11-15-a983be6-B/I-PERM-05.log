@@ -1,0 +1,43 @@
+18:42:03 start I-PERM-05 (env B)
+18:42:03 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/vol.img -> rc=0
+18:42:03 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+18:42:03 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+18:42:03 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/mnt -> rc=0
+18:42:06 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:42:06 $ /usr/bin/cc -o /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/mnt/hello /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/hello.c -> rc=0
+18:42:06 rw session 1: run.sh mode 0644, chmod +x ok, mode 0644, exec -> ('ran', 0, 'script-ran')
+18:42:06 rw session 1: native mode 0644, chmod +x ok, mode 0644, exec -> ('ran', 0, '')
+18:42:06 rw session 1: hello mode 0644, chmod +x ok, mode 0644, exec -> ('ran', 0, 'native-ran')
+18:42:07 $ sync -> rc=0
+18:42:07 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/mnt -> rc=0
+18:42:07 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/mnt -> rc=0
+18:42:10 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:42:10 rw session 2: run.sh mode 0644, chmod +x ok, mode 0644, exec -> ('ran', 0, 'script-ran')
+18:42:10 rw session 2: native mode 0644, chmod +x ok, mode 0644, exec -> ('ran', 0, '')
+18:42:10 rw session 2: hello mode 0644, chmod +x ok, mode 0644, exec -> ('ran', 0, 'native-ran')
+18:42:10 $ sync -> rc=0
+18:42:10 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/mnt -> rc=0
+18:42:10 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/mnt -> rc=0
+18:42:13 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+18:42:13 ro session: run.sh mode 0644, chmod +x -, mode 0644, exec -> ('ran', 0, 'script-ran')
+18:42:13 ro session: native mode 0644, chmod +x -, mode 0644, exec -> ('ran', 0, '')
+18:42:13 ro session: hello mode 0644, chmod +x -, mode 0644, exec -> ('ran', 0, 'native-ran')
+18:42:13 $ sync -> rc=0
+18:42:13 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/mnt -> rc=0
+18:42:13 execute bit: not checked, files without x run on B
+18:42:13 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/vol.img -> rc=0
+18:42:13 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rjup_8kv/vol.img was processed successfully.
+18:42:13 end I-PERM-05: pass

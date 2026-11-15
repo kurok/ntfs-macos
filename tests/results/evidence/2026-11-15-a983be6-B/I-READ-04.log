@@ -1,0 +1,203 @@
+18:43:09 start I-READ-04 (env B)
+18:43:09 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img -> rc=0
+18:43:09 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+18:43:09 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+18:43:09 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:12 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:43:12 $ sync -> rc=0
+18:43:12 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:12 on disk r0: resident, 0 bytes
+18:43:12 on disk r1: resident, 1 bytes
+18:43:12 on disk r64: resident, 64 bytes
+18:43:12 on disk r128: resident, 128 bytes
+18:43:12 on disk r256: resident, 256 bytes
+18:43:12 on disk r384: resident, 384 bytes
+18:43:12 on disk r448: resident, 448 bytes
+18:43:12 on disk r512: resident, 512 bytes
+18:43:12 on disk r576: resident, 576 bytes
+18:43:12 on disk r640: resident, 640 bytes
+18:43:12 on disk r704: non-resident, size 704 alloc 4096 init 704
+18:43:12 on disk r768: non-resident, size 768 alloc 4096 init 768
+18:43:12 on disk r832: non-resident, size 832 alloc 4096 init 832
+18:43:12 on disk r896: non-resident, size 896 alloc 4096 init 896
+18:43:12 on disk r960: non-resident, size 960 alloc 4096 init 960
+18:43:12 largest resident size among [0, 1, 64, 128, 256, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960]: 640
+18:43:12 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:15 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:43:15 cold r0 cached read(100): 0 reads: (none)
+18:43:15 cold r0 cached read(8388608): 0 reads: (none)
+18:43:15 cold r0 nocache read(100): 0 reads: (none)
+18:43:15 cold r0 nocache read(8388608): 0 reads: (none)
+18:43:15 cold r1 cached read(101): 1 reads: 1
+18:43:15 cold r1 cached read(8388608): 1 reads: 1
+18:43:15 cold r1 nocache read(101): 1 reads: 1
+18:43:15 cold r1 nocache read(8388608): 1 reads: 1
+18:43:15 cold r128 cached read(228): 1 reads: 128
+18:43:15 cold r128 cached read(8388608): 1 reads: 128
+18:43:15 cold r128 nocache read(228): 1 reads: 128
+18:43:15 cold r128 nocache read(8388608): 1 reads: 128
+18:43:15 cold r256 cached read(356): 1 reads: 256
+18:43:15 cold r256 cached read(8388608): 1 reads: 256
+18:43:15 cold r256 nocache read(356): 1 reads: 256
+18:43:15 cold r256 nocache read(8388608): 1 reads: 256
+18:43:15 cold r384 cached read(484): 1 reads: 384
+18:43:15 cold r384 cached read(8388608): 1 reads: 384
+18:43:15 cold r384 nocache read(484): 1 reads: 384
+18:43:15 cold r384 nocache read(8388608): 1 reads: 384
+18:43:15 cold r448 cached read(548): 1 reads: 448
+18:43:15 cold r448 cached read(8388608): 1 reads: 448
+18:43:15 cold r448 nocache read(548): 1 reads: 448
+18:43:15 cold r448 nocache read(8388608): 1 reads: 448
+18:43:15 cold r512 cached read(612): 1 reads: 512
+18:43:15 cold r512 cached read(8388608): 1 reads: 512
+18:43:15 cold r512 nocache read(612): 1 reads: 512
+18:43:15 cold r512 nocache read(8388608): 1 reads: 512
+18:43:15 cold r576 cached read(676): 1 reads: 576
+18:43:15 cold r576 cached read(8388608): 1 reads: 576
+18:43:15 cold r576 nocache read(676): 1 reads: 576
+18:43:15 cold r576 nocache read(8388608): 1 reads: 576
+18:43:15 cold r64 cached read(164): 1 reads: 64
+18:43:15 cold r64 cached read(8388608): 1 reads: 64
+18:43:15 cold r64 nocache read(164): 1 reads: 64
+18:43:15 cold r64 nocache read(8388608): 1 reads: 64
+18:43:15 cold r640 cached read(740): 1 reads: 640
+18:43:15 cold r640 cached read(8388608): 1 reads: 640
+18:43:15 cold r640 nocache read(740): 1 reads: 640
+18:43:15 cold r640 nocache read(8388608): 1 reads: 640
+18:43:15 cold r704 cached read(804): 1 reads: 704
+18:43:15 cold r704 cached read(8388608): 1 reads: 704
+18:43:15 cold r704 nocache read(804): 1 reads: 704
+18:43:15 cold r704 nocache read(8388608): 1 reads: 704
+18:43:15 cold r768 cached read(868): 1 reads: 768
+18:43:15 cold r768 cached read(8388608): 1 reads: 768
+18:43:15 cold r768 nocache read(868): 1 reads: 768
+18:43:15 cold r768 nocache read(8388608): 1 reads: 768
+18:43:15 cold r832 cached read(932): 1 reads: 832
+18:43:15 cold r832 cached read(8388608): 1 reads: 832
+18:43:15 cold r832 nocache read(932): 1 reads: 832
+18:43:15 cold r832 nocache read(8388608): 1 reads: 832
+18:43:15 cold r896 cached read(996): 1 reads: 896
+18:43:15 cold r896 cached read(8388608): 1 reads: 896
+18:43:15 cold r896 nocache read(996): 1 reads: 896
+18:43:15 cold r896 nocache read(8388608): 1 reads: 896
+18:43:15 cold r960 cached read(1060): 1 reads: 960
+18:43:15 cold r960 cached read(8388608): 1 reads: 960
+18:43:15 cold r960 nocache read(1060): 1 reads: 960
+18:43:15 cold r960 nocache read(8388608): 1 reads: 960
+18:43:15 $ sync -> rc=0
+18:43:15 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:15 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:19 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:43:19 $ sync -> rc=0
+18:43:19 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:19 on disk tr: resident, 100 bytes
+18:43:19 after 'create 100 B': 100 bytes; resident, 100 bytes
+18:43:19 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:22 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:43:22 after 'create 100 B' cached read(200): 1 reads: 100
+18:43:22 after 'create 100 B' cached read(8388608): 1 reads: 100
+18:43:22 after 'create 100 B' nocache read(200): 1 reads: 100
+18:43:22 after 'create 100 B' nocache read(8388608): 1 reads: 100
+18:43:22 $ sync -> rc=0
+18:43:22 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:22 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:25 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:43:25 $ sync -> rc=0
+18:43:25 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:25 on disk tr: non-resident, size 5000 alloc 8192 init 5000
+18:43:25 after 'write at 4900 (grow to 5000)': 5000 bytes; non-resident, size 5000 alloc 8192 init 5000
+18:43:25 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:28 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:43:28 after 'write at 4900 (grow to 5000)' cached read(5100): 1 reads: 5000
+18:43:28 after 'write at 4900 (grow to 5000)' cached read(8388608): 1 reads: 5000
+18:43:28 after 'write at 4900 (grow to 5000)' nocache read(5100): 1 reads: 5000
+18:43:28 after 'write at 4900 (grow to 5000)' nocache read(8388608): 1 reads: 5000
+18:43:28 $ sync -> rc=0
+18:43:28 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:28 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:32 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:43:32 $ sync -> rc=0
+18:43:32 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:32 on disk tr: non-resident, size 50 alloc 4096 init 50
+18:43:32 after 'truncate to 50': 50 bytes; non-resident, size 50 alloc 4096 init 50
+18:43:32 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:35 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:43:35 after 'truncate to 50' cached read(150): 1 reads: 50
+18:43:35 after 'truncate to 50' cached read(8388608): 1 reads: 50
+18:43:35 after 'truncate to 50' nocache read(150): 1 reads: 50
+18:43:35 after 'truncate to 50' nocache read(8388608): 1 reads: 50
+18:43:35 $ sync -> rc=0
+18:43:35 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:35 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:38 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:43:39 $ sync -> rc=0
+18:43:39 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:39 on disk tr: resident, 0 bytes
+18:43:39 after 'truncate to 0': 0 bytes; resident, 0 bytes
+18:43:39 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:42 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:43:42 after 'truncate to 0' cached read(100): 0 reads: (none)
+18:43:42 after 'truncate to 0' cached read(8388608): 0 reads: (none)
+18:43:42 after 'truncate to 0' nocache read(100): 0 reads: (none)
+18:43:42 after 'truncate to 0' nocache read(8388608): 0 reads: (none)
+18:43:42 $ sync -> rc=0
+18:43:42 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:42 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:45 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:43:45 $ sync -> rc=0
+18:43:45 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:45 on disk tr: resident, 30 bytes
+18:43:45 after 'write 30 B': 30 bytes; resident, 30 bytes
+18:43:45 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:48 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:43:48 after 'write 30 B' cached read(130): 1 reads: 30
+18:43:48 after 'write 30 B' cached read(8388608): 1 reads: 30
+18:43:48 after 'write 30 B' nocache read(130): 1 reads: 30
+18:43:48 after 'write 30 B' nocache read(8388608): 1 reads: 30
+18:43:48 $ sync -> rc=0
+18:43:48 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:48 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:52 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:43:52 $ sync -> rc=0
+18:43:52 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:52 on disk tr: non-resident, size 10485760 alloc 10485760 init 30, sparse (unit 2^4 clusters, compressed size 4096)
+18:43:52 after 'truncate up to 10 MiB': 10485760 bytes; non-resident, size 10485760 alloc 10485760 init 30, sparse (unit 2^4 clusters, compressed size 4096)
+18:43:52 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:55 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:43:55 after 'truncate up to 10 MiB' cached read(10485860): 1 reads: 10485760
+18:43:55 after 'truncate up to 10 MiB' cached read(8388608): 2 reads: 8388608 2097152
+18:43:55 after 'truncate up to 10 MiB' nocache read(10485860): 1 reads: 10485760
+18:43:55 after 'truncate up to 10 MiB' nocache read(8388608): 2 reads: 8388608 2097152
+18:43:55 $ sync -> rc=0
+18:43:55 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:55 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:58 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:43:58 $ sync -> rc=0
+18:43:58 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:43:58 on disk tr: non-resident, size 5296 alloc 8192 init 5296
+18:43:58 after 'append 300 B x4 then 4096': 5296 bytes; non-resident, size 5296 alloc 8192 init 5296
+18:43:58 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:44:02 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:44:02 after 'append 300 B x4 then 4096' cached read(5396): 1 reads: 5296
+18:44:02 after 'append 300 B x4 then 4096' cached read(8388608): 1 reads: 5296
+18:44:02 after 'append 300 B x4 then 4096' nocache read(5396): 1 reads: 5296
+18:44:02 after 'append 300 B x4 then 4096' nocache read(8388608): 1 reads: 5296
+18:44:02 $ sync -> rc=0
+18:44:02 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/mnt -> rc=0
+18:44:02 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img -> rc=0
+18:44:02 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-s6gw1cfk/vol.img was processed successfully.
+18:44:02 PASS: records leave the MFT record above 640 bytes; every transition read back correctly
+18:44:02 end I-READ-04: pass

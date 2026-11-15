@@ -1,0 +1,8 @@
+ok       names-nfd (22 names not NFC; 27 paths reachable by their own bytes, 0 not)
+ok       names-nfc (0 names not NFC; 33 paths reachable by their own bytes, 0 not)
+ok       names-dirty (1 names not NFC; 1 paths reachable by their own bytes, 0 not)
+ok       names-wide (22 names not NFC; 328 paths reachable by their own bytes, 0 not)
+ok       names-longpath (1 names not NFC; 7 paths reachable by their own bytes, 0 not)
+ok       names-deep (1 names not NFC; 401 paths reachable by their own bytes, 0 not)
+ok       names-reparse (1 names not NFC; 1 paths reachable by their own bytes, 0 not)
+ok       names-sysdir (0 names not NFC; 2 paths reachable by their own bytes, 0 not)

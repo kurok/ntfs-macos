@@ -1,0 +1,350 @@
+{
+ "data_after_forced_unmount": {
+  "fd+map": "ok",
+  "force-first": "ok",
+  "map-only": "ok",
+  "redirty": "ok"
+ },
+ "notes": [],
+ "page_size": 16384,
+ "steps": [],
+ "variants": {
+  "fd+map": {
+   "diskutil_force": {
+    "device_syncs": 0,
+    "device_writes": 0,
+    "fuse": [
+     "FSYNC n5 +-19ms",
+     "FSYNC n5 +-18ms",
+     "FSYNC n5 +-18ms"
+    ],
+    "opcodes": [
+     "FSYNC"
+    ],
+    "out": "Volume macFUSE Volume on disk6s1 failed to unmount",
+    "rc": 1,
+    "still_mounted": true,
+    "write_bytes": 0,
+    "write_bytes_during": 0,
+    "write_requests": 0
+   },
+   "mapper_after_unmount": {
+    "close": "ok",
+    "mget": "sigbus",
+    "mput": "sigbus",
+    "msync": "ok",
+    "mtouch": "sigbus",
+    "munmap": "ok"
+   },
+   "umount": {
+    "device_syncs": 1,
+    "device_writes": 6,
+    "fuse": [
+     "WRITE n5 13@1048576 +11ms",
+     "WRITE n5 1048576@0 +12ms",
+     "FSYNC n5 +13ms",
+     "FSYNC n5 +32ms",
+     "FSYNC n5 +33ms",
+     "FSYNC n5 +34ms",
+     "FSYNC n5 +35ms"
+    ],
+    "opcodes": [
+     "FSYNC",
+     "WRITE"
+    ],
+    "out": "umount(/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ycd6ufal/mnt): Resource busy -- try 'diskutil unmount'",
+    "rc": 1,
+    "still_mounted": true,
+    "write_bytes": 1048589,
+    "write_bytes_during": 0,
+    "write_requests": 2
+   },
+   "umount_f": {
+    "device_syncs": 1,
+    "device_writes": 0,
+    "fuse": [
+     "FSYNC n5 +3ms",
+     "FSYNC n5 +3ms",
+     "FSYNC n5 +3ms",
+     "FSYNC n5 +4ms",
+     "FSYNC n5 +8ms",
+     "FSYNC n5 +8ms",
+     "DESTROY n1 +9ms"
+    ],
+    "opcodes": [
+     "DESTROY",
+     "FSYNC"
+    ],
+    "out": "",
+    "rc": 0,
+    "still_mounted": false,
+    "write_bytes": 0,
+    "write_bytes_during": 0,
+    "write_requests": 0
+   },
+   "unmounted_by": "umount -f",
+   "variant": "fd+map",
+   "verify": {
+    "files": {
+     "d.bin": "ok",
+     "e.bin": "ok"
+    },
+    "fsck_rc": 0,
+    "fsck_tail": [
+     "Processing of $MFT and $MFTMirr completed successfully.",
+     "Checking the alternate boot sector... OK",
+     "NTFS volume version is 3.1.",
+     "NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ycd6ufal/vol.img was processed successfully."
+    ],
+    "mount": "ok",
+    "tag": "04-fd+map"
+   },
+   "worker_exited": true,
+   "worker_rc": 0
+  },
+  "force-first": {
+   "mapper_after_unmount": {
+    "close": "ok",
+    "mget": "sigbus",
+    "mput": "sigbus",
+    "msync": "ok",
+    "mtouch": "sigbus",
+    "munmap": "ok"
+   },
+   "umount_f": {
+    "device_syncs": 3,
+    "device_writes": 6,
+    "fuse": [
+     "FSYNC n5 +7ms",
+     "WRITE n5 13@1048576 +22ms",
+     "WRITE n5 1048576@0 +22ms",
+     "FSYNC n5 +23ms",
+     "FSYNC n5 +28ms",
+     "FSYNC n5 +29ms",
+     "FSYNC n5 +29ms",
+     "FSYNC n5 +29ms",
+     "FSYNC n5 +30ms",
+     "FSYNC n5 +30ms",
+     "FSYNC n5 +33ms",
+     "FSYNC n5 +34ms",
+     "FSYNC n5 +34ms",
+     "FSYNC n5 +35ms",
+     "FSYNC n5 +35ms",
+     "FSYNC n5 +36ms",
+     "DESTROY n1 +36ms"
+    ],
+    "opcodes": [
+     "DESTROY",
+     "FSYNC",
+     "WRITE"
+    ],
+    "out": "",
+    "rc": 0,
+    "still_mounted": false,
+    "write_bytes": 1048589,
+    "write_bytes_during": 0,
+    "write_requests": 2
+   },
+   "unmounted_by": "umount -f",
+   "variant": "force-first",
+   "verify": {
+    "files": {
+     "d.bin": "ok",
+     "e.bin": "ok"
+    },
+    "fsck_rc": 0,
+    "fsck_tail": [
+     "Processing of $MFT and $MFTMirr completed successfully.",
+     "Checking the alternate boot sector... OK",
+     "NTFS volume version is 3.1.",
+     "NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ycd6ufal/vol.img was processed successfully."
+    ],
+    "mount": "ok",
+    "tag": "04-force-first"
+   },
+   "worker_exited": true,
+   "worker_rc": 0
+  },
+  "map-only": {
+   "diskutil_force": {
+    "device_syncs": 0,
+    "device_writes": 0,
+    "fuse": [
+     "FSYNC n5 +-19ms",
+     "FSYNC n5 +-18ms",
+     "FSYNC n5 +-17ms"
+    ],
+    "opcodes": [
+     "FSYNC"
+    ],
+    "out": "Volume macFUSE Volume on disk6s1 failed to unmount",
+    "rc": 1,
+    "still_mounted": true,
+    "write_bytes": 0,
+    "write_bytes_during": 0,
+    "write_requests": 0
+   },
+   "mapper_after_unmount": {
+    "close": "(fd already closed)",
+    "mget": "sigbus",
+    "mput": "sigbus",
+    "msync": "ok",
+    "mtouch": "sigbus",
+    "munmap": "ok"
+   },
+   "umount": {
+    "device_syncs": 1,
+    "device_writes": 0,
+    "fuse": [
+     "FSYNC n5 +10ms",
+     "FSYNC n5 +29ms",
+     "FSYNC n5 +31ms",
+     "FSYNC n5 +32ms",
+     "FSYNC n5 +33ms"
+    ],
+    "opcodes": [
+     "FSYNC"
+    ],
+    "out": "umount(/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ycd6ufal/mnt): Resource busy -- try 'diskutil unmount'",
+    "rc": 1,
+    "still_mounted": true,
+    "write_bytes": 0,
+    "write_bytes_during": 0,
+    "write_requests": 0
+   },
+   "umount_f": {
+    "device_syncs": 1,
+    "device_writes": 0,
+    "fuse": [
+     "FSYNC n5 +3ms",
+     "FSYNC n5 +3ms",
+     "FSYNC n5 +4ms",
+     "FSYNC n5 +4ms",
+     "FSYNC n5 +8ms",
+     "FSYNC n5 +8ms",
+     "DESTROY n1 +9ms"
+    ],
+    "opcodes": [
+     "DESTROY",
+     "FSYNC"
+    ],
+    "out": "",
+    "rc": 0,
+    "still_mounted": false,
+    "write_bytes": 0,
+    "write_bytes_during": 0,
+    "write_requests": 0
+   },
+   "unmounted_by": "umount -f",
+   "variant": "map-only",
+   "verify": {
+    "files": {
+     "d.bin": "ok",
+     "e.bin": "ok"
+    },
+    "fsck_rc": 0,
+    "fsck_tail": [
+     "Processing of $MFT and $MFTMirr completed successfully.",
+     "Checking the alternate boot sector... OK",
+     "NTFS volume version is 3.1.",
+     "NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ycd6ufal/vol.img was processed successfully."
+    ],
+    "mount": "ok",
+    "tag": "04-map-only"
+   },
+   "worker_exited": true,
+   "worker_rc": 0
+  },
+  "redirty": {
+   "diskutil_force": {
+    "device_syncs": 0,
+    "device_writes": 0,
+    "fuse": [],
+    "opcodes": [],
+    "out": "Volume macFUSE Volume on disk6s1 failed to unmount",
+    "rc": 1,
+    "still_mounted": true,
+    "write_bytes": 0,
+    "write_bytes_during": 0,
+    "write_requests": 0
+   },
+   "mapper_after_unmount": {
+    "close": "ok",
+    "mget": "sigbus",
+    "mput": "sigbus",
+    "msync": "ok",
+    "mtouch": "sigbus",
+    "munmap": "ok"
+   },
+   "redirtied_after_refused_umount": true,
+   "umount": {
+    "device_syncs": 1,
+    "device_writes": 6,
+    "fuse": [
+     "WRITE n5 13@1048576 +9ms",
+     "WRITE n5 1048576@0 +10ms",
+     "FSYNC n5 +11ms",
+     "FSYNC n5 +28ms",
+     "FSYNC n5 +29ms",
+     "FSYNC n5 +30ms",
+     "FSYNC n5 +30ms"
+    ],
+    "opcodes": [
+     "FSYNC",
+     "WRITE"
+    ],
+    "out": "umount(/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ycd6ufal/mnt): Resource busy -- try 'diskutil unmount'",
+    "rc": 1,
+    "still_mounted": true,
+    "write_bytes": 1048589,
+    "write_bytes_during": 0,
+    "write_requests": 2
+   },
+   "umount_f": {
+    "device_syncs": 2,
+    "device_writes": 6,
+    "fuse": [
+     "WRITE n5 13@1048576 +3ms",
+     "WRITE n5 1048576@0 +3ms",
+     "FSYNC n5 +4ms",
+     "FSYNC n5 +12ms",
+     "FSYNC n5 +13ms",
+     "FSYNC n5 +13ms",
+     "FSYNC n5 +17ms",
+     "FSYNC n5 +17ms",
+     "DESTROY n1 +17ms"
+    ],
+    "opcodes": [
+     "DESTROY",
+     "FSYNC",
+     "WRITE"
+    ],
+    "out": "",
+    "rc": 0,
+    "still_mounted": false,
+    "write_bytes": 1048589,
+    "write_bytes_during": 0,
+    "write_requests": 2
+   },
+   "unmounted_by": "umount -f",
+   "variant": "redirty",
+   "verify": {
+    "files": {
+     "d.bin": "ok",
+     "e.bin": "ok"
+    },
+    "fsck_rc": 0,
+    "fsck_tail": [
+     "Processing of $MFT and $MFTMirr completed successfully.",
+     "Checking the alternate boot sector... OK",
+     "NTFS volume version is 3.1.",
+     "NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ycd6ufal/vol.img was processed successfully."
+    ],
+    "mount": "ok",
+    "tag": "04-redirty"
+   },
+   "worker_exited": true,
+   "worker_rc": 0
+  }
+ }
+}

@@ -1,0 +1,64 @@
+18:29:29 start I-META-01 (env B)
+18:29:29 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/vol.img -> rc=0
+18:29:29 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+18:29:29 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+18:29:29 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/mnt -> rc=0
+18:29:32 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:29:32 $ echo one > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/mnt/f1 -> rc=0
+18:29:34 $ echo two >> /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/mnt/f1 -> rc=0
+18:29:34 $ mkdir /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/mnt/d1 -> rc=0
+18:29:34 $ echo three > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/mnt/d1/f2 -> rc=0
+18:29:34 live f1: mt=2026-11-15 18:29:34.211261000 ct=2026-11-15 18:29:34.211261000 at=2026-11-15 18:29:32.893414000 birth=1970-01-01 00:00:00.000000000 flags=0
+18:29:34 live d1: mt=2026-11-15 18:29:34.284286000 ct=2026-11-15 18:29:34.284286000 at=2026-11-15 18:29:34.225999000 birth=1970-01-01 00:00:00.000000000 flags=0
+18:29:34 live d1/f2: mt=2026-11-15 18:29:34.281657000 ct=2026-11-15 18:29:34.281657000 at=2026-11-15 18:29:34.280381000 birth=1970-01-01 00:00:00.000000000 flags=0
+18:29:34 live d1/f3: mt=2026-11-15 18:29:34.285663000 ct=2026-11-15 18:29:34.285663000 at=2026-11-15 18:29:34.284280000 birth=1970-01-01 00:00:00.000000000 flags=0
+18:29:34 getattrlist f1: {'crtime': 0, 'mtime': 1794767374211261000, 'ctime': 1794767374211261000, 'atime': 1794767372893414000}
+18:29:34 $ sync -> rc=0
+18:29:34 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/mnt -> rc=0
+18:29:34 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/mnt -> rc=0
+18:29:38 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+18:29:38 $ sync -> rc=0
+18:29:38 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/mnt -> rc=0
+18:29:38 ntfsinfo f1: File Creation Time = 1794767372 (raw reader: 1794767372)
+18:29:38 ntfsinfo f1: File Altered Time = 1794767374 (raw reader: 1794767374)
+18:29:38 ntfsinfo f1: MFT Changed Time = 1794767374 (raw reader: 1794767374)
+18:29:38 ntfsinfo f1: Last Accessed Time = 1794767372 (raw reader: 1794767372)
+18:29:38 ntfsinfo d1: File Creation Time = 1794767374 (raw reader: 1794767374)
+18:29:38 ntfsinfo d1: File Altered Time = 1794767374 (raw reader: 1794767374)
+18:29:38 ntfsinfo d1: MFT Changed Time = 1794767374 (raw reader: 1794767374)
+18:29:38 ntfsinfo d1: Last Accessed Time = 1794767374 (raw reader: 1794767374)
+18:29:38 after remount f1: mt=2026-11-15 18:29:34.211261000 ct=2026-11-15 18:29:34.211261000 at=2026-11-15 18:29:32.893414000 birth=1970-01-01 00:00:00.000000000 flags=0
+18:29:38 disk f1 (record 66) SI: cr=2026-11-15 18:29:32.893200600 mt=2026-11-15 18:29:34.211261000 ct=2026-11-15 18:29:34.211261000 at=2026-11-15 18:29:32.893414000 flags=0x20
+18:29:38 disk f1 (record 66) FN: cr=2026-11-15 18:29:32.893414000 mt=2026-11-15 18:29:32.893414000 ct=2026-11-15 18:29:32.893414000 at=2026-11-15 18:29:32.893414000 flags=0x20
+18:29:38 f1 SI creation time is 2026-11-15 18:29:32.893200600 (FILETIME 134392409728932006)
+18:29:38 after remount d1: mt=2026-11-15 18:29:34.284286000 ct=2026-11-15 18:29:34.284286000 at=2026-11-15 18:29:34.225999000 birth=1970-01-01 00:00:00.000000000 flags=0
+18:29:38 disk d1 (record 67) SI: cr=2026-11-15 18:29:34.225732100 mt=2026-11-15 18:29:34.284286000 ct=2026-11-15 18:29:34.284286000 at=2026-11-15 18:29:34.225999000 flags=0x20
+18:29:38 disk d1 (record 67) FN: cr=2026-11-15 18:29:34.225999000 mt=2026-11-15 18:29:34.225999000 ct=2026-11-15 18:29:34.225999000 at=2026-11-15 18:29:34.225999000 flags=0x10000020
+18:29:38 d1 SI creation time is 2026-11-15 18:29:34.225732100 (FILETIME 134392409742257321)
+18:29:38 after remount d1/f2: mt=2026-11-15 18:29:34.281657000 ct=2026-11-15 18:29:34.281657000 at=2026-11-15 18:29:34.280381000 birth=1970-01-01 00:00:00.000000000 flags=0
+18:29:38 disk d1/f2 (record 68) SI: cr=2026-11-15 18:29:34.280092400 mt=2026-11-15 18:29:34.281657000 ct=2026-11-15 18:29:34.281657000 at=2026-11-15 18:29:34.280381000 flags=0x20
+18:29:38 disk d1/f2 (record 68) FN: cr=2026-11-15 18:29:34.280381000 mt=2026-11-15 18:29:34.280381000 ct=2026-11-15 18:29:34.280381000 at=2026-11-15 18:29:34.280381000 flags=0x20
+18:29:38 d1/f2 SI creation time is 2026-11-15 18:29:34.280092400 (FILETIME 134392409742800924)
+18:29:38 after remount d1/f3: mt=2026-11-15 18:29:34.285663000 ct=2026-11-15 18:29:34.285663000 at=2026-11-15 18:29:34.284280000 birth=1970-01-01 00:00:00.000000000 flags=0
+18:29:38 disk d1/f3 (record 69) SI: cr=2026-11-15 18:29:34.284092200 mt=2026-11-15 18:29:34.285663000 ct=2026-11-15 18:29:34.285663000 at=2026-11-15 18:29:34.284280000 flags=0x20
+18:29:38 disk d1/f3 (record 69) FN: cr=2026-11-15 18:29:34.284280000 mt=2026-11-15 18:29:34.284280000 ct=2026-11-15 18:29:34.284280000 at=2026-11-15 18:29:34.284280000 flags=0x20
+18:29:38 d1/f3 SI creation time is 2026-11-15 18:29:34.284092200 (FILETIME 134392409742840922)
+18:29:38 f1: SI mtime minus FN mtime = 1.32 s (FN times are not kept up to date)
+18:29:38 view values with digits below a microsecond: 0 of 12
+18:29:38 live view differs from the remounted view in 0 values: []
+18:29:38 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/vol.img -> rc=0
+18:29:38 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-io01xprf/vol.img was processed successfully.
+18:29:38 end I-META-01: pass

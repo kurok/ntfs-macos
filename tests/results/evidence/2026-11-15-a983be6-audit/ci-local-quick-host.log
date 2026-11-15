@@ -1,0 +1,159 @@
+
+== stage: bootstrap ==
+Checking prerequisites (nothing is installed by this script)
+ok       cmake 4.4.5
+ok       ninja 1.13.2
+ok       pkgconf 3.0.10
+ok       C compiler cc (Apple clang version 21.0.0 (clang-2100.4.1.1))
+
+All prerequisites present.
+
+== stage: configure ==
+-- The C compiler identification is AppleClang 21.0.0.21000401
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Platform: macOS arm64 (product target)
+-- Performing Test NTFSMAC_HAVE_STACK_PROTECTOR_STRONG
+-- Performing Test NTFSMAC_HAVE_STACK_PROTECTOR_STRONG - Success
+-- Performing Test NTFSMAC_HAVE_AUTO_VAR_INIT
+-- Performing Test NTFSMAC_HAVE_AUTO_VAR_INIT - Success
+-- libntfs-3g not found: skipping ntfsmac-probe
+-- libntfs-3g not found: skipping ntfsmac-volmark
+-- libntfs-3g not found: skipping setvolflags, logfile_mark, txf_make
+-- libntfs-3g not found: skipping the image fuzz harnesses
+-- Configuring done (0.4s)
+-- Generating done (0.0s)
+-- Build files have been written to: <audit-clone>/build/release
+
+== stage: build ==
+[1/74] Building C object src/common/CMakeFiles/ntfsmac_state_rank.dir/state_rank.c.o
+[2/74] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/state.c.o
+[3/74] Building C object src/common/CMakeFiles/ntfsmac_label_cp.dir/label_cp.c.o
+[4/74] Building C object src/policy/CMakeFiles/ntfsmac_policy.dir/policy.c.o
+[5/74] Building C object src/common/CMakeFiles/ntfsmac_common.dir/log.c.o
+[6/74] Building C object src/options/CMakeFiles/ntfsmac_worker_options.dir/options.c.o
+[7/74] Building C object src/common/CMakeFiles/test_log.dir/test_log.c.o
+[8/74] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/text.c.o
+[9/74] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/json.c.o
+[10/74] Building C object src/options/CMakeFiles/ntfsmac_worker_options.dir/argv_check.c.o
+[11/74] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/label.c.o
+[12/74] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/display.c.o
+[13/74] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/leaf.c.o
+[14/74] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_pure.dir/args.c.o
+[15/74] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/nfc.c.o
+[16/74] Building C object tests/tools/CMakeFiles/treedump.dir/treedump.c.o
+[17/74] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/test_headers.c.o
+[18/74] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_probe.c.o
+[19/74] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_policy.c.o
+[20/74] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_journal.c.o
+[21/74] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_options.c.o
+[22/74] Building C object src/common/CMakeFiles/ntfsmac_mftmirr.dir/mftmirr.c.o
+[23/74] Linking C static library src/common/libntfsmac_state_rank.a
+[24/74] Linking C static library src/common/libntfsmac_label_cp.a
+[25/74] Linking C static library src/common/libntfsmac_common.a
+[26/74] Linking C static library src/policy/libntfsmac_policy.a
+[27/74] Building C object tests/unit/policy/CMakeFiles/argv_tool.dir/argv_tool.c.o
+[28/74] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/verdict.c.o
+[29/74] Linking C static library src/volmark/libntfsmac_volmark_pure.a
+[30/74] Building C object tests/unit/probe/CMakeFiles/nfc_tool.dir/nfc_tool.c.o
+[31/74] Building C object src/journal/CMakeFiles/ntfsmac_journal_testhooks.dir/journal.c.o
+[32/74] Building C object src/journal/CMakeFiles/ntfsmac_journal.dir/journal.c.o
+[33/74] Building C object tests/unit/probe/CMakeFiles/mm_tool.dir/mm_tool.c.o
+[34/74] Building C object tests/unit/journal/CMakeFiles/test_journal_crash.dir/test_journal_crash.c.o
+[35/74] Linking C static library src/common/libntfsmac_mftmirr.a
+[36/74] Building C object tests/fuzz/sanitize/CMakeFiles/fuzz_replay_verdict.dir/fuzz_main.c.o
+[37/74] Building C object tests/unit/sanitize/CMakeFiles/verdict_tool.dir/verdict_tool.c.o
+[38/74] Linking C static library src/probe/libntfsmac_probe_pure.a
+[39/74] Building C object tests/unit/volmark/CMakeFiles/test_volmark_args.dir/test_args.c.o
+[40/74] Building C object tests/fuzz/sanitize/CMakeFiles/fuzz_replay_label.dir/fuzz_main.c.o
+[41/74] Building C object tests/unit/sanitize/CMakeFiles/test_display.dir/test_display.c.o
+[42/74] Linking C static library src/options/libntfsmac_worker_options.a
+[43/74] Linking C static library src/sanitize/libntfsmac_sanitize.a
+[44/74] Building C object tests/unit/probe/CMakeFiles/test_probe_pure.dir/test_pure.c.o
+[45/74] Linking C static library src/journal/libntfsmac_journal_testhooks.a
+[46/74] Linking C static library src/journal/libntfsmac_journal.a
+[47/74] Building C object tests/fuzz/sanitize/CMakeFiles/fuzz_replay_display.dir/fuzz_main.c.o
+[48/74] Linking C executable tests/unit/probe/nfc_tool
+[49/74] Linking C executable src/common/test_log
+[50/74] Linking C executable tests/tools/treedump
+[51/74] Linking C executable tests/unit/contracts/test_headers
+[52/74] Linking C executable tests/unit/probe/mm_tool
+[53/74] Linking C executable tests/unit/volmark/test_volmark_args
+[54/74] Building C object tests/unit/policy/CMakeFiles/test_policy.dir/test_policy.c.o
+[55/74] Linking C executable tests/unit/sanitize/test_display
+[56/74] Linking C executable tests/unit/policy/argv_tool
+[57/74] Linking C executable tests/unit/probe/test_probe_pure
+[58/74] Linking C executable tests/unit/journal/test_journal_crash
+[59/74] Linking C executable tests/unit/sanitize/verdict_tool
+[60/74] Building C object tests/fuzz/sanitize/CMakeFiles/fuzz_replay_display.dir/fuzz_display.c.o
+[61/74] Building C object tests/fuzz/sanitize/CMakeFiles/fuzz_replay_verdict.dir/fuzz_verdict.c.o
+[62/74] Building C object tests/fuzz/sanitize/CMakeFiles/fuzz_replay_label.dir/fuzz_label.c.o
+[63/74] Linking C executable tests/unit/policy/test_policy
+[64/74] Building C object tests/unit/sanitize/CMakeFiles/test_label.dir/test_label.c.o
+[65/74] Linking C executable tests/fuzz/sanitize/fuzz_replay_display
+[66/74] Linking C executable tests/fuzz/sanitize/fuzz_replay_verdict
+[67/74] Linking C executable tests/fuzz/sanitize/fuzz_replay_label
+[68/74] Linking C executable tests/unit/sanitize/test_label
+[69/74] Building C object tests/unit/policy/CMakeFiles/test_options.dir/test_options.c.o
+[70/74] Building C object tests/unit/journal/CMakeFiles/test_journal.dir/test_journal.c.o
+[71/74] Linking C executable tests/unit/policy/test_options
+[72/74] Linking C executable tests/unit/journal/test_journal
+[73/74] Building C object tests/unit/sanitize/CMakeFiles/test_verdict.dir/test_verdict.c.o
+[74/74] Linking C executable tests/unit/sanitize/test_verdict
+
+== stage: ctest ==
+Test project <audit-clone>/build/release
+      Start  1: common.log
+ 1/20 Test  #1: common.log .......................   Passed    3.02 sec
+      Start  2: tools.treedump
+ 2/20 Test  #2: tools.treedump ...................   Passed    0.07 sec
+      Start  3: harness.unit
+ 3/20 Test  #3: harness.unit .....................   Passed    0.59 sec
+      Start  4: contracts.headers
+ 4/20 Test  #4: contracts.headers ................   Passed    0.01 sec
+      Start  5: contracts.probe_schema
+ 5/20 Test  #5: contracts.probe_schema ...........   Passed    0.06 sec
+      Start  6: journal.unit
+ 6/20 Test  #6: journal.unit .....................   Passed    1.68 sec
+      Start  7: journal.crash
+ 7/20 Test  #7: journal.crash ....................   Passed    6.22 sec
+      Start  8: policy.table
+ 8/20 Test  #8: policy.table .....................   Passed    0.03 sec
+      Start  9: policy.options
+ 9/20 Test  #9: policy.options ...................   Passed    0.02 sec
+      Start 10: policy.mount_options_json
+10/20 Test #10: policy.mount_options_json ........   Passed    0.27 sec
+      Start 11: probe.pure
+11/20 Test #11: probe.pure .......................   Passed    0.03 sec
+      Start 12: probe.nfc
+12/20 Test #12: probe.nfc ........................   Passed    1.15 sec
+      Start 13: sanitize.label
+13/20 Test #13: sanitize.label ...................   Passed    0.12 sec
+      Start 14: sanitize.display
+14/20 Test #14: sanitize.display .................   Passed    0.23 sec
+      Start 15: sanitize.verdict
+15/20 Test #15: sanitize.verdict .................   Passed    0.02 sec
+      Start 16: sanitize.verdict_schema
+16/20 Test #16: sanitize.verdict_schema ..........   Passed    1.90 sec
+      Start 17: volmark.args
+17/20 Test #17: volmark.args .....................   Passed    0.01 sec
+      Start 18: fuzz.sanitize_verdict_seeds
+18/20 Test #18: fuzz.sanitize_verdict_seeds ......   Passed    0.01 sec
+      Start 19: fuzz.sanitize_label_seeds
+19/20 Test #19: fuzz.sanitize_label_seeds ........   Passed    0.01 sec
+      Start 20: fuzz.sanitize_display_seeds
+20/20 Test #20: fuzz.sanitize_display_seeds ......   Passed    0.01 sec
+
+100% tests passed out of 20
+
+Total Test time (real) =  15.48 sec
+
+== summary ==
+bootstrap    ok       0s
+configure    ok       1s
+build        ok       0s
+ctest        ok      16s
+ci-local --quick: PASSED

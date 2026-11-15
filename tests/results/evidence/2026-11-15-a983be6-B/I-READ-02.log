@@ -1,0 +1,121 @@
+18:42:55 start I-READ-02 (env B)
+18:42:55 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dbuyrwvz/vol.img -> rc=0
+18:42:55 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+18:42:55 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dbuyrwvz/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dbuyrwvz/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dbuyrwvz/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dbuyrwvz/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dbuyrwvz/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+18:42:55 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dbuyrwvz/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dbuyrwvz/mnt -> rc=0
+18:42:58 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dbuyrwvz/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:42:58 trunc 200->0 cached: ok (5004 bytes)
+18:42:58 trunc 200->0 nocache: ok (5004 bytes)
+18:42:58 trunc 200->1 cached: ok (5005 bytes)
+18:42:58 trunc 200->1 nocache: ok (5005 bytes)
+18:42:58 trunc 200->100 cached: ok (5104 bytes)
+18:42:58 trunc 200->100 nocache: ok (5104 bytes)
+18:42:58 trunc 1000->0 cached: ok (5004 bytes)
+18:42:58 trunc 1000->0 nocache: ok (5004 bytes)
+18:42:58 trunc 1000->1 cached: ok (5005 bytes)
+18:42:58 trunc 1000->1 nocache: ok (5005 bytes)
+18:42:58 trunc 1000->100 cached: ok (5104 bytes)
+18:42:58 trunc 1000->100 nocache: ok (5104 bytes)
+18:42:58 trunc 1000->500 cached: ok (5504 bytes)
+18:42:58 trunc 1000->500 nocache: ok (5504 bytes)
+18:42:58 trunc 4097->0 cached: ok (5004 bytes)
+18:42:58 trunc 4097->0 nocache: ok (5004 bytes)
+18:42:58 trunc 4097->1 cached: ok (5005 bytes)
+18:42:58 trunc 4097->1 nocache: ok (5005 bytes)
+18:42:58 trunc 4097->100 cached: ok (5104 bytes)
+18:42:58 trunc 4097->100 nocache: ok (5104 bytes)
+18:42:58 trunc 4097->2048 cached: ok (7052 bytes)
+18:42:58 trunc 4097->2048 nocache: ok (7052 bytes)
+18:42:58 trunc 4097->4095 cached: ok (9099 bytes)
+18:42:58 trunc 4097->4095 nocache: ok (9099 bytes)
+18:42:58 trunc 4097->4096 cached: ok (9100 bytes)
+18:42:58 trunc 4097->4096 nocache: ok (9100 bytes)
+18:42:58 trunc 65539->0 cached: ok (5004 bytes)
+18:42:58 trunc 65539->0 nocache: ok (5004 bytes)
+18:42:58 trunc 65539->1 cached: ok (5005 bytes)
+18:42:58 trunc 65539->1 nocache: ok (5005 bytes)
+18:42:58 trunc 65539->100 cached: ok (5104 bytes)
+18:42:58 trunc 65539->100 nocache: ok (5104 bytes)
+18:42:58 trunc 65539->4095 cached: ok (9099 bytes)
+18:42:58 trunc 65539->4095 nocache: ok (9099 bytes)
+18:42:58 trunc 65539->4096 cached: ok (9100 bytes)
+18:42:58 trunc 65539->4096 nocache: ok (9100 bytes)
+18:42:58 trunc 65539->4097 cached: ok (9101 bytes)
+18:42:58 trunc 65539->4097 nocache: ok (9101 bytes)
+18:42:58 trunc 65539->32769 cached: ok (37773 bytes)
+18:42:58 trunc 65539->32769 nocache: ok (37773 bytes)
+18:42:58 trunc 1048577->0 cached: ok (5004 bytes)
+18:42:58 trunc 1048577->0 nocache: ok (5004 bytes)
+18:42:58 trunc 1048577->1 cached: ok (5005 bytes)
+18:42:58 trunc 1048577->1 nocache: ok (5005 bytes)
+18:42:58 trunc 1048577->100 cached: ok (5104 bytes)
+18:42:58 trunc 1048577->100 nocache: ok (5104 bytes)
+18:42:58 trunc 1048577->4095 cached: ok (9099 bytes)
+18:42:58 trunc 1048577->4095 nocache: ok (9099 bytes)
+18:42:58 trunc 1048577->4096 cached: ok (9100 bytes)
+18:42:58 trunc 1048577->4096 nocache: ok (9100 bytes)
+18:42:58 trunc 1048577->4097 cached: ok (9101 bytes)
+18:42:58 trunc 1048577->4097 nocache: ok (9101 bytes)
+18:42:58 trunc 1048577->524288 cached: ok (529292 bytes)
+18:42:58 trunc 1048577->524288 nocache: ok (529292 bytes)
+18:42:58 $ sync -> rc=0
+18:42:58 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dbuyrwvz/mnt -> rc=0
+18:42:58 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dbuyrwvz/vol.img -> rc=0
+18:42:58 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dbuyrwvz/vol.img was processed successfully.
+18:42:58 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dbuyrwvz/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dbuyrwvz/mnt -> rc=0
+18:43:02 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dbuyrwvz/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+18:43:02 after remount f1000_0_c cached read(5104): 1 reads: 5004
+18:43:02 after remount f1000_0_c cached read(8388608): 1 reads: 5004
+18:43:02 after remount f1000_0_c nocache read(5104): 1 reads: 5004
+18:43:02 after remount f1000_0_c nocache read(8388608): 1 reads: 5004
+18:43:02 after remount f1000_500_n cached read(5604): 1 reads: 5504
+18:43:02 after remount f1000_500_n cached read(8388608): 1 reads: 5504
+18:43:02 after remount f1000_500_n nocache read(5604): 1 reads: 5504
+18:43:02 after remount f1000_500_n nocache read(8388608): 1 reads: 5504
+18:43:02 after remount f1048577_4095_c cached read(9199): 1 reads: 9099
+18:43:02 after remount f1048577_4095_c cached read(8388608): 1 reads: 9099
+18:43:02 after remount f1048577_4095_c nocache read(9199): 1 reads: 9099
+18:43:02 after remount f1048577_4095_c nocache read(8388608): 1 reads: 9099
+18:43:02 after remount f1048577_524288_n cached read(529392): 1 reads: 529292
+18:43:02 after remount f1048577_524288_n cached read(8388608): 1 reads: 529292
+18:43:02 after remount f1048577_524288_n nocache read(529392): 1 reads: 529292
+18:43:02 after remount f1048577_524288_n nocache read(8388608): 1 reads: 529292
+18:43:02 after remount f4097_0_c cached read(5104): 1 reads: 5004
+18:43:02 after remount f4097_0_c cached read(8388608): 1 reads: 5004
+18:43:02 after remount f4097_0_c nocache read(5104): 1 reads: 5004
+18:43:02 after remount f4097_0_c nocache read(8388608): 1 reads: 5004
+18:43:02 after remount f4097_2048_n cached read(7152): 1 reads: 7052
+18:43:02 after remount f4097_2048_n cached read(8388608): 1 reads: 7052
+18:43:02 after remount f4097_2048_n nocache read(7152): 1 reads: 7052
+18:43:02 after remount f4097_2048_n nocache read(8388608): 1 reads: 7052
+18:43:02 after remount f65539_100_c cached read(5204): 1 reads: 5104
+18:43:02 after remount f65539_100_c cached read(8388608): 1 reads: 5104
+18:43:02 after remount f65539_100_c nocache read(5204): 1 reads: 5104
+18:43:02 after remount f65539_100_c nocache read(8388608): 1 reads: 5104
+18:43:02 after remount f65539_4095_n cached read(9199): 1 reads: 9099
+18:43:02 after remount f65539_4095_n cached read(8388608): 1 reads: 9099
+18:43:02 after remount f65539_4095_n nocache read(9199): 1 reads: 9099
+18:43:02 after remount f65539_4095_n nocache read(8388608): 1 reads: 9099
+18:43:02 $ sync -> rc=0
+18:43:02 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dbuyrwvz/mnt -> rc=0
+18:43:02 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dbuyrwvz/vol.img -> rc=0
+18:43:02 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dbuyrwvz/vol.img was processed successfully.
+18:43:02 PASS: 56 truncate cases
+18:43:02 end I-READ-02: pass

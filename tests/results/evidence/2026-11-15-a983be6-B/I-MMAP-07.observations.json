@@ -1,0 +1,229 @@
+{
+ "notes": [],
+ "page_size": 16384,
+ "steps": [],
+ "variants": {
+  "clean": {
+   "diskutil_force": {
+    "out": "Volume macFUSE Volume on disk6s1 failed to unmount",
+    "rc": 1,
+    "still_mounted": true
+   },
+   "killed_worker_pid": 23103,
+   "ls_mount_dir": [
+    1,
+    "ls: fts_read: Device not configured"
+   ],
+   "mapper_after_kill": {
+    "close": "err 6 Device not configured",
+    "fsize": "ok 131072",
+    "fsync": "err 6 Device not configured",
+    "msync_sync": "ok",
+    "munmap": "ok",
+    "pread_page3": "err 6 Device not configured",
+    "pwrite_page3": "err 6 Device not configured",
+    "read_dirty_resident_page0": "ok 16384",
+    "read_dirty_resident_page1": "ok 16384",
+    "read_untouched_page5": "sigbus",
+    "read_untouched_page7": "sigbus",
+    "write_resident_page0": "ok 16384",
+    "write_untouched_page6": "sigbus"
+   },
+   "read_file_with_cat": 1,
+   "seconds_to_run_probes": 0.0,
+   "stat_file": [
+    0,
+    "131072"
+   ],
+   "still_mounted_after_kill": true,
+   "umount": {
+    "out": "umount: unmount(/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-d958wbzn/mnt): Device not configured",
+    "rc": 1,
+    "still_mounted": true
+   },
+   "umount_f": {
+    "out": "",
+    "rc": 0,
+    "still_mounted": false
+   },
+   "unmounted": true,
+   "variant": "clean",
+   "verify": {
+    "files": {
+     "k.bin": "ok",
+     "other.bin": "ok"
+    },
+    "fsck_rc": 0,
+    "fsck_tail": [
+     "Processing of $MFT and $MFTMirr completed successfully.",
+     "Checking the alternate boot sector... OK",
+     "NTFS volume version is 3.1.",
+     "NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-d958wbzn/vol.img was processed successfully."
+    ],
+    "mount": "ok",
+    "page_map": {
+     "k.bin": [
+      "old",
+      "old",
+      "old",
+      "old",
+      "old",
+      "old",
+      "old",
+      "old"
+     ]
+    },
+    "tag": "07-clean"
+   },
+   "worker_rc": -9
+  },
+  "dirty": {
+   "diskutil_force": {
+    "out": "Volume macFUSE Volume on disk6s1 failed to unmount",
+    "rc": 1,
+    "still_mounted": true
+   },
+   "killed_worker_pid": 22752,
+   "ls_mount_dir": [
+    1,
+    "ls: fts_read: Device not configured"
+   ],
+   "mapper_after_kill": {
+    "close": "err 6 Device not configured",
+    "fsize": "ok 131072",
+    "fsync": "err 6 Device not configured",
+    "msync_sync": "ok",
+    "munmap": "ok",
+    "pread_page3": "err 6 Device not configured",
+    "pwrite_page3": "err 6 Device not configured",
+    "read_dirty_resident_page0": "ok 16384",
+    "read_dirty_resident_page1": "ok 16384",
+    "read_untouched_page5": "sigbus",
+    "read_untouched_page7": "sigbus",
+    "write_resident_page0": "ok 16384",
+    "write_untouched_page6": "sigbus"
+   },
+   "read_file_with_cat": 1,
+   "seconds_to_run_probes": 0.1,
+   "stat_file": [
+    0,
+    "131072"
+   ],
+   "still_mounted_after_kill": true,
+   "umount": {
+    "out": "umount: unmount(/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-d958wbzn/mnt): Device not configured",
+    "rc": 1,
+    "still_mounted": true
+   },
+   "umount_f": {
+    "out": "",
+    "rc": 0,
+    "still_mounted": false
+   },
+   "unmounted": true,
+   "variant": "dirty",
+   "verify": {
+    "files": {
+     "k.bin": "equals old",
+     "other.bin": "ok"
+    },
+    "fsck_rc": 0,
+    "fsck_tail": [
+     "Processing of $MFT and $MFTMirr completed successfully.",
+     "Checking the alternate boot sector... OK",
+     "NTFS volume version is 3.1.",
+     "NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-d958wbzn/vol.img was processed successfully."
+    ],
+    "mount": "ok",
+    "page_map": {
+     "k.bin": [
+      "old",
+      "old",
+      "old",
+      "old",
+      "old",
+      "old",
+      "old",
+      "old"
+     ]
+    },
+    "tag": "07-dirty"
+   },
+   "worker_rc": -9
+  },
+  "synced-then-dirty": {
+   "diskutil_force": {
+    "out": "Volume macFUSE Volume on disk6s1 failed to unmount",
+    "rc": 1,
+    "still_mounted": true
+   },
+   "killed_worker_pid": 22924,
+   "ls_mount_dir": [
+    1,
+    "ls: fts_read: Device not configured"
+   ],
+   "mapper_after_kill": {
+    "close": "err 6 Device not configured",
+    "fsize": "ok 131072",
+    "fsync": "err 6 Device not configured",
+    "msync_sync": "ok",
+    "munmap": "ok",
+    "pread_page3": "err 6 Device not configured",
+    "pwrite_page3": "err 6 Device not configured",
+    "read_dirty_resident_page0": "ok 16384",
+    "read_dirty_resident_page1": "ok 16384",
+    "read_untouched_page5": "sigbus",
+    "read_untouched_page7": "sigbus",
+    "write_resident_page0": "ok 16384",
+    "write_untouched_page6": "sigbus"
+   },
+   "read_file_with_cat": 1,
+   "seconds_to_run_probes": 0.0,
+   "stat_file": [
+    0,
+    "131072"
+   ],
+   "still_mounted_after_kill": true,
+   "umount": {
+    "out": "umount: unmount(/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-d958wbzn/mnt): Device not configured",
+    "rc": 1,
+    "still_mounted": true
+   },
+   "umount_f": {
+    "out": "",
+    "rc": 0,
+    "still_mounted": false
+   },
+   "unmounted": true,
+   "variant": "synced-then-dirty",
+   "verify": {
+    "files": {
+     "k.bin": "sha differs",
+     "other.bin": "ok"
+    },
+    "fsck_rc": 0,
+    "fsck_tail": [
+     "Processing of $MFT and $MFTMirr completed successfully.",
+     "Checking the alternate boot sector... OK",
+     "NTFS volume version is 3.1.",
+     "NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-d958wbzn/vol.img was processed successfully."
+    ],
+    "mount": "ok",
+    "page_map": {
+     "k.bin": [
+      "p1",
+      "old",
+      "old",
+      "old",
+      "old",
+      "old",
+      "old",
+      "old"
+     ]
+    },
+    "tag": "07-synced-then-dirty"
+   },
+   "worker_rc": -9
+  }
+ }
+}

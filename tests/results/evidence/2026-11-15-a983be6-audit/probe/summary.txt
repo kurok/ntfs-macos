@@ -1,0 +1,9 @@
+deps-release   ok        5s
+deps-asan      ok        5s
+fixtures-unsafe ok        2s
+fixtures-names ok        1s
+fixtures-mirror ok       14s
+fixtures-clean ok        3s
+fixtures-vmk   ok        5s
+release        ok       28s
+asan           ok       52s

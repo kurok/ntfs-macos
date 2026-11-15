@@ -1,0 +1,459 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "a983be67b9f1bfbc28dffd5d105548173846cfd4",
+  "dirty_tree": false,
+  "env": "A",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "Debian GNU/Linux 13 (trixie) aarch64",
+  "macfuse_version": null,
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-15T18:50:46Z",
+  "finished": "2026-11-15T18:51:54Z",
+  "cases": [
+    {
+      "id": "I-BIG-01",
+      "status": "pass",
+      "duration_s": 2.534,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-BIG-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-BIG-SPARSE-01",
+      "status": "pass",
+      "duration_s": 3.802,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-BIG-SPARSE-01.log",
+        "evidence/2026-11-15-a983be6-A/I-BIG-SPARSE-01.sparse01_all_hole.ntfsinfo.txt",
+        "evidence/2026-11-15-a983be6-A/I-BIG-SPARSE-01.sparse01_hole_end.ntfsinfo.txt",
+        "evidence/2026-11-15-a983be6-A/I-BIG-SPARSE-01.sparse01_hole_middle.ntfsinfo.txt",
+        "evidence/2026-11-15-a983be6-A/I-BIG-SPARSE-01.sparse01_hole_start.ntfsinfo.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-BIG-SPARSE-02",
+      "status": "pass",
+      "duration_s": 8.653,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-BIG-SPARSE-02.log",
+        "evidence/2026-11-15-a983be6-A/I-BIG-SPARSE-02.sparse02.ntfsinfo.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-01",
+      "status": "pass",
+      "duration_s": 5.401,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-ERR-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-02",
+      "status": "pass",
+      "duration_s": 0.326,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-ERR-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-03",
+      "status": "pass",
+      "duration_s": 12.013,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-ERR-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-04",
+      "status": "pass",
+      "duration_s": 0.587,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-ERR-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-05",
+      "status": "pass",
+      "duration_s": 0.691,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-ERR-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-07",
+      "status": "pass",
+      "duration_s": 0.8,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-ERR-07.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-01",
+      "status": "pass",
+      "duration_s": 0.261,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-FUNC-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-02",
+      "status": "pass",
+      "duration_s": 0.033,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-FUNC-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-03",
+      "status": "pass",
+      "duration_s": 0.071,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-FUNC-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-04",
+      "status": "pass",
+      "duration_s": 0.051,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-FUNC-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-05",
+      "status": "pass",
+      "duration_s": 0.02,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-FUNC-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-06",
+      "status": "pass",
+      "duration_s": 0.027,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-FUNC-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-07",
+      "status": "pass",
+      "duration_s": 0.227,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-FUNC-07.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-08",
+      "status": "pass",
+      "duration_s": 0.231,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-FUNC-08.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-DIR-01",
+      "status": "pass",
+      "duration_s": 0.055,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-FUNC-DIR-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-DIR-02",
+      "status": "pass",
+      "duration_s": 2.932,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-FUNC-DIR-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-DIR-03",
+      "status": "pass",
+      "duration_s": 0.08,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-FUNC-DIR-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-INT-01",
+      "status": "pass",
+      "duration_s": 6.084,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-INT-01.log",
+        "evidence/2026-11-15-a983be6-A/I-INT-01.sha256.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-INT-03",
+      "status": "pass",
+      "duration_s": 0.031,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-INT-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-INT-CYCLE-01",
+      "status": "pass",
+      "duration_s": 7.97,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-INT-CYCLE-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-01",
+      "status": "pass",
+      "duration_s": 1.656,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-META-01.log",
+        "evidence/2026-11-15-a983be6-A/I-META-01.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-02",
+      "status": "pass",
+      "duration_s": 1.36,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-META-02.log",
+        "evidence/2026-11-15-a983be6-A/I-META-02.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-03",
+      "status": "pass",
+      "duration_s": 6.032,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-META-03.log",
+        "evidence/2026-11-15-a983be6-A/I-META-03.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-04",
+      "status": "pass",
+      "duration_s": 0.247,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-META-04.log",
+        "evidence/2026-11-15-a983be6-A/I-META-04.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-05",
+      "status": "pass",
+      "duration_s": 1.452,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-META-05.log",
+        "evidence/2026-11-15-a983be6-A/I-META-05.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-06",
+      "status": "pass",
+      "duration_s": 0.465,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-META-06.log",
+        "evidence/2026-11-15-a983be6-A/I-META-06.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-07",
+      "status": "pass",
+      "duration_s": 0.267,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-META-07.log",
+        "evidence/2026-11-15-a983be6-A/I-META-07.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-01",
+      "status": "pass",
+      "duration_s": 0.23,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-NAME-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-02",
+      "status": "pass",
+      "duration_s": 0.071,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-NAME-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-04",
+      "status": "pass",
+      "duration_s": 0.234,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-NAME-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-05",
+      "status": "pass",
+      "duration_s": 0.246,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-NAME-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-06",
+      "status": "pass",
+      "duration_s": 0.027,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-NAME-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-01",
+      "status": "pass",
+      "duration_s": 0.025,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-PERM-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-02",
+      "status": "pass",
+      "duration_s": 0.032,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-PERM-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-03",
+      "status": "pass",
+      "duration_s": 0.265,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-PERM-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-04",
+      "status": "pass",
+      "duration_s": 0.563,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-PERM-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-05",
+      "status": "pass",
+      "duration_s": 0.031,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-PERM-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-06",
+      "status": "pass",
+      "duration_s": 0.108,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-PERM-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-01",
+      "status": "pass",
+      "duration_s": 0.051,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-READ-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-02",
+      "status": "pass",
+      "duration_s": 0.251,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-READ-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-03",
+      "status": "pass",
+      "duration_s": 0.179,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-READ-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-04",
+      "status": "pass",
+      "duration_s": 0.337,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-READ-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-06",
+      "status": "pass",
+      "duration_s": 0.293,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-READ-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-07",
+      "status": "pass",
+      "duration_s": 0.175,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-READ-07.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-A1",
+      "status": "pass",
+      "duration_s": 0.228,
+      "evidence": [
+        "evidence/2026-11-15-a983be6-A/I-XATTR-A1.log"
+      ],
+      "note": null
+    }
+  ]
+}

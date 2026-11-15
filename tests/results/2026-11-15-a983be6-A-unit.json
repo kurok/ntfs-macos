@@ -1,0 +1,39 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "a983be67b9f1bfbc28dffd5d105548173846cfd4",
+  "dirty_tree": false,
+  "env": "A",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "Debian GNU/Linux 13 (trixie) aarch64",
+  "macfuse_version": null,
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-15T18:11:12Z",
+  "finished": "2026-11-15T18:14:29Z",
+  "cases": [
+    {
+      "id": "U-PROBE-ALL",
+      "status": "pass",
+      "duration_s": 0,
+      "evidence": [
+        "tests/results/evidence/2026-11-15-a983be6-audit/probe/summary.txt",
+        "tests/results/evidence/2026-11-15-a983be6-audit/probe/release.log",
+        "tests/results/evidence/2026-11-15-a983be6-audit/probe/asan.log",
+        "tests/results/evidence/2026-11-15-a983be6-audit/probe/ctest-release.xml",
+        "tests/results/evidence/2026-11-15-a983be6-audit/probe/ctest-asan.xml"
+      ],
+      "note": "tests/unit/probe/run.sh: probe ctest 25/25 release, 23/23 ASan+UBSan; probe.run over 71 fixture images incl. U-PROBE-*, U-PROBE-MIRROR-*, U-PROBE-NAMES-*, image hash unchanged in every run. Unit-level evidence produced by the M3 audit outside the harness (ctest via the named scripts); run on the clean tree at this commit; duration_s 0 means not measured per case."
+    },
+    {
+      "id": "U-VMK-ALL",
+      "status": "pass",
+      "duration_s": 0,
+      "evidence": [
+        "tests/results/evidence/2026-11-15-a983be6-audit/volmark/summary.txt",
+        "tests/results/evidence/2026-11-15-a983be6-audit/volmark/volmark-evidence.txt",
+        "tests/results/evidence/2026-11-15-a983be6-audit/volmark/ctest-release.xml",
+        "tests/results/evidence/2026-11-15-a983be6-audit/volmark/ctest-asan.xml"
+      ],
+      "note": "tests/unit/volmark/run.sh: U-VMK-01..10 in release and ASan+UBSan with the faultio build; 156-case cut sweep matches the crash table of ARCHITECTURE 3.6. Unit-level evidence produced by the M3 audit outside the harness (ctest via the named scripts); run on the clean tree at this commit; duration_s 0 means not measured per case."
+    }
+  ]
+}

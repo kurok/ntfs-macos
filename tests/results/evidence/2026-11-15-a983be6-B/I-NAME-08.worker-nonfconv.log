@@ -1,0 +1,5 @@
+# worker debug log lines about names starting with 'caf' (bytes shown as hex; NFC=636166c3a9, NFD=63616665cc81)
+LOOKUP / /636166c3a9
+getattr / /636166c3a9
+LOOKUP / /63616665cc81
+getattr / /63616665cc81

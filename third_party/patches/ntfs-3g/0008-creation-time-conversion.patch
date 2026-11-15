@@ -1,0 +1,76 @@
+ntfs-3g (ntfs-macos) patch 0008: convert creation and change times in the macFUSE glue (macOS only)
+
+Rationale (T-M3-22, ADR-024, docs/spikes/M3-metadata.md): the macFUSE backend calls the FUSE
+operation setcrtime right after every create. The macOS-only functions in src/ntfs-3g.c store or
+read tv_sec as if it were an NTFS FILETIME, with no conversion:
+  - ntfs_macfuse_setcrtime:   ni->creation_time = cpu_to_sle64(tv->tv_sec)
+  - ntfs_macfuse_setchgtime:  ni->last_mft_change_time = cpu_to_sle64(tv->tv_sec)
+  - ntfs_macfuse_getxtimes:   crtime->tv_sec = sle64_to_cpu(ni->creation_time), nanoseconds 0
+A file made at Unix second S gets the creation FILETIME S, which is 1601-01-01 00:02:59 for a time
+in late 2026 (S = 1794692339 gives 179 s). The nanoseconds are dropped. Windows shows that as "Date
+created" for every file and directory made through macFUSE, and for .fseventsd in each root.
+$FILE_NAME creation time is not affected. On the read side the creation time is a huge FILETIME
+read as seconds.
+Hunks (src/ntfs-3g.c, three single-line changes inside the existing macOS block):
+  - ntfs_macfuse_getxtimes:  *crtime = ntfs2timespec(ni->creation_time)
+  - ntfs_macfuse_setcrtime:  ni->creation_time = timespec2ntfs(*tv)
+  - ntfs_macfuse_setchgtime: ni->last_mft_change_time = timespec2ntfs(*tv)
+  The helpers are the ones the rest of the file uses (ntfstime.h is already included). Nanoseconds
+  are kept, to 100 ns (the NTFS resolution).
+Scope: FUSE glue only, no change to libntfs-3g, allocation, runlists, MFT or index code. The three
+functions and the .getxtimes/.setcrtime/.setchgtime table entries sit under
+"#if defined(__APPLE__) || defined(__DARWIN__)", so the Linux build (Environment A, internal FUSE)
+compiles the same text as upstream. src/lowntfs-3g.c has the same three functions, but there they
+are under "#if 0 && (defined(__APPLE__) ...) /* Unfinished. */", so they are never compiled;
+lowntfs-3g is not patched (and is not shipped, see patch 0003).
+Not changed: ntfs_macfuse_setchgtime calls ntfs_fuse_update_times(ni, 0), which returns without
+marking the inode dirty, so the value it sets reaches the disk only if something else dirties the
+inode. The backend was not seen calling setchgtime (T-M3-06). ntfs_macfuse_setcrtime marks the
+inode dirty and moves the change time to now (NTFS_UPDATE_CTIME).
+macOS still shows no creation time: the backend does not call getxtimes, so st_birthtime stays
+1970-01-01 (limitation N17, ADR-024). system.ntfs_times reads the true value.
+Upstream status: not submitted. Report text, to be sent by a human:
+  Title: macFUSE getxtimes/setcrtime/setchgtime treat tv_sec as a raw FILETIME
+  Body:  In src/ntfs-3g.c (macOS block), ntfs_macfuse_setcrtime and ntfs_macfuse_setchgtime store
+  tv->tv_sec with cpu_to_sle64() and ntfs_macfuse_getxtimes returns sle64_to_cpu(creation_time) as
+  tv_sec. NTFS times are 100 ns ticks since 1601, so every file created through macFUSE (which calls
+  setcrtime after create) gets a creation time in $STANDARD_INFORMATION of about 1601-01-01 00:03,
+  the nanoseconds are lost, and getxtimes returns a meaningless value. Fix: use timespec2ntfs(*tv)
+  and ntfs2timespec(ni->creation_time), as the rest of the file does. Seen with NTFS-3G 2026.9.28
+  and macFUSE 5.5.0 on macOS 27. lowntfs-3g.c has the same code under "#if 0".
+  Separately, setchgtime calls ntfs_fuse_update_times(ni, 0), which does not mark the inode dirty,
+  so the set value is not written unless something else dirties the inode.
+Test: I-META-01 and I-META-04 (tests/integration/metadata/i_meta.py, Environments A and B): the
+$STANDARD_INFORMATION creation time of new files and directories is the create time, and
+setattrlist(ATTR_CMN_CRTIME) stores the value set, to 100 ns.
+
+diff -ruN a/src/ntfs-3g.c b/src/ntfs-3g.c
+--- a/src/ntfs-3g.c	2026-11-15 08:52:28.219669178 +0000
++++ b/src/ntfs-3g.c	2026-11-15 08:52:28.234692204 +0000
+@@ -601,7 +601,7 @@
+ 	}
+ 	
+ 	/* We have no backup timestamp in NTFS. */
+-	crtime->tv_sec = sle64_to_cpu(ni->creation_time);
++	*crtime = ntfs2timespec(ni->creation_time);
+ exit:
+ 	if (ntfs_inode_close(ni))
+ 		set_fuse_error(&res);
+@@ -623,7 +623,7 @@
+ 		return -errno;
+ 	
+ 	if (tv) {
+-		ni->creation_time = cpu_to_sle64(tv->tv_sec);
++		ni->creation_time = timespec2ntfs(*tv);
+ 		ntfs_fuse_update_times(ni, NTFS_UPDATE_CTIME);
+ 	}
+ 
+@@ -665,7 +665,7 @@
+ 		return -errno;
+ 
+ 	if (tv) {
+-		ni->last_mft_change_time = cpu_to_sle64(tv->tv_sec);
++		ni->last_mft_change_time = timespec2ntfs(*tv);
+ 		ntfs_fuse_update_times(ni, 0);
+ 	}
+ 

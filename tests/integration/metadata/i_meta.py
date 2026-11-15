@@ -36,10 +36,11 @@ TOUCH = "/usr/bin/touch" if ml.IS_MAC else "touch"
 PRODUCT_B = "noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022"
 PRODUCT_A = "noatime,fmask=0133,dmask=0022"
 
-# Environment B: the backend calls setcrtime after every create, and NTFS-3G's macOS code stores
-# tv_sec as the raw FILETIME (seconds as 100 ns ticks): $STANDARD_INFORMATION creation time is
-# 1601-01-01 00:0x. Environment A stores the real time. $FILE_NAME creation time is right in both.
-SI_CRTIME_IS_RAW_SECONDS = {"A": False, "B": True}
+# Environment B: the backend calls setcrtime after every create. Without patch 0008 (ADR-024)
+# NTFS-3G's macOS code stored tv_sec as a raw FILETIME (1601-01-01 00:0x, nanoseconds dropped); with
+# it, $STANDARD_INFORMATION creation time is the real create time, as in Environment A. The pin
+# SI_CRTIME_IS_RAW_SECONDS ({"A": False, "B": True}) was flipped by T-M3-22: a build without the patch
+# now fails I-META-01 and I-META-04. $FILE_NAME creation time is right in both.
 # Environment B shows the creation time as 1970-01-01 (getxtimes is not used by the backend).
 BIRTH_SHOWN = {"A": None, "B": 0}
 
@@ -132,13 +133,9 @@ def i_meta_01(ctx):
             bad.append("%s $FILE_NAME creation time %s is not near the clock" % (n, ml.fmt_ns(fnn["crtime"])))
         # creation time in $STANDARD_INFORMATION
         cr = si["crtime"]
-        if SI_CRTIME_IS_RAW_SECONDS[ctx.env]:
-            if not t0 // 10 ** 9 <= cr <= t1 // 10 ** 9:
-                bad.append("%s SI creation FILETIME %d is not the create time in seconds" % (n, cr))
-            ctx.log("%s SI creation time is %s: the create time in seconds stored as 100 ns ticks" % (n, ml.fmt_ns(d["crtime"])))
-        else:
-            if not t0 <= d["crtime"] <= t1:
-                bad.append("%s SI creation time %s is not near the clock" % (n, ml.fmt_ns(d["crtime"])))
+        ctx.log("%s SI creation time is %s (FILETIME %d)" % (n, ml.fmt_ns(d["crtime"]), cr))
+        if not t0 <= d["crtime"] <= t1:
+            bad.append("%s SI creation time %s is not near the clock (FILETIME %d)" % (n, ml.fmt_ns(d["crtime"]), cr))
         # creation time as the OS shows it
         want = BIRTH_SHOWN[ctx.env]
         if v["birth"] != want or live[n]["birth"] != want:
@@ -379,6 +376,7 @@ def i_meta_04(ctx):
     fsops.mount(ctx, vol)
     m = vol.mnt
     bad = []
+    t0 = ml.ts(time.time()) - 2 * 10 ** 9
     for n in ("c_attrlist", "c_xattr", "c_cp", "c_ref"):
         ctx.sh("echo x > %s/%s" % (m, n))
     obs = {}
@@ -442,19 +440,18 @@ def i_meta_04(ctx):
     if ents["c_xattr"][1]["crtime"] != ml.ns_to_ft(CR_XATTR):
         bad.append("c_xattr: SI creation FILETIME %d, asked %d" % (ents["c_xattr"][1]["crtime"], ml.ns_to_ft(CR_XATTR)))
     if ml.IS_MAC:
-        # setattrlist route: the backend stores tv_sec as raw FILETIME ticks (nsec dropped)
+        # setattrlist route (patch 0008): the value set is stored, to 100 ns
         got = ents["c_attrlist"][1]["crtime"]
-        want = CR_REQ // 10 ** 9
+        want = ml.ns_to_ft(CR_REQ)
         ctx.log("setattrlist route: asked %s, stored FILETIME %d (%s)" % (ml.fmt_ns(CR_REQ), got, ml.fmt_ns(ml.ft_to_ns(got))))
-        if SI_CRTIME_IS_RAW_SECONDS[ctx.env]:
-            if got != want:
-                bad.append("c_attrlist: SI creation FILETIME %d, expected the raw seconds %d" % (got, want))
-        # cp -p does not carry the APFS birth time: the file has the create-time garbage of every new file
+        if got != want:
+            bad.append("c_attrlist: SI creation FILETIME %d, asked %d (%s)" % (got, want, ml.fmt_ns(CR_REQ)))
+        # cp -p does not carry the APFS birth time: the copy has the create time of a new file
         gotc = ents["c_cp"][1]["crtime"]
         ctx.log("cp -p route: stored FILETIME %d (%s), the APFS birth time was not carried" % (gotc, ml.fmt_ns(ml.ft_to_ns(gotc))))
-        now_s = int(time.time())
-        if not now_s - 600 <= gotc <= now_s + 5:
-            bad.append("c_cp: SI creation FILETIME %d is not the create time in seconds" % gotc)
+        t1 = ml.ts(time.time()) + 2 * 10 ** 9
+        if not t0 <= ml.ft_to_ns(gotc) <= t1:
+            bad.append("c_cp: SI creation time %s is not the create time" % ml.fmt_ns(ml.ft_to_ns(gotc)))
     ml.dump_json(ctx, "observations.json", obs)
     fsops.fsck(ctx, vol)
     need(ctx, bad, "I-META-04")

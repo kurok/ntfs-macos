@@ -1,0 +1,84 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "6d22009a366dabb2c455e4ed05d08486b2d61d1c",
+  "dirty_tree": false,
+  "env": "A",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "Debian GNU/Linux 13 (trixie) aarch64",
+  "macfuse_version": null,
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-15T04:51:42Z",
+  "finished": "2026-11-15T04:51:52Z",
+  "cases": [
+    {
+      "id": "I-META-01",
+      "status": "pass",
+      "duration_s": 1.451,
+      "evidence": [
+        "evidence/2026-11-15-6d22009-A/I-META-01.log",
+        "evidence/2026-11-15-6d22009-A/I-META-01.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-02",
+      "status": "pass",
+      "duration_s": 1.355,
+      "evidence": [
+        "evidence/2026-11-15-6d22009-A/I-META-02.log",
+        "evidence/2026-11-15-6d22009-A/I-META-02.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-03",
+      "status": "pass",
+      "duration_s": 5.797,
+      "evidence": [
+        "evidence/2026-11-15-6d22009-A/I-META-03.log",
+        "evidence/2026-11-15-6d22009-A/I-META-03.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-04",
+      "status": "pass",
+      "duration_s": 0.025,
+      "evidence": [
+        "evidence/2026-11-15-6d22009-A/I-META-04.log",
+        "evidence/2026-11-15-6d22009-A/I-META-04.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-05",
+      "status": "pass",
+      "duration_s": 1.237,
+      "evidence": [
+        "evidence/2026-11-15-6d22009-A/I-META-05.log",
+        "evidence/2026-11-15-6d22009-A/I-META-05.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-06",
+      "status": "pass",
+      "duration_s": 0.045,
+      "evidence": [
+        "evidence/2026-11-15-6d22009-A/I-META-06.log",
+        "evidence/2026-11-15-6d22009-A/I-META-06.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-07",
+      "status": "pass",
+      "duration_s": 0.254,
+      "evidence": [
+        "evidence/2026-11-15-6d22009-A/I-META-07.log",
+        "evidence/2026-11-15-6d22009-A/I-META-07.observations.json"
+      ],
+      "note": null
+    }
+  ]
+}

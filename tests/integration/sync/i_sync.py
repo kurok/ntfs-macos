@@ -9,9 +9,17 @@ I-SYNC-01  Trace upstream ntfs_fsync() (libntfs-3g/unix_io.c) at each sync point
            the worker's own `-o debug` log. Done on an image file, on the buffered node (/dev/diskN) and
            on the raw node (/dev/rdiskN) of the same image attached with hdiutil, plus one run in which the
            interpose library makes F_FULLFSYNC fail, to show the fallback.
+           T-M3-21 (patch 0007, ADR-022): on the buffered node every sync point that reaches a dirty device,
+           and the unmount, must show one fsync followed by one ioctl(DKIOCSYNCHRONIZE) returning 0 and no
+           F_FULLFSYNC; the image file path is unchanged (one F_FULLFSYNC, no ioctl); a clean device shows
+           no call. A run in which the interpose library makes the ioctl fail shows that the application
+           still sees fsync's result (0) and the volume is intact.
 I-SYNC-02  Raw versus buffered node (U10): what the kernel accepts at the node (alignment), whether NTFS-3G
            can mount and write through each node without silent corruption, and a small benchmark of the
-           variants default (image file), `sync` mount option, buffered node and raw node.
+           variants default (image file), `sync` mount option, buffered node and raw node. T-M3-21: after a
+           patched session on the buffered node, the daemon-style flush (fsync, then DKIOCSYNCHRONIZE) on
+           the node, opened again after the worker exited, returns 0; ntfsfix -n and a read-only remount
+           by path pass.
 
 Everything runs in the Environment B guest on images this module creates in the case's work directory;
 the only device nodes touched are the ones hdiutil returns for those images (checked by size and
@@ -141,7 +149,7 @@ class Dev(object):
 # The worker: ntfs-3g in the foreground with a time-stamped copy of its output
 # ---------------------------------------------------------------------------------------------
 class Worker(object):
-    def __init__(self, ctx, dev, tag, opts="", ro=False, debug=True, spy=None, fail_fullfsync=False):
+    def __init__(self, ctx, dev, tag, opts="", ro=False, debug=True, spy=None, fail_fullfsync=False, fail=None):
         self.ctx = ctx
         self.dev = dev
         self.tag = tag
@@ -168,7 +176,9 @@ class Worker(object):
             env["DYLD_INSERT_LIBRARIES"] = spy
             env["NTFSMAC_SYNCSPY_LOG"] = self.spy_log
             if fail_fullfsync:
-                env["NTFSMAC_SYNCSPY_FAIL"] = "fullfsync"
+                fail = "fullfsync"
+            if fail:
+                env["NTFSMAC_SYNCSPY_FAIL"] = fail
         self.env = env
 
     def _read(self):
@@ -288,11 +298,15 @@ def point(w, name, t0, t1, ret, end=None):
     lo, hi = t0 - 0.02, (end if end is not None else t1 + 0.1)
     fsync = [f for f in w.fuse if lo <= f[0] <= hi and f[1] == "FSYNC"]
     destroy = [f for f in w.fuse if lo <= f[0] <= hi and f[1] == "DESTROY"]
-    spy = [r for r in w.spy_records() if lo <= r["t"] <= hi and r["ev"] in ("fullfsync", "fsync")]
+    spy = [r for r in w.spy_records() if lo <= r["t"] <= hi and r["ev"] in ("fullfsync", "fsync", "dksync")]
     full = [r for r in spy if r["ev"] == "fullfsync"]
     plain = [r for r in spy if r["ev"] == "fsync"]
+    dk = [r for r in spy if r["ev"] == "dksync"]
     first = full[0] if full else None
+    lead = first or (plain[0] if plain else None)
     fallback = bool(first and first["rc"] != 0 and plain)
+    # Records keep the order of the log (one write(2) per line, appended): fsync must come before the ioctl.
+    fsync_then_dk = bool(plain and dk and spy.index(plain[0]) < spy.index(dk[0]))
     return {
         "point": name,
         "app_ret": ret,
@@ -304,11 +318,17 @@ def point(w, name, t0, t1, ret, end=None):
         "fullfsync_rc": first["rc"] if first else None,
         "fullfsync_errno": first["errno"] if first else None,
         "fullfsync_ms": round(first["us"] / 1000.0, 2) if first else None,
-        "dirty_writes_before": first["writes"] if first else None,
-        "dirty_bytes_before": first["bytes"] if first else None,
+        "dirty_writes_before": lead["writes"] if lead else None,
+        "dirty_bytes_before": lead["bytes"] if lead else None,
         "device_fsync": len(plain),
+        "fsync_rc": plain[0]["rc"] if plain else None,
+        "device_dksync": len(dk),
+        "dksync_rc": dk[0]["rc"] if dk else None,
+        "dksync_errno": dk[0]["errno"] if dk else None,
+        "dksync_ms": round(dk[0]["us"] / 1000.0, 2) if dk else None,
+        "fsync_then_dksync": fsync_then_dk,
         "fallback_ran": fallback,
-        "device_node": first["path"] if first else (plain[0]["path"] if plain else None),
+        "device_node": lead["path"] if lead else None,
     }
 
 
@@ -365,9 +385,9 @@ def verify_by_path(ctx, dev, expected, tag):
 # ---------------------------------------------------------------------------------------------
 # I-SYNC-01
 # ---------------------------------------------------------------------------------------------
-def sync_points(ctx, dev, tag, spy, fail_fullfsync=False):
+def sync_points(ctx, dev, tag, spy, fail_fullfsync=False, fail=None):
     """Mount, exercise every sync point the worker can get, unmount. Returns (points, expected hashes, worker)."""
-    w = Worker(ctx, dev, tag, spy=spy, fail_fullfsync=fail_fullfsync)
+    w = Worker(ctx, dev, tag, spy=spy, fail_fullfsync=fail_fullfsync, fail=fail)
     w.start()
     time.sleep(3.0)  # macOS fsyncs .fseventsd four times right after the mount; let that finish first
     pts = []
@@ -414,16 +434,17 @@ def sync_points(ctx, dev, tag, spy, fail_fullfsync=False):
 
 def trace_report(title, pts):
     cols = ["point", "fuse_fsync", "fuse_destroy", "device_fullfsync", "fullfsync_rc", "fullfsync_errno",
-            "fullfsync_ms", "dirty_writes_before", "device_fsync", "fallback_ran", "app_ret", "app_ms"]
+            "fullfsync_ms", "dirty_writes_before", "device_fsync", "fsync_rc", "device_dksync", "dksync_rc",
+            "dksync_errno", "dksync_ms", "fsync_then_dksync", "fallback_ran", "app_ret", "app_ms"]
     return "== %s\n%s\n" % (title, fmt_table(pts, cols))
 
 
-def run_trace(ctx, kind, tag, spy, fail=False):
+def run_trace(ctx, kind, tag, spy, fail=False, fail_what=None):
     """One device kind through all sync points; returns (points, problems). A node that cannot be mounted
     is a result, not an error: the points are empty and the reason is returned."""
     dev = Dev(ctx, kind, tag)
     try:
-        pts, expected, w = sync_points(ctx, dev, tag, spy, fail_fullfsync=fail)
+        pts, expected, w = sync_points(ctx, dev, tag, spy, fail_fullfsync=fail, fail=fail_what)
     except MountFailed as e:
         ctx.log("%s: mount failed: %s" % (tag, e))
         w = e.worker
@@ -443,7 +464,7 @@ def run_trace(ctx, kind, tag, spy, fail=False):
         for t, op, node in w.fuse:
             if op in ("FSYNC", "FSYNCDIR", "DESTROY", "FLUSH", "RELEASE", "INIT"):
                 f.write("%.6f %s nodeid=%d\n" % (t, op, node))
-    return pts, bad, (fixrc, fixout)
+    return pts, bad, (fixrc, fixout, w)
 
 
 @case("I-SYNC-01", envs=("B",), title="device sync trace: F_FULLFSYNC and fallback at each sync point (ADR-014)")
@@ -480,14 +501,27 @@ def i_sync_01(ctx):
             need(label, fuse_fsync=("min", 1))
         need("sync(2), written and closed, no file open", fuse_fsync=0, device_fullfsync=0, device_fsync=0)
         need("unmount (FUSE_DESTROY)", fuse_destroy=1, fuse_fsync=0)
-        # The device side: exactly one F_FULLFSYNC for a dirty device, none for a clean one (device.c
-        # ntfs_device_sync() skips a clean device), and one unconditional sync at unmount (volume.c).
-        for label in ("fsync after write", "F_FULLFSYNC after write", "sync(2), file open and dirty"):
-            need(label, device_fullfsync=1, dirty_writes_before=("min", 1))
-        for label in ("fsync, nothing new written", "F_FULLFSYNC, nothing new written",
-                      "sync(2), file open, nothing new"):
-            need(label, device_fullfsync=0, device_fsync=0)
-        need("unmount (FUSE_DESTROY)", device_fullfsync=1)
+        # The device side. A dirty device gets exactly one device sync, a clean one none (device.c
+        # ntfs_device_sync() skips a clean device), and there is one unconditional sync at unmount (volume.c).
+        dirty = ("fsync after write", "F_FULLFSYNC after write", "sync(2), file open and dirty")
+        clean = ("fsync, nothing new written", "F_FULLFSYNC, nothing new written", "sync(2), file open, nothing new")
+        if kind == "file":
+            # Image file (regular file): upstream path unchanged, one F_FULLFSYNC, no ioctl (patch 0007).
+            for label in dirty:
+                need(label, device_fullfsync=1, dirty_writes_before=("min", 1), device_dksync=0)
+            for label in clean:
+                need(label, device_fullfsync=0, device_fsync=0, device_dksync=0)
+            need("unmount (FUSE_DESTROY)", device_fullfsync=1, device_dksync=0)
+        else:
+            # Buffered node (patch 0007, ADR-022): fsync, then DKIOCSYNCHRONIZE returning 0, no F_FULLFSYNC.
+            for label in dirty + ("unmount (FUSE_DESTROY)",):
+                need(label, device_fullfsync=0, device_fsync=1, fsync_rc=0, device_dksync=1, dksync_rc=0,
+                     fsync_then_dksync=True, fallback_ran=False)
+            for label in dirty:
+                need(label, dirty_writes_before=("min", 1))
+            for label in clean:
+                need(label, device_fullfsync=0, device_fsync=0, device_dksync=0)
+            need("sync(2), written and closed, no file open", device_dksync=0)
         # The fallback flag must agree with the result of F_FULLFSYNC.
         for p in pts:
             if p["device_fullfsync"] and p["fallback_ran"] != (p["fullfsync_rc"] != 0):
@@ -495,6 +529,39 @@ def i_sync_01(ctx):
                                 (kind, p["point"], p["fallback_ran"], p["fullfsync_rc"]))
             if p["app_ret"] not in (None, 0) and p["point"] != "unmount (FUSE_DESTROY)":
                 problems.append("%s / %s: the application call returned %r" % (kind, p["point"], p["app_ret"]))
+
+    # Injected DKIOCSYNCHRONIZE failure on the buffered node (patch 0007): fsync's result is returned, so the
+    # application and the unmount see no error, the failure is on the worker's log, the volume is intact.
+    pts, bad, fix = run_trace(ctx, "buffered", "injectdk", spy, fail_what="dksync")
+    if pts is None:
+        problems.append("injectdk: mount failed: %s" % bad)
+    else:
+        result["kinds"]["buffered-dksync-fails"] = {"mounted": True, "points": pts, "data_mismatch": bad,
+                                                    "ntfsfix_rc": fix[0]}
+        with open(ctx.evidence_file("trace-buffered-dksync-fails.txt"), "w", encoding="utf-8") as f:
+            f.write(trace_report("device kind: buffered node, DKIOCSYNCHRONIZE made to fail with EIO", pts))
+        ctx.log(trace_report("buffered, DKIOCSYNCHRONIZE fails", pts))
+        for p in pts:
+            if p["device_fsync"] or p["device_dksync"]:
+                if (p["device_fullfsync"] or p["device_fsync"] != 1 or p["fsync_rc"] != 0 or p["device_dksync"] != 1
+                        or p["dksync_rc"] != -1 or p["dksync_errno"] != 5 or not p["fsync_then_dksync"]):
+                    problems.append("injectdk / %s: expected fsync rc 0 then a failed ioctl (EIO), got %r" %
+                                    (p["point"], p))
+            if p["app_ret"] not in (None, 0):
+                problems.append("injectdk / %s: the application or the unmount saw an error (%r); fsync's result is returned"
+                                % (p["point"], p["app_ret"]))
+        by = dict((p["point"], p) for p in pts)
+        for label in ("fsync after write", "unmount (FUSE_DESTROY)"):
+            if by[label]["device_dksync"] != 1:
+                problems.append("injectdk / %s: no DKIOCSYNCHRONIZE call recorded" % label)
+        logged = [t for _t, t in fix[2].lines if "DKIOCSYNCHRONIZE" in t]
+        result["kinds"]["buffered-dksync-fails"]["worker_log_lines"] = logged[:3]
+        if not logged:
+            problems.append("injectdk: the failed flush is not on the worker's log")
+        if bad:
+            problems.append("injectdk: data differs after remount by path: %s" % bad[0])
+        if fix[0] != 0:
+            problems.append("injectdk: ntfsfix -n found a problem after the run (rc=%d)" % fix[0])
 
     # Injected F_FULLFSYNC failure on the image file: the fallback must run, and the application must not see it.
     pts, bad, fix = run_trace(ctx, "file", "inject", spy, fail=True)
@@ -626,6 +693,27 @@ def node_io(ctx):
     return res
 
 
+def daemon_flush(dev):
+    """What the daemon does on its copy of the descriptor after the worker exited: fsync, then
+    ioctl(DKIOCSYNCHRONIZE) on the buffered node. Returns {"fsync": 0 or errno, "dksync": 0 or errno}."""
+    res = {}
+    fd = dev.open_fd()
+    try:
+        try:
+            os.fsync(fd)
+            res["fsync"] = 0
+        except OSError as e:
+            res["fsync"] = e.errno
+        try:
+            fcntl.ioctl(fd, DKIOCSYNCHRONIZE, struct.pack("QQI4x", 0, 0, 0))
+            res["dksync"] = 0
+        except OSError as e:
+            res["dksync"] = e.errno
+    finally:
+        dev.close_fd()
+    return res
+
+
 FILE_SIZES = (1, 100, 511, 512, 513, 4095, 4096, 4097, 100000, 1 * MIB, 1 * MIB + 1, 5 * MIB + 777)
 
 
@@ -684,6 +772,16 @@ def correctness(ctx, kind, tag, spy):
                 expected.pop(name, None)  # state after a failed update is unknown: do not claim it
     finally:
         w.stop()
+    if kind == "buffered":
+        # The daemon's own flush after the worker exited (ADR-022): open the node again, fsync, then
+        # DKIOCSYNCHRONIZE; both must return 0.
+        out["daemon_flush"] = daemon_flush(dev)
+    # Device sync calls of the whole session (patch 0007). Calls on the device only: the image path ends
+    # in .img (regular file), the node path starts with /dev/.
+    recs = [r for r in w.spy_records() if r["ev"] in ("fullfsync", "fsync", "dksync") and
+            (r["path"].startswith("/dev/") or r["path"].endswith(".img"))]
+    out["sync_calls"] = {ev: len([r for r in recs if r["ev"] == ev]) for ev in ("fullfsync", "fsync", "dksync")}
+    out["dksync_bad_rc"] = [r["rc"] for r in recs if r["ev"] == "dksync" and r["rc"] != 0][:5]
     out["op_errors"] = errors
     out["files_expected_ok"] = len(expected)
     bad, fixrc, fixout = verify_by_path(ctx, dev, expected, tag)
@@ -859,6 +957,21 @@ def i_sync_02(ctx):
                 problems.append("%s: operations failed: %r" % (kind, c["op_errors"]))
             if kind in ("file", "buffered") and c["ntfsfix_rc"] != 0:
                 problems.append("%s: ntfsfix -n found a problem after the run (rc=%d)" % (kind, c["ntfsfix_rc"]))
+            # Patch 0007: a node session syncs with fsync then DKIOCSYNCHRONIZE (every fsync of the workload,
+            # the mount and the unmount reach a dirty device), never F_FULLFSYNC; an image file session is
+            # unchanged: F_FULLFSYNC, no ioctl.
+            sc = c["sync_calls"]
+            if kind == "buffered":
+                if sc["fullfsync"] or sc["dksync"] != sc["fsync"] or sc["dksync"] < len(FILE_SIZES) or c["dksync_bad_rc"]:
+                    problems.append("buffered: device sync calls %r (DKIOCSYNCHRONIZE failures %r), expected one "
+                                    "DKIOCSYNCHRONIZE per fsync, at least %d, no F_FULLFSYNC" %
+                                    (sc, c["dksync_bad_rc"], len(FILE_SIZES)))
+                df = c["daemon_flush"]
+                if df["fsync"] != 0 or df["dksync"] != 0:
+                    problems.append("buffered: the daemon-style flush after the worker exited failed: %r" % df)
+            elif kind == "file":
+                if sc["dksync"] or not sc["fullfsync"]:
+                    problems.append("file: device sync calls %r, expected F_FULLFSYNC and no DKIOCSYNCHRONIZE" % sc)
     result["correctness"] = corr
 
     # C. benchmark

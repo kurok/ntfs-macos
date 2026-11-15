@@ -1,17 +1,20 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
- * syncspy - T-M3-10: test-only DYLD interpose library that records the device-level sync calls of
- * the NTFS-3G worker (libntfs-3g/unix_io.c ntfs_fsync(): fcntl(F_FULLFSYNC), then fsync() as the
- * fallback). It is loaded with DYLD_INSERT_LIBRARIES into a worker that the case built itself;
+ * syncspy - T-M3-10, T-M3-21: test-only DYLD interpose library that records the device-level sync calls
+ * of the NTFS-3G worker (libntfs-3g/unix_io.c ntfs_fsync(): upstream fcntl(F_FULLFSYNC), then fsync() as
+ * the fallback; with patch 0007 on a device node fsync(), then ioctl(DKIOCSYNCHRONIZE)). It is loaded with DYLD_INSERT_LIBRARIES into a worker that the case built itself;
  * nothing of it is part of the shipped build and no patch is involved.
  *
- * It interposes fcntl, fsync, open, pread, pwrite and write. Reads and successful writes are not
+ * It interposes fcntl, ioctl, fsync, open, pread, pwrite and write. Reads and successful writes are not
  * logged; successful writes are counted between sync calls.
  *
  * Environment:
  *   NTFSMAC_SYNCSPY_LOG     file that receives the records (appended, one write(2) per line); unset: no output
  *   NTFSMAC_SYNCSPY_FAIL    "fullfsync": F_FULLFSYNC is not issued and fails with ENOTTY, to show the
- *                           fallback path (upstream then calls fsync()); anything else: no injection
+ *                           fallback path (upstream then calls fsync());
+ *                           "dksync": ioctl(DKIOCSYNCHRONIZE) is not issued and fails with EIO, to show
+ *                           that patch 0007 returns fsync()'s result;
+ *                           anything else: no injection
  *   NTFSMAC_SYNCSPY_WRITES  set: also one record per successful device write (debugging)
  *
  * Record (CLOCK_REALTIME, the clock the case driver uses too):
@@ -19,7 +22,9 @@
  * Events:
  *   open                  open() of a /dev node or of an .img file
  *   fullfsync, fsync      the sync call; us is its duration; writes and bytes count the write calls on any
- *                         device or image descriptor since the last sync record
+ *                         device or image descriptor since the last fullfsync or fsync record
+ *   dksync                ioctl(DKIOCSYNCHRONIZE); rc, errno and us as above; the write counters are
+ *                         printed but not reset (fsync comes first and resets them)
  *   pread-fail            a failed pread; the path field holds off and len
  *   pwrite-fail           a failed pwrite; same
  *   write-fail            a failed write; same (off is the current file offset)
@@ -34,6 +39,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/disk.h>
+#include <sys/ioctl.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -126,6 +133,35 @@ static int my_fcntl(int fd, int cmd, ...)
 	return fcntl(fd, cmd, arg);
 }
 
+static int my_ioctl(int fd, unsigned long req, ...)
+{
+	va_list ap;
+	void *arg;
+	int rc, err;
+	long long t0, us;
+
+	va_start(ap, req);
+	arg = va_arg(ap, void *);
+	va_end(ap);
+	if (req == DKIOCSYNCHRONIZE) {
+		const char *f = getenv("NTFSMAC_SYNCSPY_FAIL");
+
+		t0 = now_us();
+		if (f != NULL && strcmp(f, "dksync") == 0) {
+			rc = -1;
+			err = EIO;
+		} else {
+			rc = ioctl(fd, req, arg);
+			err = rc < 0 ? errno : 0;
+		}
+		us = now_us() - t0;
+		rec("dksync", fd, NULL, rc, err, 1, us, 1);
+		errno = err;
+		return rc;
+	}
+	return ioctl(fd, req, arg);
+}
+
 static int my_fsync(int fd)
 {
 	long long t0 = now_us();
@@ -213,6 +249,7 @@ static ssize_t my_pread(int fd, void *buf, size_t n, off_t off)
 }
 
 INTERPOSE(my_fcntl, fcntl);
+INTERPOSE(my_ioctl, ioctl);
 INTERPOSE(my_fsync, fsync);
 INTERPOSE(my_open, open);
 INTERPOSE(my_pwrite, pwrite);

@@ -1,0 +1,92 @@
+ntfs-macos patch 0007: flush a device node with fsync then DKIOCSYNCHRONIZE (macOS only)
+
+Rationale (T-M3-21, ADR-022, ADR-014, docs/spikes/M3-sync.md): on macOS upstream ntfs_fsync() calls
+fcntl(fd, F_FULLFSYNC) and, if that returns non-zero for any reason, silently falls back to
+fsync(fd). Measured on macOS 27.2 (T-M3-10): F_FULLFSYNC fails with ENOTTY on every block and
+character device node tried (/dev/diskN and /dev/rdiskN of a disk image, and of a VirtIO disk), so
+on a device node the fallback is the normal path, fsync() on a device node does not ask the drive
+to flush its write cache, and nothing reports it. ioctl(DKIOCSYNCHRONIZE) returned 0 on the same
+nodes. ntfs-macos mounts device nodes, so without this patch no sync point of the worker (an
+application's fsync, the unmount) flushes the drive cache.
+Hunks (libntfs-3g/unix_io.c only):
+  - on __APPLE__, #include <sys/disk.h> (DKIOCSYNCHRONIZE, dk_synchronize_t), before ntfs_fsync().
+  - ntfs_fsync(), on __APPLE__ only: the descriptor type decides. fstat() says block or character
+    device: fsync(fd), then ioctl(fd, DKIOCSYNCHRONIZE, &{offset 0, length 0, options 0}), which
+    flushes the whole device; the function returns fsync()'s result. A failed ioctl is logged with
+    ntfs_log_perror() and does not change the result (a drive that cannot be flushed must not turn
+    a session that wrote its data into a failed one; ntfs-macos patch 0006 reports it as a
+    "W flush" record). errno is fsync()'s when fsync() failed. Regular file (disk image, tests), or
+    fstat() fails: the upstream code is unchanged, F_FULLFSYNC then the fsync() fallback.
+Callers are unchanged: ntfs_device_unix_io_sync(), ntfs_device_unix_io_close() and, through
+__ntfs_volume_release(), every read/write unmount reach the new code, and ntfs_device_sync() still
+skips a device that is not dirty.
+Scope: device layer, one function, __APPLE__ only. The Linux and other-OS build is the upstream
+code (the new lines are inside #if defined(__APPLE__) || defined(__DARWIN__)); only line numbers
+after the hunk move. Nothing touches allocation, runlists, MFT or index code. The patch applies
+with and without patch 0004 (the faultio macros are on other lines).
+Upstream status: not submitted. Sending is a human decision. Report text (for the ntfs-3g
+project, https://github.com/tuxera/ntfs-3g/issues):
+  Title: macOS: ntfs_fsync() never flushes the drive cache of a device node
+  Body:  On macOS libntfs-3g/unix_io.c ntfs_fsync() calls fcntl(fd, F_FULLFSYNC) and falls back to
+         fsync(fd) if that fails. F_FULLFSYNC is a file system operation: on a block or character
+         device node (/dev/diskN, /dev/rdiskN) it fails with ENOTTY on macOS 27.2 (checked on a disk
+         image attached with hdiutil and on a VirtIO disk). The fallback then runs at every sync
+         point and the failure is silent, so ntfs-3g mounted from a device node never asks the
+         drive to flush its write cache, at unmount or on fsync. On such a node the device-level
+         call is ioctl(fd, DKIOCSYNCHRONIZE, &dk_synchronize_t) from <sys/disk.h>; it returned 0 on
+         the same nodes. Proposed change: when fstat() says S_ISBLK or S_ISCHR, call fsync() then
+         ioctl(DKIOCSYNCHRONIZE) with a zeroed dk_synchronize_t (whole device); keep F_FULLFSYNC
+         for regular files. Return fsync()'s result and log a failed flush. Not tested on a
+         physical drive. Patch attached (this file's diff).
+Test: I-SYNC-01, I-SYNC-02 (tests/integration/sync/i_sync.py with syncspy.c): on a buffered
+device node every sync point that reaches a dirty device, and the unmount, shows fsync then
+DKIOCSYNCHRONIZE returning 0 and no F_FULLFSYNC; an image file still shows one F_FULLFSYNC.
+Real drives: Environment C (H-USB-*), where the effect of the flush on a drive cache is checked.
+The character-device branch (/dev/rdiskN) is covered only by the T-M3-10 spike (ioctl returns 0):
+the raw node does not mount, so I-SYNC has no sync point on it.
+
+diff -ruN a/libntfs-3g/unix_io.c b/libntfs-3g/unix_io.c
+--- a/libntfs-3g/unix_io.c	2026-11-15 08:53:12.600348577 +0000
++++ b/libntfs-3g/unix_io.c	2026-11-15 08:53:35.028641480 +0000
+@@ -105,6 +105,10 @@
+ #	define O_EXCL 0
+ #endif
+ 
++#if defined(__APPLE__) || defined(__DARWIN__)
++#include <sys/disk.h>
++#endif
++
+ /**
+  * fsync replacement which makes every effort to try to get the data down to
+  * disk, using different means for different operating systems. Specifically,
+@@ -120,6 +124,30 @@
+ # ifndef F_FULLFSYNC
+ #  error "Mac OS X: F_FULLFSYNC is not defined. Either you didn't include fcntl.h or you're using an older, unsupported version of Mac OS X (pre-10.3)."
+ # endif
++	struct stat st;
++
++	/*
++	 * ntfs-macos patch 0007 (ADR-022): a block or character device
++	 * refuses F_FULLFSYNC with ENOTTY, so below it would only fall
++	 * through to a plain fsync() and never ask the drive to flush its
++	 * cache. Flush a device node with fsync() and then
++	 * ioctl(DKIOCSYNCHRONIZE), the device equivalent. The result is
++	 * fsync()'s; a failed flush is logged and does not change it.
++	 * Regular files keep the code below unchanged.
++	 */
++	if (!fstat(fildes, &st) && (S_ISBLK(st.st_mode) || S_ISCHR(st.st_mode))) {
++		dk_synchronize_t dk;
++		int err;
++
++		ret = fsync(fildes);
++		err = errno;
++		memset(&dk, 0, sizeof(dk));
++		if (ioctl(fildes, DKIOCSYNCHRONIZE, &dk))
++			ntfs_log_perror("DKIOCSYNCHRONIZE failed");
++		if (ret)
++			errno = err;
++		return ret;
++	}
+ 	/* 
+ 	 * Apple has disabled fsync() for internal disk drives in OS X.
+ 	 * To force a synchronization of disk contents, we use a Mac OS X

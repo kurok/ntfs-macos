@@ -13,7 +13,7 @@
 #   1. nm (every symbol, local ones included) of libntfs-3g.a, ntfs-3g, ntfsfix and mkntfs
 #      has no "faultio" symbol, and strings finds no NTFSMAC_FAULT text in them;
 #   2. unix_io.o of the release build disassembles (objdump -dr) and lists symbols (nm)
-#      identically to unix_io.o built from the tarball with the series up to 0003 only,
+#      identically to unix_io.o built from the tarball with the series without 0004 to 0006,
 #      same configure line, so patch 0004 changes no code without --enable-faultio;
 #   3. positive control: the faultio build does contain the symbols and the text.
 # Exit: 0 proof holds, 1 failure.
@@ -39,7 +39,8 @@ build() { # NAME [extra build-ntfs3g args]
 build release
 build faultio --configure-arg --enable-faultio
 
-# Reference: series up to 0003 only, same configure line as the release build.
+# Reference: series without 0004 to 0006, same configure line as the release build.
+# T-M3-18 re-bases 0007 onto 0006; from then on the reference must be the full series minus 0004.
 ref=$out/build-ref
 rm -rf "$ref"
 mkdir -p "$ref"
@@ -77,9 +78,9 @@ nmx() { nm "$1" | awk '{ print $NF, $(NF-1) }' | sort; }
 if dis "$rel_o" >"$out/unix_io.release.dis" && dis "$ref_o" >"$out/unix_io.ref.dis" \
 	&& cmp -s "$out/unix_io.release.dis" "$out/unix_io.ref.dis" \
 	&& [ "$(nmx "$rel_o" | sha256sum)" = "$(nmx "$ref_o" | sha256sum)" ]; then
-	say "release unix_io.o equals the 0003-only reference: objdump -dr (.text .rodata .data) and nm identical ($(wc -l <"$out/unix_io.release.dis") lines)"
+	say "release unix_io.o equals the reference (series without 0004 to 0006): objdump -dr (.text .rodata .data) and nm identical ($(wc -l <"$out/unix_io.release.dis") lines)"
 else
-	say "FAIL: release unix_io.o differs from the 0003-only reference"
+	say "FAIL: release unix_io.o differs from the reference (series without 0004 to 0006)"
 	diff "$out/unix_io.release.dis" "$out/unix_io.ref.dis" | head -20 | tee -a "$proof" >&2 || true
 	fail=1
 fi

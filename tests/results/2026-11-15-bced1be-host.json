@@ -1,0 +1,26 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "bced1befc5e92472add51c03b4cb9ca400fa2f70",
+  "dirty_tree": false,
+  "env": "host",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "macOS 27.2 (26B123) arm64",
+  "macfuse_version": "5.5.0",
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-15T05:35:57Z",
+  "finished": "2026-11-15T05:36:14Z",
+  "cases": [
+    {
+      "id": "I-BIG-COMP-01",
+      "status": "pass",
+      "duration_s": 15.214,
+      "evidence": [
+        "evidence/2026-11-15-bced1be-host/I-BIG-COMP-01.log",
+        "evidence/2026-11-15-bced1be-host/I-BIG-COMP-01.phase-a1.json",
+        "evidence/2026-11-15-bced1be-host/I-BIG-COMP-01.phase-a2.json",
+        "evidence/2026-11-15-bced1be-host/I-BIG-COMP-01.phase-b.json"
+      ],
+      "note": null
+    }
+  ]
+}

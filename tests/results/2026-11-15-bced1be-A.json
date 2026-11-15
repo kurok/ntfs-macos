@@ -1,0 +1,100 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "bced1befc5e92472add51c03b4cb9ca400fa2f70",
+  "dirty_tree": false,
+  "env": "A",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "Debian GNU/Linux 13 (trixie) aarch64",
+  "macfuse_version": null,
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-15T05:35:40Z",
+  "finished": "2026-11-15T05:35:57Z",
+  "cases": [
+    {
+      "id": "I-BIG-01",
+      "status": "pass",
+      "duration_s": 1.828,
+      "evidence": [
+        "evidence/2026-11-15-bced1be-A/I-BIG-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-BIG-SPARSE-01",
+      "status": "pass",
+      "duration_s": 4.074,
+      "evidence": [
+        "evidence/2026-11-15-bced1be-A/I-BIG-SPARSE-01.log",
+        "evidence/2026-11-15-bced1be-A/I-BIG-SPARSE-01.sparse01_all_hole.ntfsinfo.txt",
+        "evidence/2026-11-15-bced1be-A/I-BIG-SPARSE-01.sparse01_hole_end.ntfsinfo.txt",
+        "evidence/2026-11-15-bced1be-A/I-BIG-SPARSE-01.sparse01_hole_middle.ntfsinfo.txt",
+        "evidence/2026-11-15-bced1be-A/I-BIG-SPARSE-01.sparse01_hole_start.ntfsinfo.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-BIG-SPARSE-02",
+      "status": "pass",
+      "duration_s": 10.154,
+      "evidence": [
+        "evidence/2026-11-15-bced1be-A/I-BIG-SPARSE-02.log",
+        "evidence/2026-11-15-bced1be-A/I-BIG-SPARSE-02.sparse02.ntfsinfo.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-01",
+      "status": "pass",
+      "duration_s": 0.083,
+      "evidence": [
+        "evidence/2026-11-15-bced1be-A/I-READ-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-02",
+      "status": "pass",
+      "duration_s": 0.369,
+      "evidence": [
+        "evidence/2026-11-15-bced1be-A/I-READ-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-03",
+      "status": "pass",
+      "duration_s": 0.227,
+      "evidence": [
+        "evidence/2026-11-15-bced1be-A/I-READ-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-04",
+      "status": "pass",
+      "duration_s": 0.154,
+      "evidence": [
+        "evidence/2026-11-15-bced1be-A/I-READ-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-06",
+      "status": "pass",
+      "duration_s": 0.316,
+      "evidence": [
+        "evidence/2026-11-15-bced1be-A/I-READ-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-07",
+      "status": "pass",
+      "duration_s": 0.188,
+      "evidence": [
+        "evidence/2026-11-15-bced1be-A/I-READ-07.log"
+      ],
+      "note": null
+    }
+  ]
+}

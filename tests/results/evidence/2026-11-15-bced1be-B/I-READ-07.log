@@ -1,0 +1,314 @@
+05:39:45 start I-READ-07 (env B)
+05:39:46 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img -> rc=0
+05:39:46 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+05:39:46 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+05:39:46 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -c 512 -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img -> rc=0
+05:39:46 Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+05:39:46 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+05:39:46 volume formatted with -c 512, boot sector says 512
+05:39:46 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/mnt -> rc=0
+05:39:49 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+05:39:49 c512 warm k0 cached read(100): 0 reads: (none)
+05:39:49 c512 warm k0 cached read(8388608): 0 reads: (none)
+05:39:49 c512 warm k0 nocache read(100): 0 reads: (none)
+05:39:49 c512 warm k0 nocache read(8388608): 0 reads: (none)
+05:39:49 c512 warm k1 cached read(101): 1 reads: 1
+05:39:49 c512 warm k1 cached read(8388608): 1 reads: 1
+05:39:49 c512 warm k1 nocache read(101): 1 reads: 1
+05:39:49 c512 warm k1 nocache read(8388608): 1 reads: 1
+05:39:49 c512 warm k1023 cached read(1123): 1 reads: 1023
+05:39:49 c512 warm k1023 cached read(8388608): 1 reads: 1023
+05:39:49 c512 warm k1023 nocache read(1123): 1 reads: 1023
+05:39:49 c512 warm k1023 nocache read(8388608): 1 reads: 1023
+05:39:49 c512 warm k1024 cached read(1124): 1 reads: 1024
+05:39:49 c512 warm k1024 cached read(8388608): 1 reads: 1024
+05:39:49 c512 warm k1024 nocache read(1124): 1 reads: 1024
+05:39:49 c512 warm k1024 nocache read(8388608): 1 reads: 1024
+05:39:49 c512 warm k1025 cached read(1125): 1 reads: 1025
+05:39:49 c512 warm k1025 cached read(8388608): 1 reads: 1025
+05:39:49 c512 warm k1025 nocache read(1125): 1 reads: 1025
+05:39:49 c512 warm k1025 nocache read(8388608): 1 reads: 1025
+05:39:49 c512 warm k1048577 cached read(1048677): 1 reads: 1048577
+05:39:49 c512 warm k1048577 cached read(8388608): 1 reads: 1048577
+05:39:49 c512 warm k1048577 nocache read(1048677): 1 reads: 1048577
+05:39:49 c512 warm k1048577 nocache read(8388608): 1 reads: 1048577
+05:39:49 c512 warm k4095 cached read(4195): 1 reads: 4095
+05:39:49 c512 warm k4095 cached read(8388608): 1 reads: 4095
+05:39:49 c512 warm k4095 nocache read(4195): 1 reads: 4095
+05:39:49 c512 warm k4095 nocache read(8388608): 1 reads: 4095
+05:39:49 c512 warm k4096 cached read(4196): 1 reads: 4096
+05:39:49 c512 warm k4096 cached read(8388608): 1 reads: 4096
+05:39:49 c512 warm k4096 nocache read(4196): 1 reads: 4096
+05:39:49 c512 warm k4096 nocache read(8388608): 1 reads: 4096
+05:39:49 c512 warm k4097 cached read(4197): 1 reads: 4097
+05:39:49 c512 warm k4097 cached read(8388608): 1 reads: 4097
+05:39:49 c512 warm k4097 nocache read(4197): 1 reads: 4097
+05:39:49 c512 warm k4097 nocache read(8388608): 1 reads: 4097
+05:39:49 c512 warm k511 cached read(611): 1 reads: 511
+05:39:49 c512 warm k511 cached read(8388608): 1 reads: 511
+05:39:49 c512 warm k511 nocache read(611): 1 reads: 511
+05:39:49 c512 warm k511 nocache read(8388608): 1 reads: 511
+05:39:49 c512 warm k512 cached read(612): 1 reads: 512
+05:39:49 c512 warm k512 cached read(8388608): 1 reads: 512
+05:39:49 c512 warm k512 nocache read(612): 1 reads: 512
+05:39:49 c512 warm k512 nocache read(8388608): 1 reads: 512
+05:39:49 c512 warm k513 cached read(613): 1 reads: 513
+05:39:49 c512 warm k513 cached read(8388608): 1 reads: 513
+05:39:49 c512 warm k513 nocache read(613): 1 reads: 513
+05:39:49 c512 warm k513 nocache read(8388608): 1 reads: 513
+05:39:49 $ sync -> rc=0
+05:39:49 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/mnt -> rc=0
+05:39:49 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img -> rc=0
+05:39:49 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img was processed successfully.
+05:39:49 on disk k0: resident, 0 bytes
+05:39:49 on disk k1: resident, 1 bytes
+05:39:49 on disk k511: resident, 511 bytes
+05:39:49 on disk k512: resident, 512 bytes
+05:39:49 on disk k513: resident, 513 bytes
+05:39:49 on disk k1023: non-resident, size 1023 alloc 1024 init 1023
+05:39:49 on disk k1024: non-resident, size 1024 alloc 1024 init 1024
+05:39:49 on disk k1025: non-resident, size 1025 alloc 1536 init 1025
+05:39:49 on disk k4095: non-resident, size 4095 alloc 4096 init 4095
+05:39:49 on disk k4096: non-resident, size 4096 alloc 4096 init 4096
+05:39:49 on disk k4097: non-resident, size 4097 alloc 4608 init 4097
+05:39:49 on disk k1048577: non-resident, size 1048577 alloc 1049088 init 1048577
+05:39:49 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/mnt -> rc=0
+05:39:53 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+05:39:53 c512 cold k0 cached read(100): 0 reads: (none)
+05:39:53 c512 cold k0 cached read(8388608): 0 reads: (none)
+05:39:53 c512 cold k0 nocache read(100): 0 reads: (none)
+05:39:53 c512 cold k0 nocache read(8388608): 0 reads: (none)
+05:39:53 c512 cold k1 cached read(101): 1 reads: 1
+05:39:53 c512 cold k1 cached read(8388608): 1 reads: 1
+05:39:53 c512 cold k1 nocache read(101): 1 reads: 1
+05:39:53 c512 cold k1 nocache read(8388608): 1 reads: 1
+05:39:53 c512 cold k1023 cached read(1123): 1 reads: 1023
+05:39:53 c512 cold k1023 cached read(8388608): 1 reads: 1023
+05:39:53 c512 cold k1023 nocache read(1123): 1 reads: 1023
+05:39:53 c512 cold k1023 nocache read(8388608): 1 reads: 1023
+05:39:53 c512 cold k1024 cached read(1124): 1 reads: 1024
+05:39:53 c512 cold k1024 cached read(8388608): 1 reads: 1024
+05:39:53 c512 cold k1024 nocache read(1124): 1 reads: 1024
+05:39:53 c512 cold k1024 nocache read(8388608): 1 reads: 1024
+05:39:53 c512 cold k1025 cached read(1125): 1 reads: 1025
+05:39:53 c512 cold k1025 cached read(8388608): 1 reads: 1025
+05:39:53 c512 cold k1025 nocache read(1125): 1 reads: 1025
+05:39:53 c512 cold k1025 nocache read(8388608): 1 reads: 1025
+05:39:53 c512 cold k1048577 cached read(1048677): 1 reads: 1048577
+05:39:53 c512 cold k1048577 cached read(8388608): 1 reads: 1048577
+05:39:53 c512 cold k1048577 nocache read(1048677): 1 reads: 1048577
+05:39:53 c512 cold k1048577 nocache read(8388608): 1 reads: 1048577
+05:39:53 c512 cold k4095 cached read(4195): 1 reads: 4095
+05:39:53 c512 cold k4095 cached read(8388608): 1 reads: 4095
+05:39:53 c512 cold k4095 nocache read(4195): 1 reads: 4095
+05:39:53 c512 cold k4095 nocache read(8388608): 1 reads: 4095
+05:39:53 c512 cold k4096 cached read(4196): 1 reads: 4096
+05:39:53 c512 cold k4096 cached read(8388608): 1 reads: 4096
+05:39:53 c512 cold k4096 nocache read(4196): 1 reads: 4096
+05:39:53 c512 cold k4096 nocache read(8388608): 1 reads: 4096
+05:39:53 c512 cold k4097 cached read(4197): 1 reads: 4097
+05:39:53 c512 cold k4097 cached read(8388608): 1 reads: 4097
+05:39:53 c512 cold k4097 nocache read(4197): 1 reads: 4097
+05:39:53 c512 cold k4097 nocache read(8388608): 1 reads: 4097
+05:39:53 c512 cold k511 cached read(611): 1 reads: 511
+05:39:53 c512 cold k511 cached read(8388608): 1 reads: 511
+05:39:53 c512 cold k511 nocache read(611): 1 reads: 511
+05:39:53 c512 cold k511 nocache read(8388608): 1 reads: 511
+05:39:53 c512 cold k512 cached read(612): 1 reads: 512
+05:39:53 c512 cold k512 cached read(8388608): 1 reads: 512
+05:39:53 c512 cold k512 nocache read(612): 1 reads: 512
+05:39:53 c512 cold k512 nocache read(8388608): 1 reads: 512
+05:39:53 c512 cold k513 cached read(613): 1 reads: 513
+05:39:53 c512 cold k513 cached read(8388608): 1 reads: 513
+05:39:53 c512 cold k513 nocache read(613): 1 reads: 513
+05:39:53 c512 cold k513 nocache read(8388608): 1 reads: 513
+05:39:53 $ sync -> rc=0
+05:39:53 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/mnt -> rc=0
+05:39:53 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img -> rc=0
+05:39:53 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+05:39:53 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+05:39:53 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -c 65536 -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img -> rc=0
+05:39:53 Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+05:39:53 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img and it could not be obtained automatically.  It has been set to 0.
+Windows cannot use compression when the cluster size is larger than 4096 bytes.  Compression has been disabled for this volume.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+05:39:53 volume formatted with -c 65536, boot sector says 65536
+05:39:53 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/mnt -> rc=0
+05:39:56 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+05:39:56 c65536 warm k0 cached read(100): 0 reads: (none)
+05:39:56 c65536 warm k0 cached read(8388608): 0 reads: (none)
+05:39:56 c65536 warm k0 nocache read(100): 0 reads: (none)
+05:39:56 c65536 warm k0 nocache read(8388608): 0 reads: (none)
+05:39:56 c65536 warm k1 cached read(101): 1 reads: 1
+05:39:56 c65536 warm k1 cached read(8388608): 1 reads: 1
+05:39:56 c65536 warm k1 nocache read(101): 1 reads: 1
+05:39:56 c65536 warm k1 nocache read(8388608): 1 reads: 1
+05:39:56 c65536 warm k1048577 cached read(1048677): 1 reads: 1048577
+05:39:56 c65536 warm k1048577 cached read(8388608): 1 reads: 1048577
+05:39:56 c65536 warm k1048577 nocache read(1048677): 1 reads: 1048577
+05:39:56 c65536 warm k1048577 nocache read(8388608): 1 reads: 1048577
+05:39:56 c65536 warm k131071 cached read(131171): 1 reads: 131071
+05:39:56 c65536 warm k131071 cached read(8388608): 1 reads: 131071
+05:39:56 c65536 warm k131071 nocache read(131171): 1 reads: 131071
+05:39:56 c65536 warm k131071 nocache read(8388608): 1 reads: 131071
+05:39:56 c65536 warm k131072 cached read(131172): 1 reads: 131072
+05:39:56 c65536 warm k131072 cached read(8388608): 1 reads: 131072
+05:39:56 c65536 warm k131072 nocache read(131172): 1 reads: 131072
+05:39:56 c65536 warm k131072 nocache read(8388608): 1 reads: 131072
+05:39:56 c65536 warm k131073 cached read(131173): 1 reads: 131073
+05:39:56 c65536 warm k131073 cached read(8388608): 1 reads: 131073
+05:39:56 c65536 warm k131073 nocache read(131173): 1 reads: 131073
+05:39:56 c65536 warm k131073 nocache read(8388608): 1 reads: 131073
+05:39:56 c65536 warm k4095 cached read(4195): 1 reads: 4095
+05:39:56 c65536 warm k4095 cached read(8388608): 1 reads: 4095
+05:39:56 c65536 warm k4095 nocache read(4195): 1 reads: 4095
+05:39:56 c65536 warm k4095 nocache read(8388608): 1 reads: 4095
+05:39:56 c65536 warm k4096 cached read(4196): 1 reads: 4096
+05:39:56 c65536 warm k4096 cached read(8388608): 1 reads: 4096
+05:39:56 c65536 warm k4096 nocache read(4196): 1 reads: 4096
+05:39:56 c65536 warm k4096 nocache read(8388608): 1 reads: 4096
+05:39:56 c65536 warm k4097 cached read(4197): 1 reads: 4097
+05:39:56 c65536 warm k4097 cached read(8388608): 1 reads: 4097
+05:39:56 c65536 warm k4097 nocache read(4197): 1 reads: 4097
+05:39:56 c65536 warm k4097 nocache read(8388608): 1 reads: 4097
+05:39:56 c65536 warm k511 cached read(611): 1 reads: 511
+05:39:56 c65536 warm k511 cached read(8388608): 1 reads: 511
+05:39:56 c65536 warm k511 nocache read(611): 1 reads: 511
+05:39:56 c65536 warm k511 nocache read(8388608): 1 reads: 511
+05:39:56 c65536 warm k512 cached read(612): 1 reads: 512
+05:39:56 c65536 warm k512 cached read(8388608): 1 reads: 512
+05:39:56 c65536 warm k512 nocache read(612): 1 reads: 512
+05:39:56 c65536 warm k512 nocache read(8388608): 1 reads: 512
+05:39:56 c65536 warm k65535 cached read(65635): 1 reads: 65535
+05:39:56 c65536 warm k65535 cached read(8388608): 1 reads: 65535
+05:39:56 c65536 warm k65535 nocache read(65635): 1 reads: 65535
+05:39:56 c65536 warm k65535 nocache read(8388608): 1 reads: 65535
+05:39:56 c65536 warm k65536 cached read(65636): 1 reads: 65536
+05:39:56 c65536 warm k65536 cached read(8388608): 1 reads: 65536
+05:39:56 c65536 warm k65536 nocache read(65636): 1 reads: 65536
+05:39:56 c65536 warm k65536 nocache read(8388608): 1 reads: 65536
+05:39:56 c65536 warm k65537 cached read(65637): 1 reads: 65537
+05:39:56 c65536 warm k65537 cached read(8388608): 1 reads: 65537
+05:39:56 c65536 warm k65537 nocache read(65637): 1 reads: 65537
+05:39:56 c65536 warm k65537 nocache read(8388608): 1 reads: 65537
+05:39:56 $ sync -> rc=0
+05:39:56 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/mnt -> rc=0
+05:39:56 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img -> rc=0
+05:39:56 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img was processed successfully.
+05:39:56 on disk k0: resident, 0 bytes
+05:39:56 on disk k1: resident, 1 bytes
+05:39:56 on disk k511: resident, 511 bytes
+05:39:56 on disk k512: resident, 512 bytes
+05:39:56 on disk k4095: non-resident, size 4095 alloc 65536 init 4095
+05:39:56 on disk k4096: non-resident, size 4096 alloc 65536 init 4096
+05:39:56 on disk k4097: non-resident, size 4097 alloc 65536 init 4097
+05:39:56 on disk k65535: non-resident, size 65535 alloc 65536 init 65535
+05:39:56 on disk k65536: non-resident, size 65536 alloc 65536 init 65536
+05:39:56 on disk k65537: non-resident, size 65537 alloc 131072 init 65537
+05:39:56 on disk k131071: non-resident, size 131071 alloc 131072 init 131071
+05:39:56 on disk k131072: non-resident, size 131072 alloc 131072 init 131072
+05:39:56 on disk k131073: non-resident, size 131073 alloc 196608 init 131073
+05:39:56 on disk k1048577: non-resident, size 1048577 alloc 1114112 init 1048577
+05:39:56 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/mnt -> rc=0
+05:40:00 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+05:40:00 c65536 cold k0 cached read(100): 0 reads: (none)
+05:40:00 c65536 cold k0 cached read(8388608): 0 reads: (none)
+05:40:00 c65536 cold k0 nocache read(100): 0 reads: (none)
+05:40:00 c65536 cold k0 nocache read(8388608): 0 reads: (none)
+05:40:00 c65536 cold k1 cached read(101): 1 reads: 1
+05:40:00 c65536 cold k1 cached read(8388608): 1 reads: 1
+05:40:00 c65536 cold k1 nocache read(101): 1 reads: 1
+05:40:00 c65536 cold k1 nocache read(8388608): 1 reads: 1
+05:40:00 c65536 cold k1048577 cached read(1048677): 1 reads: 1048577
+05:40:00 c65536 cold k1048577 cached read(8388608): 1 reads: 1048577
+05:40:00 c65536 cold k1048577 nocache read(1048677): 1 reads: 1048577
+05:40:00 c65536 cold k1048577 nocache read(8388608): 1 reads: 1048577
+05:40:00 c65536 cold k131071 cached read(131171): 1 reads: 131071
+05:40:00 c65536 cold k131071 cached read(8388608): 1 reads: 131071
+05:40:00 c65536 cold k131071 nocache read(131171): 1 reads: 131071
+05:40:00 c65536 cold k131071 nocache read(8388608): 1 reads: 131071
+05:40:00 c65536 cold k131072 cached read(131172): 1 reads: 131072
+05:40:00 c65536 cold k131072 cached read(8388608): 1 reads: 131072
+05:40:00 c65536 cold k131072 nocache read(131172): 1 reads: 131072
+05:40:00 c65536 cold k131072 nocache read(8388608): 1 reads: 131072
+05:40:00 c65536 cold k131073 cached read(131173): 1 reads: 131073
+05:40:00 c65536 cold k131073 cached read(8388608): 1 reads: 131073
+05:40:00 c65536 cold k131073 nocache read(131173): 1 reads: 131073
+05:40:00 c65536 cold k131073 nocache read(8388608): 1 reads: 131073
+05:40:00 c65536 cold k4095 cached read(4195): 1 reads: 4095
+05:40:00 c65536 cold k4095 cached read(8388608): 1 reads: 4095
+05:40:00 c65536 cold k4095 nocache read(4195): 1 reads: 4095
+05:40:00 c65536 cold k4095 nocache read(8388608): 1 reads: 4095
+05:40:00 c65536 cold k4096 cached read(4196): 1 reads: 4096
+05:40:00 c65536 cold k4096 cached read(8388608): 1 reads: 4096
+05:40:00 c65536 cold k4096 nocache read(4196): 1 reads: 4096
+05:40:00 c65536 cold k4096 nocache read(8388608): 1 reads: 4096
+05:40:00 c65536 cold k4097 cached read(4197): 1 reads: 4097
+05:40:00 c65536 cold k4097 cached read(8388608): 1 reads: 4097
+05:40:00 c65536 cold k4097 nocache read(4197): 1 reads: 4097
+05:40:00 c65536 cold k4097 nocache read(8388608): 1 reads: 4097
+05:40:00 c65536 cold k511 cached read(611): 1 reads: 511
+05:40:00 c65536 cold k511 cached read(8388608): 1 reads: 511
+05:40:00 c65536 cold k511 nocache read(611): 1 reads: 511
+05:40:00 c65536 cold k511 nocache read(8388608): 1 reads: 511
+05:40:00 c65536 cold k512 cached read(612): 1 reads: 512
+05:40:00 c65536 cold k512 cached read(8388608): 1 reads: 512
+05:40:00 c65536 cold k512 nocache read(612): 1 reads: 512
+05:40:00 c65536 cold k512 nocache read(8388608): 1 reads: 512
+05:40:00 c65536 cold k65535 cached read(65635): 1 reads: 65535
+05:40:00 c65536 cold k65535 cached read(8388608): 1 reads: 65535
+05:40:00 c65536 cold k65535 nocache read(65635): 1 reads: 65535
+05:40:00 c65536 cold k65535 nocache read(8388608): 1 reads: 65535
+05:40:00 c65536 cold k65536 cached read(65636): 1 reads: 65536
+05:40:00 c65536 cold k65536 cached read(8388608): 1 reads: 65536
+05:40:00 c65536 cold k65536 nocache read(65636): 1 reads: 65536
+05:40:00 c65536 cold k65536 nocache read(8388608): 1 reads: 65536
+05:40:00 c65536 cold k65537 cached read(65637): 1 reads: 65537
+05:40:00 c65536 cold k65537 cached read(8388608): 1 reads: 65537
+05:40:00 c65536 cold k65537 nocache read(65637): 1 reads: 65537
+05:40:00 c65536 cold k65537 nocache read(8388608): 1 reads: 65537
+05:40:00 $ sync -> rc=0
+05:40:00 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2eicw9dx/mnt -> rc=0
+05:40:00 PASS
+05:40:00 end I-READ-07: pass

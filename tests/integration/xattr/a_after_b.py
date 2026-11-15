@@ -115,6 +115,11 @@ def raw_nonascii(path):
     return sorted(n.encode("utf-8").hex() for n in names if isinstance(names, list) and any(ord(c) > 127 for c in n))
 
 
+# Names with ':' (Finder tags, comment): stored under windows_names since patch 0009 (ADR-025)
+TAGS_NAME = "com.apple.metadata:_kMDItemUserTags"
+TAGS_VAL = b"bplist00-tags-stand-in"
+
+
 def mac_files():
     big64 = xo.blob("x09:64k", 64 * 1024)
     huge = xo.blob("x09:huge", 200000)
@@ -127,6 +132,8 @@ def mac_files():
             "com.apple.lastuseddate#PS": b"\x02" * 16,
             "user.big": big64,
             "user.huge": huge,
+            TAGS_NAME: TAGS_VAL,
+            "com.apple.metadata:kMDItemFinderComment": b"comment",
         },
         "zero.txt": {"com.apple.FinderInfo": xo.FI_ZERO},
         "macdir": {"com.apple.FinderInfo": bytes([0] * 9 + [0x0A] + [0] * 21 + [0xFF]), "user.dk": b"dir"},
@@ -311,6 +318,13 @@ def judge(a1, b, a2):
             mac_cmp.pop("user.huge", None)
         if mac_cmp != lin_cmp:
             bad.append("%s: names and values differ between macOS and Linux (openxattr): macOS %s, Linux %s" % (rel, mac_cmp, lin_cmp))
+    # patch 0009: the ':' stream is a stream with that name on Linux, listed and readable there
+    for n in (TAGS_NAME, "com.apple.metadata:kMDItemFinderComment"):
+        if n not in a2["openxattr"]["mac.txt"]:
+            bad.append("mac.txt: the ':' stream %s is not listed on Linux (openxattr): %s" % (n, sorted(a2["openxattr"]["mac.txt"])))
+        if ("user." + n) not in a2["default"]["mac.txt"]:
+            bad.append("mac.txt: %s is not listed as user.%s by the default Linux interface" % (n, n))
+    facts.append("':' stream on Linux (openxattr): %s = %s" % (TAGS_NAME, a2["openxattr"]["mac.txt"].get(TAGS_NAME)))
     # the default Linux interface lists the same streams as user.<name>
     for rel, lin in a2["openxattr"].items():
         want = sorted("user." + n for n in lin)

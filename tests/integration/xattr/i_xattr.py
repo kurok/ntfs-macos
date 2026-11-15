@@ -7,7 +7,8 @@ volume mounted by NTFS-3G on the macFUSE FSKit backend, with streams_interface=o
   03  com.apple.FinderInfo: the 32-byte rule, colour label, the all-zero value (T-M2-04 "write ok, read
       back fails") with the worker's debug trace as evidence
   04  com.apple.quarantine, com.apple.ResourceFork (xattr and the ..namedfork/rsrc path), other Apple names
-  05  windows_names and xattr names with ':' (Finder tags live in com.apple.metadata:_kMDItemUserTags)
+  05  windows_names and xattr names with ':' (Finder tags live in com.apple.metadata:_kMDItemUserTags):
+      with patch 0009 (ADR-025) xattr names are exempt from windows_names, file and directory names are not
   06  ditto, cp, cp -p, cp -c, copyfile(3) COPYFILE_ALL: APFS to NTFS and back, whether ._* files appear
   07  xattrs across data writes, truncate, rename, hard link, unlink, read-only mount
   08  the same on streams_interface=xattr, for comparison (the value the design had before T-M2-04)
@@ -514,12 +515,15 @@ def i_xattr_04(ctx):
 
 # ---- I-XATTR-05 ----
 
-REJECTED = ["com.apple.metadata:_kMDItemUserTags", "com.apple.metadata:kMDItemFinderComment", "a:b", "a/b", "a*b",
-            'a"b', "a<b", "a|b", "a?b", "a\\b", "trail.", "sp ", "\x01c"]
-ACCEPTED = ["con", "com.apple.lastuseddate#PS", "naïve", "a b", "x.y.z"]
+# Names windows_names refuses for a file or directory. Patch 0009 (ADR-025) exempts xattr names, so all of them
+# are stored as xattr (named stream) names; file and directory names with the same characters stay refused.
+ODD = ["com.apple.metadata:_kMDItemUserTags", "com.apple.metadata:kMDItemFinderComment", "a:b", "a/b", "a*b",
+       'a"b', "a<b", "a|b", "a?b", "a\\b", "trail.", "sp ", "\x01c"]
+PLAIN = ["con", "com.apple.lastuseddate#PS", "naïve", "a b", "x.y.z"]
+BAD_FILE_NAMES = ["a:b", "a*b", 'a"b', "a<b", "a>b", "a|b", "a?b", "a\\b", "trail.", "sp ", "con", "x:y.txt"]
 
 
-@case("I-XATTR-05", envs=("B",), title="windows_names vs xattr names with ':' (Finder tags, comments); with and without the option")
+@case("I-XATTR-05", envs=("B",), title="xattr names with ':' (Finder tags, comments) are stored under windows_names; file names are still refused")
 def i_xattr_05(ctx):
     vol = _open(ctx)
     chk = Checks(ctx)
@@ -529,15 +533,44 @@ def i_xattr_05(ctx):
     m = vol.mnt
     f = os.path.join(m, "tagged.txt")
     _write(f)
-    for n in REJECTED:
-        chk.err(xo.setx(f, n, TAGS), errno.EINVAL, "windows_names: set %r" % n)
-    for n in ACCEPTED:
+    for i, n in enumerate(ODD):
+        val = b"odd-%d" % i
+        chk.err(xo.setx(f, n, val), 0, "windows_names: set %r (patch 0009)" % n)
+        chk.eq(xo.getx(f, n), val, "windows_names: read back %r" % n)
+    for n in PLAIN:
         chk.err(xo.setx(f, n, b"v"), 0, "windows_names: set %r" % n)
     chk.err(xo.setx(f, "com.apple.FinderInfo", FI_RED), 0, "windows_names: the colour label (FinderInfo) works")
+    # the tags name, set with its real value, through the API and through xattr(1)
+    chk.err(xo.setx(f, tag_name, TAGS), 0, "windows_names: set the tags plist")
+    chk.eq(xo.getx(f, tag_name), TAGS, "windows_names: tags plist read back")
     rc, out = xo.run([XATTR_BIN, "-wx", tag_name, TAGS.hex(), f])
-    chk.ok(rc != 0, "xattr -wx of the tags name fails under windows_names: rc %d %r" % (rc, out))
-    accepted_map = xo.xmap(f)
-    chk.eq(sorted(accepted_map), sorted(ACCEPTED + ["com.apple.FinderInfo"]), "only the accepted names are stored")
+    chk.eq(rc, 0, "xattr -wx of the tags name under windows_names (%r)" % out)
+    td = os.path.join(m, "tagdir0")
+    os.mkdir(td)
+    chk.err(xo.setx(td, tag_name, TAGS), 0, "windows_names: set tags on a directory")
+    chk.eq(xo.getx(td, tag_name), TAGS, "windows_names: tags plist read back on the directory")
+    chk.err(xo.setx(f, tag_name, TAGS, flags=xo.XATTR_CREATE), errno.EEXIST, "windows_names: XATTR_CREATE over the tags name")
+    chk.ok(xo.xmap(f).keys() >= set(ODD + PLAIN + ["com.apple.FinderInfo"]), "every name is stored and listed")
+    # file and directory names keep the windows_names check
+    for n in BAD_FILE_NAMES:
+        try:
+            fd = os.open(os.path.join(m, n), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+            os.close(fd)
+            chk.ok(False, "windows_names: creating the file %r was refused" % n)
+        except OSError as ex:
+            chk.eq(ex.errno, errno.EINVAL, "windows_names: create file %r" % n)
+        try:
+            os.mkdir(os.path.join(m, n))
+            chk.ok(False, "windows_names: creating the directory %r was refused" % n)
+        except OSError as ex:
+            chk.eq(ex.errno, errno.EINVAL, "windows_names: mkdir %r" % n)
+    chk.eq(sorted(n for n in os.listdir(m) if ":" in n or "*" in n or "|" in n), [], "no refused file or directory name was created")
+    # persistence under windows_names, read-only remount
+    _remount(ctx, vol, xo.PRODUCT, rw=False)
+    chk.eq(xo.getx(f, tag_name), TAGS, "after remount: tags plist on the file")
+    chk.eq(xo.getx(td, tag_name), TAGS, "after remount: tags plist on the directory")
+    chk.ok(xo.xmap(f).keys() >= set(ODD + PLAIN + ["com.apple.FinderInfo"]), "after remount: every name is listed")
+    _remount(ctx, vol, xo.PRODUCT)
     # Phase 2: without windows_names.
     _remount(ctx, vol, xo.OPEN)
     g = os.path.join(m, "tagged2.txt")
@@ -548,7 +581,7 @@ def i_xattr_05(ctx):
         t = os.path.basename(target)
         chk.err(xo.setx(target, tag_name, TAGS), 0, "no windows_names: set tags on %s" % t)
         chk.eq(xo.getx(target, tag_name), TAGS, "no windows_names: tags plist read back on %s" % t)
-    for n in REJECTED:
+    for n in ODD:
         if n != tag_name:
             chk.err(xo.setx(g, n, b"v-" + n.encode()[:8]), 0, "no windows_names: set %r" % n)
     want_g = xo.xmap(g)
@@ -556,10 +589,10 @@ def i_xattr_05(ctx):
     _remount(ctx, vol, xo.PRODUCT)
     after = xo.xmap(g)
     chk.eq(after, want_g, "windows_names remount: existing ':' streams still listed and readable")
-    e_rep = xo.setx(g, tag_name, TAGS + b"x")
-    ctx.log("windows_names over an existing ':' stream: replace -> %s (recorded)" % xo.ename(e_rep))
-    e_rm = xo.removex(g, tag_name)
-    ctx.log("windows_names over an existing ':' stream: remove -> %s (recorded)" % xo.ename(e_rm))
+    chk.err(xo.setx(g, tag_name, TAGS + b"x"), 0, "windows_names over an existing ':' stream: replace")
+    chk.eq(xo.getx(g, tag_name), TAGS + b"x", "windows_names over an existing ':' stream: replaced value")
+    chk.err(xo.removex(g, tag_name), 0, "windows_names over an existing ':' stream: remove")
+    chk.err(xo.getx(g, tag_name), xo.ENOATTR, "removed tags name is gone")
     chk.eq(xo.getx(d, tag_name), TAGS, "tags on the directory after the windows_names remount")
     chk.eq(_bad_names(m), [], "no ._* files")
     fsops.unmount(ctx, vol)
@@ -680,18 +713,16 @@ def i_xattr_06(ctx):
     for dn in ("d.ditto", "d.cp"):
         chk.eq(xo.xmap(os.path.join(t, dn)), src_d1, "windows_names: %s directory xattrs" % dn)
         chk.eq(xo.xmap(os.path.join(t, dn, "inner")), src_in, "windows_names: %s inner file xattrs" % dn)
-    # f2 carries ':' names: windows_names refuses them (EINVAL), so every copy tool that copies xattrs fails
+    # f2 carries ':' names (Finder tags, comment): with patch 0009 windows_names no longer refuses them, so
+    # every copy tool stores them (before the patch every tool that copies xattrs failed with EINVAL)
     for tool in TOOLS:
         dst = os.path.join(t, "%s.f2" % tool[0])
         rc, out = _copy(tool, f2, dst)
-        exists = os.path.exists(dst)
-        got = xo.xmap(dst) if exists else {}
-        miss, extra, diff = _map_diff(got, src_f2)
-        ctx.log("windows_names: %s f2 -> rc %d %r; target exists %s, size %s; missing %s, extra %s, differ %s" % (
-            tool[0], rc, out[:160], exists, os.path.getsize(dst) if exists else None, miss, extra, diff))
-        chk.ok(rc != 0, "windows_names: %s of a file with a ':' xattr fails (rc %d)" % (tool[0], rc))
-        if exists:
-            chk.ok(set(miss) <= set(S2_EXTRA), "windows_names: %s f2 loses at most the ':' names (missing %s)" % (tool[0], miss))
+        chk.eq(rc, 0, "windows_names: %s f2 rc (%s)" % (tool[0], out))
+        miss, extra, diff = _map_diff(xo.xmap(dst) if os.path.exists(dst) else {}, src_f2)
+        chk.ok(not (miss or extra or diff), "windows_names: %s f2 xattrs equal the source, ':' names included (missing %s, extra %s, differ %s)" % (
+            tool[0], miss, extra, diff))
+        chk.eq(open(dst, "rb").read() if os.path.exists(dst) else None, body, "windows_names: %s f2 data" % tool[0])
     chk.eq(_bad_names(m), [], "windows_names: no ._* files after the copies")
 
     # ---- openxattr without windows_names
@@ -709,7 +740,8 @@ def i_xattr_06(ctx):
     # NTFS back to APFS: every exact copy written above. A file with a resource fork: ditto works, cp -p and
     # copyfile(3) fail with EINVAL (copyfile reads the fork at a non-zero position, which macOS refuses
     # for this volume before the request reaches the worker). Without a resource fork all tools work.
-    exact = ([("t/%s.f1" % tl[0], src_f1, True) for tl in TOOLS] + [("t2/%s.f2" % tl[0], src_f2, True) for tl in TOOLS] +
+    exact = ([("t/%s.f1" % tl[0], src_f1, True) for tl in TOOLS] + [("t/%s.f2" % tl[0], src_f2, True) for tl in TOOLS] +
+             [("t2/%s.f2" % tl[0], src_f2, True) for tl in TOOLS] +
              [("t/%s.f3" % tl[0], src_f3, False) for tl in TOOLS])
     for rel, want, has_rf in exact:
         p = os.path.join(m, rel)
@@ -728,7 +760,7 @@ def i_xattr_06(ctx):
     chk.eq(_bad_names(m), [], "no ._* files on the volume at the end")
     chk.eq(_bad_names(back), [], "no ._* files in the APFS copies")
     # persistence of one copy of each kind
-    keep = {"t2/ditto.f2": src_f2, "t2/cp-p.f2": src_f2, "t/ditto.f1": src_f1, "t/copyfile-ALL.f1": src_f1}
+    keep = {"t/ditto.f2": src_f2, "t/copyfile-ALL.f2": src_f2, "t2/ditto.f2": src_f2, "t2/cp-p.f2": src_f2, "t/ditto.f1": src_f1, "t/copyfile-ALL.f1": src_f1}
     _remount(ctx, vol, xo.OPEN, rw=False)
     try:
         for rel, want in keep.items():

@@ -1,0 +1,145 @@
+{
+ "builder_optstr": "backend=fskit,local,norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022",
+ "dump": {
+  "big": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392098303485658,
+    "crtime": 134392098303485658,
+    "ctime": 134392098320908257,
+    "mtime": 134392098320908257
+   },
+   "xattrs": {}
+  },
+  "big/after": {
+   "attrib": "0x00000020",
+   "blocks": 20971520,
+   "group": null,
+   "nlink": 1,
+   "sha": "14254cfb01d236b83de5162a1937aec081a9a96999327d22290d604b61a24759",
+   "size": 20971520,
+   "t": "f",
+   "times": {
+    "atime": 134392098320908235,
+    "crtime": 134392098320908235,
+    "ctime": 134392098322473371,
+    "mtime": 134392098322473371
+   },
+   "xattrs": {}
+  },
+  "big/file": {
+   "attrib": "0x00000020",
+   "blocks": 125829120,
+   "group": null,
+   "nlink": 1,
+   "sha": "848c3feb17d7b0ed88fa50e1eb4c4052f1c526b7e5148f626d5434645bf3fb8e",
+   "size": 125829120,
+   "t": "f",
+   "times": {
+    "atime": 134392098303487035,
+    "crtime": 134392098303487035,
+    "ctime": 134392098316365726,
+    "mtime": 134392098316365726
+   },
+   "xattrs": {}
+  },
+  "big/third": {
+   "attrib": "0x00000020",
+   "blocks": 10489856,
+   "group": null,
+   "nlink": 1,
+   "sha": "0ac78cccbfd91eddf5506cac05b06c80041343eca6e9c7c93eadfa04e8593034",
+   "size": 10485761,
+   "t": "f",
+   "times": {
+    "atime": 134392098320132655,
+    "crtime": 134392098320132655,
+    "ctime": 134392098320881565,
+    "mtime": 134392098320881565
+   },
+   "xattrs": {}
+  }
+ },
+ "env": "A",
+ "image_sha256": "3777459cf7003311696527539382798407a5396e74bebddf4886bbae0d0171c7",
+ "macfuse_version": null,
+ "ntfs3g_version": "2026.9.28",
+ "ntfsfix": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/refop09/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "ntfsfix_after_replay": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/refop09/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "oplog": [
+  {
+   "i": 0,
+   "op": "mkdir",
+   "path": "big",
+   "rc": "ok"
+  },
+  {
+   "i": 1,
+   "op": "create",
+   "path": "big/file",
+   "rc": "ok"
+  },
+  {
+   "i": 2,
+   "op": "write",
+   "path": "big/file",
+   "rc": "ok"
+  },
+  {
+   "i": 3,
+   "op": "append",
+   "path": "big/file",
+   "rc": "ok"
+  },
+  {
+   "i": 4,
+   "op": "truncate",
+   "path": "big/file",
+   "rc": "ok"
+  },
+  {
+   "i": 5,
+   "op": "create",
+   "path": "big/second",
+   "rc": "ok"
+  },
+  {
+   "i": 6,
+   "op": "create",
+   "path": "big/third",
+   "rc": "ok"
+  },
+  {
+   "i": 7,
+   "op": "unlink",
+   "path": "big/second",
+   "rc": "ok"
+  },
+  {
+   "i": 8,
+   "op": "create",
+   "path": "big/after",
+   "rc": "ok"
+  },
+  {
+   "i": 9,
+   "op": "fsync",
+   "path": "big/file",
+   "rc": "ok"
+  }
+ ],
+ "optstr": "norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022",
+ "os": "Debian GNU/Linux 13 (trixie) aarch64",
+ "t_end": 1794736232.2938328,
+ "t_start": 1794736230.3468642,
+ "treedump": "d\tbig\nf\tbig/after\t20971520\t14254cfb01d236b83de5162a1937aec081a9a96999327d22290d604b61a24759\nf\tbig/file\t125829120\t848c3feb17d7b0ed88fa50e1eb4c4052f1c526b7e5148f626d5434645bf3fb8e\nf\tbig/third\t10485761\t0ac78cccbfd91eddf5506cac05b06c80041343eca6e9c7c93eadfa04e8593034\n"
+}

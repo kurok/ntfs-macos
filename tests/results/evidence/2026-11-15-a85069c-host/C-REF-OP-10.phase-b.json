@@ -1,0 +1,253 @@
+{
+ "builder_optstr": "backend=fskit,local,norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022",
+ "dump": {
+  ".fseventsd": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392098500931380,
+    "crtime": 134392098500922944,
+    "ctime": 134392098500957350,
+    "mtime": 134392098500957350
+   },
+   "xattrs": {}
+  },
+  ".fseventsd/fseventsd-uuid": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "787223cd9723308dbc1c61394ea99bc087fa6a4167b17a5bee93aab327dfcfb1",
+   "size": 36,
+   "t": "f",
+   "times": {
+    "atime": 134392098500957310,
+    "crtime": 134392098500955877,
+    "ctime": 134392098501027220,
+    "mtime": 134392098501027220
+   },
+   "xattrs": {}
+  },
+  "h": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392098501707750,
+    "crtime": 134392098501706340,
+    "ctime": 134392098503077270,
+    "mtime": 134392098503077270
+   },
+   "xattrs": {}
+  },
+  "h/dir": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392098501716550,
+    "crtime": 134392098501715110,
+    "ctime": 134392098501758960,
+    "mtime": 134392098501758960
+   },
+   "xattrs": {}
+  },
+  "h/dir/l2": {
+   "attrib": "0x00000020",
+   "blocks": 4096,
+   "group": "h/dir/l2",
+   "nlink": 3,
+   "sha": "8811842777379efb9a17fb025ad548234eb755b2fb6c7fe087a3809b35e83321",
+   "size": 100,
+   "t": "f",
+   "times": {
+    "atime": 134392098501726640,
+    "crtime": 134392098501725387,
+    "ctime": 134392098503096840,
+    "mtime": 134392098503096840
+   },
+   "xattrs": {
+    "user.shared": "9:be0a92924ee4947dedff450390de70bb5b8fe248dd13286b35dbcb4d9ce4109b"
+   }
+  },
+  "h/g": {
+   "attrib": "0x00000020",
+   "blocks": 73728,
+   "group": null,
+   "nlink": 1,
+   "sha": "64a10d24b78ff902be9843e443754ab7df28cfdc23c1a7cb67175e1b079f66b8",
+   "size": 70000,
+   "t": "f",
+   "times": {
+    "atime": 134392098502612700,
+    "crtime": 134392098502611070,
+    "ctime": 134392098503077270,
+    "mtime": 134392098503051680
+   },
+   "xattrs": {}
+  },
+  "h/l1": {
+   "attrib": "0x00000020",
+   "blocks": 4096,
+   "group": "h/dir/l2",
+   "nlink": 3,
+   "sha": "8811842777379efb9a17fb025ad548234eb755b2fb6c7fe087a3809b35e83321",
+   "size": 100,
+   "t": "f",
+   "times": {
+    "atime": 134392098501726640,
+    "crtime": 134392098501725387,
+    "ctime": 134392098503096840,
+    "mtime": 134392098503096840
+   },
+   "xattrs": {
+    "user.shared": "9:be0a92924ee4947dedff450390de70bb5b8fe248dd13286b35dbcb4d9ce4109b"
+   }
+  },
+  "h/l3": {
+   "attrib": "0x00000020",
+   "blocks": 4096,
+   "group": "h/dir/l2",
+   "nlink": 3,
+   "sha": "8811842777379efb9a17fb025ad548234eb755b2fb6c7fe087a3809b35e83321",
+   "size": 100,
+   "t": "f",
+   "times": {
+    "atime": 134392098501726640,
+    "crtime": 134392098501725387,
+    "ctime": 134392098503096840,
+    "mtime": 134392098503096840
+   },
+   "xattrs": {
+    "user.shared": "9:be0a92924ee4947dedff450390de70bb5b8fe248dd13286b35dbcb4d9ce4109b"
+   }
+  }
+ },
+ "env": "B",
+ "image_sha256": "bd54fd30a0006f91d5211624c3173d73384c4fdbba0590296bea7a20f78a033c",
+ "image_sha256_in": "bd54fd30a0006f91d5211624c3173d73384c4fdbba0590296bea7a20f78a033c",
+ "image_size": 67108864,
+ "macfuse_version": "5.5.0",
+ "ntfs3g_version": "2026.9.28",
+ "ntfsfix": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/refop10/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "ntfsfix_after_replay": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/ntfsmac-ref.cI2BYE/out/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "oplog": [
+  {
+   "i": 0,
+   "op": "mkdir",
+   "path": "h",
+   "rc": "ok"
+  },
+  {
+   "i": 1,
+   "op": "mkdir",
+   "path": "h/dir",
+   "rc": "ok"
+  },
+  {
+   "i": 2,
+   "op": "create",
+   "path": "h/f",
+   "rc": "ok"
+  },
+  {
+   "i": 3,
+   "op": "link",
+   "path": "h/l1",
+   "rc": "EIO"
+  },
+  {
+   "i": 4,
+   "op": "link",
+   "path": "h/dir/l2",
+   "rc": "EIO"
+  },
+  {
+   "i": 5,
+   "op": "append",
+   "path": "h/l1",
+   "rc": "ok"
+  },
+  {
+   "i": 6,
+   "op": "write",
+   "path": "h/dir/l2",
+   "rc": "ok"
+  },
+  {
+   "i": 7,
+   "op": "unlink",
+   "path": "h/f",
+   "rc": "ok"
+  },
+  {
+   "i": 8,
+   "op": "link",
+   "path": "h/l3",
+   "rc": "EIO"
+  },
+  {
+   "i": 9,
+   "op": "create",
+   "path": "h/g",
+   "rc": "ok"
+  },
+  {
+   "i": 10,
+   "op": "link",
+   "path": "h/g-link",
+   "rc": "EIO"
+  },
+  {
+   "i": 11,
+   "op": "unlink",
+   "path": "h/g-link",
+   "rc": "ok"
+  },
+  {
+   "i": 12,
+   "op": "link",
+   "path": "h/dirlink",
+   "rc": "EPERM"
+  },
+  {
+   "i": 13,
+   "op": "link",
+   "path": "h/zzz",
+   "rc": "ENOENT"
+  },
+  {
+   "i": 14,
+   "op": "link",
+   "path": "h/l1",
+   "rc": "EEXIST"
+  },
+  {
+   "i": 15,
+   "op": "setxattr",
+   "path": "h/l3",
+   "rc": "ok"
+  },
+  {
+   "i": 16,
+   "op": "truncate",
+   "path": "h/dir/l2",
+   "rc": "ok"
+  }
+ ],
+ "optstr": "backend=fskit,local,norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022",
+ "os": "Debian GNU/Linux 13 (trixie) aarch64",
+ "t_end": 1794736250.3648598,
+ "t_start": 1794736246.765014,
+ "treedump": "d\t.fseventsd\nf\t.fseventsd/fseventsd-uuid\t36\t787223cd9723308dbc1c61394ea99bc087fa6a4167b17a5bee93aab327dfcfb1\nd\th\nd\th/dir\nf\th/dir/l2\t100\t8811842777379efb9a17fb025ad548234eb755b2fb6c7fe087a3809b35e83321\nf\th/g\t70000\t64a10d24b78ff902be9843e443754ab7df28cfdc23c1a7cb67175e1b079f66b8\nf\th/l1\t100\t8811842777379efb9a17fb025ad548234eb755b2fb6c7fe087a3809b35e83321\nf\th/l3\t100\t8811842777379efb9a17fb025ad548234eb755b2fb6c7fe087a3809b35e83321\n"
+}

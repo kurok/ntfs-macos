@@ -1,0 +1,296 @@
+{
+ "builder_optstr": "backend=fskit,local,norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022",
+ "dump": {
+  ".fseventsd": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392098250669860,
+    "crtime": 134392098250636320,
+    "ctime": 134392098250706670,
+    "mtime": 134392098250706670
+   },
+   "xattrs": {}
+  },
+  ".fseventsd/fseventsd-uuid": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "f661d03991eecbe712e0ad92a7520ef2c881b616cf0a9a3cde4bbc1073a1c675",
+   "size": 36,
+   "t": "f",
+   "times": {
+    "atime": 134392098250706590,
+    "crtime": 134392098250704408,
+    "ctime": 134392098250779770,
+    "mtime": 134392098250779770
+   },
+   "xattrs": {}
+  },
+  "s": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392098252375440,
+    "crtime": 134392098252373311,
+    "ctime": 134392098253014910,
+    "mtime": 134392098253014910
+   },
+   "xattrs": {}
+  },
+  "s/all-hole": {
+   "attrib": "0x00000220",
+   "blocks": 0,
+   "group": null,
+   "nlink": 1,
+   "sha": "3b6a07d0d404fab4e23b6d34bc6696a6a312dd92821332385e5af7c01c421351",
+   "size": 67108864,
+   "t": "f",
+   "times": {
+    "atime": 134392098252903200,
+    "crtime": 134392098252901699,
+    "ctime": 134392098252913940,
+    "mtime": 134392098252913940
+   },
+   "xattrs": {}
+  },
+  "s/dense": {
+   "attrib": "0x00000020",
+   "blocks": 25169920,
+   "group": null,
+   "nlink": 1,
+   "sha": "99d9985b12ef5b0dc166476ca9eb2fe14558284d9cf29e9cfcd60030d3a2ed15",
+   "size": 25165825,
+   "t": "f",
+   "times": {
+    "atime": 134392098253014840,
+    "crtime": 134392098253012923,
+    "ctime": 134392098253164860,
+    "mtime": 134392098253164860
+   },
+   "xattrs": {}
+  },
+  "s/grown": {
+   "attrib": "0x00000220",
+   "blocks": 4096,
+   "group": null,
+   "nlink": 1,
+   "sha": "5d1f7c2af1b14f34abc6a4ff4dae6fe5295bdc11dc2ab3acb5a0f2ef20f13be8",
+   "size": 2097152,
+   "t": "f",
+   "times": {
+    "atime": 134392098252921700,
+    "crtime": 134392098252920323,
+    "ctime": 134392098252956870,
+    "mtime": 134392098252956870
+   },
+   "xattrs": {}
+  },
+  "s/hole-end": {
+   "attrib": "0x00000220",
+   "blocks": 1179648,
+   "group": null,
+   "nlink": 1,
+   "sha": "9723de3d1dae3d40972918c3bb261cf9249fe252b428f1271d767e65782c3572",
+   "size": 67108864,
+   "t": "f",
+   "times": {
+    "atime": 134392098252386710,
+    "crtime": 134392098252385076,
+    "ctime": 134392098252987350,
+    "mtime": 134392098252987350
+   },
+   "xattrs": {}
+  },
+  "s/hole-middle": {
+   "attrib": "0x00000220",
+   "blocks": 1064960,
+   "group": null,
+   "nlink": 1,
+   "sha": "2539add47f829de45ab77abc99e476ba506f2c5cdc58d856d0586e647b1fa0ec",
+   "size": 41943040,
+   "t": "f",
+   "times": {
+    "atime": 134392098252506640,
+    "crtime": 134392098252505034,
+    "ctime": 134392098253404430,
+    "mtime": 134392098253404430
+   },
+   "xattrs": {}
+  },
+  "s/hole-start": {
+   "attrib": "0x00000220",
+   "blocks": 1064960,
+   "group": null,
+   "nlink": 1,
+   "sha": "35683e75f25b096cd2e8911c2226d9706952ddce442e194b786963361c5d19ca",
+   "size": 67108864,
+   "t": "f",
+   "times": {
+    "atime": 134392098252694420,
+    "crtime": 134392098252692167,
+    "ctime": 134392098252998270,
+    "mtime": 134392098252998270
+   },
+   "xattrs": {}
+  }
+ },
+ "env": "B",
+ "image_sha256": "b5e2f99f152f394a9f5c8606deaba2471a1ae0742e19a4d5c7b3a80691135131",
+ "image_sha256_in": "b5e2f99f152f394a9f5c8606deaba2471a1ae0742e19a4d5c7b3a80691135131",
+ "image_size": 100663296,
+ "macfuse_version": "5.5.0",
+ "ntfs3g_version": "2026.9.28",
+ "ntfsfix": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/refop08/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "ntfsfix_after_replay": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/ntfsmac-ref.Q9wWjN/out/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "oplog": [
+  {
+   "i": 0,
+   "op": "mkdir",
+   "path": "s",
+   "rc": "ok"
+  },
+  {
+   "i": 1,
+   "op": "create",
+   "path": "s/hole-end",
+   "rc": "ok"
+  },
+  {
+   "i": 2,
+   "op": "truncate",
+   "path": "s/hole-end",
+   "rc": "ok"
+  },
+  {
+   "i": 3,
+   "op": "write",
+   "path": "s/hole-end",
+   "rc": "ok"
+  },
+  {
+   "i": 4,
+   "op": "create",
+   "path": "s/hole-middle",
+   "rc": "ok"
+  },
+  {
+   "i": 5,
+   "op": "truncate",
+   "path": "s/hole-middle",
+   "rc": "ok"
+  },
+  {
+   "i": 6,
+   "op": "write",
+   "path": "s/hole-middle",
+   "rc": "ok"
+  },
+  {
+   "i": 7,
+   "op": "create",
+   "path": "s/hole-start",
+   "rc": "ok"
+  },
+  {
+   "i": 8,
+   "op": "truncate",
+   "path": "s/hole-start",
+   "rc": "ok"
+  },
+  {
+   "i": 9,
+   "op": "write",
+   "path": "s/hole-start",
+   "rc": "ok"
+  },
+  {
+   "i": 10,
+   "op": "create",
+   "path": "s/all-hole",
+   "rc": "ok"
+  },
+  {
+   "i": 11,
+   "op": "truncate",
+   "path": "s/all-hole",
+   "rc": "ok"
+  },
+  {
+   "i": 12,
+   "op": "create",
+   "path": "s/grown",
+   "rc": "ok"
+  },
+  {
+   "i": 13,
+   "op": "truncate",
+   "path": "s/grown",
+   "rc": "ok"
+  },
+  {
+   "i": 14,
+   "op": "write",
+   "path": "s/grown",
+   "rc": "ok"
+  },
+  {
+   "i": 15,
+   "op": "truncate",
+   "path": "s/grown",
+   "rc": "ok"
+  },
+  {
+   "i": 16,
+   "op": "write",
+   "path": "s/hole-end",
+   "rc": "ok"
+  },
+  {
+   "i": 17,
+   "op": "write",
+   "path": "s/hole-end",
+   "rc": "ok"
+  },
+  {
+   "i": 18,
+   "op": "writezero",
+   "path": "s/hole-start",
+   "rc": "ok"
+  },
+  {
+   "i": 19,
+   "op": "create",
+   "path": "s/dense",
+   "rc": "ok"
+  },
+  {
+   "i": 20,
+   "op": "write",
+   "path": "s/dense",
+   "rc": "ok"
+  },
+  {
+   "i": 21,
+   "op": "truncate",
+   "path": "s/hole-middle",
+   "rc": "ok"
+  }
+ ],
+ "optstr": "backend=fskit,local,norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022",
+ "os": "Debian GNU/Linux 13 (trixie) aarch64",
+ "t_end": 1794736225.399173,
+ "t_start": 1794736222.2096472,
+ "treedump": "d\t.fseventsd\nf\t.fseventsd/fseventsd-uuid\t36\tf661d03991eecbe712e0ad92a7520ef2c881b616cf0a9a3cde4bbc1073a1c675\nd\ts\nf\ts/all-hole\t67108864\t3b6a07d0d404fab4e23b6d34bc6696a6a312dd92821332385e5af7c01c421351\nf\ts/dense\t25165825\t99d9985b12ef5b0dc166476ca9eb2fe14558284d9cf29e9cfcd60030d3a2ed15\nf\ts/grown\t2097152\t5d1f7c2af1b14f34abc6a4ff4dae6fe5295bdc11dc2ab3acb5a0f2ef20f13be8\nf\ts/hole-end\t67108864\t9723de3d1dae3d40972918c3bb261cf9249fe252b428f1271d767e65782c3572\nf\ts/hole-middle\t41943040\t2539add47f829de45ab77abc99e476ba506f2c5cdc58d856d0586e647b1fa0ec\nf\ts/hole-start\t67108864\t35683e75f25b096cd2e8911c2226d9706952ddce442e194b786963361c5d19ca\n"
+}

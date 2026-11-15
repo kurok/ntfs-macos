@@ -1,0 +1,413 @@
+{
+ "builder_optstr": "backend=fskit,local,norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022",
+ "dump": {
+  "a": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392097679961814,
+    "crtime": 134392097679961814,
+    "ctime": 134392097680033626,
+    "mtime": 134392097680033626
+   },
+   "xattrs": {}
+  },
+  "a/sub": {
+   "attrib": "0x00000020",
+   "blocks": 8192,
+   "group": null,
+   "nlink": 1,
+   "sha": "e07966eb88541e2ed71040294fed4485ff90faabda251124ffea74697317cc16",
+   "size": 5000,
+   "t": "f",
+   "times": {
+    "atime": 134392097679967623,
+    "crtime": 134392097679967623,
+    "ctime": 134392097680033697,
+    "mtime": 134392097679969587
+   },
+   "xattrs": {}
+  },
+  "b": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392097679963246,
+    "crtime": 134392097679963246,
+    "ctime": 134392097680033697,
+    "mtime": 134392097680033697
+   },
+   "xattrs": {}
+  },
+  "b/empty-target": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392097679964744,
+    "crtime": 134392097679964744,
+    "ctime": 134392097680000204,
+    "mtime": 134392097679995307
+   },
+   "xattrs": {}
+  },
+  "b/keep": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "9fe9e229dca7f42d0d61163e97fc811e6db4852553257f97cc9c2032c4e3e2aa",
+   "size": 10,
+   "t": "f",
+   "times": {
+    "atime": 134392097680001981,
+    "crtime": 134392097680001981,
+    "ctime": 134392097680009175,
+    "mtime": 134392097680002765
+   },
+   "xattrs": {}
+  },
+  "b/over": {
+   "attrib": "0x00000020",
+   "blocks": 8192,
+   "group": null,
+   "nlink": 1,
+   "sha": "2be23edd83bfb78110657b651fa6858c4f9c7c3a9fdd5b1e1c285114b18efd1d",
+   "size": 4444,
+   "t": "f",
+   "times": {
+    "atime": 134392097679988748,
+    "crtime": 134392097679988748,
+    "ctime": 134392097679989786,
+    "mtime": 134392097679989786
+   },
+   "xattrs": {}
+  },
+  "b/z": {
+   "attrib": "0x00000020",
+   "blocks": 73728,
+   "group": null,
+   "nlink": 1,
+   "sha": "113abf41b34851dd183c2f9e6c8af08caaef27e2294bed6067efd395ac496685",
+   "size": 70000,
+   "t": "f",
+   "times": {
+    "atime": 134392097679971408,
+    "crtime": 134392097679971408,
+    "ctime": 134392097679995307,
+    "mtime": 134392097679984645
+   },
+   "xattrs": {}
+  },
+  "d": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392097680010381,
+    "crtime": 134392097680010381,
+    "ctime": 134392097680025644,
+    "mtime": 134392097680025644
+   },
+   "xattrs": {}
+  },
+  "d/f1.renamed": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "7fc93372d10b4c4ae2b7e09680ebf09c2f76bbfa19e579a2e5ebc913b136e324",
+   "size": 200,
+   "t": "f",
+   "times": {
+    "atime": 134392097680011570,
+    "crtime": 134392097680011570,
+    "ctime": 134392097680025644,
+    "mtime": 134392097680012140
+   },
+   "xattrs": {}
+  },
+  "d/f2": {
+   "attrib": "0x00000020",
+   "blocks": 73728,
+   "group": null,
+   "nlink": 1,
+   "sha": "698785bb5951277b7919db6e06f5b1790f8dc0604cdb7432f24d2d21f7a6b7fe",
+   "size": 70000,
+   "t": "f",
+   "times": {
+    "atime": 134392097680013160,
+    "crtime": 134392097680013160,
+    "ctime": 134392097680022370,
+    "mtime": 134392097680022370
+   },
+   "xattrs": {}
+  },
+  "e": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392097680034686,
+    "crtime": 134392097680034686,
+    "ctime": 134392097680048313,
+    "mtime": 134392097680048313
+   },
+   "xattrs": {}
+  },
+  "e/e1-renamed": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392097680036247,
+    "crtime": 134392097680036247,
+    "ctime": 134392097680048313,
+    "mtime": 134392097680038468
+   },
+   "xattrs": {}
+  },
+  "e/e1-renamed/e2": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392097680038455,
+    "crtime": 134392097680038455,
+    "ctime": 134392097680045718,
+    "mtime": 134392097680045718
+   },
+   "xattrs": {}
+  },
+  "leaf-up": {
+   "attrib": "0x00000020",
+   "blocks": 8192,
+   "group": null,
+   "nlink": 1,
+   "sha": "a887b9080e4a1f6b7e3c21d4254ae714a482d95c4db400fc1be7ac7427c7b72a",
+   "size": 6000,
+   "t": "f",
+   "times": {
+    "atime": 134392097680040420,
+    "crtime": 134392097680040420,
+    "ctime": 134392097680045718,
+    "mtime": 134392097680041950
+   },
+   "xattrs": {}
+  }
+ },
+ "env": "A",
+ "image_sha256": "aa0b95ead7b0c5405dfab4f7199eb81a7f3a5d1822bbbb08da04e30eabe09102",
+ "macfuse_version": null,
+ "ntfs3g_version": "2026.9.28",
+ "ntfsfix": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/refop02/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "ntfsfix_after_replay": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/refop02/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "oplog": [
+  {
+   "i": 0,
+   "op": "mkdir",
+   "path": "a",
+   "rc": "ok"
+  },
+  {
+   "i": 1,
+   "op": "mkdir",
+   "path": "b",
+   "rc": "ok"
+  },
+  {
+   "i": 2,
+   "op": "mkdir",
+   "path": "a/sub",
+   "rc": "ok"
+  },
+  {
+   "i": 3,
+   "op": "mkdir",
+   "path": "b/empty-target",
+   "rc": "ok"
+  },
+  {
+   "i": 4,
+   "op": "create",
+   "path": "a/x",
+   "rc": "ok"
+  },
+  {
+   "i": 5,
+   "op": "create",
+   "path": "a/sub/y",
+   "rc": "ok"
+  },
+  {
+   "i": 6,
+   "op": "create",
+   "path": "b/z",
+   "rc": "ok"
+  },
+  {
+   "i": 7,
+   "op": "create",
+   "path": "b/over",
+   "rc": "ok"
+  },
+  {
+   "i": 8,
+   "op": "rename",
+   "path": "b/x",
+   "rc": "ok"
+  },
+  {
+   "i": 9,
+   "op": "rename",
+   "path": "b/z",
+   "rc": "ok"
+  },
+  {
+   "i": 10,
+   "op": "rename",
+   "path": "b/sub2",
+   "rc": "ok"
+  },
+  {
+   "i": 11,
+   "op": "rename",
+   "path": "b/empty-target",
+   "rc": "ok"
+  },
+  {
+   "i": 12,
+   "op": "create",
+   "path": "b/keep",
+   "rc": "ok"
+  },
+  {
+   "i": 13,
+   "op": "rename",
+   "path": "b/keep with space",
+   "rc": "ok"
+  },
+  {
+   "i": 14,
+   "op": "rename",
+   "path": "b/Keep",
+   "rc": "ok"
+  },
+  {
+   "i": 15,
+   "op": "rename",
+   "path": "b/keep",
+   "rc": "ok"
+  },
+  {
+   "i": 16,
+   "op": "mkdir",
+   "path": "c",
+   "rc": "ok"
+  },
+  {
+   "i": 17,
+   "op": "create",
+   "path": "c/f1",
+   "rc": "ok"
+  },
+  {
+   "i": 18,
+   "op": "create",
+   "path": "c/f2",
+   "rc": "ok"
+  },
+  {
+   "i": 19,
+   "op": "rename",
+   "path": "d",
+   "rc": "ok"
+  },
+  {
+   "i": 20,
+   "op": "rename",
+   "path": "d/f1.renamed",
+   "rc": "ok"
+  },
+  {
+   "i": 21,
+   "op": "rename",
+   "path": "b/over",
+   "rc": "ok"
+  },
+  {
+   "i": 22,
+   "op": "rename",
+   "path": "b/nope",
+   "rc": "ENOENT"
+  },
+  {
+   "i": 23,
+   "op": "rename",
+   "path": "b",
+   "rc": "ENOTEMPTY"
+  },
+  {
+   "i": 24,
+   "op": "rename",
+   "path": "a/sub",
+   "rc": "ok"
+  },
+  {
+   "i": 25,
+   "op": "mkdir",
+   "path": "e",
+   "rc": "ok"
+  },
+  {
+   "i": 26,
+   "op": "mkdir",
+   "path": "e/e1",
+   "rc": "ok"
+  },
+  {
+   "i": 27,
+   "op": "mkdir",
+   "path": "e/e1/e2",
+   "rc": "ok"
+  },
+  {
+   "i": 28,
+   "op": "create",
+   "path": "e/e1/e2/leaf",
+   "rc": "ok"
+  },
+  {
+   "i": 29,
+   "op": "rename",
+   "path": "leaf-up",
+   "rc": "ok"
+  },
+  {
+   "i": 30,
+   "op": "rename",
+   "path": "e/e1-renamed",
+   "rc": "ok"
+  }
+ ],
+ "optstr": "norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022",
+ "os": "Debian GNU/Linux 13 (trixie) aarch64",
+ "t_end": 1794736168.0295212,
+ "t_start": 1794736167.993759,
+ "treedump": "d\ta\nf\ta/sub\t5000\te07966eb88541e2ed71040294fed4485ff90faabda251124ffea74697317cc16\nd\tb\nd\tb/empty-target\nf\tb/keep\t10\t9fe9e229dca7f42d0d61163e97fc811e6db4852553257f97cc9c2032c4e3e2aa\nf\tb/over\t4444\t2be23edd83bfb78110657b651fa6858c4f9c7c3a9fdd5b1e1c285114b18efd1d\nf\tb/z\t70000\t113abf41b34851dd183c2f9e6c8af08caaef27e2294bed6067efd395ac496685\nd\td\nf\td/f1.renamed\t200\t7fc93372d10b4c4ae2b7e09680ebf09c2f76bbfa19e579a2e5ebc913b136e324\nf\td/f2\t70000\t698785bb5951277b7919db6e06f5b1790f8dc0604cdb7432f24d2d21f7a6b7fe\nd\te\nd\te/e1-renamed\nd\te/e1-renamed/e2\nf\tleaf-up\t6000\ta887b9080e4a1f6b7e3c21d4254ae714a482d95c4db400fc1be7ac7427c7b72a\n"
+}

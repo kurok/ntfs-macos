@@ -1,0 +1,349 @@
+{
+ "builder_optstr": "backend=fskit,local,norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022",
+ "dump": {
+  "sl": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392098529067421,
+    "crtime": 134392098529067421,
+    "ctime": 134392098529095285,
+    "mtime": 134392098529095285
+   },
+   "xattrs": {}
+  },
+  "sl/abs": {
+   "attrib": "0x00000024",
+   "group": null,
+   "nlink": 1,
+   "t": "l",
+   "target": "/absolute/elsewhere",
+   "times": {
+    "atime": 134392098529079634,
+    "crtime": 134392098529079634,
+    "ctime": 134392098529079634,
+    "mtime": 134392098529079634
+   },
+   "xattrs": {}
+  },
+  "sl/dangling": {
+   "attrib": "0x00000024",
+   "group": null,
+   "nlink": 1,
+   "t": "l",
+   "target": "dir/inner",
+   "times": {
+    "atime": 134392098529088262,
+    "crtime": 134392098529088262,
+    "ctime": 134392098529088262,
+    "mtime": 134392098529088262
+   },
+   "xattrs": {}
+  },
+  "sl/dir": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392098529068818,
+    "crtime": 134392098529068818,
+    "ctime": 134392098529078595,
+    "mtime": 134392098529078595
+   },
+   "xattrs": {}
+  },
+  "sl/dir/inner": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "cf21a6ea6f3d5c58ebbae32fa74cb5ed1a66a9645a6ed6195c97c58b7e1eac52",
+   "size": 300,
+   "t": "f",
+   "times": {
+    "atime": 134392098529073244,
+    "crtime": 134392098529073244,
+    "ctime": 134392098529073990,
+    "mtime": 134392098529073990
+   },
+   "xattrs": {}
+  },
+  "sl/dir/up": {
+   "attrib": "0x00000024",
+   "group": null,
+   "nlink": 1,
+   "t": "l",
+   "target": "../sl/target",
+   "times": {
+    "atime": 134392098529078580,
+    "crtime": 134392098529078580,
+    "ctime": 134392098529078580,
+    "mtime": 134392098529078580
+   },
+   "xattrs": {}
+  },
+  "sl/long": {
+   "attrib": "0x00000024",
+   "group": null,
+   "nlink": 1,
+   "t": "l",
+   "target": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+   "times": {
+    "atime": 134392098529080775,
+    "crtime": 134392098529080775,
+    "ctime": 134392098529080775,
+    "mtime": 134392098529080775
+   },
+   "xattrs": {}
+  },
+  "sl/real": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392098529091270,
+    "crtime": 134392098529091270,
+    "ctime": 134392098529092711,
+    "mtime": 134392098529092711
+   },
+   "xattrs": {}
+  },
+  "sl/real/f": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "9cc0d56286d453ffd793ab7f1019e0a742f1f96d75ad8657f8bee715bde03f4e",
+   "size": 77,
+   "t": "f",
+   "times": {
+    "atime": 134392098529092690,
+    "crtime": 134392098529092690,
+    "ctime": 134392098529093316,
+    "mtime": 134392098529093316
+   },
+   "xattrs": {}
+  },
+  "sl/target": {
+   "attrib": "0x00000020",
+   "blocks": 8192,
+   "group": null,
+   "nlink": 1,
+   "sha": "aea9d7bc46a7021bf303601ca41e195f0ab0efd981875ec46966d3eab9560cb8",
+   "size": 4100,
+   "t": "f",
+   "times": {
+    "atime": 134392098529070051,
+    "crtime": 134392098529070051,
+    "ctime": 134392098529086331,
+    "mtime": 134392098529086331
+   },
+   "xattrs": {}
+  },
+  "sl/to-dir-renamed": {
+   "attrib": "0x00000024",
+   "group": null,
+   "nlink": 1,
+   "t": "l",
+   "target": "dir",
+   "times": {
+    "atime": 134392098529076140,
+    "crtime": 134392098529076140,
+    "ctime": 134392098529090065,
+    "mtime": 134392098529076140
+   },
+   "xattrs": {}
+  },
+  "sl/to-file": {
+   "attrib": "0x00000024",
+   "group": null,
+   "nlink": 1,
+   "t": "l",
+   "target": "target",
+   "times": {
+    "atime": 134392098529075007,
+    "crtime": 134392098529075007,
+    "ctime": 134392098529075007,
+    "mtime": 134392098529075007
+   },
+   "xattrs": {}
+  },
+  "sl/uni-target": {
+   "attrib": "0x00000024",
+   "group": null,
+   "nlink": 1,
+   "t": "l",
+   "target": "caf\u00e9-target",
+   "times": {
+    "atime": 134392098529082047,
+    "crtime": 134392098529082047,
+    "ctime": 134392098529082047,
+    "mtime": 134392098529082047
+   },
+   "xattrs": {}
+  },
+  "sl/\u65e5\u672c-link": {
+   "attrib": "0x00000024",
+   "group": null,
+   "nlink": 1,
+   "t": "l",
+   "target": "target",
+   "times": {
+    "atime": 134392098529083167,
+    "crtime": 134392098529083167,
+    "ctime": 134392098529083167,
+    "mtime": 134392098529083167
+   },
+   "xattrs": {}
+  }
+ },
+ "env": "A",
+ "image_sha256": "85c4428e3dd4a97d8865417014f5347b54d4418c4eab8e8e30f99e25b5524ade",
+ "macfuse_version": null,
+ "ntfs3g_version": "2026.9.28",
+ "ntfsfix": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/refop11/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "ntfsfix_after_replay": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/refop11/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "oplog": [
+  {
+   "i": 0,
+   "op": "mkdir",
+   "path": "sl",
+   "rc": "ok"
+  },
+  {
+   "i": 1,
+   "op": "mkdir",
+   "path": "sl/dir",
+   "rc": "ok"
+  },
+  {
+   "i": 2,
+   "op": "create",
+   "path": "sl/target",
+   "rc": "ok"
+  },
+  {
+   "i": 3,
+   "op": "create",
+   "path": "sl/dir/inner",
+   "rc": "ok"
+  },
+  {
+   "i": 4,
+   "op": "symlink",
+   "path": "sl/to-file",
+   "rc": "ok"
+  },
+  {
+   "i": 5,
+   "op": "symlink",
+   "path": "sl/to-dir",
+   "rc": "ok"
+  },
+  {
+   "i": 6,
+   "op": "symlink",
+   "path": "sl/dangling",
+   "rc": "ok"
+  },
+  {
+   "i": 7,
+   "op": "symlink",
+   "path": "sl/dir/up",
+   "rc": "ok"
+  },
+  {
+   "i": 8,
+   "op": "symlink",
+   "path": "sl/abs",
+   "rc": "ok"
+  },
+  {
+   "i": 9,
+   "op": "symlink",
+   "path": "sl/long",
+   "rc": "ok"
+  },
+  {
+   "i": 10,
+   "op": "symlink",
+   "path": "sl/uni-target",
+   "rc": "ok"
+  },
+  {
+   "i": 11,
+   "op": "symlink",
+   "path": "sl/\u65e5\u672c-link",
+   "rc": "ok"
+  },
+  {
+   "i": 12,
+   "op": "symlink",
+   "path": "sl/to-file",
+   "rc": "EEXIST"
+  },
+  {
+   "i": 13,
+   "op": "append",
+   "path": "sl/to-file",
+   "rc": "ok"
+  },
+  {
+   "i": 14,
+   "op": "unlink",
+   "path": "sl/dangling",
+   "rc": "ok"
+  },
+  {
+   "i": 15,
+   "op": "symlink",
+   "path": "sl/dangling",
+   "rc": "ok"
+  },
+  {
+   "i": 16,
+   "op": "rename",
+   "path": "sl/to-dir-renamed",
+   "rc": "ok"
+  },
+  {
+   "i": 17,
+   "op": "mkdir",
+   "path": "sl/real",
+   "rc": "ok"
+  },
+  {
+   "i": 18,
+   "op": "create",
+   "path": "sl/real/f",
+   "rc": "ok"
+  },
+  {
+   "i": 19,
+   "op": "symlink",
+   "path": "sl/real-link",
+   "rc": "ok"
+  },
+  {
+   "i": 20,
+   "op": "unlink",
+   "path": "sl/real-link",
+   "rc": "ok"
+  }
+ ],
+ "optstr": "norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022",
+ "os": "Debian GNU/Linux 13 (trixie) aarch64",
+ "t_end": 1794736252.91396,
+ "t_start": 1794736252.9049695,
+ "treedump": "d\tsl\nl\tsl/abs\t/absolute/elsewhere\nl\tsl/dangling\tdir/inner\nd\tsl/dir\nf\tsl/dir/inner\t300\tcf21a6ea6f3d5c58ebbae32fa74cb5ed1a66a9645a6ed6195c97c58b7e1eac52\nl\tsl/dir/up\t../sl/target\nl\tsl/long\ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt\nd\tsl/real\nf\tsl/real/f\t77\t9cc0d56286d453ffd793ab7f1019e0a742f1f96d75ad8657f8bee715bde03f4e\nf\tsl/target\t4100\taea9d7bc46a7021bf303601ca41e195f0ab0efd981875ec46966d3eab9560cb8\nl\tsl/to-dir-renamed\tdir\nl\tsl/to-file\ttarget\nl\tsl/uni-target\tcaf\u00e9-target\nl\tsl/\u65e5\u672c-link\ttarget\n"
+}

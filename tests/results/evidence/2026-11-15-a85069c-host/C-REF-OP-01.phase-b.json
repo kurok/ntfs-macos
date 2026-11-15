@@ -1,0 +1,373 @@
+{
+ "builder_optstr": "backend=fskit,local,norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022",
+ "dump": {
+  ".fseventsd": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392097637971490,
+    "crtime": 134392097637958704,
+    "ctime": 134392097638012330,
+    "mtime": 134392097638012330
+   },
+   "xattrs": {}
+  },
+  ".fseventsd/fseventsd-uuid": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "4adeacf12bd45181824ca83ae592463a83cda3bdf87d5da11de93bdb7f9d81b8",
+   "size": 36,
+   "t": "f",
+   "times": {
+    "atime": 134392097638012270,
+    "crtime": 134392097638010273,
+    "ctime": 134392097638150330,
+    "mtime": 134392097638150330
+   },
+   "xattrs": {}
+  },
+  "w": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392097639319910,
+    "crtime": 134392097639318055,
+    "ctime": 134392097641617120,
+    "mtime": 134392097641617120
+   },
+   "xattrs": {}
+  },
+  "w/cluster-plus-1": {
+   "attrib": "0x00000020",
+   "blocks": 4096,
+   "group": null,
+   "nlink": 1,
+   "sha": "701336258d1e810a1e0423aa4be07cd955780b970c05546c952083a0940a526b",
+   "size": 4096,
+   "t": "f",
+   "times": {
+    "atime": 134392097639929190,
+    "crtime": 134392097639927562,
+    "ctime": 134392097640706430,
+    "mtime": 134392097640706430
+   },
+   "xattrs": {}
+  },
+  "w/exact-cluster": {
+   "attrib": "0x00000020",
+   "blocks": 8192,
+   "group": null,
+   "nlink": 1,
+   "sha": "feb07a7418142b00e3bc8ee8890d886557492172b8cc4d129a64a7fc6f263e4a",
+   "size": 8192,
+   "t": "f",
+   "times": {
+    "atime": 134392097639902430,
+    "crtime": 134392097639899431,
+    "ctime": 134392097640693240,
+    "mtime": 134392097640693240
+   },
+   "xattrs": {}
+  },
+  "w/medium": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "ee71dd6f3a3490edc22d831a6bec6ed8f796011d112746d08f8127b7d5a201ad",
+   "size": 30,
+   "t": "f",
+   "times": {
+    "atime": 134392097639727570,
+    "crtime": 134392097639725404,
+    "ctime": 134392097640659370,
+    "mtime": 134392097640659370
+   },
+   "xattrs": {}
+  },
+  "w/odd-sizes": {
+   "attrib": "0x00000020",
+   "blocks": 4096,
+   "group": null,
+   "nlink": 1,
+   "sha": "02553d0be09924049800dd62bd87a864a526b4c6b33fa26cea6e3238b8145af7",
+   "size": 1025,
+   "t": "f",
+   "times": {
+    "atime": 134392097641617020,
+    "crtime": 134392097641615255,
+    "ctime": 134392097641660030,
+    "mtime": 134392097641660030
+   },
+   "xattrs": {}
+  },
+  "w/small": {
+   "attrib": "0x00000020",
+   "blocks": 12288,
+   "group": null,
+   "nlink": 1,
+   "sha": "2200cb12d15a76a59472ed54c0ed56c5b25cfadc69ca07d7331ed2cb79aa8808",
+   "size": 9696,
+   "t": "f",
+   "times": {
+    "atime": 134392097639333730,
+    "crtime": 134392097639331625,
+    "ctime": 134392097640013460,
+    "mtime": 134392097640013460
+   },
+   "xattrs": {}
+  },
+  "w/sub": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392097641010310,
+    "crtime": 134392097641007668,
+    "ctime": 134392097641027620,
+    "mtime": 134392097641027620
+   },
+   "xattrs": {}
+  },
+  "w/sub/nested": {
+   "attrib": "0x00000020",
+   "blocks": 4096,
+   "group": null,
+   "nlink": 1,
+   "sha": "a9253dc8529dd214e5f22397888e78d3390daa47593e26f68c18f97fd7a3876b",
+   "size": 1,
+   "t": "f",
+   "times": {
+    "atime": 134392097641027550,
+    "crtime": 134392097641023765,
+    "ctime": 134392097641606260,
+    "mtime": 134392097641606260
+   },
+   "xattrs": {}
+  },
+  "w/zero": {
+   "attrib": "0x00000020",
+   "blocks": 0,
+   "group": null,
+   "nlink": 1,
+   "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "size": 0,
+   "t": "f",
+   "times": {
+    "atime": 134392097639880780,
+    "crtime": 134392097639878677,
+    "ctime": 134392097640682040,
+    "mtime": 134392097640682040
+   },
+   "xattrs": {}
+  }
+ },
+ "env": "B",
+ "image_sha256": "7ad7cc662ba70d7517299acb46d54f5c21c77992c7d25277887669e84d0d40bc",
+ "image_sha256_in": "7ad7cc662ba70d7517299acb46d54f5c21c77992c7d25277887669e84d0d40bc",
+ "image_size": 67108864,
+ "macfuse_version": "5.5.0",
+ "ntfs3g_version": "2026.9.28",
+ "ntfsfix": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/refop01/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "ntfsfix_after_replay": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/ntfsmac-ref.20Jsql/out/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "oplog": [
+  {
+   "i": 0,
+   "op": "mkdir",
+   "path": "w",
+   "rc": "ok"
+  },
+  {
+   "i": 1,
+   "op": "create",
+   "path": "w/small",
+   "rc": "ok"
+  },
+  {
+   "i": 2,
+   "op": "create",
+   "path": "w/medium",
+   "rc": "ok"
+  },
+  {
+   "i": 3,
+   "op": "create",
+   "path": "w/zero",
+   "rc": "ok"
+  },
+  {
+   "i": 4,
+   "op": "create",
+   "path": "w/exact-cluster",
+   "rc": "ok"
+  },
+  {
+   "i": 5,
+   "op": "create",
+   "path": "w/cluster-plus-1",
+   "rc": "ok"
+  },
+  {
+   "i": 6,
+   "op": "write",
+   "path": "w/small",
+   "rc": "ok"
+  },
+  {
+   "i": 7,
+   "op": "append",
+   "path": "w/small",
+   "rc": "ok"
+  },
+  {
+   "i": 8,
+   "op": "append",
+   "path": "w/small",
+   "rc": "ok"
+  },
+  {
+   "i": 9,
+   "op": "append",
+   "path": "w/small",
+   "rc": "ok"
+  },
+  {
+   "i": 10,
+   "op": "truncate",
+   "path": "w/medium",
+   "rc": "ok"
+  },
+  {
+   "i": 11,
+   "op": "truncate",
+   "path": "w/medium",
+   "rc": "ok"
+  },
+  {
+   "i": 12,
+   "op": "write",
+   "path": "w/medium",
+   "rc": "ok"
+  },
+  {
+   "i": 13,
+   "op": "create",
+   "path": "w/medium",
+   "rc": "ok"
+  },
+  {
+   "i": 14,
+   "op": "write",
+   "path": "w/medium",
+   "rc": "ok"
+  },
+  {
+   "i": 15,
+   "op": "append",
+   "path": "w/medium",
+   "rc": "ok"
+  },
+  {
+   "i": 16,
+   "op": "truncate",
+   "path": "w/medium",
+   "rc": "ok"
+  },
+  {
+   "i": 17,
+   "op": "create",
+   "path": "w/medium",
+   "rc": "ok"
+  },
+  {
+   "i": 18,
+   "op": "write",
+   "path": "w/zero",
+   "rc": "ok"
+  },
+  {
+   "i": 19,
+   "op": "truncate",
+   "path": "w/zero",
+   "rc": "ok"
+  },
+  {
+   "i": 20,
+   "op": "write",
+   "path": "w/exact-cluster",
+   "rc": "ok"
+  },
+  {
+   "i": 21,
+   "op": "truncate",
+   "path": "w/cluster-plus-1",
+   "rc": "ok"
+  },
+  {
+   "i": 22,
+   "op": "fsync",
+   "path": "w/small",
+   "rc": "ok"
+  },
+  {
+   "i": 23,
+   "op": "mkdir",
+   "path": "w/sub",
+   "rc": "ok"
+  },
+  {
+   "i": 24,
+   "op": "create",
+   "path": "w/sub/nested",
+   "rc": "ok"
+  },
+  {
+   "i": 25,
+   "op": "write",
+   "path": "w/sub/nested",
+   "rc": "ok"
+  },
+  {
+   "i": 26,
+   "op": "truncate",
+   "path": "w/sub/nested",
+   "rc": "ok"
+  },
+  {
+   "i": 27,
+   "op": "create",
+   "path": "w/odd-sizes",
+   "rc": "ok"
+  },
+  {
+   "i": 28,
+   "op": "append",
+   "path": "w/odd-sizes",
+   "rc": "ok"
+  },
+  {
+   "i": 29,
+   "op": "append",
+   "path": "w/odd-sizes",
+   "rc": "ok"
+  }
+ ],
+ "optstr": "backend=fskit,local,norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022",
+ "os": "Debian GNU/Linux 13 (trixie) aarch64",
+ "t_end": 1794736164.2411149,
+ "t_start": 1794736160.8583071,
+ "treedump": "d\t.fseventsd\nf\t.fseventsd/fseventsd-uuid\t36\t4adeacf12bd45181824ca83ae592463a83cda3bdf87d5da11de93bdb7f9d81b8\nd\tw\nf\tw/cluster-plus-1\t4096\t701336258d1e810a1e0423aa4be07cd955780b970c05546c952083a0940a526b\nf\tw/exact-cluster\t8192\tfeb07a7418142b00e3bc8ee8890d886557492172b8cc4d129a64a7fc6f263e4a\nf\tw/medium\t30\tee71dd6f3a3490edc22d831a6bec6ed8f796011d112746d08f8127b7d5a201ad\nf\tw/odd-sizes\t1025\t02553d0be09924049800dd62bd87a864a526b4c6b33fa26cea6e3238b8145af7\nf\tw/small\t9696\t2200cb12d15a76a59472ed54c0ed56c5b25cfadc69ca07d7331ed2cb79aa8808\nd\tw/sub\nf\tw/sub/nested\t1\ta9253dc8529dd214e5f22397888e78d3390daa47593e26f68c18f97fd7a3876b\nf\tw/zero\t0\te3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n"
+}

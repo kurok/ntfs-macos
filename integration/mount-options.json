@@ -41,18 +41,18 @@
     {
       "option": "noatime",
       "class": "effective",
-      "note": "checked on disk with ntfsinfo: atime unchanged after a read; with atime/relatime it is updated. Not visible in stat through the backend"
+      "note": "checked on disk with ntfsinfo: atime unchanged after a read; with atime/relatime it is updated. Not visible in stat through the backend. Kept (T-M3-06, I-META-03): with atime, relatime or no option a read moves atime on disk, and the stat view stays stale until a remount"
     },
     {
       "option": "windows_names",
       "class": "effective",
-      "note": "creating a:b, CON, aux.txt, trail., 'sp ', q?x, a\"b, lt<x, a*b, pipe|x fails with EINVAL; without it all succeed"
+      "note": "creating a:b, CON, aux.txt, trail., 'sp ', q?x, a\"b, lt<x, a*b, pipe|x fails with EINVAL; without it all succeed. Also applies to xattr (named-stream) names until patch 0009 (ADR-025): com.apple.metadata:_kMDItemUserTags (Finder tags) and other names with : give EINVAL (T-M3-08, I-XATTR-05)"
     },
     {
       "option": "streams_interface=openxattr",
       "class": "effective",
       "replaces": "streams_interface=xattr",
-      "note": "all xattr names work (com.apple.*, com.test.x, user.*) and survive a remount; xattr only keeps user.* and fails the rest with ENOTSUP"
+      "note": "all xattr names work (com.apple.*, com.test.x, user.*) and survive a remount; xattr only keeps user.* and fails the rest with ENOTSUP. Kept after T-M3-08: names at most 127 bytes, values at most 262143 bytes; com.apple.FinderInfo must be 32 bytes and an all-zero value reads as ENOATTR; windows_names refuses names with : until patch 0009"
     },
     {
       "option": "uid=<console uid>",
@@ -67,7 +67,7 @@
     {
       "option": "fmask=0133",
       "class": "effective",
-      "note": "files show -rw-r--r--"
+      "note": "files show -rw-r--r--. Display only: the execute bit is not checked (a 0644 binary runs, I-PERM-05) and nothing on disk depends on it; kept as a display value (ADR-012, 2026-11-15)"
     },
     {
       "option": "dmask=0022",
@@ -84,19 +84,19 @@
     {
       "option": "hide_hid_files",
       "class": "effective",
-      "note": "files with the DOS hidden attribute leave the listing; stat by name still works"
+      "note": "files with the DOS hidden attribute leave the listing; stat by name still works. hide_dot_files (writes HIDDEN on new dot-names) and show_sys_files (lists the NTFS system files) stay out of the allow-list (T-M3-06, I-META-07)"
     },
     {
       "option": "usermapping=<absolute path>",
       "class": "effective",
       "requires": "the file must exist: a missing file is accepted silently (class silent) and the mount behaves as without it",
-      "note": "turns on NTFS permissions; chmod works and persists across remounts, also together with uid/gid"
+      "note": "turns on NTFS permissions; chmod works and persists across remounts, also together with uid/gid. Modes are stored and shown, not enforced (I-PERM-07). A mapping file whose implicit line (::SID) ends in a number below 1000 is accepted with the message Bad implicit SID pattern and the line is dropped (I-PERM-06); the daemon's file check should also refuse such a line"
     },
     {
       "option": "permissions",
       "class": "silent",
       "requires": "do not combine with uid, gid, fmask or dmask: with them chmod returns success but the mode does not change",
-      "note": "works alone (chmod 600 shown as -rw-------, persists)"
+      "note": "works alone (chmod 600 shown as -rw-------, persists). Observed in T-M3-20: files made before permissions was turned on show 0777; modes 0600, 0700 and 000 are stored and shown but not enforced (another local account reads and writes them, I-PERM-07)"
     }
   ],
   "ignored": [

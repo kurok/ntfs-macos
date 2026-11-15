@@ -49,6 +49,12 @@
       "note": "creating a:b, CON, aux.txt, trail., 'sp ', q?x, a\"b, lt<x, a*b, pipe|x fails with EINVAL; without it all succeed. Also applies to xattr (named-stream) names until patch 0009 (ADR-025): com.apple.metadata:_kMDItemUserTags (Finder tags) and other names with : give EINVAL (T-M3-08, I-XATTR-05)"
     },
     {
+      "option": "nocompression",
+      "class": "by-source",
+      "note": "ADR-012 compression row (owner decision 2026-11-15, T-M3-24): new files in a compressed directory are stored plain (without it NTFS-3G compresses them); existing compressed files are still read and updated (T-M3-09, docs/spikes/M3-readpath-big.md). Confirmed on macOS by I-BIG-COMP-01",
+      "observed": false
+    },
+    {
       "option": "streams_interface=openxattr",
       "class": "effective",
       "replaces": "streams_interface=xattr",

@@ -29,8 +29,8 @@ static const char *const banned[] = {
 #define NBANNED (sizeof(banned) / sizeof(banned[0]))
 
 static const char *const allowed[] = {
-	"backend", "local", "norecover", "noatime", "windows_names", "streams_interface",
-	"uid", "gid", "fmask", "dmask", "ro", "hide_hid_files", "permissions", "usermapping",
+	"backend", "local", "norecover", "noatime", "windows_names", "nocompression",
+	"streams_interface", "uid", "gid", "fmask", "dmask", "ro", "hide_hid_files", "permissions", "usermapping",
 };
 #define NALLOWED (sizeof(allowed) / sizeof(allowed[0]))
 
@@ -119,7 +119,7 @@ static void test_golden(void)
 	CHECK_EQ_INT(ntfsmac_options_build(&in, &w), NTFSMAC_OPTIONS_OK);
 	CHECK(strcmp(w.optstr,
 		     "backend=fskit,local,norecover,noatime,windows_names,"
-		     "streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022") == 0);
+		     "nocompression,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022") == 0);
 	CHECK(strcmp(w.argv[0], WORKER) == 0);
 	CHECK(strcmp(w.argv[1], "/dev/fd/5") == 0);
 	CHECK(strcmp(w.argv[2], "/Volumes/" LEAF) == 0);
@@ -132,7 +132,7 @@ static void test_golden(void)
 	CHECK_EQ_INT(ntfsmac_options_build(&in, &w), NTFSMAC_OPTIONS_OK);
 	CHECK(strcmp(w.optstr,
 		     "backend=fskit,local,norecover,noatime,windows_names,"
-		     "streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022,"
+		     "nocompression,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022,"
 		     "ro,hide_hid_files,usermapping=/usr/local/etc/ntfs-macos/UserMapping") == 0);
 
 	/* permissions omits uid, gid, fmask, dmask (ADR-017 / T-M2-04). */
@@ -141,7 +141,7 @@ static void test_golden(void)
 	CHECK_EQ_INT(ntfsmac_options_build(&in, &w), NTFSMAC_OPTIONS_OK);
 	CHECK(strcmp(w.optstr,
 		     "backend=fskit,local,norecover,noatime,windows_names,"
-		     "streams_interface=openxattr,permissions") == 0);
+		     "nocompression,streams_interface=openxattr,permissions") == 0);
 	CHECK(strstr(w.optstr, "uid") == NULL && strstr(w.optstr, "gid") == NULL &&
 	      strstr(w.optstr, "fmask") == NULL && strstr(w.optstr, "dmask") == NULL);
 
@@ -314,7 +314,8 @@ static void test_builder_property(void)
 		CHECK_EQ_INT(has_key(tok, n, "dmask"), !perm);
 		CHECK(has_key(tok, n, "norecover") && has_key(tok, n, "backend") &&
 		      has_key(tok, n, "local") && has_key(tok, n, "noatime") &&
-		      has_key(tok, n, "windows_names") && has_key(tok, n, "streams_interface"));
+		      has_key(tok, n, "windows_names") && has_key(tok, n, "nocompression") &&
+		      has_key(tok, n, "streams_interface"));
 		CHECK(strstr(w.optstr, "recover") == w.optstr + (strstr(w.optstr, "norecover") - w.optstr) + 2);
 		CHECK(strstr(w.optstr, "remove_hiberfile") == NULL);
 		CHECK(strstr(w.optstr, "fsname") == NULL);
@@ -438,7 +439,7 @@ static void join_skip(char *out, size_t size, char tok[][96], size_t n, size_t s
 static int is_mandatory(variant *x, const char *tok)
 {
 	static const char *const always[] = { "backend=fskit", "local", "norecover", "noatime",
-					      "windows_names", "streams_interface=openxattr" };
+					      "windows_names", "nocompression", "streams_interface=openxattr" };
 	size_t i;
 
 	for (i = 0; i < sizeof(always) / sizeof(always[0]); i++)
@@ -471,7 +472,7 @@ static void test_mutations(void)
 		"dmask=0777", "dmask=0022=", "streams_interface=xattr", "streams_interface=windows",
 		"streams_interface=", "streams_interface", "streams_interface=openxattr=1",
 		"backend=fuse", "backend=FSKIT", "backend", "backend=fskit=1", "local=1", "local=",
-		"norecover=1", "noatime=1", "ro=1", "hide_hid_files=1", "permissions=1",
+		"norecover=1", "noatime=1", "nocompression=1", "nocompression=", "ro=1", "hide_hid_files=1", "permissions=1",
 		"usermapping", "usermapping=", "usermapping=/etc/passwd",
 		"usermapping=/usr/local/etc/ntfs-macos/UserMapping2",
 		"usermapping=/usr/local/etc/ntfs-macos/User Mapping",

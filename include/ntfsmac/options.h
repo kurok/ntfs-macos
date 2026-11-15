@@ -65,7 +65,7 @@ extern "C" {
  * Option string layout produced by the builder (ambiguity A11: section 3.3
  * gives sets, not an order; argv_check() is order independent):
  *
- *   backend=fskit,local,norecover,noatime,windows_names,
+ *   backend=fskit,local,norecover,noatime,windows_names,nocompression,
  *   streams_interface=openxattr[,uid=<U>,gid=<G>,fmask=0133,dmask=0022]
  *   [,ro][,hide_hid_files][,permissions][,usermapping=<path>]
  *
@@ -161,7 +161,7 @@ typedef enum ntfsmac_argv_status {
  * mount-options.json also make `backend=fskit` and `local` mandatory, and the
  * builder-vs-checker mutation test requires every token of the Always row to
  * be present): `backend=fskit`, `local`, `norecover`, `noatime`,
- * `windows_names`, `streams_interface=openxattr|none`, and `uid`, `gid`,
+ * `windows_names`, `nocompression`, `streams_interface=openxattr|none`, and `uid`, `gid`,
  * `fmask`, `dmask` unless `permissions` is present. Order is not checked.
  * Safe to fuzz.
  */

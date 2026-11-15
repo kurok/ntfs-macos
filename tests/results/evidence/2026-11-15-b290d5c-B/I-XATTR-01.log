@@ -1,0 +1,118 @@
+10:13:59 start I-XATTR-01 (env B)
+10:13:59 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-und25vjp/vol.img -> rc=0
+10:13:59 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+10:13:59 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-und25vjp/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-und25vjp/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-und25vjp/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-und25vjp/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-und25vjp/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+10:13:59 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,windows_names,noatime,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-und25vjp/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-und25vjp/mnt -> rc=0
+10:14:04 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-und25vjp/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+10:14:04 ok   f.txt: new object has no xattrs
+10:14:04 ok   set user.a on f.txt (f.txt) -> ?(0)
+10:14:04 ok   set com.test.x on f.txt (f.txt) -> ?(0)
+10:14:04 ok   set com.apple.quarantine on f.txt (f.txt) -> ?(0)
+10:14:04 ok   set naïve.é on f.txt (f.txt) -> ?(0)
+10:14:04 ok   set user.bin on f.txt (f.txt) -> ?(0)
+10:14:04 ok   set user.empty on f.txt (f.txt) -> ?(0)
+10:14:04 ok   f.txt: list equals the names set (NFC compared)
+10:14:04 f.txt: non-ASCII name as set ['6e61c3af76652ec3a9'], as listed ['6e6169cc8876652e65cc81']
+10:14:04 ok   f.txt: get user.a
+10:14:04 ok   f.txt: get com.test.x
+10:14:04 ok   f.txt: get com.apple.quarantine
+10:14:04 ok   f.txt: get naïve.é
+10:14:04 ok   f.txt: get user.bin
+10:14:04 ok   f.txt: get user.empty
+10:14:04 ok   f.txt: XATTR_CREATE over existing -> EEXIST(17)
+10:14:04 ok   f.txt: XATTR_REPLACE of missing -> ENOATTR(93)
+10:14:04 ok   f.txt: XATTR_CREATE of new -> ?(0)
+10:14:04 ok   f.txt: XATTR_REPLACE of existing -> ?(0)
+10:14:04 ok   f.txt: replaced value
+10:14:04 ok   f.txt: remove user.fresh -> ?(0)
+10:14:04 ok   f.txt: replace 1 B by 5000 B -> ?(0)
+10:14:04 ok   f.txt: value after growing
+10:14:04 ok   f.txt: replace 5000 B by 1 B -> ?(0)
+10:14:04 ok   f.txt: value after shrinking (no stale tail)
+10:14:04 ok   f.txt: get missing -> ENOATTR(93)
+10:14:04 ok   f.txt: remove missing -> ENOATTR(93)
+10:14:04 ok   f.txt: 127-byte name -> ?(0)
+10:14:04 ok   f.txt: 128-byte name -> ENAMETOOLONG(63)
+10:14:04 ok   f.txt: remove 127-byte name -> ?(0)
+10:14:04 ok   f.txt: remove user.bin -> ?(0)
+10:14:04 ok   f.txt: get user.bin after remove -> ENOATTR(93)
+10:14:04 ok   f.txt: remove user.empty -> ?(0)
+10:14:04 ok   f.txt: get user.empty after remove -> ENOATTR(93)
+10:14:04 ok   f.txt: remove com.test.x -> ?(0)
+10:14:04 ok   f.txt: get com.test.x after remove -> ENOATTR(93)
+10:14:04 ok   f.txt after removes: xattr map
+10:14:04 ok   dir: new object has no xattrs
+10:14:04 ok   set user.a on dir (dir) -> ?(0)
+10:14:04 ok   set com.test.x on dir (dir) -> ?(0)
+10:14:04 ok   set com.apple.quarantine on dir (dir) -> ?(0)
+10:14:04 ok   set naïve.é on dir (dir) -> ?(0)
+10:14:04 ok   set user.bin on dir (dir) -> ?(0)
+10:14:04 ok   set user.empty on dir (dir) -> ?(0)
+10:14:04 ok   dir: list equals the names set (NFC compared)
+10:14:04 dir: non-ASCII name as set ['6e61c3af76652ec3a9'], as listed ['6e6169cc8876652e65cc81']
+10:14:04 ok   dir: get user.a
+10:14:04 ok   dir: get com.test.x
+10:14:04 ok   dir: get com.apple.quarantine
+10:14:04 ok   dir: get naïve.é
+10:14:04 ok   dir: get user.bin
+10:14:04 ok   dir: get user.empty
+10:14:04 ok   dir: XATTR_CREATE over existing -> EEXIST(17)
+10:14:04 ok   dir: XATTR_REPLACE of missing -> ENOATTR(93)
+10:14:04 ok   dir: XATTR_CREATE of new -> ?(0)
+10:14:04 ok   dir: XATTR_REPLACE of existing -> ?(0)
+10:14:04 ok   dir: replaced value
+10:14:04 ok   dir: remove user.fresh -> ?(0)
+10:14:04 ok   dir: replace 1 B by 5000 B -> ?(0)
+10:14:04 ok   dir: value after growing
+10:14:04 ok   dir: replace 5000 B by 1 B -> ?(0)
+10:14:04 ok   dir: value after shrinking (no stale tail)
+10:14:04 ok   dir: get missing -> ENOATTR(93)
+10:14:04 ok   dir: remove missing -> ENOATTR(93)
+10:14:04 ok   dir: 127-byte name -> ?(0)
+10:14:04 ok   dir: 128-byte name -> ENAMETOOLONG(63)
+10:14:04 ok   dir: remove 127-byte name -> ?(0)
+10:14:04 ok   dir: remove user.bin -> ?(0)
+10:14:04 ok   dir: get user.bin after remove -> ENOATTR(93)
+10:14:04 ok   dir: remove user.empty -> ?(0)
+10:14:04 ok   dir: get user.empty after remove -> ENOATTR(93)
+10:14:04 ok   dir: remove com.test.x -> ?(0)
+10:14:04 ok   dir: get com.test.x after remove -> ENOATTR(93)
+10:14:04 ok   dir after removes: xattr map
+10:14:04 ok   xattr -w rc ()
+10:14:04 ok   xattr -p
+10:14:04 ok   xattr (list) shows user.cli: rc 0 'com.apple.quarantine\nnaïve.é\nuser.a\nuser.cli'
+10:14:04 ok   xattr -d rc ()
+10:14:04 ok   xattr -p after -d: rc 1 'xattr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-und25vjp/mnt/f.txt: No such xattr: user.cli'
+10:14:04 ok   xattr -c rc ()
+10:14:04 ok   directory has no xattrs after xattr -c
+10:14:04 $ sync -> rc=0
+10:14:04 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-und25vjp/mnt -> rc=0
+10:14:04 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-und25vjp/vol.img -> rc=0
+10:14:04 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-und25vjp/vol.img was processed successfully.
+10:14:04 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,windows_names,noatime,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-und25vjp/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-und25vjp/mnt -> rc=0
+10:14:11 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-und25vjp/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+10:14:11 ok   file after remount: xattr map
+10:14:11 ok   directory after remount
+10:14:11 ok   no ._* files
+10:14:12 $ sync -> rc=0
+10:14:12 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-und25vjp/mnt -> rc=0
+10:14:12 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-und25vjp/vol.img -> rc=0
+10:14:12 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-und25vjp/vol.img was processed successfully.
+10:14:12 end I-XATTR-01: pass

@@ -1,0 +1,207 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "b290d5c27921dd85ce43433b38e179f80dec8c60",
+  "dirty_tree": false,
+  "env": "host",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "macOS 27.2 (26B123) arm64",
+  "macfuse_version": "5.5.0",
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-15T10:09:04Z",
+  "finished": "2026-11-15T10:11:29Z",
+  "cases": [
+    {
+      "id": "C-REF-01",
+      "status": "pass",
+      "duration_s": 32.49,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-host/C-REF-01.log",
+        "evidence/2026-11-15-b290d5c-host/C-REF-01.ntfsfix-linux.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-01.sha256-linux.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-01.treedump-linux.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-01.treedump-macos.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-01",
+      "status": "pass",
+      "duration_s": 6.549,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-01.differences.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-01.log",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-01.phase-a.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-01.phase-b.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-01.treedump-a.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-01.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-02",
+      "status": "pass",
+      "duration_s": 6.525,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-02.differences.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-02.log",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-02.phase-a.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-02.phase-b.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-02.treedump-a.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-02.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-03",
+      "status": "pass",
+      "duration_s": 7.454,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-03.differences.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-03.log",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-03.phase-a.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-03.phase-b.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-03.treedump-a.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-03.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-04",
+      "status": "pass",
+      "duration_s": 8.57,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-04.differences.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-04.log",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-04.phase-a.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-04.phase-b.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-04.treedump-a.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-04.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-05",
+      "status": "pass",
+      "duration_s": 6.436,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-05.differences.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-05.log",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-05.phase-a.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-05.phase-b.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-05.treedump-a.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-05.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-06",
+      "status": "pass",
+      "duration_s": 6.479,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-06.differences.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-06.log",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-06.phase-a.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-06.phase-b.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-06.treedump-a.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-06.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-07",
+      "status": "pass",
+      "duration_s": 7.151,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-07.differences.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-07.log",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-07.phase-a.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-07.phase-b.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-07.treedump-a.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-07.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-08",
+      "status": "pass",
+      "duration_s": 11.292,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-08.differences.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-08.log",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-08.phase-a.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-08.phase-b.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-08.treedump-a.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-08.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-09",
+      "status": "pass",
+      "duration_s": 16.035,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-09.differences.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-09.log",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-09.phase-a.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-09.phase-b.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-09.treedump-a.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-09.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-10",
+      "status": "pass",
+      "duration_s": 6.497,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-10.differences.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-10.log",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-10.phase-a.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-10.phase-b.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-10.treedump-a.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-10.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-11",
+      "status": "pass",
+      "duration_s": 6.39,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-11.differences.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-11.log",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-11.phase-a.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-11.phase-b.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-11.treedump-a.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-11.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-12",
+      "status": "pass",
+      "duration_s": 8.3,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-12.differences.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-12.log",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-12.phase-a.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-12.phase-b.json",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-12.treedump-a.txt",
+        "evidence/2026-11-15-b290d5c-host/C-REF-OP-12.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-09",
+      "status": "pass",
+      "duration_s": 8.536,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-host/I-XATTR-09.log",
+        "evidence/2026-11-15-b290d5c-host/I-XATTR-09.phase-a1.json",
+        "evidence/2026-11-15-b290d5c-host/I-XATTR-09.phase-a2.json",
+        "evidence/2026-11-15-b290d5c-host/I-XATTR-09.phase-b.json"
+      ],
+      "note": null
+    }
+  ]
+}

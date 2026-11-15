@@ -1,0 +1,86 @@
+10:08:05 start I-ERR-07 (env A)
+10:08:05 $ /opt/ntfs-3g/sbin/mkntfs -F -Q -L errfd /tmp/ntfsmac-case-w9vhyeg0/h7.img -> rc=0
+/tmp/ntfsmac-case-w9vhyeg0/h7.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/ntfsmac-case-w9vhyeg0/h7.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/ntfsmac-case-w9vhyeg0/h7.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/ntfsmac-case-w9vhyeg0/h7.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/ntfsmac-case-w9vhyeg0/h7.img and it could not be obtained automatically.  It has been set to 0.
+Cluster size has been automatically set to 4096 bytes.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+10:08:05 worker: /tmp/errfd-build-e9t44v1u/prefix/bin/ntfs-3g -o norecover,no_detach /tmp/ntfsmac-case-w9vhyeg0/h7.img /tmp/ntfsmac-case-w9vhyeg0/mnt-h7  NTFSMAC_ERRFD=20
+10:08:05 worker exit rc=0, umount rc=0, channel at EOF: True
+10:08:05 records: ['S rw', 'U 0']
+10:08:05 descriptors of the child: ['0', '1', '2', '3']
+10:08:05 $ /opt/ntfs-3g/sbin/mkntfs -F -Q -L errfd /tmp/ntfsmac-case-w9vhyeg0/g7.img -> rc=0
+/tmp/ntfsmac-case-w9vhyeg0/g7.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/ntfsmac-case-w9vhyeg0/g7.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/ntfsmac-case-w9vhyeg0/g7.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/ntfsmac-case-w9vhyeg0/g7.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/ntfsmac-case-w9vhyeg0/g7.img and it could not be obtained automatically.  It has been set to 0.
+Cluster size has been automatically set to 4096 bytes.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+10:08:05 worker: /tmp/errfd-build-e9t44v1u/prefix/bin/ntfs-3g -o norecover,no_detach /tmp/ntfsmac-case-w9vhyeg0/g7.img /tmp/ntfsmac-case-w9vhyeg0/mnt-g7  NTFSMAC_ERRFD=20
+10:08:05 $ ls /tmp/ntfsmac-case-w9vhyeg0/mnt-g7/w/a -> rc=0
+b
+f00
+f02
+f04
+f05
+f06
+f07
+f08
+f09
+f10
+f11
+f12
+f13
+f14
+f15
+f16
+f17
+f18
+f19
+f20
+f21
+f22
+f23
+f24
+f25
+f26
+f27
+f28
+f29
+10:08:05 worker exit rc=0, umount rc=0, channel at EOF: False
+10:08:05 records: []
+10:08:05 $ /opt/ntfs-3g/bin/ntfsfix -n /tmp/ntfsmac-case-w9vhyeg0/g7.img -> rc=0
+Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /tmp/ntfsmac-case-w9vhyeg0/g7.img was processed successfully.
+10:08:05 $ /opt/ntfs-3g/sbin/mkntfs -F -Q -L errfd /tmp/ntfsmac-case-w9vhyeg0/p7.img -> rc=0
+/tmp/ntfsmac-case-w9vhyeg0/p7.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/ntfsmac-case-w9vhyeg0/p7.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/ntfsmac-case-w9vhyeg0/p7.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/ntfsmac-case-w9vhyeg0/p7.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/ntfsmac-case-w9vhyeg0/p7.img and it could not be obtained automatically.  It has been set to 0.
+Cluster size has been automatically set to 4096 bytes.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+10:08:05 worker: /tmp/errfd-build-e9t44v1u/prefix/bin/ntfs-3g -o norecover,no_detach /tmp/ntfsmac-case-w9vhyeg0/p7.img /tmp/ntfsmac-case-w9vhyeg0/mnt-p7  NTFSMAC_ERRFD=23
+10:08:06 device writes seen by the time the mount appeared: 0
+10:08:06 worker exit rc=0, umount rc=0, channel at EOF: False
+10:08:06 records: []
+10:08:06 worker rc=0 (negative: killed by that signal), output tail: ['Failed to write to mft bitmap.', 'Unmounting /tmp/ntfsmac-case-w9vhyeg0/p7.img (errfd)', 'ntfsmac-faultio: plan=eio:1 writes=3']
+10:08:06 end I-ERR-07: pass

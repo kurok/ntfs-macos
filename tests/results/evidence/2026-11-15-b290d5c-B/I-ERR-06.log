@@ -1,0 +1,75 @@
+10:08:24 start I-ERR-06 (env B)
+10:08:25 $ cc -Wall -Wextra -Werror -dynamiclib -arch arm64 -arch arm64e -o /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/syncspy.dylib /tmp/ntfsmac-h.idsXDY/integration/sync/syncspy.c -> rc=0
+10:08:25 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L sync /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/buffered-dksync.img -> rc=0
+10:08:25 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+10:08:25 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/buffered-dksync.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/buffered-dksync.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/buffered-dksync.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/buffered-dksync.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/buffered-dksync.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+10:08:25 $ /usr/bin/hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/buffered-dksync.img -> rc=0
+10:08:25 /dev/disk6
+10:08:25 stderr: hdiutil: WARNING: 'hdiutil attach -nomount ...' is deprecated. Please use 'diskutil image attach --noMount ...' instead.
+10:08:25 attached buffered-dksync.img as /dev/disk6, using /dev/disk6 (buffered)
+10:08:25 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach /dev/fd/5 /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/mnt-buffered-dksync  NTFSMAC_ERRFD=20
+10:08:35 worker exit rc=0, umount rc=0, channel at EOF: True
+10:08:35 records: ['S rw', 'W flush 5', 'W flush 5', 'W flush 5', 'W flush 5', 'W flush 5', 'U 0']
+10:08:35 device node, DKIOCSYNCHRONIZE forced to fail: 5 flush calls seen by syncspy, W records ['W flush 5', 'W flush 5', 'W flush 5', 'W flush 5', 'W flush 5'], other records ['S rw', 'U 0']
+10:08:35 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L sync /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/file-fullfsync.img -> rc=0
+10:08:35 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+10:08:35 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/file-fullfsync.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/file-fullfsync.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/file-fullfsync.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/file-fullfsync.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/file-fullfsync.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+10:08:35 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/file-fullfsync.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/mnt-file-fullfsync  NTFSMAC_ERRFD=20
+10:08:45 worker exit rc=0, umount rc=0, channel at EOF: True
+10:08:45 records: ['S rw', 'W flush 25', 'W flush 25', 'W flush 25', 'W flush 25', 'W flush 25', 'U 0']
+10:08:45 image file, F_FULLFSYNC forced to fail: 5 flush calls seen by syncspy, W records ['W flush 25', 'W flush 25', 'W flush 25', 'W flush 25', 'W flush 25'], other records ['S rw', 'U 0']
+10:08:45 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L sync /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/buffered-ok.img -> rc=0
+10:08:45 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+10:08:45 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/buffered-ok.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/buffered-ok.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/buffered-ok.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/buffered-ok.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/buffered-ok.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+10:08:45 $ /usr/bin/hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/buffered-ok.img -> rc=0
+10:08:45 /dev/disk6
+10:08:45 stderr: hdiutil: WARNING: 'hdiutil attach -nomount ...' is deprecated. Please use 'diskutil image attach --noMount ...' instead.
+10:08:45 attached buffered-ok.img as /dev/disk6, using /dev/disk6 (buffered)
+10:08:45 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach /dev/fd/5 /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/mnt-buffered-ok  NTFSMAC_ERRFD=20
+10:08:55 worker exit rc=0, umount rc=0, channel at EOF: True
+10:08:55 records: ['S rw', 'U 0']
+10:08:55 device node, no forced failure: 5 flush calls seen by syncspy, W records [], other records ['S rw', 'U 0']
+10:08:55 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L sync /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/file-ok.img -> rc=0
+10:08:55 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+10:08:55 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/file-ok.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/file-ok.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/file-ok.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/file-ok.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/file-ok.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+10:08:55 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/file-ok.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ud3dlgjt/mnt-file-ok  NTFSMAC_ERRFD=20
+10:09:04 worker exit rc=0, umount rc=0, channel at EOF: True
+10:09:04 records: ['S rw', 'U 0']
+10:09:04 image file, no forced failure: 5 flush calls seen by syncspy, W records [], other records ['S rw', 'U 0']
+10:09:04 end I-ERR-06: pass

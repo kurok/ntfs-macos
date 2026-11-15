@@ -1,0 +1,68 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "b290d5c27921dd85ce43433b38e179f80dec8c60",
+  "dirty_tree": false,
+  "env": "A",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "Debian GNU/Linux 13 (trixie) aarch64",
+  "macfuse_version": null,
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-15T10:07:42Z",
+  "finished": "2026-11-15T10:08:06Z",
+  "cases": [
+    {
+      "id": "I-ERR-01",
+      "status": "pass",
+      "duration_s": 7.208,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-A/I-ERR-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-02",
+      "status": "pass",
+      "duration_s": 0.301,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-A/I-ERR-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-03",
+      "status": "pass",
+      "duration_s": 13.895,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-A/I-ERR-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-04",
+      "status": "pass",
+      "duration_s": 0.559,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-A/I-ERR-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-05",
+      "status": "pass",
+      "duration_s": 0.696,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-A/I-ERR-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-07",
+      "status": "pass",
+      "duration_s": 0.764,
+      "evidence": [
+        "evidence/2026-11-15-b290d5c-A/I-ERR-07.log"
+      ],
+      "note": null
+    }
+  ]
+}

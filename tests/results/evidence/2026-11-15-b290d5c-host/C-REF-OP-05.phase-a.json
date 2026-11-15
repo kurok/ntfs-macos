@@ -1,0 +1,694 @@
+{
+ "builder_optstr": "backend=fskit,local,norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022",
+ "dump": {
+  "uni": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392110087333210,
+    "crtime": 134392110087333210,
+    "ctime": 134392110087401169,
+    "mtime": 134392110087401169
+   },
+   "xattrs": {}
+  },
+  "uni/ leading space": {
+   "attrib": "0x00000020",
+   "blocks": 12288,
+   "group": null,
+   "nlink": 1,
+   "sha": "d3badcdda9a115d113165e445aa3bf1dfe5434cd3c5bd8681874f5fcc6e3c7a7",
+   "size": 11100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087360350,
+    "crtime": 134392110087360350,
+    "ctime": 134392110087361833,
+    "mtime": 134392110087361833
+   },
+   "xattrs": {}
+  },
+  "uni/UPPER": {
+   "attrib": "0x00000020",
+   "blocks": 16384,
+   "group": null,
+   "nlink": 1,
+   "sha": "564e0dfd41572b403782b206c4da687034df15fd926e881019e961815e52f41b",
+   "size": 13100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087366822,
+    "crtime": 134392110087366822,
+    "ctime": 134392110087368795,
+    "mtime": 134392110087368795
+   },
+   "xattrs": {}
+  },
+  "uni/Upper": {
+   "attrib": "0x00000020",
+   "blocks": 16384,
+   "group": null,
+   "nlink": 1,
+   "sha": "c8c6fd7d9e1ccb3532e8eb0580aaf130c00a228a88160ea635d2501ff40a5cb4",
+   "size": 15100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087373081,
+    "crtime": 134392110087373081,
+    "ctime": 134392110087375194,
+    "mtime": 134392110087375194
+   },
+   "xattrs": {}
+  },
+  "uni/caf\u00e9-renamed.txt": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "06675713903b5052854a0048db4100137604bd48fd6dc3a12e2e972b2952e1b3",
+   "size": 100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087335611,
+    "crtime": 134392110087335611,
+    "ctime": 134392110087398684,
+    "mtime": 134392110087337030
+   },
+   "xattrs": {}
+  },
+  "uni/dots.in.name...txt": {
+   "attrib": "0x00000020",
+   "blocks": 12288,
+   "group": null,
+   "nlink": 1,
+   "sha": "fd014d05a893d4fba0250db16958114529f38963eb3edfb836ffac0cb65eaaf6",
+   "size": 12100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087363346,
+    "crtime": 134392110087363346,
+    "ctime": 134392110087365408,
+    "mtime": 134392110087365408
+   },
+   "xattrs": {}
+  },
+  "uni/emoji \ud83d\ude42.bin": {
+   "attrib": "0x00000020",
+   "blocks": 4096,
+   "group": null,
+   "nlink": 1,
+   "sha": "08011016b92fbf011bb19bf16629f9d2fcbef3380294db4e823f1cbbb6902263",
+   "size": 2100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087340454,
+    "crtime": 134392110087340454,
+    "ctime": 134392110087341103,
+    "mtime": 134392110087341103
+   },
+   "xattrs": {}
+  },
+  "uni/family \ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67.txt": {
+   "attrib": "0x00000020",
+   "blocks": 4096,
+   "group": null,
+   "nlink": 1,
+   "sha": "4be8152e8e06e2cbf2ae95ebf8a75e43f4dbca497d6b896a2f0b636d2fb94142",
+   "size": 3100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087342448,
+    "crtime": 134392110087342448,
+    "ctime": 134392110087343257,
+    "mtime": 134392110087343257
+   },
+   "xattrs": {}
+  },
+  "uni/flag \ud83c\uddfa\ud83c\udde6.txt": {
+   "attrib": "0x00000020",
+   "blocks": 8192,
+   "group": null,
+   "nlink": 1,
+   "sha": "e082a42792cec5ca4b13a870de3c5c56a87313461e7872d2db07a6fbfc45e9e1",
+   "size": 4100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087344200,
+    "crtime": 134392110087344200,
+    "ctime": 134392110087345177,
+    "mtime": 134392110087345177
+   },
+   "xattrs": {}
+  },
+  "uni/nfd-dir-u\u0308": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392110087401141,
+    "crtime": 134392110087401141,
+    "ctime": 134392110087402505,
+    "mtime": 134392110087402505
+   },
+   "xattrs": {}
+  },
+  "uni/nfd-dir-u\u0308/file": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "ec9ff1d76db9a6dae0d00d02218909ec8131b3ceb6c84ffbb44ae0b6a759edef",
+   "size": 66,
+   "t": "f",
+   "times": {
+    "atime": 134392110087402481,
+    "crtime": 134392110087402481,
+    "ctime": 134392110087403143,
+    "mtime": 134392110087403143
+   },
+   "xattrs": {}
+  },
+  "uni/re\u0301sume\u0301.txt": {
+   "attrib": "0x00000020",
+   "blocks": 1024,
+   "group": null,
+   "nlink": 1,
+   "sha": "e61109597b6d964a68c064e3e3a593f1e43e409215c8d792ea84480b234615e0",
+   "size": 555,
+   "t": "f",
+   "times": {
+    "atime": 134392110087399576,
+    "crtime": 134392110087399576,
+    "ctime": 134392110087400132,
+    "mtime": 134392110087400132
+   },
+   "xattrs": {}
+  },
+  "uni/stra\u00dfe.txt": {
+   "attrib": "0x00000020",
+   "blocks": 12288,
+   "group": null,
+   "nlink": 1,
+   "sha": "f59d72eda88dbec9ad6ba65bb8b8404940daca2373a6d497275b405c30bd7214",
+   "size": 9100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087354759,
+    "crtime": 134392110087354759,
+    "ctime": 134392110087356578,
+    "mtime": 134392110087356578
+   },
+   "xattrs": {}
+  },
+  "uni/upper": {
+   "attrib": "0x00000020",
+   "blocks": 16384,
+   "group": null,
+   "nlink": 1,
+   "sha": "4a55de1268e95255de1619b4545945b8d35fbbccf94fbb5f0dbfea7518de93f8",
+   "size": 14100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087369880,
+    "crtime": 134392110087369880,
+    "ctime": 134392110087371785,
+    "mtime": 134392110087371785
+   },
+   "xattrs": {}
+  },
+  "uni/with space inside.txt": {
+   "attrib": "0x00000020",
+   "blocks": 12288,
+   "group": null,
+   "nlink": 1,
+   "sha": "93d08ca4c46706624ac9bd473ae6cbfbeb44a18502377153e468b885e5c17b2b",
+   "size": 10100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087357679,
+    "crtime": 134392110087357679,
+    "ctime": 134392110087359208,
+    "mtime": 134392110087359208
+   },
+   "xattrs": {}
+  },
+  "uni/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx": {
+   "attrib": "0x00000020",
+   "blocks": 20480,
+   "group": null,
+   "nlink": 1,
+   "sha": "0cee07c3de381731d8068ae9a9c89563436afd4a68e3f416e34c216e424462e3",
+   "size": 18100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087383422,
+    "crtime": 134392110087383422,
+    "ctime": 134392110087386221,
+    "mtime": 134392110087386221
+   },
+   "xattrs": {}
+  },
+  "uni/\u00c5.txt": {
+   "attrib": "0x00000020",
+   "blocks": 16384,
+   "group": null,
+   "nlink": 1,
+   "sha": "5b1bc837f5386d5a0837725b004746d2f0eb48c1134c71fd382cc491849a106f",
+   "size": 16100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087376322,
+    "crtime": 134392110087376322,
+    "ctime": 134392110087378495,
+    "mtime": 134392110087378495
+   },
+   "xattrs": {}
+  },
+  "uni/\u00fcber dir": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392110087395012,
+    "crtime": 134392110087395012,
+    "ctime": 134392110087396131,
+    "mtime": 134392110087396131
+   },
+   "xattrs": {}
+  },
+  "uni/\u00fcber dir/in\u00fcber.txt": {
+   "attrib": "0x00000020",
+   "blocks": 8192,
+   "group": null,
+   "nlink": 1,
+   "sha": "ef6a6b0cef464d2556fd81fa2e134fb0f39814f32f30e2fee3bd86d9b79ed811",
+   "size": 4321,
+   "t": "f",
+   "times": {
+    "atime": 134392110087396118,
+    "crtime": 134392110087396118,
+    "ctime": 134392110087396978,
+    "mtime": 134392110087396978
+   },
+   "xattrs": {}
+  },
+  "uni/\u03b5\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac.txt": {
+   "attrib": "0x00000020",
+   "blocks": 8192,
+   "group": null,
+   "nlink": 1,
+   "sha": "76117bc3624a2d0caf1d062e11fc0fae1a4e11265eb03407ef20ce3fcb278c30",
+   "size": 8100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087351925,
+    "crtime": 134392110087351925,
+    "ctime": 134392110087353424,
+    "mtime": 134392110087353424
+   },
+   "xattrs": {}
+  },
+  "uni/\u05e9\u05dc\u05d5\u05dd.txt": {
+   "attrib": "0x00000020",
+   "blocks": 8192,
+   "group": null,
+   "nlink": 1,
+   "sha": "4ee6a741f34b21248533fa8c609fafabe3f11c0faa3c869e56915b287ce07cf1",
+   "size": 6100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087348213,
+    "crtime": 134392110087348213,
+    "ctime": 134392110087349038,
+    "mtime": 134392110087349038
+   },
+   "xattrs": {}
+  },
+  "uni/\u0645\u0631\u062d\u0628\u0627.txt": {
+   "attrib": "0x00000020",
+   "blocks": 8192,
+   "group": null,
+   "nlink": 1,
+   "sha": "bf2f9b7bbc295207c327b5d89174b639dc73048cbd4a8cd285dc5d5238dfa685",
+   "size": 7100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087350075,
+    "crtime": 134392110087350075,
+    "ctime": 134392110087351031,
+    "mtime": 134392110087351031
+   },
+   "xattrs": {}
+  },
+  "uni/\u212b-angstrom.txt": {
+   "attrib": "0x00000020",
+   "blocks": 20480,
+   "group": null,
+   "nlink": 1,
+   "sha": "49bb73f3405c09fa354d9e1aceb59a8065ad502d9d5845f0c66bdd7df490aab2",
+   "size": 17100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087379464,
+    "crtime": 134392110087379464,
+    "ctime": 134392110087381854,
+    "mtime": 134392110087381854
+   },
+   "xattrs": {}
+  },
+  "uni/\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5": {
+   "attrib": "0x00000020",
+   "blocks": 20480,
+   "group": null,
+   "nlink": 1,
+   "sha": "1ea7ce9205d0d6895aa29572a3f293c4bf16bbc997c0be926aa688f00aec36fb",
+   "size": 19100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087387320,
+    "crtime": 134392110087387320,
+    "ctime": 134392110087390105,
+    "mtime": 134392110087390105
+   },
+   "xattrs": {}
+  },
+  "uni/\u65e5\u672c\u8a9e": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392110087334416,
+    "crtime": 134392110087334416,
+    "ctime": 134392110087338690,
+    "mtime": 134392110087338690
+   },
+   "xattrs": {}
+  },
+  "uni/\u65e5\u672c\u8a9e/\u0444\u0430\u0439\u043b.bin": {
+   "attrib": "0x00000020",
+   "blocks": 4096,
+   "group": null,
+   "nlink": 1,
+   "sha": "8b6d0042a552e6e8ae4838e57214194ba296611f8df6ab93e0deac805fd4579f",
+   "size": 1100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087338664,
+    "crtime": 134392110087338664,
+    "ctime": 134392110087339372,
+    "mtime": 134392110087339372
+   },
+   "xattrs": {}
+  },
+  "uni/\ud55c\uad6d\uc5b4.txt": {
+   "attrib": "0x00000020",
+   "blocks": 8192,
+   "group": null,
+   "nlink": 1,
+   "sha": "f535be62b3e58535d83f0274a60f3bbe2ceffac1e4267731c76deada2b53ad8c",
+   "size": 5100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087346293,
+    "crtime": 134392110087346293,
+    "ctime": 134392110087347260,
+    "mtime": 134392110087347260
+   },
+   "xattrs": {}
+  },
+  "uni/\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42": {
+   "attrib": "0x00000020",
+   "blocks": 20480,
+   "group": null,
+   "nlink": 1,
+   "sha": "a57049d6b7d2ae7917cc8b0d0a45502412f60ff0b911a2c3f7f0dc3574ec0258",
+   "size": 20100,
+   "t": "f",
+   "times": {
+    "atime": 134392110087391166,
+    "crtime": 134392110087391166,
+    "ctime": 134392110087393853,
+    "mtime": 134392110087393853
+   },
+   "xattrs": {}
+  }
+ },
+ "env": "A",
+ "image_sha256": "8ae3acd91f6f54048c7b1e8220ce7930a0d8509f8597f98053f2981ae332c4f5",
+ "macfuse_version": null,
+ "ntfs3g_version": "2026.9.28",
+ "ntfsfix": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/refop05/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "ntfsfix_after_replay": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/refop05/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "oplog": [
+  {
+   "i": 0,
+   "op": "mkdir",
+   "path": "uni",
+   "rc": "ok"
+  },
+  {
+   "i": 1,
+   "op": "mkdir",
+   "path": "uni/\u65e5\u672c\u8a9e",
+   "rc": "ok"
+  },
+  {
+   "i": 2,
+   "op": "create",
+   "path": "uni/caf\u00e9.txt",
+   "rc": "ok"
+  },
+  {
+   "i": 3,
+   "op": "create",
+   "path": "uni/\u65e5\u672c\u8a9e/\u0444\u0430\u0439\u043b.bin",
+   "rc": "ok"
+  },
+  {
+   "i": 4,
+   "op": "create",
+   "path": "uni/emoji \ud83d\ude42.bin",
+   "rc": "ok"
+  },
+  {
+   "i": 5,
+   "op": "create",
+   "path": "uni/family \ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67.txt",
+   "rc": "ok"
+  },
+  {
+   "i": 6,
+   "op": "create",
+   "path": "uni/flag \ud83c\uddfa\ud83c\udde6.txt",
+   "rc": "ok"
+  },
+  {
+   "i": 7,
+   "op": "create",
+   "path": "uni/\ud55c\uad6d\uc5b4.txt",
+   "rc": "ok"
+  },
+  {
+   "i": 8,
+   "op": "create",
+   "path": "uni/\u05e9\u05dc\u05d5\u05dd.txt",
+   "rc": "ok"
+  },
+  {
+   "i": 9,
+   "op": "create",
+   "path": "uni/\u0645\u0631\u062d\u0628\u0627.txt",
+   "rc": "ok"
+  },
+  {
+   "i": 10,
+   "op": "create",
+   "path": "uni/\u03b5\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac.txt",
+   "rc": "ok"
+  },
+  {
+   "i": 11,
+   "op": "create",
+   "path": "uni/stra\u00dfe.txt",
+   "rc": "ok"
+  },
+  {
+   "i": 12,
+   "op": "create",
+   "path": "uni/with space inside.txt",
+   "rc": "ok"
+  },
+  {
+   "i": 13,
+   "op": "create",
+   "path": "uni/ leading space",
+   "rc": "ok"
+  },
+  {
+   "i": 14,
+   "op": "create",
+   "path": "uni/dots.in.name...txt",
+   "rc": "ok"
+  },
+  {
+   "i": 15,
+   "op": "create",
+   "path": "uni/UPPER",
+   "rc": "ok"
+  },
+  {
+   "i": 16,
+   "op": "create",
+   "path": "uni/upper",
+   "rc": "ok"
+  },
+  {
+   "i": 17,
+   "op": "create",
+   "path": "uni/Upper",
+   "rc": "ok"
+  },
+  {
+   "i": 18,
+   "op": "create",
+   "path": "uni/\u00c5.txt",
+   "rc": "ok"
+  },
+  {
+   "i": 19,
+   "op": "create",
+   "path": "uni/\u212b-angstrom.txt",
+   "rc": "ok"
+  },
+  {
+   "i": 20,
+   "op": "create",
+   "path": "uni/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "rc": "ok"
+  },
+  {
+   "i": 21,
+   "op": "create",
+   "path": "uni/\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5",
+   "rc": "ok"
+  },
+  {
+   "i": 22,
+   "op": "create",
+   "path": "uni/\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42",
+   "rc": "ok"
+  },
+  {
+   "i": 23,
+   "op": "mkdir",
+   "path": "uni/\u00fcber dir",
+   "rc": "ok"
+  },
+  {
+   "i": 24,
+   "op": "create",
+   "path": "uni/\u00fcber dir/in\u00fcber.txt",
+   "rc": "ok"
+  },
+  {
+   "i": 25,
+   "op": "rename",
+   "path": "uni/caf\u00e9-renamed.txt",
+   "rc": "ok"
+  },
+  {
+   "i": 26,
+   "op": "create",
+   "path": "uni/re\u0301sume\u0301.txt",
+   "rc": "ok"
+  },
+  {
+   "i": 27,
+   "op": "mkdir",
+   "path": "uni/nfd-dir-u\u0308",
+   "rc": "ok"
+  },
+  {
+   "i": 28,
+   "op": "create",
+   "path": "uni/nfd-dir-u\u0308/file",
+   "rc": "ok"
+  },
+  {
+   "i": 29,
+   "op": "create",
+   "path": "uni/a:b",
+   "rc": "EINVAL"
+  },
+  {
+   "i": 30,
+   "op": "create",
+   "path": "uni/q?",
+   "rc": "EINVAL"
+  },
+  {
+   "i": 31,
+   "op": "create",
+   "path": "uni/trail.",
+   "rc": "EINVAL"
+  },
+  {
+   "i": 32,
+   "op": "create",
+   "path": "uni/trail ",
+   "rc": "EINVAL"
+  },
+  {
+   "i": 33,
+   "op": "create",
+   "path": "uni/CON",
+   "rc": "EINVAL"
+  },
+  {
+   "i": 34,
+   "op": "create",
+   "path": "uni/nul.txt",
+   "rc": "EINVAL"
+  },
+  {
+   "i": 35,
+   "op": "create",
+   "path": "uni/a<b",
+   "rc": "EINVAL"
+  },
+  {
+   "i": 36,
+   "op": "create",
+   "path": "uni/back\\slash",
+   "rc": "EINVAL"
+  },
+  {
+   "i": 37,
+   "op": "create",
+   "path": "uni/tab\tname",
+   "rc": "EINVAL"
+  },
+  {
+   "i": 38,
+   "op": "create",
+   "path": "uni/pipe|",
+   "rc": "EINVAL"
+  }
+ ],
+ "optstr": "norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022",
+ "os": "Debian GNU/Linux 13 (trixie) aarch64",
+ "t_end": 1794737408.7461,
+ "t_start": 1794737408.7314968,
+ "treedump": "d\tuni\nf\tuni/ leading space\t11100\td3badcdda9a115d113165e445aa3bf1dfe5434cd3c5bd8681874f5fcc6e3c7a7\nf\tuni/UPPER\t13100\t564e0dfd41572b403782b206c4da687034df15fd926e881019e961815e52f41b\nf\tuni/Upper\t15100\tc8c6fd7d9e1ccb3532e8eb0580aaf130c00a228a88160ea635d2501ff40a5cb4\nf\tuni/caf\u00e9-renamed.txt\t100\t06675713903b5052854a0048db4100137604bd48fd6dc3a12e2e972b2952e1b3\nf\tuni/dots.in.name...txt\t12100\tfd014d05a893d4fba0250db16958114529f38963eb3edfb836ffac0cb65eaaf6\nf\tuni/emoji \ud83d\ude42.bin\t2100\t08011016b92fbf011bb19bf16629f9d2fcbef3380294db4e823f1cbbb6902263\nf\tuni/family \ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67.txt\t3100\t4be8152e8e06e2cbf2ae95ebf8a75e43f4dbca497d6b896a2f0b636d2fb94142\nf\tuni/flag \ud83c\uddfa\ud83c\udde6.txt\t4100\te082a42792cec5ca4b13a870de3c5c56a87313461e7872d2db07a6fbfc45e9e1\nd\tuni/nfd-dir-u\u0308\nf\tuni/nfd-dir-u\u0308/file\t66\tec9ff1d76db9a6dae0d00d02218909ec8131b3ceb6c84ffbb44ae0b6a759edef\nf\tuni/re\u0301sume\u0301.txt\t555\te61109597b6d964a68c064e3e3a593f1e43e409215c8d792ea84480b234615e0\nf\tuni/stra\u00dfe.txt\t9100\tf59d72eda88dbec9ad6ba65bb8b8404940daca2373a6d497275b405c30bd7214\nf\tuni/upper\t14100\t4a55de1268e95255de1619b4545945b8d35fbbccf94fbb5f0dbfea7518de93f8\nf\tuni/with space inside.txt\t10100\t93d08ca4c46706624ac9bd473ae6cbfbeb44a18502377153e468b885e5c17b2b\nf\tuni/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\t18100\t0cee07c3de381731d8068ae9a9c89563436afd4a68e3f416e34c216e424462e3\nf\tuni/\u00c5.txt\t16100\t5b1bc837f5386d5a0837725b004746d2f0eb48c1134c71fd382cc491849a106f\nd\tuni/\u00fcber dir\nf\tuni/\u00fcber dir/in\u00fcber.txt\t4321\tef6a6b0cef464d2556fd81fa2e134fb0f39814f32f30e2fee3bd86d9b79ed811\nf\tuni/\u03b5\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac.txt\t8100\t76117bc3624a2d0caf1d062e11fc0fae1a4e11265eb03407ef20ce3fcb278c30\nf\tuni/\u05e9\u05dc\u05d5\u05dd.txt\t6100\t4ee6a741f34b21248533fa8c609fafabe3f11c0faa3c869e56915b287ce07cf1\nf\tuni/\u0645\u0631\u062d\u0628\u0627.txt\t7100\tbf2f9b7bbc295207c327b5d89174b639dc73048cbd4a8cd285dc5d5238dfa685\nf\tuni/\u212b-angstrom.txt\t17100\t49bb73f3405c09fa354d9e1aceb59a8065ad502d9d5845f0c66bdd7df490aab2\nf\tuni/\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\t19100\t1ea7ce9205d0d6895aa29572a3f293c4bf16bbc997c0be926aa688f00aec36fb\nd\tuni/\u65e5\u672c\u8a9e\nf\tuni/\u65e5\u672c\u8a9e/\u0444\u0430\u0439\u043b.bin\t1100\t8b6d0042a552e6e8ae4838e57214194ba296611f8df6ab93e0deac805fd4579f\nf\tuni/\ud55c\uad6d\uc5b4.txt\t5100\tf535be62b3e58535d83f0274a60f3bbe2ceffac1e4267731c76deada2b53ad8c\nf\tuni/\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\t20100\ta57049d6b7d2ae7917cc8b0d0a45502412f60ff0b911a2c3f7f0dc3574ec0258\n"
+}

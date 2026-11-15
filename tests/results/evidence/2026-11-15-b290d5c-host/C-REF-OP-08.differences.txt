@@ -1,0 +1,6 @@
+EXPECTED ED-01 .fseventsd: exists on B only (macOS creates it in the root of every mount)
+EXPECTED ED-01 .fseventsd/fseventsd-uuid: exists on B only (macOS creates it in the root of every mount)
+EXPECTED ED-05 s/dense: attrib, blocks differ (listed for this path)
+EXPECTED ED-07 s/hole-end: blocks differ (listed for this path)
+EXPECTED ED-07 s/hole-middle: blocks differ (listed for this path)
+EXPECTED ED-07 s/hole-start: blocks differ (listed for this path)

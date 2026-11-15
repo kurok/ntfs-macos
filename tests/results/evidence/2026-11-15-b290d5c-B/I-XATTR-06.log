@@ -1,0 +1,241 @@
+10:15:01 start I-XATTR-06 (env B)
+10:15:01 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/vol.img -> rc=0
+10:15:01 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+10:15:01 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+10:15:01 source f1 xattrs: {'com.apple.FinderInfo': '32:437a01c1', 'com.apple.ResourceFork': '71680:0ad58094', 'com.apple.TextEncoding': '15:260a7ec2', 'com.apple.lastuseddate#PS': '16:cc8cd41c', 'com.apple.quarantine': '57:4b558bb8', 'user.k': '2:3bfc2695'}
+10:15:01 source f3 xattrs (f1 without the resource fork): {'com.apple.FinderInfo': '32:437a01c1', 'com.apple.TextEncoding': '15:260a7ec2', 'com.apple.lastuseddate#PS': '16:cc8cd41c', 'com.apple.quarantine': '57:4b558bb8', 'user.k': '2:3bfc2695'}
+10:15:01 source f2 xattrs: {'com.apple.FinderInfo': '32:437a01c1', 'com.apple.ResourceFork': '71680:0ad58094', 'com.apple.TextEncoding': '15:260a7ec2', 'com.apple.lastuseddate#PS': '16:cc8cd41c', 'com.apple.metadata:_kMDItemUserTags': '57:3f24bcf4', 'com.apple.metadata:kMDItemFinderComment': '60:d8388c3c', 'com.apple.quarantine': '57:4b558bb8', 'user.k': '2:3bfc2695'}
+10:15:01 ok   the APFS source holds every xattr
+10:15:01 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,windows_names,noatime,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/mnt -> rc=0
+10:15:05 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+10:15:05 ok   windows_names: ditto f1 rc ()
+10:15:05 ok   windows_names: ditto f1 xattrs equal the source (missing [], extra [], differ [])
+10:15:05 ok   windows_names: ditto f1 data
+10:15:05 ok   windows_names: cp-p f1 rc ()
+10:15:05 ok   windows_names: cp-p f1 xattrs equal the source (missing [], extra [], differ [])
+10:15:05 ok   windows_names: cp-p f1 data
+10:15:06 ok   windows_names: cp-c f1 rc ()
+10:15:06 ok   windows_names: cp-c f1 xattrs equal the source (missing [], extra [], differ [])
+10:15:06 ok   windows_names: cp-c f1 data
+10:15:06 ok   windows_names: cp-pc f1 rc ()
+10:15:06 ok   windows_names: cp-pc f1 xattrs equal the source (missing [], extra [], differ [])
+10:15:06 ok   windows_names: cp-pc f1 data
+10:15:06 ok   windows_names: copyfile-ALL f1 rc ()
+10:15:06 ok   windows_names: copyfile-ALL f1 xattrs equal the source (missing [], extra [], differ [])
+10:15:06 ok   windows_names: copyfile-ALL f1 data
+10:15:06 ok   windows_names: ditto f3 rc ()
+10:15:06 ok   windows_names: ditto f3 xattrs
+10:15:06 ok   windows_names: cp-p f3 rc ()
+10:15:06 ok   windows_names: cp-p f3 xattrs
+10:15:06 ok   windows_names: cp-c f3 rc ()
+10:15:06 ok   windows_names: cp-c f3 xattrs
+10:15:06 ok   windows_names: cp-pc f3 rc ()
+10:15:06 ok   windows_names: cp-pc f3 xattrs
+10:15:06 ok   windows_names: copyfile-ALL f3 rc ()
+10:15:06 ok   windows_names: copyfile-ALL f3 xattrs
+10:15:06 plain cp f1: rc 0 '', xattrs {'com.apple.FinderInfo': '32:437a01c1', 'com.apple.ResourceFork': '71680:0ad58094', 'com.apple.TextEncoding': '15:260a7ec2', 'com.apple.lastuseddate#PS': '16:cc8cd41c', 'com.apple.quarantine': '57:4b558bb8', 'user.k': '2:3bfc2695'} (recorded)
+10:15:06 cp -X f1: rc 0 '', xattrs {'com.apple.quarantine': '57:4b558bb8'} (recorded)
+10:15:06 ok   windows_names: ditto directory rc ()
+10:15:06 ok   windows_names: cp -pR directory rc ()
+10:15:06 ok   windows_names: d.ditto directory xattrs
+10:15:06 ok   windows_names: d.ditto inner file xattrs
+10:15:06 ok   windows_names: d.cp directory xattrs
+10:15:06 ok   windows_names: d.cp inner file xattrs
+10:15:06 ok   windows_names: ditto f2 rc ()
+10:15:06 ok   windows_names: ditto f2 xattrs equal the source, ':' names included (missing [], extra [], differ [])
+10:15:06 ok   windows_names: ditto f2 data
+10:15:06 ok   windows_names: cp-p f2 rc ()
+10:15:06 ok   windows_names: cp-p f2 xattrs equal the source, ':' names included (missing [], extra [], differ [])
+10:15:06 ok   windows_names: cp-p f2 data
+10:15:06 ok   windows_names: cp-c f2 rc ()
+10:15:06 ok   windows_names: cp-c f2 xattrs equal the source, ':' names included (missing [], extra [], differ [])
+10:15:06 ok   windows_names: cp-c f2 data
+10:15:06 ok   windows_names: cp-pc f2 rc ()
+10:15:06 ok   windows_names: cp-pc f2 xattrs equal the source, ':' names included (missing [], extra [], differ [])
+10:15:06 ok   windows_names: cp-pc f2 data
+10:15:06 ok   windows_names: copyfile-ALL f2 rc ()
+10:15:06 ok   windows_names: copyfile-ALL f2 xattrs equal the source, ':' names included (missing [], extra [], differ [])
+10:15:06 ok   windows_names: copyfile-ALL f2 data
+10:15:06 ok   windows_names: no ._* files after the copies
+10:15:06 $ sync -> rc=0
+10:15:06 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/mnt -> rc=0
+10:15:06 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/vol.img -> rc=0
+10:15:06 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/vol.img was processed successfully.
+10:15:06 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/mnt -> rc=0
+10:15:10 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+10:15:10 ok   no windows_names: ditto f2 rc ()
+10:15:10 ok   no windows_names: ditto f2 xattrs equal the source (missing [], extra [], differ [])
+10:15:10 ok   no windows_names: ditto f2 data
+10:15:10 ok   no windows_names: cp-p f2 rc ()
+10:15:11 ok   no windows_names: cp-p f2 xattrs equal the source (missing [], extra [], differ [])
+10:15:11 ok   no windows_names: cp-p f2 data
+10:15:11 ok   no windows_names: cp-c f2 rc ()
+10:15:11 ok   no windows_names: cp-c f2 xattrs equal the source (missing [], extra [], differ [])
+10:15:11 ok   no windows_names: cp-c f2 data
+10:15:11 ok   no windows_names: cp-pc f2 rc ()
+10:15:11 ok   no windows_names: cp-pc f2 xattrs equal the source (missing [], extra [], differ [])
+10:15:11 ok   no windows_names: cp-pc f2 data
+10:15:11 ok   no windows_names: copyfile-ALL f2 rc ()
+10:15:11 ok   no windows_names: copyfile-ALL f2 xattrs equal the source (missing [], extra [], differ [])
+10:15:11 ok   no windows_names: copyfile-ALL f2 data
+10:15:11 ok   back to APFS: ditto t/ditto.f1 rc ()
+10:15:11 ok   back to APFS: ditto t/ditto.f1 xattrs equal the source (missing [], extra [], differ [])
+10:15:11 back to APFS: cp-p t/ditto.f1 -> rc 1 'cp: /mnt/t/ditto.f1: could not copy extended attributes to /back/cp-p.t_ditto.f1: Invalid argument' (a resource fork is on the source)
+10:15:11 ok   back to APFS: cp-p of a file with a resource fork fails (rc 1)
+10:15:11 back to APFS: copyfile-ALL t/ditto.f1 -> rc 1 'copyfile(COPYFILE_ALL) errno EINVAL(22)' (a resource fork is on the source)
+10:15:11 ok   back to APFS: copyfile-ALL of a file with a resource fork fails (rc 1)
+10:15:11 ok   back to APFS: ditto t/cp-p.f1 rc ()
+10:15:11 ok   back to APFS: ditto t/cp-p.f1 xattrs equal the source (missing [], extra [], differ [])
+10:15:11 back to APFS: cp-p t/cp-p.f1 -> rc 1 'cp: /mnt/t/cp-p.f1: could not copy extended attributes to /back/cp-p.t_cp-p.f1: Invalid argument' (a resource fork is on the source)
+10:15:11 ok   back to APFS: cp-p of a file with a resource fork fails (rc 1)
+10:15:11 back to APFS: copyfile-ALL t/cp-p.f1 -> rc 1 'copyfile(COPYFILE_ALL) errno EINVAL(22)' (a resource fork is on the source)
+10:15:11 ok   back to APFS: copyfile-ALL of a file with a resource fork fails (rc 1)
+10:15:11 ok   back to APFS: ditto t/cp-c.f1 rc ()
+10:15:11 ok   back to APFS: ditto t/cp-c.f1 xattrs equal the source (missing [], extra [], differ [])
+10:15:11 back to APFS: cp-p t/cp-c.f1 -> rc 1 'cp: /mnt/t/cp-c.f1: could not copy extended attributes to /back/cp-p.t_cp-c.f1: Invalid argument' (a resource fork is on the source)
+10:15:11 ok   back to APFS: cp-p of a file with a resource fork fails (rc 1)
+10:15:11 back to APFS: copyfile-ALL t/cp-c.f1 -> rc 1 'copyfile(COPYFILE_ALL) errno EINVAL(22)' (a resource fork is on the source)
+10:15:11 ok   back to APFS: copyfile-ALL of a file with a resource fork fails (rc 1)
+10:15:11 ok   back to APFS: ditto t/cp-pc.f1 rc ()
+10:15:11 ok   back to APFS: ditto t/cp-pc.f1 xattrs equal the source (missing [], extra [], differ [])
+10:15:11 back to APFS: cp-p t/cp-pc.f1 -> rc 1 'cp: /mnt/t/cp-pc.f1: could not copy extended attributes to /back/cp-p.t_cp-pc.f1: Invalid argument' (a resource fork is on the source)
+10:15:11 ok   back to APFS: cp-p of a file with a resource fork fails (rc 1)
+10:15:11 back to APFS: copyfile-ALL t/cp-pc.f1 -> rc 1 'copyfile(COPYFILE_ALL) errno EINVAL(22)' (a resource fork is on the source)
+10:15:11 ok   back to APFS: copyfile-ALL of a file with a resource fork fails (rc 1)
+10:15:11 ok   back to APFS: ditto t/copyfile-ALL.f1 rc ()
+10:15:11 ok   back to APFS: ditto t/copyfile-ALL.f1 xattrs equal the source (missing [], extra [], differ [])
+10:15:11 back to APFS: cp-p t/copyfile-ALL.f1 -> rc 1 'cp: /mnt/t/copyfile-ALL.f1: could not copy extended attributes to /back/cp-p.t_copyfile-ALL.f1: Invalid argument' (a resource fork is on the source)
+10:15:11 ok   back to APFS: cp-p of a file with a resource fork fails (rc 1)
+10:15:11 back to APFS: copyfile-ALL t/copyfile-ALL.f1 -> rc 1 'copyfile(COPYFILE_ALL) errno EINVAL(22)' (a resource fork is on the source)
+10:15:11 ok   back to APFS: copyfile-ALL of a file with a resource fork fails (rc 1)
+10:15:11 ok   back to APFS: ditto t/ditto.f2 rc ()
+10:15:11 ok   back to APFS: ditto t/ditto.f2 xattrs equal the source (missing [], extra [], differ [])
+10:15:11 back to APFS: cp-p t/ditto.f2 -> rc 1 'cp: /mnt/t/ditto.f2: could not copy extended attributes to /back/cp-p.t_ditto.f2: Invalid argument' (a resource fork is on the source)
+10:15:11 ok   back to APFS: cp-p of a file with a resource fork fails (rc 1)
+10:15:11 back to APFS: copyfile-ALL t/ditto.f2 -> rc 1 'copyfile(COPYFILE_ALL) errno EINVAL(22)' (a resource fork is on the source)
+10:15:11 ok   back to APFS: copyfile-ALL of a file with a resource fork fails (rc 1)
+10:15:11 ok   back to APFS: ditto t/cp-p.f2 rc ()
+10:15:11 ok   back to APFS: ditto t/cp-p.f2 xattrs equal the source (missing [], extra [], differ [])
+10:15:11 back to APFS: cp-p t/cp-p.f2 -> rc 1 'cp: /mnt/t/cp-p.f2: could not copy extended attributes to /back/cp-p.t_cp-p.f2: Invalid argument' (a resource fork is on the source)
+10:15:11 ok   back to APFS: cp-p of a file with a resource fork fails (rc 1)
+10:15:11 back to APFS: copyfile-ALL t/cp-p.f2 -> rc 1 'copyfile(COPYFILE_ALL) errno EINVAL(22)' (a resource fork is on the source)
+10:15:11 ok   back to APFS: copyfile-ALL of a file with a resource fork fails (rc 1)
+10:15:11 ok   back to APFS: ditto t/cp-c.f2 rc ()
+10:15:11 ok   back to APFS: ditto t/cp-c.f2 xattrs equal the source (missing [], extra [], differ [])
+10:15:11 back to APFS: cp-p t/cp-c.f2 -> rc 1 'cp: /mnt/t/cp-c.f2: could not copy extended attributes to /back/cp-p.t_cp-c.f2: Invalid argument' (a resource fork is on the source)
+10:15:11 ok   back to APFS: cp-p of a file with a resource fork fails (rc 1)
+10:15:11 back to APFS: copyfile-ALL t/cp-c.f2 -> rc 1 'copyfile(COPYFILE_ALL) errno EINVAL(22)' (a resource fork is on the source)
+10:15:11 ok   back to APFS: copyfile-ALL of a file with a resource fork fails (rc 1)
+10:15:11 ok   back to APFS: ditto t/cp-pc.f2 rc ()
+10:15:11 ok   back to APFS: ditto t/cp-pc.f2 xattrs equal the source (missing [], extra [], differ [])
+10:15:11 back to APFS: cp-p t/cp-pc.f2 -> rc 1 'cp: /mnt/t/cp-pc.f2: could not copy extended attributes to /back/cp-p.t_cp-pc.f2: Invalid argument' (a resource fork is on the source)
+10:15:11 ok   back to APFS: cp-p of a file with a resource fork fails (rc 1)
+10:15:11 back to APFS: copyfile-ALL t/cp-pc.f2 -> rc 1 'copyfile(COPYFILE_ALL) errno EINVAL(22)' (a resource fork is on the source)
+10:15:11 ok   back to APFS: copyfile-ALL of a file with a resource fork fails (rc 1)
+10:15:11 ok   back to APFS: ditto t/copyfile-ALL.f2 rc ()
+10:15:11 ok   back to APFS: ditto t/copyfile-ALL.f2 xattrs equal the source (missing [], extra [], differ [])
+10:15:11 back to APFS: cp-p t/copyfile-ALL.f2 -> rc 1 'cp: /mnt/t/copyfile-ALL.f2: could not copy extended attributes to /back/cp-p.t_copyfile-ALL.f2: Invalid argument' (a resource fork is on the source)
+10:15:11 ok   back to APFS: cp-p of a file with a resource fork fails (rc 1)
+10:15:11 back to APFS: copyfile-ALL t/copyfile-ALL.f2 -> rc 1 'copyfile(COPYFILE_ALL) errno EINVAL(22)' (a resource fork is on the source)
+10:15:11 ok   back to APFS: copyfile-ALL of a file with a resource fork fails (rc 1)
+10:15:11 ok   back to APFS: ditto t2/ditto.f2 rc ()
+10:15:11 ok   back to APFS: ditto t2/ditto.f2 xattrs equal the source (missing [], extra [], differ [])
+10:15:11 back to APFS: cp-p t2/ditto.f2 -> rc 1 'cp: /mnt/t2/ditto.f2: could not copy extended attributes to /back/cp-p.t2_ditto.f2: Invalid argument' (a resource fork is on the source)
+10:15:11 ok   back to APFS: cp-p of a file with a resource fork fails (rc 1)
+10:15:11 back to APFS: copyfile-ALL t2/ditto.f2 -> rc 1 'copyfile(COPYFILE_ALL) errno EINVAL(22)' (a resource fork is on the source)
+10:15:11 ok   back to APFS: copyfile-ALL of a file with a resource fork fails (rc 1)
+10:15:11 ok   back to APFS: ditto t2/cp-p.f2 rc ()
+10:15:11 ok   back to APFS: ditto t2/cp-p.f2 xattrs equal the source (missing [], extra [], differ [])
+10:15:11 back to APFS: cp-p t2/cp-p.f2 -> rc 1 'cp: /mnt/t2/cp-p.f2: could not copy extended attributes to /back/cp-p.t2_cp-p.f2: Invalid argument' (a resource fork is on the source)
+10:15:11 ok   back to APFS: cp-p of a file with a resource fork fails (rc 1)
+10:15:11 back to APFS: copyfile-ALL t2/cp-p.f2 -> rc 1 'copyfile(COPYFILE_ALL) errno EINVAL(22)' (a resource fork is on the source)
+10:15:11 ok   back to APFS: copyfile-ALL of a file with a resource fork fails (rc 1)
+10:15:11 ok   back to APFS: ditto t2/cp-c.f2 rc ()
+10:15:11 ok   back to APFS: ditto t2/cp-c.f2 xattrs equal the source (missing [], extra [], differ [])
+10:15:11 back to APFS: cp-p t2/cp-c.f2 -> rc 1 'cp: /mnt/t2/cp-c.f2: could not copy extended attributes to /back/cp-p.t2_cp-c.f2: Invalid argument' (a resource fork is on the source)
+10:15:11 ok   back to APFS: cp-p of a file with a resource fork fails (rc 1)
+10:15:12 back to APFS: copyfile-ALL t2/cp-c.f2 -> rc 1 'copyfile(COPYFILE_ALL) errno EINVAL(22)' (a resource fork is on the source)
+10:15:12 ok   back to APFS: copyfile-ALL of a file with a resource fork fails (rc 1)
+10:15:12 ok   back to APFS: ditto t2/cp-pc.f2 rc ()
+10:15:12 ok   back to APFS: ditto t2/cp-pc.f2 xattrs equal the source (missing [], extra [], differ [])
+10:15:12 back to APFS: cp-p t2/cp-pc.f2 -> rc 1 'cp: /mnt/t2/cp-pc.f2: could not copy extended attributes to /back/cp-p.t2_cp-pc.f2: Invalid argument' (a resource fork is on the source)
+10:15:12 ok   back to APFS: cp-p of a file with a resource fork fails (rc 1)
+10:15:12 back to APFS: copyfile-ALL t2/cp-pc.f2 -> rc 1 'copyfile(COPYFILE_ALL) errno EINVAL(22)' (a resource fork is on the source)
+10:15:12 ok   back to APFS: copyfile-ALL of a file with a resource fork fails (rc 1)
+10:15:12 ok   back to APFS: ditto t2/copyfile-ALL.f2 rc ()
+10:15:12 ok   back to APFS: ditto t2/copyfile-ALL.f2 xattrs equal the source (missing [], extra [], differ [])
+10:15:12 back to APFS: cp-p t2/copyfile-ALL.f2 -> rc 1 'cp: /mnt/t2/copyfile-ALL.f2: could not copy extended attributes to /back/cp-p.t2_copyfile-ALL.f2: Invalid argument' (a resource fork is on the source)
+10:15:12 ok   back to APFS: cp-p of a file with a resource fork fails (rc 1)
+10:15:12 back to APFS: copyfile-ALL t2/copyfile-ALL.f2 -> rc 1 'copyfile(COPYFILE_ALL) errno EINVAL(22)' (a resource fork is on the source)
+10:15:12 ok   back to APFS: copyfile-ALL of a file with a resource fork fails (rc 1)
+10:15:12 ok   back to APFS: ditto t/ditto.f3 rc ()
+10:15:12 ok   back to APFS: ditto t/ditto.f3 xattrs equal the source (missing [], extra [], differ [])
+10:15:12 ok   back to APFS: cp-p t/ditto.f3 rc ()
+10:15:12 ok   back to APFS: cp-p t/ditto.f3 xattrs equal the source (missing [], extra [], differ [])
+10:15:12 ok   back to APFS: copyfile-ALL t/ditto.f3 rc ()
+10:15:12 ok   back to APFS: copyfile-ALL t/ditto.f3 xattrs equal the source (missing [], extra [], differ [])
+10:15:12 ok   back to APFS: ditto t/cp-p.f3 rc ()
+10:15:12 ok   back to APFS: ditto t/cp-p.f3 xattrs equal the source (missing [], extra [], differ [])
+10:15:12 ok   back to APFS: cp-p t/cp-p.f3 rc ()
+10:15:12 ok   back to APFS: cp-p t/cp-p.f3 xattrs equal the source (missing [], extra [], differ [])
+10:15:12 ok   back to APFS: copyfile-ALL t/cp-p.f3 rc ()
+10:15:12 ok   back to APFS: copyfile-ALL t/cp-p.f3 xattrs equal the source (missing [], extra [], differ [])
+10:15:12 ok   back to APFS: ditto t/cp-c.f3 rc ()
+10:15:12 ok   back to APFS: ditto t/cp-c.f3 xattrs equal the source (missing [], extra [], differ [])
+10:15:12 ok   back to APFS: cp-p t/cp-c.f3 rc ()
+10:15:12 ok   back to APFS: cp-p t/cp-c.f3 xattrs equal the source (missing [], extra [], differ [])
+10:15:12 ok   back to APFS: copyfile-ALL t/cp-c.f3 rc ()
+10:15:12 ok   back to APFS: copyfile-ALL t/cp-c.f3 xattrs equal the source (missing [], extra [], differ [])
+10:15:12 ok   back to APFS: ditto t/cp-pc.f3 rc ()
+10:15:12 ok   back to APFS: ditto t/cp-pc.f3 xattrs equal the source (missing [], extra [], differ [])
+10:15:12 ok   back to APFS: cp-p t/cp-pc.f3 rc ()
+10:15:12 ok   back to APFS: cp-p t/cp-pc.f3 xattrs equal the source (missing [], extra [], differ [])
+10:15:12 ok   back to APFS: copyfile-ALL t/cp-pc.f3 rc ()
+10:15:12 ok   back to APFS: copyfile-ALL t/cp-pc.f3 xattrs equal the source (missing [], extra [], differ [])
+10:15:12 ok   back to APFS: ditto t/copyfile-ALL.f3 rc ()
+10:15:12 ok   back to APFS: ditto t/copyfile-ALL.f3 xattrs equal the source (missing [], extra [], differ [])
+10:15:12 ok   back to APFS: cp-p t/copyfile-ALL.f3 rc ()
+10:15:12 ok   back to APFS: cp-p t/copyfile-ALL.f3 xattrs equal the source (missing [], extra [], differ [])
+10:15:12 ok   back to APFS: copyfile-ALL t/copyfile-ALL.f3 rc ()
+10:15:12 ok   back to APFS: copyfile-ALL t/copyfile-ALL.f3 xattrs equal the source (missing [], extra [], differ [])
+10:15:12 ok   no ._* files on the volume at the end
+10:15:12 ok   no ._* files in the APFS copies
+10:15:12 $ sync -> rc=0
+10:15:12 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/mnt -> rc=0
+10:15:12 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/vol.img -> rc=0
+10:15:12 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/vol.img was processed successfully.
+10:15:12 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/mnt -> rc=0
+10:15:16 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+10:15:16 ok   after remount: t/ditto.f2
+10:15:16 ok   after remount: t/copyfile-ALL.f2
+10:15:16 ok   after remount: t2/ditto.f2
+10:15:16 ok   after remount: t2/cp-p.f2
+10:15:16 ok   after remount: t/ditto.f1
+10:15:16 ok   after remount: t/copyfile-ALL.f1
+10:15:16 ok   no ._* files after remount
+10:15:16 $ sync -> rc=0
+10:15:16 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/mnt -> rc=0
+10:15:16 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/vol.img -> rc=0
+10:15:16 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-rre1z6ty/vol.img was processed successfully.
+10:15:16 end I-XATTR-06: pass

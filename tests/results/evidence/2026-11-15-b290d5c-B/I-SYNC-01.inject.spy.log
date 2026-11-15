@@ -1,0 +1,14 @@
+1794737511.219424 open pid=18624 fd=3 path=/dev/null
+1794737511.219602 open pid=18624 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-12mejw2n/inject.img
+1794737511.219698 open pid=18624 fd=5 path=/dev/null
+1794737511.223202 open pid=18624 fd=5 path=/dev/null
+1794737514.177725 fullfsync pid=18624 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-12mejw2n/inject.img rc=-1 errno=25 us=0 writes=62 bytes=162810
+1794737514.178460 fsync pid=18624 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-12mejw2n/inject.img rc=0 errno=0 us=719 writes=0 bytes=0
+1794737517.373562 fullfsync pid=18624 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-12mejw2n/inject.img rc=-1 errno=25 us=0 writes=18 bytes=45057
+1794737517.374755 fsync pid=18624 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-12mejw2n/inject.img rc=0 errno=0 us=1163 writes=0 bytes=0
+1794737519.885063 fullfsync pid=18624 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-12mejw2n/inject.img rc=-1 errno=25 us=0 writes=6 bytes=20480
+1794737519.886610 fsync pid=18624 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-12mejw2n/inject.img rc=0 errno=0 us=1501 writes=0 bytes=0
+1794737522.386654 fullfsync pid=18624 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-12mejw2n/inject.img rc=-1 errno=25 us=1 writes=6 bytes=24576
+1794737522.387777 fsync pid=18624 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-12mejw2n/inject.img rc=0 errno=0 us=1076 writes=0 bytes=0
+1794737526.184714 fullfsync pid=18624 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-12mejw2n/inject.img rc=-1 errno=25 us=0 writes=6 bytes=28672
+1794737526.184807 fsync pid=18624 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-12mejw2n/inject.img rc=0 errno=0 us=4 writes=0 bytes=0

@@ -1,0 +1,154 @@
+10:14:43 start I-XATTR-05 (env B)
+10:14:43 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img -> rc=0
+10:14:43 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+10:14:43 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+10:14:43 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,windows_names,noatime,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/mnt -> rc=0
+10:14:47 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+10:14:47 ok   windows_names: set 'com.apple.metadata:_kMDItemUserTags' (patch 0009) -> ?(0)
+10:14:47 ok   windows_names: read back 'com.apple.metadata:_kMDItemUserTags'
+10:14:47 ok   windows_names: set 'com.apple.metadata:kMDItemFinderComment' (patch 0009) -> ?(0)
+10:14:47 ok   windows_names: read back 'com.apple.metadata:kMDItemFinderComment'
+10:14:47 ok   windows_names: set 'a:b' (patch 0009) -> ?(0)
+10:14:47 ok   windows_names: read back 'a:b'
+10:14:47 ok   windows_names: set 'a/b' (patch 0009) -> ?(0)
+10:14:47 ok   windows_names: read back 'a/b'
+10:14:47 ok   windows_names: set 'a*b' (patch 0009) -> ?(0)
+10:14:47 ok   windows_names: read back 'a*b'
+10:14:47 ok   windows_names: set 'a"b' (patch 0009) -> ?(0)
+10:14:47 ok   windows_names: read back 'a"b'
+10:14:47 ok   windows_names: set 'a<b' (patch 0009) -> ?(0)
+10:14:47 ok   windows_names: read back 'a<b'
+10:14:47 ok   windows_names: set 'a|b' (patch 0009) -> ?(0)
+10:14:47 ok   windows_names: read back 'a|b'
+10:14:47 ok   windows_names: set 'a?b' (patch 0009) -> ?(0)
+10:14:47 ok   windows_names: read back 'a?b'
+10:14:47 ok   windows_names: set 'a\\b' (patch 0009) -> ?(0)
+10:14:47 ok   windows_names: read back 'a\\b'
+10:14:47 ok   windows_names: set 'trail.' (patch 0009) -> ?(0)
+10:14:47 ok   windows_names: read back 'trail.'
+10:14:47 ok   windows_names: set 'sp ' (patch 0009) -> ?(0)
+10:14:47 ok   windows_names: read back 'sp '
+10:14:47 ok   windows_names: set '\x01c' (patch 0009) -> ?(0)
+10:14:47 ok   windows_names: read back '\x01c'
+10:14:47 ok   windows_names: set 'con' -> ?(0)
+10:14:47 ok   windows_names: set 'com.apple.lastuseddate#PS' -> ?(0)
+10:14:47 ok   windows_names: set 'naïve' -> ?(0)
+10:14:47 ok   windows_names: set 'a b' -> ?(0)
+10:14:47 ok   windows_names: set 'x.y.z' -> ?(0)
+10:14:47 ok   windows_names: the colour label (FinderInfo) works -> ?(0)
+10:14:47 ok   windows_names: set the tags plist -> ?(0)
+10:14:47 ok   windows_names: tags plist read back
+10:14:47 ok   xattr -wx of the tags name under windows_names ('')
+10:14:47 ok   windows_names: set tags on a directory -> ?(0)
+10:14:47 ok   windows_names: tags plist read back on the directory
+10:14:47 ok   windows_names: XATTR_CREATE over the tags name -> EEXIST(17)
+10:14:47 ok   every name is stored and listed
+10:14:47 ok   windows_names: create file 'a:b'
+10:14:47 ok   windows_names: mkdir 'a:b'
+10:14:47 ok   windows_names: create file 'a*b'
+10:14:47 ok   windows_names: mkdir 'a*b'
+10:14:47 ok   windows_names: create file 'a"b'
+10:14:47 ok   windows_names: mkdir 'a"b'
+10:14:47 ok   windows_names: create file 'a<b'
+10:14:47 ok   windows_names: mkdir 'a<b'
+10:14:47 ok   windows_names: create file 'a>b'
+10:14:47 ok   windows_names: mkdir 'a>b'
+10:14:47 ok   windows_names: create file 'a|b'
+10:14:47 ok   windows_names: mkdir 'a|b'
+10:14:47 ok   windows_names: create file 'a?b'
+10:14:47 ok   windows_names: mkdir 'a?b'
+10:14:47 ok   windows_names: create file 'a\\b'
+10:14:47 ok   windows_names: mkdir 'a\\b'
+10:14:47 ok   windows_names: create file 'trail.'
+10:14:47 ok   windows_names: mkdir 'trail.'
+10:14:47 ok   windows_names: create file 'sp '
+10:14:47 ok   windows_names: mkdir 'sp '
+10:14:47 ok   windows_names: create file 'con'
+10:14:47 ok   windows_names: mkdir 'con'
+10:14:47 ok   windows_names: create file 'x:y.txt'
+10:14:47 ok   windows_names: mkdir 'x:y.txt'
+10:14:47 ok   no refused file or directory name was created
+10:14:47 $ sync -> rc=0
+10:14:47 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/mnt -> rc=0
+10:14:47 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img -> rc=0
+10:14:47 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img was processed successfully.
+10:14:47 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,windows_names,noatime,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/mnt -> rc=0
+10:14:50 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+10:14:50 ok   after remount: tags plist on the file
+10:14:50 ok   after remount: tags plist on the directory
+10:14:50 ok   after remount: every name is listed
+10:14:51 $ sync -> rc=0
+10:14:51 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/mnt -> rc=0
+10:14:51 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img -> rc=0
+10:14:51 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img was processed successfully.
+10:14:51 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,windows_names,noatime,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/mnt -> rc=0
+10:14:54 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+10:14:54 $ sync -> rc=0
+10:14:54 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/mnt -> rc=0
+10:14:54 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img -> rc=0
+10:14:54 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img was processed successfully.
+10:14:54 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/mnt -> rc=0
+10:14:58 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+10:14:58 ok   no windows_names: set tags on tagged2.txt -> ?(0)
+10:14:58 ok   no windows_names: tags plist read back on tagged2.txt
+10:14:58 ok   no windows_names: set tags on tagdir -> ?(0)
+10:14:58 ok   no windows_names: tags plist read back on tagdir
+10:14:58 ok   no windows_names: set 'com.apple.metadata:kMDItemFinderComment' -> ?(0)
+10:14:58 ok   no windows_names: set 'a:b' -> ?(0)
+10:14:58 ok   no windows_names: set 'a/b' -> ?(0)
+10:14:58 ok   no windows_names: set 'a*b' -> ?(0)
+10:14:58 ok   no windows_names: set 'a"b' -> ?(0)
+10:14:58 ok   no windows_names: set 'a<b' -> ?(0)
+10:14:58 ok   no windows_names: set 'a|b' -> ?(0)
+10:14:58 ok   no windows_names: set 'a?b' -> ?(0)
+10:14:58 ok   no windows_names: set 'a\\b' -> ?(0)
+10:14:58 ok   no windows_names: set 'trail.' -> ?(0)
+10:14:58 ok   no windows_names: set 'sp ' -> ?(0)
+10:14:58 ok   no windows_names: set '\x01c' -> ?(0)
+10:14:58 $ sync -> rc=0
+10:14:58 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/mnt -> rc=0
+10:14:58 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img -> rc=0
+10:14:58 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img was processed successfully.
+10:14:58 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,windows_names,noatime,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/mnt -> rc=0
+10:15:01 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+10:15:01 ok   windows_names remount: existing ':' streams still listed and readable
+10:15:01 ok   windows_names over an existing ':' stream: replace -> ?(0)
+10:15:01 ok   windows_names over an existing ':' stream: replaced value
+10:15:01 ok   windows_names over an existing ':' stream: remove -> ?(0)
+10:15:01 ok   removed tags name is gone -> ENOATTR(93)
+10:15:01 ok   tags on the directory after the windows_names remount
+10:15:01 ok   no ._* files
+10:15:01 $ sync -> rc=0
+10:15:01 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/mnt -> rc=0
+10:15:01 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img -> rc=0
+10:15:01 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3jfbmvuc/vol.img was processed successfully.
+10:15:01 end I-XATTR-05: pass

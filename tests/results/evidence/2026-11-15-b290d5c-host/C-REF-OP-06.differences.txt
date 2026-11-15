@@ -1,0 +1,6 @@
+EXPECTED ED-08 op 13 setxattr x/file: A EINVAL, B ok
+EXPECTED ED-06 op 21 setxattr x/file: A E2BIG, B ok
+EXPECTED ED-01 .fseventsd: exists on B only (macOS creates it in the root of every mount)
+EXPECTED ED-01 .fseventsd/fseventsd-uuid: exists on B only (macOS creates it in the root of every mount)
+EXPECTED ED-06 x/file: xattrs differ (listed for this path)
+EXPECTED ED-08 x/file: xattrs differ (listed for this path)

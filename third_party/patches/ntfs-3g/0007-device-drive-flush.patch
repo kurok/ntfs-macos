@@ -14,9 +14,13 @@ Hunks (libntfs-3g/unix_io.c only):
     device: fsync(fd), then ioctl(fd, DKIOCSYNCHRONIZE, &{offset 0, length 0, options 0}), which
     flushes the whole device; the function returns fsync()'s result. A failed ioctl is logged with
     ntfs_log_perror() and does not change the result (a drive that cannot be flushed must not turn
-    a session that wrote its data into a failed one; ntfs-macos patch 0006 reports it as a
-    "W flush" record). errno is fsync()'s when fsync() failed. Regular file (disk image, tests), or
+    a session that wrote its data into a failed one; it is reported as a "W flush <errno>" record
+    on the session channel, patch 0006, with the errno of the ioctl taken right after the call).
+    errno is fsync()'s when fsync() failed. Regular file (disk image, tests), or
     fstat() fails: the upstream code is unchanged, F_FULLFSYNC then the fsync() fallback.
+Series order: 0006 (session channel) is applied before this patch, so the include and the
+hunks sit after 0006's code; the only addition made when 0007 was re-based onto 0006 (T-M3-18) is
+the ntfsmac_errfd_warn("flush", ferr) call (ferr: errno taken right after the ioctl) next to the ntfs_log_perror() line of the failed ioctl.
 Callers are unchanged: ntfs_device_unix_io_sync(), ntfs_device_unix_io_close() and, through
 __ntfs_volume_release(), every read/write unmount reach the new code, and ntfs_device_sync() still
 skips a device that is not dirty.
@@ -46,11 +50,11 @@ The character-device branch (/dev/rdiskN) is covered only by the T-M3-10 spike (
 the raw node does not mount, so I-SYNC has no sync point on it.
 
 diff -ruN a/libntfs-3g/unix_io.c b/libntfs-3g/unix_io.c
---- a/libntfs-3g/unix_io.c	2026-11-15 08:53:12.600348577 +0000
-+++ b/libntfs-3g/unix_io.c	2026-11-15 08:53:35.028641480 +0000
-@@ -105,6 +105,10 @@
- #	define O_EXCL 0
- #endif
+--- a/libntfs-3g/unix_io.c	2026-11-15 09:58:05.332035661 +0000
++++ b/libntfs-3g/unix_io.c	2026-11-15 09:58:12.297495175 +0000
+@@ -308,6 +308,10 @@
+ 		ntfsmac_errfd_put(buf, n);
+ }
  
 +#if defined(__APPLE__) || defined(__DARWIN__)
 +#include <sys/disk.h>
@@ -59,7 +63,7 @@ diff -ruN a/libntfs-3g/unix_io.c b/libntfs-3g/unix_io.c
  /**
   * fsync replacement which makes every effort to try to get the data down to
   * disk, using different means for different operating systems. Specifically,
-@@ -120,6 +124,30 @@
+@@ -323,6 +327,34 @@
  # ifndef F_FULLFSYNC
  #  error "Mac OS X: F_FULLFSYNC is not defined. Either you didn't include fcntl.h or you're using an older, unsupported version of Mac OS X (pre-10.3)."
  # endif
@@ -81,8 +85,12 @@ diff -ruN a/libntfs-3g/unix_io.c b/libntfs-3g/unix_io.c
 +		ret = fsync(fildes);
 +		err = errno;
 +		memset(&dk, 0, sizeof(dk));
-+		if (ioctl(fildes, DKIOCSYNCHRONIZE, &dk))
++		if (ioctl(fildes, DKIOCSYNCHRONIZE, &dk)) {
++			int ferr = errno;
++
 +			ntfs_log_perror("DKIOCSYNCHRONIZE failed");
++			ntfsmac_errfd_warn("flush", ferr);
++		}
 +		if (ret)
 +			errno = err;
 +		return ret;

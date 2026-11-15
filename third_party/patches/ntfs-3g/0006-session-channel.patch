@@ -1,0 +1,422 @@
+ntfs-macos patch 0006: session channel on NTFSMAC_ERRFD (S, E, W, U records)
+
+Rationale (T-M3-18, ADR-018, ARCHITECTURE.md section 7): the daemon must learn of a device write
+error independently of FSKit, and must see positive proof that a session ended cleanly. Stock
+ntfs-3g exits 0 after every return from fuse_loop() and only logs a failed ntfs_umount(), so neither
+its exit status nor silence is evidence. This patch writes fixed-format ASCII records, one write()
+each, at most 32 bytes with the newline, to the descriptor named by the environment variable
+NTFSMAC_ERRFD:
+  S rw|ro          src/ntfs-3g.c main(), right after mount_fuse() succeeded and ctx->mounted = TRUE;
+                   "ro" when NVolReadOnly(ctx->vol) (the engine's own read-only fallback included).
+                   At most once.
+  E <op> <errno>   libntfs-3g/unix_io.c: a device write that failed or was short (op pwrite, write),
+                   a failed device sync (sync), a failed sync or close() in the device close (close);
+                   src/ntfs-3g.c ntfs_close(): ntfs_umount() returned non-zero (umount).
+  W flush <errno>  libntfs-3g/unix_io.c ntfs_fsync(): the drive flush failed and only fsync() was done.
+                   In this patch: the fcntl(F_FULLFSYNC) fallback (an image file on macOS, errno of the
+                   failed fcntl). Patch 0007 adds the same record for a failed DKIOCSYNCHRONIZE on a
+                   device node. A report only: the return value of ntfs_fsync() does not change.
+  U <n>            src/ntfs-3g.c ntfs_close(), only when ntfs_umount() returned 0 and S was written; n is
+                   the number of E records this process tried to write (written or not).
+Record text is a literal in unix_io.c plus decimal integers; nothing comes from the disk.
+Hunks:
+  - libntfs-3g/unix_io.c: the channel (init, write, four exported functions ntfsmac_errfd_session,
+    _error, _warn, _unmounted), declared in include/ntfs-3g/device.h. The E records come from four
+    wrapper operations (ntfsmac_unix_io_close, _write, _pwrite, _sync) that call the upstream
+    functions and are put in ntfs_device_unix_io_ops; the upstream functions and the lines patch 0004
+    changes (the write, pwrite and ntfs_fsync call sites) are not edited, so this patch applies with
+    and without 0004 and the Linux object file of a release build equals the series-without-0004
+    reference (tests/stress/crashsweep/build.sh). Read-only devices write no E record. W is written
+    from ntfs_fsync(), inside the __APPLE__ branch.
+  - src/ntfs-3g.c: S after mount_fuse(), U or "E umount" in ntfs_close() (a few lines).
+Channel rules (ARCHITECTURE.md section 7, "Bounds and descriptor hygiene"):
+  - The variable is read when the device layer first needs it (ntfs_device_unix_io_open(), before
+    mount_fuse()). Only a decimal descriptor 3..100000 that is a pipe or a socket and is writable is
+    accepted; a device, a regular file or anything else is ignored, so a record can never reach a
+    disk. Ignored or unset: no output, no change in behaviour.
+  - FD_CLOEXEC is set and the descriptor is made O_NONBLOCK; the variable is removed from the environment
+    once the descriptor is accepted, so children do not see it. A full pipe drops the record and the
+    process never blocks. A reader that went away gives EPIPE and must not kill the worker: on macOS
+    F_SETNOSIGPIPE is set, and when that works SIGPIPE is not raised at all; otherwise SIGPIPE is blocked
+    around the write and a SIGPIPE that the write raised is consumed (sigtimedwait with a zero timeout on
+    Linux, so it cannot block). EINTR is retried a few times, nothing else is retried.
+  - At most 30 E and 30 W records are written (with S and U below the daemon's 64); more are counted
+    for U only. errno is preserved by every function.
+  - Faultio builds only (ENABLE_FAULTIO, patch 0004): if NTFSMAC_FAULT_ERRFD_CMD is set, the channel
+    flags are printed to stderr and that command is run through system(), for I-ERR-07. The code and
+    strings are not compiled into a release build.
+Scope: device layer and two places in the FUSE front end; nothing touches allocation, runlists, MFT or
+index code. Used by every program linked with libntfs-3g (ntfsfix, mkntfs, the probe, volmark), but they
+write a record only when the variable names a pipe or socket. Series order: after 0003 and 0004, before
+0007, 0008 and 0009 (re-based onto it by T-M3-18; 0007 gains the W call for DKIOCSYNCHRONIZE).
+Upstream status: not submitted (specific to the ntfs-macos daemon protocol).
+Test: I-ERR-01..07 (tests/integration/errfd/i_err.py); I-DMN-24 and T-M4-13 for the daemon side.
+
+diff -ruN a/include/ntfs-3g/device.h b/include/ntfs-3g/device.h
+--- a/include/ntfs-3g/device.h	2026-11-15 09:24:13.323019914 +0000
++++ b/include/ntfs-3g/device.h	2026-11-15 09:27:54.969492261 +0000
+@@ -145,4 +145,10 @@
+ extern int ntfs_device_inherited_fd(const char *name);
+ #endif
+ 
++/* ntfs-macos patch 0006: session channel on NTFSMAC_ERRFD (libntfs-3g/unix_io.c) */
++extern void ntfsmac_errfd_session(int readonly);
++extern void ntfsmac_errfd_error(const char *op, int err);
++extern void ntfsmac_errfd_warn(const char *op, int err);
++extern void ntfsmac_errfd_unmounted(void);
++
+ #endif /* defined _NTFS_DEVICE_H */
+diff -ruN a/libntfs-3g/unix_io.c b/libntfs-3g/unix_io.c
+--- a/libntfs-3g/unix_io.c	2026-11-15 09:24:13.336542208 +0000
++++ b/libntfs-3g/unix_io.c	2026-11-15 09:58:05.332035661 +0000
+@@ -56,6 +56,8 @@
+ #ifdef HAVE_LINUX_FS_H
+ #include <linux/fs.h>
+ #endif
++#include <signal.h>
++#include <pthread.h>
+ 
+ #include "types.h"
+ #include "mst.h"
+@@ -105,6 +107,207 @@
+ #	define O_EXCL 0
+ #endif
+ 
++/*
++ * ntfs-macos patch 0006 (ADR-018): the session channel.
++ *
++ * If the environment variable NTFSMAC_ERRFD names an open pipe or socket, a few
++ * fixed-format ASCII records are written to it, one write() each, at most 32
++ * bytes with the newline:
++ *	S rw|ro		the volume is mounted (src/ntfs-3g.c main())
++ *	E <op> <errno>	a device-level failure (op: pwrite, write, sync, close;
++ *			src/ntfs-3g.c also writes "E umount <errno>")
++ *	W flush <errno>	the drive flush failed (see ntfs_fsync())
++ *	U <n>		the volume was released without error (ntfs_close());
++ *			n is the number of E records tried
++ * Every record text is a literal of this file plus decimal integers; nothing is
++ * taken from the disk. Without the variable, or when it does not name a pipe or
++ * socket that is writable, nothing is written and nothing changes.
++ * The descriptor gets FD_CLOEXEC and O_NONBLOCK when it is first looked at (at
++ * device open, before the FUSE mount), so no program started later inherits it
++ * and a full pipe drops the record instead of blocking. A reader that went away
++ * gives EPIPE; SIGPIPE is blocked around the write and discarded, so it never
++ * ends the process. A failed or dropped write is not retried and is not an error
++ * for the caller. At most NTFSMAC_ERRFD_MAXE E and NTFSMAC_ERRFD_MAXW W records
++ * are written (with S and U that is below the 64 of the daemon's bound); further
++ * ones are still counted for U.
++ */
++#define NTFSMAC_ERRFD_MAXE 30
++#define NTFSMAC_ERRFD_MAXW 30
++
++static int ntfsmac_errfd = -1;
++static int ntfsmac_errfd_read;		/* the variable was looked at */
++static int ntfsmac_errfd_nerr;		/* E records tried */
++static int ntfsmac_errfd_nwarn;		/* W records tried */
++static int ntfsmac_errfd_started;	/* S was tried */
++static int ntfsmac_errfd_nosigpipe;	/* F_SETNOSIGPIPE took effect */
++
++static int ntfsmac_count(int *counter)
++{
++#if defined(__GNUC__)
++	return __sync_fetch_and_add(counter, 1);
++#else
++	return (*counter)++;
++#endif
++}
++
++static void ntfsmac_errfd_init(void)
++{
++	const char *env;
++	char *end;
++	long n;
++	struct stat st;
++	int fd, fl, fdfl, saved = errno;
++
++	if (ntfsmac_errfd_read)
++		return;
++	ntfsmac_errfd_read = 1;
++	env = getenv("NTFSMAC_ERRFD");
++	if (!env || *env < '0' || *env > '9')
++		goto out;
++	n = strtol(env, &end, 10);
++	if (*end || n < 3 || n > 100000)
++		goto out;
++	fd = (int)n;
++	/* Only a pipe or a socket: never a device or a file. */
++	if (fstat(fd, &st) || !(S_ISFIFO(st.st_mode) || S_ISSOCK(st.st_mode)))
++		goto out;
++	fl = fcntl(fd, F_GETFL);
++	fdfl = fcntl(fd, F_GETFD);
++	if (fl == -1 || fdfl == -1 || (fl & O_ACCMODE) == O_RDONLY)
++		goto out;
++	if (fcntl(fd, F_SETFD, fdfl | FD_CLOEXEC) == -1)
++		goto out;
++	if (fcntl(fd, F_SETFL, fl | O_NONBLOCK) == -1)
++		goto out;
++#ifdef F_SETNOSIGPIPE
++	if (fcntl(fd, F_SETNOSIGPIPE, 1) != -1)
++		ntfsmac_errfd_nosigpipe = 1;
++#endif
++	ntfsmac_errfd = fd;
++	/* Children (system(), the mount helper) must not see the variable. */
++	unsetenv("NTFSMAC_ERRFD");
++#if defined(ENABLE_FAULTIO)
++	/*
++	 * Test hook (I-ERR-07), faultio builds only: report the flags of the
++	 * channel, then run the command in NTFSMAC_FAULT_ERRFD_CMD through
++	 * system(), to show that the child has no copy of it.
++	 */
++	{
++		const char *cmd = getenv("NTFSMAC_FAULT_ERRFD_CMD");
++
++		if (cmd && getuid() == geteuid() && getgid() == getegid()) {
++			fprintf(stderr, "ntfsmac-errfd-hook: fd=%d fdflags=%d "
++				"flflags=%d\n", fd, fcntl(fd, F_GETFD),
++				fcntl(fd, F_GETFL));
++			fflush(stderr);
++			if (system(cmd))
++				fprintf(stderr, "ntfsmac-errfd-hook: "
++					"command failed\n");
++		}
++	}
++#endif
++out:
++	errno = saved;
++}
++
++static void ntfsmac_errfd_put(const char *buf, int len)
++{
++	sigset_t set, old, pend;
++	int saved = errno, tries = 0, wasp, sig;
++	ssize_t r;
++
++	if (ntfsmac_errfd_nosigpipe) {
++		/* The kernel does not raise SIGPIPE for this descriptor. */
++		do
++			r = write(ntfsmac_errfd, buf, len);
++		while (r < 0 && errno == EINTR && ++tries < 4);
++		goto out;
++	}
++	sigemptyset(&set);
++	sigaddset(&set, SIGPIPE);
++	if (pthread_sigmask(SIG_BLOCK, &set, &old))
++		goto out;
++	sigemptyset(&pend);
++	wasp = !sigpending(&pend) && sigismember(&pend, SIGPIPE) == 1;
++	do
++		r = write(ntfsmac_errfd, buf, len);
++	while (r < 0 && errno == EINTR && ++tries < 4);
++	if (r < 0 && errno == EPIPE && !wasp) {
++		sigemptyset(&pend);
++		if (!sigpending(&pend) && sigismember(&pend, SIGPIPE) == 1) {
++#if defined(__linux__)
++			struct timespec zero = { 0, 0 };
++
++			(void)sigtimedwait(&set, NULL, &zero);	/* never blocks */
++			(void)sig;
++#else
++			(void)sigwait(&set, &sig);	/* already pending */
++#endif
++		}
++	}
++	pthread_sigmask(SIG_SETMASK, &old, NULL);
++out:
++	errno = saved;
++}
++
++static void ntfsmac_errfd_rec(char kind, const char *op, int err)
++{
++	char buf[32];
++	int n;
++
++	if (err <= 0)
++		err = EIO;
++	n = snprintf(buf, sizeof(buf), "%c %s %d\n", kind, op, err);
++	if (n > 0 && n < (int)sizeof(buf))
++		ntfsmac_errfd_put(buf, n);
++}
++
++/* S rw|ro: the volume is mounted. At most once. */
++void ntfsmac_errfd_session(int readonly)
++{
++	ntfsmac_errfd_init();
++	if (ntfsmac_errfd < 0 || ntfsmac_count(&ntfsmac_errfd_started))
++		return;
++	ntfsmac_errfd_put(readonly ? "S ro\n" : "S rw\n", 5);
++}
++
++/* E <op> <err>: counted for U even when it is not written. */
++void ntfsmac_errfd_error(const char *op, int err)
++{
++	int saved = errno;
++
++	ntfsmac_errfd_init();
++	if (ntfsmac_count(&ntfsmac_errfd_nerr) < NTFSMAC_ERRFD_MAXE
++	    && ntfsmac_errfd >= 0)
++		ntfsmac_errfd_rec('E', op, err);
++	errno = saved;
++}
++
++/* W <op> <err>: the session is still usable, a report only. */
++void ntfsmac_errfd_warn(const char *op, int err)
++{
++	int saved = errno;
++
++	ntfsmac_errfd_init();
++	if (ntfsmac_count(&ntfsmac_errfd_nwarn) < NTFSMAC_ERRFD_MAXW
++	    && ntfsmac_errfd >= 0)
++		ntfsmac_errfd_rec('W', op, err);
++	errno = saved;
++}
++
++/* U <n>: only after S, and only when the volume was released without error. */
++void ntfsmac_errfd_unmounted(void)
++{
++	char buf[32];
++	int n;
++
++	if (ntfsmac_errfd < 0 || !ntfsmac_errfd_started)
++		return;
++	n = snprintf(buf, sizeof(buf), "U %d\n", ntfsmac_errfd_nerr);
++	if (n > 0 && n < (int)sizeof(buf))
++		ntfsmac_errfd_put(buf, n);
++}
++
+ /**
+  * fsync replacement which makes every effort to try to get the data down to
+  * disk, using different means for different operating systems. Specifically,
+@@ -127,11 +330,15 @@
+ 	 */
+ 	ret = fcntl(fildes, F_FULLFSYNC, NULL);
+ 	if (ret) {
++		int ferr = errno;
++
+ 		/* 
+ 		 * If we are not on a file system that supports this,
+ 		 * then fall back to a plain fsync. 
+ 		 */
+ 		ret = fsync(fildes);
++		/* ntfs-macos patch 0006: the drive flush was not done. */
++		ntfsmac_errfd_warn("flush", ferr);
+ 	}
+ #else
+ 	ret = fsync(fildes);
+@@ -157,6 +364,8 @@
+ 	int inherited = ntfs_device_inherited_fd(dev->d_name);
+ #endif
+ 
++	/* ntfs-macos patch 0006: look at NTFSMAC_ERRFD before anything else. */
++	ntfsmac_errfd_init();
+ 	if (NDevOpen(dev)) {
+ 		errno = EBUSY;
+ 		return -1;
+@@ -462,18 +671,76 @@
+ 	return ioctl(DEV_FD(dev), request, argp);
+ }
+ 
++/*
++ * ntfs-macos patch 0006: the operations below call the ones above and write an
++ * "E" record on the session channel when a device write, sync or close of a
++ * writable device failed. errno and the result are passed on unchanged. A write
++ * to a read-only device is refused above with EROFS and is not a device failure.
++ */
++static int ntfsmac_unix_io_close(struct ntfs_device *dev)
++{
++	int open = NDevOpen(dev), ro = NDevReadOnly(dev), res, err;
++
++	res = ntfs_device_unix_io_close(dev);
++	err = errno;
++	if (res && open && !ro)
++		ntfsmac_errfd_error("close", err);
++	errno = err;
++	return res;
++}
++
++static s64 ntfsmac_unix_io_write(struct ntfs_device *dev, const void *buf,
++		s64 count)
++{
++	int ro = NDevReadOnly(dev), err;
++	s64 res;
++
++	res = ntfs_device_unix_io_write(dev, buf, count);
++	err = errno;
++	if (!ro && res != count)
++		ntfsmac_errfd_error("write", res < 0 ? err : EIO);
++	errno = err;
++	return res;
++}
++
++static s64 ntfsmac_unix_io_pwrite(struct ntfs_device *dev, const void *buf,
++		s64 count, s64 offset)
++{
++	int ro = NDevReadOnly(dev), err;
++	s64 res;
++
++	res = ntfs_device_unix_io_pwrite(dev, buf, count, offset);
++	err = errno;
++	if (!ro && res != count)
++		ntfsmac_errfd_error("pwrite", res < 0 ? err : EIO);
++	errno = err;
++	return res;
++}
++
++static int ntfsmac_unix_io_sync(struct ntfs_device *dev)
++{
++	int ro = NDevReadOnly(dev), res, err;
++
++	res = ntfs_device_unix_io_sync(dev);
++	err = errno;
++	if (res && !ro)
++		ntfsmac_errfd_error("sync", err);
++	errno = err;
++	return res;
++}
++
+ /**
+  * Device operations for working with unix style devices and files.
+  */
+ struct ntfs_device_operations ntfs_device_unix_io_ops = {
+ 	.open		= ntfs_device_unix_io_open,
+-	.close		= ntfs_device_unix_io_close,
++	.close		= ntfsmac_unix_io_close,
+ 	.seek		= ntfs_device_unix_io_seek,
+ 	.read		= ntfs_device_unix_io_read,
+-	.write		= ntfs_device_unix_io_write,
++	.write		= ntfsmac_unix_io_write,
+ 	.pread		= ntfs_device_unix_io_pread,
+-	.pwrite		= ntfs_device_unix_io_pwrite,
+-	.sync		= ntfs_device_unix_io_sync,
++	.pwrite		= ntfsmac_unix_io_pwrite,
++	.sync		= ntfsmac_unix_io_sync,
+ 	.stat		= ntfs_device_unix_io_stat,
+ 	.ioctl		= ntfs_device_unix_io_ioctl,
+ };
+diff -ruN a/src/ntfs-3g.c b/src/ntfs-3g.c
+--- a/src/ntfs-3g.c	2026-11-15 09:24:13.324908659 +0000
++++ b/src/ntfs-3g.c	2026-11-15 09:27:54.969727511 +0000
+@@ -3931,8 +3931,14 @@
+ 		ntfs_destroy_security_context(&security);
+ 	}
+ 	
+-	if (ntfs_umount(ctx->vol, FALSE))
++	if (ntfs_umount(ctx->vol, FALSE)) {
++		int uerr = errno;
++
+ 		ntfs_log_perror("Failed to close volume %s", opts.device);
++		/* ntfs-macos patch 0006 (ADR-018): no "U" record after this */
++		ntfsmac_errfd_error("umount", uerr);
++	} else
++		ntfsmac_errfd_unmounted();
+ 	
+ 	ctx->vol = NULL;
+ }
+@@ -4584,6 +4590,8 @@
+ 	}
+ 	
+ 	ctx->mounted = TRUE;
++	/* ntfs-macos patch 0006 (ADR-018): the volume is mounted */
++	ntfsmac_errfd_session(NVolReadOnly(ctx->vol));
+ 
+ #if defined(linux) || defined(__uClinux__)
+ 	if (S_ISBLK(sbuf.st_mode) && (fstype == FSTYPE_FUSE))

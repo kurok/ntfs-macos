@@ -45,8 +45,8 @@ $STANDARD_INFORMATION creation time of new files and directories is the create t
 setattrlist(ATTR_CMN_CRTIME) stores the value set, to 100 ns.
 
 diff -ruN a/src/ntfs-3g.c b/src/ntfs-3g.c
---- a/src/ntfs-3g.c	2026-11-15 08:52:28.219669178 +0000
-+++ b/src/ntfs-3g.c	2026-11-15 08:52:28.234692204 +0000
+--- a/src/ntfs-3g.c	2026-11-15 09:27:54.969727511 +0000
++++ b/src/ntfs-3g.c	2026-11-15 09:58:12.370846496 +0000
 @@ -601,7 +601,7 @@
  	}
  	

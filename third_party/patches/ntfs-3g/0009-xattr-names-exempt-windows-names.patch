@@ -40,8 +40,8 @@ copyfile(COPYFILE_ALL) of a file with Finder tags and comment keep every xattr),
 and reads the ':' stream). Cases in tests/integration/xattr/, Environment B; I-XATTR-09 runs with
 run-env-b.sh --orchestrate. I-NAME-04 still refuses the same file and directory names.
 
---- a/src/ntfs-3g.c	2026-11-15 09:02:19.935193487 +0000
-+++ b/src/ntfs-3g.c	2026-11-15 09:02:46.487119934 +0000
+--- a/src/ntfs-3g.c	2026-11-15 09:58:12.370846496 +0000
++++ b/src/ntfs-3g.c	2026-11-15 09:58:12.443352319 +0000
 @@ -3602,12 +3602,22 @@
  	}
  #endif

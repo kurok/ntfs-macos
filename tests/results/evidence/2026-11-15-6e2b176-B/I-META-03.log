@@ -1,0 +1,57 @@
+09:15:40 start I-META-03 (env B)
+09:15:40 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/vol.img -> rc=0
+09:15:40 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+09:15:40 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+09:15:40 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt -> rc=0
+09:15:43 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+09:15:43 $ echo content > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt/fa_noatime; mkdir /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt/da_noatime; echo x > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt/da_noatime/inner -> rc=0
+09:15:43 $ echo content > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt/fa_atime; mkdir /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt/da_atime; echo x > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt/da_atime/inner -> rc=0
+09:15:43 $ echo content > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt/fa_relatime; mkdir /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt/da_relatime; echo x > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt/da_relatime/inner -> rc=0
+09:15:43 $ echo content > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt/fa_default; mkdir /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt/da_default; echo x > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt/da_default/inner -> rc=0
+09:15:43 $ echo content > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt/fa_product; mkdir /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt/da_product; echo x > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt/da_product/inner -> rc=0
+09:15:43 $ sync -> rc=0
+09:15:43 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt -> rc=0
+09:15:43 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt -> rc=0
+09:15:47 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+09:15:48 $ sync -> rc=0
+09:15:48 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt -> rc=0
+09:15:48 noatime (-o noatime): file atime live 2020-01-01 00:00:00.000000000, disk 2020-01-01 00:00:00.000000000 (updated: False); dir atime live 2020-01-01 00:00:00.000000000, disk 2020-01-01 00:00:00.000000000 (updated: False); file mtime disk 2020-01-01 00:00:00.000000000
+09:15:48 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,atime /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt -> rc=0
+09:15:51 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+09:15:52 $ sync -> rc=0
+09:15:52 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt -> rc=0
+09:15:52 atime (-o atime): file atime live 2020-01-01 00:00:00.000000000, disk 2026-11-15 09:15:51.128821000 (updated: True); dir atime live 2020-01-01 00:00:00.000000000, disk 2026-11-15 09:15:51.130260000 (updated: True); file mtime disk 2020-01-01 00:00:00.000000000
+09:15:52 atime: the live atime differs from the disk (live 2020-01-01 00:00:00.000000000)
+09:15:52 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,relatime /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt -> rc=0
+09:15:55 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+09:15:56 $ sync -> rc=0
+09:15:56 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt -> rc=0
+09:15:56 relatime (-o relatime): file atime live 2020-01-01 00:00:00.000000000, disk 2026-11-15 09:15:55.312345000 (updated: True); dir atime live 2020-01-01 00:00:00.000000000, disk 2026-11-15 09:15:55.314981000 (updated: True); file mtime disk 2020-01-01 00:00:00.000000000
+09:15:56 relatime: the live atime differs from the disk (live 2020-01-01 00:00:00.000000000)
+09:15:56 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt -> rc=0
+09:15:59 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+09:16:00 $ sync -> rc=0
+09:16:00 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt -> rc=0
+09:16:00 default (-o -): file atime live 2020-01-01 00:00:00.000000000, disk 2026-11-15 09:15:59.417535000 (updated: True); dir atime live 2020-01-01 00:00:00.000000000, disk 2026-11-15 09:15:59.418913000 (updated: True); file mtime disk 2020-01-01 00:00:00.000000000
+09:16:00 default: the live atime differs from the disk (live 2020-01-01 00:00:00.000000000)
+09:16:00 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt -> rc=0
+09:16:03 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+09:16:04 $ sync -> rc=0
+09:16:04 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/mnt -> rc=0
+09:16:04 product (-o noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022): file atime live 2020-01-01 00:00:00.000000000, disk 2020-01-01 00:00:00.000000000 (updated: False); dir atime live 2020-01-01 00:00:00.000000000, disk 2020-01-01 00:00:00.000000000 (updated: False); file mtime disk 2020-01-01 00:00:00.000000000
+09:16:04 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/vol.img -> rc=0
+09:16:04 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ibsqfues/vol.img was processed successfully.
+09:16:04 end I-META-03: pass

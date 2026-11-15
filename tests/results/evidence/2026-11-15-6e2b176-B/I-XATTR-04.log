@@ -1,0 +1,65 @@
+09:20:08 start I-XATTR-04 (env B)
+09:20:08 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/vol.img -> rc=0
+09:20:08 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+09:20:08 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+09:20:08 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,windows_names,noatime,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/mnt -> rc=0
+09:20:12 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+09:20:12 ok   set com.apple.quarantine -> ?(0)
+09:20:12 ok   get com.apple.quarantine
+09:20:12 ok   xattr -p quarantine
+09:20:12 ok   set com.apple.lastuseddate#PS on dl.bin -> ?(0)
+09:20:12 ok   set com.apple.TextEncoding on dl.bin -> ?(0)
+09:20:12 ok   set com.apple.ResourceFork (70 KiB) -> ?(0)
+09:20:12 ok   get com.apple.ResourceFork
+09:20:12 ok   ..namedfork/rsrc reads what the xattr API stored
+09:20:12 ok   stat of ..namedfork/rsrc is the fork size
+09:20:12 ok   xattr API reads what ..namedfork/rsrc wrote
+09:20:12 ok   ResourceFork is listed after a write through the path
+09:20:12 ok   data fork untouched by the resource fork
+09:20:12 ok   remove quarantine -> ?(0)
+09:20:12 ok   get quarantine after remove -> ENOATTR(93)
+09:20:12 ok   remove ResourceFork -> ?(0)
+09:20:12 ..namedfork/rsrc after removing the xattr: errno ENOENT(2) (recorded)
+09:20:12 ok   set quarantine again -> ?(0)
+09:20:12 ok   dl.bin: all names before remount
+09:20:12 $ sync -> rc=0
+09:20:12 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/mnt -> rc=0
+09:20:12 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/vol.img -> rc=0
+09:20:12 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/vol.img was processed successfully.
+09:20:12 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,windows_names,noatime,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/mnt -> rc=0
+09:20:15 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+09:20:15 ok   dl.bin after remount
+09:20:15 ok   resource fork after remount, through the path
+09:20:15 ok   no ._* files
+09:20:15 $ sync -> rc=0
+09:20:15 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/mnt -> rc=0
+09:20:15 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/vol.img -> rc=0
+09:20:15 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/vol.img was processed successfully.
+09:20:15 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,windows_names,noatime,streams_interface=openxattr,debug /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/mnt
+09:20:18 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+09:20:18 ok   trace: set a 100-byte resource fork -> ?(0)
+09:20:18 ok   trace: read at position 0
+09:20:18 ok   trace: read at position 50 -> EINVAL(22)
+09:20:18 ok   trace: read at position 100 (end-of-fork probe) -> EINVAL(22)
+09:20:18 $ sync -> rc=0
+09:20:18 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-x5stsk6t/mnt -> rc=0
+09:20:18 worker getxattr requests for the resource fork (size, position): [('0', '0'), ('100', '0')]
+09:20:18 ok   the worker only ever sees position 0: the non-zero reads are refused before the request reaches it
+09:20:18 end I-XATTR-04: pass

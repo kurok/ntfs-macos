@@ -1,0 +1,157 @@
+09:16:52 start I-SYNC-01 (env B)
+09:16:53 $ cc -Wall -Wextra -Werror -dynamiclib -arch arm64 -arch arm64e -o /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/syncspy.dylib /tmp/ntfsmac-h.Rqnob5/integration/sync/syncspy.c -> rc=0
+09:16:53 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L sync /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/file.img -> rc=0
+09:16:53 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+09:16:53 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/file.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/file.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/file.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/file.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/file.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+09:16:53 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/file.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/mnt-file
+09:17:07 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/file.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/mnt-verify-file
+09:17:11 ntfsfix -n after file: rc=0
+09:17:11 file: data check by path: identical
+09:17:11 == device kind: file
+point                                      fuse_fsync  fuse_destroy  device_fullfsync  fullfsync_rc  fullfsync_errno  fullfsync_ms  dirty_writes_before  device_fsync  fsync_rc  device_dksync  dksync_rc  dksync_errno  dksync_ms  fsync_then_dksync  fallback_ran  app_ret  app_ms
+fsync after write                          1           0             1                 0             0                9.35          18                   0             None      0              None       None          None       False              False         None     43.8  
+fsync, nothing new written                 1           0             0                 None          None             None          None                 0             None      0              None       None          None       False              False         None     1.7   
+F_FULLFSYNC after write                    1           0             1                 0             0                6.48          6                    0             None      0              None       None          None       False              False         0        12.4  
+F_FULLFSYNC, nothing new written           1           0             0                 None          None             None          None                 0             None      0              None       None          None       False              False         0        1.6   
+sync(2), file open and dirty               1           0             1                 0             0                5.38          6                    0             None      0              None       None          None       False              False         None     14.8  
+sync(2), file open, nothing new            1           0             0                 None          None             None          None                 0             None      0              None       None          None       False              False         None     10.3  
+sync(2), written and closed, no file open  0           0             0                 None          None             None          None                 0             None      0              None       None          None       False              False         None     39.2  
+unmount (FUSE_DESTROY)                     0           1             1                 0             0                0.02          6                    0             None      0              None       None          None       False              False         0        22.7  
+
+09:17:11 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L sync /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/buf.img -> rc=0
+09:17:11 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+09:17:11 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/buf.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/buf.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/buf.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/buf.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/buf.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+09:17:11 $ /usr/bin/hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/buf.img -> rc=0
+09:17:11 /dev/disk6
+09:17:11 stderr: hdiutil: WARNING: 'hdiutil attach -nomount ...' is deprecated. Please use 'diskutil image attach --noMount ...' instead.
+09:17:11 attached buf.img as /dev/disk6, using /dev/disk6 (buffered)
+09:17:11 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug /dev/fd/5 /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/mnt-buf
+09:17:26 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/buf.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/mnt-verify-buf
+09:17:29 ntfsfix -n after buf: rc=0
+09:17:29 buf: data check by path: identical
+09:17:29 == device kind: buffered
+point                                      fuse_fsync  fuse_destroy  device_fullfsync  fullfsync_rc  fullfsync_errno  fullfsync_ms  dirty_writes_before  device_fsync  fsync_rc  device_dksync  dksync_rc  dksync_errno  dksync_ms  fsync_then_dksync  fallback_ran  app_ret  app_ms
+fsync after write                          1           0             0                 None          None             None          18                   1             0         1              0          0             8.77       True               False         None     10.3  
+fsync, nothing new written                 1           0             0                 None          None             None          None                 0             None      0              None       None          None       False              False         None     0.6   
+F_FULLFSYNC after write                    1           0             0                 None          None             None          6                    1             0         1              0          0             7.04       True               False         0        12.9  
+F_FULLFSYNC, nothing new written           1           0             0                 None          None             None          None                 0             None      0              None       None          None       False              False         0        7.7   
+sync(2), file open and dirty               1           0             0                 None          None             None          6                    1             0         1              0          0             14.59      True               False         None     23.3  
+sync(2), file open, nothing new            1           0             0                 None          None             None          None                 0             None      0              None       None          None       False              False         None     11.9  
+sync(2), written and closed, no file open  0           0             0                 None          None             None          None                 0             None      0              None       None          None       False              False         None     43.0  
+unmount (FUSE_DESTROY)                     0           1             0                 None          None             None          6                    1             0         1              0          0             7.84       True               False         0        30.9  
+
+09:17:29 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L sync /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/raw.img -> rc=0
+09:17:29 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+09:17:29 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/raw.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/raw.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/raw.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/raw.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/raw.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+09:17:29 $ /usr/bin/hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/raw.img -> rc=0
+09:17:29 /dev/disk6
+09:17:29 stderr: hdiutil: WARNING: 'hdiutil attach -nomount ...' is deprecated. Please use 'diskutil image attach --noMount ...' instead.
+09:17:29 attached raw.img as /dev/disk6, using /dev/rdisk6 (raw)
+09:17:29 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug /dev/fd/5 /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/mnt-raw
+09:17:29 raw: mount failed: no mount on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/mnt-raw (worker exited rc=12); worker output tail:
+ntfs_attr_pread_i: ntfs_pread failed: Invalid argument
+Failed to calculate free MFT records: Invalid argument
+Failed to read NTFS $Bitmap: Invalid argument
+The device '/dev/fd/5' doesn't seem to have a valid NTFS.
+Maybe the wrong device is used? Or the whole disk instead of a
+partition (e.g. /dev/sda, not /dev/sda1)? Or the other way around?
+09:17:29 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L sync /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/injectdk.img -> rc=0
+09:17:29 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+09:17:29 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/injectdk.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/injectdk.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/injectdk.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/injectdk.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/injectdk.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+09:17:29 $ /usr/bin/hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/injectdk.img -> rc=0
+09:17:29 /dev/disk7
+09:17:29 stderr: hdiutil: WARNING: 'hdiutil attach -nomount ...' is deprecated. Please use 'diskutil image attach --noMount ...' instead.
+09:17:29 attached injectdk.img as /dev/disk7, using /dev/disk7 (buffered)
+09:17:29 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug /dev/fd/10 /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/mnt-injectdk
+09:17:44 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/injectdk.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/mnt-verify-injectdk
+09:17:47 ntfsfix -n after injectdk: rc=0
+09:17:47 injectdk: data check by path: identical
+09:17:47 == buffered, DKIOCSYNCHRONIZE fails
+point                                      fuse_fsync  fuse_destroy  device_fullfsync  fullfsync_rc  fullfsync_errno  fullfsync_ms  dirty_writes_before  device_fsync  fsync_rc  device_dksync  dksync_rc  dksync_errno  dksync_ms  fsync_then_dksync  fallback_ran  app_ret  app_ms
+fsync after write                          1           0             0                 None          None             None          18                   1             0         1              -1         5             0.0        True               False         None     1.7   
+fsync, nothing new written                 1           0             0                 None          None             None          None                 0             None      0              None       None          None       False              False         None     1.6   
+F_FULLFSYNC after write                    1           0             0                 None          None             None          6                    1             0         1              -1         5             0.0        True               False         0        10.1  
+F_FULLFSYNC, nothing new written           1           0             0                 None          None             None          None                 0             None      0              None       None          None       False              False         0        8.1   
+sync(2), file open and dirty               1           0             0                 None          None             None          6                    1             0         1              -1         5             0.0        True               False         None     15.2  
+sync(2), file open, nothing new            1           0             0                 None          None             None          None                 0             None      0              None       None          None       False              False         None     11.3  
+sync(2), written and closed, no file open  0           0             0                 None          None             None          None                 0             None      0              None       None          None       False              False         None     42.8  
+unmount (FUSE_DESTROY)                     0           1             0                 None          None             None          6                    1             0         1              -1         5             0.0        True               False         0        31.2  
+
+09:17:47 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L sync /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/inject.img -> rc=0
+09:17:47 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+09:17:47 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/inject.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/inject.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/inject.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/inject.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/inject.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+09:17:47 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/inject.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/mnt-inject
+09:18:02 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/inject.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/mnt-verify-inject
+09:18:05 ntfsfix -n after inject: rc=0
+09:18:05 inject: data check by path: identical
+09:18:05 == file, F_FULLFSYNC fails
+point                                      fuse_fsync  fuse_destroy  device_fullfsync  fullfsync_rc  fullfsync_errno  fullfsync_ms  dirty_writes_before  device_fsync  fsync_rc  device_dksync  dksync_rc  dksync_errno  dksync_ms  fsync_then_dksync  fallback_ran  app_ret  app_ms
+fsync after write                          1           0             1                 -1            25               0.0           18                   1             0         0              None       None          None       False              True          None     2.6   
+fsync, nothing new written                 1           0             0                 None          None             None          None                 0             None      0              None       None          None       False              False         None     1.2   
+F_FULLFSYNC after write                    1           0             1                 -1            25               0.0           6                    1             0         0              None       None          None       False              True          0        7.2   
+F_FULLFSYNC, nothing new written           1           0             0                 None          None             None          None                 0             None      0              None       None          None       False              False         0        2.1   
+sync(2), file open and dirty               1           0             1                 -1            25               0.0           6                    1             0         0              None       None          None       False              True          None     12.3  
+sync(2), file open, nothing new            1           0             0                 None          None             None          None                 0             None      0              None       None          None       False              False         None     7.1   
+sync(2), written and closed, no file open  0           0             0                 None          None             None          None                 0             None      0              None       None          None       False              False         None     8.9   
+unmount (FUSE_DESTROY)                     0           1             1                 -1            25               0.0           6                    1             0         0              None       None          None       False              True          0        21.1  
+
+09:18:05 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L sync /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/ro.img -> rc=0
+09:18:05 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+09:18:05 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/ro.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/ro.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/ro.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/ro.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/ro.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+09:18:05 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/ro.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-dc7q37hl/mnt-ro
+09:18:12 read-only unmount: {'point': 'unmount, read-only mount', 'app_ret': 0, 'app_ms': 15.3, 'fuse_fsync': 0, 'fuse_nodeids': [], 'fuse_destroy': 1, 'device_fullfsync': 0, 'fullfsync_rc': None, 'fullfsync_errno': None, 'fullfsync_ms': None, 'dirty_writes_before': None, 'dirty_bytes_before': None, 'device_fsync': 0, 'fsync_rc': None, 'device_dksync': 0, 'dksync_rc': None, 'dksync_errno': None, 'dksync_ms': None, 'fsync_then_dksync': False, 'fallback_ran': False, 'device_node': None}
+09:18:12 end I-SYNC-01: pass

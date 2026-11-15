@@ -1,0 +1,2 @@
+max_value_bytes=262143
+errno_above=EFBIG(27)

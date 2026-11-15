@@ -1,0 +1,107 @@
+05:23:12 start I-MMAP-02 (env B)
+05:23:12 $ cc -Wall -Wextra -Werror -o /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/mmaptool /tmp/ntfsmac-h.pN8Xz5/integration/mmap/mmaptool.c -> rc=0
+05:23:12 $ cc -Wall -Wextra -Werror -dynamiclib -arch arm64 -arch arm64e -o /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/syncspy.dylib /tmp/ntfsmac-h.pN8Xz5/integration/sync/syncspy.c -> rc=0
+05:23:12 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/vol.img -> rc=0
+05:23:12 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+05:23:12 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+05:23:12 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/vol.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/mnt
+05:23:15 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+05:23:19 tool> open /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/mnt/ms-sync-4096.bin rw => ok fd=3
+05:23:19 tool> map 4096 rw => ok
+05:23:19 STEP ms-sync-4096.bin: open+map                   ret=ok 1 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 1 | <OPEN n5 +1ms >FSYNC n5 +84ms
+05:23:19 tool> mput 0 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/tool-in.bin => ok 4096
+05:23:20 STEP ms-sync-4096.bin: mapped write               ret=ok 4096 0 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+05:23:20 tool> msync sync => ok
+05:23:21 STEP ms-sync-4096.bin: msync sync                 ret=ok 1 ms | WRITE x1 4096 B (4096 B before return), device writes 3 syncs 0 | <WRITE n5 4096@0 +0ms
+05:23:22 STEP ms-sync-4096.bin: read(2) after msync        ret=True 1 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+05:23:22 tool> munmap => ok
+05:23:23 STEP ms-sync-4096.bin: munmap                     ret=ok 0 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+05:23:23 tool> close => ok
+05:23:24 STEP ms-sync-4096.bin: close                      ret=ok 1 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <RELEASE n5 +1ms
+05:23:24 tool> quit => EOF
+05:23:24 tool> open /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/mnt/ms-sync-1048589.bin rw => ok fd=3
+05:23:24 tool> map 1048589 rw => ok
+05:23:25 STEP ms-sync-1048589.bin: open+map                ret=ok 1 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <OPEN n6 +1ms
+05:23:25 tool> mput 0 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/tool-in.bin => ok 1048589
+05:23:26 STEP ms-sync-1048589.bin: mapped write            ret=ok 1048589 1 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+05:23:26 tool> msync sync => ok
+05:23:27 STEP ms-sync-1048589.bin: msync sync              ret=ok 2 ms | WRITE x2 1048589 B (1048589 B before return), device writes 6 syncs 0 | <WRITE n6 1048576@0 +1ms <WRITE n6 13@1048576 +2ms
+05:23:27 STEP ms-sync-1048589.bin: read(2) after msync     ret=True 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+05:23:27 tool> munmap => ok
+05:23:28 STEP ms-sync-1048589.bin: munmap                  ret=ok 0 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+05:23:28 tool> close => ok
+05:23:29 STEP ms-sync-1048589.bin: close                   ret=ok 1 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <RELEASE n6 +1ms
+05:23:29 tool> quit => EOF
+05:23:30 tool> open /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/mnt/ms-sync-8388608.bin rw => ok fd=3
+05:23:30 tool> map 8388608 rw => ok
+05:23:30 STEP ms-sync-8388608.bin: open+map                ret=ok 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <OPEN n7 +2ms
+05:23:30 tool> mput 0 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/tool-in.bin => ok 8388608
+05:23:31 STEP ms-sync-8388608.bin: mapped write            ret=ok 8388608 10 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+05:23:31 tool> msync sync => ok
+05:23:32 STEP ms-sync-8388608.bin: msync sync              ret=ok 6 ms | WRITE x8 8388608 B (8388608 B before return), device writes 24 syncs 0 | <WRITE n7 1048576@0 +1ms <WRITE n7 1048576@1048576 +2ms <WRITE n7 1048576@2097152 +3ms <WRITE n7 1048576@3145728 +3ms <WRITE n7 1048576@4194304 +4ms <WRITE n7 1048576@5242880 +5ms <WRITE n7 1048576@6291456 +5ms <WRITE n7 1048576@7340032 +6ms
+05:23:33 STEP ms-sync-8388608.bin: read(2) after msync     ret=True 4 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+05:23:33 tool> munmap => ok
+05:23:34 STEP ms-sync-8388608.bin: munmap                  ret=ok 0 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+05:23:34 tool> close => ok
+05:23:35 STEP ms-sync-8388608.bin: close                   ret=ok 1 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <RELEASE n7 +0ms
+05:23:35 tool> quit => EOF
+05:23:35 tool> open /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/mnt/ms-async-4096.bin rw => ok fd=3
+05:23:35 tool> map 4096 rw => ok
+05:23:36 STEP ms-async-4096.bin: open+map                  ret=ok 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <OPEN n8 +2ms
+05:23:36 tool> mput 0 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/tool-in.bin => ok 4096
+05:23:37 STEP ms-async-4096.bin: mapped write              ret=ok 4096 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+05:23:37 tool> msync async => ok
+05:23:38 STEP ms-async-4096.bin: msync async               ret=ok 0 ms | WRITE x1 4096 B (0 B before return), device writes 3 syncs 0 | >WRITE n8 4096@0 +1ms
+05:23:38 STEP ms-async-4096.bin: read(2) after msync       ret=True 1 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+05:23:38 tool> munmap => ok
+05:23:39 STEP ms-async-4096.bin: munmap                    ret=ok 1 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+05:23:39 tool> close => ok
+05:23:40 STEP ms-async-4096.bin: close                     ret=ok 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <RELEASE n8 +1ms
+05:23:40 tool> quit => EOF
+05:23:41 tool> open /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/mnt/ms-async-1048589.bin rw => ok fd=3
+05:23:41 tool> map 1048589 rw => ok
+05:23:41 STEP ms-async-1048589.bin: open+map               ret=ok 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <OPEN n9 +2ms
+05:23:41 tool> mput 0 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/tool-in.bin => ok 1048589
+05:23:42 STEP ms-async-1048589.bin: mapped write           ret=ok 1048589 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+05:23:42 tool> msync async => ok
+05:23:44 STEP ms-async-1048589.bin: msync async            ret=ok 1 ms | WRITE x2 1048589 B (0 B before return), device writes 6 syncs 0 | >WRITE n9 1048576@0 +2ms >WRITE n9 13@1048576 +3ms
+05:23:44 STEP ms-async-1048589.bin: read(2) after msync    ret=True 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+05:23:44 tool> munmap => ok
+05:23:45 STEP ms-async-1048589.bin: munmap                 ret=ok 0 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+05:23:45 tool> close => ok
+05:23:46 STEP ms-async-1048589.bin: close                  ret=ok 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <RELEASE n9 +1ms
+05:23:46 tool> quit => EOF
+05:23:46 tool> open /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/mnt/ms-async-8388608.bin rw => ok fd=3
+05:23:46 tool> map 8388608 rw => ok
+05:23:47 STEP ms-async-8388608.bin: open+map               ret=ok 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <OPEN n10 +1ms
+05:23:47 tool> mput 0 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/tool-in.bin => ok 8388608
+05:23:48 STEP ms-async-8388608.bin: mapped write           ret=ok 8388608 5 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+05:23:48 tool> msync async => ok
+05:23:49 STEP ms-async-8388608.bin: msync async            ret=ok 1 ms | WRITE x8 8388608 B (0 B before return), device writes 24 syncs 1 | >WRITE n10 1048576@0 +1ms >WRITE n10 1048576@1048576 +2ms >WRITE n10 1048576@2097152 +3ms >WRITE n10 1048576@3145728 +4ms >WRITE n10 1048576@4194304 +5ms >WRITE n10 1048576@5242880 +6ms >WRITE n10 1048576@6291456 +7ms >WRITE n10 1048576@7340032 +8ms >FSYNC n10 +644ms >FSYNC n10 +676ms
+05:23:49 STEP ms-async-8388608.bin: read(2) after msync    ret=True 4 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+05:23:49 tool> munmap => ok
+05:23:50 STEP ms-async-8388608.bin: munmap                 ret=ok 0 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+05:23:50 tool> close => ok
+05:23:51 STEP ms-async-8388608.bin: close                  ret=ok 1 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <RELEASE n10 +1ms
+05:23:51 tool> quit => EOF
+05:23:52 /sbin/umount /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/mnt -> rc=0 
+05:23:52 STEP clean unmount                                ret=None 24 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 1 | <DESTROY n1 +13ms
+05:23:52 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/vol.img -> rc=0
+05:23:52 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/vol.img was processed successfully.
+05:23:52 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/vol.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/mnt
+05:23:55 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+05:23:58 /sbin/umount /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-v9mywier/mnt -> rc=0 
+05:23:58 end I-MMAP-02: pass

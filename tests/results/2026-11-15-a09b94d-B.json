@@ -1,0 +1,96 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "a09b94d66a2ef10b012c229fe8eb32d24f14718b",
+  "dirty_tree": false,
+  "env": "B",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "macOS 27.2 (26B123) arm64",
+  "macfuse_version": "5.5.0",
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-15T05:22:56Z",
+  "finished": "2026-11-15T05:30:07Z",
+  "cases": [
+    {
+      "id": "I-MMAP-01",
+      "status": "pass",
+      "duration_s": 15.805,
+      "evidence": [
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-01.log",
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-01.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-02",
+      "status": "pass",
+      "duration_s": 46.454,
+      "evidence": [
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-02.log",
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-02.observations.json",
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-02.worker-debug.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-03",
+      "status": "pass",
+      "duration_s": 63.778,
+      "evidence": [
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-03.log",
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-03.observations.json",
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-03.worker-debug.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-04",
+      "status": "pass",
+      "duration_s": 55.55,
+      "evidence": [
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-04.log",
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-04.observations.json",
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-04.worker-debug-fd+map.log",
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-04.worker-debug-force-first.log",
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-04.worker-debug-map-only.log",
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-04.worker-debug-redirty.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-05",
+      "status": "pass",
+      "duration_s": 25.051,
+      "evidence": [
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-05.log",
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-05.observations.json",
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-05.worker-debug.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-06",
+      "status": "pass",
+      "duration_s": 161.375,
+      "evidence": [
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-06.log",
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-06.observations.json",
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-06.worker-debug.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-07",
+      "status": "pass",
+      "duration_s": 62.857,
+      "evidence": [
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-07.log",
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-07.observations.json",
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-07.worker-debug-kill-clean.log",
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-07.worker-debug-kill-dirty.log",
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-07.worker-debug-kill-synced-then-dirty.log",
+        "evidence/2026-11-15-a09b94d-B/I-MMAP-07.worker-debug.log"
+      ],
+      "note": null
+    }
+  ]
+}

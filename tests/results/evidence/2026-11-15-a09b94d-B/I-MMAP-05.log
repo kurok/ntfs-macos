@@ -1,0 +1,101 @@
+05:25:57 start I-MMAP-05 (env B)
+05:25:58 $ cc -Wall -Wextra -Werror -o /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/mmaptool /tmp/ntfsmac-h.pN8Xz5/integration/mmap/mmaptool.c -> rc=0
+05:25:58 $ cc -Wall -Wextra -Werror -dynamiclib -arch arm64 -arch arm64e -o /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/syncspy.dylib /tmp/ntfsmac-h.pN8Xz5/integration/sync/syncspy.c -> rc=0
+05:25:58 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/vol.img -> rc=0
+05:25:58 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+05:25:58 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+05:25:58 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/vol.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/mnt
+05:26:01 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+05:26:04 tool> open /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/mnt/ext-4096.bin create => ok fd=3
+05:26:04 tool> ftruncate 4096 => ok
+05:26:05 STEP ext-4096.bin: ftruncate up                   ret=ok 1 ms | WRITE x0 0 B (0 B before return), device writes 12 syncs 0 | <CREATE n1 +-2ms <SETATTR n5 +-1ms <RELEASE n5 +-1ms <OPEN n5 +-0ms <SETATTR n5 +1ms
+05:26:05 tool> map 4096 rw => ok
+05:26:05 tool> mput 0 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/tool-in.bin => ok 4096
+05:26:06 STEP ext-4096.bin: mapped write over the new range ret=ok 4096 4 ms | WRITE x0 0 B (0 B before return), device writes 2 syncs 0 | <READ n5 4096@0 +3ms
+05:26:06 tool> fsize => ok 4096
+05:26:06 tool> msync sync => ok
+05:26:07 STEP ext-4096.bin: msync sync                     ret=ok 2 ms | WRITE x1 4096 B (4096 B before return), device writes 5 syncs 0 | <WRITE n5 4096@0 +1ms
+05:26:07 tool> munmap => ok
+05:26:07 tool> close => ok
+05:26:07 tool> quit => EOF
+05:26:07 tool> open /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/mnt/ext-16484.bin create => ok fd=3
+05:26:07 tool> ftruncate 16484 => ok
+05:26:07 STEP ext-16484.bin: ftruncate up                  ret=ok 1 ms | WRITE x0 0 B (0 B before return), device writes 2 syncs 0 | <SETATTR n6 +1ms
+05:26:07 tool> map 16484 rw => ok
+05:26:07 tool> mput 0 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/tool-in.bin => ok 16484
+05:26:08 STEP ext-16484.bin: mapped write over the new range ret=ok 16484 3 ms | WRITE x0 0 B (0 B before return), device writes 2 syncs 0 | <READ n6 16896@0 +2ms
+05:26:08 tool> fsize => ok 16484
+05:26:08 tool> msync sync => ok
+05:26:09 STEP ext-16484.bin: msync sync                    ret=ok 6 ms | WRITE x1 16484 B (16484 B before return), device writes 5 syncs 0 | <WRITE n6 16484@0 +1ms
+05:26:09 tool> munmap => ok
+05:26:09 tool> close => ok
+05:26:09 tool> quit => EOF
+05:26:09 tool> open /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/mnt/ext-1048589.bin create => ok fd=3
+05:26:09 tool> ftruncate 1048589 => ok
+05:26:10 STEP ext-1048589.bin: ftruncate up                ret=ok 2 ms | WRITE x0 0 B (0 B before return), device writes 2 syncs 0 | <SETATTR n7 +1ms
+05:26:10 tool> map 1048589 rw => ok
+05:26:10 tool> mput 0 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/tool-in.bin => ok 1048589
+05:26:11 STEP ext-1048589.bin: mapped write over the new range ret=ok 1048589 21 ms | WRITE x0 0 B (0 B before return), device writes 2 syncs 0 | <READ n7 32768@0 +13ms <READ n7 16384@32768 +14ms <READ n7 16384@49152 +15ms <READ n7 65536@65536 +16ms <READ n7 131072@131072 +17ms <READ n7 131072@262144 +17ms ... (12)
+05:26:11 tool> fsize => ok 1048589
+05:26:11 tool> msync sync => ok
+05:26:12 STEP ext-1048589.bin: msync sync                  ret=ok 7 ms | WRITE x2 1048589 B (1048589 B before return), device writes 10 syncs 0 | <WRITE n7 1048576@0 +2ms <WRITE n7 13@1048576 +3ms
+05:26:12 tool> munmap => ok
+05:26:12 tool> close => ok
+05:26:12 tool> quit => EOF
+05:26:12 tool> open /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/mnt/ext-nosync.bin create => ok fd=3
+05:26:12 tool> ftruncate 1048589 => ok
+05:26:12 tool> map 1048589 rw => ok
+05:26:12 tool> mput 0 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/tool-in.bin => ok 1048589
+05:26:12 tool> munmap => ok
+05:26:14 STEP ext-nosync.bin: munmap                       ret=ok 0 ms | WRITE x0 0 B (0 B before return), device writes 14 syncs 0 | <CREATE n1 +-13ms <SETATTR n8 +-12ms <RELEASE n8 +-12ms <OPEN n8 +-11ms <SETATTR n8 +-11ms <READ n8 32768@0 +-8ms ... (21)
+05:26:14 tool> close => ok
+05:26:16 STEP ext-nosync.bin: close                        ret=ok 8 ms | WRITE x2 1048589 B (1048589 B before return), device writes 10 syncs 0 | <WRITE n8 1048576@0 +2ms <WRITE n8 13@1048576 +6ms <RELEASE n8 +8ms
+05:26:16 tool> quit => EOF
+05:26:16 tool> open /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/mnt/pastEOF.bin rw => ok fd=3
+05:26:16 tool> map 49152 rw => ok
+05:26:16 tool> mtouch 24586 => ok 0
+05:26:16 tool> mtouch 32769 => sigbus
+05:26:16 tool> mput 24586 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/tool-c1.bin => ok 32
+05:26:16 tool> mput 32769 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/tool-c2.bin => sigbus
+05:26:16 tool> msync sync => ok
+05:26:16 tool> fsize => ok 24576
+05:26:16 NOTE past EOF: {'read_in_last_page': 'ok 0', 'read_whole_page_after_eof': 'sigbus', 'write_in_last_page_after_eof': 'ok 32', 'write_whole_page_after_eof': 'sigbus', 'fsize_after_msync': 'ok 24576'}
+05:26:16 tool> munmap => ok
+05:26:16 tool> close => ok
+05:26:16 tool> quit => EOF
+05:26:16 tool> open /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/mnt/shrink.bin rw => ok fd=3
+05:26:16 tool> map 65536 rw => ok
+05:26:16 tool> mput 0 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/tool-in.bin => ok 65536
+05:26:16 tool> msync sync => ok
+05:26:16 tool> ftruncate 16384 => ok
+05:26:16 tool> mtouch 32773 => sigbus
+05:26:16 tool> mtouch 5 => ok 84
+05:26:16 tool> mput 49152 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/tool-d1.bin => sigbus
+05:26:16 tool> ftruncate 65536 => ok
+05:26:16 tool> mget 16384 49152 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/tool-d2.bin => ok 49152
+05:26:16 NOTE shrink under a mapping: {'read_cut_page': 'sigbus', 'read_kept_page': 'ok 84', 'write_cut_page': 'sigbus', 'regrown_bytes_zero': True, 'regrown_via_read2_zero': True}
+05:26:16 tool> msync sync => ok
+05:26:16 tool> munmap => ok
+05:26:16 tool> close => ok
+05:26:16 tool> quit => EOF
+05:26:16 /sbin/umount /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/mnt -> rc=0 
+05:26:16 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/vol.img -> rc=0
+05:26:16 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/vol.img was processed successfully.
+05:26:16 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/vol.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/mnt
+05:26:19 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+05:26:23 /sbin/umount /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8br6sknt/mnt -> rc=0 
+05:26:23 after remount: {'ext-1048589.bin': 'ok', 'ext-16484.bin': 'ok', 'ext-4096.bin': 'ok', 'ext-nosync.bin': 'ok', 'pastEOF.bin': 'ok', 'shrink.bin': 'ok'}
+05:26:23 end I-MMAP-05: pass

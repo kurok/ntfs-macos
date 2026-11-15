@@ -1,0 +1,688 @@
+1794720302.618 FUSE library version: 2.9.9
+1794720302.618 nullpath_ok: 0
+1794720302.618 nopath: 0
+1794720302.618 utime_omit_ok: 0
+1794720302.618 Version 2026.9.28 external FUSE 29
+1794720302.618 Requested device /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-7f5811ze/vol.img canonicalized as /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-7f5811ze/vol.img
+1794720302.618 Mounted /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-7f5811ze/vol.img (Read-Write, label "ntfsmac", NTFS 3.1)
+1794720302.618 Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug
+1794720302.618 Mount options: backend=fskit,local,allow_other,nonempty,relatime,default_permissions,fsname=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-7f5811ze/vol.img
+1794720302.618 Global ownership and permissions enforced, configuration type 1
+1794720305.459 unique: 1, opcode: INIT (26), nodeid: 0, insize: 56, pid: 0
+1794720305.459 INIT: 7.19
+1794720305.459 flags=0x6fa00000
+1794720305.459 max_readahead=0x01000000
+1794720305.459    INIT: 7.19
+1794720305.459    flags=0x80200050
+1794720305.459    max_readahead=0x01000000
+1794720305.459    max_write=0x02000000
+1794720305.459    max_background=0
+1794720305.459    congestion_threshold=0
+1794720305.459    unique: 1, success, outsize: 40
+1794720305.459 unique: 2, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.459 statfs /
+1794720305.459    unique: 2, success, outsize: 96
+1794720305.463 unique: 3, opcode: GETATTR (3), nodeid: 1, insize: 56, pid: 0
+1794720305.463 getattr /
+1794720305.463    unique: 3, success, outsize: 136
+1794720305.465 unique: 4, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.465 statfs /
+1794720305.465    unique: 4, success, outsize: 96
+1794720305.465 unique: 5, opcode: GETATTR (3), nodeid: 1, insize: 56, pid: 0
+1794720305.465 getattr /
+1794720305.465    unique: 5, success, outsize: 136
+1794720305.465 unique: 6, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.465 statfs /
+1794720305.465    unique: 6, success, outsize: 96
+1794720305.466 unique: 7, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.466 statfs /
+1794720305.466    unique: 7, success, outsize: 96
+1794720305.467 unique: 8, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.467 statfs /
+1794720305.467    unique: 8, success, outsize: 96
+1794720305.467 unique: 9, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.467 statfs /
+1794720305.467    unique: 9, success, outsize: 96
+1794720305.467 unique: 10, opcode: ACCESS (34), nodeid: 1, insize: 48, pid: 0
+1794720305.467 access / 00
+1794720305.467    unique: 10, error: -78 (Function not implemented), outsize: 16
+1794720305.467 unique: 11, opcode: ACCESS (34), nodeid: 1, insize: 48, pid: 0
+1794720305.467 access / 00
+1794720305.467    unique: 11, error: -78 (Function not implemented), outsize: 16
+1794720305.469 unique: 12, opcode: LOOKUP (1), nodeid: 1, insize: 46, pid: 0
+1794720305.469 LOOKUP /VSCAN
+1794720305.469 getattr /VSCAN
+1794720305.469    unique: 12, error: -2 (No such file or directory), outsize: 16
+1794720305.469 unique: 13, opcode: LOOKUP (1), nodeid: 1, insize: 45, pid: 0
+1794720305.469 LOOKUP /DCIM
+1794720305.469 getattr /DCIM
+1794720305.469    unique: 13, error: -2 (No such file or directory), outsize: 16
+1794720305.470 unique: 14, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.470 statfs /
+1794720305.470    unique: 14, success, outsize: 96
+1794720305.470 unique: 15, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+1794720305.470 getxattr / com.apple.FinderInfo 0 0
+1794720305.470    unique: 15, success, outsize: 24
+1794720305.470 unique: 16, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+1794720305.470 getxattr / com.apple.FinderInfo 32 0
+1794720305.470    unique: 16, success, outsize: 48
+1794720305.471 unique: 17, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+1794720305.471 getxattr / com.apple.FinderInfo 0 0
+1794720305.471    unique: 17, success, outsize: 24
+1794720305.471 unique: 18, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+1794720305.471 getxattr / com.apple.FinderInfo 32 0
+1794720305.471    unique: 18, success, outsize: 48
+1794720305.471 unique: 19, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.471 statfs /
+1794720305.471    unique: 19, success, outsize: 96
+1794720305.471 unique: 20, opcode: GETXATTR (22), nodeid: 1, insize: 80, pid: 0
+1794720305.471 getxattr / com.apple.icon.folder#S 0 0
+1794720305.471    unique: 20, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.472 unique: 21, opcode: GETXATTR (22), nodeid: 1, insize: 92, pid: 0
+1794720305.472 getxattr / com.apple.metadata:_kMDItemUserTags 0 0
+1794720305.472    unique: 21, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.472 unique: 22, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.472 statfs /
+1794720305.472    unique: 22, success, outsize: 96
+1794720305.472 unique: 23, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.472 statfs /
+1794720305.472    unique: 23, success, outsize: 96
+1794720305.473 unique: 24, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.473 statfs /
+1794720305.473    unique: 24, success, outsize: 96
+1794720305.473 unique: 25, opcode: LOOKUP (1), nodeid: 1, insize: 57, pid: 0
+1794720305.473 LOOKUP /Backups.backupdb
+1794720305.473 getattr /Backups.backupdb
+1794720305.473    unique: 25, error: -2 (No such file or directory), outsize: 16
+1794720305.473 unique: 26, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.473 statfs /
+1794720305.473    unique: 26, success, outsize: 96
+1794720305.477 unique: 27, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.477 statfs /
+1794720305.477    unique: 27, success, outsize: 96
+1794720305.482 unique: 28, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+1794720305.482 getxattr / com.apple.FinderInfo 0 0
+1794720305.483    unique: 28, success, outsize: 24
+1794720305.483 unique: 29, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+1794720305.483 getxattr / com.apple.FinderInfo 32 0
+1794720305.483    unique: 29, success, outsize: 48
+1794720305.484 unique: 30, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+1794720305.484 getxattr / com.apple.FinderInfo 0 0
+1794720305.484    unique: 30, success, outsize: 24
+1794720305.484 unique: 31, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+1794720305.484 getxattr / com.apple.FinderInfo 32 0
+1794720305.484    unique: 31, success, outsize: 48
+1794720305.484 unique: 32, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.484 statfs /
+1794720305.484    unique: 32, success, outsize: 96
+1794720305.485 unique: 33, opcode: GETXATTR (22), nodeid: 1, insize: 80, pid: 0
+1794720305.485 getxattr / com.apple.icon.folder#S 0 0
+1794720305.485    unique: 33, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.485 unique: 34, opcode: GETXATTR (22), nodeid: 1, insize: 92, pid: 0
+1794720305.485 getxattr / com.apple.metadata:_kMDItemUserTags 0 0
+1794720305.485    unique: 34, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.486 unique: 35, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+1794720305.486 getxattr / com.apple.FinderInfo 0 0
+1794720305.486    unique: 35, success, outsize: 24
+1794720305.486 unique: 36, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+1794720305.486 getxattr / com.apple.FinderInfo 32 0
+1794720305.486    unique: 36, success, outsize: 48
+1794720305.487 unique: 37, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.487 statfs /
+1794720305.487    unique: 37, success, outsize: 96
+1794720305.487 unique: 38, opcode: GETXATTR (22), nodeid: 1, insize: 80, pid: 0
+1794720305.487 getxattr / com.apple.icon.folder#S 0 0
+1794720305.487    unique: 38, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.487 unique: 39, opcode: GETXATTR (22), nodeid: 1, insize: 92, pid: 0
+1794720305.487 getxattr / com.apple.metadata:_kMDItemUserTags 0 0
+1794720305.487    unique: 39, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.488 unique: 40, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.488 statfs /
+1794720305.488    unique: 40, success, outsize: 96
+1794720305.488 unique: 41, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.488 statfs /
+1794720305.488    unique: 41, success, outsize: 96
+1794720305.488 unique: 42, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.488 statfs /
+1794720305.488    unique: 42, success, outsize: 96
+1794720305.488 unique: 43, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.488 statfs /
+1794720305.488    unique: 43, success, outsize: 96
+1794720305.489 unique: 44, opcode: LOOKUP (1), nodeid: 1, insize: 51, pid: 0
+1794720305.489 LOOKUP /.localized
+1794720305.489 getattr /.localized
+1794720305.489    unique: 44, error: -2 (No such file or directory), outsize: 16
+1794720305.489 unique: 45, opcode: GETXATTR (22), nodeid: 1, insize: 80, pid: 0
+1794720305.489 getxattr / com.apple.icon.folder#S 0 0
+1794720305.489    unique: 45, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.489 unique: 46, opcode: GETXATTR (22), nodeid: 1, insize: 92, pid: 0
+1794720305.489 getxattr / com.apple.metadata:_kMDItemUserTags 0 0
+1794720305.489    unique: 46, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.490 unique: 47, opcode: GETXATTR (22), nodeid: 1, insize: 80, pid: 0
+1794720305.490 getxattr / com.apple.icon.folder#S 0 0
+1794720305.490    unique: 47, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.490 unique: 48, opcode: GETXATTR (22), nodeid: 1, insize: 80, pid: 0
+1794720305.490 getxattr / com.apple.icon.folder#S 0 0
+1794720305.490    unique: 48, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.490 unique: 49, opcode: LOOKUP (1), nodeid: 1, insize: 49, pid: 0
+1794720305.490 LOOKUP /.Trashes
+1794720305.490 getattr /.Trashes
+1794720305.490    unique: 49, error: -2 (No such file or directory), outsize: 16
+1794720305.490 unique: 50, opcode: GETXATTR (22), nodeid: 1, insize: 92, pid: 0
+1794720305.490 getxattr / com.apple.metadata:_kMDItemUserTags 0 0
+1794720305.490    unique: 50, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.490 unique: 51, opcode: GETXATTR (22), nodeid: 1, insize: 92, pid: 0
+1794720305.490 getxattr / com.apple.metadata:_kMDItemUserTags 0 0
+1794720305.490    unique: 51, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.490 unique: 52, opcode: GETXATTR (22), nodeid: 1, insize: 80, pid: 0
+1794720305.490 getxattr / com.apple.icon.folder#S 0 0
+1794720305.490    unique: 52, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.491 unique: 53, opcode: GETXATTR (22), nodeid: 1, insize: 92, pid: 0
+1794720305.491 getxattr / com.apple.metadata:_kMDItemUserTags 0 0
+1794720305.491    unique: 53, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.491 unique: 54, opcode: LOOKUP (1), nodeid: 1, insize: 50, pid: 0
+1794720305.491 LOOKUP /.DS_Store
+1794720305.491 getattr /.DS_Store
+1794720305.491    unique: 54, error: -2 (No such file or directory), outsize: 16
+1794720305.491 unique: 55, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+1794720305.491 getxattr / com.apple.quarantine 0 0
+1794720305.491    unique: 55, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.491 unique: 56, opcode: GETXATTR (22), nodeid: 1, insize: 92, pid: 0
+1794720305.491 getxattr / com.apple.metadata:_kMDItemUserTags 0 0
+1794720305.491    unique: 56, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.492 unique: 57, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.492 statfs /
+1794720305.492    unique: 57, success, outsize: 96
+1794720305.492 unique: 58, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.492 statfs /
+1794720305.492    unique: 58, success, outsize: 96
+1794720305.493 unique: 59, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+1794720305.493 getxattr / com.apple.FinderInfo 0 0
+1794720305.493    unique: 59, success, outsize: 24
+1794720305.493 unique: 60, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+1794720305.493 getxattr / com.apple.FinderInfo 32 0
+1794720305.493    unique: 60, success, outsize: 48
+1794720305.494 unique: 61, opcode: LOOKUP (1), nodeid: 1, insize: 57, pid: 0
+1794720305.494 LOOKUP /.VolumeIcon.icns
+1794720305.494 getattr /.VolumeIcon.icns
+1794720305.494    NODEID: 2
+1794720305.494    unique: 61, success, outsize: 160
+1794720305.494 unique: 62, opcode: LOOKUP (1), nodeid: 1, insize: 59, pid: 0
+1794720305.494 LOOKUP /._.VolumeIcon.icns
+1794720305.494 getattr /._.VolumeIcon.icns
+1794720305.494    unique: 62, error: -2 (No such file or directory), outsize: 16
+1794720305.495 unique: 63, opcode: OPEN (14), nodeid: 2, insize: 48, pid: 0
+1794720305.495 open flags: 0x0 /.VolumeIcon.icns
+1794720305.495    open[0] flags: 0x0 /.VolumeIcon.icns
+1794720305.495    unique: 63, success, outsize: 32
+1794720305.495 unique: 64, opcode: READ (15), nodeid: 2, insize: 80, pid: 0
+1794720305.495 read[0] 1048576 bytes from 0 flags: 0x0
+1794720305.495    read[0] 1048576 bytes from 0
+1794720305.495    unique: 64, success, outsize: 24
+1794720305.495 unique: 65, opcode: READ (15), nodeid: 2, insize: 80, pid: 0
+1794720305.495 read[0] 660480 bytes from 1048576 flags: 0x0
+1794720305.495    read[0] 659970 bytes from 1048576
+1794720305.495    unique: 65, success, outsize: 24
+1794720305.496 unique: 66, opcode: GETATTR (3), nodeid: 2, insize: 56, pid: 0
+1794720305.496 fgetattr[0] /.VolumeIcon.icns
+1794720305.496    unique: 66, success, outsize: 136
+1794720305.496 unique: 67, opcode: GETATTR (3), nodeid: 2, insize: 56, pid: 0
+1794720305.496 fgetattr[0] /.VolumeIcon.icns
+1794720305.496    unique: 67, success, outsize: 136
+1794720305.496 unique: 68, opcode: FLUSH (25), nodeid: 2, insize: 64, pid: 0
+1794720305.496 flush[0]
+1794720305.496    unique: 68, success, outsize: 16
+1794720305.496 unique: 69, opcode: RELEASE (18), nodeid: 2, insize: 64, pid: 0
+1794720305.496 release[0] flags: 0x0
+1794720305.496    unique: 69, success, outsize: 16
+1794720305.496 unique: 70, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.496 statfs /
+1794720305.496    unique: 70, success, outsize: 96
+1794720305.521 unique: 71, opcode: LOOKUP (1), nodeid: 1, insize: 51, pid: 0
+1794720305.521 LOOKUP /.fseventsd
+1794720305.521 getattr /.fseventsd
+1794720305.521    unique: 71, error: -2 (No such file or directory), outsize: 16
+1794720305.521 unique: 72, opcode: LOOKUP (1), nodeid: 1, insize: 48, pid: 0
+1794720305.521 LOOKUP /private
+1794720305.521 getattr /private
+1794720305.521    unique: 72, error: -2 (No such file or directory), outsize: 16
+1794720305.522 unique: 73, opcode: MKDIR (9), nodeid: 1, insize: 59, pid: 0
+1794720305.522 mkdir /.fseventsd 040700 umask=0000
+1794720305.527 getattr /.fseventsd
+1794720305.527    NODEID: 3
+1794720305.527    unique: 73, success, outsize: 160
+1794720305.527 unique: 74, opcode: SETATTR (4), nodeid: 3, insize: 168, pid: 0
+1794720305.527 setattr_x /.fseventsd
+1794720305.527 setcrtime /.fseventsd 1794720305.521367602
+1794720305.527 chown /.fseventsd 0 20
+1794720305.527 getattr /.fseventsd
+1794720305.527    unique: 74, success, outsize: 136
+1794720305.527 unique: 75, opcode: GETATTR (3), nodeid: 1, insize: 56, pid: 0
+1794720305.527 getattr /
+1794720305.527    unique: 75, success, outsize: 136
+1794720305.527 unique: 76, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.527 statfs /
+1794720305.527    unique: 76, success, outsize: 96
+1794720305.528 unique: 77, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.528 statfs /
+1794720305.528    unique: 77, success, outsize: 96
+1794720305.529 unique: 78, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.529 statfs /
+1794720305.529    unique: 78, success, outsize: 96
+1794720305.529 unique: 79, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.529 statfs /
+1794720305.529    unique: 79, success, outsize: 96
+1794720305.529 unique: 80, opcode: OPENDIR (27), nodeid: 3, insize: 48, pid: 0
+1794720305.529 opendir flags: 0x0 /.fseventsd
+1794720305.529    opendir[0] flags: 0x0 /.fseventsd
+1794720305.529    unique: 80, success, outsize: 32
+1794720305.529 unique: 81, opcode: READDIR (28), nodeid: 3, insize: 80, pid: 0
+1794720305.529 readdir[0] from 0
+1794720305.529    unique: 81, success, outsize: 80
+1794720305.529 unique: 82, opcode: READDIR (28), nodeid: 3, insize: 80, pid: 0
+1794720305.529    unique: 82, success, outsize: 16
+1794720305.529 unique: 83, opcode: BATCH_FORGET (42), nodeid: 0, insize: 48, pid: 0
+1794720305.529 unique: 84, opcode: RELEASEDIR (29), nodeid: 3, insize: 64, pid: 0
+1794720305.529 releasedir[0] flags: 0x0
+1794720305.529    unique: 84, success, outsize: 16
+1794720305.529 unique: 85, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.529 statfs /
+1794720305.529    unique: 85, success, outsize: 96
+1794720305.529 unique: 86, opcode: LOOKUP (1), nodeid: 3, insize: 59, pid: 0
+1794720305.529 LOOKUP /.fseventsd/.ramdisk-boot-done
+1794720305.529 getattr /.fseventsd/.ramdisk-boot-done
+1794720305.529    unique: 86, error: -2 (No such file or directory), outsize: 16
+1794720305.529 unique: 87, opcode: LOOKUP (1), nodeid: 3, insize: 55, pid: 0
+1794720305.529 LOOKUP /.fseventsd/fseventsd-uuid
+1794720305.529 getattr /.fseventsd/fseventsd-uuid
+1794720305.529    unique: 87, error: -2 (No such file or directory), outsize: 16
+1794720305.529 unique: 88, opcode: CREATE (35), nodeid: 3, insize: 71, pid: 0
+1794720305.529 create flags: 0xa02 /.fseventsd/fseventsd-uuid 0100600 umask=0000
+1794720305.529    create[0] flags: 0xa02 /.fseventsd/fseventsd-uuid
+1794720305.530 fgetattr[0] /.fseventsd/fseventsd-uuid
+1794720305.530    NODEID: 4
+1794720305.530    unique: 88, success, outsize: 176
+1794720305.530 unique: 89, opcode: SETATTR (4), nodeid: 4, insize: 168, pid: 0
+1794720305.530 fsetattr_x[0] /.fseventsd/fseventsd-uuid
+1794720305.530 setcrtime /.fseventsd/fseventsd-uuid 1794720305.529323644
+1794720305.530 chown /.fseventsd/fseventsd-uuid 0 20
+1794720305.530 fgetattr[0] /.fseventsd/fseventsd-uuid
+1794720305.530    unique: 89, success, outsize: 136
+1794720305.530 unique: 90, opcode: GETATTR (3), nodeid: 3, insize: 56, pid: 0
+1794720305.530 getattr /.fseventsd
+1794720305.530    unique: 90, success, outsize: 136
+1794720305.530 unique: 91, opcode: RELEASE (18), nodeid: 4, insize: 64, pid: 0
+1794720305.530 release[0] flags: 0x202
+1794720305.530    unique: 91, success, outsize: 16
+1794720305.530 unique: 92, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.530 statfs /
+1794720305.530    unique: 92, success, outsize: 96
+1794720305.530 unique: 93, opcode: OPEN (14), nodeid: 4, insize: 48, pid: 0
+1794720305.530 open flags: 0x2 /.fseventsd/fseventsd-uuid
+1794720305.530    open[0] flags: 0x2 /.fseventsd/fseventsd-uuid
+1794720305.530    unique: 93, success, outsize: 32
+1794720305.530 unique: 94, opcode: FSYNC (20), nodeid: 4, insize: 56, pid: 0
+1794720305.530 fsync[0] datasync: 1
+1794720305.536    unique: 94, success, outsize: 16
+1794720305.536 unique: 95, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.536 statfs /
+1794720305.536    unique: 95, success, outsize: 96
+1794720305.536 unique: 96, opcode: FSYNC (20), nodeid: 4, insize: 56, pid: 0
+1794720305.536 fsync[0] datasync: 1
+1794720305.536    unique: 96, success, outsize: 16
+1794720305.536 unique: 97, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.536 statfs /
+1794720305.536    unique: 97, success, outsize: 96
+1794720305.536 unique: 98, opcode: FSYNC (20), nodeid: 4, insize: 56, pid: 0
+1794720305.536 fsync[0] datasync: 1
+1794720305.536    unique: 98, success, outsize: 16
+1794720305.536 unique: 99, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.536 statfs /
+1794720305.536    unique: 99, success, outsize: 96
+1794720305.537 unique: 100, opcode: FSYNC (20), nodeid: 4, insize: 56, pid: 0
+1794720305.537 fsync[0] datasync: 1
+1794720305.537    unique: 100, success, outsize: 16
+1794720305.537 unique: 101, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.537 statfs /
+1794720305.537    unique: 101, success, outsize: 96
+1794720305.537 unique: 102, opcode: FSYNC (20), nodeid: 4, insize: 56, pid: 0
+1794720305.537 fsync[0] datasync: 1
+1794720305.537    unique: 102, success, outsize: 16
+1794720305.537 unique: 103, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.537 statfs /
+1794720305.537    unique: 103, success, outsize: 96
+1794720305.537 unique: 104, opcode: WRITE (16), nodeid: 4, insize: 116, pid: 0
+1794720305.537 write[0] 36 bytes to 0 flags: 0x0
+1794720305.537    write[0] 36 bytes to 0
+1794720305.537    unique: 104, success, outsize: 24
+1794720305.537 unique: 105, opcode: GETATTR (3), nodeid: 4, insize: 56, pid: 0
+1794720305.537 fgetattr[0] /.fseventsd/fseventsd-uuid
+1794720305.537    unique: 105, success, outsize: 136
+1794720305.538 unique: 106, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.538 statfs /
+1794720305.538    unique: 106, success, outsize: 96
+1794720305.538 unique: 107, opcode: FLUSH (25), nodeid: 4, insize: 64, pid: 0
+1794720305.538 flush[0]
+1794720305.538    unique: 107, error: -78 (Function not implemented), outsize: 16
+1794720305.538 unique: 108, opcode: RELEASE (18), nodeid: 4, insize: 64, pid: 0
+1794720305.538 release[0] flags: 0x2
+1794720305.538    unique: 108, success, outsize: 16
+1794720305.538 unique: 109, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.538 statfs /
+1794720305.538    unique: 109, success, outsize: 96
+1794720305.538 unique: 110, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.538 statfs /
+1794720305.538    unique: 110, success, outsize: 96
+1794720305.538 unique: 111, opcode: LOOKUP (1), nodeid: 3, insize: 47, pid: 0
+1794720305.538 LOOKUP /.fseventsd/no_log
+1794720305.538 getattr /.fseventsd/no_log
+1794720305.538    unique: 111, error: -2 (No such file or directory), outsize: 16
+1794720305.539 unique: 112, opcode: LOOKUP (1), nodeid: 3, insize: 47, pid: 0
+1794720305.539 LOOKUP /.fseventsd/ignore
+1794720305.539 getattr /.fseventsd/ignore
+1794720305.539    unique: 112, error: -2 (No such file or directory), outsize: 16
+1794720305.659 unique: 113, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.659 statfs /
+1794720305.659    unique: 113, success, outsize: 96
+1794720305.659 unique: 114, opcode: GETATTR (3), nodeid: 1, insize: 56, pid: 0
+1794720305.659 getattr /
+1794720305.659    unique: 114, success, outsize: 136
+1794720305.659 unique: 115, opcode: GETATTR (3), nodeid: 1, insize: 56, pid: 0
+1794720305.659 getattr /
+1794720305.659    unique: 115, success, outsize: 136
+1794720305.659 unique: 116, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.659 statfs /
+1794720305.659    unique: 116, success, outsize: 96
+1794720305.660 unique: 117, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+1794720305.660 getxattr / com.apple.FinderInfo 0 0
+1794720305.660    unique: 117, success, outsize: 24
+1794720305.660 unique: 118, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+1794720305.660 getxattr / com.apple.FinderInfo 32 0
+1794720305.660    unique: 118, success, outsize: 48
+1794720305.660 unique: 119, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+1794720305.660 getxattr / com.apple.quarantine 0 0
+1794720305.660    unique: 119, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.662 unique: 120, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.662 statfs /
+1794720305.662    unique: 120, success, outsize: 96
+1794720305.662 unique: 121, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.662 statfs /
+1794720305.662    unique: 121, success, outsize: 96
+1794720305.662 unique: 122, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.662 statfs /
+1794720305.662    unique: 122, success, outsize: 96
+1794720305.663 unique: 123, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.663 statfs /
+1794720305.663    unique: 123, success, outsize: 96
+1794720305.663 unique: 124, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.663 statfs /
+1794720305.663    unique: 124, success, outsize: 96
+1794720305.665 unique: 125, opcode: LOOKUP (1), nodeid: 1, insize: 49, pid: 0
+1794720305.665 LOOKUP /.Trashes
+1794720305.665 getattr /.Trashes
+1794720305.665    unique: 125, error: -2 (No such file or directory), outsize: 16
+1794720305.666 unique: 126, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+1794720305.666 getxattr / com.apple.FinderInfo 0 0
+1794720305.666    unique: 126, success, outsize: 24
+1794720305.667 unique: 127, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+1794720305.667 getxattr / com.apple.FinderInfo 32 0
+1794720305.667    unique: 127, success, outsize: 48
+1794720305.667 unique: 128, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.667 statfs /
+1794720305.667    unique: 128, success, outsize: 96
+1794720305.668 unique: 129, opcode: GETXATTR (22), nodeid: 1, insize: 80, pid: 0
+1794720305.668 getxattr / com.apple.icon.folder#S 0 0
+1794720305.668    unique: 129, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.668 unique: 130, opcode: GETXATTR (22), nodeid: 1, insize: 92, pid: 0
+1794720305.668 getxattr / com.apple.metadata:_kMDItemUserTags 0 0
+1794720305.668    unique: 130, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.669 unique: 131, opcode: LOOKUP (1), nodeid: 1, insize: 51, pid: 0
+1794720305.669 LOOKUP /.localized
+1794720305.669 getattr /.localized
+1794720305.669    unique: 131, error: -2 (No such file or directory), outsize: 16
+1794720305.669 unique: 132, opcode: GETXATTR (22), nodeid: 1, insize: 80, pid: 0
+1794720305.669 getxattr / com.apple.icon.folder#S 0 0
+1794720305.669    unique: 132, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.670 unique: 133, opcode: GETXATTR (22), nodeid: 1, insize: 92, pid: 0
+1794720305.670 getxattr / com.apple.metadata:_kMDItemUserTags 0 0
+1794720305.670    unique: 133, error: -102 (Operation not supported on socket), outsize: 16
+1794720305.670 unique: 134, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.670 statfs /
+1794720305.670    unique: 134, success, outsize: 96
+1794720305.670 unique: 135, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.670 statfs /
+1794720305.670    unique: 135, success, outsize: 96
+1794720305.672 unique: 136, opcode: OPEN (14), nodeid: 2, insize: 48, pid: 0
+1794720305.672 open flags: 0x0 /.VolumeIcon.icns
+1794720305.672    open[0] flags: 0x0 /.VolumeIcon.icns
+1794720305.672    unique: 136, success, outsize: 32
+1794720305.673 unique: 137, opcode: RELEASE (18), nodeid: 2, insize: 64, pid: 0
+1794720305.673 release[0] flags: 0x0
+1794720305.673    unique: 137, success, outsize: 16
+1794720305.673 unique: 138, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720305.673 statfs /
+1794720305.673    unique: 138, success, outsize: 96
+1794720308.644 unique: 139, opcode: LOOKUP (1), nodeid: 1, insize: 46, pid: 0
+1794720308.645 LOOKUP /d.bin
+1794720308.645 getattr /d.bin
+1794720308.645    unique: 139, error: -2 (No such file or directory), outsize: 16
+1794720308.646 unique: 140, opcode: CREATE (35), nodeid: 1, insize: 62, pid: 0
+1794720308.646 create flags: 0xa02 /d.bin 0100644 umask=0000
+1794720308.646    create[0] flags: 0xa02 /d.bin
+1794720308.646 fgetattr[0] /d.bin
+1794720308.646    NODEID: 5
+1794720308.646    unique: 140, success, outsize: 176
+1794720308.646 unique: 141, opcode: SETATTR (4), nodeid: 5, insize: 168, pid: 0
+1794720308.646 fsetattr_x[0] /d.bin
+1794720308.646 setcrtime /d.bin 1794720308.645319615
+1794720308.646 chown /d.bin 501 20
+1794720308.646 fgetattr[0] /d.bin
+1794720308.646    unique: 141, success, outsize: 136
+1794720308.647 unique: 142, opcode: GETATTR (3), nodeid: 1, insize: 56, pid: 0
+1794720308.647 getattr /
+1794720308.647    unique: 142, success, outsize: 136
+1794720308.647 unique: 143, opcode: RELEASE (18), nodeid: 5, insize: 64, pid: 0
+1794720308.647 release[0] flags: 0x202
+1794720308.647    unique: 143, success, outsize: 16
+1794720308.647 unique: 144, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720308.647 statfs /
+1794720308.647    unique: 144, success, outsize: 96
+1794720308.647 unique: 145, opcode: OPEN (14), nodeid: 5, insize: 48, pid: 0
+1794720308.647 open flags: 0x1 /d.bin
+1794720308.647    open[0] flags: 0x1 /d.bin
+1794720308.647    unique: 145, success, outsize: 32
+1794720308.649 unique: 146, opcode: WRITE (16), nodeid: 5, insize: 1045388, pid: 0
+1794720308.649 write[0] 1045308 bytes to 0 flags: 0x0
+1794720308.653    write[0] 1045308 bytes to 0
+1794720308.653    unique: 146, success, outsize: 24
+1794720308.654 unique: 147, opcode: GETATTR (3), nodeid: 5, insize: 56, pid: 0
+1794720308.654 fgetattr[0] /d.bin
+1794720308.654    unique: 147, success, outsize: 136
+1794720308.654 unique: 148, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720308.654 statfs /
+1794720308.654    unique: 148, success, outsize: 96
+1794720308.655 unique: 149, opcode: WRITE (16), nodeid: 5, insize: 16477, pid: 0
+1794720308.655 write[0] 16397 bytes to 1032192 flags: 0x0
+1794720308.655    write[0] 16397 bytes to 1032192
+1794720308.655    unique: 149, success, outsize: 24
+1794720308.655 unique: 150, opcode: GETATTR (3), nodeid: 5, insize: 56, pid: 0
+1794720308.655 fgetattr[0] /d.bin
+1794720308.655    unique: 150, success, outsize: 136
+1794720308.655 unique: 151, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720308.655 statfs /
+1794720308.655    unique: 151, success, outsize: 96
+1794720308.656 unique: 152, opcode: RELEASE (18), nodeid: 5, insize: 64, pid: 0
+1794720308.656 release[0] flags: 0x1
+1794720308.656    unique: 152, success, outsize: 16
+1794720308.656 unique: 153, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720308.656 statfs /
+1794720308.656    unique: 153, success, outsize: 96
+1794720308.657 unique: 154, opcode: LOOKUP (1), nodeid: 1, insize: 46, pid: 0
+1794720308.657 LOOKUP /e.bin
+1794720308.657 getattr /e.bin
+1794720308.657    unique: 154, error: -2 (No such file or directory), outsize: 16
+1794720308.657 unique: 155, opcode: GETATTR (3), nodeid: 1, insize: 56, pid: 0
+1794720308.657 getattr /
+1794720308.657    unique: 155, success, outsize: 136
+1794720308.658 unique: 156, opcode: CREATE (35), nodeid: 1, insize: 62, pid: 0
+1794720308.658 create flags: 0xa02 /e.bin 0100644 umask=0000
+1794720308.658    create[0] flags: 0xa02 /e.bin
+1794720308.658 fgetattr[0] /e.bin
+1794720308.658    NODEID: 6
+1794720308.658    unique: 156, success, outsize: 176
+1794720308.658 unique: 157, opcode: SETATTR (4), nodeid: 6, insize: 168, pid: 0
+1794720308.658 fsetattr_x[0] /e.bin
+1794720308.658 setcrtime /e.bin 1794720308.657461199
+1794720308.658 chown /e.bin 501 20
+1794720308.658 fgetattr[0] /e.bin
+1794720308.658    unique: 157, success, outsize: 136
+1794720308.658 unique: 158, opcode: GETATTR (3), nodeid: 1, insize: 56, pid: 0
+1794720308.658 getattr /
+1794720308.658    unique: 158, success, outsize: 136
+1794720308.659 unique: 159, opcode: RELEASE (18), nodeid: 6, insize: 64, pid: 0
+1794720308.659 release[0] flags: 0x202
+1794720308.659    unique: 159, success, outsize: 16
+1794720308.659 unique: 160, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720308.659 statfs /
+1794720308.659    unique: 160, success, outsize: 96
+1794720308.659 unique: 161, opcode: OPEN (14), nodeid: 6, insize: 48, pid: 0
+1794720308.659 open flags: 0x1 /e.bin
+1794720308.659    open[0] flags: 0x1 /e.bin
+1794720308.659    unique: 161, success, outsize: 32
+1794720308.703 unique: 162, opcode: WRITE (16), nodeid: 6, insize: 1045388, pid: 0
+1794720308.703 write[0] 1045308 bytes to 0 flags: 0x0
+1794720308.704    write[0] 1045308 bytes to 0
+1794720308.704    unique: 162, success, outsize: 24
+1794720308.704 unique: 163, opcode: GETATTR (3), nodeid: 6, insize: 56, pid: 0
+1794720308.704 fgetattr[0] /e.bin
+1794720308.704    unique: 163, success, outsize: 136
+1794720308.704 unique: 164, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720308.704 statfs /
+1794720308.704    unique: 164, success, outsize: 96
+1794720308.705 unique: 165, opcode: WRITE (16), nodeid: 6, insize: 16477, pid: 0
+1794720308.705 write[0] 16397 bytes to 1032192 flags: 0x0
+1794720308.705    write[0] 16397 bytes to 1032192
+1794720308.705    unique: 165, success, outsize: 24
+1794720308.706 unique: 166, opcode: GETATTR (3), nodeid: 6, insize: 56, pid: 0
+1794720308.706 fgetattr[0] /e.bin
+1794720308.706    unique: 166, success, outsize: 136
+1794720308.706 unique: 167, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720308.706 statfs /
+1794720308.706    unique: 167, success, outsize: 96
+1794720308.706 unique: 168, opcode: RELEASE (18), nodeid: 6, insize: 64, pid: 0
+1794720308.706 release[0] flags: 0x1
+1794720308.706    unique: 168, success, outsize: 16
+1794720308.709 unique: 169, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720308.709 statfs /
+1794720308.709    unique: 169, success, outsize: 96
+1794720308.713 unique: 170, opcode: OPEN (14), nodeid: 5, insize: 48, pid: 0
+1794720308.713 open flags: 0x2 /d.bin
+1794720308.713    open[0] flags: 0x2 /d.bin
+1794720308.713    unique: 170, success, outsize: 32
+1794720309.163 unique: 171, opcode: GETATTR (3), nodeid: 1, insize: 56, pid: 0
+1794720309.163 getattr /
+1794720309.163    unique: 171, success, outsize: 136
+1794720309.737 unique: 172, opcode: WRITE (16), nodeid: 5, insize: 93, pid: 0
+1794720309.737 write[0] 13 bytes to 1048576 flags: 0x0
+1794720309.737    write[0] 13 bytes to 1048576
+1794720309.737    unique: 172, success, outsize: 24
+1794720309.738 unique: 173, opcode: GETATTR (3), nodeid: 5, insize: 56, pid: 0
+1794720309.738 fgetattr[0] /d.bin
+1794720309.738    unique: 173, success, outsize: 136
+1794720309.738 unique: 175, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720309.738 statfs /
+1794720309.738    unique: 175, success, outsize: 96
+1794720309.738 unique: 174, opcode: WRITE (16), nodeid: 5, insize: 1048656, pid: 0
+1794720309.738 write[0] 1048576 bytes to 0 flags: 0x0
+1794720309.738    write[0] 1048576 bytes to 0
+1794720309.738    unique: 174, success, outsize: 24
+1794720309.739 unique: 176, opcode: GETATTR (3), nodeid: 5, insize: 56, pid: 0
+1794720309.739 fgetattr[0] /d.bin
+1794720309.739    unique: 176, success, outsize: 136
+1794720309.739 unique: 177, opcode: FSYNC (20), nodeid: 5, insize: 56, pid: 0
+1794720309.739 fsync[0] datasync: 1
+1794720309.755    unique: 177, success, outsize: 16
+1794720309.755 unique: 178, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720309.755 statfs /
+1794720309.755    unique: 178, success, outsize: 96
+1794720309.755 unique: 179, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720309.755 statfs /
+1794720309.755    unique: 179, success, outsize: 96
+1794720309.756 unique: 180, opcode: FSYNC (20), nodeid: 5, insize: 56, pid: 0
+1794720309.756 fsync[0] datasync: 1
+1794720309.756    unique: 180, success, outsize: 16
+1794720309.756 unique: 181, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720309.756 statfs /
+1794720309.756    unique: 181, success, outsize: 96
+1794720309.757 unique: 182, opcode: FORGET (2), nodeid: 6, insize: 48, pid: 0
+1794720309.757 FORGET 6/1
+1794720309.757 DELETE: 6
+1794720309.757 unique: 183, opcode: FSYNC (20), nodeid: 5, insize: 56, pid: 0
+1794720309.757 fsync[0] datasync: 1
+1794720309.757    unique: 183, success, outsize: 16
+1794720309.757 unique: 184, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720309.757 statfs /
+1794720309.757    unique: 184, success, outsize: 96
+1794720309.757 unique: 185, opcode: FORGET (2), nodeid: 4, insize: 48, pid: 0
+1794720309.757 FORGET 4/1
+1794720309.757 DELETE: 4
+1794720309.757 unique: 186, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720309.757 statfs /
+1794720309.757    unique: 186, success, outsize: 96
+1794720309.758 unique: 187, opcode: FSYNC (20), nodeid: 5, insize: 56, pid: 0
+1794720309.758 fsync[0] datasync: 1
+1794720309.758    unique: 187, success, outsize: 16
+1794720309.758 unique: 188, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720309.758 statfs /
+1794720309.758    unique: 188, success, outsize: 96
+1794720309.758 unique: 189, opcode: FORGET (2), nodeid: 3, insize: 48, pid: 0
+1794720309.758 FORGET 3/1
+1794720309.758 DELETE: 3
+1794720309.758 unique: 190, opcode: FSYNC (20), nodeid: 5, insize: 56, pid: 0
+1794720309.758 fsync[0] datasync: 1
+1794720309.758    unique: 190, success, outsize: 16
+1794720309.758 unique: 191, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720309.758 statfs /
+1794720309.758    unique: 191, success, outsize: 96
+1794720309.759 unique: 192, opcode: FORGET (2), nodeid: 2, insize: 48, pid: 0
+1794720309.759 FORGET 2/1
+1794720309.759 DELETE: 2
+1794720309.820 unique: 193, opcode: FSYNC (20), nodeid: 5, insize: 56, pid: 0
+1794720309.820 fsync[0] datasync: 1
+1794720309.820    unique: 193, success, outsize: 16
+1794720309.820 unique: 194, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720309.820 statfs /
+1794720309.820    unique: 194, success, outsize: 96
+1794720309.820 unique: 195, opcode: FSYNC (20), nodeid: 5, insize: 56, pid: 0
+1794720309.820 fsync[0] datasync: 1
+1794720309.820    unique: 195, success, outsize: 16
+1794720309.820 unique: 196, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720309.820 statfs /
+1794720309.820    unique: 196, success, outsize: 96
+1794720309.820 unique: 197, opcode: FSYNC (20), nodeid: 5, insize: 56, pid: 0
+1794720309.820 fsync[0] datasync: 1
+1794720309.820    unique: 197, success, outsize: 16
+1794720309.821 unique: 198, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720309.821 statfs /
+1794720309.821    unique: 198, success, outsize: 96
+1794720309.821 unique: 199, opcode: FSYNC (20), nodeid: 5, insize: 56, pid: 0
+1794720309.821 fsync[0] datasync: 1
+1794720309.821    unique: 199, success, outsize: 16
+1794720309.821 unique: 200, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720309.821 statfs /
+1794720309.821    unique: 200, success, outsize: 96
+1794720309.825 unique: 201, opcode: FSYNC (20), nodeid: 5, insize: 56, pid: 0
+1794720309.825 fsync[0] datasync: 1
+1794720309.825    unique: 201, success, outsize: 16
+1794720309.825 unique: 202, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720309.825 statfs /
+1794720309.825    unique: 202, success, outsize: 96
+1794720309.825 unique: 203, opcode: FSYNC (20), nodeid: 5, insize: 56, pid: 0
+1794720309.825 fsync[0] datasync: 1
+1794720309.825    unique: 203, success, outsize: 16
+1794720309.825 unique: 204, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+1794720309.825 statfs /
+1794720309.825    unique: 204, success, outsize: 96
+1794720309.825 unique: 205, opcode: DESTROY (38), nodeid: 1, insize: 40, pid: 0
+1794720309.825 Unmounting /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-7f5811ze/vol.img (ntfsmac)
+1794720309.825    unique: 205, success, outsize: 16

@@ -23,6 +23,7 @@ enum {
 	K_NOATIME,
 	K_WINDOWS_NAMES,
 	K_NOCOMPRESSION,
+	K_NO_DETACH,
 	K_STREAMS,
 	K_UID,
 	K_GID,
@@ -36,7 +37,7 @@ enum {
 };
 
 static const char *const allowed_keys[K_COUNT] = {
-	"backend", "local", "norecover", "noatime", "windows_names", "nocompression",
+	"backend", "local", "norecover", "noatime", "windows_names", "nocompression", "no_detach",
 	"streams_interface", "uid", "gid", "fmask", "dmask", "ro", "hide_hid_files", "permissions", "usermapping",
 };
 
@@ -182,7 +183,8 @@ static ntfsmac_argv_status check_value(int k, const char *val, size_t vlen, int 
 			       ? NTFSMAC_ARGV_OK
 			       : NTFSMAC_ARGV_ERR_VALUE;
 	default:
-		/* local, norecover, noatime, windows_names, nocompression, ro, hide_hid_files, permissions */
+		/* local, norecover, noatime, windows_names, nocompression, no_detach, ro, hide_hid_files,
+		 * permissions */
 		return has_val ? NTFSMAC_ARGV_ERR_VALUE : NTFSMAC_ARGV_OK;
 	}
 }
@@ -192,6 +194,7 @@ ntfsmac_argv_status ntfsmac_argv_check_text(const char *const *argv, size_t argc
 {
 	static const unsigned always = BIT(K_BACKEND) | BIT(K_LOCAL) | BIT(K_NORECOVER) |
 				       BIT(K_NOATIME) | BIT(K_WINDOWS_NAMES) | BIT(K_NOCOMPRESSION) |
+				       BIT(K_NO_DETACH) |
 				       BIT(K_STREAMS);
 	static const unsigned ownership = BIT(K_UID) | BIT(K_GID) | BIT(K_FMASK) | BIT(K_DMASK);
 	static const char vol[] = NTFSMAC_VOLUMES_PREFIX;

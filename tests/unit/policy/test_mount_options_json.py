@@ -53,7 +53,7 @@ class MountOptions(unittest.TestCase):
         by_key = {key_of(o["option"]): o["option"] for o in self.doc["always"]}
         toks = build("rw").split(",")
         for key in ("backend", "local", "norecover", "noatime", "windows_names",
-                    "nocompression", "streams_interface", "fmask", "dmask"):
+                    "nocompression", "no_detach", "streams_interface", "fmask", "dmask"):
             self.assertIn(by_key[key], toks)
         self.assertIn("uid=501", toks)
         self.assertIn("gid=20", toks)

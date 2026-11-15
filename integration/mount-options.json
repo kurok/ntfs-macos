@@ -55,6 +55,11 @@
       "observed": false
     },
     {
+      "option": "no_detach",
+      "class": "effective",
+      "note": "keeps ntfs-3g in the foreground: without it the engine calls daemon() after the mount request, so the spawned process exits 0 at once and the real worker runs in a new session and process group. The daemon must supervise the real worker (exit status, unmount before exit, SIGKILL of its process group; ARCHITECTURE sections 4.1 and 7), so it is mandatory (M3 audit F-01). Used by every supervised integration case since T-M2-03 (docs/spikes/M2-backend.md)"
+    },
+    {
       "option": "streams_interface=openxattr",
       "class": "effective",
       "replaces": "streams_interface=xattr",

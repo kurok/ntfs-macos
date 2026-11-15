@@ -81,7 +81,7 @@ static void check_raw(const char *label, size_t len)
 	argv[1] = "/dev/fd/5";
 	argv[2] = mp;
 	argv[3] = "-o";
-	argv[4] = "backend=fskit,local,norecover,noatime,windows_names,nocompression,"
+	argv[4] = "backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,"
 		  "streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022,ro";
 	accepted = ntfsmac_argv_check_text(argv, NTFSMAC_WORKER_ARGC, &ex) == NTFSMAC_ARGV_OK;
 	valid = oracle_leaf_violation(raw, rl) == NULL;

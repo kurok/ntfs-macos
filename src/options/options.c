@@ -66,7 +66,7 @@ ntfsmac_options_status ntfsmac_options_build(const ntfsmac_options_input *in,
 	len = 0;
 	n = snprintf(out->optstr, sizeof(out->optstr),
 		     "backend=fskit,local,norecover,noatime,windows_names,"
-		     "nocompression,streams_interface=openxattr");
+		     "nocompression,no_detach,streams_interface=openxattr");
 	if (n < 0 || (size_t)n >= sizeof(out->optstr))
 		return fail(out, NTFSMAC_OPTIONS_ERR_INVALID);
 	len = (size_t)n;

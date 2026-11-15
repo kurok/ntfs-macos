@@ -29,6 +29,7 @@ import random
 import re
 import shlex
 import struct
+import subprocess
 import sys
 import time
 import unicodedata
@@ -54,7 +55,9 @@ FILE_SPARSE = 0x200
 FILE_COMPRESSED = 0x800
 EPOCH_DIFF = 11644473600          # seconds from 1601-01-01 to 1970-01-01
 # Tokens of the builder's string that Linux NTFS-3G does not know (macOS FSKit backend selection).
-MAC_ONLY_TOKENS = ("backend=fskit", "local")
+# Dropped from the builder string for the Linux phase: two macOS-only tokens, and no_detach, which would
+# keep the synchronous Linux mount command in the foreground.
+MAC_ONLY_TOKENS = ("backend=fskit", "local", "no_detach")
 DUMP_OPTS = "ro,noatime,streams_interface=openxattr"
 MOUNT_DEADLINE = 60
 
@@ -368,10 +371,23 @@ def linux_optstr(builder):
 
 
 def mount_b(ctx, vol, optstr):
-    """Environment B mount with exactly `optstr`: argv order as the daemon's (device, mount point, -o string)."""
-    ctx.sh("%s %s %s -o %s" % (shlex.quote(hv.guest_tool("ntfs-3g")), shlex.quote(vol.img), shlex.quote(vol.mnt),
-                                shlex.quote(optstr)), timeout=MOUNT_DEADLINE)
-    fsops._wait_b_mount(ctx, vol)
+    """Environment B mount with exactly `optstr`: argv order as the daemon's (device, mount point, -o string).
+    The builder string has no_detach, so the worker stays in the foreground: it is started in its own
+    session, as the daemon starts it, and fsops.unmount() waits for its exit (SIGKILL after 20 s)."""
+    argv = [hv.guest_tool("ntfs-3g"), vol.img, vol.mnt, "-o", optstr]
+    ctx.log("$ %s" % " ".join(shlex.quote(a) for a in argv))
+    logf = open(os.path.join(ctx.work, "worker.log"), "ab")
+    proc = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=logf, stderr=subprocess.STDOUT,
+                            start_new_session=True)
+    vol._dbg = (proc, logf)
+    try:
+        fsops._wait_b_mount(ctx, vol, proc)
+    except Exception:
+        proc.kill()
+        proc.wait()
+        logf.close()
+        vol._dbg = None
+        raise
 
 
 def mount_a(ctx, vol, optstr):

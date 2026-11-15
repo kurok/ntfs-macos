@@ -417,7 +417,7 @@ The worker sandbox also denies `connect()` to the control socket; the boundary n
 
 **What this does not guarantee.** A device whose firmware answers the same reads differently at different times defeats any binding; it can equally change its content during a session. That is the hostile-disk exposure of D2.
 
-**Device exclusivity.** The binding and the Disk Arbitration dissenter (ADR-003) are what keep the device exclusive. The advisory lock that NTFS-3G takes on its duplicate of the descriptor gives no lasting exclusivity: `ntfs-3g` calls `daemon()` after opening the volume, and POSIX locks do not survive the fork (T-M2-05, patch 0003 header).
+**Device exclusivity.** The binding and the Disk Arbitration dissenter (ADR-003) are what keep the device exclusive. The advisory lock that NTFS-3G takes on its duplicate of the descriptor gives no lasting exclusivity: in daemon mode `ntfs-3g` calls `daemon()` after opening the volume, and POSIX locks do not survive the fork (T-M2-05, patch 0003 header). The product runs the worker with `no_detach` (M3 audit F-01), which does not rely on that lock either.
 
 **Consequences.** One extra 4 KiB read per attach and one per volmark run. Tests `I-DMN-25` (swap between probe and mount, simulated by re-attaching another image under the same BSD name; and a volume already mounted by another driver) and `U-VMK-09` (volmark with wrong expected values). Tasks T-M4-14, T-M3-12, T-M4-02. Risk R-35.
 

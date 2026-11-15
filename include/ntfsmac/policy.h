@@ -64,8 +64,11 @@ typedef enum ntfsmac_policy_note {
 	NTFSMAC_POLICY_NOTE_HIBERNATED,           /* hibernated or fast_startup */
 	NTFSMAC_POLICY_NOTE_UNKNOWN,              /* unknown (and any invalid input) */
 	NTFSMAC_POLICY_NOTE_REFUSED,              /* corrupt or unsupported */
-	NTFSMAC_POLICY_NOTE_MIRROR_SPLIT          /* mirror_split: refused; text names
+	NTFSMAC_POLICY_NOTE_MIRROR_SPLIT,         /* mirror_split: refused; text names
 	                                           * `repair --sync-mirror` and chkdsk (ADR-021) */
+	NTFSMAC_POLICY_NOTE_NAMES_NOT_NFC         /* names_not_nfc: ro; text says the volume
+	                                           * holds names this Mac cannot open and to
+	                                           * rename them elsewhere (ADR-023) */
 } ntfsmac_policy_note;
 
 /*
@@ -158,7 +161,10 @@ ntfsmac_policy_gate ntfsmac_policy_gate_journal_clear(const ntfsmac_policy_journ
  * `inactive`, volume_flags contains DIRTY and otherwise only
  * MODIFIED_BY_CHKDSK or MOUNTED_ON_NT4, the volume is not mounted in any
  * mode, the peer checks passed and the confirmation matches. A journal entry
- * is not required.
+ * is not required. The reason codes must hold FLAG_DIRTY and nothing else but
+ * NAMES_NOT_NFC, which is not a damage finding (ADR-023 item 5); any other
+ * code (CHECK_FAILED, VERSION_UNKNOWN, ...) gives NTFSMAC_GATE_PROBE_NOT_DIRTY_FLAG.
+ * The `repair --sync-mirror` gate (T-M4-16) uses the same pattern.
  */
 typedef struct ntfsmac_policy_repair_input {
 	const ntfsmac_probe_verdict *probe;  /* probe run for this request */

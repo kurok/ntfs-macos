@@ -1,0 +1,109 @@
+-- The C compiler identification is GNU 14.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Platform: Linux (portable parts only)
+-- Performing Test NTFSMAC_HAVE_STACK_PROTECTOR_STRONG
+-- Performing Test NTFSMAC_HAVE_STACK_PROTECTOR_STRONG - Success
+-- Performing Test NTFSMAC_HAVE_AUTO_VAR_INIT
+-- Performing Test NTFSMAC_HAVE_AUTO_VAR_INIT - Success
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /tmp/bld-rel
+[1/59] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/state.c.o
+[2/59] Building C object src/policy/CMakeFiles/ntfsmac_policy.dir/policy.c.o
+[3/59] Building C object tests/tools/CMakeFiles/treedump.dir/treedump.c.o
+[4/59] Building C object src/options/CMakeFiles/ntfsmac_worker_options.dir/options.c.o
+[5/59] Building C object tests/tools/CMakeFiles/setvolflags.dir/setvolflags.c.o
+[6/59] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/text.c.o
+[7/59] Building C object src/common/CMakeFiles/test_log.dir/test_log.c.o
+[8/59] Linking C static library src/policy/libntfsmac_policy.a
+[9/59] Building C object src/probe/CMakeFiles/probe_test.dir/main_test.c.o
+[10/59] Building C object src/probe/CMakeFiles/ntfsmac-probe.dir/main.c.o
+[11/59] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_probe.c.o
+[12/59] Building C object src/common/CMakeFiles/ntfsmac_common.dir/log.c.o
+[13/59] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_policy.c.o
+[14/59] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_journal.c.o
+[15/59] Building C object tests/tools/CMakeFiles/txf_make.dir/txf_make.c.o
+[16/59] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_options.c.o
+[17/59] Linking C static library src/common/libntfsmac_common.a
+[18/59] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/test_headers.c.o
+[19/59] Linking C executable src/common/test_log
+[20/59] Building C object src/common/CMakeFiles/ntfsmac_mftmirr.dir/mftmirr.c.o
+[21/59] Linking C executable tests/tools/treedump
+[22/59] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/json.c.o
+[23/59] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/nfc.c.o
+[24/59] Building C object src/options/CMakeFiles/ntfsmac_worker_options.dir/argv_check.c.o
+[25/59] Linking C static library src/common/libntfsmac_mftmirr.a
+[26/59] Linking C executable tests/tools/setvolflags
+[27/59] Building C object src/probe/CMakeFiles/ntfsmac_probe_core.dir/names.c.o
+[28/59] Linking C executable tests/tools/txf_make
+[29/59] Building C object src/probe/CMakeFiles/ntfsmac_probe_core.dir/devio.c.o
+[30/59] Linking C executable tests/unit/contracts/test_headers
+[31/59] Linking C static library src/options/libntfsmac_worker_options.a
+[32/59] Linking C static library src/probe/libntfsmac_probe_pure.a
+[33/59] Building C object tests/unit/policy/CMakeFiles/argv_tool.dir/argv_tool.c.o
+[34/59] Linking C executable tests/unit/policy/argv_tool
+[35/59] Building C object tests/tools/CMakeFiles/logfile_mark.dir/logfile_mark.c.o
+[36/59] Building C object tests/unit/probe/CMakeFiles/nfc_tool.dir/nfc_tool.c.o
+[37/59] Linking C executable tests/unit/probe/nfc_tool
+[38/59] Building C object tests/unit/probe/CMakeFiles/mm_tool.dir/mm_tool.c.o
+[39/59] Building C object src/probe/CMakeFiles/ntfsmac_probe_core.dir/cli.c.o
+[40/59] Building C object src/probe/CMakeFiles/ntfsmac_probe_core.dir/probe.c.o
+[41/59] Linking C executable tests/tools/logfile_mark
+[42/59] Linking C executable tests/unit/probe/mm_tool
+[43/59] Linking C static library src/probe/libntfsmac_probe_core.a
+[44/59] Building C object tests/unit/probe/CMakeFiles/test_probe_pure.dir/test_pure.c.o
+[45/59] Linking C executable tests/unit/probe/test_probe_pure
+[46/59] Linking C executable src/probe/probe_test
+[47/59] Linking C executable src/probe/ntfsmac-probe
+[48/59] Building C object tests/unit/journal/CMakeFiles/test_journal_crash.dir/test_journal_crash.c.o
+[49/59] Building C object tests/unit/policy/CMakeFiles/test_policy.dir/test_policy.c.o
+[50/59] Building C object src/journal/CMakeFiles/ntfsmac_journal.dir/journal.c.o
+[51/59] Building C object src/journal/CMakeFiles/ntfsmac_journal_testhooks.dir/journal.c.o
+[52/59] Linking C executable tests/unit/policy/test_policy
+[53/59] Linking C static library src/journal/libntfsmac_journal.a
+[54/59] Linking C static library src/journal/libntfsmac_journal_testhooks.a
+[55/59] Linking C executable tests/unit/journal/test_journal_crash
+[56/59] Building C object tests/unit/policy/CMakeFiles/test_options.dir/test_options.c.o
+[57/59] Building C object tests/unit/journal/CMakeFiles/test_journal.dir/test_journal.c.o
+[58/59] Linking C executable tests/unit/policy/test_options
+[59/59] Linking C executable tests/unit/journal/test_journal
+Internal ctest changing into directory: /tmp/bld-rel
+Test project /tmp/bld-rel
+      Start  1: common.log
+ 1/15 Test  #1: common.log .......................   Passed    0.00 sec
+      Start  2: tools.treedump
+ 2/15 Test  #2: tools.treedump ...................   Passed    0.01 sec
+      Start  3: tools.logfile_mark_selftest
+ 3/15 Test  #3: tools.logfile_mark_selftest ......   Passed    0.00 sec
+      Start  4: harness.unit
+ 4/15 Test  #4: harness.unit .....................   Passed    0.27 sec
+      Start  5: contracts.headers
+ 5/15 Test  #5: contracts.headers ................   Passed    0.00 sec
+      Start  6: contracts.probe_schema
+ 6/15 Test  #6: contracts.probe_schema ...........   Passed    0.03 sec
+      Start  7: journal.unit
+ 7/15 Test  #7: journal.unit .....................   Passed    0.09 sec
+      Start  8: journal.crash
+ 8/15 Test  #8: journal.crash ....................   Passed    0.25 sec
+      Start  9: policy.table
+ 9/15 Test  #9: policy.table .....................   Passed    0.01 sec
+      Start 10: policy.options
+10/15 Test #10: policy.options ...................   Passed    0.01 sec
+      Start 11: policy.mount_options_json
+11/15 Test #11: policy.mount_options_json ........   Passed    0.04 sec
+      Start 12: probe.pure
+12/15 Test #12: probe.pure .......................   Passed    0.02 sec
+      Start 13: probe.nfc
+13/15 Test #13: probe.nfc ........................   Passed    2.15 sec
+      Start 14: probe.mftmirr
+14/15 Test #14: probe.mftmirr ....................   Passed    0.04 sec
+      Start 15: probe.run
+15/15 Test #15: probe.run ........................   Passed   21.99 sec
+
+100% tests passed, 0 tests failed out of 15
+
+Total Test time (real) =  24.90 sec

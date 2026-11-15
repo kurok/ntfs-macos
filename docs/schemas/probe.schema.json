@@ -20,7 +20,9 @@
     "hiberfile",
     "bitlocker",
     "state",
-    "reason_codes"
+    "reason_codes",
+    "nonnfc_count",
+    "nonnfc_paths"
   ],
   "properties": {
     "schema": { "const": 1 },
@@ -92,12 +94,13 @@
         "unsupported",
         "corrupt",
         "unknown",
-        "mirror_split"
+        "mirror_split",
+        "names_not_nfc"
       ]
     },
     "reason_codes": {
       "type": "array",
-      "maxItems": 17,
+      "maxItems": 18,
       "uniqueItems": true,
       "items": {
         "type": "string",
@@ -118,8 +121,23 @@
           "HIBER_UNREADABLE",
           "VERSION_UNKNOWN",
           "CHECK_FAILED",
-          "MFTMIRR_STALE"
+          "MFTMIRR_STALE",
+          "NAMES_NOT_NFC"
         ]
+      }
+    },
+    "nonnfc_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "nonnfc_paths": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "type": "string",
+        "maxLength": 512,
+        "pattern": "^[^\\u0000]*$"
       }
     }
   },
@@ -135,6 +153,12 @@
       "if": { "properties": { "state": { "const": "clean" } }, "required": ["state"] },
       "then": { "properties": { "reason_codes": { "maxItems": 0 } } },
       "else": { "properties": { "reason_codes": { "minItems": 1 } } }
+    },
+    {
+      "description": "ADR-023: nonnfc_count is 0 if and only if reason_codes lacks NAMES_NOT_NFC; nonnfc_paths has exactly min(nonnfc_count, 16) entries (the entry count is checked by the strict parser and tests/unit/contracts, not expressible here). Each path is at most 512 BYTES of UTF-8 (maxLength counts characters, so it is only a necessary bound).",
+      "if": { "properties": { "reason_codes": { "contains": { "const": "NAMES_NOT_NFC" } } }, "required": ["reason_codes"] },
+      "then": { "properties": { "nonnfc_count": { "minimum": 1 }, "nonnfc_paths": { "minItems": 1 } } },
+      "else": { "properties": { "nonnfc_count": { "maximum": 0 }, "nonnfc_paths": { "maxItems": 0 } } }
     }
   ]
 }

@@ -4,7 +4,7 @@
 The jsonschema package is not available, so this holds a minimal validator for
 the subset of JSON Schema 2020-12 that the schema uses: type, const, enum,
 pattern, minimum, maximum, maxLength, minItems, maxItems, uniqueItems, items,
-properties, required, additionalProperties, oneOf, allOf, if/then/else.
+contains, properties, required, additionalProperties, oneOf, allOf, if/then/else.
 An unknown keyword in the schema fails the test, so the validator cannot
 silently skip a constraint.
 
@@ -27,7 +27,7 @@ ANNOTATIONS = {"$schema", "$id", "title", "description"}
 KEYWORDS = ANNOTATIONS | {
     "type", "const", "enum", "pattern", "minimum", "maximum", "maxLength",
     "minItems", "maxItems", "uniqueItems", "items", "properties", "required",
-    "additionalProperties", "oneOf", "allOf", "if", "then", "else",
+    "additionalProperties", "oneOf", "allOf", "if", "then", "else", "contains",
 }
 
 
@@ -91,6 +91,9 @@ def validate(value, schema, path="$"):
         if "items" in schema:
             for i, item in enumerate(value):
                 errs += validate(item, schema["items"], "%s[%d]" % (path, i))
+        if "contains" in schema and not any(
+                not validate(item, schema["contains"], path) for item in value):
+            errs.append("%s: no item matches contains" % path)
     if t == "object":
         props = schema.get("properties", {})
         for key in schema.get("required", []):
@@ -207,8 +210,10 @@ class ProbeSchema(unittest.TestCase):
     def test_all_flags_and_codes_at_the_caps(self):
         flags = xmacro_strings(self.header, "NTFSMAC_PROBE_VOLFLAG_LIST")
         codes = xmacro_strings(self.header, "NTFSMAC_PROBE_REASON_LIST")
-        self.assertEqual((len(flags), len(codes)), (9, 17))
-        self.ok(self.mutated(volume_flags=flags, reason_codes=codes))
+        self.assertEqual((len(flags), len(codes)), (9, 18))
+        self.assertIn("NAMES_NOT_NFC", codes)
+        self.ok(self.mutated(volume_flags=flags, reason_codes=codes, nonnfc_count=3,
+                             nonnfc_paths=["/a", "/b", "/c"]))
 
     # --- negative ---------------------------------------------------------
     def test_bad_serial(self):
@@ -291,7 +296,7 @@ class ProbeSchema(unittest.TestCase):
             with self.subTest(macro=macro):
                 self.assertEqual(xmacro_strings(self.header, macro), enum)
         self.assertEqual(props["volume_flags"]["maxItems"], 9)
-        self.assertEqual(props["reason_codes"]["maxItems"], 17)
+        self.assertEqual(props["reason_codes"]["maxItems"], 18)
 
     def test_mirror_split_validates(self):
         # ADR-021: the probe could not read the log through the overlay view
@@ -301,6 +306,50 @@ class ProbeSchema(unittest.TestCase):
         self.ok(self.mutated(state="mirror_split", volume_flags=[], logfile="unreadable",
                              logfile_lsn=None, reason_codes=["MFTMIRR_STALE", "LOG_UNREADABLE"]))
         self.bad(self.mutated(state="mirror_split", reason_codes=[]), "reason_codes")
+
+    # --- ADR-023: names that are not NFC ----------------------------------
+    def test_doc_example_carries_the_nonnfc_keys(self):
+        self.assertEqual(self.example["nonnfc_count"], 0)
+        self.assertEqual(self.example["nonnfc_paths"], [])
+
+    def test_names_not_nfc_validates(self):
+        paths = ["/caf\u00e9", "/d/e\u0301"]
+        self.ok(self.mutated(state="names_not_nfc", volume_flags=[], reason_codes=["NAMES_NOT_NFC"],
+                             nonnfc_count=2, nonnfc_paths=paths))
+        # more names than paths: the list is capped at 16
+        self.ok(self.mutated(state="names_not_nfc", volume_flags=[], reason_codes=["NAMES_NOT_NFC"],
+                             nonnfc_count=22, nonnfc_paths=["/n%d" % i for i in range(16)]))
+        # the code with another state (ADR-023 item 5)
+        self.ok(self.mutated(reason_codes=["FLAG_DIRTY", "NAMES_NOT_NFC"], nonnfc_count=1,
+                             nonnfc_paths=["/x"]))
+        self.ok(self.mutated(state="mirror_split", reason_codes=["MFTMIRR_STALE", "NAMES_NOT_NFC"],
+                             nonnfc_count=1, nonnfc_paths=["/x"]))
+
+    def test_nonnfc_cross_field_rules(self):
+        # count and code go together
+        self.bad(self.mutated(nonnfc_count=1, nonnfc_paths=["/x"]), "nonnfc_count")
+        self.bad(self.mutated(reason_codes=["FLAG_DIRTY", "NAMES_NOT_NFC"]), "nonnfc_count")
+        self.bad(self.mutated(state="names_not_nfc", reason_codes=["NAMES_NOT_NFC"],
+                              volume_flags=[]), "nonnfc_count")
+        self.bad(self.mutated(nonnfc_paths=["/x"]), "nonnfc_paths")
+
+    def test_nonnfc_grammar(self):
+        for key in ("nonnfc_count", "nonnfc_paths"):
+            with self.subTest(key=key):
+                self.bad(self.mutated(**{key: KeyError}), "missing key %s" % key)
+        self.bad(self.mutated(nonnfc_count=-1), "nonnfc_count")
+        self.bad(self.mutated(nonnfc_count=2**32), "nonnfc_count")
+        self.bad(self.mutated(nonnfc_count="0"), "nonnfc_count")
+        self.bad(self.mutated(nonnfc_count=0.5), "nonnfc_count")
+        full = dict(state="names_not_nfc", volume_flags=[], reason_codes=["NAMES_NOT_NFC"],
+                    nonnfc_count=17)
+        self.bad(self.mutated(nonnfc_paths=["/n%d" % i for i in range(17)], **full), "nonnfc_paths")
+        self.bad(self.mutated(nonnfc_paths=["/" + "x" * 512], **full), "nonnfc_paths[0]")
+        self.bad(self.mutated(nonnfc_paths=["/a\u0000b"], **full), "nonnfc_paths[0]")
+        self.bad(self.mutated(nonnfc_paths=[5], **full), "nonnfc_paths[0]")
+
+    def test_names_not_nfc_state_in_enum(self):
+        self.assertIn("names_not_nfc", self.schema["properties"]["state"]["enum"])
 
 
 if __name__ == "__main__":

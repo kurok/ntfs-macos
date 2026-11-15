@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="13"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="47"
+	timestamp="2026-11-15T10:17:55"
+	>
+	<testcase name="common.log" classname="common.log" time="0.00289283" status="run">
+		<properties/>
+		<system-out>INFO: stderr sink ok
+</system-out>
+	</testcase>
+	<testcase name="tools.treedump" classname="tools.treedump" time="0.0329655" status="run">
+		<properties/>
+		<system-out>treedump: OK
+</system-out>
+	</testcase>
+	<testcase name="tools.logfile_mark_selftest" classname="tools.logfile_mark_selftest" time="0.00380067" status="run">
+		<properties/>
+		<system-out>selftest ok
+</system-out>
+	</testcase>
+	<testcase name="harness.unit" classname="harness.unit" time="0.264683" status="run">
+		<properties/>
+		<system-out>........................
+----------------------------------------------------------------------
+Ran 24 tests in 0.229s
+
+OK
+</system-out>
+	</testcase>
+	<testcase name="contracts.headers" classname="contracts.headers" time="0.00316696" status="run">
+		<properties/>
+		<system-out>contracts headers: ok
+</system-out>
+	</testcase>
+	<testcase name="contracts.probe_schema" classname="contracts.probe_schema" time="0.0287792" status="run">
+		<properties/>
+		<system-out>test_all_flags_and_codes_at_the_caps (__main__.ProbeSchema.test_all_flags_and_codes_at_the_caps) ... ok
+test_array_caps_and_duplicates (__main__.ProbeSchema.test_array_caps_and_duplicates) ... ok
+test_bad_logfile_lsn (__main__.ProbeSchema.test_bad_logfile_lsn) ... ok
+test_bad_serial (__main__.ProbeSchema.test_bad_serial) ... ok
+test_clean_volume_validates (__main__.ProbeSchema.test_clean_volume_validates) ... ok
+test_cross_field_rules (__main__.ProbeSchema.test_cross_field_rules) ... ok
+test_doc_example_carries_the_nonnfc_keys (__main__.ProbeSchema.test_doc_example_carries_the_nonnfc_keys) ... ok
+test_doc_example_validates (__main__.ProbeSchema.test_doc_example_validates) ... ok
+test_duplicate_keys_rejected_by_loader (__main__.ProbeSchema.test_duplicate_keys_rejected_by_loader) ... ok
+test_enum_violations (__main__.ProbeSchema.test_enum_violations) ... ok
+test_enums_match_probe_h (__main__.ProbeSchema.test_enums_match_probe_h) ... ok
+test_integer_ranges (__main__.ProbeSchema.test_integer_ranges) ... ok
+test_m...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="policy.table" classname="policy.table" time="0.0332578" status="run">
+		<properties/>
+		<system-out>policy: all checks passed
+</system-out>
+	</testcase>
+	<testcase name="policy.options" classname="policy.options" time="0.0311677" status="run">
+		<properties/>
+		<system-out>options: all checks passed
+</system-out>
+	</testcase>
+	<testcase name="policy.mount_options_json" classname="policy.mount_options_json" time="0.273063" status="run">
+		<properties/>
+		<system-out>.......
+----------------------------------------------------------------------
+Ran 7 tests in 0.248s
+
+OK
+</system-out>
+	</testcase>
+	<testcase name="probe.pure" classname="probe.pure" time="0.0470465" status="run">
+		<properties/>
+		<system-out>worst case verdict: 53126 bytes (limit 65536)
+probe pure: all checks passed
+</system-out>
+	</testcase>
+	<testcase name="probe.nfc" classname="probe.nfc" time="2.93546" status="run">
+		<properties/>
+		<system-out>tables: Unicode 15.1.0; python: Unicode 15.1.0
+test_composition_pairs (__main__.Nfc.test_composition_pairs) ... ok
+test_every_code_point (__main__.Nfc.test_every_code_point) ... ok
+test_fixture_names (__main__.Nfc.test_fixture_names) ... /work/tests/unit/probe/test_nfc.py:171: ResourceWarning: unclosed file &lt;_io.TextIOWrapper name='/tmp/ntfsmac-names/names-nfd.all' mode='r' encoding='utf-8'&gt;
+  for line in open(path, encoding="utf-8"):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/work/tests/unit/probe/test_nfc.py:171: ResourceWarning: unclosed file &lt;_io.TextIOWrapper name='/tmp/ntfsmac-names/names-nfc.all' mode='r' encoding='utf-8'&gt;
+  for line in open(path, encoding="utf-8"):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_hangul (__main__.Nfc.test_hangul) ... ok
+test_longest_decomposition_and_length_limits (__main__.Nfc.test_longest_decomposition_and_length_limits) ... ok
+test_random_mark_sequences (__main__.Nfc.test_random_mark_sequences) ... ...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="probe.mftmirr" classname="probe.mftmirr" time="0.220472" status="run">
+		<properties/>
+		<system-out>test_m1_mirror_or_mft_not_where_the_boot_sector_says (__main__.Rule.test_m1_mirror_or_mft_not_where_the_boot_sector_says) ... ok
+test_m1_mirror_smaller_than_four_records (__main__.Rule.test_m1_mirror_smaller_than_four_records) ... ok
+test_m1_records_beyond_the_fourth_must_not_differ (__main__.Rule.test_m1_records_beyond_the_fourth_must_not_differ) ... ok
+test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) ... ok
+test_m2_torn_records (__main__.Rule.test_m2_torn_records) ... ok
+test_m2_usa_header_invalid (__main__.Rule.test_m2_usa_header_invalid) ... ok
+test_m3_nothing_differs (__main__.Rule.test_m3_nothing_differs) ... ok
+test_m4_allocation_larger_by_a_part_of_a_cluster (__main__.Rule.test_m4_allocation_larger_by_a_part_of_a_cluster) ... ok
+test_m4_attribute_length_changed (__main__.Rule.test_m4_attribute_length_changed) ... ok
+test_m4_header_field_changed (__main__.Rule.test_m4_header_field_changed) ... ok
+test_m4_highest_vcn_wrong (__main__.Rule.test_m4_highest_vcn_wrong) ... ok
+test_m4_only_the_...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="probe.run" classname="probe.run" time="43.944" status="run">
+		<properties/>
+		<system-out>fixtures: 69 images from /tmp/ntfsmac-unsafe, /tmp/ntfsmac-fixtures, /tmp/ntfsmac-names, /tmp/ntfsmac-mirror
+test_accepts_bsd_name (__main__.Probe.test_accepts_bsd_name) ... ok
+test_bitlocker_flag (__main__.Probe.test_bitlocker_flag) ... ok
+test_budget_default_is_not_zero (__main__.Probe.test_budget_default_is_not_zero) ... ok
+test_clean_fixtures (__main__.Probe.test_clean_fixtures) ... ok
+test_descriptor_problems_exit_3 (__main__.Probe.test_descriptor_problems_exit_3) ... ok
+test_flag_bits (__main__.Probe.test_flag_bits) ... ok
+test_hibernation_variants (__main__.Probe.test_hibernation_variants) ... ok
+test_informational_flags (__main__.Probe.test_informational_flags) ... ok
+test_label_is_escaped_not_interpreted (__main__.Probe.test_label_is_escaped_not_interpreted) ... ok
+test_log_variants (__main__.Probe.test_log_variants) ... ok
+test_manifest_fixtures (__main__.Probe.test_manifest_fixtures) ... ok
+test_mirror_01_split (__main__.Probe.test_mirror_01_split) ... ok
+test_mirror_02_not_split (__main__.Probe.te...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+</testsuite>

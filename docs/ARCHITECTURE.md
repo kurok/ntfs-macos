@@ -114,11 +114,13 @@ Output (stdout, one JSON object, schema version 1). Example: a volume with the d
   "hiberfile": "absent",
   "bitlocker": false,
   "state": "dirty_flag",
-  "reason_codes": ["FLAG_DIRTY"]
+  "reason_codes": ["FLAG_DIRTY"],
+  "nonnfc_count": 0,
+  "nonnfc_paths": []
 }
 ```
 
-The example follows the current schema (`docs/schemas/probe.schema.json`). The ADR-023 additions below (state `names_not_nfc`, code `NAMES_NOT_NFC`, keys `nonnfc_count` and `nonnfc_paths`) enter the header and the schema with T-M3-02; from then on every verdict carries both keys.
+The example follows the schema (`docs/schemas/probe.schema.json`). Every verdict carries `nonnfc_count` and `nonnfc_paths` (ADR-023), also when no name is found.
 
 `logfile_lsn` is the `current_lsn` of the newer valid `$LogFile` restart area, or `null` when `logfile` is `unreadable`. An empty `$LogFile` (all `0xff`, no restart page, as `mkntfs` leaves it) is `clean` with `logfile_lsn` `0x0000000000000000`; the engine also treats it as clean [V: T-M3-01, T-M3-04 fixtures `dirty-flag`, `hiber-*`]. `logfile_lsn` is used only as evidence that another system mounted the volume (section 3.5).
 
@@ -195,7 +197,7 @@ The policy library also exposes the two gate functions used by the control reque
 | Gate | Allowed only when |
 |---|---|
 | `journal-clear` | A journal entry exists; a probe run by the daemon for this request returns `state` exactly `clean` (with no reason code) and the same `serial` as the entry (a probe of another volume proves nothing about this entry); the volume is not mounted read/write; no live session owns the entry (no volume, on any BSD name, is `Mounting` or `Mounted` with the entry's `session_id`; a second disk with the same serial, such as a clone, therefore cannot clear the entry of a live `rw` session); the peer passed the checks of section 3.4 and the administrator prompt (ADR-019). |
-| `repair --clear-dirty` | A probe run for this request returns `state` exactly `dirty_flag`, `logfile` `clean`, `hiberfile` `absent` or `inactive`, `volume_flags` containing `DIRTY` and otherwise only the informational `MODIFIED_BY_CHKDSK` or `MOUNTED_ON_NT4` (section 3.1 check 3); the volume is not mounted (the CLI asks the user to unmount the read-only mount first); the peer passed the checks of section 3.4 and the administrator prompt (ADR-019). |
+| `repair --clear-dirty` | A probe run for this request returns `state` exactly `dirty_flag`, `reason_codes` holding `FLAG_DIRTY` and otherwise at most `NAMES_NOT_NFC` (ADR-023) (any other finding: refused), `logfile` `clean`, `hiberfile` `absent` or `inactive`, `volume_flags` containing `DIRTY` and otherwise only the informational `MODIFIED_BY_CHKDSK` or `MOUNTED_ON_NT4` (section 3.1 check 3); the volume is not mounted (the CLI asks the user to unmount the read-only mount first); the peer passed the checks of section 3.4 and the administrator prompt (ADR-019). |
 | `repair --sync-mirror` | A probe run for this request returns `state` exactly `mirror_split`; `reason_codes` holds `MFTMIRR_STALE` and otherwise at most `FLAG_DIRTY` and `NAMES_NOT_NFC` (ADR-023) (any other finding: refused, remedy Windows `chkdsk` or a full Windows shutdown); `logfile` `clean`; `hiberfile` `absent` or `inactive`; the volume is not mounted (this product never mounts it, but after the refusal the system may: if Apple's read-only driver has it, U15, the CLI asks the user to unmount first); the peer passed the checks of section 3.4 and the administrator prompt (ADR-019). A journal entry is neither required nor removed (ADR-021). |
 
 A volume with only the informational flags set probes `clean`, so a `chkdsk` that clears `VOLUME_IS_DIRTY` but leaves `VOLUME_MODIFIED_BY_CHKDSK` set does not trap the volume in `ro` (audit M1-recheck N-04). Any other leftover flag gives `dirty_flag`, which `repair` refuses; the remedy is a further Windows `chkdsk`. `H-USB-08` records the flags `chkdsk /f` really leaves; if it shows a flag this rule does not cover, the coordinator revisits check 3 before the M5 gate.

@@ -34,12 +34,20 @@ extern "C" {
 #define NTFSMAC_PROBE_LABEL_MAX_BYTES 512u
 
 /*
- * Section 3.1: at most 9 volume_flags, at most 17 reason_codes. Each cap
+ * Section 3.1: at most 9 volume_flags, at most 18 reason_codes. Each cap
  * equals the length of its list, so a verdict can carry every member once.
- * The reason cap was 16 until MFTMIRR_STALE was added (ADR-021).
+ * The reason cap was 16 until MFTMIRR_STALE (ADR-021) and 17 until
+ * NAMES_NOT_NFC (ADR-023) were added.
  */
 #define NTFSMAC_PROBE_MAX_VOLUME_FLAGS 9
-#define NTFSMAC_PROBE_MAX_REASON_CODES 17
+#define NTFSMAC_PROBE_MAX_REASON_CODES 18
+
+/*
+ * Names that are not NFC (ADR-023, check 5a): `nonnfc_paths` holds at most 16
+ * paths of at most 512 bytes of UTF-8 each (section 3.1 grammar).
+ */
+#define NTFSMAC_PROBE_MAX_NONNFC_PATHS 16u
+#define NTFSMAC_PROBE_NONNFC_PATH_MAX_BYTES 512u
 
 /*
  * Enum lists as X-macros: X(IDENTIFIER, "wire string"). The wire strings are
@@ -49,7 +57,8 @@ extern "C" {
 
 /*
  * `state` (section 3.1), in the order the document lists them; `mirror_split`
- * (ADR-021) is appended so that the earlier values keep their numbers.
+ * (ADR-021) and `names_not_nfc` (ADR-023) are appended so that the earlier
+ * values keep their numbers.
  */
 #define NTFSMAC_PROBE_STATE_LIST(X)         \
 	X(CLEAN, "clean")                   \
@@ -60,7 +69,8 @@ extern "C" {
 	X(UNSUPPORTED, "unsupported")       \
 	X(CORRUPT, "corrupt")               \
 	X(UNKNOWN, "unknown")               \
-	X(MIRROR_SPLIT, "mirror_split")
+	X(MIRROR_SPLIT, "mirror_split")     \
+	X(NAMES_NOT_NFC, "names_not_nfc")
 
 /* `logfile` (section 3.1). */
 #define NTFSMAC_PROBE_LOGFILE_LIST(X)           \
@@ -91,7 +101,8 @@ extern "C" {
 /*
  * `reason_codes` members: the normative list of section 3.1 (ambiguity A1 of
  * the T-M3-00 report resolved: the list is closed). MFTMIRR_STALE was added
- * with state `mirror_split` (ADR-021). Adding a code is a
+ * with state `mirror_split` (ADR-021) and NAMES_NOT_NFC with state
+ * `names_not_nfc` (ADR-023). Adding a code is a
  * coordinator-scheduled change to this header and to the schema together.
  * Text for each code lives in the daemon and the CLI, never in the probe.
  */
@@ -112,7 +123,8 @@ extern "C" {
 	X(HIBER_UNREADABLE, "HIBER_UNREADABLE")                 \
 	X(VERSION_UNKNOWN, "VERSION_UNKNOWN")                   \
 	X(CHECK_FAILED, "CHECK_FAILED")                         \
-	X(MFTMIRR_STALE, "MFTMIRR_STALE")
+	X(MFTMIRR_STALE, "MFTMIRR_STALE")                       \
+	X(NAMES_NOT_NFC, "NAMES_NOT_NFC")
 
 typedef enum ntfsmac_probe_state {
 #define X(id, str) NTFSMAC_PROBE_STATE_##id,
@@ -199,6 +211,20 @@ typedef struct ntfsmac_probe_verdict {
 	ntfsmac_probe_state state;
 
 	uint32_t reason_codes;  /* NTFSMAC_PROBE_REASON_BIT() set */
+
+	/*
+	 * `nonnfc_count` (ADR-023, check 5a): number of names found that are not
+	 * NFC; greater than 0 if and only if reason_codes holds NAMES_NOT_NFC.
+	 * `nonnfc_paths`: the first nonnfc_path_count paths, which equals
+	 * min(nonnfc_count, 16); each NUL terminated, at most 512 bytes, no NUL
+	 * inside. Disk-derived text: only for the `status` reply, after the path
+	 * display sanitiser of ADR-023; never a notification, log line, file name
+	 * or option.
+	 */
+	uint32_t nonnfc_count;
+	uint32_t nonnfc_path_count;
+	char nonnfc_paths[NTFSMAC_PROBE_MAX_NONNFC_PATHS]
+			 [NTFSMAC_PROBE_NONNFC_PATH_MAX_BYTES + 1];
 } ntfsmac_probe_verdict;
 
 /* Result of parse and validate (section 3.1 grammar; ADR-016 decision 1). */
@@ -233,10 +259,15 @@ ntfsmac_probe_status ntfsmac_probe_parse(const char *json, size_t len,
 /*
  * Cross-field rules of section 3.1 on an already built verdict:
  *  - state `clean` if and only if reason_codes is empty;
- *  - has_logfile_lsn is false if and only if logfile is `unreadable`.
- * Returns OK or NTFSMAC_PROBE_ERR_CROSS_FIELD. Used by the parser and by the
- * probe before it prints (ambiguity A3: the second rule is stated in the
- * `logfile_lsn` row of the grammar table, not in the cross-field paragraph).
+ *  - has_logfile_lsn is false if and only if logfile is `unreadable`;
+ *  - nonnfc_count is greater than 0 if and only if reason_codes holds
+ *    NAMES_NOT_NFC, and nonnfc_path_count is min(nonnfc_count, 16) (ADR-023).
+ * Returns OK or NTFSMAC_PROBE_ERR_CROSS_FIELD. Declared here; the
+ * implementation arrives with the strict parser (T-M3-19, src/sanitize/), which
+ * uses it. The probe does not call it: it builds its verdict so that the rules
+ * hold by construction and tests/unit/probe checks them on every output
+ * (ambiguity A3: the second rule is stated in the `logfile_lsn` row of the
+ * grammar table, not in the cross-field paragraph).
  */
 ntfsmac_probe_status ntfsmac_probe_verdict_validate(const ntfsmac_probe_verdict *v);
 
@@ -258,8 +289,8 @@ const char *ntfsmac_probe_reason_name(ntfsmac_probe_reason r);
 /*
  * Severity rank for the "most severe finding" rule of section 3.1:
  * unsupported > corrupt > mirror_split > hibernated > fast_startup >
- * unclean_log > dirty_flag > unknown > clean. Higher is more severe; -1 for
- * an out-of-range value.
+ * unclean_log > dirty_flag > names_not_nfc > unknown > clean. Higher is more
+ * severe; -1 for an out-of-range value.
  */
 int ntfsmac_probe_state_severity(ntfsmac_probe_state s);
 

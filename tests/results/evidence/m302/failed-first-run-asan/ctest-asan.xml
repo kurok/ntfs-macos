@@ -1,0 +1,1614 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="15"
+	failures="4"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="25"
+	timestamp="2026-11-15T09:37:33"
+	>
+	<testcase name="common.log" classname="common.log" time="0.00342921" status="run">
+		<properties/>
+		<system-out>INFO: stderr sink ok
+</system-out>
+	</testcase>
+	<testcase name="tools.treedump" classname="tools.treedump" time="0.0355627" status="run">
+		<properties/>
+		<system-out>treedump: OK
+</system-out>
+	</testcase>
+	<testcase name="tools.logfile_mark_selftest" classname="tools.logfile_mark_selftest" time="0.00501658" status="run">
+		<properties/>
+		<system-out>selftest ok
+</system-out>
+	</testcase>
+	<testcase name="harness.unit" classname="harness.unit" time="0.296771" status="run">
+		<properties/>
+		<system-out>........................
+----------------------------------------------------------------------
+Ran 24 tests in 0.256s
+
+OK
+</system-out>
+	</testcase>
+	<testcase name="contracts.headers" classname="contracts.headers" time="0.00356892" status="run">
+		<properties/>
+		<system-out>contracts headers: ok
+</system-out>
+	</testcase>
+	<testcase name="contracts.probe_schema" classname="contracts.probe_schema" time="0.0307426" status="run">
+		<properties/>
+		<system-out>test_all_flags_and_codes_at_the_caps (__main__.ProbeSchema.test_all_flags_and_codes_at_the_caps) ... ok
+test_array_caps_and_duplicates (__main__.ProbeSchema.test_array_caps_and_duplicates) ... ok
+test_bad_logfile_lsn (__main__.ProbeSchema.test_bad_logfile_lsn) ... ok
+test_bad_serial (__main__.ProbeSchema.test_bad_serial) ... ok
+test_clean_volume_validates (__main__.ProbeSchema.test_clean_volume_validates) ... ok
+test_cross_field_rules (__main__.ProbeSchema.test_cross_field_rules) ... ok
+test_doc_example_carries_the_nonnfc_keys (__main__.ProbeSchema.test_doc_example_carries_the_nonnfc_keys) ... ok
+test_doc_example_validates (__main__.ProbeSchema.test_doc_example_validates) ... ok
+test_duplicate_keys_rejected_by_loader (__main__.ProbeSchema.test_duplicate_keys_rejected_by_loader) ... ok
+test_enum_violations (__main__.ProbeSchema.test_enum_violations) ... ok
+test_enums_match_probe_h (__main__.ProbeSchema.test_enums_match_probe_h) ... ok
+test_integer_ranges (__main__.ProbeSchema.test_integer_ranges) ... ok
+test_m...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="journal.unit" classname="journal.unit" time="0.0716066" status="fail">
+		<failure message="Failed"/>
+		<properties/>
+		<system-out>/work/src/journal/journal.c:1150:2: runtime error: null pointer passed as argument 1, which is declared to never be null
+    #0 0xaaaae5d3d2d0 in ntfsmac_journal_list_tombstones /work/src/journal/journal.c:1150
+    #1 0xaaaae5d1fbfc in tombs /work/tests/unit/journal/test_journal.c:406
+    #2 0xaaaae5d2151c in test_removal_paths /work/tests/unit/journal/test_journal.c:489
+    #3 0xaaaae5d2d82c in main /work/tests/unit/journal/test_journal.c:1083
+    #4 0xffff9e032258 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:58
+    #5 0xffff9e032338 in __libc_start_main_impl ../csu/libc-start.c:360
+    #6 0xaaaae5d13d2c in _start (/tmp/bld-asan/tests/unit/journal/test_journal+0x23d2c) (BuildId: 2b92804bc9f5a8c08abb1b8a6d12211afdc7cc0a)
+
+</system-out>
+	</testcase>
+	<testcase name="journal.crash" classname="journal.crash" time="0.160937" status="fail">
+		<failure message="Failed"/>
+		<properties/>
+		<system-out>/work/src/journal/journal.c:1150:2: runtime error: null pointer passed as argument 1, which is declared to never be null
+    #0 0xaaaae24dd1b0 in ntfsmac_journal_list_tombstones /work/src/journal/journal.c:1150
+    #1 0xaaaae24cc038 in verify_remove_common /work/tests/unit/journal/test_journal_crash.c:351
+    #2 0xaaaae24cc944 in verify_remove_few /work/tests/unit/journal/test_journal_crash.c:378
+    #3 0xaaaae24ce400 in main /work/tests/unit/journal/test_journal_crash.c:495
+    #4 0xffff9fba2258 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:58
+    #5 0xffff9fba2338 in __libc_start_main_impl ../csu/libc-start.c:360
+    #6 0xaaaae24c5fac in _start (/tmp/bld-asan/tests/unit/journal/test_journal_crash+0x15fac) (BuildId: 23626e693117e8b7833053e72f603e94baafb798)
+
+</system-out>
+	</testcase>
+	<testcase name="policy.table" classname="policy.table" time="0.0341734" status="run">
+		<properties/>
+		<system-out>policy: all checks passed
+</system-out>
+	</testcase>
+	<testcase name="policy.options" classname="policy.options" time="0.0328948" status="run">
+		<properties/>
+		<system-out>options: all checks passed
+</system-out>
+	</testcase>
+	<testcase name="policy.mount_options_json" classname="policy.mount_options_json" time="0.294432" status="run">
+		<properties/>
+		<system-out>.......
+----------------------------------------------------------------------
+Ran 7 tests in 0.267s
+
+OK
+</system-out>
+	</testcase>
+	<testcase name="probe.pure" classname="probe.pure" time="0.0490816" status="run">
+		<properties/>
+		<system-out>worst case verdict: 53126 bytes (limit 65536)
+probe pure: all checks passed
+</system-out>
+	</testcase>
+	<testcase name="probe.nfc" classname="probe.nfc" time="2.8211" status="run">
+		<properties/>
+		<system-out>tables: Unicode 15.1.0; python: Unicode 15.1.0
+test_composition_pairs (__main__.Nfc.test_composition_pairs) ... ok
+test_every_code_point (__main__.Nfc.test_every_code_point) ... ok
+test_fixture_names (__main__.Nfc.test_fixture_names) ... /work/tests/unit/probe/test_nfc.py:152: ResourceWarning: unclosed file &lt;_io.TextIOWrapper name='/tmp/ntfsmac-names/names-nfd.all' mode='r' encoding='utf-8'&gt;
+  for line in open(path, encoding="utf-8"):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/work/tests/unit/probe/test_nfc.py:152: ResourceWarning: unclosed file &lt;_io.TextIOWrapper name='/tmp/ntfsmac-names/names-nfc.all' mode='r' encoding='utf-8'&gt;
+  for line in open(path, encoding="utf-8"):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_hangul (__main__.Nfc.test_hangul) ... ok
+test_longest_decomposition_and_length_limits (__main__.Nfc.test_longest_decomposition_and_length_limits) ... ok
+test_random_mark_sequences (__main__.Nfc.test_random_mark_sequences) ... ...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="probe.mftmirr" classname="probe.mftmirr" time="2.3593" status="fail">
+		<failure message="Failed"/>
+		<properties/>
+		<system-out>test_m1_mirror_or_mft_not_where_the_boot_sector_says (__main__.Rule.test_m1_mirror_or_mft_not_where_the_boot_sector_says) ... ERROR
+test_m1_mirror_smaller_than_four_records (__main__.Rule.test_m1_mirror_smaller_than_four_records) ... ERROR
+test_m1_records_beyond_the_fourth_must_not_differ (__main__.Rule.test_m1_records_beyond_the_fourth_must_not_differ) ... ERROR
+test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) ... 
+  test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='mirror magic') ... ERROR
+  test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='mft magic') ... ERROR
+  test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='mirror not in use') ... ERROR
+  test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='mft not in use') ... ERROR
+  test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='mirror record 2 not in use') ... ERROR
+  test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='bytes_allocated wrong') ... ERROR
+  test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='bytes_in_use beyond record') ... ERROR
+  test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='attrs offset unaligned') ... ERROR
+  test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='attribute length unaligned') ... ERROR
+  test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='no end marker') ... ERROR
+test_m2_torn_records (__main__.Rule.test_m2_torn_records) ... ERROR
+test_m2_usa_header_invalid (__main__.Rule.test_m2_usa_header_invalid) ... 
+  test_m2_usa_header_invalid (__main__.Rule.test_m2_usa_header_invalid) (case='odd offset') ... ERROR
+  test_m2_usa_header_invalid (__main__.Rule.test_m2_usa_header_invalid) (case='count too small') ... ERROR
+  test_m2_usa_header_invalid (__main__.Rule.test_m2_usa_header_invalid) (case='count too large') ... ERROR
+  test_m2_usa_header_invalid (__main__.Rule.test_m2_usa_header_invalid) (case='offset in the header') ... ERROR
+test_m3_nothing_differs (__main__.Rule.test_m3_nothing_differs) ... ERROR
+test_m4_allocation_larger_by_a_part_of_a_cluster (__main__.Rule.test_m4_allocation_larger_by_a_part_of_a_cluster) ... ERROR
+test_m4_attribute_length_changed (__main__.Rule.test_m4_attribute_length_changed) ... ERROR
+test_m4_header_field_changed (__main__.Rule.test_m4_header_field_changed) ... 
+  test_m4_header_field_changed (__main__.Rule.test_m4_header_field_changed) (offset=16) ... ERROR
+  test_m4_header_field_changed (__main__.Rule.test_m4_header_field_changed) (offset=18) ... ERROR
+  test_m4_header_field_changed (__main__.Rule.test_m4_header_field_changed) (offset=22) ... ERROR
+  test_m4_header_field_changed (__main__.Rule.test_m4_header_field_changed) (offset=8) ... ERROR
+  test_m4_header_field_changed (__main__.Rule.test_m4_header_field_changed) (offset=40) ... ERROR
+test_m4_highest_vcn_wrong (__main__.Rule.test_m4_highest_vcn_wrong) ... ERROR
+test_m4_only_the_usn_differs_in_record_0 (__main__.Rule.test_m4_only_the_usn_differs_in_record_0) ... ERROR
+test_m4_other_attribute_byte_changed (__main__.Rule.test_m4_other_attribute_byte_changed) ... ERROR
+test_m4_record_1_usn_not_successor (__main__.Rule.test_m4_record_1_usn_not_successor) ... ERROR
+test_m4_record_3_is_not_accepted_yet (__main__.Rule.test_m4_record_3_is_not_accepted_yet) ... ERROR
+test_m4_records_1_and_2_may_differ_in_the_usn_only (__main__.Rule.test_m4_records_1_and_2_may_differ_in_the_usn_only) ... ERROR
+test_m4_run_list_changed_before_the_mirror_end (__main__.Rule.test_m4_run_list_changed_before_the_mirror_end) ... ERROR
+test_m4_size_two_records_ahead (__main__.Rule.test_m4_size_two_records_ahead) ... ERROR
+test_m4_sizes_not_equal_in_one_copy (__main__.Rule.test_m4_sizes_not_equal_in_one_copy) ... ERROR
+test_m5_usn_equal (__main__.Rule.test_m5_usn_equal) ... ERROR
+test_m5_usn_reversed (__main__.Rule.test_m5_usn_reversed) ... ERROR
+test_m5_usn_two_apart (__main__.Rule.test_m5_usn_two_apart) ... ERROR
+test_m5_usn_wraps_skipping_0_and_ffff (__main__.Rule.test_m5_usn_wraps_skipping_0_and_ffff) ... ERROR
+test_parse_boot (__main__.Rule.test_parse_boot) ... ERROR
+test_read_errors_are_not_a_verdict (__main__.Rule.test_read_errors_are_not_a_verdict) ... ERROR
+test_real_split_holds (__main__.Rule.test_real_split_holds) ... ERROR
+test_split_with_more_than_four_records (__main__.Rule.test_split_with_more_than_four_records) ... ERROR
+
+======================================================================
+ERROR: test_m1_mirror_or_mft_not_where_the_boot_sector_says (__main__.Rule.test_m1_mirror_or_mft_not_where_the_boot_sector_says)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 263, in test_m1_mirror_or_mft_not_where_the_boot_sector_says
+    self.not_split(v.run(mirr_lcn=v.g["mir_lcn"] + 1), 1)
+                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8192', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m1_mirror_smaller_than_four_records (__main__.Rule.test_m1_mirror_smaller_than_four_records)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 258, in test_m1_mirror_smaller_than_four_records
+    self.not_split(v.run(), 1)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m1_records_beyond_the_fourth_must_not_differ (__main__.Rule.test_m1_records_beyond_the_fourth_must_not_differ)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 250, in test_m1_records_beyond_the_fourth_must_not_differ
+    self.not_split(v.run(), 1)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '65536', '--record-size', '1024', '--mft-lcn', '2', '--mirr-lcn', '511', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='mirror magic')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 291, in test_m2_invalid_records
+    self.not_split(v.run(), 2)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='mft magic')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 291, in test_m2_invalid_records
+    self.not_split(v.run(), 2)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='mirror not in use')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 291, in test_m2_invalid_records
+    self.not_split(v.run(), 2)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='mft not in use')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 291, in test_m2_invalid_records
+    self.not_split(v.run(), 2)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='mirror record 2 not in use')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 291, in test_m2_invalid_records
+    self.not_split(v.run(), 2)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='bytes_allocated wrong')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 291, in test_m2_invalid_records
+    self.not_split(v.run(), 2)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='bytes_in_use beyond record')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 291, in test_m2_invalid_records
+    self.not_split(v.run(), 2)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='attrs offset unaligned')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 291, in test_m2_invalid_records
+    self.not_split(v.run(), 2)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='attribute length unaligned')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 291, in test_m2_invalid_records
+    self.not_split(v.run(), 2)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) (case='no end marker')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 291, in test_m2_invalid_records
+    self.not_split(v.run(), 2)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m2_torn_records (__main__.Rule.test_m2_torn_records)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 297, in test_m2_torn_records
+    self.not_split(v.run(mft_override=bytes(raw)), 2)
+                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m2_usa_header_invalid (__main__.Rule.test_m2_usa_header_invalid) (case='odd offset')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 316, in test_m2_usa_header_invalid
+    self.not_split(v.run(mir_override=bytes(raw)), 2)
+                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m2_usa_header_invalid (__main__.Rule.test_m2_usa_header_invalid) (case='count too small')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 316, in test_m2_usa_header_invalid
+    self.not_split(v.run(mir_override=bytes(raw)), 2)
+                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m2_usa_header_invalid (__main__.Rule.test_m2_usa_header_invalid) (case='count too large')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 316, in test_m2_usa_header_invalid
+    self.not_split(v.run(mir_override=bytes(raw)), 2)
+                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m2_usa_header_invalid (__main__.Rule.test_m2_usa_header_invalid) (case='offset in the header')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 316, in test_m2_usa_header_invalid
+    self.not_split(v.run(mir_override=bytes(raw)), 2)
+                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m3_nothing_differs (__main__.Rule.test_m3_nothing_differs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 119, in test_m3_nothing_differs
+    self.not_split(v.run(), 3)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m4_allocation_larger_by_a_part_of_a_cluster (__main__.Rule.test_m4_allocation_larger_by_a_part_of_a_cluster)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 213, in test_m4_allocation_larger_by_a_part_of_a_cluster
+    self.not_split(v.run(), 4)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m4_attribute_length_changed (__main__.Rule.test_m4_attribute_length_changed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 184, in test_m4_attribute_length_changed
+    self.not_split(v.run(), 4)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m4_header_field_changed (__main__.Rule.test_m4_header_field_changed) (offset=16)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 192, in test_m4_header_field_changed
+    self.not_split(v.run(), 4)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m4_header_field_changed (__main__.Rule.test_m4_header_field_changed) (offset=18)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 192, in test_m4_header_field_changed
+    self.not_split(v.run(), 4)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m4_header_field_changed (__main__.Rule.test_m4_header_field_changed) (offset=22)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 192, in test_m4_header_field_changed
+    self.not_split(v.run(), 4)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m4_header_field_changed (__main__.Rule.test_m4_header_field_changed) (offset=8)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 192, in test_m4_header_field_changed
+    self.not_split(v.run(), 4)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m4_header_field_changed (__main__.Rule.test_m4_header_field_changed) (offset=40)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 192, in test_m4_header_field_changed
+    self.not_split(v.run(), 4)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m4_highest_vcn_wrong (__main__.Rule.test_m4_highest_vcn_wrong)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 220, in test_m4_highest_vcn_wrong
+    self.not_split(v.run(), 4)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m4_only_the_usn_differs_in_record_0 (__main__.Rule.test_m4_only_the_usn_differs_in_record_0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 161, in test_m4_only_the_usn_differs_in_record_0
+    self.not_split(v.run(), 4)  # $MFT would not be one record ahead
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m4_other_attribute_byte_changed (__main__.Rule.test_m4_other_attribute_byte_changed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 199, in test_m4_other_attribute_byte_changed
+    self.not_split(v.run(), 4)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m4_record_1_usn_not_successor (__main__.Rule.test_m4_record_1_usn_not_successor)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 243, in test_m4_record_1_usn_not_successor
+    self.not_split(v.run(), 5)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m4_record_3_is_not_accepted_yet (__main__.Rule.test_m4_record_3_is_not_accepted_yet)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 225, in test_m4_record_3_is_not_accepted_yet
+    res = v.run()
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m4_records_1_and_2_may_differ_in_the_usn_only (__main__.Rule.test_m4_records_1_and_2_may_differ_in_the_usn_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 231, in test_m4_records_1_and_2_may_differ_in_the_usn_only
+    self.assertEqual(v.run()[:2], ("SPLIT", 3))
+                     ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m4_run_list_changed_before_the_mirror_end (__main__.Rule.test_m4_run_list_changed_before_the_mirror_end)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 171, in test_m4_run_list_changed_before_the_mirror_end
+    self.not_split(v.run(), 4)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m4_size_two_records_ahead (__main__.Rule.test_m4_size_two_records_ahead)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 156, in test_m4_size_two_records_ahead
+    self.not_split(v.run(), 4)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m4_sizes_not_equal_in_one_copy (__main__.Rule.test_m4_sizes_not_equal_in_one_copy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 206, in test_m4_sizes_not_equal_in_one_copy
+    self.not_split(v.run(), 4)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m5_usn_equal (__main__.Rule.test_m5_usn_equal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 128, in test_m5_usn_equal
+    self.not_split(v.run(), 5)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m5_usn_reversed (__main__.Rule.test_m5_usn_reversed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 133, in test_m5_usn_reversed
+    self.not_split(v.run(), 5)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m5_usn_two_apart (__main__.Rule.test_m5_usn_two_apart)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 138, in test_m5_usn_two_apart
+    self.not_split(v.run(), 5)
+                   ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_m5_usn_wraps_skipping_0_and_ffff (__main__.Rule.test_m5_usn_wraps_skipping_0_and_ffff)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 143, in test_m5_usn_wraps_skipping_0_and_ffff
+    self.assertEqual(v.run()[0], "SPLIT")
+                     ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_parse_boot (__main__.Rule.test_parse_boot)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 339, in test_parse_boot
+    self.assertTrue(boot().startswith("sector=512 cluster=4096 record=1024 sectors=131071 mft=4 mirr=8191"))
+                    ~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 337, in boot
+    return subprocess.run([ARGS.tool, "boot", p], capture_output=True, check=True).stdout.decode().strip()
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'boot', '/tmp/mm-test-gys6pxo_/boot.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_read_errors_are_not_a_verdict (__main__.Rule.test_read_errors_are_not_a_verdict)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 322, in test_read_errors_are_not_a_verdict
+    self.assertEqual(v.run(fail_read=k)[0], "IO_ERROR", k)
+                     ~~~~~^^^^^^^^^^^^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin', '--fail-read', '1']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_real_split_holds (__main__.Rule.test_real_split_holds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 105, in test_real_split_holds
+    self.assertEqual(v.run(), ("SPLIT", 1, 4))
+                     ~~~~~^^
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '4096', '--record-size', '1024', '--mft-lcn', '4', '--mirr-lcn', '8191', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_split_with_more_than_four_records (__main__.Rule.test_split_with_more_than_four_records)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_mftmirr.py", line 111, in test_split_with_more_than_four_records
+    r = v.run()
+  File "/work/tests/unit/probe/test_mftmirr.py", line 69, in run
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout.decode().strip()
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/bld-asan/tests/unit/probe/mm_tool', 'rule', '--sector-size', '512', '--cluster-size', '65536', '--record-size', '1024', '--mft-lcn', '2', '--mirr-lcn', '511', '--mft', '/tmp/mm-test-gys6pxo_/mft.bin', '--mir', '/tmp/mm-test-gys6pxo_/mir.bin']' returned non-zero exit status 1.
+
+----------------------------------------------------------------------
+Ran 27 tests in 2.327s
+
+FAILED (errors=43)
+</system-out>
+	</testcase>
+	<testcase name="probe.run" classname="probe.run" time="18.906" status="fail">
+		<failure message="Failed"/>
+		<properties/>
+		<system-out>fixtures: 66 images from /tmp/ntfsmac-unsafe, /tmp/ntfsmac-fixtures, /tmp/ntfsmac-names, /tmp/ntfsmac-mirror
+test_accepts_bsd_name (__main__.Probe.test_accepts_bsd_name) ... ok
+test_bitlocker_flag (__main__.Probe.test_bitlocker_flag) ... ok
+test_budget_default_is_not_zero (__main__.Probe.test_budget_default_is_not_zero) ... ok
+test_clean_fixtures (__main__.Probe.test_clean_fixtures) ... 
+  test_clean_fixtures (__main__.Probe.test_clean_fixtures) (fixture='clean-256m-4k') ... FAIL
+test_descriptor_problems_exit_3 (__main__.Probe.test_descriptor_problems_exit_3) ... ok
+test_flag_bits (__main__.Probe.test_flag_bits) ... ok
+test_hibernation_variants (__main__.Probe.test_hibernation_variants) ... ok
+test_informational_flags (__main__.Probe.test_informational_flags) ... ok
+test_label_is_escaped_not_interpreted (__main__.Probe.test_label_is_escaped_not_interpreted) ... ok
+test_log_variants (__main__.Probe.test_log_variants) ... ok
+test_manifest_fixtures (__main__.Probe.test_manifest_fixtures) ... 
+  test_manifest_fixtures (__main__.Probe.test_manifest_fixtures) (fixture='truncated') ... FAIL
+  test_manifest_fixtures (__main__.Probe.test_manifest_fixtures) (fixture='mirror-split') ... FAIL
+  test_manifest_fixtures (__main__.Probe.test_manifest_fixtures) (fixture='mirror-newer') ... FAIL
+  test_manifest_fixtures (__main__.Probe.test_manifest_fixtures) (fixture='mirror-torn') ... FAIL
+  test_manifest_fixtures (__main__.Probe.test_manifest_fixtures) (fixture='mirror-extra') ... FAIL
+  test_manifest_fixtures (__main__.Probe.test_manifest_fixtures) (fixture='mirror-split-dirty') ... FAIL
+  test_manifest_fixtures (__main__.Probe.test_manifest_fixtures) (fixture='mirror-split-hiber') ... FAIL
+test_mirror_01_split (__main__.Probe.test_mirror_01_split) ... FAIL
+test_mirror_02_not_split (__main__.Probe.test_mirror_02_not_split) ... 
+  test_mirror_02_not_split (__main__.Probe.test_mirror_02_not_split) (fixture='mirror-newer') ... FAIL
+  test_mirror_02_not_split (__main__.Probe.test_mirror_02_not_split) (fixture='mirror-torn') ... FAIL
+  test_mirror_02_not_split (__main__.Probe.test_mirror_02_not_split) (fixture='mirror-extra') ... FAIL
+test_mirror_02_record4_area_is_not_compared (__main__.Probe.test_mirror_02_record4_area_is_not_compared) ... FAIL
+test_mirror_03_other_findings_are_listed (__main__.Probe.test_mirror_03_other_findings_are_listed) ... FAIL
+test_mirror_03_split_with_names (__main__.Probe.test_mirror_03_split_with_names) ... 
+  test_mirror_03_split_with_names (__main__.Probe.test_mirror_03_split_with_names) (source='names-nfd') ... FAIL
+  test_mirror_03_split_with_names (__main__.Probe.test_mirror_03_split_with_names) (source='names-dirty') ... FAIL
+test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) ... 
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c1020') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c1326') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c2292') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c2338') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c276') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c3255') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c3805') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c4079') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c459') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c510') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-renamechurn-c1015') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-renamechurn-c1138') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-renamechurn-c1162') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-renamechurn-c1384') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-renamechurn-c263') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-renamechurn-c305') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-renamechurn-c415') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-renamechurn-c471') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-renamechurn-c70') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c1089') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c1283') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c1385') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c226') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c558') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c68') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c693') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c76') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c760') ... FAIL
+  test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c864') ... FAIL
+test_mirror_64k_cluster_and_record_index_4_or_above (__main__.Probe.test_mirror_64k_cluster_and_record_index_4_or_above) ... 
+  test_mirror_64k_cluster_and_record_index_4_or_above (__main__.Probe.test_mirror_64k_cluster_and_record_index_4_or_above) (fixture='clean-64m-64k') ... FAIL
+  test_mirror_64k_cluster_and_record_index_4_or_above (__main__.Probe.test_mirror_64k_cluster_and_record_index_4_or_above) (fixture='clean-64m-64k-ss4096') ... FAIL
+test_mutated_images_never_crash (__main__.Probe.test_mutated_images_never_crash) ... FAIL
+test_names_01_nfd (__main__.Probe.test_names_01_nfd) ... ok
+test_names_01_paths_include_subdirectories_when_few (__main__.Probe.test_names_01_paths_include_subdirectories_when_few) ... ok
+test_names_02_clean_and_other_fixtures (__main__.Probe.test_names_02_clean_and_other_fixtures) ... 
+  test_names_02_clean_and_other_fixtures (__main__.Probe.test_names_02_clean_and_other_fixtures) (fixture='clean-256m-4k') ... FAIL
+  test_names_02_clean_and_other_fixtures (__main__.Probe.test_names_02_clean_and_other_fixtures) (fixture='mirror-extra') ... FAIL
+  test_names_02_clean_and_other_fixtures (__main__.Probe.test_names_02_clean_and_other_fixtures) (fixture='mirror-newer') ... FAIL
+  test_names_02_clean_and_other_fixtures (__main__.Probe.test_names_02_clean_and_other_fixtures) (fixture='mirror-split') ... FAIL
+  test_names_02_clean_and_other_fixtures (__main__.Probe.test_names_02_clean_and_other_fixtures) (fixture='mirror-split-dirty') ... FAIL
+  test_names_02_clean_and_other_fixtures (__main__.Probe.test_names_02_clean_and_other_fixtures) (fixture='mirror-split-hiber') ... FAIL
+  test_names_02_clean_and_other_fixtures (__main__.Probe.test_names_02_clean_and_other_fixtures) (fixture='mirror-torn') ... FAIL
+  test_names_02_clean_and_other_fixtures (__main__.Probe.test_names_02_clean_and_other_fixtures) (fixture='truncated') ... FAIL
+test_names_02_dirty_with_nfd_name (__main__.Probe.test_names_02_dirty_with_nfd_name) ... ok
+test_names_03_index_block_of_a_directory_unreadable (__main__.Probe.test_names_03_index_block_of_a_directory_unreadable) ... ok
+test_names_03_root_index_unreadable_is_a_mount_failure (__main__.Probe.test_names_03_root_index_unreadable_is_a_mount_failure) ... FAIL
+test_names_03_scan_cannot_finish (__main__.Probe.test_names_03_scan_cannot_finish) ... ok
+test_not_ntfs_and_tiny_images (__main__.Probe.test_not_ntfs_and_tiny_images) ... ok
+test_ntfs_oem_with_garbage_geometry (__main__.Probe.test_ntfs_oem_with_garbage_geometry) ... ok
+test_output_is_one_object (__main__.Probe.test_output_is_one_object) ... ok
+test_read_error_on_boot_sector_exit_3 (__main__.Probe.test_read_error_on_boot_sector_exit_3) ... ok
+test_read_write_descriptor_is_not_written (__main__.Probe.test_read_write_descriptor_is_not_written) ... ok
+test_size_check_edges (__main__.Probe.test_size_check_edges) ... ok
+test_syscall_audit (__main__.Probe.test_syscall_audit) ... skipped 'valgrind and AddressSanitizer do not run together; the release build is audited'
+test_the_library_never_tries_to_write (__main__.Probe.test_the_library_never_tries_to_write) ... FAIL
+test_truncated_at_every_stage_never_crashes (__main__.Probe.test_truncated_at_every_stage_never_crashes) ... FAIL
+test_truncated_images (__main__.Probe.test_truncated_images) ... FAIL
+test_unknown_flag_bits (__main__.Probe.test_unknown_flag_bits) ... ok
+test_usage_errors (__main__.Probe.test_usage_errors) ... ok
+
+======================================================================
+FAIL: test_clean_fixtures (__main__.Probe.test_clean_fixtures) (fixture='clean-256m-4k')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 167, in test_clean_fixtures
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 105, in run_probe
+    r = run_raw(img, tool, extra)
+  File "/work/tests/unit/probe/test_probe.py", line 100, in run_raw
+    assert r.stderr == b"", "stderr: %r" % r.stderr[:200]
+           ^^^^^^^^^^^^^^^
+AssertionError: stderr: b'runlist.c:897:26: runtime error: left shift of negative value -64\n    #0 0xaaaad84101d8 in ntfs_mapping_pairs_decompress_i /tmp/b-ntfs-asan/src/libntfs-3g/runlist.c:897\n    #1 0xaaaad84101d8 in ntfs_m'
+
+======================================================================
+FAIL: test_manifest_fixtures (__main__.Probe.test_manifest_fixtures) (fixture='truncated')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 145, in test_manifest_fixtures
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_manifest_fixtures (__main__.Probe.test_manifest_fixtures) (fixture='mirror-split')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 145, in test_manifest_fixtures
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_manifest_fixtures (__main__.Probe.test_manifest_fixtures) (fixture='mirror-newer')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 145, in test_manifest_fixtures
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_manifest_fixtures (__main__.Probe.test_manifest_fixtures) (fixture='mirror-torn')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 145, in test_manifest_fixtures
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_manifest_fixtures (__main__.Probe.test_manifest_fixtures) (fixture='mirror-extra')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 145, in test_manifest_fixtures
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_manifest_fixtures (__main__.Probe.test_manifest_fixtures) (fixture='mirror-split-dirty')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 145, in test_manifest_fixtures
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_manifest_fixtures (__main__.Probe.test_manifest_fixtures) (fixture='mirror-split-hiber')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 145, in test_manifest_fixtures
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_01_split (__main__.Probe.test_mirror_01_split)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 313, in test_mirror_01_split
+    v = self.verdict("mirror-split")
+  File "/work/tests/unit/probe/test_probe.py", line 128, in verdict
+    return run_probe(fx(name), **kw)
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_02_not_split (__main__.Probe.test_mirror_02_not_split) (fixture='mirror-newer')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 321, in test_mirror_02_not_split
+    v = self.verdict(name)
+  File "/work/tests/unit/probe/test_probe.py", line 128, in verdict
+    return run_probe(fx(name), **kw)
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_02_not_split (__main__.Probe.test_mirror_02_not_split) (fixture='mirror-torn')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 321, in test_mirror_02_not_split
+    v = self.verdict(name)
+  File "/work/tests/unit/probe/test_probe.py", line 128, in verdict
+    return run_probe(fx(name), **kw)
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_02_not_split (__main__.Probe.test_mirror_02_not_split) (fixture='mirror-extra')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 321, in test_mirror_02_not_split
+    v = self.verdict(name)
+  File "/work/tests/unit/probe/test_probe.py", line 128, in verdict
+    return run_probe(fx(name), **kw)
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_02_record4_area_is_not_compared (__main__.Probe.test_mirror_02_record4_area_is_not_compared)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 334, in test_mirror_02_record4_area_is_not_compared
+    self.assertVerdict(run_probe(img), "mirror_split", ["MFTMIRR_STALE"])
+                       ~~~~~~~~~^^^^^
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_03_other_findings_are_listed (__main__.Probe.test_mirror_03_other_findings_are_listed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 338, in test_mirror_03_other_findings_are_listed
+    v = self.verdict("mirror-split-dirty")
+  File "/work/tests/unit/probe/test_probe.py", line 128, in verdict
+    return run_probe(fx(name), **kw)
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_03_split_with_names (__main__.Probe.test_mirror_03_split_with_names) (source='names-nfd')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 352, in test_mirror_03_split_with_names
+    v = run_probe(img)
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_03_split_with_names (__main__.Probe.test_mirror_03_split_with_names) (source='names-dirty')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 352, in test_mirror_03_split_with_names
+    v = run_probe(img)
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c1020')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c1326')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c2292')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 105, in run_probe
+    r = run_raw(img, tool, extra)
+  File "/work/tests/unit/probe/test_probe.py", line 100, in run_raw
+    assert r.stderr == b"", "stderr: %r" % r.stderr[:200]
+           ^^^^^^^^^^^^^^^
+AssertionError: stderr: b'runlist.c:897:26: runtime error: left shift of negative value -16\n    #0 0xaaaab5cc01d8 in ntfs_mapping_pairs_decompress_i /tmp/b-ntfs-asan/src/libntfs-3g/runlist.c:897\n    #1 0xaaaab5cc01d8 in ntfs_m'
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c2338')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 105, in run_probe
+    r = run_raw(img, tool, extra)
+  File "/work/tests/unit/probe/test_probe.py", line 100, in run_raw
+    assert r.stderr == b"", "stderr: %r" % r.stderr[:200]
+           ^^^^^^^^^^^^^^^
+AssertionError: stderr: b'runlist.c:897:26: runtime error: left shift of negative value -16\n    #0 0xaaaab33e01d8 in ntfs_mapping_pairs_decompress_i /tmp/b-ntfs-asan/src/libntfs-3g/runlist.c:897\n    #1 0xaaaab33e01d8 in ntfs_m'
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c276')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c3255')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 105, in run_probe
+    r = run_raw(img, tool, extra)
+  File "/work/tests/unit/probe/test_probe.py", line 100, in run_raw
+    assert r.stderr == b"", "stderr: %r" % r.stderr[:200]
+           ^^^^^^^^^^^^^^^
+AssertionError: stderr: b'runlist.c:897:26: runtime error: left shift of negative value -16\n    #0 0xaaaad24901d8 in ntfs_mapping_pairs_decompress_i /tmp/b-ntfs-asan/src/libntfs-3g/runlist.c:897\n    #1 0xaaaad24901d8 in ntfs_m'
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c3805')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 105, in run_probe
+    r = run_raw(img, tool, extra)
+  File "/work/tests/unit/probe/test_probe.py", line 100, in run_raw
+    assert r.stderr == b"", "stderr: %r" % r.stderr[:200]
+           ^^^^^^^^^^^^^^^
+AssertionError: stderr: b'runlist.c:897:26: runtime error: left shift of negative value -16\n    #0 0xaaaabf7501d8 in ntfs_mapping_pairs_decompress_i /tmp/b-ntfs-asan/src/libntfs-3g/runlist.c:897\n    #1 0xaaaabf7501d8 in ntfs_m'
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c4079')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 105, in run_probe
+    r = run_raw(img, tool, extra)
+  File "/work/tests/unit/probe/test_probe.py", line 100, in run_raw
+    assert r.stderr == b"", "stderr: %r" % r.stderr[:200]
+           ^^^^^^^^^^^^^^^
+AssertionError: stderr: b'runlist.c:897:26: runtime error: left shift of negative value -16\n    #0 0xaaaad39701d8 in ntfs_mapping_pairs_decompress_i /tmp/b-ntfs-asan/src/libntfs-3g/runlist.c:897\n    #1 0xaaaad39701d8 in ntfs_m'
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c459')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-dirtree-c510')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-renamechurn-c1015')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-renamechurn-c1138')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-renamechurn-c1162')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-renamechurn-c1384')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-renamechurn-c263')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-renamechurn-c305')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-renamechurn-c415')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-renamechurn-c471')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-renamechurn-c70')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c1089')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c1283')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c1385')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c226')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c558')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c68')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c693')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c76')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c760')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_05_sweep_images (__main__.Probe.test_mirror_05_sweep_images) (image='sweep-smallfiles-c864')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 395, in test_mirror_05_sweep_images
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_64k_cluster_and_record_index_4_or_above (__main__.Probe.test_mirror_64k_cluster_and_record_index_4_or_above) (fixture='clean-64m-64k')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 369, in test_mirror_64k_cluster_and_record_index_4_or_above
+    self.assertVerdict(run_probe(img), "mirror_split", ["MFTMIRR_STALE"])
+                       ~~~~~~~~~^^^^^
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mirror_64k_cluster_and_record_index_4_or_above (__main__.Probe.test_mirror_64k_cluster_and_record_index_4_or_above) (fixture='clean-64m-64k-ss4096')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 369, in test_mirror_64k_cluster_and_record_index_4_or_above
+    self.assertVerdict(run_probe(img), "mirror_split", ["MFTMIRR_STALE"])
+                       ~~~~~~~~~^^^^^
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_mutated_images_never_crash (__main__.Probe.test_mutated_images_never_crash)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 614, in test_mutated_images_never_crash
+    self.assertIn(r.returncode, (0, 3), "mutation %d of %s: exit %d" % (i, src, r.returncode))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 not found in (0, 3) : mutation 5 of /tmp/ntfsmac-mirror/mirror-split.img: exit 1
+
+======================================================================
+FAIL: test_names_02_clean_and_other_fixtures (__main__.Probe.test_names_02_clean_and_other_fixtures) (fixture='clean-256m-4k')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 438, in test_names_02_clean_and_other_fixtures
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 105, in run_probe
+    r = run_raw(img, tool, extra)
+  File "/work/tests/unit/probe/test_probe.py", line 100, in run_raw
+    assert r.stderr == b"", "stderr: %r" % r.stderr[:200]
+           ^^^^^^^^^^^^^^^
+AssertionError: stderr: b'runlist.c:897:26: runtime error: left shift of negative value -64\n    #0 0xaaaac4a801d8 in ntfs_mapping_pairs_decompress_i /tmp/b-ntfs-asan/src/libntfs-3g/runlist.c:897\n    #1 0xaaaac4a801d8 in ntfs_m'
+
+======================================================================
+FAIL: test_names_02_clean_and_other_fixtures (__main__.Probe.test_names_02_clean_and_other_fixtures) (fixture='mirror-extra')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 438, in test_names_02_clean_and_other_fixtures
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_names_02_clean_and_other_fixtures (__main__.Probe.test_names_02_clean_and_other_fixtures) (fixture='mirror-newer')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 438, in test_names_02_clean_and_other_fixtures
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_names_02_clean_and_other_fixtures (__main__.Probe.test_names_02_clean_and_other_fixtures) (fixture='mirror-split')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 438, in test_names_02_clean_and_other_fixtures
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_names_02_clean_and_other_fixtures (__main__.Probe.test_names_02_clean_and_other_fixtures) (fixture='mirror-split-dirty')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 438, in test_names_02_clean_and_other_fixtures
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_names_02_clean_and_other_fixtures (__main__.Probe.test_names_02_clean_and_other_fixtures) (fixture='mirror-split-hiber')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 438, in test_names_02_clean_and_other_fixtures
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_names_02_clean_and_other_fixtures (__main__.Probe.test_names_02_clean_and_other_fixtures) (fixture='mirror-torn')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 438, in test_names_02_clean_and_other_fixtures
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_names_02_clean_and_other_fixtures (__main__.Probe.test_names_02_clean_and_other_fixtures) (fixture='truncated')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 438, in test_names_02_clean_and_other_fixtures
+    v = run_probe(FIX[name])
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_names_03_root_index_unreadable_is_a_mount_failure (__main__.Probe.test_names_03_root_index_unreadable_is_a_mount_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 482, in test_names_03_root_index_unreadable_is_a_mount_failure
+    self.assertVerdict(run_probe(img), "corrupt", ["MOUNT_FAILED"], nonnfc_count=0)
+                       ~~~~~~~~~^^^^^
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+======================================================================
+FAIL: test_the_library_never_tries_to_write (__main__.Probe.test_the_library_never_tries_to_write)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 565, in test_the_library_never_tries_to_write
+    self.assertEqual(r.returncode, 0, name)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : mirror-extra
+
+======================================================================
+FAIL: test_truncated_at_every_stage_never_crashes (__main__.Probe.test_truncated_at_every_stage_never_crashes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 632, in test_truncated_at_every_stage_never_crashes
+    self.assertIn(r.returncode, (0, 3), (frac, r.returncode))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 not found in (0, 3) : (1, 1)
+
+======================================================================
+FAIL: test_truncated_images (__main__.Probe.test_truncated_images)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 192, in test_truncated_images
+    v = self.verdict("truncated")
+  File "/work/tests/unit/probe/test_probe.py", line 128, in verdict
+    return run_probe(fx(name), **kw)
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+----------------------------------------------------------------------
+Ran 38 tests in 18.856s
+
+FAILED (failures=60, skipped=1)
+sanitizer reports in /tmp/asan: ['asan.39250', 'asan.39390', 'asan.38995', 'asan.39276', 'asan.39286', 'asan.39376', 'asan.38983', 'asan.39045', 'asan.39230', 'asan.39288', 'asan.39304', 'asan.39240', 'asan.39037', 'asan.39296', 'asan.39246', 'asan.38993', 'asan.39386', 'asan.39059', 'asan.39063', 'asan.39402', 'asan.39266', 'ubsan.39264', 'asan.39011', 'asan.39272', 'asan.39236', 'asan.39001', 'asan.39055', 'asan.39282', 'asan.39294', 'asan.39027', 'asan.39232', 'asan.39378', 'asan.39226', 'asan.38991', 'asan.39025', 'asan.39238', 'asan.38987', 'asan.39017', 'asan.39031', 'asan.38981', 'asan.39244', 'asan.39482', 'asan.38985', 'asan.39268', 'ubsan.39254', 'asan.39051', 'asan.38979', 'asan.39382', 'asan.39023', 'asan.39015', 'asan.39234', 'asan.39322', 'asan.39005', 'asan.39280', 'asan.39007', 'asan.39490', 'asan.39049', 'asan.39302', 'ubsan.39256', 'asan.39292', 'asan.39258', 'asan.39043', 'asan.38999', 'asan.39003', 'asan.39035', 'asan.39284', 'asan.39009', 'asan.39061', 'asan.38997', 'asan.39242', 'asan.39224', 'asan.39041', 'asan.39029', 'ubsan.39260', 'asan.39274', 'asan.39013', 'asan.39057', 'asan.39300', 'asan.39252', 'asan.39222', 'asan.39198', 'ubsan.39262', 'asan.39290', 'asan.39308', 'asan.39306', 'asan.39310', 'asan.39228', 'asan.39380', 'asan.39039', 'asan.39486', 'asan.39021', 'asan.39384', 'asan.39053', 'asan.39019', 'asan.39278', 'asan.39270', 'asan.39248', 'asan.39298', 'asan.38989', 'asan.39033', 'asan.39047']
+</system-out>
+	</testcase>
+</testsuite>

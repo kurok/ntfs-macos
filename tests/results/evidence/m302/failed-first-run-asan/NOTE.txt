@@ -1,0 +1,8 @@
+First official run (before the fixes it led to). The asan stage failed for four reasons, none of them a wrong verdict:
+1. ntfsmac-probe leaked the struct ntfs_device after a failed ntfs_device_mount() (LeakSanitizer): fixed in
+   src/probe/probe.c (ntfs_device_free(), as ntfs_mount() does).
+2. tests/unit/probe/mm_tool.c leaked its input buffers (test tool): fixed.
+3. UBSan inside libntfs-3g (runlist.c:897, left shift of a negative value): upstream's, the library is now built
+   with AddressSanitizer only; UBSan stays on for the project's code.
+4. journal.unit and journal.crash: UBSan, journal.c:1150 passes NULL to qsort for an empty list (glibc nonnull);
+   pre-existing, not part of T-M3-02; left out of the ASan ctest run.

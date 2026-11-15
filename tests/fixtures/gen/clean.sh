@@ -133,8 +133,10 @@ put("docs/readme.txt", textish(1200))
 put("docs/nested/a/b/c/deep.txt", textish(300))
 put("with spaces/a file  with   spaces.txt", rng.randbytes(777))
 put("with spaces/ leading space", rng.randbytes(10))
+# Every name is NFC: a name stored in another form makes the probe report names_not_nfc
+# (ADR-023), and a clean fixture must probe clean. The NFD cases are tests/fixtures/gen/names.sh.
 put("unicode/café-nfc.txt", rng.randbytes(50))
-put("unicode/café-nfd.txt", rng.randbytes(51))
+put("unicode/café-second.txt", rng.randbytes(51))
 put("unicode/файл-кир.txt", rng.randbytes(2000))
 put("unicode/文件-中文.txt", rng.randbytes(5000))
 put("unicode/emoji-\U0001f600-\U0001d518.txt", rng.randbytes(64))

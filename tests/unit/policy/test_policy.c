@@ -104,6 +104,7 @@ static void test_table(void)
 		{ NTFSMAC_PROBE_STATE_CORRUPT, R(REFUSE, KEEP, REFUSED), R(REFUSE, KEEP, REFUSED) },
 		{ NTFSMAC_PROBE_STATE_UNSUPPORTED, R(REFUSE, KEEP, REFUSED), R(REFUSE, KEEP, REFUSED) },
 		{ NTFSMAC_PROBE_STATE_MIRROR_SPLIT, R(REFUSE, KEEP, MIRROR_SPLIT), R(REFUSE, KEEP, MIRROR_SPLIT) },
+		{ NTFSMAC_PROBE_STATE_NAMES_NOT_NFC, R(RO, KEEP, NAMES_NOT_NFC), R(RO, KEEP, NAMES_NOT_NFC) },
 	};
 	/* Clean rows: explicit per (journal case, mode, evidence switch). */
 	static const struct {
@@ -431,6 +432,7 @@ static void make_repairable(ntfsmac_probe_verdict *v)
 {
 	make_verdict(v, NTFSMAC_PROBE_STATE_DIRTY_FLAG);
 	v->volume_flags = FLAG(DIRTY);
+	v->reason_codes = NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_FLAG_DIRTY);
 }
 
 /* U-POL-GATE-REPAIR and U-POL-FLAGS */
@@ -492,6 +494,35 @@ static void test_gate_repair(void)
 	in = rp_ok(&v);
 	CHECK_EQ_INT(ntfsmac_policy_gate_repair(&in), NTFSMAC_GATE_FLAGS);
 
+	/* Reason codes: FLAG_DIRTY, and nothing else but NAMES_NOT_NFC. */
+	{
+		static const ntfsmac_probe_reason bad[] = {
+			NTFSMAC_PROBE_REASON_CHECK_FAILED, NTFSMAC_PROBE_REASON_VERSION_UNKNOWN,
+			NTFSMAC_PROBE_REASON_LOG_UNREADABLE, NTFSMAC_PROBE_REASON_HIBER_UNREADABLE,
+			NTFSMAC_PROBE_REASON_MOUNT_FAILED, NTFSMAC_PROBE_REASON_MFTMIRR_STALE,
+			NTFSMAC_PROBE_REASON_FLAG_CHKDSK_UNDERWAY,
+		};
+		unsigned i;
+
+		for (i = 0; i < sizeof(bad) / sizeof(bad[0]); i++) {
+			make_repairable(&v);
+			v.reason_codes |= NTFSMAC_PROBE_REASON_BIT(bad[i]);
+			in = rp_ok(&v);
+			CHECK_EQ_INT(ntfsmac_policy_gate_repair(&in), NTFSMAC_GATE_PROBE_NOT_DIRTY_FLAG);
+			v.reason_codes |= NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_NAMES_NOT_NFC);
+			CHECK_EQ_INT(ntfsmac_policy_gate_repair(&in), NTFSMAC_GATE_PROBE_NOT_DIRTY_FLAG);
+		}
+		make_repairable(&v);
+		v.reason_codes = NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_FLAG_DIRTY) |
+				 NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_NAMES_NOT_NFC);
+		in = rp_ok(&v);
+		CHECK_EQ_INT(ntfsmac_policy_gate_repair(&in), NTFSMAC_GATE_ALLOWED);
+		v.reason_codes = NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_NAMES_NOT_NFC); /* FLAG_DIRTY missing */
+		CHECK_EQ_INT(ntfsmac_policy_gate_repair(&in), NTFSMAC_GATE_PROBE_NOT_DIRTY_FLAG);
+		v.reason_codes = 0;
+		CHECK_EQ_INT(ntfsmac_policy_gate_repair(&in), NTFSMAC_GATE_PROBE_NOT_DIRTY_FLAG);
+	}
+
 	/* U-POL-FLAGS named cases. */
 	make_repairable(&v);
 	v.volume_flags = FLAG(DIRTY) | FLAG(MODIFIED_BY_CHKDSK);
@@ -546,6 +577,102 @@ static void test_gate_repair(void)
 	CHECK_EQ_INT(ntfsmac_policy_gate_repair(&in), NTFSMAC_GATE_PROBE_NOT_DIRTY_FLAG);
 }
 
+/*
+ * U-POL-NAMES (ADR-023): `names_not_nfc` is `ro` in both columns, with and
+ * without a journal entry, with the evidence switch on or off, and never
+ * `remove`. NAMES_NOT_NFC beside another state does not change that state's
+ * row, and the `repair --clear-dirty` gate ignores it. The `repair
+ * --sync-mirror` gate does not exist yet (T-M4-16); its U-POL-NAMES case is
+ * written with it. Here only the table row of `mirror_split` with both codes
+ * is checked.
+ */
+static void test_names(void)
+{
+	static const ntfsmac_probe_state with_code[] = {
+		NTFSMAC_PROBE_STATE_DIRTY_FLAG, NTFSMAC_PROBE_STATE_UNCLEAN_LOG,
+		NTFSMAC_PROBE_STATE_HIBERNATED, NTFSMAC_PROBE_STATE_FAST_STARTUP,
+		NTFSMAC_PROBE_STATE_UNKNOWN,    NTFSMAC_PROBE_STATE_MIRROR_SPLIT,
+		NTFSMAC_PROBE_STATE_CORRUPT,    NTFSMAC_PROBE_STATE_UNSUPPORTED,
+	};
+	ntfsmac_probe_verdict v;
+	ntfsmac_journal_entry e;
+	ntfsmac_policy_input in;
+	ntfsmac_policy_result r;
+	ntfsmac_policy_repair_input rp;
+	size_t i;
+	int m, ev, jc;
+
+	/* The state itself. */
+	for (m = 0; m < 2; m++)
+		for (ev = 0; ev < 2; ev++)
+			for (jc = 0; jc < 3; jc++) {
+				make_verdict(&v, NTFSMAC_PROBE_STATE_NAMES_NOT_NFC);
+				v.reason_codes = NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_NAMES_NOT_NFC);
+				v.nonnfc_count = 22;
+				v.nonnfc_path_count = 16;
+				in.verdict = &v;
+				in.journal = pick((enum jcase)jc, &e);
+				in.mode = (ntfsmac_policy_mode)m;
+				in.evidence_rule_enabled = ev != 0;
+				r = ntfsmac_policy_decide(&in);
+				CHECK_EQ_INT(r.decision, NTFSMAC_POLICY_RO);
+				CHECK_EQ_INT(r.journal_action, NTFSMAC_POLICY_JOURNAL_KEEP);
+				CHECK_EQ_INT(r.note, NTFSMAC_POLICY_NOTE_NAMES_NOT_NFC);
+			}
+
+	/* The code beside any other state: that state's row. */
+	for (i = 0; i < sizeof(with_code) / sizeof(with_code[0]); i++)
+		for (m = 0; m < 2; m++)
+			for (jc = 0; jc < 3; jc++) {
+				ntfsmac_policy_result plain, coded;
+
+				make_verdict(&v, with_code[i]);
+				in.verdict = &v;
+				in.journal = pick((enum jcase)jc, &e);
+				in.mode = (ntfsmac_policy_mode)m;
+				in.evidence_rule_enabled = true;
+				plain = ntfsmac_policy_decide(&in);
+				v.reason_codes |= NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_NAMES_NOT_NFC);
+				v.nonnfc_count = 1;
+				v.nonnfc_path_count = 1;
+				coded = ntfsmac_policy_decide(&in);
+				CHECK_EQ_INT(coded.decision, plain.decision);
+				CHECK_EQ_INT(coded.journal_action, plain.journal_action);
+				CHECK_EQ_INT(coded.note, plain.note);
+			}
+	/* mirror_split with MFTMIRR_STALE and NAMES_NOT_NFC: still refused (ADR-021). */
+	make_verdict(&v, NTFSMAC_PROBE_STATE_MIRROR_SPLIT);
+	v.reason_codes = NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_MFTMIRR_STALE) |
+			 NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_NAMES_NOT_NFC);
+	in.verdict = &v;
+	in.journal = NULL;
+	in.mode = NTFSMAC_POLICY_MODE_AUTO;
+	in.evidence_rule_enabled = true;
+	r = ntfsmac_policy_decide(&in);
+	CHECK_EQ_INT(r.decision, NTFSMAC_POLICY_REFUSE);
+	CHECK_EQ_INT(r.note, NTFSMAC_POLICY_NOTE_MIRROR_SPLIT);
+
+	/* repair --clear-dirty: dirty_flag with NAMES_NOT_NFC is repairable. */
+	make_repairable(&v);
+	rp = rp_ok(&v);
+	CHECK_EQ_INT(ntfsmac_policy_gate_repair(&rp), NTFSMAC_GATE_ALLOWED);
+	v.reason_codes = NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_FLAG_DIRTY) |
+			 NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_NAMES_NOT_NFC);
+	v.nonnfc_count = 22;
+	v.nonnfc_path_count = 16;
+	CHECK_EQ_INT(ntfsmac_policy_gate_repair(&rp), NTFSMAC_GATE_ALLOWED);
+	/* ... and the gate still looks at everything else. */
+	v.logfile = NTFSMAC_PROBE_LOGFILE_UNCLEAN;
+	CHECK_EQ_INT(ntfsmac_policy_gate_repair(&rp), NTFSMAC_GATE_LOG_NOT_CLEAN);
+	v.logfile = NTFSMAC_PROBE_LOGFILE_CLEAN;
+	rp.mounted = true;
+	CHECK_EQ_INT(ntfsmac_policy_gate_repair(&rp), NTFSMAC_GATE_MOUNTED);
+	/* A names_not_nfc verdict is not a dirty_flag verdict: no repair. */
+	rp.mounted = false;
+	v.state = NTFSMAC_PROBE_STATE_NAMES_NOT_NFC;
+	CHECK_EQ_INT(ntfsmac_policy_gate_repair(&rp), NTFSMAC_GATE_PROBE_NOT_DIRTY_FLAG);
+}
+
 /* U-POL-WARN */
 static void test_warning(void)
 {
@@ -591,6 +718,7 @@ int main(void)
 	test_property();
 	test_gate_journal_clear();
 	test_gate_repair();
+	test_names();
 	test_warning();
 	if (g_failures != 0) {
 		fprintf(stderr, "%d check(s) failed\n", g_failures);

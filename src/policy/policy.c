@@ -113,6 +113,13 @@ ntfsmac_policy_result ntfsmac_policy_decide(const ntfsmac_policy_input *in)
 		/* ADR-021: refused, no read-only mount; only the note differs. */
 		return make_result(NTFSMAC_POLICY_REFUSE, NTFSMAC_POLICY_JOURNAL_KEEP,
 				   NTFSMAC_POLICY_NOTE_MIRROR_SPLIT);
+	case NTFSMAC_PROBE_STATE_NAMES_NOT_NFC:
+		/*
+		 * ADR-023: names this Mac cannot open; writing could hit the wrong
+		 * file. Read-only in both columns, with or without an entry.
+		 */
+		return make_result(NTFSMAC_POLICY_RO, NTFSMAC_POLICY_JOURNAL_KEEP,
+				   NTFSMAC_POLICY_NOTE_NAMES_NOT_NFC);
 	case NTFSMAC_PROBE_STATE_UNKNOWN:
 	case NTFSMAC_PROBE_STATE_COUNT_:
 	default:
@@ -159,6 +166,15 @@ ntfsmac_policy_gate ntfsmac_policy_gate_repair(const ntfsmac_policy_repair_input
 		return NTFSMAC_GATE_INVALID_INPUT;
 	p = in->probe;
 	if (p->state != NTFSMAC_PROBE_STATE_DIRTY_FLAG)
+		return NTFSMAC_GATE_PROBE_NOT_DIRTY_FLAG;
+	/*
+	 * `dirty_flag` outranks `unknown`, so the state alone would also cover a verdict
+	 * with CHECK_FAILED or VERSION_UNKNOWN. The codes must hold FLAG_DIRTY and
+	 * nothing else but NAMES_NOT_NFC (ADR-023: not a damage finding).
+	 */
+	if ((p->reason_codes & NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_FLAG_DIRTY)) == 0 ||
+	    (p->reason_codes & ~(NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_FLAG_DIRTY) |
+				 NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_NAMES_NOT_NFC))) != 0)
 		return NTFSMAC_GATE_PROBE_NOT_DIRTY_FLAG;
 	if (p->logfile != NTFSMAC_PROBE_LOGFILE_CLEAN)
 		return NTFSMAC_GATE_LOG_NOT_CLEAN;

@@ -1,0 +1,87 @@
+
+== stage: deps-release ==
+deps-release: ok (5s)
+
+== stage: deps-asan ==
+deps-asan: ok (8s)
+
+== stage: fixtures-unsafe ==
+fixtures-unsafe: ok (3s)
+
+== stage: fixtures-names ==
+fixtures-names: ok (1s)
+
+== stage: fixtures-mirror ==
+fixtures-mirror: ok (15s)
+
+== stage: fixtures-clean ==
+fixtures-clean: ok (3s)
+
+== stage: release ==
+release: ok (30s)
+
+== stage: asan ==
+
+======================================================================
+FAIL: test_truncated_at_every_stage_never_crashes (__main__.Probe.test_truncated_at_every_stage_never_crashes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 632, in test_truncated_at_every_stage_never_crashes
+    self.assertIn(r.returncode, (0, 3), (frac, r.returncode))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 not found in (0, 3) : (1, 1)
+
+======================================================================
+FAIL: test_truncated_images (__main__.Probe.test_truncated_images)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/unit/probe/test_probe.py", line 192, in test_truncated_images
+    v = self.verdict("truncated")
+  File "/work/tests/unit/probe/test_probe.py", line 128, in verdict
+    return run_probe(fx(name), **kw)
+  File "/work/tests/unit/probe/test_probe.py", line 106, in run_probe
+    assert r.returncode == rc, "exit %d: %r" % (r.returncode, r.stderr[:200])
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: exit 1: b''
+
+----------------------------------------------------------------------
+Ran 38 tests in 18.856s
+
+FAILED (failures=60, skipped=1)
+sanitizer reports in /tmp/asan: ['asan.39250', 'asan.39390', 'asan.38995', 'asan.39276', 'asan.39286', 'asan.39376', 'asan.38983', 'asan.39045', 'asan.39230', 'asan.39288', 'asan.39304', 'asan.39240', 'asan.39037', 'asan.39296', 'asan.39246', 'asan.38993', 'asan.39386', 'asan.39059', 'asan.39063', 'asan.39402', 'asan.39266', 'ubsan.39264', 'asan.39011', 'asan.39272', 'asan.39236', 'asan.39001', 'asan.39055', 'asan.39282', 'asan.39294', 'asan.39027', 'asan.39232', 'asan.39378', 'asan.39226', 'asan.38991', 'asan.39025', 'asan.39238', 'asan.38987', 'asan.39017', 'asan.39031', 'asan.38981', 'asan.39244', 'asan.39482', 'asan.38985', 'asan.39268', 'ubsan.39254', 'asan.39051', 'asan.38979', 'asan.39382', 'asan.39023', 'asan.39015', 'asan.39234', 'asan.39322', 'asan.39005', 'asan.39280', 'asan.39007', 'asan.39490', 'asan.39049', 'asan.39302', 'ubsan.39256', 'asan.39292', 'asan.39258', 'asan.39043', 'asan.38999', 'asan.39003', 'asan.39035', 'asan.39284', 'asan.39009', 'asan.39061', 'asan.38997', 'asan.39242', 'asan.39224', 'asan.39041', 'asan.39029', 'ubsan.39260', 'asan.39274', 'asan.39013', 'asan.39057', 'asan.39300', 'asan.39252', 'asan.39222', 'asan.39198', 'ubsan.39262', 'asan.39290', 'asan.39308', 'asan.39306', 'asan.39310', 'asan.39228', 'asan.39380', 'asan.39039', 'asan.39486', 'asan.39021', 'asan.39384', 'asan.39053', 'asan.39019', 'asan.39278', 'asan.39270', 'asan.39248', 'asan.39298', 'asan.38989', 'asan.39033', 'asan.39047']
+
+
+73% tests passed, 4 tests failed out of 15
+
+Total Test time (real) =  25.11 sec
+
+The following tests FAILED:
+	  7 - journal.unit (Failed)
+	  8 - journal.crash (Failed)
+	 14 - probe.mftmirr (Failed)
+	 15 - probe.run (Failed)
+Errors while running CTest
+asan: FAIL (25s)
+
+== stage: big-dirs ==
+big-dirs: ok (78s)
+
+== stage: big-flat ==
+big-flat: ok (85s)
+
+== stage: big-asan ==
+big-asan: ok (83s)
+
+== summary ==
+deps-release   ok        5s
+deps-asan      ok        8s
+fixtures-unsafe ok        3s
+fixtures-names ok        1s
+fixtures-mirror ok       15s
+fixtures-clean ok        3s
+release        ok       30s
+asan           FAIL     25s
+big-dirs       ok       78s
+big-flat       ok       85s
+big-asan       ok       83s
+probe tests: FAILED

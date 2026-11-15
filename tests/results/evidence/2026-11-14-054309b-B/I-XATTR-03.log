@@ -1,0 +1,86 @@
+21:42:54 start I-XATTR-03 (env B)
+21:42:54 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/vol.img -> rc=0
+21:42:54 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+21:42:54 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+21:42:54 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,windows_names,noatime,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/mnt -> rc=0
+21:42:57 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+21:42:57 ok   colour.txt: set 32-byte FinderInfo (colour label 6) -> ?(0)
+21:42:57 ok   colour.txt: get FinderInfo reads the 32 bytes back
+21:42:57 ok   colour.txt: FinderInfo is listed
+21:42:57 ok   colour.txt: colour label bits
+21:42:57 ok   colour.txt: set 1-byte FinderInfo -> ERANGE(34)
+21:42:57 ok   colour.txt: set 16-byte FinderInfo -> ERANGE(34)
+21:42:57 ok   colour.txt: set 31-byte FinderInfo -> ERANGE(34)
+21:42:57 ok   colour.txt: set 33-byte FinderInfo -> ERANGE(34)
+21:42:57 ok   colour.txt: set 40-byte FinderInfo -> ERANGE(34)
+21:42:57 ok   colour.txt: set 64-byte FinderInfo -> ERANGE(34)
+21:42:57 ok   colour.txt: set 4096-byte FinderInfo -> ERANGE(34)
+21:42:57 colour.txt: set empty FinderInfo -> ERANGE(34) (recorded, not asserted)
+21:42:57 ok   colour.txt: value after the refused sizes
+21:42:57 ok   colour.txt: xattr -wx FinderInfo rc ()
+21:42:57 ok   colour.txt: xattr -px FinderInfo
+21:42:57 ok   colour.dir: set 32-byte FinderInfo (colour label 6) -> ?(0)
+21:42:57 ok   colour.dir: get FinderInfo reads the 32 bytes back
+21:42:57 ok   colour.dir: FinderInfo is listed
+21:42:57 ok   colour.dir: colour label bits
+21:42:57 ok   colour.dir: set 1-byte FinderInfo -> ERANGE(34)
+21:42:57 ok   colour.dir: set 16-byte FinderInfo -> ERANGE(34)
+21:42:57 ok   colour.dir: set 31-byte FinderInfo -> ERANGE(34)
+21:42:57 ok   colour.dir: set 33-byte FinderInfo -> ERANGE(34)
+21:42:57 ok   colour.dir: set 40-byte FinderInfo -> ERANGE(34)
+21:42:57 ok   colour.dir: set 64-byte FinderInfo -> ERANGE(34)
+21:42:57 ok   colour.dir: set 4096-byte FinderInfo -> ERANGE(34)
+21:42:57 colour.dir: set empty FinderInfo -> ERANGE(34) (recorded, not asserted)
+21:42:57 ok   colour.dir: value after the refused sizes
+21:42:57 ok   colour.dir: xattr -wx FinderInfo rc ()
+21:42:57 ok   colour.dir: xattr -px FinderInfo
+21:42:57 ok   set all-zero FinderInfo -> ?(0)
+21:42:57 ok   get all-zero FinderInfo -> ENOATTR(93)
+21:42:57 ok   all-zero FinderInfo is still listed
+21:42:57 ok   T-M2-04 probe reproduced: xattr -wx zeros rc 0, xattr -l rc 1 'xattr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/mnt/zero.txt: No such xattr: com.apple.FinderInfo'
+21:42:57 ok   overwrite a colour label by all-zero -> ?(0)
+21:42:57 ok   get after overwriting the colour by zeros -> ENOATTR(93)
+21:42:57 ok   set the colour again -> ?(0)
+21:42:57 ok   colour label back
+21:42:57 ok   remove an all-zero FinderInfo -> ?(0)
+21:42:57 ok   FinderInfo gone from the list after remove
+21:42:57 ok   set FinderInfo with one bit -> ?(0)
+21:42:57 ok   one-bit FinderInfo is read back
+21:42:57 $ sync -> rc=0
+21:42:57 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/mnt -> rc=0
+21:42:57 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/vol.img -> rc=0
+21:42:57 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/vol.img was processed successfully.
+21:42:57 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,windows_names,noatime,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/mnt -> rc=0
+21:43:00 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+21:43:00 ok   file colour after remount
+21:43:00 ok   directory colour after remount
+21:43:00 ok   one-bit value after remount
+21:43:00 ok   removed FinderInfo after remount -> ENOATTR(93)
+21:43:00 $ sync -> rc=0
+21:43:00 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/mnt -> rc=0
+21:43:00 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,windows_names,noatime,streams_interface=openxattr,debug /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/mnt
+21:43:03 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+21:43:03 ok   trace: set all-zero FinderInfo -> ?(0)
+21:43:03 ok   trace: set nonzero FinderInfo -> ?(0)
+21:43:04 ok   trace: get all-zero FinderInfo (the application sees ENOATTR) -> ENOATTR(93)
+21:43:04 ok   trace: get nonzero FinderInfo
+21:43:04 $ sync -> rc=0
+21:43:04 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ybyppq8g/mnt -> rc=0
+21:43:04 worker replies, all-zero: [(0, 'unique: 130, success, outsize: 24'), (32, 'unique: 131, success, outsize: 48')]
+21:43:04 worker replies, nonzero:  [(0, 'unique: 132, success, outsize: 24'), (32, 'unique: 133, success, outsize: 48'), (0, 'unique: 134, success, outsize: 24'), (32, 'unique: 135, success, outsize: 48')]
+21:43:04 ok   the worker answered the all-zero read with success and 32 data bytes (outsize 48)
+21:43:04 ok   the worker answered the nonzero read the same way
+21:43:04 end I-XATTR-03: pass

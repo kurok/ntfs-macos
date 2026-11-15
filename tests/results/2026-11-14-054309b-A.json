@@ -1,0 +1,23 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "054309bb7229c9501b66503f9f33045ea33cadbd",
+  "dirty_tree": false,
+  "env": "A",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "Debian GNU/Linux 13 (trixie) aarch64",
+  "macfuse_version": null,
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-14T21:41:54Z",
+  "finished": "2026-11-14T21:41:54Z",
+  "cases": [
+    {
+      "id": "I-XATTR-A1",
+      "status": "pass",
+      "duration_s": 0.018,
+      "evidence": [
+        "evidence/2026-11-14-054309b-A/I-XATTR-A1.log"
+      ],
+      "note": null
+    }
+  ]
+}

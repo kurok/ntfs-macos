@@ -1,0 +1,14 @@
+{
+ "image_sha256": "4e31408e6c1fc4bc47ae6d7323b17062a543fd6b529d951f722efe9aa0cb0dc1",
+ "maps": {
+  "ldir": {
+   "user.dnote": "10:56631749a2db4990420f85af2b2119d2fbff794b56c64c73ce68e9036a860f86"
+  },
+  "zone.txt": {
+   "user.Zone.Identifier": "26:eacd09517ce90d34ba562171d15ac40d302f0e691b439f91be1b6406e25f5913",
+   "user.note": "13:fd251903d913a294e3e7a2335ae9feb1424b7a028e382bed9d3e5923fe6ee34c"
+  }
+ },
+ "ntfs3g_version": "2026.9.28",
+ "os": "Debian GNU/Linux 13 (trixie) aarch64"
+}

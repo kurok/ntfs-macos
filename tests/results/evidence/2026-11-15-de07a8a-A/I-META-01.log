@@ -1,0 +1,63 @@
+08:59:12 start I-META-01 (env A)
+08:59:12 $ mkntfs -F -Q -L ntfsmac /tmp/ntfsmac-case-zn66ns9h/vol.img -> rc=0
+08:59:12 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+08:59:12 stderr: /tmp/ntfsmac-case-zn66ns9h/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/ntfsmac-case-zn66ns9h/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/ntfsmac-case-zn66ns9h/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/ntfsmac-case-zn66ns9h/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/ntfsmac-case-zn66ns9h/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+08:59:12 $ ntfs-3g /tmp/ntfsmac-case-zn66ns9h/vol.img /tmp/ntfsmac-case-zn66ns9h/mnt -o rw,big_writes -> rc=0
+08:59:12 $ echo one > /tmp/ntfsmac-case-zn66ns9h/mnt/f1 -> rc=0
+08:59:13 $ echo two >> /tmp/ntfsmac-case-zn66ns9h/mnt/f1 -> rc=0
+08:59:13 $ mkdir /tmp/ntfsmac-case-zn66ns9h/mnt/d1 -> rc=0
+08:59:13 $ echo three > /tmp/ntfsmac-case-zn66ns9h/mnt/d1/f2 -> rc=0
+08:59:14 live f1: mt=2026-11-15 08:59:13.865566800 ct=2026-11-15 08:59:13.865566800 at=2026-11-15 08:59:12.662961200 birth=- flags=None
+08:59:14 live d1: mt=2026-11-15 08:59:13.868464300 ct=2026-11-15 08:59:13.868464300 at=2026-11-15 08:59:13.867283400 birth=- flags=None
+08:59:14 live d1/f2: mt=2026-11-15 08:59:13.868158900 ct=2026-11-15 08:59:13.868158900 at=2026-11-15 08:59:13.868097700 birth=- flags=None
+08:59:14 live d1/f3: mt=2026-11-15 08:59:13.869714200 ct=2026-11-15 08:59:13.869714200 at=2026-11-15 08:59:13.868459500 birth=- flags=None
+08:59:14 $ stat -c 'birth=%w mtime=%y' /tmp/ntfsmac-case-zn66ns9h/mnt/f1 -> rc=0
+08:59:14 birth=- mtime=2026-11-15 08:59:13.865566800 +0000
+08:59:14 $ sync -> rc=0
+08:59:14 $ umount /tmp/ntfsmac-case-zn66ns9h/mnt -> rc=0
+08:59:14 $ ntfs-3g /tmp/ntfsmac-case-zn66ns9h/vol.img /tmp/ntfsmac-case-zn66ns9h/mnt -o ro -> rc=0
+08:59:14 $ sync -> rc=0
+08:59:14 $ umount /tmp/ntfsmac-case-zn66ns9h/mnt -> rc=0
+08:59:14 ntfsinfo f1: File Creation Time = 1794733152 (raw reader: 1794733152)
+08:59:14 ntfsinfo f1: File Altered Time = 1794733153 (raw reader: 1794733153)
+08:59:14 ntfsinfo f1: MFT Changed Time = 1794733153 (raw reader: 1794733153)
+08:59:14 ntfsinfo f1: Last Accessed Time = 1794733152 (raw reader: 1794733152)
+08:59:14 ntfsinfo d1: File Creation Time = 1794733153 (raw reader: 1794733153)
+08:59:14 ntfsinfo d1: File Altered Time = 1794733153 (raw reader: 1794733153)
+08:59:14 ntfsinfo d1: MFT Changed Time = 1794733153 (raw reader: 1794733153)
+08:59:14 ntfsinfo d1: Last Accessed Time = 1794733153 (raw reader: 1794733153)
+08:59:14 after remount f1: mt=2026-11-15 08:59:13.865566800 ct=2026-11-15 08:59:13.865566800 at=2026-11-15 08:59:12.662961200 birth=- flags=None
+08:59:14 disk f1 (record 64) SI: cr=2026-11-15 08:59:12.662961200 mt=2026-11-15 08:59:13.865566800 ct=2026-11-15 08:59:13.865566800 at=2026-11-15 08:59:12.662961200 flags=0x20
+08:59:14 disk f1 (record 64) FN: cr=2026-11-15 08:59:12.662961200 mt=2026-11-15 08:59:12.662961200 ct=2026-11-15 08:59:12.662961200 at=2026-11-15 08:59:12.662961200 flags=0x20
+08:59:14 f1 SI creation time is 2026-11-15 08:59:12.662961200 (FILETIME 134392067526629612)
+08:59:14 after remount d1: mt=2026-11-15 08:59:13.868464300 ct=2026-11-15 08:59:13.868464300 at=2026-11-15 08:59:13.867283400 birth=- flags=None
+08:59:14 disk d1 (record 65) SI: cr=2026-11-15 08:59:13.867283400 mt=2026-11-15 08:59:13.868464300 ct=2026-11-15 08:59:13.868464300 at=2026-11-15 08:59:13.867283400 flags=0x20
+08:59:14 disk d1 (record 65) FN: cr=2026-11-15 08:59:13.867283400 mt=2026-11-15 08:59:13.867283400 ct=2026-11-15 08:59:13.867283400 at=2026-11-15 08:59:13.867283400 flags=0x10000020
+08:59:14 d1 SI creation time is 2026-11-15 08:59:13.867283400 (FILETIME 134392067538672834)
+08:59:14 after remount d1/f2: mt=2026-11-15 08:59:13.868158900 ct=2026-11-15 08:59:13.868158900 at=2026-11-15 08:59:13.868097700 birth=- flags=None
+08:59:14 disk d1/f2 (record 66) SI: cr=2026-11-15 08:59:13.868097700 mt=2026-11-15 08:59:13.868158900 ct=2026-11-15 08:59:13.868158900 at=2026-11-15 08:59:13.868097700 flags=0x20
+08:59:14 disk d1/f2 (record 66) FN: cr=2026-11-15 08:59:13.868097700 mt=2026-11-15 08:59:13.868097700 ct=2026-11-15 08:59:13.868097700 at=2026-11-15 08:59:13.868097700 flags=0x20
+08:59:14 d1/f2 SI creation time is 2026-11-15 08:59:13.868097700 (FILETIME 134392067538680977)
+08:59:14 after remount d1/f3: mt=2026-11-15 08:59:13.869714200 ct=2026-11-15 08:59:13.869714200 at=2026-11-15 08:59:13.868459500 birth=- flags=None
+08:59:14 disk d1/f3 (record 67) SI: cr=2026-11-15 08:59:13.868459500 mt=2026-11-15 08:59:13.869714200 ct=2026-11-15 08:59:13.869714200 at=2026-11-15 08:59:13.868459500 flags=0x20
+08:59:14 disk d1/f3 (record 67) FN: cr=2026-11-15 08:59:13.868459500 mt=2026-11-15 08:59:13.868459500 ct=2026-11-15 08:59:13.868459500 at=2026-11-15 08:59:13.868459500 flags=0x20
+08:59:14 d1/f3 SI creation time is 2026-11-15 08:59:13.868459500 (FILETIME 134392067538684595)
+08:59:14 f1: SI mtime minus FN mtime = 1.20 s (FN times are not kept up to date)
+08:59:14 view values with digits below a microsecond: 12 of 12
+08:59:14 live view differs from the remounted view in 0 values: []
+08:59:14 $ ntfsfix -n /tmp/ntfsmac-case-zn66ns9h/vol.img -> rc=0
+08:59:14 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /tmp/ntfsmac-case-zn66ns9h/vol.img was processed successfully.
+08:59:14 end I-META-01: pass

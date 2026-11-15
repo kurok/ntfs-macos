@@ -1,0 +1,49 @@
+09:00:35 start I-META-04 (env B)
+09:00:35 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/vol.img -> rc=0
+09:00:35 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+09:00:35 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+09:00:35 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/mnt -> rc=0
+09:00:38 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+09:00:38 $ echo x > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/mnt/c_attrlist -> rc=0
+09:00:38 $ echo x > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/mnt/c_xattr -> rc=0
+09:00:38 $ echo x > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/mnt/c_cp -> rc=0
+09:00:38 $ echo x > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/mnt/c_ref -> rc=0
+09:00:38 setattrlist(ATTR_CMN_CRTIME) on c_attrlist: ok
+09:00:38 getattrlist after: {'crtime': 0, 'mtime': 1794733238557264000, 'ctime': 1794733238572388000, 'atime': 1794733238556510000}
+09:00:38 APFS source birth time: 2009-02-13 23:31:30.123456768
+09:00:38 $ cp -p /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/apfs-src /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/mnt/c_cp -> rc=0
+09:00:38 system.ntfs_times of a new file: creation 2026-11-15 09:00:38.560964900 mtime 2026-11-15 09:00:38.561744000 ctime 2026-11-15 09:00:38.561102000 atime 2026-11-15 09:00:38.561744000
+09:00:38 setxattr system.ntfs_times (creation time only changed): ok
+09:00:38 live view after xattr set: mt=2026-11-15 09:00:38.561744000 ct=2026-11-15 09:00:38.561744000 at=2026-11-15 09:00:38.561102000 birth=1970-01-01 00:00:00.000000000 flags=0
+09:00:38 $ sync -> rc=0
+09:00:38 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/mnt -> rc=0
+09:00:38 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/mnt -> rc=0
+09:00:41 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+09:00:41 $ sync -> rc=0
+09:00:41 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/mnt -> rc=0
+09:00:41 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/mnt -> rc=0
+09:00:45 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+09:00:45 $ sync -> rc=0
+09:00:45 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/mnt -> rc=0
+09:00:45 c_attrlist: SI creation 2009-02-13 23:31:30.123456700 (FILETIME 128790414901234567), FN creation 2026-11-15 09:00:38.556510000, view birth 1970-01-01 00:00:00.000000000, xattr creation 128790414901234567
+09:00:45 c_xattr: SI creation 2012-12-12 12:12:12.345678900 (FILETIME 129997879323456789), FN creation 2012-12-12 12:12:12.345678900, view birth 1970-01-01 00:00:00.000000000, xattr creation 129997879323456789
+09:00:45 c_cp: SI creation 2026-11-15 09:00:38.566122200 (FILETIME 134392068385661222), FN creation 2026-11-15 09:00:38.566277000, view birth 1970-01-01 00:00:00.000000000, xattr creation 134392068385661222
+09:00:45 c_ref: SI creation 2026-11-15 09:00:38.570530000 (FILETIME 134392068385705300), FN creation 2026-11-15 09:00:38.570686000, view birth 1970-01-01 00:00:00.000000000, xattr creation 134392068385705300
+09:00:45 setattrlist route: asked 2009-02-13 23:31:30.123456789, stored FILETIME 128790414901234567 (2009-02-13 23:31:30.123456700)
+09:00:45 cp -p route: stored FILETIME 134392068385661222 (2026-11-15 09:00:38.566122200), the APFS birth time was not carried
+09:00:45 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/vol.img -> rc=0
+09:00:45 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-hgdyrmhk/vol.img was processed successfully.
+09:00:45 end I-META-04: pass

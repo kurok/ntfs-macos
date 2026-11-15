@@ -1,0 +1,50 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "e4b883db581c98cd7108b6b29ce385b44faadada",
+  "dirty_tree": false,
+  "env": "B",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "macOS 27.2 (26B123) arm64",
+  "macfuse_version": "5.5.0",
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-15T09:05:01Z",
+  "finished": "2026-11-15T09:07:56Z",
+  "cases": [
+    {
+      "id": "I-SYNC-01",
+      "status": "pass",
+      "duration_s": 81.063,
+      "evidence": [
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-01.buf.fuse.log",
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-01.buf.spy.log",
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-01.file.fuse.log",
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-01.file.spy.log",
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-01.inject.fuse.log",
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-01.inject.spy.log",
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-01.injectdk.fuse.log",
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-01.injectdk.spy.log",
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-01.log",
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-01.raw.mountfail.log",
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-01.trace-buffered-dksync-fails.txt",
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-01.trace-buffered.txt",
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-01.trace-file-fullfsync-fails.txt",
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-01.trace-file.txt",
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-01.trace.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-SYNC-02",
+      "status": "pass",
+      "duration_s": 93.874,
+      "evidence": [
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-02.alignment.txt",
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-02.bench.txt",
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-02.log",
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-02.node-io.txt",
+        "evidence/2026-11-15-e4b883d-B/I-SYNC-02.u10.json"
+      ],
+      "note": null
+    }
+  ]
+}

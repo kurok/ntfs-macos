@@ -12,6 +12,7 @@
 #   --orchestrate  run.py runs on the host with --env host (cases that drive the guest and the Linux
 #                  container themselves, e.g. C-REF-01); the VM name is passed in NTFSMAC_B_VM.
 # Env:   NTFSMAC_B_BUILD_LOG=FILE  also write the guest build log to FILE
+#        NTFSMAC_B_DISK_GB=N        guest disk size in GB (default 64)
 # Exit:  run.py's exit code (0 ok, 1 case failed or errored, 2 setup error).
 set -eu
 
@@ -32,6 +33,9 @@ tarball=$(awk '$1 == "ntfs-3g" { n = split($3, a, "/"); print a[n] }' "$root/thi
 [ -f "$root/third_party/cache/$tarball" ] || sh "$root/scripts/fetch-deps.sh" ntfs-3g >&2
 
 "$tart_sh" clone "$name" --from golden >&2
+# The golden disk has about 7 GiB free; the 4 GiB + 1 and 5 GiB cases (I-BIG-02, I-BIG-03) need more.
+# The clone's disk image is sparse, and APFS in the guest grows into the new space at boot.
+tart set "$name" --disk-size "${NTFSMAC_B_DISK_GB:-64}" >&2
 "$tart_sh" run "$name" >&2
 
 # Build NTFS-3G in the guest from the same script and patch series the host uses.

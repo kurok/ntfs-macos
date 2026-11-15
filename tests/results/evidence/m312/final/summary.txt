@@ -1,0 +1,9 @@
+deps-release     ok        6s
+deps-faultio     ok        6s
+deps-asan        ok        6s
+deps-faultio-asan ok        7s
+fixtures-unsafe  ok        1s
+fixtures-clean   ok        1s
+build-faultio    ok        0s
+release          ok       35s
+asan             ok       35s

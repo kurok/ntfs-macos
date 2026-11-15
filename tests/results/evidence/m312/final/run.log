@@ -1,0 +1,39 @@
+
+== stage: deps-release ==
+deps-release: ok (6s)
+
+== stage: deps-faultio ==
+deps-faultio: ok (6s)
+
+== stage: deps-asan ==
+deps-asan: ok (6s)
+
+== stage: deps-faultio-asan ==
+deps-faultio-asan: ok (7s)
+
+== stage: fixtures-unsafe ==
+fixtures-unsafe: ok (1s)
+
+== stage: fixtures-clean ==
+fixtures-clean: ok (1s)
+
+== stage: build-faultio ==
+build-faultio: ok (0s)
+
+== stage: release ==
+release: ok (35s)
+
+== stage: asan ==
+asan: ok (35s)
+
+== summary ==
+deps-release     ok        6s
+deps-faultio     ok        6s
+deps-asan        ok        6s
+deps-faultio-asan ok        7s
+fixtures-unsafe  ok        1s
+fixtures-clean   ok        1s
+build-faultio    ok        0s
+release          ok       35s
+asan             ok       35s
+volmark tests: PASSED

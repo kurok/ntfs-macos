@@ -1,0 +1,48 @@
+ok (cached)  ntfs-3g 2026.9.28  ntfs-3g_ntfsprogs-2026.9.28.tgz
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 2.32kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/debian:13-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/6] FROM docker.io/library/debian:13-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2
+#4 resolve docker.io/library/debian:13-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2 done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 1.34MB done
+#5 DONE 0.0s
+
+#6 [5/6] RUN mkdir -p /tmp/asan && chmod 1777 /tmp/asan
+#6 CACHED
+
+#7 [3/6] COPY ntfs-3g_ntfsprogs-2026.9.28.tgz /usr/src/ntfs-3g_ntfsprogs-2026.9.28.tgz
+#7 CACHED
+
+#8 [2/6] RUN apt-get update && apt-get install -y --no-install-recommends         build-essential clang lld libclang-rt-dev cmake ninja-build pkg-config         autoconf automake libtool         libgcrypt20-dev libgnutls28-dev uuid-dev libattr1-dev         fuse3 kmod util-linux         python3 xxd coreutils file ca-certificates git gdb valgrind     && rm -rf /var/lib/apt/lists/*
+#8 CACHED
+
+#9 [4/6] RUN set -eux;     cd /usr/src;     echo "350d9415c59f7c3fa74e23985ad2d56423c6a168337368f672e2e362d8f295c8  ntfs-3g_ntfsprogs-2026.9.28.tgz" | sha256sum -c -;     mkdir ntfs-3g-src; tar -xzf "ntfs-3g_ntfsprogs-2026.9.28.tgz" -C ntfs-3g-src --strip-components=1;     cd ntfs-3g-src;     if [ "0" = 1 ]; then         export CFLAGS="-g -O1 -fsanitize=address,undefined -fno-omit-frame-pointer"                LDFLAGS="-fsanitize=address,undefined";     else         export CFLAGS="-g -O2";     fi;     ./configure --prefix="/opt/ntfs-3g" --with-fuse=internal         --enable-ntfsprogs --disable-ldconfig --disable-static         --disable-mount-helper --disable-plugins;     make -j"$(nproc)";     make install;     cd /; rm -rf /usr/src/ntfs-3g-src "/usr/src/ntfs-3g_ntfsprogs-2026.9.28.tgz";     echo "/opt/ntfs-3g/lib" > /etc/ld.so.conf.d/ntfs-3g.conf; ldconfig
+#9 CACHED
+
+#10 [6/6] WORKDIR /work
+#10 CACHED
+
+#11 exporting to image
+#11 exporting layers done
+#11 exporting manifest sha256:31df504af467e1de89431587dc5fef9a7949178d2dd7bb53ee55d77d37982a7d done
+#11 exporting config sha256:88d2ccb8de629050b4b5b47a4e920b4178d1addd746c88276867335d5af2cc3f done
+#11 exporting attestation manifest sha256:33951b9d47b7cc5aaeaf2fac8bea9ff8d03716b72ec6d5a71644875e11d14d36 done
+#11 exporting manifest list sha256:60e37d7c35e037ed5411f07a66f71ac25d6cada38d0f3b46ae3a93e443893e47 done
+#11 naming to docker.io/library/ntfs-macos-linux:release done
+#11 unpacking to docker.io/library/ntfs-macos-linux:release done
+#11 DONE 0.0s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/8kzsyy2bda15qautl7cq9conh

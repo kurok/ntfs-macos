@@ -1,0 +1,16 @@
+d	.fseventsd
+f	.fseventsd/fseventsd-uuid	36	bab9c81d1708c05f02f9140eb3a0083b3f97db72bcc4fa880c2b84ce1ef13f0e
+d	sl
+l	sl/abs	/absolute/elsewhere
+l	sl/dangling	dir/inner
+d	sl/dir
+f	sl/dir/inner	300	cf21a6ea6f3d5c58ebbae32fa74cb5ed1a66a9645a6ed6195c97c58b7e1eac52
+l	sl/dir/up	../sl/target
+l	sl/long	tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt
+d	sl/real
+f	sl/real/f	77	9cc0d56286d453ffd793ab7f1019e0a742f1f96d75ad8657f8bee715bde03f4e
+f	sl/target	4100	aea9d7bc46a7021bf303601ca41e195f0ab0efd981875ec46966d3eab9560cb8
+l	sl/to-dir-renamed	dir
+l	sl/to-file	target
+l	sl/uni-target	café-target
+l	sl/日本-link	target

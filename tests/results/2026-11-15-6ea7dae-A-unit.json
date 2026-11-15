@@ -1,0 +1,39 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "6ea7daef74ef6beca672b3e02a966615cc47c628",
+  "dirty_tree": false,
+  "env": "A",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "Debian GNU/Linux 13 (trixie) aarch64",
+  "macfuse_version": null,
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-15T20:58:14Z",
+  "finished": "2026-11-15T21:03:26Z",
+  "cases": [
+    {
+      "id": "U-PROBE-ALL",
+      "status": "pass",
+      "duration_s": 0,
+      "evidence": [
+        "evidence/2026-11-15-6ea7dae-unit/probe/summary.txt",
+        "evidence/2026-11-15-6ea7dae-unit/probe/release.log",
+        "evidence/2026-11-15-6ea7dae-unit/probe/asan.log",
+        "evidence/2026-11-15-6ea7dae-unit/probe/ctest-release.xml",
+        "evidence/2026-11-15-6ea7dae-unit/probe/ctest-asan.xml"
+      ],
+      "note": "tests/unit/probe/run.sh: probe ctest 25/25 release, 23/23 ASan+UBSan; every fixture stage ok (unsafe, names, mirror, clean, vmk). Unit-level evidence produced outside the harness for the M3 gate re-run after the F-01 fix (ctest via the named scripts); run on the clean tree at this commit; duration_s 0 means not measured per case."
+    },
+    {
+      "id": "U-VMK-ALL",
+      "status": "pass",
+      "duration_s": 0,
+      "evidence": [
+        "evidence/2026-11-15-6ea7dae-unit/volmark/summary.txt",
+        "evidence/2026-11-15-6ea7dae-unit/volmark/volmark-evidence.txt",
+        "evidence/2026-11-15-6ea7dae-unit/volmark/ctest-release.xml",
+        "evidence/2026-11-15-6ea7dae-unit/volmark/ctest-asan.xml"
+      ],
+      "note": "tests/unit/volmark/run.sh (run with bash: the file has no executable bit in git): U-VMK-01..10 in release and ASan+UBSan with the faultio build, 2/2 ctest each; cut sweep checked against the crash table of ARCHITECTURE 3.6. Unit-level evidence produced outside the harness for the M3 gate re-run after the F-01 fix (ctest via the named scripts); run on the clean tree at this commit; duration_s 0 means not measured per case."
+    }
+  ]
+}

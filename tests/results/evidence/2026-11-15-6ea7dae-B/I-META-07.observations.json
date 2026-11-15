@@ -1,0 +1,83 @@
+{
+ "chflags_hidden": "ok",
+ "chflags_hidden_dir": "ok",
+ "direct_stat_hidden": {
+  ".newdot": "ok",
+  ".newdotdir": "ok",
+  "h_attr": "ok"
+ },
+ "disk_default": {
+  ".dotdir": 32,
+  ".dotfile": 32,
+  "h_attr": 34,
+  "h_chflags": 32,
+  "h_dir": 32,
+  "plain": 32,
+  "s_attr": 36
+ },
+ "disk_hide_dot_files..newdot": 34,
+ "disk_hide_dot_files..newdotdir": 34,
+ "disk_hide_dot_files.vis": 32,
+ "listing_default": [
+  ".dotdir",
+  ".dotfile",
+  "h_attr",
+  "h_chflags",
+  "h_dir",
+  "plain",
+  "s_attr"
+ ],
+ "listing_hide_dot_files": [
+  ".dotdir",
+  ".dotfile",
+  ".newdot",
+  ".newdotdir",
+  "h_attr",
+  "h_chflags",
+  "h_dir",
+  "plain",
+  "s_attr",
+  "vis"
+ ],
+ "listing_hide_hid_files": [
+  ".dotdir",
+  ".dotfile",
+  "h_chflags",
+  "h_dir",
+  "plain",
+  "s_attr",
+  "vis"
+ ],
+ "listing_show_sys_files": [
+  "$AttrDef",
+  "$BadClus",
+  "$Bitmap",
+  "$Boot",
+  "$Extend",
+  "$LogFile",
+  "$MFTMirr",
+  "$Secure",
+  "$UpCase",
+  "$Volume",
+  ".dotdir",
+  ".dotfile",
+  ".newdot",
+  ".newdotdir",
+  "h_attr",
+  "h_chflags",
+  "h_dir",
+  "plain",
+  "s_attr",
+  "vis"
+ ],
+ "set_hidden": "ok",
+ "shown_default": {
+  ".dotdir": "0777 flags=0",
+  ".dotfile": "0777 flags=0",
+  "h_attr": "0777 flags=0",
+  "h_chflags": "0777 flags=0",
+  "h_dir": "0777 flags=0",
+  "plain": "0777 flags=0",
+  "s_attr": "0777 flags=0"
+ }
+}

@@ -1,0 +1,14 @@
+1794777829.668170 open pid=29369 fd=3 path=/dev/null
+1794777829.668470 open pid=29369 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-p12kie9a/inject.img
+1794777829.668595 open pid=29369 fd=5 path=/dev/null
+1794777829.674127 open pid=29369 fd=5 path=/dev/null
+1794777833.025303 fullfsync pid=29369 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-p12kie9a/inject.img rc=-1 errno=25 us=0 writes=62 bytes=162810
+1794777833.025978 fsync pid=29369 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-p12kie9a/inject.img rc=0 errno=0 us=646 writes=0 bytes=0
+1794777836.297730 fullfsync pid=29369 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-p12kie9a/inject.img rc=-1 errno=25 us=0 writes=18 bytes=45057
+1794777836.298524 fsync pid=29369 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-p12kie9a/inject.img rc=0 errno=0 us=752 writes=0 bytes=0
+1794777838.940548 fullfsync pid=29369 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-p12kie9a/inject.img rc=-1 errno=25 us=0 writes=6 bytes=20480
+1794777838.941414 fsync pid=29369 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-p12kie9a/inject.img rc=0 errno=0 us=814 writes=0 bytes=0
+1794777841.506930 fullfsync pid=29369 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-p12kie9a/inject.img rc=-1 errno=25 us=0 writes=6 bytes=24576
+1794777841.513748 fsync pid=29369 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-p12kie9a/inject.img rc=0 errno=0 us=6757 writes=0 bytes=0
+1794777845.361799 fullfsync pid=29369 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-p12kie9a/inject.img rc=-1 errno=25 us=0 writes=6 bytes=28672
+1794777845.361900 fsync pid=29369 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-p12kie9a/inject.img rc=0 errno=0 us=6 writes=0 bytes=0

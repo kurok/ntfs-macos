@@ -1,0 +1,315 @@
+{
+ "builder_optstr": "backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022",
+ "dump": {
+  "x": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392517661586857,
+    "crtime": 134392517661586857,
+    "ctime": 134392517661619156,
+    "mtime": 134392517661619156
+   },
+   "xattrs": {}
+  },
+  "x/dir": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392517661593998,
+    "crtime": 134392517661593998,
+    "ctime": 134392517661618195,
+    "mtime": 134392517661618195
+   },
+   "xattrs": {
+    "com.apple.FinderInfo": "32:69b1fa77eac426214091ade38bdc65f14e3ca0deb58844b3c0e8bd4e5edd5213",
+    "user.dk": "10:c98a8e7480c5179705216c59c5d3bb89480ed751e953a11cac92f177bda6df70"
+   }
+  },
+  "x/dir/in": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "6fab81a25d7f646b69dac37cdfd90dd51e026e2828f43b9ee47b7a91c9f6188b",
+   "size": 10,
+   "t": "f",
+   "times": {
+    "atime": 134392517661595329,
+    "crtime": 134392517661595329,
+    "ctime": 134392517661595957,
+    "mtime": 134392517661595957
+   },
+   "xattrs": {}
+  },
+  "x/dir/second-moved": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "b21d03112adf837f88c386e0b97288b933a2dc5e6fe97b6ba43cf924bea1c656",
+   "size": 100,
+   "t": "f",
+   "times": {
+    "atime": 134392517661592047,
+    "crtime": 134392517661592047,
+    "ctime": 134392517661618248,
+    "mtime": 134392517661592814
+   },
+   "xattrs": {
+    "user.k": "2:6f701b171e53d7fe18ba2b5efed65f5a7f8cd4118acaec7ab692f58bf70eccb6"
+   }
+  },
+  "x/file": {
+   "attrib": "0x00000020",
+   "blocks": 8192,
+   "group": null,
+   "nlink": 1,
+   "sha": "8b2fe54c99558af0b9da86a31a626ecdfb216000d887c337d8973ff3ff024ed8",
+   "size": 5100,
+   "t": "f",
+   "times": {
+    "atime": 134392517661588159,
+    "crtime": 134392517661588159,
+    "ctime": 134392517661615993,
+    "mtime": 134392517661615993
+   },
+   "xattrs": {
+    "com.apple.FinderInfo": "32:58bc89d5af89e0a044e7f2b54f19fcf7ad974a02922383a1e9430e8ecaa4b2a1",
+    "com.apple.ResourceFork": "3000:f834e73418694ad760c52279341f39ca96584abefc33b2c95f03914d0e7fdbe1",
+    "com.apple.lastuseddate#PS": "16:1850f3f20cf175e591231d3278cc254e9cf9c90b5ab85822a2407fc08df9e614",
+    "com.apple.quarantine": "57:4d307f1a278fd338927396cd15ce1da21dae61ab98d039394e3f2d81b2dc5caa",
+    "user.big": "65536:d891b3022ab9d63d9f541c3fc81fd8a77328bb54b889dfedb4d543cc247b8396",
+    "user.empty": "0:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "user.k": "1:d1211001882d2ce16a8553e449b6c8b7f71e61836efc2e416143808f20e721e7",
+    "user.na\u00efve": "5:16247d5481574c1c7790e521cb1413220aec5ba242636f0e1f8bfe9a2bb1dabf"
+   }
+  },
+  "x/y": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392517661619139,
+    "crtime": 134392517661619139,
+    "ctime": 134392517661623548,
+    "mtime": 134392517661623548
+   },
+   "xattrs": {}
+  },
+  "x/y/f": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "42e7f7dd49ef42174d4512a64ef90ce0e1b4a1fd94f69d4474bbcd68b8b4b5ed",
+   "size": 4,
+   "t": "f",
+   "times": {
+    "atime": 134392517661623532,
+    "crtime": 134392517661623532,
+    "ctime": 134392517661624118,
+    "mtime": 134392517661624118
+   },
+   "xattrs": {}
+  }
+ },
+ "env": "A",
+ "image_sha256": "1d49f524d9ff7dd59556b84d474a02a97c41f0f5ea4f936ddeaf4dd66ac9524f",
+ "macfuse_version": null,
+ "ntfs3g_version": "2026.9.28",
+ "ntfsfix": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/refop06/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "ntfsfix_after_replay": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/refop06/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "oplog": [
+  {
+   "i": 0,
+   "op": "mkdir",
+   "path": "x",
+   "rc": "ok"
+  },
+  {
+   "i": 1,
+   "op": "create",
+   "path": "x/file",
+   "rc": "ok"
+  },
+  {
+   "i": 2,
+   "op": "create",
+   "path": "x/second",
+   "rc": "ok"
+  },
+  {
+   "i": 3,
+   "op": "mkdir",
+   "path": "x/dir",
+   "rc": "ok"
+  },
+  {
+   "i": 4,
+   "op": "create",
+   "path": "x/dir/in",
+   "rc": "ok"
+  },
+  {
+   "i": 5,
+   "op": "setxattr",
+   "path": "x/file",
+   "rc": "ok"
+  },
+  {
+   "i": 6,
+   "op": "setxattr",
+   "path": "x/file",
+   "rc": "ok"
+  },
+  {
+   "i": 7,
+   "op": "setxattr",
+   "path": "x/file",
+   "rc": "ok"
+  },
+  {
+   "i": 8,
+   "op": "setxattr",
+   "path": "x/file",
+   "rc": "ok"
+  },
+  {
+   "i": 9,
+   "op": "setxattr",
+   "path": "x/file",
+   "rc": "ok"
+  },
+  {
+   "i": 10,
+   "op": "setxattr",
+   "path": "x/file",
+   "rc": "ok"
+  },
+  {
+   "i": 11,
+   "op": "setxattr",
+   "path": "x/file",
+   "rc": "ok"
+  },
+  {
+   "i": 12,
+   "op": "setxattr",
+   "path": "x/file",
+   "rc": "ok"
+  },
+  {
+   "i": 13,
+   "op": "setxattr",
+   "path": "x/file",
+   "rc": "EINVAL"
+  },
+  {
+   "i": 14,
+   "op": "setxattr",
+   "path": "x/file",
+   "rc": "ok"
+  },
+  {
+   "i": 15,
+   "op": "setxattr",
+   "path": "x/second",
+   "rc": "ok"
+  },
+  {
+   "i": 16,
+   "op": "setxattr",
+   "path": "x/dir",
+   "rc": "ok"
+  },
+  {
+   "i": 17,
+   "op": "setxattr",
+   "path": "x/dir",
+   "rc": "ok"
+  },
+  {
+   "i": 18,
+   "op": "removexattr",
+   "path": "x/file",
+   "rc": "ok"
+  },
+  {
+   "i": 19,
+   "op": "removexattr",
+   "path": "x/file",
+   "rc": "ENOATTR"
+  },
+  {
+   "i": 20,
+   "op": "setxattr",
+   "path": "x/file",
+   "rc": "ok"
+  },
+  {
+   "i": 21,
+   "op": "setxattr",
+   "path": "x/file",
+   "rc": "E2BIG"
+  },
+  {
+   "i": 22,
+   "op": "append",
+   "path": "x/file",
+   "rc": "ok"
+  },
+  {
+   "i": 23,
+   "op": "rename",
+   "path": "x/dir/second-moved",
+   "rc": "ok"
+  },
+  {
+   "i": 24,
+   "op": "mkdir",
+   "path": "x/y",
+   "rc": "ok"
+  },
+  {
+   "i": 25,
+   "op": "create",
+   "path": "x/y/f",
+   "rc": "ok"
+  },
+  {
+   "i": 26,
+   "op": "setxattr",
+   "path": "x/y/f",
+   "rc": "ok"
+  },
+  {
+   "i": 27,
+   "op": "unlink",
+   "path": "x/y/f",
+   "rc": "ok"
+  },
+  {
+   "i": 28,
+   "op": "create",
+   "path": "x/y/f",
+   "rc": "ok"
+  }
+ ],
+ "optstr": "norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022",
+ "os": "Debian GNU/Linux 13 (trixie) aarch64",
+ "t_end": 1794778166.3717103,
+ "t_start": 1794778166.1569188,
+ "treedump": "d\tx\nd\tx/dir\nf\tx/dir/in\t10\t6fab81a25d7f646b69dac37cdfd90dd51e026e2828f43b9ee47b7a91c9f6188b\nf\tx/dir/second-moved\t100\tb21d03112adf837f88c386e0b97288b933a2dc5e6fe97b6ba43cf924bea1c656\nf\tx/file\t5100\t8b2fe54c99558af0b9da86a31a626ecdfb216000d887c337d8973ff3ff024ed8\nd\tx/y\nf\tx/y/f\t4\t42e7f7dd49ef42174d4512a64ef90ce0e1b4a1fd94f69d4474bbcd68b8b4b5ed\n"
+}

@@ -1,0 +1,107 @@
+21:29:39 start C-REF-OP-08 (env host)
+21:29:42 phase A (container) -> rc=0
+21:29:42 phase A (container) stderr:
+[C-REF-OP-08] $ cc -std=c17 -I /work/include -o /tmp/refop08/optstr /work/tests/compatibility/ref/optstr.c /work/src/options/options.c -> rc=0
+[C-REF-OP-08] $ /tmp/refop08/optstr 0 0 rw -> rc=0
+[C-REF-OP-08] backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022
+[C-REF-OP-08] $ mkntfs -F -Q -L ntfsmac /tmp/refop08/vol.img -> rc=0
+[C-REF-OP-08] Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+[C-REF-OP-08] stderr: /tmp/refop08/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/refop08/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/refop08/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/refop08/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/refop08/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+[C-REF-OP-08] mount options (A): norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022
+[C-REF-OP-08] $ ntfs-3g /tmp/refop08/vol.img /tmp/refop08/mnt -o norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022 -> rc=0
+[C-REF-OP-08] $ sync -> rc=0
+[C-REF-OP-08] $ umount /tmp/refop08/mnt -> rc=0
+[C-REF-OP-08] $ ntfsfix -n /tmp/refop08/vol.img -> rc=0
+[C-REF-OP-08] Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /tmp/refop08/vol.img was processed successfully.
+[C-REF-OP-08] $ ntfsfix -n /tmp/refop08/vol.img -> rc=0
+[C-REF-OP-08] Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /tmp/refop08/vol.img was processed successfully.
+[C-REF-OP-08] $ cc -std=c17 -O2 -o /tmp/refop08/treedump /work/tests/tools/treedump.c -> rc=0
+[C-REF-OP-08] $ ntfs-3g /tmp/refop08/vol.img /tmp/refop08/mnt -o ro,noatime,streams_interface=openxattr -> rc=0
+[C-REF-OP-08] $ /tmp/refop08/treedump /tmp/refop08/mnt -> rc=0
+[C-REF-OP-08] d	s
+f	s/all-hole	67108864	3b6a07d0d404fab4e23b6d34bc6696a6a312dd92821332385e5af7c01c421351
+f	s/dense	25165825	99d9985b12ef5b0dc166476ca9eb2fe14558284d9cf29e9cfcd60030d3a2ed15
+f	s/grown	2097152	5d1f7c2af1b14f34abc6a4ff4dae6fe5295bdc11dc2ab3acb5a0f2ef20f13be8
+f	s/hole-end	67108864	9723de3d1dae3d40972918c3bb261cf9249fe252b428f1271d767e65782c3572
+f	s/hole-middle	41943040	2539add47f829de45ab77abc99e476ba506f2c5cdc58d856d0586e647b1fa0ec
+f	s/hole-start	67108864	35683e75f25b096cd2e8911c2226d9706952ddce442e194b786963361c5d19ca
+[C-REF-OP-08] $ sync -> rc=0
+[C-REF-OP-08] $ umount /tmp/refop08/mnt -> rc=0
+21:29:46 phase B (guest) -> rc=0
+21:29:46 phase B (guest) stderr:
+[C-REF-OP-08] $ cc -std=c17 -I /tmp/ntfsmac-ref.TyG88x/repo/include -o /tmp/ntfsmac-ref.TyG88x/out/optstr /tmp/ntfsmac-ref.TyG88x/compatibility/ref/optstr.c /tmp/ntfsmac-ref.TyG88x/repo/src/options/options.c -> rc=0
+[C-REF-OP-08] $ /tmp/ntfsmac-ref.TyG88x/out/optstr 501 20 rw -> rc=0
+[C-REF-OP-08] backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+[C-REF-OP-08] $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /tmp/ntfsmac-ref.TyG88x/out/vol.img -> rc=0
+[C-REF-OP-08] Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+[C-REF-OP-08] stderr: /tmp/ntfsmac-ref.TyG88x/out/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/ntfsmac-ref.TyG88x/out/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/ntfsmac-ref.TyG88x/out/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/ntfsmac-ref.TyG88x/out/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/ntfsmac-ref.TyG88x/out/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+[C-REF-OP-08] mount options (B): backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+[C-REF-OP-08] $ /Users/admin/ntfsmac/deps/bin/ntfs-3g /tmp/ntfsmac-ref.TyG88x/out/vol.img /tmp/ntfsmac-ref.TyG88x/out/mnt -o backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+[C-REF-OP-08] mount: /dev/disk6s1 on /private/tmp/ntfsmac-ref.TyG88x/out/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+[C-REF-OP-08] $ sync -> rc=0
+[C-REF-OP-08] $ /sbin/umount /tmp/ntfsmac-ref.TyG88x/out/mnt -> rc=0
+[C-REF-OP-08] $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /tmp/ntfsmac-ref.TyG88x/out/vol.img -> rc=0
+[C-REF-OP-08] Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /tmp/ntfsmac-ref.TyG88x/out/vol.img was processed successfully.
+21:29:47 copy image out -> rc=0
+21:29:49 dump of the macOS image (container) -> rc=0
+21:29:49 dump of the macOS image (container) stderr:
+[C-REF-OP-08] $ ntfsfix -n /tmp/refop08/vol.img -> rc=0
+[C-REF-OP-08] Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /tmp/refop08/vol.img was processed successfully.
+[C-REF-OP-08] $ cc -std=c17 -O2 -o /tmp/refop08/treedump /work/tests/tools/treedump.c -> rc=0
+[C-REF-OP-08] $ ntfs-3g /tmp/refop08/vol.img /tmp/refop08/mnt -o ro,noatime,streams_interface=openxattr -> rc=0
+[C-REF-OP-08] $ /tmp/refop08/treedump /tmp/refop08/mnt -> rc=0
+[C-REF-OP-08] d	.fseventsd
+f	.fseventsd/fseventsd-uuid	36	b0bd287d12d1bc77a75ee30583185ecfa83a2188c5c3d3f372f0d17eec454e77
+d	s
+f	s/all-hole	67108864	3b6a07d0d404fab4e23b6d34bc6696a6a312dd92821332385e5af7c01c421351
+f	s/dense	25165825	99d9985b12ef5b0dc166476ca9eb2fe14558284d9cf29e9cfcd60030d3a2ed15
+f	s/grown	2097152	5d1f7c2af1b14f34abc6a4ff4dae6fe5295bdc11dc2ab3acb5a0f2ef20f13be8
+f	s/hole-end	67108864	9723de3d1dae3d40972918c3bb261cf9249fe252b428f1271d767e65782c3572
+f	s/hole-middle	41943040	2539add47f829de45ab77abc99e476ba506f2c5cdc58d856d0586e647b1fa0ec
+f	s/hole-start	67108864	35683e75f25b096cd2e8911c2226d9706952ddce442e194b786963361c5d19ca
+[C-REF-OP-08] $ sync -> rc=0
+[C-REF-OP-08] $ umount /tmp/refop08/mnt -> rc=0
+21:29:49 script C-REF-OP-08 (sparse): 22 operations; image 96 MiB
+21:29:49 A mount options: norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022
+21:29:49 B mount options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+21:29:49 Linux: NTFS-3G 2026.9.28 on Debian GNU/Linux 13 (trixie) aarch64; macOS: Debian GNU/Linux 13 (trixie) aarch64, macFUSE 5.5.0, NTFS-3G 2026.9.28
+21:29:49 expected difference ED-01: 2 occurrence(s)
+21:29:49 expected difference ED-05: 1 occurrence(s)
+21:29:49 expected difference ED-07: 3 occurrence(s)
+21:29:49 7 entries on A, 7 on B (macOS root metadata excluded); 6 differences explained, 0 not
+21:29:49 PASS: the images of A and B give the same tree dump apart from 6 listed difference(s)
+21:29:50 end C-REF-OP-08: pass

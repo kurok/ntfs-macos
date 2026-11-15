@@ -1,0 +1,2 @@
+EXPECTED ED-01 .fseventsd: exists on B only (macOS creates it in the root of every mount)
+EXPECTED ED-01 .fseventsd/fseventsd-uuid: exists on B only (macOS creates it in the root of every mount)

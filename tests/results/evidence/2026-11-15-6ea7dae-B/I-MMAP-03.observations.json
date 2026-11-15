@@ -1,0 +1,147 @@
+{
+ "notes": [],
+ "page_size": 16384,
+ "steps": [
+  {
+   "call_ms": 10.7,
+   "device_syncs": 0,
+   "device_writes": 0,
+   "fuse": [
+    "<OPEN n6 +-4ms",
+    "<OPEN n5 +-2ms",
+    "<OPEN n7 +-1ms"
+   ],
+   "opcodes": [
+    "OPEN"
+   ],
+   "ret": "['ok 4096', 'ok 1048589', 'ok 8388608']",
+   "step": "mapped write, 3 files, no msync",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 5017.8,
+   "device_syncs": 0,
+   "device_writes": 0,
+   "fuse": [],
+   "opcodes": [],
+   "ret": null,
+   "step": "idle 5 s with mapping live",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 0.4,
+   "device_syncs": 0,
+   "device_writes": 33,
+   "fuse": [
+    "<WRITE n6 13@1048576 +-11ms",
+    "<WRITE n6 1048576@0 +-10ms",
+    "<WRITE n5 4096@0 +-9ms",
+    "<WRITE n7 1048576@0 +-6ms",
+    "<WRITE n7 1048576@1048576 +-6ms",
+    "<WRITE n7 1048576@2097152 +-4ms",
+    "<WRITE n7 1048576@3145728 +-3ms",
+    "<WRITE n7 1048576@4194304 +-2ms",
+    "<WRITE n7 1048576@5242880 +-2ms",
+    "<WRITE n7 1048576@6291456 +-1ms",
+    "<WRITE n7 1048576@7340032 +-1ms"
+   ],
+   "opcodes": [
+    "WRITE"
+   ],
+   "ret": "['ok', 'ok', 'ok']",
+   "step": "munmap (3 files)",
+   "write_bytes": 9441293,
+   "write_bytes_during": 9441293,
+   "write_requests": 11
+  },
+  {
+   "call_ms": 4.0,
+   "device_syncs": 0,
+   "device_writes": 0,
+   "fuse": [
+    "<RELEASE n5 +1ms",
+    "<RELEASE n6 +3ms",
+    "<RELEASE n7 +3ms"
+   ],
+   "opcodes": [
+    "RELEASE"
+   ],
+   "ret": "['ok', 'ok', 'ok']",
+   "step": "close (3 files)",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 40010.4,
+   "device_syncs": 0,
+   "device_writes": 0,
+   "fuse": [
+    "<OPEN n6 +-8ms",
+    "<RELEASE n6 +-7ms",
+    "<OPEN n5 +-5ms",
+    "<RELEASE n5 +-4ms",
+    "<OPEN n7 +-2ms",
+    "<RELEASE n7 +-1ms"
+   ],
+   "opcodes": [
+    "OPEN",
+    "RELEASE"
+   ],
+   "ret": null,
+   "step": "idle 40 s, no application activity",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 29.4,
+   "device_syncs": 1,
+   "device_writes": 0,
+   "fuse": [
+    "<DESTROY n1 +12ms"
+   ],
+   "opcodes": [
+    "DESTROY"
+   ],
+   "ret": null,
+   "step": "clean unmount (umount)",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  }
+ ],
+ "unmount_window": {
+  "device_syncs": 1,
+  "device_writes": 0,
+  "fuse": [
+   "DESTROY n1 +12ms"
+  ],
+  "opcodes": [
+   "DESTROY"
+  ],
+  "write_bytes": 0,
+  "write_bytes_during": 0,
+  "write_requests": 0
+ },
+ "verify": {
+  "files": {
+   "nosync-1048589.bin": "ok",
+   "nosync-4096.bin": "ok",
+   "nosync-8388608.bin": "ok"
+  },
+  "fsck_rc": 0,
+  "fsck_tail": [
+   "Processing of $MFT and $MFTMirr completed successfully.",
+   "Checking the alternate boot sector... OK",
+   "NTFS volume version is 3.1.",
+   "NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ljbvoaxx/vol.img was processed successfully."
+  ],
+  "mount": "ok",
+  "tag": "03"
+ }
+}

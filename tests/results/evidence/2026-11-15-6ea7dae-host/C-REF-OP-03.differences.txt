@@ -1,0 +1,3 @@
+EXPECTED ED-09 op 20 unlink del/tree/a: A EISDIR, B EPERM
+EXPECTED ED-01 .fseventsd: exists on B only (macOS creates it in the root of every mount)
+EXPECTED ED-01 .fseventsd/fseventsd-uuid: exists on B only (macOS creates it in the root of every mount)

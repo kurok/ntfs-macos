@@ -1,0 +1,78 @@
+21:01:24 start I-META-02 (env A)
+21:01:24 $ mkntfs -F -Q -L ntfsmac /tmp/ntfsmac-case-96eibj3u/vol.img -> rc=0
+21:01:24 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+21:01:24 stderr: /tmp/ntfsmac-case-96eibj3u/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/ntfsmac-case-96eibj3u/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/ntfsmac-case-96eibj3u/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/ntfsmac-case-96eibj3u/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/ntfsmac-case-96eibj3u/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+21:01:24 $ ntfs-3g /tmp/ntfsmac-case-96eibj3u/vol.img /tmp/ntfsmac-case-96eibj3u/mnt -o rw,big_writes -> rc=0
+21:01:24 $ echo x > /tmp/ntfsmac-case-96eibj3u/mnt/touch_t -> rc=0
+21:01:24 $ echo x > /tmp/ntfsmac-case-96eibj3u/mnt/touch_m -> rc=0
+21:01:24 $ echo x > /tmp/ntfsmac-case-96eibj3u/mnt/touch_a -> rc=0
+21:01:24 $ echo x > /tmp/ntfsmac-case-96eibj3u/mnt/ns_both -> rc=0
+21:01:24 $ echo x > /tmp/ntfsmac-case-96eibj3u/mnt/omit_a -> rc=0
+21:01:24 $ echo x > /tmp/ntfsmac-case-96eibj3u/mnt/omit_m -> rc=0
+21:01:24 $ echo x > /tmp/ntfsmac-case-96eibj3u/mnt/touch_now -> rc=0
+21:01:24 $ echo x > /tmp/ntfsmac-case-96eibj3u/mnt/r_1601 -> rc=0
+21:01:24 $ echo x > /tmp/ntfsmac-case-96eibj3u/mnt/r_1950 -> rc=0
+21:01:24 $ echo x > /tmp/ntfsmac-case-96eibj3u/mnt/r_neg_half -> rc=0
+21:01:24 $ echo x > /tmp/ntfsmac-case-96eibj3u/mnt/r_2106 -> rc=0
+21:01:24 $ echo x > /tmp/ntfsmac-case-96eibj3u/mnt/r_2200 -> rc=0
+21:01:24 $ cp -p /tmp/ntfsmac-case-96eibj3u/src-apfs /tmp/ntfsmac-case-96eibj3u/mnt/cp_p -> rc=0
+21:01:24 $ cp /tmp/ntfsmac-case-96eibj3u/src-apfs /tmp/ntfsmac-case-96eibj3u/mnt/cp_plain -> rc=0
+21:01:25 $ TZ=UTC touch -t 200101020304.05 /tmp/ntfsmac-case-96eibj3u/mnt/touch_t -> rc=0
+21:01:25 $ TZ=UTC touch -m -t 200202020202.02 /tmp/ntfsmac-case-96eibj3u/mnt/touch_m -> rc=0
+21:01:25 $ TZ=UTC touch -a -t 200303030303.03 /tmp/ntfsmac-case-96eibj3u/mnt/touch_a -> rc=0
+21:01:25 $ touch /tmp/ntfsmac-case-96eibj3u/mnt/touch_now -> rc=0
+21:01:25 live touch_t: mt=2001-01-02 03:04:05.000000000 ct=2026-11-15 21:01:25.668850200 at=2001-01-02 03:04:05.000000000 birth=- flags=None
+21:01:25 live touch_m: mt=2002-02-02 02:02:02.000000000 ct=2026-11-15 21:01:25.670821500 at=2010-01-01 00:00:00.000000000 birth=- flags=None
+21:01:25 live touch_a: mt=2010-01-01 00:00:00.000000000 ct=2026-11-15 21:01:25.672094100 at=2003-03-03 03:03:03.000000000 birth=- flags=None
+21:01:25 live ns_both: mt=2009-02-13 23:31:30.123456700 ct=2026-11-15 21:01:25.672484800 at=2005-03-18 01:58:31.987654300 birth=- flags=None
+21:01:25 live omit_a: mt=2009-02-13 23:31:30.123456700 ct=2026-11-15 21:01:25.672632500 at=2010-01-01 00:00:00.000000000 birth=- flags=None
+21:01:25 live omit_m: mt=2010-01-01 00:00:00.000000000 ct=2026-11-15 21:01:25.672748400 at=2005-03-18 01:58:31.987654300 birth=- flags=None
+21:01:25 live touch_now: mt=2026-11-15 21:01:25.673680300 ct=2026-11-15 21:01:25.673680300 at=2026-11-15 21:01:25.673680300 birth=- flags=None
+21:01:25 live cp_p: mt=2006-06-06 06:06:06.987654300 ct=2026-11-15 21:01:24.560694000 at=2005-05-05 05:05:05.123456700 birth=- flags=None
+21:01:25 live r_1601: mt=1601-01-01 00:00:00.000000000 ct=2026-11-15 21:01:25.673996900 at=1601-01-01 00:00:00.000000000 birth=- flags=None
+21:01:25 live r_1950: mt=1950-06-15 12:00:01.000000000 ct=2026-11-15 21:01:25.674091400 at=1950-06-15 12:00:01.000000000 birth=- flags=None
+21:01:25 live r_neg_half: mt=1970-01-01 00:00:00.000000000 ct=2026-11-15 21:01:25.674170100 at=1970-01-01 00:00:00.000000000 birth=- flags=None
+21:01:25 live r_2106: mt=2106-02-07 06:28:16.000000000 ct=2026-11-15 21:01:25.674257600 at=2106-02-07 06:28:16.000000000 birth=- flags=None
+21:01:25 live r_2200: mt=2200-01-01 00:00:00.999999900 ct=2026-11-15 21:01:25.674331500 at=2200-01-01 00:00:00.999999900 birth=- flags=None
+21:01:25 live cp_plain: mt=2026-11-15 21:01:24.561613700 ct=2026-11-15 21:01:24.561613700 at=2026-11-15 21:01:24.561526500 birth=- flags=None
+21:01:25 $ sync -> rc=0
+21:01:25 $ umount /tmp/ntfsmac-case-96eibj3u/mnt -> rc=0
+21:01:25 $ ntfs-3g /tmp/ntfsmac-case-96eibj3u/vol.img /tmp/ntfsmac-case-96eibj3u/mnt -o ro -> rc=0
+21:01:25 $ sync -> rc=0
+21:01:25 $ umount /tmp/ntfsmac-case-96eibj3u/mnt -> rc=0
+21:01:25 VIEW DIFF r_1950 mtime: view 1950-06-15 12:00:01.000000000, disk 1950-06-15 12:00:00.250000000
+21:01:25 VIEW DIFF r_1950 atime: view 1950-06-15 12:00:01.000000000, disk 1950-06-15 12:00:00.250000000
+21:01:25 VIEW DIFF r_neg_half mtime: view 1970-01-01 00:00:00.000000000, disk 1969-12-31 23:59:59.500000000
+21:01:25 VIEW DIFF r_neg_half atime: view 1970-01-01 00:00:00.000000000, disk 1969-12-31 23:59:59.500000000
+21:01:25 after remount touch_t: mt=2001-01-02 03:04:05.000000000 ct=2026-11-15 21:01:25.668850200 at=2001-01-02 03:04:05.000000000 birth=- flags=None
+21:01:25 after remount touch_m: mt=2002-02-02 02:02:02.000000000 ct=2026-11-15 21:01:25.670821500 at=2010-01-01 00:00:00.000000000 birth=- flags=None
+21:01:25 after remount touch_a: mt=2010-01-01 00:00:00.000000000 ct=2026-11-15 21:01:25.672094100 at=2003-03-03 03:03:03.000000000 birth=- flags=None
+21:01:25 after remount ns_both: mt=2009-02-13 23:31:30.123456700 ct=2026-11-15 21:01:25.672484800 at=2005-03-18 01:58:31.987654300 birth=- flags=None
+21:01:25 after remount omit_a: mt=2009-02-13 23:31:30.123456700 ct=2026-11-15 21:01:25.672632500 at=2010-01-01 00:00:00.000000000 birth=- flags=None
+21:01:25 after remount omit_m: mt=2010-01-01 00:00:00.000000000 ct=2026-11-15 21:01:25.672748400 at=2005-03-18 01:58:31.987654300 birth=- flags=None
+21:01:25 after remount touch_now: mt=2026-11-15 21:01:25.673680300 ct=2026-11-15 21:01:25.673680300 at=2026-11-15 21:01:25.673680300 birth=- flags=None
+21:01:25 after remount cp_p: mt=2006-06-06 06:06:06.987654300 ct=2026-11-15 21:01:24.560694000 at=2005-05-05 05:05:05.123456700 birth=- flags=None
+21:01:25 after remount r_1601: mt=1601-01-01 00:00:00.000000000 ct=2026-11-15 21:01:25.673996900 at=1601-01-01 00:00:00.000000000 birth=- flags=None
+21:01:25 after remount r_1950: mt=1950-06-15 12:00:01.000000000 ct=2026-11-15 21:01:25.674091400 at=1950-06-15 12:00:01.000000000 birth=- flags=None
+21:01:25 after remount r_neg_half: mt=1970-01-01 00:00:00.000000000 ct=2026-11-15 21:01:25.674170100 at=1970-01-01 00:00:00.000000000 birth=- flags=None
+21:01:25 after remount r_2106: mt=2106-02-07 06:28:16.000000000 ct=2026-11-15 21:01:25.674257600 at=2106-02-07 06:28:16.000000000 birth=- flags=None
+21:01:25 after remount r_2200: mt=2200-01-01 00:00:00.999999900 ct=2026-11-15 21:01:25.674331500 at=2200-01-01 00:00:00.999999900 birth=- flags=None
+21:01:25 after remount cp_plain: mt=2026-11-15 21:01:24.561613700 ct=2026-11-15 21:01:24.561613700 at=2026-11-15 21:01:24.561526500 birth=- flags=None
+21:01:25 touch (no argument): mtime 2026-11-15 21:01:25.673680300, atime 2026-11-15 21:01:25.673680300, clock was 2026-11-15 21:01:25.000000000
+21:01:25 cp without -p: mtime 2026-11-15 21:01:24.561613700 (source 2005-05-05 05:05:05.000000000)
+21:01:25 $ ntfsfix -n /tmp/ntfsmac-case-96eibj3u/vol.img -> rc=0
+21:01:25 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /tmp/ntfsmac-case-96eibj3u/vol.img was processed successfully.
+21:01:25 end I-META-02: pass

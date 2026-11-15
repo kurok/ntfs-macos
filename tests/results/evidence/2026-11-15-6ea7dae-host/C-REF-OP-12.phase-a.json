@@ -1,0 +1,323 @@
+{
+ "builder_optstr": "backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022",
+ "dump": {
+  "cdir": {
+   "attrib": "0x00000830",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392518203346279,
+    "crtime": 134392518203346279,
+    "ctime": 134392518204297429,
+    "mtime": 134392518204297429
+   },
+   "xattrs": {}
+  },
+  "cdir/after-delete": {
+   "attrib": "0x00000020",
+   "blocks": 303104,
+   "group": null,
+   "nlink": 1,
+   "sha": "e26ca8adb1fb2b5d469d96df7b03aff8f5342d46b9cf0544c45e7f3d68729dda",
+   "size": 300000,
+   "t": "f",
+   "times": {
+    "atime": 134392518204297410,
+    "crtime": 134392518204297410,
+    "ctime": 134392518204318024,
+    "mtime": 134392518204318024
+   },
+   "xattrs": {}
+  },
+  "cdir/big-text": {
+   "attrib": "0x00000020",
+   "blocks": 8388608,
+   "group": null,
+   "nlink": 1,
+   "sha": "2255c7a3e8464ca5077626f946e3e11f178fb0898407afafb242a922865e3947",
+   "size": 8388608,
+   "t": "f",
+   "times": {
+    "atime": 134392518203584729,
+    "crtime": 134392518203584729,
+    "ctime": 134392518204200320,
+    "mtime": 134392518204200320
+   },
+   "xattrs": {}
+  },
+  "cdir/empty": {
+   "attrib": "0x00000020",
+   "blocks": 0,
+   "group": null,
+   "nlink": 1,
+   "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "size": 0,
+   "t": "f",
+   "times": {
+    "atime": 134392518203583337,
+    "crtime": 134392518203583337,
+    "ctime": 134392518203583337,
+    "mtime": 134392518203583337
+   },
+   "xattrs": {}
+  },
+  "cdir/small": {
+   "attrib": "0x00000020",
+   "blocks": 8192,
+   "group": null,
+   "nlink": 1,
+   "sha": "6433aadb4065e80687d598be192ac8e30d453935d80a590f3164008a9466e95c",
+   "size": 5100,
+   "t": "f",
+   "times": {
+    "atime": 134392518203580376,
+    "crtime": 134392518203580376,
+    "ctime": 134392518204293674,
+    "mtime": 134392518204293674
+   },
+   "xattrs": {}
+  },
+  "cdir/sub": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392518204201638,
+    "crtime": 134392518204201638,
+    "ctime": 134392518204295206,
+    "mtime": 134392518204295206
+   },
+   "xattrs": {}
+  },
+  "cdir/sub/nested": {
+   "attrib": "0x00000020",
+   "blocks": 65536,
+   "group": null,
+   "nlink": 1,
+   "sha": "d471ee2c879adf654a987b29c69d31bef291398e8a7b8ad9869ba56d2c7ed005",
+   "size": 65536,
+   "t": "f",
+   "times": {
+    "atime": 134392518204203003,
+    "crtime": 134392518204203003,
+    "ctime": 134392518204207484,
+    "mtime": 134392518204207484
+   },
+   "xattrs": {}
+  },
+  "cdir/sub/one-moved": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "d10b36aa74a59bcf4a88185837f658afaf3646eff2bb16c3928d0e9335e945d2",
+   "size": 1,
+   "t": "f",
+   "times": {
+    "atime": 134392518203581903,
+    "crtime": 134392518203581903,
+    "ctime": 134392518204295292,
+    "mtime": 134392518203582442
+   },
+   "xattrs": {}
+  },
+  "cdir/text": {
+   "attrib": "0x00000220",
+   "blocks": 1052672,
+   "group": null,
+   "nlink": 1,
+   "sha": "925777fb60c043ececf8b5880dd89728ce6899cf32ba676b2a0672c03987ca51",
+   "size": 3145728,
+   "t": "f",
+   "times": {
+    "atime": 134392518203349278,
+    "crtime": 134392518203349278,
+    "ctime": 134392518204292327,
+    "mtime": 134392518204292327
+   },
+   "xattrs": {}
+  },
+  "plain": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392518203347402,
+    "crtime": 134392518203347402,
+    "ctime": 134392518204208555,
+    "mtime": 134392518204208555
+   },
+   "xattrs": {}
+  },
+  "plain/text": {
+   "attrib": "0x00000020",
+   "blocks": 1052672,
+   "group": null,
+   "nlink": 1,
+   "sha": "514c73e5e281f44c72b8233c0964e95ebdcd9115a1e922f57a511d6dc02cb8c3",
+   "size": 1048676,
+   "t": "f",
+   "times": {
+    "atime": 134392518204208535,
+    "crtime": 134392518204208535,
+    "ctime": 134392518204320153,
+    "mtime": 134392518204320153
+   },
+   "xattrs": {}
+  }
+ },
+ "env": "A",
+ "image_sha256": "791201b9e4ab7fd765c500ec0a18ae31f0587dce775cbb1bbc8dffcfc733967f",
+ "macfuse_version": null,
+ "ntfs3g_version": "2026.9.28",
+ "ntfsfix": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/refop12/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "ntfsfix_after_replay": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/refop12/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "oplog": [
+  {
+   "i": 0,
+   "op": "mkdir",
+   "path": "cdir",
+   "rc": "ok"
+  },
+  {
+   "i": 1,
+   "op": "mkdir",
+   "path": "plain",
+   "rc": "ok"
+  },
+  {
+   "i": 2,
+   "op": "chattr",
+   "path": "cdir",
+   "rc": "ok"
+  },
+  {
+   "i": 3,
+   "op": "text",
+   "path": "cdir/text",
+   "rc": "ok"
+  },
+  {
+   "i": 4,
+   "op": "create",
+   "path": "cdir/random",
+   "rc": "ok"
+  },
+  {
+   "i": 5,
+   "op": "create",
+   "path": "cdir/small",
+   "rc": "ok"
+  },
+  {
+   "i": 6,
+   "op": "create",
+   "path": "cdir/one",
+   "rc": "ok"
+  },
+  {
+   "i": 7,
+   "op": "create",
+   "path": "cdir/empty",
+   "rc": "ok"
+  },
+  {
+   "i": 8,
+   "op": "text",
+   "path": "cdir/big-text",
+   "rc": "ok"
+  },
+  {
+   "i": 9,
+   "op": "mkdir",
+   "path": "cdir/sub",
+   "rc": "ok"
+  },
+  {
+   "i": 10,
+   "op": "text",
+   "path": "cdir/sub/nested",
+   "rc": "ok"
+  },
+  {
+   "i": 11,
+   "op": "text",
+   "path": "plain/text",
+   "rc": "ok"
+  },
+  {
+   "i": 12,
+   "op": "write",
+   "path": "cdir/text",
+   "rc": "ok"
+  },
+  {
+   "i": 13,
+   "op": "append",
+   "path": "cdir/text",
+   "rc": "ok"
+  },
+  {
+   "i": 14,
+   "op": "truncate",
+   "path": "cdir/text",
+   "rc": "ok"
+  },
+  {
+   "i": 15,
+   "op": "truncate",
+   "path": "cdir/text",
+   "rc": "ok"
+  },
+  {
+   "i": 16,
+   "op": "write",
+   "path": "cdir/small",
+   "rc": "ok"
+  },
+  {
+   "i": 17,
+   "op": "rename",
+   "path": "cdir/sub/one-moved",
+   "rc": "ok"
+  },
+  {
+   "i": 18,
+   "op": "unlink",
+   "path": "cdir/random",
+   "rc": "ok"
+  },
+  {
+   "i": 19,
+   "op": "text",
+   "path": "cdir/after-delete",
+   "rc": "ok"
+  },
+  {
+   "i": 20,
+   "op": "chattr",
+   "path": "plain/text",
+   "rc": "ok"
+  },
+  {
+   "i": 21,
+   "op": "append",
+   "path": "plain/text",
+   "rc": "ok"
+  }
+ ],
+ "optstr": "norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022",
+ "os": "Debian GNU/Linux 13 (trixie) aarch64",
+ "t_end": 1794778220.4439723,
+ "t_start": 1794778220.3331757,
+ "treedump": "d\tcdir\nf\tcdir/after-delete\t300000\te26ca8adb1fb2b5d469d96df7b03aff8f5342d46b9cf0544c45e7f3d68729dda\nf\tcdir/big-text\t8388608\t2255c7a3e8464ca5077626f946e3e11f178fb0898407afafb242a922865e3947\nf\tcdir/empty\t0\te3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nf\tcdir/small\t5100\t6433aadb4065e80687d598be192ac8e30d453935d80a590f3164008a9466e95c\nd\tcdir/sub\nf\tcdir/sub/nested\t65536\td471ee2c879adf654a987b29c69d31bef291398e8a7b8ad9869ba56d2c7ed005\nf\tcdir/sub/one-moved\t1\td10b36aa74a59bcf4a88185837f658afaf3646eff2bb16c3928d0e9335e945d2\nf\tcdir/text\t3145728\t925777fb60c043ececf8b5880dd89728ce6899cf32ba676b2a0672c03987ca51\nd\tplain\nf\tplain/text\t1048676\t514c73e5e281f44c72b8233c0964e95ebdcd9115a1e922f57a511d6dc02cb8c3\n"
+}

@@ -1,0 +1,54 @@
+21:08:27 start I-META-05 (env B)
+21:08:27 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/vol.img -> rc=0
+21:08:27 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+21:08:27 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+21:08:27 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/mnt -> rc=0
+21:08:31 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+21:08:31 $ mkdir /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/mnt/dA -> rc=0
+21:08:31 $ mkdir /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/mnt/dB -> rc=0
+21:08:31 $ echo content > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/mnt/dA/f_w -> rc=0
+21:08:31 $ echo content > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/mnt/dA/f_t -> rc=0
+21:08:31 $ echo content > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/mnt/dA/f_r -> rc=0
+21:08:31 $ echo content > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/mnt/dA/f_m -> rc=0
+21:08:31 $ echo content > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/mnt/dA/f_u -> rc=0
+21:08:31 $ echo content > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/mnt/dA/f_l -> rc=0
+21:08:31 $ echo content > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/mnt/dA/f_c -> rc=0
+21:08:31 $ echo content > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/mnt/dA/f_rd -> rc=0
+21:08:31 $ echo content > /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/mnt/dA/f_o -> rc=0
+21:08:32 link(): EIO
+21:08:32 write                              m+ c+ a-
+21:08:32 truncate                           m+ c+ a-
+21:08:32 rename (same dir): file            m- c+ a-
+21:08:32 move to dB: file                   m- c+ a-
+21:08:32 link: file                         m- c- a-
+21:08:32 chmod: file                        m- c- a-
+21:08:32 read: file                         m- c- a-
+21:08:32 utimens same value: file           m- c+ a-
+21:08:32 dA after rename, unlink, link      m+ c+ a-
+21:08:32 dB after move, create, mkdir       m+ c+ a-
+21:08:32 $ sync -> rc=0
+21:08:32 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/mnt -> rc=0
+21:08:32 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/mnt -> rc=0
+21:08:36 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+21:08:36 $ sync -> rc=0
+21:08:36 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/mnt -> rc=0
+21:08:36 names on disk: ['$AttrDef', '$BadClus', '$Bitmap', '$Boot', '$Extend', '$LogFile', '$MFT', '$MFTMirr', '$ObjId', '$Quota', '$Reparse', '$Secure', '$UpCase', '$Volume', '.', '.fseventsd', 'created', 'dA', 'dB', 'f_c', 'f_l', 'f_l2', 'f_m', 'f_o', 'f_r2', 'f_rd', 'f_t', 'f_w', 'fseventsd-uuid', 'subdir']
+21:08:36 link(): f_l2 live view present, after remount present
+21:08:36 live view of dA differs from disk: mt=2026-11-15 21:08:32.561680000 ct=2026-11-15 21:08:32.561680000 at=2020-01-01 00:00:00.000000000 birth=1970-01-01 00:00:00.000000000 flags=0 vs cr=2026-11-15 21:08:31.210346900 mt=2026-11-15 21:08:32.563499000 ct=2026-11-15 21:08:32.563499000 at=2020-01-01 00:00:00.000000000 flags=0x20
+21:08:36 live view of dA/f_l differs from disk: mt=2020-01-01 00:00:00.000000000 ct=2026-11-15 21:08:31.309231000 at=2020-01-01 00:00:00.000000000 birth=1970-01-01 00:00:00.000000000 flags=0 vs cr=2026-11-15 21:08:31.287809500 mt=2020-01-01 00:00:00.000000000 ct=2026-11-15 21:08:32.563499000 at=2020-01-01 00:00:00.000000000 flags=0x20
+21:08:36 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/vol.img -> rc=0
+21:08:36 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-n_ree__e/vol.img was processed successfully.
+21:08:36 end I-META-05: pass

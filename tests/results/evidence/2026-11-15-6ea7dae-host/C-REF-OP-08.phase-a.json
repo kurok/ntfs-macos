@@ -1,0 +1,265 @@
+{
+ "builder_optstr": "backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022",
+ "dump": {
+  "s": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134392517804776083,
+    "crtime": 134392517804776083,
+    "ctime": 134392517805039681,
+    "mtime": 134392517805039681
+   },
+   "xattrs": {}
+  },
+  "s/all-hole": {
+   "attrib": "0x00000220",
+   "blocks": 0,
+   "group": null,
+   "nlink": 1,
+   "sha": "3b6a07d0d404fab4e23b6d34bc6696a6a312dd92821332385e5af7c01c421351",
+   "size": 67108864,
+   "t": "f",
+   "times": {
+    "atime": 134392517805019370,
+    "crtime": 134392517805019370,
+    "ctime": 134392517805020631,
+    "mtime": 134392517805020631
+   },
+   "xattrs": {}
+  },
+  "s/dense": {
+   "attrib": "0x00000220",
+   "blocks": 4096,
+   "group": null,
+   "nlink": 1,
+   "sha": "99d9985b12ef5b0dc166476ca9eb2fe14558284d9cf29e9cfcd60030d3a2ed15",
+   "size": 25165825,
+   "t": "f",
+   "times": {
+    "atime": 134392517805039662,
+    "crtime": 134392517805039662,
+    "ctime": 134392517805040887,
+    "mtime": 134392517805040887
+   },
+   "xattrs": {}
+  },
+  "s/grown": {
+   "attrib": "0x00000220",
+   "blocks": 4096,
+   "group": null,
+   "nlink": 1,
+   "sha": "5d1f7c2af1b14f34abc6a4ff4dae6fe5295bdc11dc2ab3acb5a0f2ef20f13be8",
+   "size": 2097152,
+   "t": "f",
+   "times": {
+    "atime": 134392517805021891,
+    "crtime": 134392517805021891,
+    "ctime": 134392517805025864,
+    "mtime": 134392517805025864
+   },
+   "xattrs": {}
+  },
+  "s/hole-end": {
+   "attrib": "0x00000220",
+   "blocks": 1163264,
+   "group": null,
+   "nlink": 1,
+   "sha": "9723de3d1dae3d40972918c3bb261cf9249fe252b428f1271d767e65782c3572",
+   "size": 67108864,
+   "t": "f",
+   "times": {
+    "atime": 134392517804777302,
+    "crtime": 134392517804777302,
+    "ctime": 134392517805034975,
+    "mtime": 134392517805034975
+   },
+   "xattrs": {}
+  },
+  "s/hole-middle": {
+   "attrib": "0x00000220",
+   "blocks": 1056768,
+   "group": null,
+   "nlink": 1,
+   "sha": "2539add47f829de45ab77abc99e476ba506f2c5cdc58d856d0586e647b1fa0ec",
+   "size": 41943040,
+   "t": "f",
+   "times": {
+    "atime": 134392517804855073,
+    "crtime": 134392517804855073,
+    "ctime": 134392517805041564,
+    "mtime": 134392517805041564
+   },
+   "xattrs": {}
+  },
+  "s/hole-start": {
+   "attrib": "0x00000220",
+   "blocks": 1056768,
+   "group": null,
+   "nlink": 1,
+   "sha": "35683e75f25b096cd2e8911c2226d9706952ddce442e194b786963361c5d19ca",
+   "size": 67108864,
+   "t": "f",
+   "times": {
+    "atime": 134392517804940530,
+    "crtime": 134392517804940530,
+    "ctime": 134392517805038595,
+    "mtime": 134392517805038595
+   },
+   "xattrs": {}
+  }
+ },
+ "env": "A",
+ "image_sha256": "9d4d6effc6d462940375497e3cbccccf60db3ec3dc32f13673a741866eaf974e",
+ "macfuse_version": null,
+ "ntfs3g_version": "2026.9.28",
+ "ntfsfix": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/refop08/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "ntfsfix_after_replay": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition /tmp/refop08/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "oplog": [
+  {
+   "i": 0,
+   "op": "mkdir",
+   "path": "s",
+   "rc": "ok"
+  },
+  {
+   "i": 1,
+   "op": "create",
+   "path": "s/hole-end",
+   "rc": "ok"
+  },
+  {
+   "i": 2,
+   "op": "truncate",
+   "path": "s/hole-end",
+   "rc": "ok"
+  },
+  {
+   "i": 3,
+   "op": "write",
+   "path": "s/hole-end",
+   "rc": "ok"
+  },
+  {
+   "i": 4,
+   "op": "create",
+   "path": "s/hole-middle",
+   "rc": "ok"
+  },
+  {
+   "i": 5,
+   "op": "truncate",
+   "path": "s/hole-middle",
+   "rc": "ok"
+  },
+  {
+   "i": 6,
+   "op": "write",
+   "path": "s/hole-middle",
+   "rc": "ok"
+  },
+  {
+   "i": 7,
+   "op": "create",
+   "path": "s/hole-start",
+   "rc": "ok"
+  },
+  {
+   "i": 8,
+   "op": "truncate",
+   "path": "s/hole-start",
+   "rc": "ok"
+  },
+  {
+   "i": 9,
+   "op": "write",
+   "path": "s/hole-start",
+   "rc": "ok"
+  },
+  {
+   "i": 10,
+   "op": "create",
+   "path": "s/all-hole",
+   "rc": "ok"
+  },
+  {
+   "i": 11,
+   "op": "truncate",
+   "path": "s/all-hole",
+   "rc": "ok"
+  },
+  {
+   "i": 12,
+   "op": "create",
+   "path": "s/grown",
+   "rc": "ok"
+  },
+  {
+   "i": 13,
+   "op": "truncate",
+   "path": "s/grown",
+   "rc": "ok"
+  },
+  {
+   "i": 14,
+   "op": "write",
+   "path": "s/grown",
+   "rc": "ok"
+  },
+  {
+   "i": 15,
+   "op": "truncate",
+   "path": "s/grown",
+   "rc": "ok"
+  },
+  {
+   "i": 16,
+   "op": "write",
+   "path": "s/hole-end",
+   "rc": "ok"
+  },
+  {
+   "i": 17,
+   "op": "write",
+   "path": "s/hole-end",
+   "rc": "ok"
+  },
+  {
+   "i": 18,
+   "op": "writezero",
+   "path": "s/hole-start",
+   "rc": "ok"
+  },
+  {
+   "i": 19,
+   "op": "create",
+   "path": "s/dense",
+   "rc": "ok"
+  },
+  {
+   "i": 20,
+   "op": "write",
+   "path": "s/dense",
+   "rc": "ok"
+  },
+  {
+   "i": 21,
+   "op": "truncate",
+   "path": "s/hole-middle",
+   "rc": "ok"
+  }
+ ],
+ "optstr": "norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022",
+ "os": "Debian GNU/Linux 13 (trixie) aarch64",
+ "t_end": 1794778180.51,
+ "t_start": 1794778180.4759848,
+ "treedump": "d\ts\nf\ts/all-hole\t67108864\t3b6a07d0d404fab4e23b6d34bc6696a6a312dd92821332385e5af7c01c421351\nf\ts/dense\t25165825\t99d9985b12ef5b0dc166476ca9eb2fe14558284d9cf29e9cfcd60030d3a2ed15\nf\ts/grown\t2097152\t5d1f7c2af1b14f34abc6a4ff4dae6fe5295bdc11dc2ab3acb5a0f2ef20f13be8\nf\ts/hole-end\t67108864\t9723de3d1dae3d40972918c3bb261cf9249fe252b428f1271d767e65782c3572\nf\ts/hole-middle\t41943040\t2539add47f829de45ab77abc99e476ba506f2c5cdc58d856d0586e647b1fa0ec\nf\ts/hole-start\t67108864\t35683e75f25b096cd2e8911c2226d9706952ddce442e194b786963361c5d19ca\n"
+}

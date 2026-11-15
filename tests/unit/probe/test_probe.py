@@ -336,6 +336,88 @@ class Probe(unittest.TestCase):
                 v = self.verdict(name)
                 self.assertVerdict(v, "corrupt", ["MOUNT_FAILED"], logfile="unreadable", logfile_lsn=None)
 
+    def test_mirror_01_vmk_split(self):
+        # Record 3 ($Volume): volmark's two writes cut between W1 and W2 (rule M4, k = 3). `set` leaves
+        # VOLUME_IS_DIRTY in $MFT only, an interrupted `clear` leaves it in $MFTMirr only; the overlay
+        # view reads the $MFT copy, so the flag of the verdict is that of $MFT.
+        v = self.verdict("vmk-split")
+        self.assertVerdict(v, "mirror_split", ["MFTMIRR_STALE", "FLAG_DIRTY"], logfile="clean",
+                           hiberfile="absent", volume_flags=["DIRTY"], is_ntfs=True)
+        v = self.verdict("vmk-split-clear")
+        self.assertVerdict(v, "mirror_split", ["MFTMIRR_STALE"], logfile="clean", hiberfile="absent",
+                           volume_flags=[], is_ntfs=True)
+
+    def test_mirror_02_vmk_split_not_split(self):
+        # Anything beyond the USN and the VOLUME_IS_DIRTY bit in record 3 is corrupt (rule M4), a
+        # wrong USN order is corrupt (rule M5), and so is a record without a usable
+        # $VOLUME_INFORMATION. run_probe() checks that the image is unchanged.
+        def vi(rec):
+            return find_attr(rec, 0x70)
+
+        def extra_flag_bit(rec, usn):
+            o = vi(rec) + struct.unpack_from("<H", rec, vi(rec) + 0x14)[0] + 10
+            rec[o] |= 0x02
+            return usn
+
+        def other_byte(rec, usn):
+            o = find_attr(rec, 0x10)
+            rec[o + struct.unpack_from("<H", rec, o + 0x14)[0] + 2] ^= 0x01
+            return usn
+
+        def other_byte_beside_flags(rec, usn):
+            rec[vi(rec) + struct.unpack_from("<H", rec, vi(rec) + 0x14)[0] + 9] ^= 0x01  # minor version
+            return usn
+
+        def usn_plus_one(rec, usn):
+            return usn + 1
+
+        def retype(rec, usn):  # no $VOLUME_INFORMATION: 0x70 becomes 0x78
+            struct.pack_into("<I", rec, vi(rec), 0x78)
+            return usn
+
+        def short_value(rec, usn):
+            struct.pack_into("<I", rec, vi(rec) + 0x10, 8)
+            return usn
+
+        def cut_inside(rec, usn):  # bytes in use end inside the attribute: the record is invalid
+            struct.pack_into("<I", rec, 0x18, vi(rec) + 0x20)
+            return usn
+
+        def usn_same(rec, usn):
+            return usn - 1
+
+        cases = (("extra flag bit", [("mft", extra_flag_bit)]),
+                 ("another byte changed in $MFT", [("mft", other_byte)]),
+                 ("another byte changed in the mirror", [("mir", other_byte)]),
+                 ("a byte next to the flags", [("mft", other_byte_beside_flags)]),
+                 ("USN two ahead", [("mft", usn_plus_one)]),
+                 ("USN equal", [("mft", usn_same)]),
+                 ("attribute missing in both", [("mft", retype), ("mir", retype)]),
+                 ("attribute missing in the mirror", [("mir", retype)]),
+                 ("value too short in both", [("mft", short_value), ("mir", short_value)]),
+                 ("attribute truncated in both", [("mft", cut_inside), ("mir", cut_inside)]))
+        for src in ("vmk-split", "vmk-split-clear"):
+            for name, edits in cases:
+                with self.subTest(fixture=src, case=name):
+                    img = os.path.join(TMP, "vmk-neg.img")
+                    shutil.copy(fx(src), img)
+                    for which, fn in edits:
+                        mutate_record(img, which, 3, fn)
+                    v = run_probe(img)
+                    self.assertVerdict(v, "corrupt", ["MOUNT_FAILED"], logfile="unreadable", logfile_lsn=None)
+                    os.unlink(img)
+        # the same copies without the dirty bit difference: only the USN differs, which is not enough
+        img = os.path.join(TMP, "vmk-neg.img")
+        shutil.copy(fx("vmk-split"), img)
+
+        def clear_flag(rec, usn):
+            rec[vi(rec) + struct.unpack_from("<H", rec, vi(rec) + 0x14)[0] + 10] &= 0xFE
+            return usn
+
+        mutate_record(img, "mft", 3, clear_flag)
+        self.assertVerdict(run_probe(img), "corrupt", ["MOUNT_FAILED"], logfile="unreadable", logfile_lsn=None)
+        os.unlink(img)
+
     def test_mirror_02_record4_area_is_not_compared(self):
         # An mkntfs mirror holds four records: bytes at record index 4 and above of that cluster
         # are not part of $MFTMirr, the engine does not compare them and neither does the rule

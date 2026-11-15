@@ -4,7 +4,9 @@
  * (ADR-021). See mftmirr.h. The evidence is the observation of T-M3-14
  * (docs/spikes/M3-crashsweep-triage.md): `$MFT` is exactly one
  * ntfs_mft_record_init() step ahead of the mirror in record 0, nothing else
- * differs. Anything not shown by that evidence is "not split".
+ * differs; and that of T-M3-12 for record 3 (tests/results/evidence/m312/final/
+ * vmk-split-record3.txt): the USN and the VOLUME_IS_DIRTY bit. Anything not
+ * shown by that evidence is "not split".
  *
  * Offsets are those of MFT_RECORD and ATTR_RECORD in NTFS-3G's layout.h, read
  * with explicit little-endian loads so that nothing depends on struct padding
@@ -47,10 +49,16 @@
 #define A_RESIDENT_END 0x18
 #define A_NONRES_END 0x40
 
+#define AT_VOLUME_INFORMATION 0x70u
 #define AT_DATA 0x80u
 #define AT_END 0xFFFFFFFFu
 
 #define MAX_EXTENTS 64
+
+/* VOLUME_INFORMATION value: reserved (8), major, minor (1 each), then the 16-bit flags. */
+#define VI_FLAGS 10
+#define VI_VALUE_MIN 12
+#define VOLUME_IS_DIRTY 0x0001
 
 static uint16_t rd16(const uint8_t *p)
 {
@@ -387,6 +395,77 @@ static ntfsmac_mm_status fail(ntfsmac_mm_result *res, unsigned rule, const char 
 }
 
 /*
+ * Offset of the flags word of the unnamed resident $VOLUME_INFORMATION attribute of record
+ * `rec` (after the fix-up), found by walking the attributes inside the first `used` bytes
+ * with full bounds checks. False if the record does not parse, the attribute is missing,
+ * named, non-resident, shorter than its fixed part or present twice.
+ */
+static bool volinfo_flags_off(const uint8_t *rec, uint32_t rs, uint32_t used, uint32_t *flags_off)
+{
+	uint32_t off = rd16(rec + R_ATTRS_OFS), prev_type = 0;
+	bool found = false;
+
+	if (used > rs || off > used || (off & 7))
+		return false;
+	for (;;) {
+		uint32_t type, len;
+
+		if (used - off < 4)
+			return false;
+		type = rd32(rec + off + A_TYPE);
+		if (type == AT_END)
+			break;
+		if (used - off < A_RESIDENT_END || type < prev_type)
+			return false;
+		len = rd32(rec + off + A_LENGTH);
+		if (len < A_RESIDENT_END || len > used - off || (len & 7))
+			return false;
+		if (type == AT_VOLUME_INFORMATION) {
+			const uint8_t *a = rec + off;
+			uint32_t vo, vl;
+
+			if (found || a[A_NON_RESIDENT] || a[A_NAME_LENGTH])
+				return false;
+			vo = rd16(a + A_VALUE_OFFSET);
+			vl = rd32(a + A_VALUE_LENGTH);
+			if (vo < A_RESIDENT_END || vl < VI_VALUE_MIN || (uint64_t)vo + vl > len)
+				return false;
+			*flags_off = off + vo + VI_FLAGS;
+			found = true;
+		}
+		prev_type = type;
+		off += len;
+	}
+	return found;
+}
+
+/*
+ * Record 3 (`$Volume`): the copies are equal after the fix-up except the USN and bit 0
+ * (VOLUME_IS_DIRTY) of the flags of $VOLUME_INFORMATION, which must differ; either copy may
+ * be the one with the bit set (an interrupted `set` or `clear` of volmark, T-M3-12).
+ */
+static const char *check_record3(const uint8_t *m, const uint8_t *c, uint32_t rs, uint32_t used,
+				 uint32_t usa_pos)
+{
+	uint32_t fm, fc;
+	range allow[2];
+
+	if (!volinfo_flags_off(m, rs, used, &fm) || !volinfo_flags_off(c, rs, rd32(c + R_IN_USE_BYTES), &fc))
+		return "record 3 has no usable $VOLUME_INFORMATION in one of the copies";
+	if (fm != fc)
+		return "$VOLUME_INFORMATION of record 3 is not at the same place in both copies";
+	allow[0].from = usa_pos;
+	allow[0].to = usa_pos + 2;
+	allow[1].from = fm;
+	allow[1].to = fm + 1; /* the low byte of the flags; bit 0 is checked below */
+	if (!equal_but(m, c, used, allow, 2))
+		return "record 3 differs in more than the USN and the VOLUME_IS_DIRTY flag";
+	if ((m[fm] ^ c[fm]) != VOLUME_IS_DIRTY)
+		return "record 3 differs in the USN only or in flag bits other than VOLUME_IS_DIRTY";
+	return NULL;
+}
+
+/*
  * Record 0: the difference must be one ntfs_mft_record_init() step in the
  * unnamed non-resident $DATA attribute (rule M4, k = 0).
  */
@@ -564,14 +643,13 @@ ntfsmac_mm_status ntfsmac_mm_check(ntfsmac_mm_read_fn rd, void *ctx,
 		if (!(mask & (1u << k)))
 			continue;
 		if (k == 3) {
-			/*
-			 * The VOLUME_IS_DIRTY difference of volmark's write is accepted
-			 * only after T-M3-12 has recorded it (section 3.7, M4, k = 3).
-			 */
-			st = fail(res, 4, "a differing record 3 is not accepted yet");
-			goto out;
-		}
-		if (k == 0) {
+			const char *why = check_record3(m, c, rs, used, usa_pos);
+
+			if (why) {
+				st = fail(res, 4, why);
+				goto out;
+			}
+		} else if (k == 0) {
 			const char *why = check_record0(m, c, used, usa_pos, g, d0_off, d0c_off);
 
 			if (why) {

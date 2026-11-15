@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""The `vmk-split` image (T-M3-12, docs/TEST_STRATEGY.md section 3.2, U15) and the record-3
-helpers of the volmark tests (stdlib only).
+"""The `vmk-split` and `vmk-split-clear` images (T-M3-12, docs/TEST_STRATEGY.md section 3.2, U15,
+U-PROBE-MIRROR-01) and the record-3 helpers of the volmark tests (stdlib only).
 
 vmk-split: `clean-64m-4k` after `ntfsmac-volmark set` cut between the `$MFT` and `$MFTMirr` writes
 of record 3. Made with volmark_test built against the fault-layer libntfs-3g (patch 0004,
@@ -15,6 +15,11 @@ record 3) and checks that the image is what the fixture table says: only the two
 differ from the clean image, `$MFT` is the one step ahead (USN + 1, VOLUME_IS_DIRTY set), both
 copies are valid multi-sector records, and the engine refuses it ("$MFTMirr does not match $MFT
 (record 3)", ntfsinfo -m). Exit 0 made and checked, 1 a check failed, 2 usage or setup error.
+
+vmk-split-clear: the reverse direction. `clean-64m-4k` after a complete `volmark set`, then
+`volmark clear` cut between the two writes (plan cut:1, NTFSMAC_FAULT_KILL=1): `$MFT` is one USN
+ahead with VOLUME_IS_DIRTY clear, `$MFTMirr` still has it set. Also written:
+DIR/vmk-split-clear.img and DIR/vmk-split-clear-record3.txt.
 """
 import argparse
 import os
@@ -144,7 +149,7 @@ def classify(img):
     return "split-other", info
 
 
-def record3_report(img):
+def record3_report(img, name="vmk-split"):
     """The exact difference of the two copies of record 3 of a split image, as text lines."""
     g = geometry(img)
     raw_m, raw_r = read_record(img, "mft"), read_record(img, "mir")
@@ -157,8 +162,8 @@ def record3_report(img):
     raw_diff = [i for i in range(len(raw_m)) if raw_m[i] != raw_r[i]]
     rec_diff = [i for i in range(len(um[0])) if um[0][i] != ur[0][i]]
     lines = [
-        "vmk-split: record 3 ($Volume), record size %d, $MFT copy at byte %d, $MFTMirr copy at byte %d"
-        % (g["rs"], g["mft_off"] + 3 * g["rs"], g["mir_off"] + 3 * g["rs"]),
+        "%s: record 3 ($Volume), record size %d, $MFT copy at byte %d, $MFTMirr copy at byte %d"
+        % (name, g["rs"], g["mft_off"] + 3 * g["rs"], g["mir_off"] + 3 * g["rs"]),
         "update sequence array at record offset 0x%x, %d entries; sector tails at %s"
         % (usa_ofs, usa_count, ", ".join("0x%x" % t for t in tails)),
         "$VOLUME_INFORMATION flags word at record offset 0x%x" % fo,
@@ -184,36 +189,53 @@ def record3_report(img):
     return lines, ok
 
 
-def run_fault_set(volmark_fault, img, plan, kill=True):
+def run_fault_set(volmark_fault, img, plan, kill=True, mode="set"):
     serial, sectors = boot_ids(img)
     env = dict(os.environ, NTFSMAC_FAULT_PLAN=plan)
     if kill:
         env["NTFSMAC_FAULT_KILL"] = "1"
-    return subprocess.run(["sh", "-c", 'img=$1; shift; exec "$@" 3<>"$img"', "sh", img, volmark_fault, "set",
+    return subprocess.run(["sh", "-c", 'img=$1; shift; exec "$@" 3<>"$img"', "sh", img, volmark_fault, mode,
                            "--fd", "3", "--expect-serial", serial, "--expect-sectors", str(sectors)],
                           env=env, capture_output=True)
 
 
-def make(volmark_fault, clean, out_img):
-    """Make vmk-split from a clean image. Returns the report lines; raises on any failed check."""
+def make(volmark_fault, clean, out_img, reverse=False):
+    """Make vmk-split (reverse: vmk-split-clear) from a clean image. Returns the report lines;
+    raises on any failed check."""
+    mode = "clear" if reverse else "set"
+    name = "vmk-split-clear" if reverse else "vmk-split"
     shutil.copyfile(clean, out_img)
-    r = run_fault_set(volmark_fault, out_img, "cut:1", kill=True)
+    if reverse:  # a complete `set` first: both copies carry VOLUME_IS_DIRTY, then `clear` is cut
+        r = run_fault_set(volmark_fault, out_img, "count", kill=False)
+        if r.returncode != 0 or r.stdout != b"w\nd\n":
+            raise AssertionError("volmark set (setup of %s): exit %r, stdout %r, stderr %r"
+                                 % (name, r.returncode, r.stdout, r.stderr[-300:]))
+        before = out_img + ".marked"
+        shutil.copyfile(out_img, before)
+    else:
+        before = clean
+    r = run_fault_set(volmark_fault, out_img, "cut:1", kill=True, mode=mode)
     if r.returncode != -9 or r.stdout != b"w\n":
-        raise AssertionError("volmark set under cut:1 with the kill: exit %r, stdout %r, stderr %r"
-                             % (r.returncode, r.stdout, r.stderr[-300:]))
-    bad = outside_record3(clean, out_img)
+        raise AssertionError("volmark %s under cut:1 with the kill: exit %r, stdout %r, stderr %r"
+                             % (mode, r.returncode, r.stdout, r.stderr[-300:]))
+    bad = outside_record3(before, out_img)
     if bad:
         raise AssertionError("bytes outside the two copies of record 3 changed: %r" % bad[:8])
     cls, info = classify(out_img)
     if cls != "mft-ahead":
         raise AssertionError("record 3 state %s %r, want mft-ahead" % (cls, info))
-    lines, ok = record3_report(out_img)
+    want = (0, VOLUME_IS_DIRTY) if reverse else (VOLUME_IS_DIRTY, 0)
+    if (info["mft_flags"], info["mirr_flags"]) != want:
+        raise AssertionError("record 3 flags %r, want $MFT/$MFTMirr %r" % (info, want))
+    if reverse:
+        os.unlink(before)
+    lines, ok = record3_report(out_img, name)
     if not ok:
         raise AssertionError("record 3 difference not confined:\n" + "\n".join(lines))
     e = subprocess.run(["ntfsinfo", "-m", out_img], capture_output=True, text=True)
     msg = "$MFTMirr does not match $MFT (record 3)"
     if e.returncode == 0 or msg not in e.stdout + e.stderr:
-        raise AssertionError("the engine did not refuse vmk-split with %r: %r" % (msg, (e.stdout + e.stderr)[-300:]))
+        raise AssertionError("the engine did not refuse %s with %r: %r" % (name, msg, (e.stdout + e.stderr)[-300:]))
     lines.append("engine (ntfsinfo -m, NTFS-3G 2026.9.28): refused with \"%s.\"" % msg)
     return lines
 
@@ -228,15 +250,15 @@ def main():
         print("vmk_make: missing --volmark-fault or --clean", file=sys.stderr)
         return 2
     os.makedirs(a.out, exist_ok=True)
-    img = os.path.join(a.out, "vmk-split.img")
-    try:
-        lines = make(a.volmark_fault, a.clean, img)
-    except AssertionError as e:
-        print("vmk_make: FAIL: %s" % e, file=sys.stderr)
-        return 1
-    with open(os.path.join(a.out, "vmk-split-record3.txt"), "w", encoding="utf-8") as f:
-        f.write("\n".join(lines) + "\n")
-    print("\n".join(lines))
+    for name, reverse in (("vmk-split", False), ("vmk-split-clear", True)):
+        try:
+            lines = make(a.volmark_fault, a.clean, os.path.join(a.out, name + ".img"), reverse)
+        except AssertionError as e:
+            print("vmk_make: FAIL: %s" % e, file=sys.stderr)
+            return 1
+        with open(os.path.join(a.out, name + "-record3.txt"), "w", encoding="utf-8") as f:
+            f.write("\n".join(lines) + "\n")
+        print("\n".join(lines))
     return 0
 
 

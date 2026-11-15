@@ -9,6 +9,9 @@ ahead). clean-64m-64k, with the split of ntfsrec.synth_split put on its buffers,
 whose mirror holds 64 records, of which the engine compares 16 (rule M1: only records 0 to 3 may
 differ).
 
+Record 3 (`$Volume`, rule M4 k = 3) is tested on the same buffers: the USN and the VOLUME_IS_DIRTY bit of
+$VOLUME_INFORMATION may differ, in either direction, and nothing else.
+
 Each rule is negated alone and must give NOT_SPLIT with that rule; the unchanged input gives SPLIT.
 """
 import argparse
@@ -77,6 +80,16 @@ class Vol:
 
 def data_off(rec):
     return find_attr(rec, 0x80)
+
+
+def flags_off(rec):
+    """Offset of the flags word of $VOLUME_INFORMATION in a record with its original tails."""
+    off = find_attr(rec, 0x70)
+    return off + struct.unpack_from("<H", rec, off + 0x14)[0] + 10
+
+
+def set_flags(rec, flags):
+    struct.pack_into("<H", rec, flags_off(rec), flags)
 
 
 class Rule(unittest.TestCase):
@@ -219,11 +232,187 @@ class Rule(unittest.TestCase):
         struct.pack_into("<Q", rec, off + 0x18, struct.unpack_from("<Q", rec, off + 0x18)[0] + 1)
         self.not_split(v.run(), 4)
 
-    def test_m4_record_3_is_not_accepted_yet(self):
-        v = self.vol()
-        v.mft[3][1] += 1  # record 3 differs in the USN only; rule k = 3 waits for T-M3-12
-        res = v.run()
-        self.not_split(res, 4)
+    # ---- rule M4, k = 3: the USN and VOLUME_IS_DIRTY of $VOLUME_INFORMATION (T-M3-12) --------------------
+    def only3(self, v):
+        """Make record 0 equal in both copies, so that record 3 is the only difference."""
+        v.mir[0] = [bytearray(v.mft[0][0]), v.mft[0][1]]
+        return v
+
+    def test_m4_record_3_dirty_set_in_mft_is_accepted(self):
+        # volmark set cut between W1 and W2: $MFT has VOLUME_IS_DIRTY and the next USN
+        v = self.only3(self.vol())
+        set_flags(v.mft[3][0], 0x0001)
+        v.mft[3][1] += 1
+        self.assertEqual(v.run(), ("SPLIT", 8, 4))
+        v = self.vol()  # together with the record 0 split of the image
+        set_flags(v.mft[3][0], 0x0001)
+        v.mft[3][1] += 1
+        self.assertEqual(v.run(), ("SPLIT", 9, 4))
+
+    def test_m4_record_3_dirty_cleared_in_mft_is_accepted(self):
+        # volmark clear cut between W1 and W2: the reverse direction
+        v = self.only3(self.vol())
+        set_flags(v.mir[3][0], 0x0001)
+        v.mft[3][1] += 1
+        self.assertEqual(v.run(), ("SPLIT", 8, 4))
+
+    def test_m4_record_3_other_flags_may_be_set_in_both(self):
+        for flags in (0x8000, 0x0080 | 0x4000):
+            with self.subTest(flags=flags):
+                v = self.only3(self.vol())
+                set_flags(v.mir[3][0], flags)
+                set_flags(v.mft[3][0], flags | 0x0001)
+                v.mft[3][1] += 1
+                self.assertEqual(v.run(), ("SPLIT", 8, 4))
+
+    def test_m4_record_3_usn_wraps_skipping_0_and_ffff(self):
+        v = self.only3(self.vol())
+        set_flags(v.mft[3][0], 0x0001)
+        v.mir[3][1], v.mft[3][1] = 0xFFFE, 1
+        self.assertEqual(v.run()[:2], ("SPLIT", 8))
+
+    def test_m4_record_3_usn_only_is_not_accepted(self):
+        v = self.only3(self.vol())
+        v.mft[3][1] += 1
+        self.not_split(v.run(), 4)
+
+    def test_m4_record_3_flag_bits_other_than_dirty(self):
+        for name, mft_flags, mir_flags in (
+                ("an extra bit with the dirty bit", 0x0003, 0x0000),
+                ("an extra bit in the mirror", 0x0001, 0x0002),
+                ("another bit only", 0x0002, 0x0000),
+                ("a high bit with the dirty bit", 0x8001, 0x0000),
+                ("a high bit only", 0x4000, 0x0000),
+                ("dirty swapped for another bit", 0x0002, 0x0001)):
+            with self.subTest(case=name):
+                v = self.only3(self.vol())
+                set_flags(v.mft[3][0], mft_flags)
+                set_flags(v.mir[3][0], mir_flags)
+                v.mft[3][1] += 1
+                self.not_split(v.run(), 4)
+
+    def test_m4_record_3_other_byte_changed(self):
+        def si_byte(rec):  # $STANDARD_INFORMATION, a time stamp byte
+            off = find_attr(rec, 0x10)
+            rec[off + struct.unpack_from("<H", rec, off + 0x14)[0] + 2] ^= 0x01
+
+        def data_byte(rec):  # the unnamed $DATA of $Volume (empty): the attribute header flags
+            rec[find_attr(rec, 0x80) + 0x0C] ^= 0x01
+
+        def name_byte(rec):  # $VOLUME_NAME value
+            off = find_attr(rec, 0x60)
+            rec[off + struct.unpack_from("<H", rec, off + 0x14)[0]] ^= 0x01
+
+        def vi_version(rec):  # the minor version of $VOLUME_INFORMATION, next to the flags word
+            rec[flags_off(rec) - 1] ^= 0x01
+
+        def vi_reserved(rec):
+            rec[flags_off(rec) - 10] ^= 0x01
+
+        def vi_next_to_flags(rec):  # the high byte of the flags word
+            rec[flags_off(rec) + 1] ^= 0x01
+
+        def header(rec):  # sequence number
+            rec[0x10] ^= 0x01
+
+        for name, edit in (("standard information", si_byte), ("data header", data_byte), ("volume name", name_byte),
+                           ("volume minor version", vi_version), ("volume information reserved", vi_reserved),
+                           ("flags high byte", vi_next_to_flags), ("header", header)):
+            for side in ("mft", "mir"):
+                with self.subTest(case=name, changed_in=side):
+                    v = self.only3(self.vol())
+                    set_flags(v.mft[3][0], 0x0001)
+                    v.mft[3][1] += 1
+                    edit(v.mft[3][0] if side == "mft" else v.mir[3][0])
+                    self.not_split(v.run(), 4)
+
+    def test_m4_record_3_usn_order(self):
+        for name, mft_usn, mir_usn in (("not the successor", 7, 5), ("equal", 5, 5), ("mirror ahead", 5, 6),
+                                       ("one behind, wrapped", 0xFFFF, 1)):
+            with self.subTest(case=name):
+                v = self.only3(self.vol())
+                set_flags(v.mft[3][0], 0x0001)
+                v.mft[3][1], v.mir[3][1] = mft_usn, mir_usn
+                self.not_split(v.run(), 5)
+        # the dirty bit set in the mirror, the mirror carrying the successor: mirror ahead
+        v = self.only3(self.vol())
+        set_flags(v.mir[3][0], 0x0001)
+        v.mir[3][1] = v.mft[3][1] + 1
+        self.not_split(v.run(), 5)
+
+    def test_m4_record_3_volume_information_missing_or_unusable(self):
+        def retype(rec):  # 0x70 becomes 0x78: still in ascending order, but no $VOLUME_INFORMATION
+            struct.pack_into("<I", rec, find_attr(rec, 0x70), 0x78)
+
+        def short_value(rec):  # a value of 8 bytes: the flags word is not in it
+            struct.pack_into("<I", rec, find_attr(rec, 0x70) + 0x10, 8)
+
+        def named(rec):
+            rec[find_attr(rec, 0x70) + 0x09] = 1
+
+        def nonresident(rec):
+            rec[find_attr(rec, 0x70) + 0x08] = 1
+
+        def value_in_header(rec):  # value offset inside the attribute header
+            struct.pack_into("<H", rec, find_attr(rec, 0x70) + 0x14, 0x10)
+
+        for name, edit, copies in (("retyped in both", retype, "both"), ("retyped in $MFT", retype, "mft"),
+                                   ("retyped in the mirror", retype, "mir"), ("short value in both", short_value, "both"),
+                                   ("named in both", named, "both"), ("non-resident in both", nonresident, "both"),
+                                   ("value offset in the header", value_in_header, "both")):
+            with self.subTest(case=name):
+                v = self.only3(self.vol())
+                set_flags(v.mft[3][0], 0x0001)
+                v.mft[3][1] += 1
+                if copies in ("both", "mft"):
+                    edit(v.mft[3][0])
+                if copies in ("both", "mir"):
+                    edit(v.mir[3][0])
+                res = v.run()
+                self.assertEqual(res[0], "NOT_SPLIT", res)
+                # a non-resident $VOLUME_INFORMATION already fails the record check (M2)
+                self.assertEqual(res[1], 2 if name.startswith("non-resident") else 4, (name, res))
+
+    def test_m4_record_3_volume_information_truncated(self):
+        # the attribute or its value reaches past the record's bytes in use: the record is invalid (M2)
+        def long_value(rec):
+            struct.pack_into("<I", rec, find_attr(rec, 0x70) + 0x10, 0x1000)
+
+        def long_attr(rec):
+            struct.pack_into("<I", rec, find_attr(rec, 0x70) + 0x04, 0x1000)
+
+        def cut_record(rec):  # bytes in use end inside the attribute
+            struct.pack_into("<I", rec, 0x18, find_attr(rec, 0x70) + 0x20)
+
+        for name, edit in (("value too long", long_value), ("attribute too long", long_attr),
+                           ("bytes in use end inside it", cut_record)):
+            with self.subTest(case=name):
+                v = self.only3(self.vol())
+                set_flags(v.mft[3][0], 0x0001)
+                v.mft[3][1] += 1
+                edit(v.mft[3][0])
+                edit(v.mir[3][0])
+                self.not_split(v.run(), 2)
+
+    def test_m4_record_3_attribute_not_at_the_fixed_offset(self):
+        # the flags are found by walking: move the attribute 8 bytes by growing the attribute before it
+        # ($VOLUME_NAME) in both copies, and the rule still reads the flags word where it now is
+        v = self.only3(self.vol())
+        for rec in (v.mft[3][0], v.mir[3][0]):
+            off = find_attr(rec, 0x60)
+            ln = struct.unpack_from("<I", rec, off + 4)[0]
+            used = struct.unpack_from("<I", rec, 0x18)[0]
+            rec[off + ln + 8:used + 8] = rec[off + ln:used]
+            rec[off + ln:off + ln + 8] = b"\0" * 8
+            struct.pack_into("<I", rec, off + 4, ln + 8)
+            struct.pack_into("<I", rec, 0x18, used + 8)
+        self.assertEqual(flags_off(v.mft[3][0]), 0x1ba + 8)
+        set_flags(v.mft[3][0], 0x0001)
+        v.mft[3][1] += 1
+        self.assertEqual(v.run(), ("SPLIT", 8, 4))
+        # a difference at the old fixed offset, with the flags word elsewhere, is not the dirty bit
+        v.mft[3][0][0x1ba] ^= 0x01
+        self.not_split(v.run(), 4)
 
     def test_m4_records_1_and_2_may_differ_in_the_usn_only(self):
         v = self.vol()

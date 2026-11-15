@@ -9,7 +9,7 @@
 # Stages (a stage that fails ends the run with exit 1 after the summary):
 #   deps-release  static libntfs-3g from the pinned tarball (scripts/build-ntfs3g.sh)
 #   deps-asan     the same with -fsanitize=address,undefined
-#   fixtures      tests/fixtures/gen/{unsafe,clean,names,mirror}.sh --inner
+#   fixtures      tests/fixtures/gen/{unsafe,clean,names,mirror,vmk}.sh --inner
 #   release       cmake build, ctest (the whole suite: policy, contracts, probe)
 #   asan          the probe and its tests built with AddressSanitizer and UBSan (libntfs-3g: ASan);
 #                 the journal tests are left out: journal.c:1150 passes NULL to qsort for an empty
@@ -41,7 +41,7 @@ if [ "$tar_out" -eq 1 ]; then exec 3>&1 1>&2; fi
 jobs=$(nproc 2>/dev/null || echo 2)
 summary=
 failed=0
-fix_dirs="/tmp/ntfsmac-unsafe;/tmp/ntfsmac-fixtures;/tmp/ntfsmac-names;/tmp/ntfsmac-mirror"
+fix_dirs="/tmp/ntfsmac-unsafe;/tmp/ntfsmac-fixtures;/tmp/ntfsmac-names;/tmp/ntfsmac-mirror;/tmp/ntfsmac-vmk"
 
 stage() { # NAME CMD...: run, log to $out/NAME.log, record the seconds
 	_n=$1; shift
@@ -98,9 +98,13 @@ else
 	stage fixtures-clean gen clean
 fi
 [ "$failed" -eq 0 ] || finish
+# vmk-split and vmk-split-clear (U-PROBE-MIRROR-01): volmark_test against the fault-layer
+# libntfs-3g, from clean-64m-4k made just above
+stage fixtures-vmk gen vmk
+[ "$failed" -eq 0 ] || finish
 # keep the generators' own logs next to ours
-for d in ntfsmac-unsafe ntfsmac-names ntfsmac-mirror; do
-	[ -d "/tmp/$d" ] && find "/tmp/$d" -maxdepth 1 -name '*results*.txt' -exec cp {} "$out/" \; 2>/dev/null
+for d in ntfsmac-unsafe ntfsmac-names ntfsmac-mirror ntfsmac-vmk; do
+	[ -d "/tmp/$d" ] && find "/tmp/$d" -maxdepth 1 \( -name '*results*.txt' -o -name '*record3.txt' \) -exec cp {} "$out/" \; 2>/dev/null
 done
 true
 

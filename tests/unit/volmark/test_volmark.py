@@ -470,7 +470,7 @@ class VolmarkFault(Base):
                 self.assertEqual(outside_record3(orig, img), [])
                 got = "unchanged" if sha256(img) == sha256(orig) else classify(img)[0]
                 self.assertEqual(got, want)
-                self.assertEqual(probe(img)["state"], "clean" if got == "unchanged" else "corrupt")
+                self.assertEqual(probe(img)["state"], "clean" if got == "unchanged" else "mirror_split")  # rule M4 k = 3
                 EVIDENCE.append("write error %s: exit 12, stdout %r, device writes %d, record 3 %s"
                                 % (plan, r.stdout, writes, got))
 
@@ -503,8 +503,9 @@ class VolmarkFault(Base):
             lines, ok = record3_report(img)
             self.assertTrue(ok, lines)
             row = "between W1 and W2: copies differ, $MFT one step ahead"
-            # mirror_split once rule M4 accepts k = 3 (ARCHITECTURE.md section 3.7); corrupt until then
-            self.assertIn(v["state"], ("corrupt", "mirror_split"))
+            # rule M4, k = 3 (ARCHITECTURE.md section 3.7): the USN and VOLUME_IS_DIRTY only
+            self.assertEqual(v["state"], "mirror_split")
+            self.assertIn("MFTMIRR_STALE", v["reason_codes"])
         elif cls == "mirr-ahead":
             self.assertEqual((info["mft_flags"], info["mirr_flags"]), (old, new))
             row = "after W2, before the flush (drive kept W2, lost W1): mirror ahead"
@@ -557,8 +558,8 @@ class VolmarkFault(Base):
         img = os.path.join(out, "vmk-split.img")
         lines = make(ARGS.volmark_fault, fx("clean-64m-4k"), img)
         v = probe(img)
-        self.assertIn(v["state"], ("corrupt", "mirror_split"))
-        lines.append("probe (T-M3-02 rule, k = 3 not yet accepted): state %s, reason codes %s"
+        self.assertEqual(v["state"], "mirror_split")
+        lines.append("probe (rule M4, k = 3): state %s, reason codes %s"
                      % (v["state"], v["reason_codes"]))
         with open(os.path.join(out, "vmk-split-record3.txt"), "w", encoding="utf-8") as f:
             f.write("\n".join(lines) + "\n")

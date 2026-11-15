@@ -1020,7 +1020,8 @@ static void prune_tombstones(ntfsmac_journal *j, uint64_t new_serial,
 		free(v.v);
 		return;
 	}
-	qsort(v.v, v.n, sizeof(*v.v), cmp_item_asc);
+	if (v.n > 1)
+		qsort(v.v, v.n, sizeof(*v.v), cmp_item_asc);
 	/* Drop the new tombstone from the candidate list (it sorts anywhere). */
 	for (size_t i = 0; i < v.n; i++) {
 		if (v.v[i].serial == new_serial && v.v[i].when == new_when)
@@ -1118,7 +1119,8 @@ ntfsmac_journal_status ntfsmac_journal_list(ntfsmac_journal *j,
 	if (collect(j->dirfd, KIND_ENTRY, &v) != 0)
 		return NTFSMAC_JOURNAL_ERR_IO;
 	/* Collected first so a callback may change the directory. */
-	qsort(v.v, v.n, sizeof(*v.v), cmp_item_asc);
+	if (v.n > 1)
+		qsort(v.v, v.n, sizeof(*v.v), cmp_item_asc);
 	for (size_t i = 0; i < v.n; i++) {
 		ntfsmac_journal_entry e;
 		ntfsmac_journal_status st = ntfsmac_journal_get(j, v.v[i].serial, &e);
@@ -1147,7 +1149,8 @@ ntfsmac_journal_status ntfsmac_journal_list_tombstones(ntfsmac_journal *j,
 		return NTFSMAC_JOURNAL_ERR_INVALID;
 	if (collect(j->clrfd, KIND_TOMB, &v) != 0)
 		return NTFSMAC_JOURNAL_ERR_IO;
-	qsort(v.v, v.n, sizeof(*v.v), cmp_item_desc);
+	if (v.n > 1)
+		qsort(v.v, v.n, sizeof(*v.v), cmp_item_desc);
 	for (size_t i = 0; i < v.n; i++)
 		if (cb(v.v[i].serial, v.v[i].when, ctx) != 0)
 			break;

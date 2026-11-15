@@ -1,0 +1,118 @@
+{
+ "ed_ops": {},
+ "ed_paths": {},
+ "id": "C-REF-OP-11",
+ "image_mib": 64,
+ "name": "symlink",
+ "ops": [
+  {
+   "op": "mkdir",
+   "path": "sl"
+  },
+  {
+   "op": "mkdir",
+   "path": "sl/dir"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "sl/target",
+   "seed": "sl/target",
+   "size": 4000
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "sl/dir/inner",
+   "seed": "sl/dir/inner",
+   "size": 300
+  },
+  {
+   "op": "symlink",
+   "path": "sl/to-file",
+   "target": "target"
+  },
+  {
+   "op": "symlink",
+   "path": "sl/to-dir",
+   "target": "dir"
+  },
+  {
+   "op": "symlink",
+   "path": "sl/dangling",
+   "target": "missing"
+  },
+  {
+   "op": "symlink",
+   "path": "sl/dir/up",
+   "target": "../sl/target"
+  },
+  {
+   "op": "symlink",
+   "path": "sl/abs",
+   "target": "/absolute/elsewhere"
+  },
+  {
+   "op": "symlink",
+   "path": "sl/long",
+   "target": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt"
+  },
+  {
+   "op": "symlink",
+   "path": "sl/uni-target",
+   "target": "caf\u00e9-target"
+  },
+  {
+   "op": "symlink",
+   "path": "sl/\u65e5\u672c-link",
+   "target": "target"
+  },
+  {
+   "op": "symlink",
+   "path": "sl/to-file",
+   "target": "target"
+  },
+  {
+   "chunk": 7919,
+   "op": "append",
+   "path": "sl/to-file",
+   "seed": "through-link",
+   "size": 100
+  },
+  {
+   "op": "unlink",
+   "path": "sl/dangling"
+  },
+  {
+   "op": "symlink",
+   "path": "sl/dangling",
+   "target": "dir/inner"
+  },
+  {
+   "dst": "sl/to-dir-renamed",
+   "op": "rename",
+   "src": "sl/to-dir"
+  },
+  {
+   "op": "mkdir",
+   "path": "sl/real"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "sl/real/f",
+   "seed": "sl/real/f",
+   "size": 77
+  },
+  {
+   "op": "symlink",
+   "path": "sl/real-link",
+   "target": "real"
+  },
+  {
+   "op": "unlink",
+   "path": "sl/real-link"
+  }
+ ],
+ "title": "symbolic links to a file, a directory, dangling, absolute, long, Unicode; write through a link"
+}

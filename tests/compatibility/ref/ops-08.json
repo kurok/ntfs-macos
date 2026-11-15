@@ -1,0 +1,161 @@
+{
+ "ed_ops": {},
+ "ed_paths": {
+  "s/dense": [
+   "ED-05"
+  ],
+  "s/hole-end": [
+   "ED-07"
+  ],
+  "s/hole-middle": [
+   "ED-07"
+  ],
+  "s/hole-start": [
+   "ED-07"
+  ]
+ },
+ "id": "C-REF-OP-08",
+ "image_mib": 96,
+ "name": "sparse",
+ "ops": [
+  {
+   "op": "mkdir",
+   "path": "s"
+  },
+  {
+   "op": "create",
+   "path": "s/hole-end",
+   "seed": "e",
+   "size": 0
+  },
+  {
+   "op": "truncate",
+   "path": "s/hole-end",
+   "size": 67108864
+  },
+  {
+   "chunk": 65536,
+   "off": 0,
+   "op": "write",
+   "path": "s/hole-end",
+   "seed": "he",
+   "size": 1052675
+  },
+  {
+   "op": "create",
+   "path": "s/hole-middle",
+   "seed": "m",
+   "size": 0
+  },
+  {
+   "op": "truncate",
+   "path": "s/hole-middle",
+   "size": 67108864
+  },
+  {
+   "chunk": 65536,
+   "off": 33554449,
+   "op": "write",
+   "path": "s/hole-middle",
+   "seed": "hm",
+   "size": 1052675
+  },
+  {
+   "op": "create",
+   "path": "s/hole-start",
+   "seed": "s",
+   "size": 0
+  },
+  {
+   "op": "truncate",
+   "path": "s/hole-start",
+   "size": 67108864
+  },
+  {
+   "chunk": 65536,
+   "off": 66056189,
+   "op": "write",
+   "path": "s/hole-start",
+   "seed": "hs",
+   "size": 1052675
+  },
+  {
+   "op": "create",
+   "path": "s/all-hole",
+   "seed": "a",
+   "size": 0
+  },
+  {
+   "op": "truncate",
+   "path": "s/all-hole",
+   "size": 67108864
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "s/grown",
+   "seed": "g",
+   "size": 30
+  },
+  {
+   "op": "truncate",
+   "path": "s/grown",
+   "size": 10485760
+  },
+  {
+   "chunk": 7919,
+   "off": 5242880,
+   "op": "write",
+   "path": "s/grown",
+   "seed": "gt",
+   "size": 5000
+  },
+  {
+   "op": "truncate",
+   "path": "s/grown",
+   "size": 2097152
+  },
+  {
+   "chunk": 65536,
+   "off": 20971520,
+   "op": "write",
+   "path": "s/hole-end",
+   "seed": "into-hole",
+   "size": 102403
+  },
+  {
+   "chunk": 7919,
+   "off": 1000,
+   "op": "write",
+   "path": "s/hole-end",
+   "seed": "overwrite",
+   "size": 5000
+  },
+  {
+   "off": 67043328,
+   "op": "writezero",
+   "path": "s/hole-start",
+   "size": 65536
+  },
+  {
+   "op": "create",
+   "path": "s/dense",
+   "seed": "d",
+   "size": 0
+  },
+  {
+   "chunk": 7919,
+   "off": 25165824,
+   "op": "write",
+   "path": "s/dense",
+   "seed": "pastEOF",
+   "size": 1
+  },
+  {
+   "op": "truncate",
+   "path": "s/hole-middle",
+   "size": 41943040
+  }
+ ],
+ "title": "sparse files made by ftruncate, holes at start, middle, end, whole; dense write past EOF"
+}

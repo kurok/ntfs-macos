@@ -1,0 +1,157 @@
+{
+ "ed_ops": {},
+ "ed_paths": {},
+ "id": "C-REF-OP-07",
+ "image_mib": 64,
+ "name": "timestamps",
+ "ops": [
+  {
+   "op": "mkdir",
+   "path": "t"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "t/f1",
+   "seed": "t/f1",
+   "size": 1000
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "t/f2",
+   "seed": "t/f2",
+   "size": 2000
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "t/f3",
+   "seed": "t/f3",
+   "size": 3000
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "t/f4",
+   "seed": "t/f4",
+   "size": 4000
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "t/f5",
+   "seed": "t/f5",
+   "size": 5000
+  },
+  {
+   "op": "mkdir",
+   "path": "t/d1"
+  },
+  {
+   "op": "mkdir",
+   "path": "t/d2"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "t/d1/inner",
+   "seed": "t/d1/inner",
+   "size": 10
+  },
+  {
+   "atime_ns": 946684800000000000,
+   "mtime_ns": 946684800000000000,
+   "op": "utime",
+   "path": "t/f1"
+  },
+  {
+   "atime_ns": 946684800123456789,
+   "mtime_ns": 946684801123456789,
+   "op": "utime",
+   "path": "t/f2"
+  },
+  {
+   "atime_ns": -631151999750000000,
+   "mtime_ns": -631151999750000000,
+   "op": "utime",
+   "path": "t/f3"
+  },
+  {
+   "atime_ns": 4294967301000000000,
+   "mtime_ns": 4294967308000000000,
+   "op": "utime",
+   "path": "t/f4"
+  },
+  {
+   "atime_ns": 7258118400000000000,
+   "mtime_ns": 7258118400000000000,
+   "op": "utime",
+   "path": "t/f5"
+  },
+  {
+   "chunk": 7919,
+   "off": 10,
+   "op": "write",
+   "path": "t/f1",
+   "seed": "touch-after",
+   "size": 10
+  },
+  {
+   "atime_ns": 946684805000000000,
+   "mtime_ns": 946684809000000000,
+   "op": "utime",
+   "path": "t/f1"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "t/moved",
+   "seed": "t/moved",
+   "size": 100
+  },
+  {
+   "atime_ns": 946684803000000000,
+   "mtime_ns": 946684804000000000,
+   "op": "utime",
+   "path": "t/moved"
+  },
+  {
+   "dst": "t/d2/moved",
+   "op": "rename",
+   "src": "t/moved"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "t/same",
+   "seed": "t/same",
+   "size": 50
+  },
+  {
+   "atime_ns": 946684800123456789,
+   "mtime_ns": 946684800123456789,
+   "op": "utime",
+   "path": "t/same"
+  },
+  {
+   "atime_ns": 946684800000000000,
+   "mtime_ns": 946684800123456789,
+   "op": "utime",
+   "path": "t/d1"
+  },
+  {
+   "atime_ns": 4294967301000000000,
+   "mtime_ns": -631151999750000000,
+   "op": "utime",
+   "path": "t/d2"
+  },
+  {
+   "atime_ns": 946684877000000000,
+   "mtime_ns": 946684899000000000,
+   "op": "utime",
+   "path": "t"
+  }
+ ],
+ "title": "explicit mtime and atime: 1950, 2000, sub-100 ns fraction, past 2106, 2200, on files and directories"
+}

@@ -1,0 +1,202 @@
+{
+ "ed_ops": {},
+ "ed_paths": {},
+ "id": "C-REF-OP-01",
+ "image_mib": 64,
+ "name": "write-append-truncate",
+ "ops": [
+  {
+   "op": "mkdir",
+   "path": "w"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "w/small",
+   "seed": "w/small",
+   "size": 100
+  },
+  {
+   "chunk": 4097,
+   "op": "create",
+   "path": "w/medium",
+   "seed": "w/medium",
+   "size": 70000
+  },
+  {
+   "op": "create",
+   "path": "w/zero",
+   "seed": "z",
+   "size": 0
+  },
+  {
+   "op": "create",
+   "path": "w/exact-cluster",
+   "seed": "ec",
+   "size": 4096
+  },
+  {
+   "op": "create",
+   "path": "w/cluster-plus-1",
+   "seed": "ec1",
+   "size": 4097
+  },
+  {
+   "chunk": 7919,
+   "off": 4900,
+   "op": "write",
+   "path": "w/small",
+   "seed": "grow",
+   "size": 100
+  },
+  {
+   "chunk": 7919,
+   "op": "append",
+   "path": "w/small",
+   "seed": "a1",
+   "size": 300
+  },
+  {
+   "chunk": 7919,
+   "op": "append",
+   "path": "w/small",
+   "seed": "a2",
+   "size": 300
+  },
+  {
+   "chunk": 7919,
+   "op": "append",
+   "path": "w/small",
+   "seed": "a3",
+   "size": 4096
+  },
+  {
+   "op": "truncate",
+   "path": "w/medium",
+   "size": 5000
+  },
+  {
+   "op": "truncate",
+   "path": "w/medium",
+   "size": 100000
+  },
+  {
+   "chunk": 7919,
+   "off": 99990,
+   "op": "write",
+   "path": "w/medium",
+   "seed": "tail",
+   "size": 4000
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "w/medium",
+   "seed": "rewrite",
+   "size": 12345
+  },
+  {
+   "chunk": 7919,
+   "off": 4000,
+   "op": "write",
+   "path": "w/medium",
+   "seed": "middle",
+   "size": 300
+  },
+  {
+   "chunk": 65536,
+   "op": "append",
+   "path": "w/medium",
+   "seed": "big-append",
+   "size": 1048579
+  },
+  {
+   "op": "truncate",
+   "path": "w/medium",
+   "size": 0
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "w/medium",
+   "seed": "after-zero",
+   "size": 30
+  },
+  {
+   "chunk": 7919,
+   "off": 0,
+   "op": "write",
+   "path": "w/zero",
+   "seed": "one",
+   "size": 1
+  },
+  {
+   "op": "truncate",
+   "path": "w/zero",
+   "size": 0
+  },
+  {
+   "chunk": 7919,
+   "off": 4096,
+   "op": "write",
+   "path": "w/exact-cluster",
+   "seed": "second-cluster",
+   "size": 4096
+  },
+  {
+   "op": "truncate",
+   "path": "w/cluster-plus-1",
+   "size": 4096
+  },
+  {
+   "op": "fsync",
+   "path": "w/small"
+  },
+  {
+   "op": "mkdir",
+   "path": "w/sub"
+  },
+  {
+   "chunk": 1000,
+   "op": "create",
+   "path": "w/sub/nested",
+   "seed": "w/sub/nested",
+   "size": 33333
+  },
+  {
+   "chunk": 333,
+   "off": 10,
+   "op": "write",
+   "path": "w/sub/nested",
+   "seed": "overlap",
+   "size": 20000
+  },
+  {
+   "op": "truncate",
+   "path": "w/sub/nested",
+   "size": 1
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "w/odd-sizes",
+   "seed": "w/odd-sizes",
+   "size": 511
+  },
+  {
+   "chunk": 7919,
+   "op": "append",
+   "path": "w/odd-sizes",
+   "seed": "o1",
+   "size": 513
+  },
+  {
+   "chunk": 7919,
+   "op": "append",
+   "path": "w/odd-sizes",
+   "seed": "o2",
+   "size": 1
+  }
+ ],
+ "title": "create, write at offset, append, truncate, rewrite, resident to non-resident"
+}

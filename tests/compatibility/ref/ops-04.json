@@ -1,0 +1,438 @@
+{
+ "ed_ops": {},
+ "ed_paths": {},
+ "id": "C-REF-OP-04",
+ "image_mib": 96,
+ "name": "deep-wide-dirs",
+ "ops": [
+  {
+   "op": "mkdir",
+   "path": "deep"
+  },
+  {
+   "base": "deep",
+   "depth": 40,
+   "every": 10,
+   "file": "leaf.txt",
+   "fsize": 1500,
+   "name": "level%02d",
+   "op": "deep",
+   "seed": "deep"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide"
+  },
+  {
+   "count": 300,
+   "dir": "wide",
+   "fmt": "file-%04d.dat",
+   "min": 0,
+   "mod": 2500,
+   "op": "many",
+   "seed": "w"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub00"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub00",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub0"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub01"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub01",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub1"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub02"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub02",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub2"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub03"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub03",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub3"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub04"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub04",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub4"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub05"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub05",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub5"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub06"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub06",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub6"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub07"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub07",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub7"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub08"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub08",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub8"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub09"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub09",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub9"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub10"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub10",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub10"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub11"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub11",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub11"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub12"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub12",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub12"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub13"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub13",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub13"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub14"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub14",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub14"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub15"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub15",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub15"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub16"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub16",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub16"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub17"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub17",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub17"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub18"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub18",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub18"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub19"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub19",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub19"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub20"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub20",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub20"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub21"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub21",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub21"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub22"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub22",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub22"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub23"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub23",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub23"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub24"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub24",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub24"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub25"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub25",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub25"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub26"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub26",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub26"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub27"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub27",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub27"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub28"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub28",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub28"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/sub29"
+  },
+  {
+   "count": 5,
+   "dir": "wide/sub29",
+   "fmt": "n%02d",
+   "min": 1,
+   "mod": 900,
+   "op": "many",
+   "seed": "sub29"
+  },
+  {
+   "op": "mkdir",
+   "path": "wide/nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "wide/nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+   "seed": "wide/nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn/mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+   "size": 77
+  }
+ ],
+ "title": "40 levels deep, 300 files wide, 30 subdirectories, 200 and 255 character names"
+}

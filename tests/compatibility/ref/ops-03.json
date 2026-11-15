@@ -1,0 +1,172 @@
+{
+ "ed_ops": {
+  "20": "ED-09"
+ },
+ "ed_paths": {},
+ "id": "C-REF-OP-03",
+ "image_mib": 64,
+ "name": "delete",
+ "ops": [
+  {
+   "op": "mkdir",
+   "path": "del"
+  },
+  {
+   "op": "mkdir",
+   "path": "del/many"
+  },
+  {
+   "count": 200,
+   "dir": "del/many",
+   "fmt": "f%04d",
+   "min": 0,
+   "mod": 3000,
+   "op": "many",
+   "seed": "m"
+  },
+  {
+   "dir": "del/many",
+   "fmt": "f%04d",
+   "op": "unlink_many",
+   "start": 0,
+   "step": 2,
+   "stop": 200
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "del/gone",
+   "seed": "del/gone",
+   "size": 9000
+  },
+  {
+   "op": "unlink",
+   "path": "del/gone"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "del/recreated",
+   "seed": "first",
+   "size": 100
+  },
+  {
+   "op": "unlink",
+   "path": "del/recreated"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "del/recreated",
+   "seed": "second",
+   "size": 7000
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "del/file-then-dir",
+   "seed": "del/file-then-dir",
+   "size": 10
+  },
+  {
+   "op": "unlink",
+   "path": "del/file-then-dir"
+  },
+  {
+   "op": "mkdir",
+   "path": "del/file-then-dir"
+  },
+  {
+   "op": "mkdir",
+   "path": "del/empty"
+  },
+  {
+   "op": "rmdir",
+   "path": "del/empty"
+  },
+  {
+   "op": "mkdir",
+   "path": "del/tree"
+  },
+  {
+   "op": "mkdir",
+   "path": "del/tree/a"
+  },
+  {
+   "op": "mkdir",
+   "path": "del/tree/a/b"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "del/tree/a/b/f",
+   "seed": "del/tree/a/b/f",
+   "size": 2000
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "del/tree/g",
+   "seed": "del/tree/g",
+   "size": 50
+  },
+  {
+   "op": "rmdir",
+   "path": "del/tree"
+  },
+  {
+   "op": "unlink",
+   "path": "del/tree/a"
+  },
+  {
+   "op": "unlink",
+   "path": "del/tree/a/b/f"
+  },
+  {
+   "op": "rmdir",
+   "path": "del/tree/a/b"
+  },
+  {
+   "op": "rmdir",
+   "path": "del/tree/a"
+  },
+  {
+   "op": "unlink",
+   "path": "del/nonexistent"
+  },
+  {
+   "op": "rmdir",
+   "path": "del/nonexistent"
+  },
+  {
+   "chunk": 65536,
+   "op": "create",
+   "path": "del/big",
+   "seed": "del/big",
+   "size": 2097152
+  },
+  {
+   "op": "unlink",
+   "path": "del/big"
+  },
+  {
+   "chunk": 65536,
+   "op": "create",
+   "path": "del/after-big",
+   "seed": "del/after-big",
+   "size": 3145728
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "del/zero",
+   "seed": "del/zero",
+   "size": 0
+  },
+  {
+   "op": "unlink",
+   "path": "del/zero"
+  }
+ ],
+ "title": "unlink, rmdir, recreate, delete half of a wide directory, errors"
+}

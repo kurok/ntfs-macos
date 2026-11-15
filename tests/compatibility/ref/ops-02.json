@@ -1,0 +1,173 @@
+{
+ "ed_ops": {},
+ "ed_paths": {},
+ "id": "C-REF-OP-02",
+ "image_mib": 64,
+ "name": "rename-move",
+ "ops": [
+  {
+   "op": "mkdir",
+   "path": "a"
+  },
+  {
+   "op": "mkdir",
+   "path": "b"
+  },
+  {
+   "op": "mkdir",
+   "path": "a/sub"
+  },
+  {
+   "op": "mkdir",
+   "path": "b/empty-target"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "a/x",
+   "seed": "a/x",
+   "size": 5000
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "a/sub/y",
+   "seed": "a/sub/y",
+   "size": 70000
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "b/z",
+   "seed": "b/z",
+   "size": 123
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "b/over",
+   "seed": "b/over",
+   "size": 4444
+  },
+  {
+   "dst": "b/x",
+   "op": "rename",
+   "src": "a/x"
+  },
+  {
+   "dst": "b/z",
+   "op": "rename",
+   "src": "a/sub/y"
+  },
+  {
+   "dst": "b/sub2",
+   "op": "rename",
+   "src": "a/sub"
+  },
+  {
+   "dst": "b/empty-target",
+   "op": "rename",
+   "src": "b/sub2"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "b/keep",
+   "seed": "b/keep",
+   "size": 10
+  },
+  {
+   "dst": "b/keep with space",
+   "op": "rename",
+   "src": "b/keep"
+  },
+  {
+   "dst": "b/Keep",
+   "op": "rename",
+   "src": "b/keep with space"
+  },
+  {
+   "dst": "b/keep",
+   "op": "rename",
+   "src": "b/Keep"
+  },
+  {
+   "op": "mkdir",
+   "path": "c"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "c/f1",
+   "seed": "c/f1",
+   "size": 200
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "c/f2",
+   "seed": "c/f2",
+   "size": 70000
+  },
+  {
+   "dst": "d",
+   "op": "rename",
+   "src": "c"
+  },
+  {
+   "dst": "d/f1.renamed",
+   "op": "rename",
+   "src": "d/f1"
+  },
+  {
+   "dst": "b/over",
+   "op": "rename",
+   "src": "b/over"
+  },
+  {
+   "dst": "b/nope",
+   "op": "rename",
+   "src": "nonexistent"
+  },
+  {
+   "dst": "b",
+   "op": "rename",
+   "src": "a"
+  },
+  {
+   "dst": "a/sub",
+   "op": "rename",
+   "src": "b/x"
+  },
+  {
+   "op": "mkdir",
+   "path": "e"
+  },
+  {
+   "op": "mkdir",
+   "path": "e/e1"
+  },
+  {
+   "op": "mkdir",
+   "path": "e/e1/e2"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "e/e1/e2/leaf",
+   "seed": "e/e1/e2/leaf",
+   "size": 6000
+  },
+  {
+   "dst": "leaf-up",
+   "op": "rename",
+   "src": "e/e1/e2/leaf"
+  },
+  {
+   "dst": "e/e1-renamed",
+   "op": "rename",
+   "src": "e/e1"
+  }
+ ],
+ "title": "rename and move of files and directories, over existing names, errors"
+}

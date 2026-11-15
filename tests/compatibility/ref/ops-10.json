@@ -1,0 +1,107 @@
+{
+ "ed_ops": {
+  "10": "ED-04",
+  "3": "ED-04",
+  "4": "ED-04",
+  "8": "ED-04"
+ },
+ "ed_paths": {},
+ "id": "C-REF-OP-10",
+ "image_mib": 64,
+ "name": "hard-link",
+ "ops": [
+  {
+   "op": "mkdir",
+   "path": "h"
+  },
+  {
+   "op": "mkdir",
+   "path": "h/dir"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "h/f",
+   "seed": "h/f",
+   "size": 5000
+  },
+  {
+   "dst": "h/l1",
+   "op": "link",
+   "src": "h/f"
+  },
+  {
+   "dst": "h/dir/l2",
+   "op": "link",
+   "src": "h/f"
+  },
+  {
+   "chunk": 7919,
+   "op": "append",
+   "path": "h/l1",
+   "seed": "via-l1",
+   "size": 3000
+  },
+  {
+   "chunk": 7919,
+   "off": 100,
+   "op": "write",
+   "path": "h/dir/l2",
+   "seed": "via-l2",
+   "size": 200
+  },
+  {
+   "op": "unlink",
+   "path": "h/f"
+  },
+  {
+   "dst": "h/l3",
+   "op": "link",
+   "src": "h/l1"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "h/g",
+   "seed": "g",
+   "size": 70000
+  },
+  {
+   "dst": "h/g-link",
+   "op": "link",
+   "src": "h/g"
+  },
+  {
+   "op": "unlink",
+   "path": "h/g-link"
+  },
+  {
+   "dst": "h/dirlink",
+   "op": "link",
+   "src": "h/dir"
+  },
+  {
+   "dst": "h/zzz",
+   "op": "link",
+   "src": "h/nonexistent"
+  },
+  {
+   "dst": "h/l1",
+   "op": "link",
+   "src": "h/g"
+  },
+  {
+   "name": "user.shared",
+   "op": "setxattr",
+   "path": "h/l3",
+   "seed": "h/l3user.shared",
+   "size": 9
+  },
+  {
+   "op": "truncate",
+   "path": "h/dir/l2",
+   "size": 100
+  }
+ ],
+ "title": "hard links in one directory and across directories, write through a link, unlink the first name"
+}

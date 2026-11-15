@@ -1,0 +1,139 @@
+{
+ "ed_ops": {},
+ "ed_paths": {},
+ "id": "C-REF-OP-12",
+ "image_mib": 96,
+ "name": "compressed-dir",
+ "ops": [
+  {
+   "op": "mkdir",
+   "path": "cdir"
+  },
+  {
+   "op": "mkdir",
+   "path": "plain"
+  },
+  {
+   "op": "chattr",
+   "or": 2048,
+   "path": "cdir"
+  },
+  {
+   "label": "zt",
+   "op": "text",
+   "path": "cdir/text",
+   "size": 2097152
+  },
+  {
+   "chunk": 65536,
+   "op": "create",
+   "path": "cdir/random",
+   "seed": "rand",
+   "size": 1048576
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "cdir/small",
+   "seed": "cdir/small",
+   "size": 100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "cdir/one",
+   "seed": "one",
+   "size": 1
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "cdir/empty",
+   "seed": "cdir/empty",
+   "size": 0
+  },
+  {
+   "label": "zb",
+   "op": "text",
+   "path": "cdir/big-text",
+   "size": 8388608
+  },
+  {
+   "op": "mkdir",
+   "path": "cdir/sub"
+  },
+  {
+   "label": "zn",
+   "op": "text",
+   "path": "cdir/sub/nested",
+   "size": 65536
+  },
+  {
+   "label": "pt",
+   "op": "text",
+   "path": "plain/text",
+   "size": 1048576
+  },
+  {
+   "chunk": 7919,
+   "off": 1048576,
+   "op": "write",
+   "path": "cdir/text",
+   "seed": "upd",
+   "size": 70000
+  },
+  {
+   "chunk": 7919,
+   "op": "append",
+   "path": "cdir/text",
+   "seed": "app",
+   "size": 5000
+  },
+  {
+   "op": "truncate",
+   "path": "cdir/text",
+   "size": 1048593
+  },
+  {
+   "op": "truncate",
+   "path": "cdir/text",
+   "size": 3145728
+  },
+  {
+   "chunk": 7919,
+   "off": 5000,
+   "op": "write",
+   "path": "cdir/small",
+   "seed": "sm",
+   "size": 100
+  },
+  {
+   "dst": "cdir/sub/one-moved",
+   "op": "rename",
+   "src": "cdir/one"
+  },
+  {
+   "op": "unlink",
+   "path": "cdir/random"
+  },
+  {
+   "label": "ad",
+   "op": "text",
+   "path": "cdir/after-delete",
+   "size": 300000
+  },
+  {
+   "op": "chattr",
+   "or": 2048,
+   "path": "plain/text"
+  },
+  {
+   "chunk": 7919,
+   "op": "append",
+   "path": "plain/text",
+   "seed": "after-mark",
+   "size": 100
+  }
+ ],
+ "title": "compressed directory: files made, updated, truncated, moved inside it; a plain file marked afterwards"
+}

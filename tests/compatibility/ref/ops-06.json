@@ -1,0 +1,203 @@
+{
+ "ed_ops": {
+  "13": "ED-08",
+  "21": "ED-06"
+ },
+ "ed_paths": {
+  "x/file": [
+   "ED-06",
+   "ED-08"
+  ]
+ },
+ "id": "C-REF-OP-06",
+ "image_mib": 64,
+ "name": "xattr-streams",
+ "ops": [
+  {
+   "op": "mkdir",
+   "path": "x"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "x/file",
+   "seed": "x/file",
+   "size": 5000
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "x/second",
+   "seed": "x/second",
+   "size": 100
+  },
+  {
+   "op": "mkdir",
+   "path": "x/dir"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "x/dir/in",
+   "seed": "x/dir/in",
+   "size": 10
+  },
+  {
+   "name": "user.k",
+   "op": "setxattr",
+   "path": "x/file",
+   "seed": "x/fileuser.k",
+   "size": 2
+  },
+  {
+   "name": "user.empty",
+   "op": "setxattr",
+   "path": "x/file",
+   "seed": "x/fileuser.empty",
+   "size": 0
+  },
+  {
+   "name": "user.big",
+   "op": "setxattr",
+   "path": "x/file",
+   "seed": "x/fileuser.big",
+   "size": 65536
+  },
+  {
+   "name": "user.mid",
+   "op": "setxattr",
+   "path": "x/file",
+   "seed": "x/fileuser.mid",
+   "size": 5000
+  },
+  {
+   "name": "com.apple.quarantine",
+   "op": "setxattr",
+   "path": "x/file",
+   "seed": "x/filecom.apple.quarantine",
+   "size": 57
+  },
+  {
+   "name": "com.apple.FinderInfo",
+   "op": "setxattr",
+   "path": "x/file",
+   "seed": "x/filecom.apple.FinderInfo",
+   "size": 32
+  },
+  {
+   "name": "com.apple.ResourceFork",
+   "op": "setxattr",
+   "path": "x/file",
+   "seed": "x/filecom.apple.ResourceFork",
+   "size": 3000
+  },
+  {
+   "name": "com.apple.lastuseddate#PS",
+   "op": "setxattr",
+   "path": "x/file",
+   "seed": "x/filecom.apple.lastuseddate#PS",
+   "size": 16
+  },
+  {
+   "name": "com.apple.metadata:kMDItemFinderComment",
+   "op": "setxattr",
+   "path": "x/file",
+   "seed": "x/filecom.apple.metadata:kMDItemFinderComment",
+   "size": 7
+  },
+  {
+   "name": "user.na\u00efve",
+   "op": "setxattr",
+   "path": "x/file",
+   "seed": "x/fileuser.na\u00efve",
+   "size": 5
+  },
+  {
+   "name": "user.k",
+   "op": "setxattr",
+   "path": "x/second",
+   "seed": "second",
+   "size": 2
+  },
+  {
+   "name": "user.dk",
+   "op": "setxattr",
+   "path": "x/dir",
+   "seed": "x/diruser.dk",
+   "size": 10
+  },
+  {
+   "name": "com.apple.FinderInfo",
+   "op": "setxattr",
+   "path": "x/dir",
+   "seed": "dirfi",
+   "size": 32
+  },
+  {
+   "name": "user.mid",
+   "op": "removexattr",
+   "path": "x/file"
+  },
+  {
+   "name": "user.absent",
+   "op": "removexattr",
+   "path": "x/file"
+  },
+  {
+   "name": "user.k",
+   "op": "setxattr",
+   "path": "x/file",
+   "seed": "shorter",
+   "size": 1
+  },
+  {
+   "name": "user.huge",
+   "op": "setxattr",
+   "path": "x/file",
+   "seed": "x/fileuser.huge",
+   "size": 100000
+  },
+  {
+   "chunk": 7919,
+   "op": "append",
+   "path": "x/file",
+   "seed": "data-after-xattr",
+   "size": 100
+  },
+  {
+   "dst": "x/dir/second-moved",
+   "op": "rename",
+   "src": "x/second"
+  },
+  {
+   "op": "mkdir",
+   "path": "x/y"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "x/y/f",
+   "seed": "x/y/f",
+   "size": 4
+  },
+  {
+   "name": "user.t",
+   "op": "setxattr",
+   "path": "x/y/f",
+   "seed": "x/y/fuser.t",
+   "size": 3
+  },
+  {
+   "op": "unlink",
+   "path": "x/y/f"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "x/y/f",
+   "seed": "again",
+   "size": 4
+  }
+ ],
+ "title": "xattrs as NTFS named streams: user.*, com.apple.*, ':' names, large values, replace, remove"
+}

@@ -1,0 +1,269 @@
+{
+ "ed_ops": {},
+ "ed_paths": {},
+ "id": "C-REF-OP-05",
+ "image_mib": 64,
+ "name": "unicode-names",
+ "ops": [
+  {
+   "op": "mkdir",
+   "path": "uni"
+  },
+  {
+   "op": "mkdir",
+   "path": "uni/\u65e5\u672c\u8a9e"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/caf\u00e9.txt",
+   "seed": "u0",
+   "size": 100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/\u65e5\u672c\u8a9e/\u0444\u0430\u0439\u043b.bin",
+   "seed": "u1",
+   "size": 1100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/emoji \ud83d\ude42.bin",
+   "seed": "u2",
+   "size": 2100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/family \ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67.txt",
+   "seed": "u3",
+   "size": 3100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/flag \ud83c\uddfa\ud83c\udde6.txt",
+   "seed": "u4",
+   "size": 4100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/\ud55c\uad6d\uc5b4.txt",
+   "seed": "u5",
+   "size": 5100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/\u05e9\u05dc\u05d5\u05dd.txt",
+   "seed": "u6",
+   "size": 6100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/\u0645\u0631\u062d\u0628\u0627.txt",
+   "seed": "u7",
+   "size": 7100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/\u03b5\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac.txt",
+   "seed": "u8",
+   "size": 8100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/stra\u00dfe.txt",
+   "seed": "u9",
+   "size": 9100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/with space inside.txt",
+   "seed": "u10",
+   "size": 10100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/ leading space",
+   "seed": "u11",
+   "size": 11100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/dots.in.name...txt",
+   "seed": "u12",
+   "size": 12100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/UPPER",
+   "seed": "u13",
+   "size": 13100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/upper",
+   "seed": "u14",
+   "size": 14100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/Upper",
+   "seed": "u15",
+   "size": 15100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/\u00c5.txt",
+   "seed": "u16",
+   "size": 16100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/\u212b-angstrom.txt",
+   "seed": "u17",
+   "size": 17100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "seed": "u18",
+   "size": 18100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5\u65e5",
+   "seed": "u19",
+   "size": 19100
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42\ud83d\ude42",
+   "seed": "u20",
+   "size": 20100
+  },
+  {
+   "op": "mkdir",
+   "path": "uni/\u00fcber dir"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/\u00fcber dir/in\u00fcber.txt",
+   "seed": "ud",
+   "size": 4321
+  },
+  {
+   "dst": "uni/caf\u00e9-renamed.txt",
+   "op": "rename",
+   "src": "uni/caf\u00e9.txt"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/re\u0301sume\u0301.txt",
+   "seed": "nfd1",
+   "size": 555
+  },
+  {
+   "op": "mkdir",
+   "path": "uni/nfd-dir-u\u0308"
+  },
+  {
+   "chunk": 7919,
+   "op": "create",
+   "path": "uni/nfd-dir-u\u0308/file",
+   "seed": "nfd2",
+   "size": 66
+  },
+  {
+   "chunk": 1,
+   "op": "create",
+   "path": "uni/a:b",
+   "seed": "bad",
+   "size": 1
+  },
+  {
+   "chunk": 1,
+   "op": "create",
+   "path": "uni/q?",
+   "seed": "bad",
+   "size": 1
+  },
+  {
+   "chunk": 1,
+   "op": "create",
+   "path": "uni/trail.",
+   "seed": "bad",
+   "size": 1
+  },
+  {
+   "chunk": 1,
+   "op": "create",
+   "path": "uni/trail ",
+   "seed": "bad",
+   "size": 1
+  },
+  {
+   "chunk": 1,
+   "op": "create",
+   "path": "uni/CON",
+   "seed": "bad",
+   "size": 1
+  },
+  {
+   "chunk": 1,
+   "op": "create",
+   "path": "uni/nul.txt",
+   "seed": "bad",
+   "size": 1
+  },
+  {
+   "chunk": 1,
+   "op": "create",
+   "path": "uni/a<b",
+   "seed": "bad",
+   "size": 1
+  },
+  {
+   "chunk": 1,
+   "op": "create",
+   "path": "uni/back\\slash",
+   "seed": "bad",
+   "size": 1
+  },
+  {
+   "chunk": 1,
+   "op": "create",
+   "path": "uni/tab\tname",
+   "seed": "bad",
+   "size": 1
+  },
+  {
+   "chunk": 1,
+   "op": "create",
+   "path": "uni/pipe|",
+   "seed": "bad",
+   "size": 1
+  }
+ ],
+ "title": "names in many scripts, case pairs, NFD-typed names, names refused by windows_names"
+}

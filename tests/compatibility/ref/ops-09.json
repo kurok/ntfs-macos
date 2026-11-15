@@ -1,0 +1,70 @@
+{
+ "ed_ops": {},
+ "ed_paths": {},
+ "id": "C-REF-OP-09",
+ "image_mib": 320,
+ "name": "large-file",
+ "ops": [
+  {
+   "op": "mkdir",
+   "path": "big"
+  },
+  {
+   "chunk": 1048576,
+   "op": "create",
+   "path": "big/file",
+   "seed": "big",
+   "size": 167772160
+  },
+  {
+   "chunk": 1048589,
+   "off": 104857607,
+   "op": "write",
+   "path": "big/file",
+   "seed": "ow",
+   "size": 3145728
+  },
+  {
+   "chunk": 1048576,
+   "op": "append",
+   "path": "big/file",
+   "seed": "ap",
+   "size": 5242893
+  },
+  {
+   "op": "truncate",
+   "path": "big/file",
+   "size": 125829120
+  },
+  {
+   "chunk": 1048576,
+   "op": "create",
+   "path": "big/second",
+   "seed": "s2",
+   "size": 52428800
+  },
+  {
+   "chunk": 999983,
+   "op": "create",
+   "path": "big/third",
+   "seed": "s3",
+   "size": 10485761
+  },
+  {
+   "op": "unlink",
+   "path": "big/second"
+  },
+  {
+   "chunk": 1048576,
+   "op": "create",
+   "path": "big/after",
+   "seed": "aft",
+   "size": 20971520
+  },
+  {
+   "op": "fsync",
+   "path": "big/file"
+  }
+ ],
+ "title": "160 MiB file written, overwritten, appended, truncated; 50 MiB file made and deleted"
+}

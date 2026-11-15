@@ -183,9 +183,9 @@ These ids come from the M1 audit fixes (ADR-016, ADR-017, ADR-006, ADR-018, ADR-
 | `U-LABEL-02` | `X,remove_hiberfile`, `X,allow_other`, `X=1`, `a\,b` | No `,` `=` `\` in output |
 | `U-LABEL-03` | `.`, `..`, `../../etc/x`, `.hidden`, ` . `, trailing dots and spaces | Never `.` or `..`; no leading `.`; no `/`; no leading or trailing space or dot |
 | `U-LABEL-04` | Invalid UTF-8: overlong `/` (`C0 AF`), lone continuation bytes, surrogates, 5-byte forms | Whole label replaced by the fallback |
-| `U-LABEL-05` | C1 controls, bidi and format characters, U+2028/2029, private use, noncharacters, slash and colon look-alikes | Each replaced by `_` |
+| `U-LABEL-05` | C1 controls, bidi and format characters, default ignorables, spaces other than U+0020, Hangul fillers, U+2028/2029, private use, noncharacters, code points unassigned in Unicode 15.1.0, slash and colon look-alikes; every code point of Unicode against an independent oracle | Each replaced by `_`; a combining mark at the start of a part becomes `_` too |
 | `U-LABEL-06` | 128 UTF-16 units of 1-, 2-, 3- and 4-byte characters | Output at most 64 bytes, valid UTF-8, cut on a code-point boundary |
-| `U-LABEL-07` | Empty, all spaces, all dots, all disallowed | `NTFS-<last 8 hex digits of serial>` |
+| `U-LABEL-07` | Empty, all spaces, invalid UTF-8, all dots, all disallowed (nothing allowed survives) | `NTFS-<last 8 hex digits of serial>` |
 | `U-LABEL-08` | Collision sequence with existing `DATA`, `DATA 2`..`DATA 99` in a temporary directory standing in for `/Volumes` | Next free name chosen with `mkdirat`; after 99, refusal; a pre-existing symlink named `DATA` is never followed; an NFC name with an existing NFD directory of the same name (`e` U+0065 U+0301 against U+00E9) gets the suffix, never the existing directory |
 | `U-ARGV-01` | Builder output for every policy row and option set, including the opt-in `permissions` and `usermapping=/usr/local/etc/ntfs-macos/UserMapping` rows | `argv_check()` accepts |
 | `U-ARGV-02` | Every single-token mutation of a valid vector: add, drop, duplicate, reorder argv elements; insert each banned key; drop `norecover`; add or drop `ro`; change `uid`, `fmask`, `streams_interface`; add `volname`, `big_writes` or `rdonly`; add `permissions` next to `uid` | `argv_check()` rejects each |

@@ -3,31 +3,7 @@
 
 int probe_state_rank(ntfsmac_probe_state s)
 {
-	switch (s) {
-	case NTFSMAC_PROBE_STATE_UNSUPPORTED:
-		return 9;
-	case NTFSMAC_PROBE_STATE_CORRUPT:
-		return 8;
-	case NTFSMAC_PROBE_STATE_MIRROR_SPLIT:
-		return 7;
-	case NTFSMAC_PROBE_STATE_HIBERNATED:
-		return 6;
-	case NTFSMAC_PROBE_STATE_FAST_STARTUP:
-		return 5;
-	case NTFSMAC_PROBE_STATE_UNCLEAN_LOG:
-		return 4;
-	case NTFSMAC_PROBE_STATE_DIRTY_FLAG:
-		return 3;
-	case NTFSMAC_PROBE_STATE_NAMES_NOT_NFC:
-		return 2;
-	case NTFSMAC_PROBE_STATE_UNKNOWN:
-		return 1;
-	case NTFSMAC_PROBE_STATE_CLEAN:
-		return 0;
-	case NTFSMAC_PROBE_STATE_COUNT_:
-	default:
-		return -1;
-	}
+	return ntfsmac_probe_state_severity(s);
 }
 
 ntfsmac_probe_state probe_state_of_reason(ntfsmac_probe_reason r)

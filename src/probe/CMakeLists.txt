@@ -10,7 +10,7 @@
 
 add_library(ntfsmac_probe_pure STATIC nfc.c state.c text.c json.c)
 target_include_directories(ntfsmac_probe_pure PUBLIC ${PROJECT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(ntfsmac_probe_pure PRIVATE ntfsmac_options)
+target_link_libraries(ntfsmac_probe_pure PUBLIC ntfsmac_state_rank PRIVATE ntfsmac_options)
 
 find_package(PkgConfig QUIET)
 if(PkgConfig_FOUND)

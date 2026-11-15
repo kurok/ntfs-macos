@@ -1,0 +1,1 @@
+{"schema": 1, "is_ntfs": true, "ntfs_version": "3.1", "label": "DATA", "serial": "0x1A2B3C4D5E6F7788", "total_sectors": 131071, "cluster_size": 4096, "sector_size": 512, "volume_flags": [], "logfile": "clean", "logfile_lsn": "0x0000000001A2B3C4", "hiberfile": "absent", "bitlocker": false, "state": "clean", "reason_codes": [], "nonnfc_count": 0, "nonnfc_paths": []}

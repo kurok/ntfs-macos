@@ -9,14 +9,16 @@
  *   unclean_log > dirty_flag > names_not_nfc > unknown > clean.
  * Deriving it, instead of tracking it beside the codes, makes the cross-field
  * rule hold by construction: `clean` if and only if no code is set.
- * Pure C; local to the probe (the daemon has its own copy in src/sanitize).
+ * Pure C. The severity table itself lives in src/common/state_rank.c
+ * (ntfsmac_probe_state_severity()).
  */
 
 #include <stdint.h>
 
 #include "ntfsmac/probe.h"
 
-/* Severity rank of a state, higher is more severe; -1 if out of range. */
+/* Severity rank of a state, higher is more severe; -1 if out of range.
+ * Same as ntfsmac_probe_state_severity(). */
 int probe_state_rank(ntfsmac_probe_state s);
 
 /* The state a single reason code stands for. */

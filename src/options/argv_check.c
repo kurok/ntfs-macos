@@ -9,6 +9,7 @@
  * not recognised is rejected.
  */
 #include "ntfsmac/options.h"
+#include "ntfsmac/label_cp.h"
 
 #include <fcntl.h>
 #include <stdio.h>
@@ -85,57 +86,35 @@ static int streq_n(const char *s, size_t n, const char *lit)
 	return strlen(lit) == n && memcmp(s, lit, n) == 0;
 }
 
-/* Strict UTF-8 for a non-ASCII run in the leaf (no overlong, no surrogate). */
-static int utf8_seq_len(const unsigned char *s, size_t avail)
+/*
+ * Rule 2: the leaf is a label part of ADR-016 (1 to 64 bytes, strict UTF-8, every code point on
+ * the shared allow-list ntfsmac_label_cp_allowed(), no leading or trailing space or dot, no
+ * combining mark first), optionally followed by a collision suffix: a space and 2 to 9, or 10
+ * to 99 (no leading zero, no 100). Both forms are tried: the whole leaf as a part, or a part
+ * and a suffix.
+ */
+static int suffix_ok(const char *s, size_t n)
 {
-	unsigned char c = s[0];
-
-	if (c >= 0xC2 && c <= 0xDF) {
-		if (avail >= 2 && (s[1] & 0xC0) == 0x80)
-			return 2;
-	} else if (c >= 0xE0 && c <= 0xEF) {
-		if (avail >= 3 && (s[1] & 0xC0) == 0x80 && (s[2] & 0xC0) == 0x80 &&
-		    !(c == 0xE0 && s[1] < 0xA0) && !(c == 0xED && s[1] >= 0xA0))
-			return 3;
-	} else if (c >= 0xF0 && c <= 0xF4) {
-		if (avail >= 4 && (s[1] & 0xC0) == 0x80 && (s[2] & 0xC0) == 0x80 &&
-		    (s[3] & 0xC0) == 0x80 && !(c == 0xF0 && s[1] < 0x90) &&
-		    !(c == 0xF4 && s[1] >= 0x90))
-			return 4;
-	}
+	if (n == 2)
+		return s[0] == ' ' && s[1] >= '2' && s[1] <= '9';
+	if (n == 3)
+		return s[0] == ' ' && s[1] >= '1' && s[1] <= '9' && s[2] >= '0' && s[2] <= '9';
 	return 0;
 }
 
-/* Rule 2: the structural part of the ADR-016 leaf rules. */
 static int leaf_ok(const char *leaf)
 {
 	size_t len = bounded_len(leaf, NTFSMAC_LEAF_MAX_BYTES + 1u);
-	size_t i = 0;
 
 	if (len == 0 || len > NTFSMAC_LEAF_MAX_BYTES)
 		return 0;
-	if (leaf[0] == ' ' || leaf[0] == '.')
-		return 0;
-	if (leaf[len - 1] == ' ' || leaf[len - 1] == '.')
-		return 0;
-	while (i < len) {
-		unsigned char c = (unsigned char)leaf[i];
-
-		if (c < 0x80) {
-			if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
-			      (c >= '0' && c <= '9') || c == ' ' || c == '-' || c == '_' ||
-			      c == '.' || c == '(' || c == ')' || c == '+'))
-				return 0;
-			i++;
-		} else {
-			int n = utf8_seq_len((const unsigned char *)leaf + i, len - i);
-
-			if (n == 0)
-				return 0;
-			i += (size_t)n;
-		}
-	}
-	return 1;
+	if (ntfsmac_label_part_ok(leaf, len))
+		return 1;
+	if (len > 3 && suffix_ok(leaf + len - 3, 3) && ntfsmac_label_part_ok(leaf, len - 3))
+		return 1;
+	if (len > 2 && suffix_ok(leaf + len - 2, 2) && ntfsmac_label_part_ok(leaf, len - 2))
+		return 1;
+	return 0;
 }
 
 /* Canonical decimal: no sign, no leading zero (except "0"), at most 10 digits. */

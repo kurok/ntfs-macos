@@ -1,0 +1,54 @@
+
+== guest
+27.2
+arm64
+gui session of this shell: present
+
+== A. check 3: signature requirement and hardened runtime
+<tmp>/clientA: replacing existing signature
+<tmp>/clientB: replacing existing signature
+<tmp>/clientC: replacing existing signature
+cdhash A (ad-hoc, hardened runtime): 345dea00e6740fb1ab2f9050e6c0243ab2deb0ca
+cdhash B (ad-hoc, no runtime): fe59c28e4cb071bd6d77c82178229fae489d8cb8
+cdhash C (re-signed, other identifier, runtime): 0fd101670e9fe531cdd823646ea26ae717e24479
+client A, requirement = cdhash of A (want YES): ready peer uid=501 pid=N audit_token=1 client_signed=YES 
+client B, requirement = cdhash of B, no runtime (want NO): ready peer uid=501 pid=N audit_token=1 client_signed=NO 
+client C, requirement = cdhash of A, re-signed copy (want NO): ready peer uid=501 pid=N audit_token=1 client_signed=NO 
+client A, requirement = cdhash of C (want NO): ready peer uid=501 pid=N audit_token=1 client_signed=NO 
+
+== B1. right of class allow: the form crosses to a root process
+built-in rule authenticate-admin-nonshared (what a right that names it inherits):
+<key>class</key> <string>user</string> -- <key>group</key> <string>admin</string> -- <key>shared</key> <false/> <key>timeout</key> <integer>30</integer> 
+client side:
+  create=0
+  copy_rights(copy)=0
+root, first check (reference alive):
+  create_from_external_form=0
+  copy_rights(no interaction)=0
+  real_authz_verify=YES
+root, second check with the same form:
+  create_from_external_form=0
+  copy_rights(no interaction)=0
+  real_authz_verify=YES
+root, check after the client freed its reference:
+  create_from_external_form=-60005
+  real_authz_verify=NO
+
+== B2. real right: class user, group admin, shared false, timeout 0
+<key>class</key> <string>user</string> -- <key>group</key> <string>admin</string> -- <key>shared</key> <false/> <key>timeout</key> <integer>0</integer> 
+CLI side, interaction not allowed:
+  create=0
+  copy_rights(copy)=-60007
+  note: continuing with a reference that does not hold the right
+  freed
+root checks a reference that does not hold the right (no prompt may appear):
+  create_from_external_form=0
+  copy_rights(no interaction)=-60007
+  real_authz_verify=NO
+root checks a made-up form:
+  create_from_external_form=-60005
+  real_authz_verify=NO
+prompt, no GUI session (a job in the system domain; waits at most 25 s):
+  no answer within 25 s (the call is waiting for a prompt)
+
+== done

@@ -568,6 +568,10 @@ typedef struct ntfsmac_ctl_peer {
 	pid_t pid;
 	bool console_user;
 	bool admin;
+	/* LOCAL_PEERTOKEN (audit_token_t, 8 words). The signature check (ADR-019
+	 * check 3) uses it, not the pid, so a reused pid cannot pass. */
+	bool has_audit_token;
+	uint32_t audit_token[8];
 } ntfsmac_ctl_peer;
 
 /*
@@ -585,10 +589,26 @@ typedef struct ntfsmac_ctl_ops {
 	ntfsmac_dmn_status (*unmount)(void *ctx, const char *bsd, bool force, char *reply,
 				      size_t cap);
 	ntfsmac_dmn_status (*doctor)(void *ctx, char *reply, size_t cap);
+	/*
+	 * Called only after checks 1 to 4 of ADR-019 passed. Check 5 (volume gate,
+	 * both confirmation fields match) belongs to the implementation, so it
+	 * receives the typed fields: `confirm_label` is UTF-8, `confirm_serial` is
+	 * exactly 8 upper-case hex digits (both already validated for shape).
+	 */
 	ntfsmac_dmn_status (*journal_clear)(void *ctx, const ntfsmac_ctl_peer *peer,
-					    const char *bsd, char *reply, size_t cap);
+					    const char *bsd, const char *confirm_label,
+					    const char *confirm_serial, char *reply, size_t cap);
+	/* `action` is exactly "clear_dirty" or "sync_mirror". Same rules as above. */
 	ntfsmac_dmn_status (*repair)(void *ctx, const ntfsmac_ctl_peer *peer, const char *bsd,
-				     const char *action, char *reply, size_t cap);
+				     const char *action, const char *confirm_label,
+				     const char *confirm_serial, char *reply, size_t cap);
+	/*
+	 * Check 2 of ADR-019: true if `pid` is a live probe, volmark or worker of
+	 * this daemon. Every spawn runs in its own process group, so the pid is
+	 * also the process group id of that child. NULL means "cannot tell": the
+	 * privileged requests are then refused (fail closed).
+	 */
+	bool (*is_spawned)(void *ctx, pid_t pid);
 } ntfsmac_ctl_ops;
 
 typedef struct ntfsmac_ctl ntfsmac_ctl; /* opaque */

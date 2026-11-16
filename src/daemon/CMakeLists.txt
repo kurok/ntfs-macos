@@ -22,9 +22,10 @@ target_link_libraries(ntfsmac_daemon PUBLIC
 target_link_libraries(ntfsmac_daemon PRIVATE ntfsmac_options)
 
 # da.c (T-M4-02) is the only file here that uses Disk Arbitration.
+# T-M4-04: ctl_sys.c uses code signing and Authorization Services (Security).
 if(APPLE)
   target_link_libraries(ntfsmac_daemon PUBLIC
-    "-framework DiskArbitration" "-framework CoreFoundation")
+    "-framework DiskArbitration" "-framework Security" "-framework CoreFoundation")
 endif()
 
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/main.c)

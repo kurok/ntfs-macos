@@ -9,16 +9,9 @@
 int main(void)
 {
 	ntfsmac_errwatch w;
-	ntfsmac_ctl *ctl = (ntfsmac_ctl *)1;
 	ntfsmac_session *sess = (ntfsmac_session *)1;
 	ntfsmac_vol_mode mode = NTFSMAC_VMODE_RW;
-	char reply[16] = "x";
 
-	CHECK_EQ_INT(ntfsmac_ctl_start("/x", NULL, NULL, &ctl), NTFSMAC_DMN_E_NOTIMPL);
-	CHECK(ctl == NULL);
-	CHECK_EQ_INT(ntfsmac_ctl_handle_line(NULL, NULL, NULL, "", 0, reply, sizeof reply),
-		     NTFSMAC_DMN_E_NOTIMPL);
-	CHECK(reply[0] == '\0');
 	CHECK_EQ_INT(ntfsmac_session_begin(NULL, NULL, NTFSMAC_POLICY_RO, &sess, &mode),
 		     NTFSMAC_DMN_E_NOTIMPL);
 	CHECK(sess == NULL);

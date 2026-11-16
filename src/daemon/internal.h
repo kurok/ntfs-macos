@@ -298,11 +298,13 @@ ntfsmac_dmn_status ntfsmac_unmount_path(const char *mount_point,
 					pid_t *busy_pid);
 
 /* ------------------------------------------------------------------ */
-/* Session channel watcher (errwatch.c, T-M4-13; pure parser)          */
+/* Session channel watcher (errwatch.c pure parser, errwatch_io.c pipe) */
 /* ------------------------------------------------------------------ */
 
 #define NTFSMAC_ERRWATCH_LINE_MAX 32
 #define NTFSMAC_ERRWATCH_RECORDS_MAX 64
+/* End-of-file must arrive this long after the worker exit (section 7). */
+#define NTFSMAC_ERRWATCH_EOF_WAIT_MS 2000
 
 typedef enum ntfsmac_errwatch_flag {
 	NTFSMAC_EW_SAW_S_RW = 1u << 0,
@@ -311,7 +313,8 @@ typedef enum ntfsmac_errwatch_flag {
 	NTFSMAC_EW_SAW_W = 1u << 3,
 	NTFSMAC_EW_SAW_U0 = 1u << 4,
 	NTFSMAC_EW_PROTOCOL_ERROR = 1u << 5,
-	NTFSMAC_EW_EOF = 1u << 6
+	NTFSMAC_EW_EOF = 1u << 6,
+	NTFSMAC_EW_SAW_U = 1u << 7 /* any U record, whatever its count */
 } ntfsmac_errwatch_flag;
 
 /* Parser state. No allocation; fixed size. */
@@ -323,10 +326,15 @@ typedef struct ntfsmac_errwatch {
 } ntfsmac_errwatch;
 
 void ntfsmac_errwatch_init(ntfsmac_errwatch *w);
-/* Feed bytes read from the pipe. After a protocol error the bytes are discarded. */
+/*
+ * Feed bytes read from the pipe. OK while the stream is within the grammar;
+ * E_STATE once a protocol error has happened (now or before): the bytes are
+ * discarded and the session can no longer be clean; E_INVAL for bad arguments.
+ * A U record with a count above 0 also sets NTFSMAC_EW_SAW_E.
+ */
 ntfsmac_dmn_status ntfsmac_errwatch_feed(ntfsmac_errwatch *w, const char *buf,
 					 size_t len);
-/* End of file reached. */
+/* End of file reached. A line without its newline is a protocol error. */
 void ntfsmac_errwatch_eof(ntfsmac_errwatch *w);
 /*
  * Positive clean-session proof of section 7 for a rw session. The caller adds
@@ -335,6 +343,27 @@ void ntfsmac_errwatch_eof(ntfsmac_errwatch *w);
  */
 bool ntfsmac_errwatch_clean_proof(const ntfsmac_errwatch *w, bool unmount_seen_first,
 				  bool re_adopted, int worker_exit_status);
+
+/*
+ * The pipe and the reading (errwatch_io.c). `pipe_open` makes both ends
+ * O_CLOEXEC and at least descriptor 3; the read end is non-blocking. The
+ * write end goes to ntfsmac_worker_run.errfd_write; the daemon closes its
+ * copy after the spawn and keeps the read end open while the worker runs.
+ * Pass the worker's exit code as `worker_exit_status`, and a non-zero value
+ * (for example -1) when it ended by a signal or was killed.
+ */
+ntfsmac_dmn_status ntfsmac_errwatch_pipe_open(int *rd, int *wr);
+/*
+ * Read what is there now (at most 64 KiB per call) into the parser, without
+ * blocking. Sets NTFSMAC_EW_EOF at end-of-file. E_IO on a read error.
+ */
+ntfsmac_dmn_status ntfsmac_errwatch_pump(ntfsmac_errwatch *w, int rd);
+/*
+ * After the worker exit: pump until end-of-file or `timeout_ms`
+ * (NTFSMAC_ERRWATCH_EOF_WAIT_MS). OK at end-of-file; E_TIMEOUT when it did
+ * not come (the EOF flag stays unset, so the session is not clean).
+ */
+ntfsmac_dmn_status ntfsmac_errwatch_drain(ntfsmac_errwatch *w, int rd, unsigned timeout_ms);
 
 /* ------------------------------------------------------------------ */
 /* Session lifecycle (session.c, T-M4-14)                              */

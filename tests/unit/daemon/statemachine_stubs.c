@@ -18,7 +18,7 @@ int main(void)
 	CHECK_EQ_INT(mode, NTFSMAC_VMODE_NONE);
 	CHECK_EQ_INT(ntfsmac_notify_post(NTFSMAC_NOTIFY_REFUSED, "x", "y"), NTFSMAC_DMN_E_NOTIMPL);
 
-	/* The stub watcher fails closed: no session is ever proven clean. */
+	/* An empty channel never proves a session clean (parser tests: errwatch_test.c). */
 	ntfsmac_errwatch_init(&w);
 	ntfsmac_errwatch_eof(&w);
 	CHECK(!ntfsmac_errwatch_clean_proof(&w, true, false, 0));

@@ -1,0 +1,39 @@
+{
+  "cpus": 18,
+  "entries": 1000000,
+  "image_allocated_bytes": 1296134144,
+  "image_sha256_after": "e450141255b15b48a609f43f711466f49885f9a651e0006501453c9e45cd6eb6",
+  "image_sha256_before": "e450141255b15b48a609f43f711466f49885f9a651e0006501453c9e45cd6eb6",
+  "image_size_bytes": 7516192768,
+  "image_unchanged": true,
+  "layout": "dirs",
+  "limit_seconds": 20.0,
+  "max_seconds": 0.273,
+  "nonnfc_count": 1,
+  "populate_seconds": 64.7,
+  "reason_codes": [
+    "NAMES_NOT_NFC"
+  ],
+  "runs": [
+    {
+      "children_max_rss_kib": 32996,
+      "cold_cache": true,
+      "scan": "ntfsmac-probe: name scan: 1002 directories, 1000015 names, complete",
+      "seconds": 0.273
+    },
+    {
+      "children_max_rss_kib": 32996,
+      "cold_cache": false,
+      "scan": "ntfsmac-probe: name scan: 1002 directories, 1000015 names, complete",
+      "seconds": 0.188
+    },
+    {
+      "children_max_rss_kib": 32996,
+      "cold_cache": true,
+      "scan": "ntfsmac-probe: name scan: 1002 directories, 1000015 names, complete",
+      "seconds": 0.27
+    }
+  ],
+  "state": "names_not_nfc",
+  "uname": "aarch64"
+}

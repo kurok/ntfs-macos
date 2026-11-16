@@ -10,20 +10,15 @@ int main(void)
 {
 	ntfsmac_probe_verdict verdict;
 	ntfsmac_errwatch w;
-	ntfsmac_conflict_report cr;
 	ntfsmac_da *da = (ntfsmac_da *)1;
 	ntfsmac_ctl *ctl = (ntfsmac_ctl *)1;
 	ntfsmac_session *sess = (ntfsmac_session *)1;
 	ntfsmac_vol_mode mode = NTFSMAC_VMODE_RW;
 	char reply[16] = "x";
-	pid_t busy = 5;
 
 	CHECK_EQ_INT(ntfsmac_spawn_probe(NULL, &verdict), NTFSMAC_DMN_E_NOTIMPL);
 	CHECK_EQ_INT(ntfsmac_da_start(NULL, NULL, &da), NTFSMAC_DMN_E_NOTIMPL);
 	CHECK(da == NULL);
-	CHECK_EQ_INT(ntfsmac_unmount_path("/x", NULL, &busy), NTFSMAC_DMN_E_NOTIMPL);
-	CHECK_EQ_INT(busy, 0);
-	CHECK_EQ_INT(ntfsmac_mountpoint_create("a", 1, 0, 0, 0, NULL), NTFSMAC_DMN_E_NOTIMPL);
 	CHECK_EQ_INT(ntfsmac_ctl_start("/x", NULL, NULL, &ctl), NTFSMAC_DMN_E_NOTIMPL);
 	CHECK(ctl == NULL);
 	CHECK_EQ_INT(ntfsmac_ctl_handle_line(NULL, NULL, NULL, "", 0, reply, sizeof reply),
@@ -33,9 +28,6 @@ int main(void)
 		     NTFSMAC_DMN_E_NOTIMPL);
 	CHECK(sess == NULL);
 	CHECK_EQ_INT(mode, NTFSMAC_VMODE_NONE);
-	CHECK_EQ_INT(ntfsmac_reconcile_run(NULL, NULL, NULL), NTFSMAC_DMN_E_NOTIMPL);
-	CHECK_EQ_INT(ntfsmac_conflict_detect(&cr), NTFSMAC_DMN_E_NOTIMPL);
-	CHECK_EQ_INT(ntfsmac_doctor_run(NULL, NULL), NTFSMAC_DMN_E_NOTIMPL);
 	CHECK_EQ_INT(ntfsmac_notify_post(NTFSMAC_NOTIFY_REFUSED, "x", "y"), NTFSMAC_DMN_E_NOTIMPL);
 
 	/* The stub watcher fails closed: no session is ever proven clean. */

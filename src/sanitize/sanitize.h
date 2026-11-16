@@ -94,7 +94,7 @@ size_t ntfsmac_path_display(const char *path, size_t len, char *out, size_t cap)
  * On success returns 0 and writes the created leaf (at most 67 bytes) to leaf and,
  * if non-NULL, the device and inode of the directory it created to *dev and *ino, so
  * that the caller removes only that directory. Returns -1 with errno EEXIST if all
- * 98 names are taken, EINVAL for an argument outside the contract (base not a label part,
+ * 99 names (`<base>` and `<base> 2` to `<base> 99`) are taken, EINVAL for an argument outside the contract (base not a label part,
  * cap smaller than NTFSMAC_LEAF_SIZE), or the errno of mkdirat() for any other failure; leaf
  * is empty in these cases. Returns -1 with errno ESTALE if the directory was created but its
  * device and inode could not be read: leaf then holds the created name, *dev and *ino are

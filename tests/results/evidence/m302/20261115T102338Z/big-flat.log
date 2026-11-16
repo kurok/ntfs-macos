@@ -1,0 +1,63 @@
+created 50000 entries in 3 s
+created 100000 entries in 6 s
+created 150000 entries in 9 s
+created 200000 entries in 12 s
+created 250000 entries in 15 s
+created 300000 entries in 19 s
+created 350000 entries in 22 s
+created 400000 entries in 25 s
+created 450000 entries in 29 s
+created 500000 entries in 32 s
+created 550000 entries in 35 s
+created 600000 entries in 39 s
+created 650000 entries in 43 s
+created 700000 entries in 46 s
+created 750000 entries in 50 s
+created 800000 entries in 54 s
+created 850000 entries in 58 s
+created 900000 entries in 62 s
+created 950000 entries in 65 s
+created 1000000 entries in 69 s
+populated 1000000 entries in 69 s
+run 1 (cold cache): 0.18 s, state names_not_nfc
+run 2 (warm cache): 0.18 s, state names_not_nfc
+run 3 (cold cache): 0.18 s, state names_not_nfc
+{
+  "cpus": 18,
+  "entries": 1000000,
+  "image_allocated_bytes": 1304211456,
+  "image_sha256_after": "0bba539b8d03c75b018e7986850ce258e11a42523e9a4e5b84a1c1c834c9d0d2",
+  "image_sha256_before": "0bba539b8d03c75b018e7986850ce258e11a42523e9a4e5b84a1c1c834c9d0d2",
+  "image_size_bytes": 7516192768,
+  "image_unchanged": true,
+  "layout": "flat",
+  "limit_seconds": 20.0,
+  "max_seconds": 0.185,
+  "nonnfc_count": 1,
+  "populate_seconds": 69.3,
+  "reason_codes": [
+    "NAMES_NOT_NFC"
+  ],
+  "runs": [
+    {
+      "children_max_rss_kib": 29664,
+      "cold_cache": true,
+      "scan": "ntfsmac-probe: name scan: 3 directories, 1000015 names, complete",
+      "seconds": 0.184
+    },
+    {
+      "children_max_rss_kib": 29664,
+      "cold_cache": false,
+      "scan": "ntfsmac-probe: name scan: 3 directories, 1000015 names, complete",
+      "seconds": 0.183
+    },
+    {
+      "children_max_rss_kib": 29664,
+      "cold_cache": true,
+      "scan": "ntfsmac-probe: name scan: 3 directories, 1000015 names, complete",
+      "seconds": 0.185
+    }
+  ],
+  "state": "names_not_nfc",
+  "uname": "aarch64"
+}

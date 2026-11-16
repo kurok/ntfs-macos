@@ -1,0 +1,11 @@
+deps-release   ok        5s
+deps-asan      ok        5s
+fixtures-unsafe ok        2s
+fixtures-names ok        1s
+fixtures-mirror ok       15s
+fixtures-clean ok        3s
+release        ok       28s
+asan           ok       48s
+big-dirs       ok       72s
+big-flat       ok       75s
+big-asan       ok       72s

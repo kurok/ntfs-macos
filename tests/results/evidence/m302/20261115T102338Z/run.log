@@ -1,0 +1,47 @@
+
+== stage: deps-release ==
+deps-release: ok (5s)
+
+== stage: deps-asan ==
+deps-asan: ok (5s)
+
+== stage: fixtures-unsafe ==
+fixtures-unsafe: ok (2s)
+
+== stage: fixtures-names ==
+fixtures-names: ok (1s)
+
+== stage: fixtures-mirror ==
+fixtures-mirror: ok (15s)
+
+== stage: fixtures-clean ==
+fixtures-clean: ok (3s)
+
+== stage: release ==
+release: ok (28s)
+
+== stage: asan ==
+asan: ok (48s)
+
+== stage: big-dirs ==
+big-dirs: ok (72s)
+
+== stage: big-flat ==
+big-flat: ok (75s)
+
+== stage: big-asan ==
+big-asan: ok (72s)
+
+== summary ==
+deps-release   ok        5s
+deps-asan      ok        5s
+fixtures-unsafe ok        2s
+fixtures-names ok        1s
+fixtures-mirror ok       15s
+fixtures-clean ok        3s
+release        ok       28s
+asan           ok       48s
+big-dirs       ok       72s
+big-flat       ok       75s
+big-asan       ok       72s
+probe tests: PASSED

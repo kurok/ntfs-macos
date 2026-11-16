@@ -358,16 +358,75 @@ void ntfsmac_session_free(ntfsmac_session *s);
 /* Restart reconciliation (reconcile.c, T-M4-05)                       */
 /* ------------------------------------------------------------------ */
 
-/* What reconcile decided for one journal entry. */
+/*
+ * What reconcile decided for one journal entry (section 7, `ntfsmacd` crash).
+ * The decision is pure (reconcile.c): it takes the journal entries and the
+ * list of live mounts and gives one item per entry or per mount to act on.
+ */
 typedef enum ntfsmac_reconcile_action {
 	NTFSMAC_RECONCILE_KEEP_ENTRY = 0, /* no live mount: entry stays, next mount is ro */
 	NTFSMAC_RECONCILE_READOPT,        /* live worker and mount: re-adopt (never clean) */
 	NTFSMAC_RECONCILE_FORCE_UNMOUNT   /* re-adoption impractical */
 } ntfsmac_reconcile_action;
 
-typedef int (*ntfsmac_reconcile_cb)(const ntfsmac_journal_entry *e,
-				    ntfsmac_reconcile_action action, void *ctx);
+/*
+ * One live mount, as the platform lister sees it. `mount_point` is the path
+ * under /Volumes; it is a name the daemon created, never read from a disk.
+ * `worker_pid` is the pid of a live worker that serves this mount, or 0 if
+ * none was found (the lister of this task never finds one, see reconcile.c).
+ */
+typedef struct ntfsmac_live_mount {
+	char mount_point[128];   /* same size as ntfsmac_mountpoint.path */
+	bool read_only;           /* MNT_RDONLY */
+	pid_t worker_pid;
+} ntfsmac_live_mount;
 
+/*
+ * The callback gets the entry, the action and, for READOPT and
+ * FORCE_UNMOUNT, the live mount it applies to (NULL for KEEP_ENTRY). The
+ * pointer is valid only during the call. A non-zero return stops the run.
+ * (T-M4-05 added the `mount` parameter: without it the daemon cannot know
+ * which path to unmount or which worker to adopt.)
+ */
+typedef int (*ntfsmac_reconcile_cb)(const ntfsmac_journal_entry *e,
+				    ntfsmac_reconcile_action action,
+				    const ntfsmac_live_mount *mount, void *ctx);
+
+/* One decision of the pure planner. `mount_index` is -1 for KEEP_ENTRY. */
+typedef struct ntfsmac_reconcile_item {
+	size_t entry_index;
+	ntfsmac_reconcile_action action;
+	long mount_index;
+} ntfsmac_reconcile_item;
+
+/*
+ * Pure planner. Every entry gets at least one item. Returns the number of
+ * items written; if `cap` is too small it returns 0 and sets *needed (when
+ * not NULL) to the capacity that suffices. `items` may be NULL with cap 0
+ * to ask for the size: the bound is `n_entries + n_mounts`.
+ */
+size_t ntfsmac_reconcile_plan(const ntfsmac_journal_entry *entries, size_t n_entries,
+			      const ntfsmac_live_mount *mounts, size_t n_mounts,
+			      ntfsmac_reconcile_item *items, size_t cap);
+
+/* True if `mount_point` is /Volumes/<leaf> where <leaf> is the entry's label, or
+ * the label followed by " 2" to " 99" (section 4.1 step 7). Pure. */
+bool ntfsmac_reconcile_mount_matches(const ntfsmac_journal_entry *e, const char *mount_point);
+
+/* Same as ntfsmac_reconcile_run with the live mounts given by the caller (tests). */
+ntfsmac_dmn_status ntfsmac_reconcile_run_with(ntfsmac_journal *j,
+					      const ntfsmac_live_mount *mounts,
+					      size_t n_mounts, ntfsmac_reconcile_cb cb,
+					      void *ctx);
+
+/*
+ * Platform lister (macOS: getfsstat(MNT_NOWAIT), no call into the served file
+ * system). Fills a new array; the caller frees it with free(). Not
+ * implemented off macOS (E_NOTIMPL).
+ */
+ntfsmac_dmn_status ntfsmac_reconcile_list_mounts(ntfsmac_live_mount **out, size_t *n);
+
+/* Read the journal and the live mounts, decide, call `cb` once per item. */
 ntfsmac_dmn_status ntfsmac_reconcile_run(ntfsmac_journal *j, ntfsmac_reconcile_cb cb,
 					 void *ctx);
 
@@ -375,20 +434,127 @@ ntfsmac_dmn_status ntfsmac_reconcile_run(ntfsmac_journal *j, ntfsmac_reconcile_c
 /* Conflict detection and doctor (conflict.c, doctor.c, T-M4-07)       */
 /* ------------------------------------------------------------------ */
 
+/* Fixed bundle directory of third-party file systems on macOS. */
+#define NTFSMAC_FS_DIR_DEFAULT "/Library/Filesystems"
+
+/* Kinds of other NTFS drivers. The names shown to users are fixed strings. */
+typedef enum ntfsmac_conflict_kind {
+	NTFSMAC_CONFLICT_NONE = 0,
+	NTFSMAC_CONFLICT_PARAGON,  /* ufsd_NTFS.fs */
+	NTFSMAC_CONFLICT_TUXERA,   /* tuxera_ntfs.fs */
+	NTFSMAC_CONFLICT_OTHER,    /* any other non-Apple "*ntfs*.fs" bundle */
+	NTFSMAC_CONFLICT_KIND_COUNT_
+} ntfsmac_conflict_kind;
+
 typedef struct ntfsmac_conflict_report {
 	bool passive;             /* another NTFS driver is installed (section 8.4) */
 	unsigned drivers_found;   /* count; names are fixed strings, never disk-derived */
+	unsigned kind_mask;       /* bit (1u << kind) for each kind found at least once */
 } ntfsmac_conflict_report;
 
+/*
+ * Pure rule: classify one directory entry name of /Library/Filesystems.
+ * Case is ignored. macFUSE, fuse-t, our own names (`ntfsmac*`) and Apple's
+ * `ntfs.fs` are not conflicts. NTFSMAC_CONFLICT_NONE for anything else.
+ */
+ntfsmac_conflict_kind ntfsmac_conflict_classify(const char *name);
+const char *ntfsmac_conflict_kind_name(ntfsmac_conflict_kind k);
+
+/*
+ * Scan `fs_dir` (a directory of bundles). Counts each entry that is a
+ * directory (symbolic links followed) and classifies as a conflict. A
+ * missing `fs_dir` means no driver. Any other read error gives E_IO and
+ * `passive` true: when the daemon cannot tell, it stays out of the way.
+ * `out` is always filled.
+ */
+ntfsmac_dmn_status ntfsmac_conflict_scan(const char *fs_dir, ntfsmac_conflict_report *out);
+
+/* Scan NTFSMAC_FS_DIR_DEFAULT. */
 ntfsmac_dmn_status ntfsmac_conflict_detect(ntfsmac_conflict_report *out);
+
+/* Passive-mode gates (section 8.4); `r` NULL is treated as passive. */
+bool ntfsmac_passive_allows_dissent(const ntfsmac_conflict_report *r);
+bool ntfsmac_passive_allows_automount(const ntfsmac_conflict_report *r);
+/*
+ * `ntfsmac mount` in passive mode: OK only when no file system has the
+ * volume mounted now (`volume_mounted_by_other`, from DAVolumePath);
+ * E_DENIED otherwise. In active mode always OK here.
+ */
+ntfsmac_dmn_status ntfsmac_passive_check_manual_mount(const ntfsmac_conflict_report *r,
+						      bool volume_mounted_by_other);
+
+/* ---- doctor (doctor.c) ---- */
+
+/* Oldest macFUSE the product accepts (ADR-013). */
+#define NTFSMAC_MACFUSE_MIN_MAJOR 5
+#define NTFSMAC_MACFUSE_MIN_MINOR 5
+#define NTFSMAC_MACFUSE_MIN_PATCH 0
+
+typedef struct ntfsmac_version {
+	unsigned major, minor, patch;
+} ntfsmac_version;
+
+/* Pure: parse "5.5.0", "5.5" or "5.5.1-beta" (text after the digits is ignored). */
+bool ntfsmac_version_parse(const char *s, ntfsmac_version *out);
+/* Pure: -1, 0 or 1. */
+int ntfsmac_version_cmp(const ntfsmac_version *a, const ntfsmac_version *b);
+/*
+ * Pure: find `<key>KEY</key><string>VALUE</string>` in an XML property list
+ * and copy VALUE (at most cap - 1 bytes). False if absent, too long or not
+ * XML (a binary plist is not parsed).
+ */
+bool ntfsmac_plist_string(const char *buf, size_t len, const char *key, char *out,
+			  size_t cap);
+
+/* Codes of `doctor` findings. The CLI maps them to text. */
+typedef enum ntfsmac_doctor_code {
+	NTFSMAC_DOCTOR_MACFUSE_INSTALLED = 1, /* macfuse.fs bundle present */
+	NTFSMAC_DOCTOR_MACFUSE_VERSION,       /* value = major * 10000 + minor * 100 + patch */
+	NTFSMAC_DOCTOR_MACFUSE_EXTENSION,     /* value = ntfsmac_doctor_ext_state */
+	NTFSMAC_DOCTOR_CONFLICT_NONE,         /* no other NTFS driver (ok) */
+	NTFSMAC_DOCTOR_CONFLICT_PARAGON,      /* found, passive mode (not ok) */
+	NTFSMAC_DOCTOR_CONFLICT_TUXERA,
+	NTFSMAC_DOCTOR_CONFLICT_OTHER,
+	NTFSMAC_DOCTOR_CONFLICT_UNREADABLE,   /* the bundle directory could not be read */
+	NTFSMAC_DOCTOR_JOURNAL_ENTRIES,       /* value = entries; not ok if any (next mount ro) */
+	NTFSMAC_DOCTOR_JOURNAL_CORRUPT,       /* value = unreadable entries; not ok if any */
+	NTFSMAC_DOCTOR_JOURNAL_CLEARED,       /* value = tombstones kept; always ok */
+	NTFSMAC_DOCTOR_JOURNAL_UNREADABLE     /* the journal directory could not be opened */
+} ntfsmac_doctor_code;
+
+typedef enum ntfsmac_doctor_ext_state {
+	NTFSMAC_EXT_UNKNOWN = 0,   /* could not be determined */
+	NTFSMAC_EXT_ENABLED,
+	NTFSMAC_EXT_NOT_APPROVED
+} ntfsmac_doctor_ext_state;
 
 /* One `doctor` finding: a fixed code, mapped to text by the CLI. */
 typedef struct ntfsmac_doctor_finding {
-	int code;                 /* assigned by T-M4-07 */
+	int code;                 /* ntfsmac_doctor_code */
 	bool ok;
+	long value;               /* meaning per code above; 0 if none */
 } ntfsmac_doctor_finding;
 
 typedef int (*ntfsmac_doctor_cb)(const ntfsmac_doctor_finding *f, void *ctx);
+
+/* Source of the extension state. It needs a system query that is not plain
+ * POSIX, so the daemon supplies it (T-M4-08); NULL means unknown. */
+typedef ntfsmac_doctor_ext_state (*ntfsmac_doctor_ext_fn)(void *ctx);
+
+typedef struct ntfsmac_doctor_env {
+	const char *fs_dir;       /* NULL: NTFSMAC_FS_DIR_DEFAULT */
+	const char *journal_dir;  /* NULL: NTFSMAC_JOURNAL_DEFAULT_DIR */
+	ntfsmac_doctor_ext_fn ext_fn;
+	void *ext_ctx;
+} ntfsmac_doctor_env;
+
+/*
+ * Run every check and call `cb` once per finding; a non-zero return of `cb`
+ * stops the run (still status OK). `env` NULL means all defaults.
+ * Checks read only; a missing journal directory is not created.
+ */
+ntfsmac_dmn_status ntfsmac_doctor_run_env(const ntfsmac_doctor_env *env,
+					  ntfsmac_doctor_cb cb, void *ctx);
 ntfsmac_dmn_status ntfsmac_doctor_run(ntfsmac_doctor_cb cb, void *ctx);
 
 /* ------------------------------------------------------------------ */

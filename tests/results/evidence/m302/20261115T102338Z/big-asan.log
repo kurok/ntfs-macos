@@ -1,0 +1,49 @@
+created 50000 entries in 3 s
+created 100000 entries in 6 s
+created 150000 entries in 9 s
+created 200000 entries in 12 s
+created 250000 entries in 15 s
+created 300000 entries in 18 s
+created 350000 entries in 21 s
+created 400000 entries in 24 s
+created 450000 entries in 27 s
+created 500000 entries in 30 s
+created 550000 entries in 33 s
+created 600000 entries in 36 s
+created 650000 entries in 40 s
+created 700000 entries in 43 s
+created 750000 entries in 46 s
+created 800000 entries in 50 s
+created 850000 entries in 53 s
+created 900000 entries in 57 s
+created 950000 entries in 61 s
+created 1000000 entries in 64 s
+populated 1000000 entries in 64 s
+run 1 (cold cache): 1.04 s, state names_not_nfc
+{
+  "cpus": 18,
+  "entries": 1000000,
+  "image_allocated_bytes": 1296142336,
+  "image_sha256_after": "e6be45712ee59accfceee0d7c80f22ec81028c3eae35639eb4e29d927a408453",
+  "image_sha256_before": "e6be45712ee59accfceee0d7c80f22ec81028c3eae35639eb4e29d927a408453",
+  "image_size_bytes": 7516192768,
+  "image_unchanged": true,
+  "layout": "dirs",
+  "limit_seconds": 120.0,
+  "max_seconds": 1.043,
+  "nonnfc_count": 1,
+  "populate_seconds": 64.2,
+  "reason_codes": [
+    "NAMES_NOT_NFC"
+  ],
+  "runs": [
+    {
+      "children_max_rss_kib": 41924,
+      "cold_cache": true,
+      "scan": "ntfsmac-probe: name scan: 1002 directories, 1000015 names, complete",
+      "seconds": 1.043
+    }
+  ],
+  "state": "names_not_nfc",
+  "uname": "aarch64"
+}

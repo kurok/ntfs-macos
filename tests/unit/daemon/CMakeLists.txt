@@ -8,3 +8,11 @@ foreach(t transitions invalid stubs)
   target_link_libraries(statemachine_${t} PRIVATE ntfsmac_daemon ntfsmac_options)
   add_test(NAME daemon.statemachine_${t} COMMAND statemachine_${t})
 endforeach()
+
+# T-M4-03: mount point and unmount modules.
+foreach(t mountpoint unmount)
+  add_executable(${t}_test ${t}_test.c)
+  target_include_directories(${t}_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(${t}_test PRIVATE ntfsmac_daemon ntfsmac_options)
+  add_test(NAME daemon.${t} COMMAND ${t}_test)
+endforeach()

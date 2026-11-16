@@ -1,0 +1,29 @@
+08:55:05 start I-READ-06 (env A)
+08:55:05 $ mkntfs -F -Q -L ntfsmac /tmp/ntfsmac-case-jkxgcl23/vol.img -> rc=0
+08:55:05 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+08:55:05 stderr: /tmp/ntfsmac-case-jkxgcl23/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/ntfsmac-case-jkxgcl23/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/ntfsmac-case-jkxgcl23/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/ntfsmac-case-jkxgcl23/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/ntfsmac-case-jkxgcl23/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+08:55:05 $ ntfs-3g /tmp/ntfsmac-case-jkxgcl23/vol.img /tmp/ntfsmac-case-jkxgcl23/mnt -o rw,big_writes,noatime -> rc=0
+08:55:06 warm: all files done
+08:55:06 $ sync -> rc=0
+08:55:06 $ umount /tmp/ntfsmac-case-jkxgcl23/mnt -> rc=0
+08:55:06 $ ntfsfix -n /tmp/ntfsmac-case-jkxgcl23/vol.img -> rc=0
+08:55:06 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /tmp/ntfsmac-case-jkxgcl23/vol.img was processed successfully.
+08:55:06 $ ntfs-3g /tmp/ntfsmac-case-jkxgcl23/vol.img /tmp/ntfsmac-case-jkxgcl23/mnt -o rw,big_writes,noatime -> rc=0
+08:55:06 cold: all files done
+08:55:06 $ sync -> rc=0
+08:55:06 $ umount /tmp/ntfsmac-case-jkxgcl23/mnt -> rc=0
+08:55:06 PASS
+08:55:06 end I-READ-06: pass

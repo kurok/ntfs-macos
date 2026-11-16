@@ -1,0 +1,613 @@
+{
+ "notes": [],
+ "page_size": 16384,
+ "steps": [
+  {
+   "call_ms": 1.8,
+   "device_syncs": 0,
+   "device_writes": 0,
+   "fuse": [
+    "<OPEN n5 +-1ms"
+   ],
+   "opcodes": [
+    "OPEN"
+   ],
+   "ret": "ok 1048576",
+   "step": "s1-idle: mapped write 1 MiB",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 40142.2,
+   "device_syncs": 2,
+   "device_writes": 3,
+   "fuse": [
+    "<FSYNC n5 +14367ms",
+    "<WRITE n5 1048576@0 +14410ms",
+    "<FSYNC n5 +14410ms"
+   ],
+   "opcodes": [
+    "FSYNC",
+    "WRITE"
+   ],
+   "ret": null,
+   "step": "s1-idle: idle 40 s (mapping live, fd open)",
+   "write_bytes": 1048576,
+   "write_bytes_during": 1048576,
+   "write_requests": 1
+  },
+  {
+   "call_ms": 2.2,
+   "device_syncs": 0,
+   "device_writes": 0,
+   "fuse": [
+    "<OPEN n6 +-1ms"
+   ],
+   "opcodes": [
+    "OPEN"
+   ],
+   "ret": "ok 1048576",
+   "step": "s2-msync-async: mapped write 1 MiB",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 0.4,
+   "device_syncs": 1,
+   "device_writes": 3,
+   "fuse": [
+    ">WRITE n6 1048576@0 +1ms",
+    ">FSYNC n6 +2179ms",
+    ">FSYNC n5 +2200ms",
+    ">FSYNC n6 +2200ms",
+    ">FSYNC n5 +2200ms"
+   ],
+   "opcodes": [
+    "FSYNC",
+    "WRITE"
+   ],
+   "ret": "ok",
+   "step": "s2: msync(MS_ASYNC)",
+   "write_bytes": 1048576,
+   "write_bytes_during": 0,
+   "write_requests": 1
+  },
+  {
+   "call_ms": 2.2,
+   "device_syncs": 0,
+   "device_writes": 0,
+   "fuse": [
+    "<OPEN n7 +-1ms"
+   ],
+   "opcodes": [
+    "OPEN"
+   ],
+   "ret": "ok 1048576",
+   "step": "s3-msync-sync: mapped write 1 MiB",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 2.0,
+   "device_syncs": 0,
+   "device_writes": 3,
+   "fuse": [
+    "<WRITE n7 1048576@0 +1ms"
+   ],
+   "opcodes": [
+    "WRITE"
+   ],
+   "ret": "ok",
+   "step": "s3: msync(MS_SYNC)",
+   "write_bytes": 1048576,
+   "write_bytes_during": 1048576,
+   "write_requests": 1
+  },
+  {
+   "call_ms": 0.7,
+   "device_syncs": 0,
+   "device_writes": 0,
+   "fuse": [
+    "<OPEN n8 +-0ms"
+   ],
+   "opcodes": [
+    "OPEN"
+   ],
+   "ret": "ok 1048576",
+   "step": "s4-fsync: mapped write 1 MiB",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 20.0,
+   "device_syncs": 1,
+   "device_writes": 3,
+   "fuse": [
+    "<WRITE n8 1048576@0 +2ms",
+    "<FSYNC n8 +4ms",
+    "<FSYNC n7 +19ms",
+    "<FSYNC n6 +19ms",
+    "<FSYNC n5 +19ms"
+   ],
+   "opcodes": [
+    "FSYNC",
+    "WRITE"
+   ],
+   "ret": "ok",
+   "step": "s4: fsync(fd), mapping live",
+   "write_bytes": 1048576,
+   "write_bytes_during": 1048576,
+   "write_requests": 1
+  },
+  {
+   "call_ms": 0.8,
+   "device_syncs": 0,
+   "device_writes": 0,
+   "fuse": [
+    "<OPEN n9 +-0ms"
+   ],
+   "opcodes": [
+    "OPEN"
+   ],
+   "ret": "ok 1048576",
+   "step": "s5-fullfsync: mapped write 1 MiB",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 20.3,
+   "device_syncs": 1,
+   "device_writes": 3,
+   "fuse": [
+    "<WRITE n9 1048576@0 +1ms",
+    "<FSYNC n9 +3ms",
+    "<FSYNC n6 +15ms",
+    "<FSYNC n7 +15ms",
+    "<FSYNC n5 +15ms",
+    "<FSYNC n8 +15ms"
+   ],
+   "opcodes": [
+    "FSYNC",
+    "WRITE"
+   ],
+   "ret": "ok",
+   "step": "s5: fcntl(F_FULLFSYNC), mapping live",
+   "write_bytes": 1048576,
+   "write_bytes_during": 1048576,
+   "write_requests": 1
+  },
+  {
+   "call_ms": 1.7,
+   "device_syncs": 0,
+   "device_writes": 0,
+   "fuse": [
+    "<OPEN n10 +-1ms"
+   ],
+   "opcodes": [
+    "OPEN"
+   ],
+   "ret": "ok 1048576",
+   "step": "s6-sync2: mapped write 1 MiB",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 38.4,
+   "device_syncs": 1,
+   "device_writes": 3,
+   "fuse": [
+    "<FSYNC n6 +1ms",
+    "<FSYNC n10 +1ms",
+    "<FSYNC n8 +1ms",
+    "<FSYNC n5 +2ms",
+    "<FSYNC n7 +2ms",
+    "<FSYNC n9 +2ms",
+    "<FSYNC n6 +2ms",
+    "<FSYNC n8 +2ms",
+    "<FSYNC n5 +2ms",
+    "<WRITE n10 1048576@0 +2ms",
+    "<FSYNC n7 +3ms",
+    "<FSYNC n6 +28ms",
+    "<FSYNC n9 +28ms",
+    "<FSYNC n5 +28ms",
+    "<FSYNC n8 +28ms",
+    "<FSYNC n7 +29ms",
+    "<FSYNC n9 +29ms",
+    "<FSYNC n10 +29ms",
+    "<FSYNC n10 +29ms"
+   ],
+   "opcodes": [
+    "FSYNC",
+    "WRITE"
+   ],
+   "ret": null,
+   "step": "s6: sync(2), mapping live, fd open",
+   "write_bytes": 1048576,
+   "write_bytes_during": 1048576,
+   "write_requests": 1
+  },
+  {
+   "call_ms": 0.6,
+   "device_syncs": 0,
+   "device_writes": 0,
+   "fuse": [
+    "<OPEN n11 +-0ms"
+   ],
+   "opcodes": [
+    "OPEN"
+   ],
+   "ret": "ok 1048576",
+   "step": "s7-munmap: mapped write 1 MiB",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 0.1,
+   "device_syncs": 0,
+   "device_writes": 0,
+   "fuse": [],
+   "opcodes": [],
+   "ret": "ok",
+   "step": "s7: munmap, fd open",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 2.7,
+   "device_syncs": 0,
+   "device_writes": 3,
+   "fuse": [
+    "<WRITE n11 1048576@0 +1ms",
+    "<RELEASE n11 +2ms"
+   ],
+   "opcodes": [
+    "RELEASE",
+    "WRITE"
+   ],
+   "ret": "ok",
+   "step": "s7: close",
+   "write_bytes": 1048576,
+   "write_bytes_during": 1048576,
+   "write_requests": 1
+  },
+  {
+   "call_ms": 2.0,
+   "device_syncs": 0,
+   "device_writes": 0,
+   "fuse": [
+    "<OPEN n12 +-1ms"
+   ],
+   "opcodes": [
+    "OPEN"
+   ],
+   "ret": "ok 1048576",
+   "step": "s8-munmap-close: mapped write 1 MiB",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 0.1,
+   "device_syncs": 2,
+   "device_writes": 3,
+   "fuse": [
+    ">FSYNC n6 +677ms",
+    ">FSYNC n8 +702ms",
+    ">FSYNC n12 +702ms",
+    ">FSYNC n10 +702ms",
+    ">FSYNC n5 +703ms",
+    ">FSYNC n7 +703ms",
+    ">FSYNC n9 +703ms",
+    ">FSYNC n6 +703ms",
+    ">FSYNC n8 +703ms",
+    ">FSYNC n10 +703ms",
+    ">FSYNC n5 +703ms",
+    ">FSYNC n7 +703ms",
+    ">FSYNC n9 +703ms",
+    ">WRITE n12 1048576@0 +703ms",
+    ">FSYNC n12 +704ms"
+   ],
+   "opcodes": [
+    "FSYNC",
+    "WRITE"
+   ],
+   "ret": "ok",
+   "step": "s8: munmap",
+   "write_bytes": 1048576,
+   "write_bytes_during": 0,
+   "write_requests": 1
+  },
+  {
+   "call_ms": 47.3,
+   "device_syncs": 0,
+   "device_writes": 0,
+   "fuse": [
+    "<RELEASE n12 +1ms"
+   ],
+   "opcodes": [
+    "RELEASE"
+   ],
+   "ret": "ok",
+   "step": "s8: close",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 40089.7,
+   "device_syncs": 0,
+   "device_writes": 0,
+   "fuse": [
+    "<FSYNC n6 +28493ms",
+    "<FSYNC n9 +28494ms",
+    "<FSYNC n10 +28494ms",
+    "<FSYNC n8 +28494ms",
+    "<FSYNC n5 +28494ms",
+    "<FSYNC n7 +28494ms"
+   ],
+   "opcodes": [
+    "FSYNC"
+   ],
+   "ret": null,
+   "step": "s8: idle 40 s after close",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 9.4,
+   "device_syncs": 0,
+   "device_writes": 2,
+   "fuse": [
+    "<OPEN n13 +-1ms",
+    "<READ n13 32768@0 +1ms",
+    "<READ n13 16384@32768 +2ms",
+    "<READ n13 16384@49152 +3ms",
+    "<READ n13 32768@65536 +3ms",
+    "<READ n13 32768@98304 +4ms",
+    "<READ n13 32768@131072 +4ms",
+    "<READ n13 32768@163840 +5ms",
+    "<READ n13 49152@196608 +5ms",
+    "<READ n13 49152@245760 +6ms",
+    "<READ n13 65536@294912 +6ms",
+    "<READ n13 81920@360448 +7ms",
+    "<READ n13 98304@442368 +7ms",
+    "<READ n13 131072@540672 +7ms",
+    "<READ n13 163840@671744 +8ms",
+    "<READ n13 196608@835584 +9ms",
+    "<READ n13 16384@1032192 +9ms"
+   ],
+   "opcodes": [
+    "OPEN",
+    "READ"
+   ],
+   "ret": "ok 1048576",
+   "step": "s9-close-map-live: mapped write 1 MiB",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 2.7,
+   "device_syncs": 0,
+   "device_writes": 3,
+   "fuse": [
+    "<WRITE n13 1048576@0 +1ms"
+   ],
+   "opcodes": [
+    "WRITE"
+   ],
+   "ret": "ok",
+   "step": "s9: close(fd), mapping stays",
+   "write_bytes": 1048576,
+   "write_bytes_during": 1048576,
+   "write_requests": 1
+  },
+  {
+   "call_ms": 20121.6,
+   "device_syncs": 1,
+   "device_writes": 0,
+   "fuse": [
+    "<FSYNC n6 +13285ms",
+    "<FSYNC n9 +13301ms",
+    "<FSYNC n8 +13301ms",
+    "<FSYNC n13 +13301ms",
+    "<FSYNC n5 +13301ms",
+    "<FSYNC n7 +13301ms",
+    "<FSYNC n10 +13301ms"
+   ],
+   "opcodes": [
+    "FSYNC"
+   ],
+   "ret": null,
+   "step": "s9: idle 20 s",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 2.9,
+   "device_syncs": 0,
+   "device_writes": 2,
+   "fuse": [
+    "<OPEN n14 +-0ms",
+    "<READ n14 32768@0 +1ms",
+    "<READ n14 16384@32768 +1ms",
+    "<READ n14 16384@49152 +1ms",
+    "<READ n14 65536@65536 +2ms",
+    "<READ n14 131072@131072 +2ms",
+    "<READ n14 262144@262144 +2ms",
+    "<READ n14 524288@524288 +3ms"
+   ],
+   "opcodes": [
+    "OPEN",
+    "READ"
+   ],
+   "ret": "ok 1048576",
+   "step": "s10-read2: mapped write 1 MiB",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 4.2,
+   "device_syncs": 0,
+   "device_writes": 24,
+   "fuse": [
+    "<WRITE n14 131072@0 +1ms",
+    "<WRITE n14 131072@131072 +1ms",
+    "<WRITE n14 131072@262144 +2ms",
+    "<WRITE n14 131072@393216 +2ms",
+    "<WRITE n14 131072@524288 +3ms",
+    "<WRITE n14 131072@655360 +3ms",
+    "<WRITE n14 131072@786432 +4ms",
+    "<WRITE n14 131072@917504 +4ms"
+   ],
+   "opcodes": [
+    "WRITE"
+   ],
+   "ret": true,
+   "step": "s10: read(2) of the whole file, mapping live",
+   "write_bytes": 1048576,
+   "write_bytes_during": 1048576,
+   "write_requests": 8
+  },
+  {
+   "call_ms": 16.9,
+   "device_syncs": 1,
+   "device_writes": 0,
+   "fuse": [
+    "<FSYNC n9 +8ms",
+    "<FSYNC n10 +14ms",
+    "<FSYNC n8 +14ms",
+    "<FSYNC n5 +14ms",
+    "<FSYNC n13 +14ms",
+    "<FSYNC n6 +14ms",
+    "<FSYNC n14 +14ms",
+    "<FSYNC n7 +14ms",
+    "<FSYNC n9 +14ms",
+    "<FSYNC n10 +14ms",
+    "<FSYNC n8 +14ms",
+    "<FSYNC n6 +14ms",
+    "<FSYNC n13 +14ms",
+    "<FSYNC n5 +14ms",
+    "<FSYNC n14 +14ms",
+    "<FSYNC n7 +14ms",
+    "<FSYNC n6 +15ms",
+    "<FSYNC n9 +15ms",
+    "<FSYNC n10 +15ms",
+    "<FSYNC n8 +15ms",
+    "<FSYNC n13 +15ms",
+    "<FSYNC n5 +15ms",
+    "<FSYNC n14 +15ms",
+    "<FSYNC n7 +15ms",
+    "<FSYNC n6 +15ms",
+    "<FSYNC n10 +15ms",
+    "<FSYNC n9 +15ms",
+    "<FSYNC n8 +15ms",
+    "<FSYNC n13 +15ms",
+    "<FSYNC n5 +15ms",
+    "<FSYNC n14 +15ms",
+    "<FSYNC n7 +15ms",
+    "<FSYNC n6 +16ms",
+    "<FSYNC n9 +16ms",
+    "<FSYNC n10 +16ms",
+    "<FSYNC n8 +16ms",
+    "<FSYNC n7 +16ms",
+    "<FSYNC n14 +16ms",
+    "<FSYNC n5 +16ms",
+    "<FSYNC n13 +16ms",
+    "<FSYNC n9 +16ms",
+    "<FSYNC n6 +16ms",
+    "<FSYNC n10 +16ms",
+    "<FSYNC n8 +16ms",
+    "<FSYNC n13 +16ms",
+    "<FSYNC n5 +16ms",
+    "<FSYNC n14 +16ms",
+    "<FSYNC n7 +16ms"
+   ],
+   "opcodes": [
+    "FSYNC"
+   ],
+   "ret": "(1, \"umount(/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8ok37u7k/mnt): Resource busy -- try 'diskutil unmount'\")",
+   "step": "clean umount with live mappings of s1..s6, s9",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 15.7,
+   "device_syncs": 1,
+   "device_writes": 0,
+   "fuse": [
+    "<FSYNC n6 +-20ms",
+    "<FSYNC n9 +-20ms",
+    "<FSYNC n10 +-20ms",
+    "<FSYNC n8 +-20ms",
+    "<FSYNC n7 +-20ms",
+    "<FSYNC n14 +-20ms",
+    "<FSYNC n5 +-20ms",
+    "<FSYNC n13 +-20ms",
+    "<FSYNC n9 +-19ms",
+    "<FSYNC n6 +-19ms",
+    "<FSYNC n10 +-19ms",
+    "<FSYNC n8 +-19ms",
+    "<FSYNC n13 +-19ms",
+    "<FSYNC n5 +-19ms",
+    "<FSYNC n14 +-19ms",
+    "<FSYNC n7 +-19ms",
+    "<RELEASE n5 +-11ms",
+    "<RELEASE n6 +-10ms",
+    "<RELEASE n7 +-9ms",
+    "<RELEASE n8 +-8ms",
+    "<RELEASE n9 +-8ms",
+    "<RELEASE n10 +-7ms",
+    "<RELEASE n13 +-6ms",
+    "<RELEASE n14 +-5ms",
+    "<DESTROY n1 +6ms"
+   ],
+   "opcodes": [
+    "DESTROY",
+    "FSYNC",
+    "RELEASE"
+   ],
+   "ret": "(0, '')",
+   "step": "umount again after the mappings are gone",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  }
+ ],
+ "umount_with_live_maps_still_mounted": true,
+ "verify": {
+  "files": {
+   "s1-idle.bin": "ok",
+   "s10-read2.bin": "ok",
+   "s2-msync-async.bin": "ok",
+   "s3-msync-sync.bin": "ok",
+   "s4-fsync.bin": "ok",
+   "s5-fullfsync.bin": "ok",
+   "s6-sync2.bin": "ok",
+   "s7-munmap.bin": "ok",
+   "s8-munmap-close.bin": "ok",
+   "s9-close-map-live.bin": "ok"
+  },
+  "fsck_rc": 0,
+  "fsck_tail": [
+   "Processing of $MFT and $MFTMirr completed successfully.",
+   "Checking the alternate boot sector... OK",
+   "NTFS volume version is 3.1.",
+   "NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-8ok37u7k/vol.img was processed successfully."
+  ],
+  "mount": "ok",
+  "tag": "06"
+ }
+}

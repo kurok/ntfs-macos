@@ -1,0 +1,23 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "85b27990d32d3157111345bcdefa9ae2e077523c",
+  "dirty_tree": false,
+  "env": "host",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": null,
+  "macfuse_version": null,
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-16T09:25:39Z",
+  "finished": "2026-11-16T09:25:51Z",
+  "cases": [
+    {
+      "id": "U-UNIT-HOST",
+      "status": "pass",
+      "duration_s": 0,
+      "evidence": [
+        "evidence/2026-11-16-85b2799-unit/ci-local-quick-host.log"
+      ],
+      "note": "scripts/ci-local.sh --quick on the macOS host: 20/20 ctest (journal, policy, sanitize, volmark.args). Unit-level evidence produced outside the harness for the gate re-run after the carried NTFS-3G fixes 0010-0013 (ADR-026); run on the clean tree at this commit; duration_s 0 means not measured per case."
+    }
+  ]
+}

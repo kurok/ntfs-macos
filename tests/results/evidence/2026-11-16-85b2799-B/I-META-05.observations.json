@@ -1,0 +1,12 @@
+{
+ "chmod: file": "m- c- a-",
+ "dA after rename, unlink, link": "m+ c+ a-",
+ "dB after move, create, mkdir": "m+ c+ a-",
+ "link: file": "m- c- a-",
+ "move to dB: file": "m- c+ a-",
+ "read: file": "m- c- a-",
+ "rename (same dir): file": "m- c+ a-",
+ "truncate": "m+ c+ a-",
+ "utimens same value: file": "m- c+ a-",
+ "write": "m+ c+ a-"
+}

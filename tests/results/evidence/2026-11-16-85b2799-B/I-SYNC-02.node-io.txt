@@ -1,0 +1,2 @@
+buffered  {"flush_ms": 10.0, "read_1MiB_MBps": 25643.4, "write_1MiB_MBps": 171.3, "write_4KiB_then_flush_MBps": 113.8, "write_4KiB_x2048_MBps": 128.1, "write_then_flush_MBps": 162.6}
+raw       {"flush_ms": 6.7, "read_1MiB_MBps": 2439.0, "write_1MiB_MBps": 3518.1, "write_4KiB_then_flush_MBps": 29.7, "write_4KiB_x2048_MBps": 30.7, "write_then_flush_MBps": 2022.1}

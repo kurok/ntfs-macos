@@ -1,0 +1,25 @@
+-- The C compiler identification is GNU 14.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Platform: Linux (portable parts only)
+-- Performing Test NTFSMAC_HAVE_STACK_PROTECTOR_STRONG
+-- Performing Test NTFSMAC_HAVE_STACK_PROTECTOR_STRONG - Success
+-- Performing Test NTFSMAC_HAVE_AUTO_VAR_INIT
+-- Performing Test NTFSMAC_HAVE_AUTO_VAR_INIT - Success
+-- no AddressSanitizer build: fuzz.findings.F1/F3/F4 not registered
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /tmp/bld-fio
+[1/10] Building C object src/volmark/CMakeFiles/volmark_test.dir/main_test.c.o
+[2/10] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/cli.c.o
+[3/10] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/vdev.c.o
+[4/10] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_pure.dir/args.c.o
+[5/10] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/volmark.c.o
+[6/10] Linking C static library src/volmark/libntfsmac_volmark_pure.a
+[7/10] Building C object src/common/CMakeFiles/ntfsmac_mftmirr.dir/mftmirr.c.o
+[8/10] Linking C static library src/common/libntfsmac_mftmirr.a
+[9/10] Linking C static library src/volmark/libntfsmac_volmark_core.a
+[10/10] Linking C executable src/volmark/volmark_test

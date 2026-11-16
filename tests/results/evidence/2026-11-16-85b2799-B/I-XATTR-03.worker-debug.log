@@ -1,0 +1,515 @@
+FUSE library version: 2.9.9
+nullpath_ok: 0
+nopath: 0
+utime_omit_ok: 0
+Version 2026.9.28 external FUSE 29
+Requested device /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-uic0h2ti/vol.img canonicalized as /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-uic0h2ti/vol.img
+Mounted /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-uic0h2ti/vol.img (Read-Write, label "ntfsmac", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,uid=501,gid=20,windows_names,noatime,streams_interface=openxattr,debug
+Mount options: backend=fskit,local,allow_other,nonempty,noatime,default_permissions,fsname=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-uic0h2ti/vol.img
+Global ownership and permissions enforced, configuration type 1
+unique: 1, opcode: INIT (26), nodeid: 0, insize: 56, pid: 0
+INIT: 7.19
+flags=0x6fa00000
+max_readahead=0x01000000
+   INIT: 7.19
+   flags=0x80200050
+   max_readahead=0x01000000
+   max_write=0x02000000
+   max_background=0
+   congestion_threshold=0
+   unique: 1, success, outsize: 40
+unique: 2, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 2, success, outsize: 96
+unique: 3, opcode: GETATTR (3), nodeid: 1, insize: 56, pid: 0
+getattr /
+   unique: 3, success, outsize: 136
+unique: 4, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 4, success, outsize: 96
+unique: 5, opcode: GETATTR (3), nodeid: 1, insize: 56, pid: 0
+getattr /
+   unique: 5, success, outsize: 136
+unique: 6, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 6, success, outsize: 96
+unique: 7, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 7, success, outsize: 96
+unique: 8, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 8, success, outsize: 96
+unique: 9, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 9, success, outsize: 96
+unique: 10, opcode: ACCESS (34), nodeid: 1, insize: 48, pid: 0
+access / 00
+   unique: 10, error: -78 (Function not implemented), outsize: 16
+unique: 11, opcode: ACCESS (34), nodeid: 1, insize: 48, pid: 0
+access / 00
+   unique: 11, error: -78 (Function not implemented), outsize: 16
+unique: 12, opcode: LOOKUP (1), nodeid: 1, insize: 46, pid: 0
+LOOKUP /VSCAN
+getattr /VSCAN
+   unique: 12, error: -2 (No such file or directory), outsize: 16
+unique: 13, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+getxattr / com.apple.FinderInfo 0 0
+   unique: 13, success, outsize: 24
+unique: 14, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+getxattr / com.apple.FinderInfo 32 0
+   unique: 14, success, outsize: 48
+unique: 15, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+getxattr / com.apple.FinderInfo 0 0
+   unique: 15, success, outsize: 24
+unique: 16, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+getxattr / com.apple.FinderInfo 32 0
+   unique: 16, success, outsize: 48
+unique: 17, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 17, success, outsize: 96
+unique: 18, opcode: LOOKUP (1), nodeid: 1, insize: 45, pid: 0
+LOOKUP /DCIM
+getattr /DCIM
+   unique: 18, error: -2 (No such file or directory), outsize: 16
+unique: 19, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 19, success, outsize: 96
+unique: 20, opcode: GETXATTR (22), nodeid: 1, insize: 80, pid: 0
+getxattr / com.apple.icon.folder#S 0 0
+   unique: 20, error: -93 (Attribute not found), outsize: 16
+unique: 21, opcode: GETXATTR (22), nodeid: 1, insize: 92, pid: 0
+getxattr / com.apple.metadata:_kMDItemUserTags 0 0
+   unique: 21, error: -93 (Attribute not found), outsize: 16
+unique: 22, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 22, success, outsize: 96
+unique: 23, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 23, success, outsize: 96
+unique: 24, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 24, success, outsize: 96
+unique: 25, opcode: LOOKUP (1), nodeid: 1, insize: 57, pid: 0
+LOOKUP /Backups.backupdb
+getattr /Backups.backupdb
+   unique: 25, error: -2 (No such file or directory), outsize: 16
+unique: 26, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 26, success, outsize: 96
+unique: 27, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 27, success, outsize: 96
+unique: 28, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+getxattr / com.apple.FinderInfo 0 0
+   unique: 28, success, outsize: 24
+unique: 29, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+getxattr / com.apple.FinderInfo 32 0
+   unique: 29, success, outsize: 48
+unique: 30, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 30, success, outsize: 96
+unique: 31, opcode: LOOKUP (1), nodeid: 1, insize: 51, pid: 0
+LOOKUP /.localized
+getattr /.localized
+   unique: 31, error: -2 (No such file or directory), outsize: 16
+unique: 32, opcode: GETXATTR (22), nodeid: 1, insize: 80, pid: 0
+getxattr / com.apple.icon.folder#S 0 0
+   unique: 32, error: -93 (Attribute not found), outsize: 16
+unique: 33, opcode: GETXATTR (22), nodeid: 1, insize: 92, pid: 0
+getxattr / com.apple.metadata:_kMDItemUserTags 0 0
+   unique: 33, error: -93 (Attribute not found), outsize: 16
+unique: 34, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+getxattr / com.apple.FinderInfo 0 0
+   unique: 34, success, outsize: 24
+unique: 35, opcode: GETXATTR (22), nodeid: 1, insize: 77, pid: 0
+getxattr / com.apple.FinderInfo 32 0
+   unique: 35, success, outsize: 48
+unique: 36, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 36, success, outsize: 96
+unique: 37, opcode: GETXATTR (22), nodeid: 1, insize: 80, pid: 0
+getxattr / com.apple.icon.folder#S 0 0
+   unique: 37, error: -93 (Attribute not found), outsize: 16
+unique: 38, opcode: GETXATTR (22), nodeid: 1, insize: 92, pid: 0
+getxattr / com.apple.metadata:_kMDItemUserTags 0 0
+   unique: 38, error: -93 (Attribute not found), outsize: 16
+unique: 39, opcode: LOOKUP (1), nodeid: 1, insize: 48, pid: 0
+LOOKUP /.hidden
+getattr /.hidden
+   unique: 39, error: -2 (No such file or directory), outsize: 16
+unique: 40, opcode: GETXATTR (22), nodeid: 1, insize: 80, pid: 0
+getxattr / com.apple.icon.folder#S 0 0
+   unique: 40, error: -93 (Attribute not found), outsize: 16
+unique: 41, opcode: GETXATTR (22), nodeid: 1, insize: 80, pid: 0
+getxattr / com.apple.icon.folder#S 0 0
+   unique: 41, error: -93 (Attribute not found), outsize: 16
+unique: 42, opcode: GETXATTR (22), nodeid: 1, insize: 92, pid: 0
+getxattr / com.apple.metadata:_kMDItemUserTags 0 0
+   unique: 42, error: -93 (Attribute not found), outsize: 16
+unique: 43, opcode: GETXATTR (22), nodeid: 1, insize: 92, pid: 0
+getxattr / com.apple.metadata:_kMDItemUserTags 0 0
+   unique: 43, error: -93 (Attribute not found), outsize: 16
+unique: 44, opcode: LOOKUP (1), nodeid: 1, insize: 51, pid: 0
+LOOKUP /.fseventsd
+getattr /.fseventsd
+   NODEID: 2
+   unique: 44, success, outsize: 160
+unique: 45, opcode: LOOKUP (1), nodeid: 2, insize: 47, pid: 0
+LOOKUP /.fseventsd/no_log
+getattr /.fseventsd/no_log
+   unique: 45, error: -2 (No such file or directory), outsize: 16
+unique: 46, opcode: LOOKUP (1), nodeid: 2, insize: 47, pid: 0
+LOOKUP /.fseventsd/ignore
+getattr /.fseventsd/ignore
+   unique: 46, error: -2 (No such file or directory), outsize: 16
+unique: 47, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 47, success, outsize: 96
+unique: 48, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 48, success, outsize: 96
+unique: 49, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 49, success, outsize: 96
+unique: 50, opcode: OPENDIR (27), nodeid: 2, insize: 48, pid: 0
+opendir flags: 0x0 /.fseventsd
+   opendir[0] flags: 0x0 /.fseventsd
+   unique: 50, success, outsize: 32
+unique: 51, opcode: READDIR (28), nodeid: 2, insize: 80, pid: 0
+readdir[0] from 0
+   unique: 51, success, outsize: 120
+unique: 52, opcode: READDIR (28), nodeid: 2, insize: 80, pid: 0
+   unique: 52, success, outsize: 16
+unique: 53, opcode: BATCH_FORGET (42), nodeid: 0, insize: 48, pid: 0
+unique: 54, opcode: RELEASEDIR (29), nodeid: 2, insize: 64, pid: 0
+releasedir[0] flags: 0x0
+   unique: 54, success, outsize: 16
+unique: 55, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 55, success, outsize: 96
+unique: 56, opcode: LOOKUP (1), nodeid: 2, insize: 59, pid: 0
+LOOKUP /.fseventsd/.ramdisk-boot-done
+getattr /.fseventsd/.ramdisk-boot-done
+   unique: 56, error: -2 (No such file or directory), outsize: 16
+unique: 57, opcode: LOOKUP (1), nodeid: 2, insize: 55, pid: 0
+LOOKUP /.fseventsd/fseventsd-uuid
+getattr /.fseventsd/fseventsd-uuid
+   NODEID: 3
+   unique: 57, success, outsize: 160
+unique: 58, opcode: LOOKUP (1), nodeid: 2, insize: 57, pid: 0
+LOOKUP /.fseventsd/._fseventsd-uuid
+getattr /.fseventsd/._fseventsd-uuid
+   unique: 58, error: -2 (No such file or directory), outsize: 16
+unique: 59, opcode: OPEN (14), nodeid: 3, insize: 48, pid: 0
+open flags: 0x0 /.fseventsd/fseventsd-uuid
+   open[0] flags: 0x0 /.fseventsd/fseventsd-uuid
+   unique: 59, success, outsize: 32
+unique: 60, opcode: FLUSH (25), nodeid: 3, insize: 64, pid: 0
+flush[0]
+   unique: 60, error: -78 (Function not implemented), outsize: 16
+unique: 61, opcode: RELEASE (18), nodeid: 3, insize: 64, pid: 0
+release[0] flags: 0x0
+   unique: 61, success, outsize: 16
+unique: 62, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 62, success, outsize: 96
+unique: 63, opcode: LOOKUP (1), nodeid: 2, insize: 55, pid: 0
+LOOKUP /.fseventsd/fseventsd-uuid
+getattr /.fseventsd/fseventsd-uuid
+   NODEID: 3
+   unique: 63, success, outsize: 160
+unique: 64, opcode: GETATTR (3), nodeid: 3, insize: 56, pid: 0
+getattr /.fseventsd/fseventsd-uuid
+   unique: 64, success, outsize: 136
+unique: 65, opcode: GETATTR (3), nodeid: 3, insize: 56, pid: 0
+getattr /.fseventsd/fseventsd-uuid
+   unique: 65, success, outsize: 136
+unique: 66, opcode: UNLINK (10), nodeid: 2, insize: 55, pid: 0
+unlink /.fseventsd/fseventsd-uuid
+   unique: 66, success, outsize: 16
+unique: 67, opcode: GETATTR (3), nodeid: 2, insize: 56, pid: 0
+getattr /.fseventsd
+   unique: 67, success, outsize: 136
+unique: 68, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 68, success, outsize: 96
+unique: 69, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 69, success, outsize: 96
+unique: 70, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 70, success, outsize: 96
+unique: 71, opcode: FORGET (2), nodeid: 3, insize: 48, pid: 0
+FORGET 3/2
+DELETE: 3
+unique: 72, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 72, success, outsize: 96
+unique: 73, opcode: LOOKUP (1), nodeid: 2, insize: 55, pid: 0
+LOOKUP /.fseventsd/fseventsd-uuid
+getattr /.fseventsd/fseventsd-uuid
+   unique: 73, error: -2 (No such file or directory), outsize: 16
+unique: 74, opcode: GETATTR (3), nodeid: 2, insize: 56, pid: 0
+getattr /.fseventsd
+   unique: 74, success, outsize: 136
+unique: 75, opcode: CREATE (35), nodeid: 2, insize: 71, pid: 0
+create flags: 0xa02 /.fseventsd/fseventsd-uuid 0100600 umask=0000
+   create[0] flags: 0xa02 /.fseventsd/fseventsd-uuid
+fgetattr[0] /.fseventsd/fseventsd-uuid
+   NODEID: 4
+   unique: 75, success, outsize: 176
+unique: 76, opcode: SETATTR (4), nodeid: 4, insize: 168, pid: 0
+fsetattr_x[0] /.fseventsd/fseventsd-uuid
+setcrtime /.fseventsd/fseventsd-uuid 1794820848.002488762
+chown /.fseventsd/fseventsd-uuid 0 20
+fgetattr[0] /.fseventsd/fseventsd-uuid
+   unique: 76, success, outsize: 136
+unique: 77, opcode: GETATTR (3), nodeid: 2, insize: 56, pid: 0
+getattr /.fseventsd
+   unique: 77, success, outsize: 136
+unique: 78, opcode: RELEASE (18), nodeid: 4, insize: 64, pid: 0
+release[0] flags: 0x202
+   unique: 78, success, outsize: 16
+unique: 79, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 79, success, outsize: 96
+unique: 80, opcode: OPEN (14), nodeid: 4, insize: 48, pid: 0
+open flags: 0x2 /.fseventsd/fseventsd-uuid
+   open[0] flags: 0x2 /.fseventsd/fseventsd-uuid
+   unique: 80, success, outsize: 32
+unique: 81, opcode: FSYNC (20), nodeid: 4, insize: 56, pid: 0
+fsync[0] datasync: 1
+   unique: 81, success, outsize: 16
+unique: 82, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 82, success, outsize: 96
+unique: 83, opcode: FSYNC (20), nodeid: 4, insize: 56, pid: 0
+fsync[0] datasync: 1
+   unique: 83, success, outsize: 16
+unique: 84, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 84, success, outsize: 96
+unique: 85, opcode: FSYNC (20), nodeid: 4, insize: 56, pid: 0
+fsync[0] datasync: 1
+   unique: 85, success, outsize: 16
+unique: 86, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 86, success, outsize: 96
+unique: 87, opcode: FSYNC (20), nodeid: 4, insize: 56, pid: 0
+fsync[0] datasync: 1
+   unique: 87, success, outsize: 16
+unique: 88, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 88, success, outsize: 96
+unique: 89, opcode: WRITE (16), nodeid: 4, insize: 116, pid: 0
+write[0] 36 bytes to 0 flags: 0x0
+   write[0] 36 bytes to 0
+   unique: 89, success, outsize: 24
+unique: 90, opcode: GETATTR (3), nodeid: 4, insize: 56, pid: 0
+fgetattr[0] /.fseventsd/fseventsd-uuid
+   unique: 90, success, outsize: 136
+unique: 91, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 91, success, outsize: 96
+unique: 92, opcode: RELEASE (18), nodeid: 4, insize: 64, pid: 0
+release[0] flags: 0x2
+   unique: 92, success, outsize: 16
+unique: 93, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 93, success, outsize: 96
+unique: 94, opcode: OPEN (14), nodeid: 4, insize: 48, pid: 0
+open flags: 0x0 /.fseventsd/fseventsd-uuid
+   open[0] flags: 0x0 /.fseventsd/fseventsd-uuid
+   unique: 94, success, outsize: 32
+unique: 95, opcode: RELEASE (18), nodeid: 4, insize: 64, pid: 0
+release[0] flags: 0x0
+   unique: 95, success, outsize: 16
+unique: 96, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 96, success, outsize: 96
+unique: 97, opcode: GETATTR (3), nodeid: 2, insize: 56, pid: 0
+getattr /.fseventsd
+   unique: 97, success, outsize: 136
+unique: 98, opcode: GETXATTR (22), nodeid: 2, insize: 79, pid: 0
+getxattr /.fseventsd fsevents.previous_uuid 0 0
+   unique: 98, error: -93 (Attribute not found), outsize: 16
+unique: 99, opcode: GETXATTR (22), nodeid: 2, insize: 86, pid: 0
+getxattr /.fseventsd fsevents.last_pruned_event_id 0 0
+   unique: 99, error: -93 (Attribute not found), outsize: 16
+unique: 100, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 100, success, outsize: 96
+unique: 101, opcode: LOOKUP (1), nodeid: 2, insize: 47, pid: 0
+LOOKUP /.fseventsd/no_log
+getattr /.fseventsd/no_log
+   unique: 101, error: -2 (No such file or directory), outsize: 16
+unique: 102, opcode: LOOKUP (1), nodeid: 2, insize: 47, pid: 0
+LOOKUP /.fseventsd/ignore
+getattr /.fseventsd/ignore
+   unique: 102, error: -2 (No such file or directory), outsize: 16
+unique: 103, opcode: LOOKUP (1), nodeid: 1, insize: 55, pid: 0
+LOOKUP /trace-zero.txt
+getattr /trace-zero.txt
+   unique: 103, error: -2 (No such file or directory), outsize: 16
+unique: 104, opcode: CREATE (35), nodeid: 1, insize: 71, pid: 0
+create flags: 0xa02 /trace-zero.txt 0100644 umask=0000
+   create[0] flags: 0xa02 /trace-zero.txt
+fgetattr[0] /trace-zero.txt
+   NODEID: 5
+   unique: 104, success, outsize: 176
+unique: 105, opcode: SETATTR (4), nodeid: 5, insize: 168, pid: 0
+fsetattr_x[0] /trace-zero.txt
+setcrtime /trace-zero.txt 1794820848.112979611
+chown /trace-zero.txt 501 20
+fgetattr[0] /trace-zero.txt
+   unique: 105, success, outsize: 136
+unique: 106, opcode: GETATTR (3), nodeid: 1, insize: 56, pid: 0
+getattr /
+   unique: 106, success, outsize: 136
+unique: 107, opcode: RELEASE (18), nodeid: 5, insize: 64, pid: 0
+release[0] flags: 0x202
+   unique: 107, success, outsize: 16
+unique: 108, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 108, success, outsize: 96
+unique: 109, opcode: OPEN (14), nodeid: 5, insize: 48, pid: 0
+open flags: 0x1 /trace-zero.txt
+   open[0] flags: 0x1 /trace-zero.txt
+   unique: 109, success, outsize: 32
+unique: 110, opcode: WRITE (16), nodeid: 5, insize: 84, pid: 0
+write[0] 4 bytes to 0 flags: 0x0
+   write[0] 4 bytes to 0
+   unique: 110, success, outsize: 24
+unique: 111, opcode: GETATTR (3), nodeid: 5, insize: 56, pid: 0
+fgetattr[0] /trace-zero.txt
+   unique: 111, success, outsize: 136
+unique: 112, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 112, success, outsize: 96
+unique: 113, opcode: RELEASE (18), nodeid: 5, insize: 64, pid: 0
+release[0] flags: 0x1
+   unique: 113, success, outsize: 16
+unique: 114, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 114, success, outsize: 96
+unique: 115, opcode: LOOKUP (1), nodeid: 1, insize: 58, pid: 0
+LOOKUP /trace-nonzero.txt
+getattr /trace-nonzero.txt
+   unique: 115, error: -2 (No such file or directory), outsize: 16
+unique: 116, opcode: GETATTR (3), nodeid: 1, insize: 56, pid: 0
+getattr /
+   unique: 116, success, outsize: 136
+unique: 117, opcode: CREATE (35), nodeid: 1, insize: 74, pid: 0
+create flags: 0xa02 /trace-nonzero.txt 0100644 umask=0000
+   create[0] flags: 0xa02 /trace-nonzero.txt
+fgetattr[0] /trace-nonzero.txt
+   NODEID: 6
+   unique: 117, success, outsize: 176
+unique: 118, opcode: SETATTR (4), nodeid: 6, insize: 168, pid: 0
+fsetattr_x[0] /trace-nonzero.txt
+setcrtime /trace-nonzero.txt 1794820848.115687109
+chown /trace-nonzero.txt 501 20
+fgetattr[0] /trace-nonzero.txt
+   unique: 118, success, outsize: 136
+unique: 119, opcode: GETATTR (3), nodeid: 1, insize: 56, pid: 0
+getattr /
+   unique: 119, success, outsize: 136
+unique: 120, opcode: RELEASE (18), nodeid: 6, insize: 64, pid: 0
+release[0] flags: 0x202
+   unique: 120, success, outsize: 16
+unique: 121, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 121, success, outsize: 96
+unique: 122, opcode: OPEN (14), nodeid: 6, insize: 48, pid: 0
+open flags: 0x1 /trace-nonzero.txt
+   open[0] flags: 0x1 /trace-nonzero.txt
+   unique: 122, success, outsize: 32
+unique: 123, opcode: WRITE (16), nodeid: 6, insize: 84, pid: 0
+write[0] 4 bytes to 0 flags: 0x0
+   write[0] 4 bytes to 0
+   unique: 123, success, outsize: 24
+unique: 124, opcode: GETATTR (3), nodeid: 6, insize: 56, pid: 0
+fgetattr[0] /trace-nonzero.txt
+   unique: 124, success, outsize: 136
+unique: 125, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 125, success, outsize: 96
+unique: 126, opcode: RELEASE (18), nodeid: 6, insize: 64, pid: 0
+release[0] flags: 0x1
+   unique: 126, success, outsize: 16
+unique: 127, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 127, success, outsize: 96
+unique: 128, opcode: SETXATTR (21), nodeid: 5, insize: 109, pid: 0
+setxattr /trace-zero.txt com.apple.FinderInfo 32 0x0 0
+   unique: 128, success, outsize: 16
+unique: 129, opcode: SETXATTR (21), nodeid: 6, insize: 109, pid: 0
+setxattr /trace-nonzero.txt com.apple.FinderInfo 32 0x0 0
+   unique: 129, success, outsize: 16
+unique: 130, opcode: GETXATTR (22), nodeid: 5, insize: 77, pid: 0
+getxattr /trace-zero.txt com.apple.FinderInfo 0 0
+   unique: 130, success, outsize: 24
+unique: 131, opcode: GETXATTR (22), nodeid: 5, insize: 77, pid: 0
+getxattr /trace-zero.txt com.apple.FinderInfo 32 0
+   unique: 131, success, outsize: 48
+unique: 132, opcode: GETATTR (3), nodeid: 1, insize: 56, pid: 0
+getattr /
+   unique: 132, success, outsize: 136
+unique: 133, opcode: GETXATTR (22), nodeid: 6, insize: 77, pid: 0
+getxattr /trace-nonzero.txt com.apple.FinderInfo 0 0
+   unique: 133, success, outsize: 24
+unique: 134, opcode: GETXATTR (22), nodeid: 6, insize: 77, pid: 0
+getxattr /trace-nonzero.txt com.apple.FinderInfo 32 0
+   unique: 134, success, outsize: 48
+unique: 135, opcode: GETXATTR (22), nodeid: 6, insize: 77, pid: 0
+getxattr /trace-nonzero.txt com.apple.FinderInfo 0 0
+   unique: 135, success, outsize: 24
+unique: 136, opcode: GETXATTR (22), nodeid: 6, insize: 77, pid: 0
+getxattr /trace-nonzero.txt com.apple.FinderInfo 32 0
+   unique: 136, success, outsize: 48
+unique: 137, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 137, success, outsize: 96
+unique: 138, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 138, success, outsize: 96
+unique: 139, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 139, success, outsize: 96
+unique: 140, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 140, success, outsize: 96
+unique: 141, opcode: FORGET (2), nodeid: 6, insize: 48, pid: 0
+FORGET 6/1
+DELETE: 6
+unique: 142, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 142, success, outsize: 96
+unique: 143, opcode: FORGET (2), nodeid: 5, insize: 48, pid: 0
+FORGET 5/1
+DELETE: 5
+unique: 144, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 144, success, outsize: 96
+unique: 145, opcode: FORGET (2), nodeid: 4, insize: 48, pid: 0
+FORGET 4/1
+DELETE: 4
+unique: 146, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 146, success, outsize: 96
+unique: 147, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 147, success, outsize: 96
+unique: 148, opcode: FORGET (2), nodeid: 2, insize: 48, pid: 0
+FORGET 2/1
+DELETE: 2
+unique: 149, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 149, success, outsize: 96
+unique: 150, opcode: STATFS (17), nodeid: 1, insize: 40, pid: 0
+statfs /
+   unique: 150, success, outsize: 96
+unique: 151, opcode: DESTROY (38), nodeid: 1, insize: 40, pid: 0
+Unmounting /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-uic0h2ti/vol.img (ntfsmac)
+   unique: 151, success, outsize: 16

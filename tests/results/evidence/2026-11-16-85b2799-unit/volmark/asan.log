@@ -1,0 +1,156 @@
+-- The C compiler identification is GNU 14.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Platform: Linux (portable parts only)
+-- Performing Test NTFSMAC_HAVE_STACK_PROTECTOR_STRONG
+-- Performing Test NTFSMAC_HAVE_STACK_PROTECTOR_STRONG - Success
+-- Performing Test NTFSMAC_HAVE_AUTO_VAR_INIT
+-- Performing Test NTFSMAC_HAVE_AUTO_VAR_INIT - Success
+-- Sanitizers: address,undefined
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /tmp/bld-asan-fio
+[1/10] Building C object src/volmark/CMakeFiles/volmark_test.dir/main_test.c.o
+[2/10] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_pure.dir/args.c.o
+[3/10] Linking C static library src/volmark/libntfsmac_volmark_pure.a
+[4/10] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/cli.c.o
+[5/10] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/vdev.c.o
+[6/10] Building C object src/common/CMakeFiles/ntfsmac_mftmirr.dir/mftmirr.c.o
+[7/10] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/volmark.c.o
+[8/10] Linking C static library src/common/libntfsmac_mftmirr.a
+[9/10] Linking C static library src/volmark/libntfsmac_volmark_core.a
+[10/10] Linking C executable src/volmark/volmark_test
+-- The C compiler identification is GNU 14.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Platform: Linux (portable parts only)
+-- Performing Test NTFSMAC_HAVE_STACK_PROTECTOR_STRONG
+-- Performing Test NTFSMAC_HAVE_STACK_PROTECTOR_STRONG - Success
+-- Performing Test NTFSMAC_HAVE_AUTO_VAR_INIT
+-- Performing Test NTFSMAC_HAVE_AUTO_VAR_INIT - Success
+-- Sanitizers: address,undefined
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /tmp/bld-asan
+[1/105] Building C object src/common/CMakeFiles/ntfsmac_state_rank.dir/state_rank.c.o
+[2/105] Linking C static library src/common/libntfsmac_state_rank.a
+[3/105] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_pure.dir/args.c.o
+[4/105] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/state.c.o
+[5/105] Building C object src/policy/CMakeFiles/ntfsmac_policy.dir/policy.c.o
+[6/105] Building C object src/common/CMakeFiles/ntfsmac_common.dir/log.c.o
+[7/105] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/display.c.o
+[8/105] Linking C static library src/volmark/libntfsmac_volmark_pure.a
+[9/105] Linking C static library src/policy/libntfsmac_policy.a
+[10/105] Linking C static library src/common/libntfsmac_common.a
+[11/105] Building C object src/common/CMakeFiles/ntfsmac_label_cp.dir/label_cp.c.o
+[12/105] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/label.c.o
+[13/105] Building C object src/options/CMakeFiles/ntfsmac_worker_options.dir/argv_check.c.o
+[14/105] Linking C static library src/common/libntfsmac_label_cp.a
+[15/105] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/text.c.o
+[16/105] Building C object src/common/CMakeFiles/test_log.dir/test_log.c.o
+[17/105] Building C object src/options/CMakeFiles/ntfsmac_worker_options.dir/options.c.o
+[18/105] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/nfc.c.o
+[19/105] Building C object src/common/CMakeFiles/ntfsmac_mftmirr.dir/mftmirr.c.o
+[20/105] Linking C static library src/options/libntfsmac_worker_options.a
+[21/105] Building C object src/probe/CMakeFiles/ntfsmac_probe_core.dir/devio.c.o
+[22/105] Building C object src/probe/CMakeFiles/ntfsmac-probe.dir/main.c.o
+[23/105] Building C object src/probe/CMakeFiles/ntfsmac_probe_core.dir/names.c.o
+[24/105] Linking C static library src/common/libntfsmac_mftmirr.a
+[25/105] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/leaf.c.o
+[26/105] Building C object src/probe/CMakeFiles/probe_test.dir/main_test.c.o
+[27/105] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/json.c.o
+[28/105] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/verdict.c.o
+[29/105] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_probe.c.o
+[30/105] Building C object src/volmark/CMakeFiles/ntfsmac-volmark.dir/main.c.o
+[31/105] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_policy.c.o
+[32/105] Building C object src/probe/CMakeFiles/ntfsmac_probe_core.dir/cli.c.o
+[33/105] Building C object tests/tools/CMakeFiles/txf_make.dir/txf_make.c.o
+[34/105] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_journal.c.o
+[35/105] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_options.c.o
+[36/105] Building C object tests/tools/CMakeFiles/treedump.dir/treedump.c.o
+[37/105] Building C object tests/tools/CMakeFiles/setvolflags.dir/setvolflags.c.o
+[38/105] Building C object src/volmark/CMakeFiles/volmark_test.dir/main_test.c.o
+[39/105] Linking C static library src/sanitize/libntfsmac_sanitize.a
+[40/105] Building C object src/probe/CMakeFiles/ntfsmac_probe_core.dir/probe.c.o
+[41/105] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/cli.c.o
+[42/105] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/test_headers.c.o
+[43/105] Linking C static library src/probe/libntfsmac_probe_pure.a
+[44/105] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/vdev.c.o
+[45/105] Linking C static library src/probe/libntfsmac_probe_core.a
+[46/105] Building C object tests/unit/volmark/CMakeFiles/test_volmark_args.dir/test_args.c.o
+[47/105] Building C object src/journal/CMakeFiles/ntfsmac_journal.dir/journal.c.o
+[48/105] Building C object tests/tools/CMakeFiles/logfile_mark.dir/logfile_mark.c.o
+[49/105] Building C object src/journal/CMakeFiles/ntfsmac_journal_testhooks.dir/journal.c.o
+[50/105] Linking C static library src/journal/libntfsmac_journal.a
+[51/105] Linking C static library src/journal/libntfsmac_journal_testhooks.a
+[52/105] Building C object tests/unit/policy/CMakeFiles/argv_tool.dir/argv_tool.c.o
+[53/105] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/volmark.c.o
+[54/105] Building C object tests/unit/sanitize/CMakeFiles/verdict_tool.dir/verdict_tool.c.o
+[55/105] Building C object tests/unit/probe/CMakeFiles/nfc_tool.dir/nfc_tool.c.o
+[56/105] Building C object tests/unit/sanitize/CMakeFiles/test_display.dir/test_display.c.o
+[57/105] Building C object tests/fuzz/sanitize/CMakeFiles/fuzz_replay_verdict.dir/fuzz_verdict.c.o
+[58/105] Linking C static library src/volmark/libntfsmac_volmark_core.a
+[59/105] Building C object tests/fuzz/sanitize/CMakeFiles/fuzz_replay_verdict.dir/fuzz_main.c.o
+[60/105] Building C object tests/fuzz/sanitize/CMakeFiles/fuzz_replay_label.dir/fuzz_main.c.o
+[61/105] Building C object tests/unit/policy/CMakeFiles/test_policy.dir/test_policy.c.o
+[62/105] Building C object tests/unit/probe/CMakeFiles/mm_tool.dir/mm_tool.c.o
+[63/105] Building C object tests/unit/probe/CMakeFiles/test_probe_pure.dir/test_pure.c.o
+[64/105] Building C object tests/fuzz/sanitize/CMakeFiles/fuzz_replay_display.dir/fuzz_main.c.o
+[65/105] Linking C executable src/common/test_log
+[66/105] Building C object tests/fuzz/sanitize/CMakeFiles/fuzz_replay_label.dir/fuzz_label.c.o
+[67/105] Building C object tests/fuzz/image/CMakeFiles/fuzz_replay_probe.dir/__/sanitize/fuzz_main.c.o
+[68/105] Linking C executable src/probe/probe_test
+[69/105] Building C object tests/fuzz/sanitize/CMakeFiles/fuzz_replay_display.dir/fuzz_display.c.o
+[70/105] Linking C executable tests/tools/treedump
+[71/105] Linking C executable src/volmark/volmark_test
+[72/105] Linking C executable src/volmark/ntfsmac-volmark
+[73/105] Linking C executable src/probe/ntfsmac-probe
+[74/105] Linking C executable tests/tools/setvolflags
+[75/105] Building C object tests/fuzz/image/CMakeFiles/fuzz_replay_mountwalk.dir/__/sanitize/fuzz_main.c.o
+[76/105] Linking C executable tests/tools/logfile_mark
+[77/105] Building C object tests/unit/policy/CMakeFiles/test_options.dir/test_options.c.o
+[78/105] Linking C executable tests/tools/txf_make
+[79/105] Linking C executable tests/unit/contracts/test_headers
+[80/105] Linking C executable tests/unit/policy/test_policy
+[81/105] Linking C executable tests/unit/probe/test_probe_pure
+[82/105] Linking C executable tests/unit/policy/argv_tool
+[83/105] Linking C executable tests/unit/probe/nfc_tool
+[84/105] Linking C executable tests/unit/probe/mm_tool
+[85/105] Building C object tests/fuzz/image/CMakeFiles/fuzz_replay_mountwalk.dir/image.c.o
+[86/105] Building C object tests/unit/journal/CMakeFiles/test_journal_crash.dir/test_journal_crash.c.o
+[87/105] Linking C executable tests/unit/sanitize/test_display
+[88/105] Building C object tests/unit/sanitize/CMakeFiles/test_label.dir/test_label.c.o
+[89/105] Building C object tests/fuzz/image/CMakeFiles/fuzz_replay_probe.dir/image.c.o
+[90/105] Linking C executable tests/unit/volmark/test_volmark_args
+[91/105] Linking C executable tests/fuzz/sanitize/fuzz_replay_display
+[92/105] Linking C executable tests/fuzz/sanitize/fuzz_replay_label
+[93/105] Linking C executable tests/unit/policy/test_options
+[94/105] Linking C executable tests/fuzz/sanitize/fuzz_replay_verdict
+[95/105] Linking C executable tests/unit/sanitize/verdict_tool
+[96/105] Building C object tests/fuzz/image/CMakeFiles/fuzz_replay_probe.dir/fuzz_probe.c.o
+[97/105] Linking C executable tests/unit/journal/test_journal_crash
+[98/105] Linking C executable tests/unit/sanitize/test_label
+[99/105] Building C object tests/unit/sanitize/CMakeFiles/test_verdict.dir/test_verdict.c.o
+[100/105] Building C object tests/fuzz/image/CMakeFiles/fuzz_replay_mountwalk.dir/fuzz_mountwalk.c.o
+[101/105] Building C object tests/unit/journal/CMakeFiles/test_journal.dir/test_journal.c.o
+[102/105] Linking C executable tests/fuzz/image/fuzz_replay_probe
+[103/105] Linking C executable tests/unit/sanitize/test_verdict
+[104/105] Linking C executable tests/unit/journal/test_journal
+[105/105] Linking C executable tests/fuzz/image/fuzz_replay_mountwalk
+Internal ctest changing into directory: /tmp/bld-asan
+Test project /tmp/bld-asan
+    Start 18: volmark.args
+1/2 Test #18: volmark.args .....................   Passed    0.00 sec
+    Start 19: volmark.run
+2/2 Test #19: volmark.run ......................   Passed   30.19 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =  30.19 sec
+ASan/UBSan: no report

@@ -1,0 +1,76 @@
+{
+ "notes": [
+  "A: 9 files from 1 byte to 3 MiB+7: mapped read equals write(2) data"
+ ],
+ "page_size": 16384,
+ "steps": [
+  {
+   "seen_after_ms": 2,
+   "step": "B other size 4096: write(2) then mapped read"
+  },
+  {
+   "seen_after_ms": 2,
+   "step": "B own size 4096: write(2) then mapped read"
+  },
+  {
+   "seen_after_ms": 4,
+   "step": "B trunc size 4096: write(2) then mapped read"
+  },
+  {
+   "seen_after_ms": 2,
+   "step": "B other size 16389: write(2) then mapped read"
+  },
+  {
+   "seen_after_ms": 2,
+   "step": "B own size 16389: write(2) then mapped read"
+  },
+  {
+   "seen_after_ms": 3,
+   "step": "B trunc size 16389: write(2) then mapped read"
+  },
+  {
+   "seen_after_ms": 2,
+   "step": "B other size 1048589: write(2) then mapped read"
+  },
+  {
+   "seen_after_ms": 2,
+   "step": "B own size 1048589: write(2) then mapped read"
+  },
+  {
+   "seen_after_ms": 47,
+   "step": "B trunc size 1048589: write(2) then mapped read"
+  }
+ ],
+ "verify": {
+  "files": {
+   "a00.bin": "ok",
+   "a01.bin": "ok",
+   "a02.bin": "ok",
+   "a03.bin": "ok",
+   "a04.bin": "ok",
+   "a05.bin": "ok",
+   "a06.bin": "ok",
+   "a07.bin": "ok",
+   "a08.bin": "ok",
+   "b1048589-other.bin": "ok",
+   "b1048589-own.bin": "ok",
+   "b1048589-trunc.bin": "ok",
+   "b16389-other.bin": "ok",
+   "b16389-own.bin": "ok",
+   "b16389-trunc.bin": "ok",
+   "b4096-other.bin": "ok",
+   "b4096-own.bin": "ok",
+   "b4096-trunc.bin": "ok",
+   "c.bin": "ok"
+  },
+  "fsck_rc": 0,
+  "fsck_tail": [
+   "Processing of $MFT and $MFTMirr completed successfully.",
+   "Checking the alternate boot sector... OK",
+   "NTFS volume version is 3.1.",
+   "NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ht1xufjs/vol.img was processed successfully."
+  ],
+  "mount": "ok",
+  "tag": "01"
+ }
+}

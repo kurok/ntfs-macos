@@ -1,0 +1,40 @@
+08:55:01 start I-META-04 (env A)
+08:55:01 $ mkntfs -F -Q -L ntfsmac /tmp/ntfsmac-case-0jq43gv9/vol.img -> rc=0
+08:55:01 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+08:55:01 stderr: /tmp/ntfsmac-case-0jq43gv9/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/ntfsmac-case-0jq43gv9/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/ntfsmac-case-0jq43gv9/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/ntfsmac-case-0jq43gv9/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/ntfsmac-case-0jq43gv9/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+08:55:01 $ ntfs-3g /tmp/ntfsmac-case-0jq43gv9/vol.img /tmp/ntfsmac-case-0jq43gv9/mnt -o rw,big_writes -> rc=0
+08:55:01 $ echo x > /tmp/ntfsmac-case-0jq43gv9/mnt/c_attrlist -> rc=0
+08:55:01 $ echo x > /tmp/ntfsmac-case-0jq43gv9/mnt/c_xattr -> rc=0
+08:55:01 $ echo x > /tmp/ntfsmac-case-0jq43gv9/mnt/c_cp -> rc=0
+08:55:01 $ echo x > /tmp/ntfsmac-case-0jq43gv9/mnt/c_ref -> rc=0
+08:55:01 system.ntfs_times of a new file: creation 2026-11-16 08:55:01.589033600 mtime 2026-11-16 08:55:01.589101300 ctime 2026-11-16 08:55:01.589033600 atime 2026-11-16 08:55:01.589101300
+08:55:01 setxattr system.ntfs_times (creation time only changed): ok
+08:55:01 live view after xattr set: mt=2026-11-16 08:55:01.589101300 ct=2026-11-16 08:55:01.590049000 at=2026-11-16 08:55:01.589033600 birth=- flags=None
+08:55:01 $ sync -> rc=0
+08:55:01 $ umount /tmp/ntfsmac-case-0jq43gv9/mnt -> rc=0
+08:55:01 $ ntfs-3g /tmp/ntfsmac-case-0jq43gv9/vol.img /tmp/ntfsmac-case-0jq43gv9/mnt -o ro -> rc=0
+08:55:01 $ sync -> rc=0
+08:55:01 $ umount /tmp/ntfsmac-case-0jq43gv9/mnt -> rc=0
+08:55:01 $ ntfs-3g /tmp/ntfsmac-case-0jq43gv9/vol.img /tmp/ntfsmac-case-0jq43gv9/mnt -o ro -> rc=0
+08:55:01 $ sync -> rc=0
+08:55:01 $ umount /tmp/ntfsmac-case-0jq43gv9/mnt -> rc=0
+08:55:01 c_attrlist: SI creation 2026-11-16 08:55:01.588635100 (FILETIME 134392929015886351), FN creation 2026-11-16 08:55:01.588635100, view birth -, xattr creation 134392929015886351
+08:55:01 c_xattr: SI creation 2012-12-12 12:12:12.345678900 (FILETIME 129997879323456789), FN creation 2012-12-12 12:12:12.345678900, view birth -, xattr creation 129997879323456789
+08:55:01 c_cp: SI creation 2026-11-16 08:55:01.589447100 (FILETIME 134392929015894471), FN creation 2026-11-16 08:55:01.589447100, view birth -, xattr creation 134392929015894471
+08:55:01 c_ref: SI creation 2026-11-16 08:55:01.589782200 (FILETIME 134392929015897822), FN creation 2026-11-16 08:55:01.589782200, view birth -, xattr creation 134392929015897822
+08:55:01 $ ntfsfix -n /tmp/ntfsmac-case-0jq43gv9/vol.img -> rc=0
+08:55:01 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /tmp/ntfsmac-case-0jq43gv9/vol.img was processed successfully.
+08:55:01 end I-META-04: pass

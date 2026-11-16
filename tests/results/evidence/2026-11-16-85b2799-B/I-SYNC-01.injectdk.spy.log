@@ -1,0 +1,13 @@
+1794820694.638808 open pid=29202 fd=3 path=/dev/null
+1794820694.639714 open pid=29202 fd=5 path=/dev/null
+1794820694.643281 open pid=29202 fd=5 path=/dev/null
+1794820697.822054 fsync pid=29202 fd=3 path=/dev/disk7 rc=0 errno=0 us=552 writes=62 bytes=162810
+1794820697.822067 dksync pid=29202 fd=3 path=/dev/disk7 rc=-1 errno=5 us=0 writes=0 bytes=0
+1794820700.920098 fsync pid=29202 fd=3 path=/dev/disk7 rc=0 errno=0 us=1192 writes=18 bytes=45057
+1794820700.920131 dksync pid=29202 fd=3 path=/dev/disk7 rc=-1 errno=5 us=0 writes=0 bytes=0
+1794820703.480412 fsync pid=29202 fd=3 path=/dev/disk7 rc=0 errno=0 us=637 writes=6 bytes=20480
+1794820703.480451 dksync pid=29202 fd=3 path=/dev/disk7 rc=-1 errno=5 us=0 writes=0 bytes=0
+1794820705.985789 fsync pid=29202 fd=3 path=/dev/disk7 rc=0 errno=0 us=4188 writes=6 bytes=24576
+1794820705.986011 dksync pid=29202 fd=3 path=/dev/disk7 rc=-1 errno=5 us=0 writes=0 bytes=0
+1794820709.868949 fsync pid=29202 fd=3 path=/dev/disk7 rc=0 errno=0 us=1268 writes=6 bytes=28672
+1794820709.869017 dksync pid=29202 fd=3 path=/dev/disk7 rc=-1 errno=5 us=1 writes=0 bytes=0

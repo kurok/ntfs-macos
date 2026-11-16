@@ -1,0 +1,148 @@
+08:54:18 start I-ERR-03 (env A)
+08:54:18 build: sh /work/scripts/build-ntfs3g.sh --fuse internal --jobs 18 --prefix /tmp/errfd-build-kmdzh1w4/prefix --build-dir /tmp/errfd-build-kmdzh1w4/build
+08:54:24 build rc=0, tail:
+make[2]: Nothing to be done for 'install-exec-am'.
+ /usr/bin/mkdir -p '/tmp/errfd-build-kmdzh1w4/prefix/share/doc/ntfs-3g'
+ /usr/bin/install -c -m 644 README '/tmp/errfd-build-kmdzh1w4/prefix/share/doc/ntfs-3g'
+make[2]: Leaving directory '/tmp/errfd-build-kmdzh1w4/build/src'
+make[1]: Leaving directory '/tmp/errfd-build-kmdzh1w4/build/src'
+build-ntfs3g: done: /tmp/errfd-build-kmdzh1w4/prefix/lib/libntfs-3g.a
+08:54:24 $ /opt/ntfs-3g/sbin/mkntfs -F -Q -L errfd /tmp/ntfsmac-case-603nv81s/c3.img -> rc=0
+/tmp/ntfsmac-case-603nv81s/c3.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/ntfsmac-case-603nv81s/c3.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/ntfsmac-case-603nv81s/c3.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/ntfsmac-case-603nv81s/c3.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/ntfsmac-case-603nv81s/c3.img and it could not be obtained automatically.  It has been set to 0.
+Cluster size has been automatically set to 4096 bytes.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+08:54:24 worker: /tmp/errfd-build-kmdzh1w4/prefix/bin/ntfs-3g -o norecover,no_detach /tmp/ntfsmac-case-603nv81s/c3.img /tmp/ntfsmac-case-603nv81s/mnt-c3  NTFSMAC_ERRFD=20
+08:54:25 worker exit rc=0, umount rc=0, channel at EOF: True
+08:54:25 records: ['S rw', 'U 0']
+08:54:25 $ /opt/ntfs-3g/bin/ntfsfix -n /tmp/ntfsmac-case-603nv81s/c3.img -> rc=0
+Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /tmp/ntfsmac-case-603nv81s/c3.img was processed successfully.
+08:54:25 $ /opt/ntfs-3g/sbin/mkntfs -F -Q -L errfd /tmp/ntfsmac-case-603nv81s/c3u.img -> rc=0
+/tmp/ntfsmac-case-603nv81s/c3u.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/ntfsmac-case-603nv81s/c3u.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/ntfsmac-case-603nv81s/c3u.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/ntfsmac-case-603nv81s/c3u.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/ntfsmac-case-603nv81s/c3u.img and it could not be obtained automatically.  It has been set to 0.
+Cluster size has been automatically set to 4096 bytes.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+08:54:25 worker: /tmp/errfd-build-kmdzh1w4/prefix/bin/ntfs-3g -o norecover,no_detach /tmp/ntfsmac-case-603nv81s/c3u.img /tmp/ntfsmac-case-603nv81s/mnt-c3u  NTFSMAC_ERRFD=None
+08:54:25 worker exit rc=0, umount rc=0, channel at EOF: False
+08:54:25 records: []
+08:54:25 $ /opt/ntfs-3g/bin/ntfsfix -n /tmp/ntfsmac-case-603nv81s/c3u.img -> rc=0
+Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /tmp/ntfsmac-case-603nv81s/c3u.img was processed successfully.
+08:54:30 reference build rc=0
+08:54:30 $ /opt/ntfs-3g/sbin/mkntfs -F -Q -L errfd /tmp/ntfsmac-case-603nv81s/c3s.img -> rc=0
+/tmp/ntfsmac-case-603nv81s/c3s.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/ntfsmac-case-603nv81s/c3s.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/ntfsmac-case-603nv81s/c3s.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/ntfsmac-case-603nv81s/c3s.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/ntfsmac-case-603nv81s/c3s.img and it could not be obtained automatically.  It has been set to 0.
+Cluster size has been automatically set to 4096 bytes.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+08:54:30 worker: /tmp/errfd-ref-yl9ejrpv/prefix/bin/ntfs-3g -o norecover,no_detach /tmp/ntfsmac-case-603nv81s/c3s.img /tmp/ntfsmac-case-603nv81s/mnt-c3s  NTFSMAC_ERRFD=None
+08:54:30 worker exit rc=0, umount rc=0, channel at EOF: False
+08:54:30 records: []
+08:54:30 $ /opt/ntfs-3g/sbin/mkntfs -F -Q -L errfd /tmp/ntfsmac-case-603nv81s/c3jfile.img -> rc=0
+/tmp/ntfsmac-case-603nv81s/c3jfile.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/ntfsmac-case-603nv81s/c3jfile.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/ntfsmac-case-603nv81s/c3jfile.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/ntfsmac-case-603nv81s/c3jfile.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/ntfsmac-case-603nv81s/c3jfile.img and it could not be obtained automatically.  It has been set to 0.
+Cluster size has been automatically set to 4096 bytes.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+08:54:30 worker: /tmp/errfd-build-kmdzh1w4/prefix/bin/ntfs-3g -o norecover,no_detach /tmp/ntfsmac-case-603nv81s/c3jfile.img /tmp/ntfsmac-case-603nv81s/mnt-c3jfile  NTFSMAC_ERRFD=30
+08:54:31 worker exit rc=0, umount rc=0, channel at EOF: False
+08:54:31 records: []
+08:54:31 variable '30' ignored, worker rc 0
+08:54:31 $ /opt/ntfs-3g/sbin/mkntfs -F -Q -L errfd /tmp/ntfsmac-case-603nv81s/c3jtext.img -> rc=0
+/tmp/ntfsmac-case-603nv81s/c3jtext.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/ntfsmac-case-603nv81s/c3jtext.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/ntfsmac-case-603nv81s/c3jtext.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/ntfsmac-case-603nv81s/c3jtext.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/ntfsmac-case-603nv81s/c3jtext.img and it could not be obtained automatically.  It has been set to 0.
+Cluster size has been automatically set to 4096 bytes.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+08:54:31 worker: /tmp/errfd-build-kmdzh1w4/prefix/bin/ntfs-3g -o norecover,no_detach /tmp/ntfsmac-case-603nv81s/c3jtext.img /tmp/ntfsmac-case-603nv81s/mnt-c3jtext  NTFSMAC_ERRFD=abc
+08:54:31 worker exit rc=0, umount rc=0, channel at EOF: False
+08:54:31 records: []
+08:54:31 variable 'abc' ignored, worker rc 0
+08:54:31 $ /opt/ntfs-3g/sbin/mkntfs -F -Q -L errfd /tmp/ntfsmac-case-603nv81s/c3jlow.img -> rc=0
+/tmp/ntfsmac-case-603nv81s/c3jlow.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/ntfsmac-case-603nv81s/c3jlow.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/ntfsmac-case-603nv81s/c3jlow.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/ntfsmac-case-603nv81s/c3jlow.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/ntfsmac-case-603nv81s/c3jlow.img and it could not be obtained automatically.  It has been set to 0.
+Cluster size has been automatically set to 4096 bytes.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+08:54:31 worker: /tmp/errfd-build-kmdzh1w4/prefix/bin/ntfs-3g -o norecover,no_detach /tmp/ntfsmac-case-603nv81s/c3jlow.img /tmp/ntfsmac-case-603nv81s/mnt-c3jlow  NTFSMAC_ERRFD=1
+08:54:31 worker exit rc=0, umount rc=0, channel at EOF: False
+08:54:31 records: []
+08:54:31 variable '1' ignored, worker rc 0
+08:54:31 $ /opt/ntfs-3g/sbin/mkntfs -F -Q -L errfd /tmp/ntfsmac-case-603nv81s/c3jneg.img -> rc=0
+/tmp/ntfsmac-case-603nv81s/c3jneg.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/ntfsmac-case-603nv81s/c3jneg.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/ntfsmac-case-603nv81s/c3jneg.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/ntfsmac-case-603nv81s/c3jneg.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/ntfsmac-case-603nv81s/c3jneg.img and it could not be obtained automatically.  It has been set to 0.
+Cluster size has been automatically set to 4096 bytes.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+08:54:31 worker: /tmp/errfd-build-kmdzh1w4/prefix/bin/ntfs-3g -o norecover,no_detach /tmp/ntfsmac-case-603nv81s/c3jneg.img /tmp/ntfsmac-case-603nv81s/mnt-c3jneg  NTFSMAC_ERRFD=-5
+08:54:31 worker exit rc=0, umount rc=0, channel at EOF: False
+08:54:31 records: []
+08:54:31 variable '-5' ignored, worker rc 0
+08:54:31 $ /opt/ntfs-3g/sbin/mkntfs -F -Q -L errfd /tmp/ntfsmac-case-603nv81s/c3jbig.img -> rc=0
+/tmp/ntfsmac-case-603nv81s/c3jbig.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/ntfsmac-case-603nv81s/c3jbig.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/ntfsmac-case-603nv81s/c3jbig.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/ntfsmac-case-603nv81s/c3jbig.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/ntfsmac-case-603nv81s/c3jbig.img and it could not be obtained automatically.  It has been set to 0.
+Cluster size has been automatically set to 4096 bytes.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+08:54:31 worker: /tmp/errfd-build-kmdzh1w4/prefix/bin/ntfs-3g -o norecover,no_detach /tmp/ntfsmac-case-603nv81s/c3jbig.img /tmp/ntfsmac-case-603nv81s/mnt-c3jbig  NTFSMAC_ERRFD=99999999999
+08:54:32 worker exit rc=0, umount rc=0, channel at EOF: False
+08:54:32 records: []
+08:54:32 variable '99999999999' ignored, worker rc 0
+08:54:32 end I-ERR-03: pass

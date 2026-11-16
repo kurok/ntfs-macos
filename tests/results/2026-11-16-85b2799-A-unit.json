@@ -1,0 +1,39 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "85b27990d32d3157111345bcdefa9ae2e077523c",
+  "dirty_tree": false,
+  "env": "A",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "Debian GNU/Linux 13 (trixie) aarch64",
+  "macfuse_version": null,
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-16T09:22:13Z",
+  "finished": "2026-11-16T09:25:39Z",
+  "cases": [
+    {
+      "id": "U-PROBE-ALL",
+      "status": "pass",
+      "duration_s": 0,
+      "evidence": [
+        "evidence/2026-11-16-85b2799-unit/probe/summary.txt",
+        "evidence/2026-11-16-85b2799-unit/probe/release.log",
+        "evidence/2026-11-16-85b2799-unit/probe/asan.log",
+        "evidence/2026-11-16-85b2799-unit/probe/ctest-release.xml",
+        "evidence/2026-11-16-85b2799-unit/probe/ctest-asan.xml"
+      ],
+      "note": "tests/unit/probe/run.sh: probe ctest 25/25 release, 26/26 ASan+UBSan incl. fuzz.findings.F1, F3, F4 (regression replays of the GHSA reproducers) and fuzz.mountwalk_seeds; every fixture stage ok (unsafe, names, mirror, clean, vmk). Unit-level evidence produced outside the harness for the gate re-run after the carried NTFS-3G fixes 0010-0013 (ADR-026); run on the clean tree at this commit; duration_s 0 means not measured per case."
+    },
+    {
+      "id": "U-VMK-ALL",
+      "status": "pass",
+      "duration_s": 0,
+      "evidence": [
+        "evidence/2026-11-16-85b2799-unit/volmark/summary.txt",
+        "evidence/2026-11-16-85b2799-unit/volmark/volmark-evidence.txt",
+        "evidence/2026-11-16-85b2799-unit/volmark/ctest-release.xml",
+        "evidence/2026-11-16-85b2799-unit/volmark/ctest-asan.xml"
+      ],
+      "note": "tests/unit/volmark/run.sh (run with bash: the file has no executable bit in git): U-VMK-01..10 in release and ASan+UBSan with the faultio build, 2/2 ctest each. Unit-level evidence produced outside the harness for the gate re-run after the carried NTFS-3G fixes 0010-0013 (ADR-026); run on the clean tree at this commit; duration_s 0 means not measured per case."
+    }
+  ]
+}

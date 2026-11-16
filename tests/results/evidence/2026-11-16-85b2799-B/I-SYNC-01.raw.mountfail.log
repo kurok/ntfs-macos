@@ -1,0 +1,10 @@
+worker output:
+ntfs_attr_pread_i: ntfs_pread failed: Invalid argument
+Failed to calculate free MFT records: Invalid argument
+Failed to read NTFS $Bitmap: Invalid argument
+The device '/dev/fd/5' doesn't seem to have a valid NTFS.
+Maybe the wrong device is used? Or the whole disk instead of a
+partition (e.g. /dev/sda, not /dev/sda1)? Or the other way around?
+
+failed device calls (syncspy):
+1794820694.247473 pread-fail off=8192 len=8 errno=22

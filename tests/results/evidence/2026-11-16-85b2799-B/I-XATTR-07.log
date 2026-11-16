@@ -1,0 +1,175 @@
+09:21:24 start I-XATTR-07 (env B)
+09:21:24 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2qv6jiw0/vol.img -> rc=0
+09:21:24 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+09:21:24 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2qv6jiw0/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2qv6jiw0/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2qv6jiw0/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2qv6jiw0/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2qv6jiw0/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+09:21:24 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,windows_names,noatime,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2qv6jiw0/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2qv6jiw0/mnt -> rc=0
+09:21:28 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2qv6jiw0/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+09:21:28 ok   set user.a on f -> ?(0)
+09:21:28 ok   set com.apple.quarantine on f -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on f -> ?(0)
+09:21:28 ok   set com.apple.ResourceFork on f -> ?(0)
+09:21:28 ok   after append
+09:21:28 ok   after overwrite in place
+09:21:28 ok   after truncate to 0
+09:21:28 ok   after truncate to 70000
+09:21:28 ok   after rewrite with O_TRUNC
+09:21:28 ok   after chmod and utime
+09:21:28 ok   after rename in the same directory
+09:21:28 ok   old name is gone -> ENOENT(2)
+09:21:28 ok   after rename into a subdirectory
+09:21:28 ok   rename over an existing file: the source's xattrs, not a mix
+09:21:28 hard link on this backend: errno EIO(5) (recorded; unrelated to xattrs)
+09:21:28 ok   a recreated file does not inherit the old xattrs
+09:21:28 ok   set user.i on t00 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t00 -> ?(0)
+09:21:28 ok   set user.blob on t00 -> ?(0)
+09:21:28 ok   set user.i on t01 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t01 -> ?(0)
+09:21:28 ok   set user.blob on t01 -> ?(0)
+09:21:28 ok   set user.i on t02 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t02 -> ?(0)
+09:21:28 ok   set user.blob on t02 -> ?(0)
+09:21:28 ok   set user.i on t03 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t03 -> ?(0)
+09:21:28 ok   set user.blob on t03 -> ?(0)
+09:21:28 ok   set user.i on t04 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t04 -> ?(0)
+09:21:28 ok   set user.blob on t04 -> ?(0)
+09:21:28 ok   set user.i on t05 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t05 -> ?(0)
+09:21:28 ok   set user.blob on t05 -> ?(0)
+09:21:28 ok   set user.i on t06 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t06 -> ?(0)
+09:21:28 ok   set user.blob on t06 -> ?(0)
+09:21:28 ok   set user.i on t07 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t07 -> ?(0)
+09:21:28 ok   set user.blob on t07 -> ?(0)
+09:21:28 ok   set user.i on t08 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t08 -> ?(0)
+09:21:28 ok   set user.blob on t08 -> ?(0)
+09:21:28 ok   set user.i on t09 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t09 -> ?(0)
+09:21:28 ok   set user.blob on t09 -> ?(0)
+09:21:28 ok   set user.i on t10 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t10 -> ?(0)
+09:21:28 ok   set user.blob on t10 -> ?(0)
+09:21:28 ok   set user.i on t11 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t11 -> ?(0)
+09:21:28 ok   set user.blob on t11 -> ?(0)
+09:21:28 ok   set user.i on t12 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t12 -> ?(0)
+09:21:28 ok   set user.blob on t12 -> ?(0)
+09:21:28 ok   set user.i on t13 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t13 -> ?(0)
+09:21:28 ok   set user.blob on t13 -> ?(0)
+09:21:28 ok   set user.i on t14 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t14 -> ?(0)
+09:21:28 ok   set user.blob on t14 -> ?(0)
+09:21:28 ok   set user.i on t15 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t15 -> ?(0)
+09:21:28 ok   set user.blob on t15 -> ?(0)
+09:21:28 ok   set user.i on t16 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t16 -> ?(0)
+09:21:28 ok   set user.blob on t16 -> ?(0)
+09:21:28 ok   set user.i on t17 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t17 -> ?(0)
+09:21:28 ok   set user.blob on t17 -> ?(0)
+09:21:28 ok   set user.i on t18 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t18 -> ?(0)
+09:21:28 ok   set user.blob on t18 -> ?(0)
+09:21:28 ok   set user.i on t19 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t19 -> ?(0)
+09:21:28 ok   set user.blob on t19 -> ?(0)
+09:21:28 ok   set user.i on t20 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t20 -> ?(0)
+09:21:28 ok   set user.blob on t20 -> ?(0)
+09:21:28 ok   set user.i on t21 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t21 -> ?(0)
+09:21:28 ok   set user.blob on t21 -> ?(0)
+09:21:28 ok   set user.i on t22 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t22 -> ?(0)
+09:21:28 ok   set user.blob on t22 -> ?(0)
+09:21:28 ok   set user.i on t23 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t23 -> ?(0)
+09:21:28 ok   set user.blob on t23 -> ?(0)
+09:21:28 ok   set user.i on t24 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t24 -> ?(0)
+09:21:28 ok   set user.blob on t24 -> ?(0)
+09:21:28 ok   set user.i on t25 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t25 -> ?(0)
+09:21:28 ok   set user.blob on t25 -> ?(0)
+09:21:28 ok   set user.i on t26 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t26 -> ?(0)
+09:21:28 ok   set user.blob on t26 -> ?(0)
+09:21:28 ok   set user.i on t27 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t27 -> ?(0)
+09:21:28 ok   set user.blob on t27 -> ?(0)
+09:21:28 ok   set user.i on t28 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t28 -> ?(0)
+09:21:28 ok   set user.blob on t28 -> ?(0)
+09:21:28 ok   set user.i on t29 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t29 -> ?(0)
+09:21:28 ok   set user.blob on t29 -> ?(0)
+09:21:28 ok   set user.i on t30 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t30 -> ?(0)
+09:21:28 ok   set user.blob on t30 -> ?(0)
+09:21:28 ok   set user.i on t31 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t31 -> ?(0)
+09:21:28 ok   set user.blob on t31 -> ?(0)
+09:21:28 ok   set user.i on t32 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t32 -> ?(0)
+09:21:28 ok   set user.blob on t32 -> ?(0)
+09:21:28 ok   set user.i on t33 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t33 -> ?(0)
+09:21:28 ok   set user.blob on t33 -> ?(0)
+09:21:28 ok   set user.i on t34 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t34 -> ?(0)
+09:21:28 ok   set user.blob on t34 -> ?(0)
+09:21:28 ok   set user.i on t35 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t35 -> ?(0)
+09:21:28 ok   set user.blob on t35 -> ?(0)
+09:21:28 ok   set user.i on t36 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t36 -> ?(0)
+09:21:28 ok   set user.blob on t36 -> ?(0)
+09:21:28 ok   set user.i on t37 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t37 -> ?(0)
+09:21:28 ok   set user.blob on t37 -> ?(0)
+09:21:28 ok   set user.i on t38 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t38 -> ?(0)
+09:21:28 ok   set user.blob on t38 -> ?(0)
+09:21:28 ok   set user.i on t39 -> ?(0)
+09:21:28 ok   set com.apple.FinderInfo on t39 -> ?(0)
+09:21:28 ok   set user.blob on t39 -> ?(0)
+09:21:28 $ sync -> rc=0
+09:21:28 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2qv6jiw0/mnt -> rc=0
+09:21:28 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2qv6jiw0/vol.img -> rc=0
+09:21:28 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2qv6jiw0/vol.img was processed successfully.
+09:21:28 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,windows_names,noatime,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2qv6jiw0/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2qv6jiw0/mnt -> rc=0
+09:21:31 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2qv6jiw0/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+09:21:31 ok   40 files with 3 xattrs each checked after remount
+09:21:31 ok   read-only mount: set -> EROFS(30)
+09:21:31 ok   read-only mount: remove -> EROFS(30)
+09:21:31 ok   read-only mount: get works
+09:21:31 ok   read-only mount: nothing changed
+09:21:31 $ sync -> rc=0
+09:21:31 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2qv6jiw0/mnt -> rc=0
+09:21:31 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2qv6jiw0/vol.img -> rc=0
+09:21:31 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-2qv6jiw0/vol.img was processed successfully.
+09:21:31 end I-XATTR-07: pass

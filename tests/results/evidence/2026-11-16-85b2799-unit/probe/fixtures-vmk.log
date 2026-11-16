@@ -1,0 +1,18 @@
+vmk-split: record 3 ($Volume), record size 1024, $MFT copy at byte 19456, $MFTMirr copy at byte 33553408
+update sequence array at record offset 0x30, 3 entries; sector tails at 0x1fe, 0x3fe
+$VOLUME_INFORMATION flags word at record offset 0x1ba
+USN: $MFT 0x0003, $MFTMirr 0x0002 (the $MFT copy is the successor: True)
+flags: $MFT 0x0001, $MFTMirr 0x0000 (differ only in VOLUME_IS_DIRTY: True)
+raw (on-disk) bytes that differ, record offsets: 0x30: 03/02, 0x1ba: 01/00, 0x1fe: 03/02, 0x3fe: 03/02
+after the fix-up (sector tails restored), record offsets that differ: 0x30: 03/02, 0x1ba: 01/00
+difference confined to the USN (update sequence number and sector tails) and the VOLUME_IS_DIRTY bit: True
+engine (ntfsinfo -m, NTFS-3G 2026.9.28): refused with "$MFTMirr does not match $MFT (record 3)."
+vmk-split-clear: record 3 ($Volume), record size 1024, $MFT copy at byte 19456, $MFTMirr copy at byte 33553408
+update sequence array at record offset 0x30, 3 entries; sector tails at 0x1fe, 0x3fe
+$VOLUME_INFORMATION flags word at record offset 0x1ba
+USN: $MFT 0x0004, $MFTMirr 0x0003 (the $MFT copy is the successor: True)
+flags: $MFT 0x0000, $MFTMirr 0x0001 (differ only in VOLUME_IS_DIRTY: True)
+raw (on-disk) bytes that differ, record offsets: 0x30: 04/03, 0x1ba: 00/01, 0x1fe: 04/03, 0x3fe: 04/03
+after the fix-up (sector tails restored), record offsets that differ: 0x30: 04/03, 0x1ba: 00/01
+difference confined to the USN (update sequence number and sector tails) and the VOLUME_IS_DIRTY bit: True
+engine (ntfsinfo -m, NTFS-3G 2026.9.28): refused with "$MFTMirr does not match $MFT (record 3)."

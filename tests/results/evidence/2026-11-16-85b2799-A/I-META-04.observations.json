@@ -1,0 +1,27 @@
+{
+ "c_attrlist": {
+  "birth": null,
+  "fn_crtime_ft": 134392929015886351,
+  "si_crtime_ft": 134392929015886351,
+  "xattr_crtime_ft": 134392929015886351
+ },
+ "c_cp": {
+  "birth": null,
+  "fn_crtime_ft": 134392929015894471,
+  "si_crtime_ft": 134392929015894471,
+  "xattr_crtime_ft": 134392929015894471
+ },
+ "c_ref": {
+  "birth": null,
+  "fn_crtime_ft": 134392929015897822,
+  "si_crtime_ft": 134392929015897822,
+  "xattr_crtime_ft": 134392929015897822
+ },
+ "c_xattr": {
+  "birth": null,
+  "fn_crtime_ft": 129997879323456789,
+  "si_crtime_ft": 129997879323456789,
+  "xattr_crtime_ft": 129997879323456789
+ },
+ "xattr_set": "ok"
+}

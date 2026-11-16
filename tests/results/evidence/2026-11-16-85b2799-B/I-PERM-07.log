@@ -1,0 +1,67 @@
+09:15:36 start I-PERM-07 (env B)
+09:15:36 created throwaway account ntfsmacperm uid 561 (no password, used through sudo -u only)
+09:15:36 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-zuyr6sjc/vol.img -> rc=0
+09:15:36 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+09:15:36 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-zuyr6sjc/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-zuyr6sjc/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-zuyr6sjc/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-zuyr6sjc/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-zuyr6sjc/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+09:15:36 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-zuyr6sjc/vol.img /private/tmp/ntfsmac-perm07-8301/mnt -> rc=0
+09:15:39 mount: /dev/disk6s1 on /private/tmp/ntfsmac-perm07-8301/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+09:15:39 console user view (chmod 0 on locked.txt is a no-op on this mount, the real mode-000 file is in pass 2): plain 501:20:0644, locked 501:20:0644, adir 501:20:0755
+09:15:39 root view of plain.txt: 501:20
+09:15:39 other account: stat             rc=0 561:561:-rw-r--r--
+09:15:40 other account: list             rc=0 total 268 | drwxr-xr-x  1 561  561       0 Nov 16 09:15 adir | -rw-r--r--  1 561  561  133184 Nov 16 09:15 bin-true | -rw-r--r--  1 561  561
+09:15:40 other account: read             rc=0 plain
+09:15:40 other account: read locked      rc=0 locked
+09:15:40 other account: append           rc=0 
+09:15:40 other account: append locked    rc=0 
+09:15:40 other account: create           rc=0 
+09:15:40 other account: mkdir            rc=0 
+09:15:40 other account: mkdir in dir     rc=0 
+09:15:40 other account: rename           rc=0 
+09:15:40 other account: delete           rc=0 
+09:15:40 other account: exec             rc=0 
+09:15:40 other account sees owner of an admin-made file as 561:561
+09:15:40 other account chmod 600 plain.txt: rc=0  (recorded)
+09:15:40 $ sync -> rc=0
+09:15:40 $ /sbin/umount /private/tmp/ntfsmac-perm07-8301/mnt -> rc=0
+09:15:40 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-zuyr6sjc/vol.img /private/tmp/ntfsmac-perm07-8301/mnt -> rc=0
+09:15:43 mount: /dev/disk6s1 on /private/tmp/ntfsmac-perm07-8301/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+09:15:43 after remount: ['adir', 'bin-true', 'by-other.txt', 'locked.txt', 'other-dir', 'plain.txt', 'renamed.txt']
+09:15:43 read-only mount, other account create: rc=1 /bin/sh: /private/tmp/ntfsmac-perm07-8301/mnt/ro-try.txt: Read-only file system
+09:15:43 $ sync -> rc=0
+09:15:43 $ /sbin/umount /private/tmp/ntfsmac-perm07-8301/mnt -> rc=0
+09:15:43 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-zuyr6sjc/vol.img -> rc=0
+09:15:43 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+09:15:43 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-zuyr6sjc/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-zuyr6sjc/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-zuyr6sjc/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-zuyr6sjc/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-zuyr6sjc/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+09:15:43 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,permissions /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-zuyr6sjc/vol.img /private/tmp/ntfsmac-perm07-8301/mnt -> rc=0
+09:15:43 stderr: Using default user mapping
+09:15:46 mount: /dev/disk6s1 on /private/tmp/ntfsmac-perm07-8301/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+09:15:46 permissions mount, console view: mine 501:20:0600 locked 501:20:0000 private 501:20:0700
+09:15:46 permissions mount, other account: read 0600            rc=0 mine 
+09:15:46 permissions mount, other account: write 0600           rc=0  
+09:15:46 permissions mount, other account: read mode-000        rc=0 locked 
+09:15:46 permissions mount, other account: append mode-000      rc=0  
+09:15:46 permissions mount, other account: list 0700 dir        rc=0 in.txt 
+09:15:46 permissions mount, other account: delete in 0700 dir   rc=0  
+09:15:46 permissions mount, other account: create in 0700 dir   rc=0  
+09:15:46 $ sync -> rc=0
+09:15:46 $ /sbin/umount /private/tmp/ntfsmac-perm07-8301/mnt -> rc=0
+09:15:46 deleted account ntfsmacperm: rc 0
+09:15:47 end I-PERM-07: pass

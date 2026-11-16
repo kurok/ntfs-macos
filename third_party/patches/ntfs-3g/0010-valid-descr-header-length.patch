@@ -1,0 +1,44 @@
+ntfs-3g (ntfs-macos) patch 0010: ntfs_valid_descr() checks the length before it reads the header
+
+Rationale (T-M3-25, ADR-026, finding F3, GHSA-g3h3-7rhv-rrmq, tests/fuzz/TRIAGE.md): in NTFS-3G 2026.9.28,
+libntfs-3g/acls.c ntfs_valid_descr(securattr, attrsz) reads phead->dacl, phead->sacl, phead->owner and
+phead->group (lines 682 to 685) before it compares attrsz with sizeof(SECURITY_DESCRIPTOR_RELATIVE)
+(line 695). The comment before the check says the size test comes before the pointers are used; that is
+true for the derived pointers but not for the four header fields. getsecurityattr() (security.c:1892 to
+1894) passes it the result of ntfs_attr_readall() for $SECURITY_DESCRIPTOR, which can be shorter than the
+header or empty (a one-byte attribute makes ASan report a heap-buffer-overflow read of 4 bytes; valgrind on
+the unmodified library shows "Invalid read of size 4" at acls.c:682). The function is reached from every
+permission check (-o permissions) and from getxattr system.ntfs_acl.
+Change (libntfs-3g/acls.c, one hunk): return FALSE at the top of ntfs_valid_descr() when
+attrsz < sizeof(SECURITY_DESCRIPTOR_RELATIVE), before any header field is read. The existing "attrsz >=
+sizeof(SECURITY_DESCRIPTOR_RELATIVE)" term in the long condition stays (now always true there).
+Scope: library-wide and cross-platform (no __APPLE__ guard). It only adds a rejection of a malformed
+on-disk descriptor; a descriptor of at least the header size takes the same path as before. The callers
+already treat FALSE as "invalid descriptor" and log the error.
+Upstream status: reported privately 2026-11-16 as GHSA-g3h3-7rhv-rrmq; carried until a fixed NTFS-3G release
+is pinned, then removed (ADR-026).
+Test: ctest fuzz.findings.F3 replays tests/fuzz/image/findings/F3-valid-descr-heap-overflow.bin through
+fuzz_replay_mountwalk (security reads on), registered only for an ASan build. Verified in Environment A: on
+the unpatched library it fails (heap-buffer-overflow at acls.c:682) with clang -O0 and -O1, gcc -O0, and
+gcc -O1 with -fsanitize=address,undefined; it does NOT fail unpatched with gcc -O1 and -fsanitize=address
+alone (the compiler removes the header loads, which are used only after the length test), so there it
+only shows that the patched library does not crash. It passes with the patch in every one of those builds.
+The standalone image replayed under valgrind (repro_secdesc): "Invalid read of size 4" at acls.c:682
+unpatched, none patched.
+
+--- a/libntfs-3g/acls.c
++++ b/libntfs-3g/acls.c
+@@ -672,6 +672,13 @@
+ 
+ 	ok = TRUE;
+ 
++		/*
++		 * a descriptor shorter than its header cannot be read
++		 * (ntfs-macos 0010)
++		 */
++	if (attrsz < sizeof(SECURITY_DESCRIPTOR_RELATIVE))
++		return (FALSE);
++
+ 	/*
+ 	 * first check overall size if within allocation range
+ 	 * and a DACL is present

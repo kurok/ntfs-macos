@@ -48,6 +48,43 @@ add_test(NAME fuzz.mountwalk_seeds COMMAND fuzz_replay_mountwalk ${_corpus}/moun
 # fail for that; run.sh checks the leaks of the whole corpus in its own stage and lists them.
 set_tests_properties(fuzz.probe_seeds fuzz.mountwalk_seeds PROPERTIES ENVIRONMENT "ASAN_OPTIONS=detect_leaks=0")
 
+# Regression replay of the NTFS-3G findings F1, F3 and F4 (tests/fuzz/TRIAGE.md; fixed locally by the
+# patches 0012, 0010 and 0011, ADR-026), one ctest per finding so that one abort does not hide the
+# others: fuzz.findings.F1, fuzz.findings.F3, fuzz.findings.F4. F2 is a known leak and stays out.
+# The security descriptor reads are not skipped (NTFSMAC_FUZZ_SKIP_SECURITY is removed).
+#
+# They are registered only for an AddressSanitizer build (NTFSMAC_SANITIZE contains "address", and
+# libntfs-3g built with -fsanitize=address as well): a build without it cannot detect the over-reads
+# or the allocation, so the tests would pass unpatched. Checked on the unpatched library (T-M3-25),
+# libntfs-3g and the replay built with the same sanitizer flags:
+#   F1 and F4 fail unpatched in every ASan build tried (clang and gcc, -O0 and -O1, with and without UBSan).
+#   F3 fails unpatched in clang -O0/-O1, gcc -O0, and gcc -O1 with "address,undefined"; it PASSES
+#   unpatched in gcc -O1 with "address" alone: the loads at acls.c:682-685 are used only after the
+#   length test, and that build removes them, so no over-read happens. This is the build of the
+#   asan stage of tests/unit/probe/inner.sh (gcc -O1, -fsanitize=address). There fuzz.findings.F3
+#   cannot show the defect; it only shows that the patched library does not crash. F3 is then
+#   checked by valgrind on the standalone image or by an -O0 or clang build (docs/AGENT_TASKS.md
+#   T-M3-25). With the patches all three pass in every build above.
+if(NTFSMAC_SANITIZE MATCHES "address")
+  set(_findings ${CMAKE_CURRENT_SOURCE_DIR}/findings)
+  # The image sets ASAN_OPTIONS (log_path and more); the options of the replay are appended to them.
+  set(_asan_extra "detect_leaks=0:allocator_may_return_null=0:max_allocation_size_mb=1024")
+  if(DEFINED ENV{ASAN_OPTIONS} AND NOT "$ENV{ASAN_OPTIONS}" STREQUAL "")
+    set(_asan_opts "$ENV{ASAN_OPTIONS}:${_asan_extra}")
+  else()
+    set(_asan_opts "${_asan_extra}")
+  endif()
+  foreach(_f IN ITEMS F1-getsecurityattr-alloc F3-valid-descr-heap-overflow F4-possible-symlink-heap-overflow)
+    string(REGEX MATCH "^F[0-9]+" _id ${_f})
+    add_test(NAME fuzz.findings.${_id}
+      COMMAND ${CMAKE_COMMAND} -E env --unset=NTFSMAC_FUZZ_SKIP_SECURITY $<TARGET_FILE:fuzz_replay_mountwalk>
+              ${_findings}/${_f}.bin)
+    set_tests_properties(fuzz.findings.${_id} PROPERTIES ENVIRONMENT "ASAN_OPTIONS=${_asan_opts}")
+  endforeach()
+else()
+  message(STATUS "no AddressSanitizer build: fuzz.findings.F1/F3/F4 not registered")
+endif()
+
 if(NTFSMAC_FUZZ)
   if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
     message(FATAL_ERROR "NTFSMAC_FUZZ needs clang (libFuzzer)")

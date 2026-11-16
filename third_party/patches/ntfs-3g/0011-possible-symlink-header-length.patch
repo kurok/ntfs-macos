@@ -1,0 +1,70 @@
+ntfs-3g (ntfs-macos) patch 0011: ntfs_possible_symlink() checks the attribute length before it reads the tag
+
+Rationale (T-M3-25, ADR-026, finding F4, GHSA-vp2x-xjmj-x4x2, tests/fuzz/TRIAGE.md): in NTFS-3G 2026.9.28,
+libntfs-3g/reparse.c ntfs_possible_symlink() guards with "reparse_attr && attr_size" (line 927) and then
+reads reparse_attr->reparse_tag (line 928), 4 bytes at offset 0. A $REPARSE_POINT attribute of 1 to 3
+bytes makes the read run past the allocation of ntfs_attr_readall() (line 925). The function is called by
+ntfs_dir_entry_type() (dir.c:923), from ntfs_filldir() during ntfs_readdir(), for every directory entry
+whose file has the reparse flag, so a plain "ls" of a crafted volume reaches it. With ASan the ntfs-3g
+daemon exits with status 1 during that listing; valgrind shows a use of uninitialised memory at
+reparse.c:928.
+Change (libntfs-3g/reparse.c, one hunk): the tag is read only when
+attr_size >= (s64)sizeof(REPARSE_POINT), the same header test valid_reparse_data() makes (the structure
+is packed and reparse_data[] has size zero, so this equals offsetof(REPARSE_POINT, reparse_data); sizeof
+is used because reparse.c does not otherwise include stddef.h). The buffer is now freed whenever it was
+allocated: before, an attribute with attr_size == 0 returned a non-NULL buffer that was never freed (a
+leak of the empty allocation); with the restructured test free() sits after the size test.
+Checked in reparse.c, same pattern (reads reparse_tag or the header of data read from disk without a size
+test): none found beyond this function.
+  - ntfs_make_symlink() (line 814 to 817): reads only after valid_reparse_data(), which tests
+    size >= sizeof(REPARSE_POINT) first. Safe.
+  - ntfs_get_reparse_point() (line 1445): returns the buffer only after valid_reparse_data(). Safe; its
+    callers (wsl_getattr() and ntfs_reparse_check_wsl() in src/ntfs-3g.c, ntfs-3g_common.c) get a
+    validated buffer.
+  - ntfs_reparse_check_wsl() (line 447): reads the tag of the buffer it is given; every caller passes
+    the result of ntfs_get_reparse_point(). Safe.
+  - ntfs_get_ntfs_reparse_data() (line 1174): copies attr_size bytes to the caller and reads no field.
+    Safe.
+  - remove_reparse_index() (line 1000): ntfs_attr_pread(na, 0, 4, ...) and a "size == 4" test before the
+    tag is used. Safe.
+  - set_reparse_data() (line 1100): value comes from ntfs_set_ntfs_reparse_data(), which calls
+    valid_reparse_data() first (line 1213). Safe.
+  - ntfsprogs/ntfsinfo.c (line 2167) reads a reparse attribute for printing; it is a command line tool,
+    not built or shipped by ntfs-macos, and is not patched.
+Scope: library-wide and cross-platform (no __APPLE__ guard). It only adds a rejection of a malformed
+on-disk attribute (a reparse attribute shorter than its 8-byte header is never a symlink).
+Upstream status: reported privately 2026-11-16 as GHSA-vp2x-xjmj-x4x2; carried until a fixed NTFS-3G release
+is pinned, then removed (ADR-026).
+A reader of the same tag outside reparse.c, ntfs_inode_sync_file_name() in inode.c, is fixed by patch 0013.
+Test: ctest fuzz.findings.F4 replays tests/fuzz/image/findings/F4-possible-symlink-heap-overflow.bin through
+fuzz_replay_mountwalk (directory reads on), registered only for an ASan build. Verified in Environment A: it
+fails on the unpatched library (heap-buffer-overflow at reparse.c) and passes with the patch, in clang and
+gcc builds at -O0 and -O1, with and without UBSan. Standalone image: mount and "ls -laR" under valgrind
+(ntfs-3g): conditional jump on uninitialised memory at reparse.c:928 unpatched, none patched.
+
+--- a/libntfs-3g/reparse.c
++++ b/libntfs-3g/reparse.c
+@@ -924,13 +924,16 @@
+ 	possible = FALSE;
+ 	reparse_attr = (REPARSE_POINT*)ntfs_attr_readall(ni,
+ 			AT_REPARSE_POINT,(ntfschar*)NULL, 0, &attr_size);
+-	if (reparse_attr && attr_size) {
+-		switch (reparse_attr->reparse_tag) {
+-		case IO_REPARSE_TAG_MOUNT_POINT :
+-		case IO_REPARSE_TAG_SYMLINK :
+-		case IO_REPARSE_TAG_LX_SYMLINK :
+-			possible = TRUE;
+-		default : ;
++	if (reparse_attr) {
++			/* the tag is read only from a complete header */
++		if (attr_size >= (s64)sizeof(REPARSE_POINT)) {
++			switch (reparse_attr->reparse_tag) {
++			case IO_REPARSE_TAG_MOUNT_POINT :
++			case IO_REPARSE_TAG_SYMLINK :
++			case IO_REPARSE_TAG_LX_SYMLINK :
++				possible = TRUE;
++			default : ;
++			}
+ 		}
+ 		free(reparse_attr);
+ 	}

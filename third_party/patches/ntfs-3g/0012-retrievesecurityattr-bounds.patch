@@ -1,0 +1,179 @@
+ntfs-3g (ntfs-macos) patch 0012: security descriptor lengths from $SII and $SDH are bounded before they allocate
+
+Rationale (T-M3-25, ADR-026, finding F1, GHSA-r4cv-86xq-37qj, tests/fuzz/TRIAGE.md): in NTFS-3G 2026.9.28,
+libntfs-3g/security.c retrievesecurityattr() (lines 1823 to 1832) takes datasize from the $SII index entry
+(a 32-bit on-disk value), computes size = datasize - sizeof(SECURITY_DESCRIPTOR_HEADER) and calls
+ntfs_malloc(size) before it knows that $SDS holds that many bytes. With datasize < 20 the size_t
+subtraction wraps (valgrind: "Argument 'size' of function malloc has a fishy (possibly negative) value:
+-19"); with a large datasize the request is up to 4 GiB (libFuzzer: malloc(4294967147)), freed when the
+following read fails. It is reached through getsecurityattr() (security.c:1885) from every permission check
+and from getxattr system.ntfs_acl. Resource use, not a memory fault.
+Change (libntfs-3g/security.c):
+  - New static helper sds_record_within(ni, offs, length): opens the $SDS data attribute of $Secure
+    (ntfs_attr_open with STREAM_SDS) and returns TRUE only when offs <= data_size and
+    length <= data_size - offs (unsigned arithmetic, no overflow), and the record does not cross a block
+    of $SDS: (offs & (ALIGN_SDS_BLOCK - 1)) + length <= ALIGN_SDS_BLOCK (256 KiB). The block rule is there
+    because data_size is itself on-disk data: a crafted huge data_size with a small initialized_size would
+    still allow an allocation of up to 4 GiB. entersecurityattr() never writes a record across a block
+    (security.c lines 771 to 781) and Windows uses the same layout. Failure to open the stream or a
+    negative size is "reject". Placed before setsecurityattr() so that both users see it.
+  - retrievesecurityattr(): datasize is read once; the allocation happens only when
+    datasize >= sizeof(SECURITY_DESCRIPTOR_HEADER) and the whole record (offset of the header and datasize,
+    that is offs + size in the terms of the old code) lies within $SDS. Otherwise securattr stays NULL and
+    the existing error path runs unchanged (log "Failed to retrieve a security descriptor", errno EIO).
+  - setsecurityattr() (write path, line 879 to 892): see the sibling check below.
+Sibling uses of datasize in security.c, checked:
+  - entersecurityattr() (lines 707 and 734, pristine numbers): size = le32_to_cpu(psii->datasize) is
+    a 32-bit value used only to compute the next free offset in $SDS (offs += gap + size); nothing is
+    allocated or read from it. Not changed.
+  - setsecurityattr() (line 879): size = datasize - header was an unguarded size_t subtraction followed by
+    ntfs_malloc(size) for a record whose $SDH hash matches (read-write mounts only, to compare a new
+    descriptor with the stored one). Same defect: fixed. The subtraction is made only when datasize is
+    larger than the header (size is 0 otherwise, which the existing "size > 0" test already skips). A
+    matching-hash record is compared only when its size equals attrsz (the caller's buffer holds attrsz
+    bytes, so memcmp(oldattr, attr, size) over-read it when the on-disk size was larger) and it passes
+    sds_record_within(); any other record is treated like a hash collision (the next entry is tried,
+    nothing is allocated or compared).
+Scope: library-wide and cross-platform (no __APPLE__ guard). Only adds rejections of malformed on-disk
+data; a well-formed record lies within $SDS (the data is written to $SDS before the indexes) and takes the
+same path as before. One extra ntfs_attr_open of $SDS happens per descriptor read from disk (a cache miss
+in the security cache) and per matching-hash record on the write path.
+Upstream status: reported privately 2026-11-16 as GHSA-r4cv-86xq-37qj; carried until a fixed NTFS-3G release
+is pinned, then removed (ADR-026).
+Test: ctest fuzz.findings.F1 replays tests/fuzz/image/findings/F1-getsecurityattr-alloc.bin through
+fuzz_replay_mountwalk (security reads on, ASan allocation limit set in the test), registered only for an ASan
+build. Verified in Environment A: on the unpatched library it fails (allocation-size-too-big, request
+0xffffffffffffffed, the wrapped size) and passes with the patch, in clang and gcc builds at -O0 and -O1, with
+and without UBSan. The image holds the datasize < header case; the large-datasize case and the block rule
+have no reproducer image and rest on the logic above. Standalone image under valgrind (repro_secdesc): "fishy"
+malloc of -19 unpatched, none patched. The write-path changes (setsecurityattr) are exercised by the
+I-* cases that create files and set permissions in Environment A (48 pass with the patched build); no case
+makes a hash match with a differing size.
+
+--- a/libntfs-3g/security.c
++++ b/libntfs-3g/security.c
+@@ -808,6 +808,41 @@
+ }
+ 
+ /*
++ *	Check that a record of $Secure:$SDS lies within the stream
++ *
++ *	The offset and the length come from an index entry of $SII or $SDH,
++ *	which is on-disk data and cannot be trusted before it is compared
++ *	with the size of the stream (ntfs-macos 0012).
++ *
++ *	Returns TRUE if [offs, offs + length) is within the data of $SDS
++ *		FALSE if not, or if the size of $SDS cannot be determined
++ */
++
++static BOOL sds_record_within(ntfs_inode *ni, u64 offs, u32 length)
++{
++	ntfs_attr *na;
++	BOOL ok;
++
++	ok = FALSE;
++	na = ntfs_attr_open(ni, AT_DATA, STREAM_SDS, 4);
++	if (na) {
++		/*
++		 * data_size is on-disk data too, so also require that the
++		 * record does not cross a block of $SDS : entersecurityattr()
++		 * never writes one across a block (a record is at most as
++		 * long as the block), and so does Windows
++		 */
++		ok = (na->data_size >= 0)
++		    && (offs <= (u64)na->data_size)
++		    && ((u64)length <= (u64)na->data_size - offs)
++		    && ((offs & (ALIGN_SDS_BLOCK - 1)) + length
++							<= ALIGN_SDS_BLOCK);
++		ntfs_attr_close(na);
++	}
++	return (ok);
++}
++
++/*
+  *		Find a matching security descriptor in $Secure,
+  *	if none, allocate a new id and write the descriptor to storage
+  *	Returns id of entry, or zero if there is a problem.
+@@ -829,6 +864,7 @@
+ 	} realign;
+ 	BOOL found;
+ 	BOOL collision;
++	BOOL inside;
+ 	size_t size;
+ 	size_t rdsize;
+ 	s64 offs;
+@@ -875,7 +911,9 @@
+ 			do {
+ 				collision = FALSE;
+ 				psdh = (struct SDH*)entry;
+-				if (psdh)
++				/* ntfs-macos 0012 : no wrap-around of size */
++				if (psdh && (le32_to_cpu(psdh->datasize)
++					> sizeof(SECURITY_DESCRIPTOR_HEADER)))
+ 					size = (size_t) le32_to_cpu(psdh->datasize)
+ 						 - sizeof(SECURITY_DESCRIPTOR_HEADER);
+ 				else size = 0;
+@@ -888,8 +926,23 @@
+ 					realign.parts.dataoffsl = psdh->dataoffsl;
+ 					offs = le64_to_cpu(realign.all)
+ 						+ sizeof(SECURITY_DESCRIPTOR_HEADER);
+-					oldattr = (char*)ntfs_malloc(size);
+-					if (oldattr) {
++					/* ntfs-macos 0012 : a record of */
++					/* another size (attr holds attrsz */
++					/* bytes) or not within $SDS cannot */
++					/* be the same, try the next one */
++					inside = (size == (size_t)attrsz)
++					    && sds_record_within(
++						vol->secure_ni,
++						le64_to_cpu(realign.all),
++						le32_to_cpu(psdh->datasize));
++					oldattr = inside
++						? (char*)ntfs_malloc(size)
++						: (char*)NULL;
++					if (!inside) {
++						entry = ntfs_index_next(
++							entry,xsdh);
++						collision = TRUE;
++					} else if (oldattr) {
+ 						rdsize = ntfs_attr_data_read(
+ 							vol->secure_ni,
+ 							STREAM_SDS, 4,
+@@ -1806,6 +1859,7 @@
+ 	size_t size;
+ 	size_t rdsize;
+ 	s64 offs;
++	u32 datasize;
+ 	ntfs_inode *ni;
+ 	ntfs_index_context *xsii;
+ 	char *securattr;
+@@ -1820,16 +1874,25 @@
+ 				       sizeof(SII_INDEX_KEY), xsii);
+ 		if (found) {
+ 			psii = (struct SII*)xsii->entry;
+-			size =
+-			    (size_t) le32_to_cpu(psii->datasize)
+-				 - sizeof(SECURITY_DESCRIPTOR_HEADER);
++			datasize = le32_to_cpu(psii->datasize);
+ 			/* work around bad alignment problem */
+ 			realign.parts.dataoffsh = psii->dataoffsh;
+ 			realign.parts.dataoffsl = psii->dataoffsl;
+ 			offs = le64_to_cpu(realign.all)
+ 				+ sizeof(SECURITY_DESCRIPTOR_HEADER);
+ 
+-			securattr = (char*)ntfs_malloc(size);
++			/*
++			 * ntfs-macos 0012 : the length is on-disk data, check
++			 * it against the header size and the size of $SDS
++			 * before it is used to allocate
++			 */
++			if ((datasize >= sizeof(SECURITY_DESCRIPTOR_HEADER))
++			    && sds_record_within(ni,
++					le64_to_cpu(realign.all), datasize)) {
++				size = (size_t)datasize
++					- sizeof(SECURITY_DESCRIPTOR_HEADER);
++				securattr = (char*)ntfs_malloc(size);
++			}
+ 			if (securattr) {
+ 				rdsize = ntfs_attr_data_read(
+ 					ni, STREAM_SDS, 4,

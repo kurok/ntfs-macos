@@ -40,7 +40,18 @@ security 6.8 % (skipped by design in run B), mft 9.1 % (mostly write paths).
 All findings are in NTFS-3G (libntfs-3g). Filed upstream 2026-11-16 as private GitHub security
 advisories, state "triage": F3 GHSA-g3h3-7rhv-rrmq, F4 GHSA-vp2x-xjmj-x4x2, F1 GHSA-r4cv-86xq-37qj,
 each with a standalone image and a reproduction on the unmodified 2026.9.28 release (valgrind;
-F3 and F1 through a small libntfs-3g program, F4 through `ls` on an `ntfs-3g` mount). F2 and F5
+F3 and F1 through a small libntfs-3g program, F4 through `ls` on an `ntfs-3g` mount).
+Fixed locally (2026-11-16, T-M3-25, ADR-026): F3 by patch 0010, F4 by patch 0011, F1 by patch 0012,
+carried until a fixed NTFS-3G release is pinned. Regression: ctests `fuzz.findings.F1`, `fuzz.findings.F3`,
+`fuzz.findings.F4` (one replay each of the reproducer through the harness, security reads on; F2 is not
+included), registered only for an ASan build. Verified in Environment A on the library without the patches
+(`--no-patches`) and with them: F1 and F4 fail unpatched in every ASan build tried (clang and gcc, -O0 and
+-O1, with and without UBSan); F3 fails unpatched in clang -O0/-O1, gcc -O0 and gcc -O1 with
+`address,undefined`, but PASSES unpatched in gcc -O1 with `-fsanitize=address` alone (the asan stage of
+`tests/unit/probe/inner.sh`: the compiler removes the loads at acls.c:682-685). There F3 is checked by
+valgrind on the standalone image (invalid read of size 4 at acls.c:682 unpatched, none patched). With the
+patches all three pass in every build. The tables and texts below describe the findings as made against the
+unmodified release. F6 (below) was found in the review of the patches and has no replay. and texts below describe the findings as made against the unmodified release. F2 and F5
 (leaks) are drafted as public issues and not yet filed. The draft texts below are the originals. Reproducers are inputs of the harness (a recipe for an image, see
 `tests/fuzz/image/image.h`); replay: build `fuzz_mountwalk` (`run.sh` does, in the container)
 and run `fuzz_mountwalk tests/fuzz/image/findings/FILE`. To get a standalone image for an
@@ -53,6 +64,7 @@ upstream report, write the image that `fz_image_build()` makes for the input to 
 | F3 | `acls.c` `ntfs_valid_descr()` (line 682), from `getsecurityattr()` (security.c:1894) | heap-buffer-overflow, read of 4 bytes | medium | `findings/F3-valid-descr-heap-overflow.bin` | no |
 | F4 | `reparse.c` `ntfs_possible_symlink()` (line 928), from `ntfs_filldir()` (dir.c:923) during `ntfs_readdir()` | heap-buffer-overflow, read of 4 bytes | medium | `findings/F4-possible-symlink-heap-overflow.bin` | not in 4.0 million probe executions (the probe's walk calls `ntfs_readdir()`; not proven unreachable) |
 | F5 | `reparse.c` `ntfs_make_symlink()` (line 814 and following) | memory leak, 56 bytes | low | found only by the leak stage of run B (`hour2/mountwalk/leaks.log.sym`), corpus input in `hour2/mountwalk/corpus/` | no |
+| F6 | `inode.c` `ntfs_inode_sync_file_name()` (lines 815 to 822) | heap out-of-bounds read of 4 bytes (reparse tag of a non-resident or short attribute, no resident or length check), written into the index entries of the file's names | low to medium (read-write mounts only) | none (found by code reading in review; no image built) | no |
 | U | `bootsect.c` 229, 231, 237, 275; `volume.c` 273, 624, 1094; `runlist.c` 862, 882, 897, 961; `attrib.c` 385, 386, 1040, 1073; `unistr.c` 183, 188, 345, 376; `reparse.c` (misaligned loads) | undefined behaviour: left shifts of negative or large values, signed overflow, negative shift exponent, misaligned `ntfschar` loads | low (benign on arm64 and x86-64 with the usual compilers) | UBSan reports in `hour*/*/libfuzzer-*.log.sym`, list in `ubsan-engine.txt` | yes (bootsect, volume, runlist, unistr hit by the probe too) |
 
 Why they do not touch the probe: the probe opens the device O_RDONLY, mounts read-only,
@@ -120,6 +132,17 @@ block (reparse.c, about line 903), so an attribute that fails `valid_reparse_dat
 attribute when valid_reparse_data() fails.* Move the `free()` out of the `if`.
 Version 2026.9.28.
 
+### F6: `ntfs_inode_sync_file_name()` reads the reparse tag without a resident or length check
+
+Found in the review of patches 0010 to 0012; the same pattern as F4. `ntfs_inode_sync_file_name()` looks up
+`$REPARSE_POINT` and reads `rpp->reparse_tag` at `attr + value_offset` with no test of `non_resident` or
+`value_length`; `ntfs_attr_inconsistent()` has no case for this attribute and skips its `value_offset` test for
+a zero length. For a non-resident attribute the `value_offset` field is part of `lowest_vcn`, so the read can
+be up to 64 KiB from the attribute. Reached from `ntfs_inode_sync()` for an inode with the file-name-dirty
+flag, so on read-write mounts only. The tag read is stored in the index entries of the file's names. Fixed
+locally by patch 0013 (not yet reported upstream: draft `build/upstream-reports/05-security-inode-sync-reparse.md`,
+git-ignored). No reproducer was built and no replay reaches it (the harness mounts read-only).
+
 ### U: undefined behaviour in the library
 
 UBSan in the library is set to report and continue (each location once per process); in the
@@ -136,8 +159,8 @@ reported, one issue per file with the unsigned-arithmetic fix is the usual form.
 ## Open
 
 - F4 ends every libFuzzer process of F-MOUNT-WALK within minutes, so run B covers the paths
-  behind it less than 3603 s suggest. After F4 is fixed or skipped (a harness switch like
-  `--skip-security`: leave out directories with the reparse flag), a further run is advised;
+  behind it less than 3603 s suggest. F4 is now fixed locally (patch 0011) and so are F1 and F3
+  (0012, 0010): a further run on the patched engine, without `--skip-security`, is advised;
   T-M5-09 (8 CPU-hours) is the place.
 - Leaks stop libFuzzer at the first one, so `inner.sh` runs with leak detection off and
   lists every distinct leak of the final corpus in a replay (`leaks.log.sym`). A leak that

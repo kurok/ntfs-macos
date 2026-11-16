@@ -1,0 +1,49 @@
+ntfs-3g (ntfs-macos) patch 0013: ntfs_inode_sync_file_name() reads the reparse tag only from a complete resident value
+
+Rationale (T-M3-25, ADR-026, finding F6, found in the review of patches 0010 to 0012, tests/fuzz/TRIAGE.md):
+in NTFS-3G 2026.9.28, libntfs-3g/inode.c ntfs_inode_sync_file_name() (lines 815 to 822) looks up the
+$REPARSE_POINT attribute of an inode whose standard information has FILE_ATTR_REPARSE_POINT and reads
+rpp->reparse_tag at ctx->attr + le16_to_cpu(ctx->attr->value_offset) (4 bytes), with no test that the
+attribute is resident and none of its length. ntfs_attr_inconsistent() has no AT_REPARSE_POINT case, and its
+value_offset test is skipped when value_length is 0, so a crafted attribute reaches this read:
+  - a non-resident $REPARSE_POINT: the "value_offset" field overlaps the non-resident header (it is not a
+    value offset), so the read is at an arbitrary offset of up to 64 KiB from the attribute, past the end of
+    the MFT record buffer;
+  - a resident one with value_length 0 to 3: the read takes bytes that are not part of the value.
+The function runs from ntfs_inode_sync() (line 977) when the inode has the file-name-dirty flag, so only on
+read-write mounts. The value read is stored as reparse_point_tag (line 895) into the index entries of the
+file's names in their directories.
+Change (libntfs-3g/inode.c, one hunk): the tag is read only when !ctx->attr->non_resident and
+le32_to_cpu(ctx->attr->value_length) >= sizeof(REPARSE_POINT); otherwise reparse_tag stays 0, the behaviour for
+a file without reparse data.
+Scope: library-wide and cross-platform (no __APPLE__ guard). It only adds a rejection of a malformed on-disk
+attribute; a complete resident reparse attribute takes the same path as before.
+Upstream status: not yet reported; draft report in build/upstream-reports/05-security-inode-sync-reparse.md;
+carried per ADR-026.
+Test: none of the replays reaches it (the harness mounts read-only; the sync path needs a read-write mount and a
+crafted image with a reparse attribute that is non-resident or empty). Found by reading the code; no
+reproducer was built. Covered only by the I-* integration cases and the probe and volmark suites not regressing.
+
+--- a/libntfs-3g/inode.c
++++ b/libntfs-3g/inode.c
+@@ -816,9 +816,18 @@
+ 	if (ni->flags & FILE_ATTR_REPARSE_POINT) {
+ 		if (!ntfs_attr_lookup(AT_REPARSE_POINT, NULL,
+ 				0, CASE_SENSITIVE, 0, NULL, 0, ctx)) {
+-			rpp = (REPARSE_POINT*)((u8 *)ctx->attr +
++			/*
++			 * ntfs-macos 0013 : the tag is read only from a
++			 * resident value of at least the header size,
++			 * otherwise the file is handled as a non reparse one
++			 */
++			if (!ctx->attr->non_resident
++			    && (le32_to_cpu(ctx->attr->value_length)
++				>= sizeof(REPARSE_POINT))) {
++				rpp = (REPARSE_POINT*)((u8 *)ctx->attr +
+ 					le16_to_cpu(ctx->attr->value_offset));
+-			reparse_tag = rpp->reparse_tag;
++				reparse_tag = rpp->reparse_tag;
++			}
+ 		}
+ 		ntfs_attr_reinit_search_ctx(ctx);
+ 	}

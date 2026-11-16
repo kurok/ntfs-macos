@@ -1,0 +1,46 @@
+==== E0: virtio disk attached at boot (size 271581184), report and open tests ====
+T+0.000 start -> ok uid=0
+T+0.001 appeared disk5 size=6291456 whole=1 cand=1 volume_path=0 kind=- media_path=
+T+0.001 appeared disk0 size=271581184 whole=1 cand=1 volume_path=1 kind=ntfs media_path=IODeviceTree:/arm-io/pcie@30000000/pci106b,1a00@8/AppleVirtIOStorageDevice/AppleVirtIODiskStorageDevice@1/@1:0
+T+0.001 mounted disk0 size=271581184 whole=1 cand=1 volume_path=1 kind=ntfs media_path=IODeviceTree:/arm-io/pcie@30000000/pci106b,1a00@8/AppleVirtIOStorageDevice/AppleVirtIODiskStorageDevice@1/@1:0
+T+0.095 describe disk0 -> ok volume_path=1 kind=ntfs
+T+0.095 open-test while-mounted /dev/disk0 O_RDONLY=Resource busy O_RDWR=Resource busy
+T+0.095 open-test while-mounted /dev/rdisk0 O_RDONLY=ok O_RDWR=ok
+T+6.034 stop
+-- mount (ntfs lines):
+(mount not on PATH in the first script; /sbin/mount used from the second run on)
+(none)
+/dev/disk0 (internal, physical):
+   0:                            clean256m4k            *271.6 MB   disk0
+/dev/disk1 (internal, physical):
+   0:      GUID_partition_scheme                        *50.0 GB    disk1
+   1:             Apple_APFS_ISC Container disk2         524.3 MB   disk1s1
+   2:                 Apple_APFS Container disk4         44.1 GB    disk1s2
+   3:        Apple_APFS_Recovery Container disk3         5.4 GB     disk1s3
+/dev/disk4 (synthesized):
+   0:      APFS Container Scheme -                      +44.1 GB    disk4
+                                 Physical Store disk1s2
+   1:                APFS Volume Macintosh HD            13.8 GB    disk4s1
+   2:              APFS Snapshot com.apple.os.update-... 13.8 GB    disk4s1s1
+   3:                APFS Volume Preboot                 9.5 GB     disk4s2
+   4:                APFS Volume Recovery                1.5 GB     disk4s3
+   5:                APFS Volume Data                    12.5 GB    disk4s5
+   6:                APFS Volume VM                      20.5 KB    disk4s6
+
+==== E1: unmount through DA, then watch 25 s for a re-mount ====
+T+0.000 start -> ok uid=0
+T+0.001 appeared disk5 size=6291456 whole=1 cand=1 volume_path=0 kind=- media_path=
+T+0.001 appeared disk0 size=271581184 whole=1 cand=1 volume_path=1 kind=ntfs media_path=IODeviceTree:/arm-io/pcie@30000000/pci106b,1a00@8/AppleVirtIOStorageDevice/AppleVirtIODiskStorageDevice@1/@1:0
+T+0.001 mounted disk0 size=271581184 whole=1 cand=1 volume_path=1 kind=ntfs media_path=IODeviceTree:/arm-io/pcie@30000000/pci106b,1a00@8/AppleVirtIOStorageDevice/AppleVirtIODiskStorageDevice@1/@1:0
+T+0.063 describe disk0 -> ok volume_path=1 kind=ntfs
+T+0.063 open-test while-mounted /dev/disk0 O_RDONLY=Resource busy O_RDWR=Resource busy
+T+0.063 open-test while-mounted /dev/rdisk0 O_RDONLY=ok O_RDWR=ok
+T+10.736 unmounted disk0
+T+10.736 unmount disk0 -> ok (10.673 s)
+T+10.738 open-test after-unmount /dev/disk0 O_RDONLY=ok O_RDWR=ok
+T+10.740 open-test after-unmount /dev/rdisk0 O_RDONLY=ok O_RDWR=ok
+T+25.047 stop
+-- mount (ntfs lines):
+(mount not on PATH in the first script; /sbin/mount used from the second run on)
+(none)
+

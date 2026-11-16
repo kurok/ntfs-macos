@@ -1,0 +1,37 @@
+
+==== E7: persistent disk, dissent active, explicit mount request, then withdraw at 14 s ====
+-- mount (ntfs lines):
+(none)
+-- diskutil mount disk0 while dissent is active
+Volume on disk0 failed to mount: "claimed by ntfsmacd"
+rc=1
+-- mount (ntfs lines):
+(none)
+-- after withdraw
+-- mount (ntfs lines):
+/dev/disk0 on /Volumes/clean256m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit)
+T+0.001 start -> ok uid=0
+T+0.001 appeared disk5 size=6291456 whole=1 cand=1 volume_path=0 kind=- media_path=
+T+0.001 appeared disk0 size=271581184 whole=1 cand=1 volume_path=0 kind=ntfs media_path=IODeviceTree:/arm-io/pcie@30000000/pci106b,1a00@8/AppleVirtIOStorageDevice/AppleVirtIODiskStorageDevice@1/@1:0
+T+0.001 dissent disk0 -> ok
+T+14.090 withdraw disk0 -> ok
+T+14.159 mounted disk0 size=271581184 whole=1 cand=1 volume_path=1 kind=ntfs media_path=IODeviceTree:/arm-io/pcie@30000000/pci106b,1a00@8/AppleVirtIOStorageDevice/AppleVirtIODiskStorageDevice@1/@1:0
+T+14.335 describe disk0 -> ok volume_path=1 kind=ntfs
+
+==== E8: time of a plain diskutil unmount, then explicit mount without dissent ====
+-- mount (ntfs lines):
+/dev/disk0 on /Volumes/clean256m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit)
+Volume clean256m4k on disk0 unmounted
+diskutil unmount took 0 s
+-- mount (ntfs lines):
+(none)
+Volume clean256m4k on disk0 mounted
+-- mount (ntfs lines):
+/dev/disk0 on /Volumes/clean256m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit)
+T+0.001 start -> ok uid=0
+T+0.001 appeared disk5 size=6291456 whole=1 cand=1 volume_path=0 kind=- media_path=
+T+0.001 appeared disk0 size=271581184 whole=1 cand=1 volume_path=0 kind=ntfs media_path=IODeviceTree:/arm-io/pcie@30000000/pci106b,1a00@8/AppleVirtIOStorageDevice/AppleVirtIODiskStorageDevice@1/@1:0
+T+3.236 mounted disk0 size=271581184 whole=1 cand=1 volume_path=1 kind=ntfs media_path=IODeviceTree:/arm-io/pcie@30000000/pci106b,1a00@8/AppleVirtIOStorageDevice/AppleVirtIODiskStorageDevice@1/@1:0
+T+3.341 describe disk0 -> ok volume_path=1 kind=ntfs
+
+==== done ====

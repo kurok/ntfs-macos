@@ -19,6 +19,12 @@ target_link_libraries(ntfsmac_daemon PUBLIC
   ntfsmac_policy ntfsmac_journal ntfsmac_sanitize ntfsmac_worker_options)
 target_link_libraries(ntfsmac_daemon PRIVATE ntfsmac_options)
 
+# da.c (T-M4-02) is the only file here that uses Disk Arbitration.
+if(APPLE)
+  target_link_libraries(ntfsmac_daemon PUBLIC
+    "-framework DiskArbitration" "-framework CoreFoundation")
+endif()
+
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/main.c)
   add_executable(ntfsmacd main.c)
   target_link_libraries(ntfsmacd PRIVATE ntfsmac_daemon ntfsmac_options)

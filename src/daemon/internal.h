@@ -243,6 +243,7 @@ typedef struct ntfsmac_disk_info {
 	bool is_ntfs_candidate;   /* passed the filter of section 4.1 step 1 */
 	bool has_volume_path;     /* DAVolumePath present: some driver mounted it (ADR-020) */
 	char media_path[128];     /* DAMediaPath, for the binding check */
+	char volume_kind[16];     /* DAVolumeKind ("ntfs" for Apple's driver), "" if none or odd */
 } ntfsmac_disk_info;
 
 typedef struct ntfsmac_da_callbacks {

@@ -7,7 +7,7 @@ Status values: **Accepted**, **Accepted, gated** (a named task can overturn it),
 |---|---|---|---|
 | 001 | Backend | macFUSE 5.5.0 FSKit backend; native FSKit port is the fallback | Accepted, gated by the M2 gate (T-M2-03/04 done; audit T-M2-10) |
 | 002 | NTFS engine | NTFS-3G 2026.9.28, minimal patch series | Accepted |
-| 003 | Disk Arbitration integration | Root daemon with DA callbacks | Accepted, gated by T-M4-02 |
+| 003 | Disk Arbitration integration | Root daemon with DA callbacks | Accepted; dissent verified on macOS 27.2 (T-M4-02, `docs/spikes/M4-da.md`) |
 | 004 | Privilege model | Root broker passes a device fd to unprivileged sandboxed workers | Accepted, gated by T-M4-01 (T-M2-05 passed with patch 0003) |
 | 005 | Unsafe volume states | Own read-only probe; `norecover` always; never `remove_hiberfile` | Accepted |
 | 006 | Unclean-session marker | Host journal plus on-disk dirty flag set by `ntfsmac-volmark` around every read/write session (default plan); `FORENSIC` library mount so only the `$Volume` record is written; stated crash outcome per write | Accepted; flag enabled when T-M3-12 passes |
@@ -24,7 +24,7 @@ Status values: **Accepted**, **Accepted, gated** (a named task can overturn it),
 | 017 | Clearing the session journal; repair | Four clearing paths; evidence rule off until verified; repair through `ntfsmac-volmark`, not `ntfsfix` | Accepted (evidence rule gated by U12; U13 confirmed by T-M3-01) |
 | 018 | Device-error reporting and clean-session proof | Patch 0006 session channel: positive `S` and `U` records, `E` and `W` records, bounded, `FD_CLOEXEC`; silence is never clean | Accepted, gated by T-M3-18 |
 | 019 | Authorising journal clearing and repair | Peer is not a spawned process, is the signed CLI, and an administrator authenticates per request through Authorization Services; typed confirmation is only a guard against mistakes | Accepted, gated by T-M4-04 (U17) |
-| 020 | Binding the probed volume to the opened device | Probe descriptor reused for `ro`; for `rw` same device number and boot-area hash, expected serial and size checked by volmark, no other mount | Accepted, gated by T-M4-02 (U18) |
+| 020 | Binding the probed volume to the opened device | Probe descriptor reused for `ro`; for `rw` same device number and boot-area hash, expected serial and size checked by volmark, no other mount | Accepted; U18 resolved by T-M4-02: check `DAVolumePath`, because `/dev/rdiskN` still opens `O_RDWR` while another driver has the volume mounted |
 | 021 | Stale `$MFTMirr` after an interrupted `$MFT` update | Probe state `mirror_split` under a strict rule; policy `refuse`; explicit `ntfsmac repair --sync-mirror` copies only the differing records from `$MFT` to `$MFTMirr`; never `ntfsfix`, never automatic | Accepted (owner decision 2026-11-14, option C); repair gated by T-M4-16 |
 | 022 | Drive flush on device nodes | Patch 0007: `ntfs_fsync()` flushes a block or character device with `fsync` then `ioctl(DKIOCSYNCHRONIZE)`; daemon and volmark do the same after the worker; `W flush` when the flush fails | Accepted (owner decision 2026-11-14); gated by T-M3-21, real drives by Environment C |
 | 023 | Names that are not NFC on disk | `nfconv` kept; the probe scans directory indexes for names not in NFC; any found: state `names_not_nfc`, read-only mount, paths listed (bounded) | Accepted (owner decision 2026-11-14); implemented in T-M3-02 |

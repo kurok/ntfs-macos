@@ -1,0 +1,43 @@
+
+==== E9a: DA unmount without any open test ====
+-- mount (ntfs lines):
+/dev/disk0 on /Volumes/clean256m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit)
+T+0.001 start -> ok uid=0
+T+0.001 appeared disk0 size=271581184 whole=1 cand=1 volume_path=1 kind=ntfs media_path=IODeviceTree:/arm-io/pcie@30000000/pci106b,1a00@8/AppleVirtIOStorageDevice/AppleVirtIODiskStorageDevice@1/@1:0
+T+0.001 mounted disk0 size=271581184 whole=1 cand=1 volume_path=1 kind=ntfs media_path=IODeviceTree:/arm-io/pcie@30000000/pci106b,1a00@8/AppleVirtIOStorageDevice/AppleVirtIODiskStorageDevice@1/@1:0
+T+0.146 describe disk0 -> ok volume_path=1 kind=ntfs
+T+0.164 unmounted disk0
+T+0.164 unmount disk0 -> ok (0.018 s)
+T+18.022 stop
+-- mount (ntfs lines):
+(none)
+
+==== E9b: remount with diskutil, DA unmount again without open test ====
+Volume clean256m4k on disk0 mounted
+T+0.001 start -> ok uid=0
+T+0.001 appeared disk0 size=271581184 whole=1 cand=1 volume_path=1 kind=ntfs media_path=IODeviceTree:/arm-io/pcie@30000000/pci106b,1a00@8/AppleVirtIOStorageDevice/AppleVirtIODiskStorageDevice@1/@1:0
+T+0.001 mounted disk0 size=271581184 whole=1 cand=1 volume_path=1 kind=ntfs media_path=IODeviceTree:/arm-io/pcie@30000000/pci106b,1a00@8/AppleVirtIOStorageDevice/AppleVirtIODiskStorageDevice@1/@1:0
+T+0.115 describe disk0 -> ok volume_path=1 kind=ntfs
+T+0.134 unmounted disk0
+T+0.134 unmount disk0 -> ok (0.020 s)
+T+18.101 stop
+-- mount (ntfs lines):
+(none)
+
+==== E9c: remount, DA unmount with the open test (the E1 case) ====
+Volume clean256m4k on disk0 mounted
+T+0.000 start -> ok uid=0
+T+0.001 appeared disk0 size=271581184 whole=1 cand=1 volume_path=1 kind=ntfs media_path=IODeviceTree:/arm-io/pcie@30000000/pci106b,1a00@8/AppleVirtIOStorageDevice/AppleVirtIODiskStorageDevice@1/@1:0
+T+0.001 mounted disk0 size=271581184 whole=1 cand=1 volume_path=1 kind=ntfs media_path=IODeviceTree:/arm-io/pcie@30000000/pci106b,1a00@8/AppleVirtIOStorageDevice/AppleVirtIODiskStorageDevice@1/@1:0
+T+0.101 describe disk0 -> ok volume_path=1 kind=ntfs
+T+0.101 open-test while-mounted /dev/disk0 O_RDONLY=Resource busy O_RDWR=Resource busy
+T+0.101 open-test while-mounted /dev/rdisk0 O_RDONLY=ok O_RDWR=ok
+T+0.114 unmounted disk0
+T+0.114 unmount disk0 -> ok (0.013 s)
+T+0.115 open-test after-unmount /dev/disk0 O_RDONLY=ok O_RDWR=ok
+T+0.116 open-test after-unmount /dev/rdisk0 O_RDONLY=ok O_RDWR=ok
+T+25.071 stop
+-- mount (ntfs lines):
+(none)
+
+==== done ====

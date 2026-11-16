@@ -1,0 +1,104 @@
+
+==== guest ====
+ProductName:		macOS
+ProductVersion:		27.2
+BuildVersion:		26B123
+arm64
+501
+sudo -n ok
+
+==== build ====
+build-ok
+
+==== cleanup of stale image disks from the first run ====
+"disk7" ejected.
+"disk8" ejected.
+
+==== E2: hot attach, no dissent (raw NTFS image, size 269484032) ====
+/dev/disk7          	                               	/Volumes/clean256m4k
+-- mount (ntfs lines):
+/dev/disk7 on /Volumes/clean256m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+T+0.001 start -> ok uid=0
+T+0.001 appeared disk5 size=6291456 whole=1 cand=1 volume_path=0 kind=- media_path=
+T+0.001 appeared disk0 size=271581184 whole=1 cand=1 volume_path=0 kind=ntfs media_path=IODeviceTree:/arm-io/pcie@30000000/pci106b,1a00@8/AppleVirtIOStorageDevice/AppleVirtIODiskStorageDevice@1/@1:0
+T+3.076 appeared disk7 size=269484032 whole=1 cand=1 volume_path=0 kind=ntfs media_path=
+T+3.094 mounted disk7 size=269484032 whole=1 cand=1 volume_path=1 kind=ntfs media_path=
+T+3.186 describe disk7 -> ok volume_path=1 kind=ntfs
+T+3.186 open-test while-mounted /dev/disk7 O_RDONLY=Resource busy O_RDWR=Resource busy
+T+3.186 open-test while-mounted /dev/rdisk7 O_RDONLY=ok O_RDWR=ok
+T+22.028 stop
+"disk7" ejected.
+
+==== E3: dissent from disk_appeared, three attach cycles ====
+-- cycle 1
+-- mount (ntfs lines):
+(none)
+hdiutil: detach failed - No such file or directory
+-- cycle 2
+-- mount (ntfs lines):
+(none)
+hdiutil: detach failed - No such file or directory
+-- cycle 3
+-- mount (ntfs lines):
+(none)
+hdiutil: detach failed - No such file or directory
+T+0.001 start -> ok uid=0
+T+0.001 appeared disk5 size=6291456 whole=1 cand=1 volume_path=0 kind=- media_path=
+T+0.002 appeared disk0 size=271581184 whole=1 cand=1 volume_path=0 kind=ntfs media_path=IODeviceTree:/arm-io/pcie@30000000/pci106b,1a00@8/AppleVirtIOStorageDevice/AppleVirtIODiskStorageDevice@1/@1:0
+T+3.143 appeared disk7 size=269484032 whole=1 cand=1 volume_path=0 kind=ntfs media_path=
+T+3.143 dissent disk7 -> ok
+T+3.147 disappeared disk7
+T+17.381 appeared disk7 size=269484032 whole=1 cand=1 volume_path=0 kind=ntfs media_path=
+T+17.381 dissent disk7 -> ok
+T+17.386 disappeared disk7
+T+31.921 appeared disk7 size=269484032 whole=1 cand=1 volume_path=0 kind=ntfs media_path=
+T+31.921 dissent disk7 -> ok
+T+31.928 disappeared disk7
+
+==== E4: dissent, then withdraw after 8 s (hand back) ====
+-- before withdraw
+-- mount (ntfs lines):
+(none)
+-- after withdraw
+-- mount (ntfs lines):
+(none)
+T+0.001 start -> ok uid=0
+T+0.001 appeared disk5 size=6291456 whole=1 cand=1 volume_path=0 kind=- media_path=
+T+0.001 appeared disk0 size=271581184 whole=1 cand=1 volume_path=0 kind=ntfs media_path=IODeviceTree:/arm-io/pcie@30000000/pci106b,1a00@8/AppleVirtIOStorageDevice/AppleVirtIODiskStorageDevice@1/@1:0
+T+3.469 appeared disk7 size=269484032 whole=1 cand=1 volume_path=0 kind=ntfs media_path=
+T+3.469 dissent disk7 -> ok
+T+3.475 disappeared disk7
+T+11.569 withdraw disk7 -> ok
+hdiutil: detach failed - No such file or directory
+
+==== E5: GPT disk (partition Windows basic data), no dissent, no size filter ====
+/dev/disk7          	GUID_partition_scheme          	
+/dev/disk7s1        	Microsoft Basic Data           	/Volumes/clean256m4k
+-- mount (ntfs lines):
+/dev/disk7s1 on /Volumes/clean256m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+   Device Identifier:         disk7
+   Content (IOContent):       GUID_partition_scheme
+   Device Identifier:         disk7s1
+   Partition Type:            Microsoft Basic Data
+   File System Personality:   NTFS
+T+0.000 start -> ok uid=0
+T+0.001 appeared disk5 size=6291456 whole=1 cand=1 volume_path=0 kind=- media_path=
+T+0.001 appeared disk0 size=271581184 whole=1 cand=1 volume_path=0 kind=ntfs media_path=IODeviceTree:/arm-io/pcie@30000000/pci106b,1a00@8/AppleVirtIOStorageDevice/AppleVirtIODiskStorageDevice@1/@1:0
+T+3.348 appeared disk7s1 size=268435456 whole=0 cand=1 volume_path=0 kind=ntfs media_path=
+T+3.735 mounted disk7s1 size=268435456 whole=0 cand=1 volume_path=1 kind=ntfs media_path=
+T+3.743 describe disk7s1 -> ok volume_path=1 kind=ntfs
+T+20.028 stop
+"disk7" ejected.
+
+==== E6: GPT disk, dissent on the partition (size 268435456) ====
+-- mount (ntfs lines):
+(none)
+T+0.001 start -> ok uid=0
+T+0.001 appeared disk5 size=6291456 whole=1 cand=1 volume_path=0 kind=- media_path=
+T+0.001 appeared disk0 size=271581184 whole=1 cand=1 volume_path=0 kind=ntfs media_path=IODeviceTree:/arm-io/pcie@30000000/pci106b,1a00@8/AppleVirtIOStorageDevice/AppleVirtIODiskStorageDevice@1/@1:0
+T+3.317 appeared disk7s1 size=268435456 whole=0 cand=1 volume_path=0 kind=ntfs media_path=
+T+3.317 dissent disk7s1 -> ok
+T+3.325 disappeared disk7s1
+hdiutil: detach failed - No such file or directory
+
+==== done ====

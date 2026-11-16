@@ -12,11 +12,13 @@
 file(GLOB NTFSMAC_DAEMON_SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/*.c)
 list(FILTER NTFSMAC_DAEMON_SOURCES EXCLUDE REGEX "/main\\.c$")
 
+find_package(Threads REQUIRED) # spawn.c (T-M4-01) uses a mutex around fork
+
 add_library(ntfsmac_daemon STATIC ${NTFSMAC_DAEMON_SOURCES})
 target_include_directories(ntfsmac_daemon PUBLIC ${PROJECT_SOURCE_DIR}/include
                            ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(ntfsmac_daemon PUBLIC
-  ntfsmac_policy ntfsmac_journal ntfsmac_sanitize ntfsmac_worker_options)
+  ntfsmac_policy ntfsmac_journal ntfsmac_sanitize ntfsmac_worker_options Threads::Threads)
 target_link_libraries(ntfsmac_daemon PRIVATE ntfsmac_options)
 
 # da.c (T-M4-02) is the only file here that uses Disk Arbitration.

@@ -37,8 +37,11 @@ security 6.8 % (skipped by design in run B), mft 9.1 % (mostly write paths).
 
 ## Findings
 
-All findings are in NTFS-3G (libntfs-3g). Nothing has been filed upstream; the draft texts
-below are for the owner. Reproducers are inputs of the harness (a recipe for an image, see
+All findings are in NTFS-3G (libntfs-3g). Filed upstream 2026-11-16 as private GitHub security
+advisories, state "triage": F3 GHSA-g3h3-7rhv-rrmq, F4 GHSA-vp2x-xjmj-x4x2, F1 GHSA-r4cv-86xq-37qj,
+each with a standalone image and a reproduction on the unmodified 2026.9.28 release (valgrind;
+F3 and F1 through a small libntfs-3g program, F4 through `ls` on an `ntfs-3g` mount). F2 and F5
+(leaks) are drafted as public issues and not yet filed. The draft texts below are the originals. Reproducers are inputs of the harness (a recipe for an image, see
 `tests/fuzz/image/image.h`); replay: build `fuzz_mountwalk` (`run.sh` does, in the container)
 and run `fuzz_mountwalk tests/fuzz/image/findings/FILE`. To get a standalone image for an
 upstream report, write the image that `fz_image_build()` makes for the input to a file.

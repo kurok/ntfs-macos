@@ -443,7 +443,7 @@ The worker sandbox also denies `connect()` to the control socket; the boundary n
 
 **What this does not guarantee.** USN order is evidence, not proof: a drive cache that persists the second write and loses the first can leave a mirror that is newer; the rule then refuses (M5), which is safe. A crafted volume can satisfy the rule; it could equally probe `clean`, so the exposure is that of D2. A cut inside the repair's own record write tears the mirror copy, which gives `corrupt` (only `chkdsk` repairs it); a rerun after any other cut is safe. The repair restores mountability, not consistency: it is not a file system check, and the CLI says so.
 
-**Consequences.** D3 gets a stated exception (ARCHITECTURE.md section 9) and limitation N12. One more volmark mode and one more `repair` action. R-33 is widened and R-36 added. Tests `U-PROBE-MIRROR-*`, `U-VMK-11..14`, `I-DMN-27`, `H-USB-10`. Tasks T-M3-02 (detection), T-M4-16 (repair). An upstream report ("a read-only mount refuses a volume whose `$MFTMirr` is one sync behind `$MFT`", with the decoded image) is still to be drafted (criterion 3.9); sending it is a human decision.
+**Consequences.** D3 gets a stated exception (ARCHITECTURE.md section 9) and limitation N12. One more volmark mode and one more `repair` action. R-33 is widened and R-36 added. Tests `U-PROBE-MIRROR-*`, `U-VMK-11..14`, `I-DMN-27`, `H-USB-10`. Tasks T-M3-02 (detection), T-M4-16 (repair). An upstream report ("a read-only mount refuses a volume whose `$MFTMirr` is one sync behind `$MFT`", with the decoded image) is drafted (2026-11-16) and not yet filed (criterion 3.9); sending it is a human decision.
 
 ## ADR-022 Drive flush on device nodes
 

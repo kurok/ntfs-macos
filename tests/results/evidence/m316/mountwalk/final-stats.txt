@@ -1,0 +1,7 @@
+#2014880	DONE   cov: 4756 ft: 27922 corp: 5297/124Kb lim: 3082 exec/s: 559 rss: 1201Mb
+Done 2014880 runs in 3601 second(s)
+stat::number_of_executed_units: 2014880
+stat::average_exec_per_sec:     559
+stat::new_units_added:          10448
+stat::slowest_unit_time_sec:    0
+stat::peak_rss_mb:              1201

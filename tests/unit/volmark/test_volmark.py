@@ -50,7 +50,7 @@ MODIFIED_BY_CHKDSK = 0x8000
 # engine's rules; the probe is what refuses them).
 SET_EXIT_BY_STATE = {"clean": 0, "dirty_flag": 11, "unclean_log": 10, "fast_startup": 10, "hibernated": 10,
                      "corrupt": 10, "unsupported": 10, "mirror_split": 10}
-SET_EXIT_OVERRIDE = {"hiber-wake": 0, "hiber-case": 0}
+SET_EXIT_OVERRIDE = {"hiber-wake": 0, "hiber-unknown": 0, "hiber-case": 0}
 
 
 def sha256(path):
@@ -261,7 +261,7 @@ class VolmarkSteps(Base):
                 self.assertRefused(img, "clear", 10)
                 self.assertRefused(img, "clear-repair", 10)
                 self.assertIn(b"refused", r.stderr)
-        for name in ("hiber-wake", "hiber-case"):
+        for name in ("hiber-wake", "hiber-unknown", "hiber-case"):
             with self.subTest(fixture=name):
                 orig = fx(name)
                 self.assertMarked(orig, copy(orig), "set", VOLUME_IS_DIRTY)
@@ -321,6 +321,19 @@ class VolmarkSteps(Base):
                 self.assertRefused(img, "set", 11)
                 self.assertRefused(img, "clear", 13)
                 self.assertRefused(img, "clear-repair", 13)
+
+    def test_vmk10_pending_work_flags(self):
+        # F-06: set refuses every flag but the informational MODIFIED_BY_CHKDSK and MOUNTED_ON_NT4.
+        for bits in (0x0002, 0x0004, 0x0010, 0x0020, 0x4000, 0x4002):
+            with self.subTest(flags=hex(bits)):
+                img = copy(fx("clean-64m-4k"))
+                set_volume_flags(img, bits)
+                self.assertRefused(img, "set", 11)
+        for bits in (MODIFIED_BY_CHKDSK, MOUNTED_ON_NT4, MODIFIED_BY_CHKDSK | MOUNTED_ON_NT4):
+            with self.subTest(flags=hex(bits)):
+                orig = copy(fx("clean-64m-4k"))
+                set_volume_flags(orig, bits)
+                self.assertMarked(orig, copy(orig), "set", bits | VOLUME_IS_DIRTY)
 
     def test_vmk10_txf_nonresident_release(self):
         orig = fx("txf-nonresident")

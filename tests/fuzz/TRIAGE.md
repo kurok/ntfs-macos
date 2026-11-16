@@ -5,8 +5,12 @@ Harnesses: `tests/fuzz/image/` (see the header of `fuzz_probe.c`, `fuzz_mountwal
 Runs: `tests/fuzz/image/run.sh`, Environment A (Debian container, clang 19.1.7, libFuzzer,
 ASan + UBSan, aarch64), libntfs-3g 2026.9.28 with the release patch series 0003, 0006, 0007,
 0008, 0009 (0004 is applied by the build script but its code is compiled only with
-`--enable-faultio`, which is not used), built with the same instrumentation. Results of the
-runs: `build/fuzz/image/hour1/`, `build/fuzz/image/hour2/` (git-ignored).
+`--enable-faultio`, which is not used), built with the same instrumentation. The runs of
+2026-11-15 below ran on that series; the runs of 2026-11-16 ran on the series with 0010 to 0013.
+Results of the first runs: `build/fuzz/image/hour1/`, `build/fuzz/image/hour2/` (git-ignored, no
+longer present). The final statistics, summaries, leak lists and the UBSan list of the runs of
+2026-11-16 are in `tests/results/evidence/m316/` (F-PROBE, F-MOUNT-WALK) and
+`tests/results/evidence/m319/` (F-SANITIZE-01..03).
 
 ## Runs
 
@@ -15,12 +19,25 @@ runs: `build/fuzz/image/hour1/`, `build/fuzz/image/hour2/` (git-ignored).
 | F-PROBE | 2026-11-15T14:33:42Z | 15:34:04Z | 3601 s, one process | 4,029,820 (1119 exec/s) | no crash, no oracle failure, no timeout; corpus 4951 inputs, 3367 edges |
 | F-MOUNT-WALK, run A | 14:33:42Z | 15:04:35Z | 1826 s in 60 processes | 1,264,689 | stopped by the restart limit (60 restarts) after F1 and F3 ended every few seconds of fuzzing; shows F1, F3 |
 | F-MOUNT-WALK, run B (`--skip-security`) | 15:34:22Z | 16:34:44Z | 3603 s in 7 processes | 3,585,398 (1319 exec/s) | 6 crashes, all F4; corpus 3931 inputs, 4049 edges |
+| F-PROBE, run 2026-11-16 | 2026-11-16T09:43:00Z | 10:43:15Z | 3601 s, one process | 3,722,680 (1033 exec/s) | no crash, no oracle failure, no timeout; corpus 5409 inputs, 3630 edges; leak replay: one engine leak, F7 |
+| F-MOUNT-WALK, run 2026-11-16 (security reads on, engine with 0010 to 0013) | 09:43:00Z | 10:43:15Z | 3601 s, one process | 2,014,880 (559 exec/s) | no crash, no timeout, no restart; corpus 5708 inputs, 4756 edges; leak replay: F5 only |
+| F-SANITIZE-01 verdict | 09:43:00Z | 10:43:02Z | 3601 s, one process | 286,328,494 (79,513 exec/s) | no finding; corpus 2427 inputs, 581 edges |
+| F-SANITIZE-02 label | 09:43:00Z | 10:43:02Z | 3601 s | 38,189,056 (10,605 exec/s) | no finding; corpus 986 inputs, 363 edges |
+| F-SANITIZE-03 display | 09:43:00Z | 10:43:02Z | 3601 s | 18,696,629 (5,192 exec/s) | no finding; corpus 876 inputs, 172 edges |
 
 Criterion 3.11: one CPU-hour on the probe is met with no finding in project code. The
 mount-and-walk hour is met in CPU time, with F1 and F3 (security descriptor reads) left out
 of run B and F4 ending each of its processes (6 restarts, 3603 s in all). Because F4 recurs,
 the part of the engine behind it was explored less in run B than the time suggests; see
 "Open".
+
+The run of 2026-11-16 is the second F-MOUNT-WALK hour on the engine with fixes 0010 to 0013 and without
+`--skip-security`: F1, F3 and F4 no longer stop it (one process for the whole hour, no restart), and the
+security descriptor code is reached (gcov of the replayed corpus: `security.c` 19.0 % of 1703 lines against
+6.8 % in run B, `acls.c` 46.2 %; `reparse.c` 26.8 %, `dir.c` 33.1 %, `index.c` 26.2 %, `xattrs.c` 33.9 %). The
+probe target ran with `probe/names.c` carrying the zero-header rule of audit fix F-05 (uncommitted at run time,
+committed with this evidence); `policy.c` and `volmark/args.c` are not in any fuzz target. Nothing in project code crashed, leaked or
+broke an oracle in any of the five targets.
 
 Project code: nothing in `src/probe/*`, `src/common/mftmirr.c` or the verdict parser crashed,
 leaked or broke an oracle in 4.0 million executions. The probe's oracles: exit status OK for
@@ -51,7 +68,7 @@ included), registered only for an ASan build. Verified in Environment A on the l
 `tests/unit/probe/inner.sh`: the compiler removes the loads at acls.c:682-685). There F3 is checked by
 valgrind on the standalone image (invalid read of size 4 at acls.c:682 unpatched, none patched). With the
 patches all three pass in every build. The tables and texts below describe the findings as made against the
-unmodified release. F6 (below) was found in the review of the patches and has no replay. and texts below describe the findings as made against the unmodified release. F2 and F5
+unmodified release. F6 (below) was found in the review of the patches and has no replay. F2 and F5
 (leaks) are drafted as public issues and not yet filed. The draft texts below are the originals. Reproducers are inputs of the harness (a recipe for an image, see
 `tests/fuzz/image/image.h`); replay: build `fuzz_mountwalk` (`run.sh` does, in the container)
 and run `fuzz_mountwalk tests/fuzz/image/findings/FILE`. To get a standalone image for an
@@ -65,6 +82,7 @@ upstream report, write the image that `fz_image_build()` makes for the input to 
 | F4 | `reparse.c` `ntfs_possible_symlink()` (line 928), from `ntfs_filldir()` (dir.c:923) during `ntfs_readdir()` | heap-buffer-overflow, read of 4 bytes | medium | `findings/F4-possible-symlink-heap-overflow.bin` | not in 4.0 million probe executions (the probe's walk calls `ntfs_readdir()`; not proven unreachable) |
 | F5 | `reparse.c` `ntfs_make_symlink()` (line 814 and following) | memory leak, 56 bytes | low | found only by the leak stage of run B (`hour2/mountwalk/leaks.log.sym`), corpus input in `hour2/mountwalk/corpus/` | no |
 | F6 | `inode.c` `ntfs_inode_sync_file_name()` (lines 815 to 822) | heap out-of-bounds read of 4 bytes (reparse tag of a non-resident or short attribute, no resident or length check), written into the index entries of the file's names | low to medium (read-write mounts only) | none (found by code reading in review; no image built) | no |
+| F7 | `volume.c` `ntfs_device_mount()` (line 1240, `ni = ntfs_inode_open(vol, FILE_AttrDef)`) | memory leak, 136 + 4096 bytes: the `$AttrDef` inode is not closed when `ntfs_attr_open(ni, AT_DATA, ...)` (or a later step of the `$AttrDef` load) fails, because `error_exit` calls only `__ntfs_volume_release()` | low | `findings/F7-attrdef-inode-leak.bin` (9 bytes; `fuzz_probe` and `fuzz_mountwalk` with leak detection on) | yes (any failed mount with a bad `$AttrDef`), probe is a short-lived process |
 | U | `bootsect.c` 229, 231, 237, 275; `volume.c` 273, 624, 1094; `runlist.c` 862, 882, 897, 961; `attrib.c` 385, 386, 1040, 1073; `unistr.c` 183, 188, 345, 376; `reparse.c` (misaligned loads) | undefined behaviour: left shifts of negative or large values, signed overflow, negative shift exponent, misaligned `ntfschar` loads | low (benign on arm64 and x86-64 with the usual compilers) | UBSan reports in `hour*/*/libfuzzer-*.log.sym`, list in `ubsan-engine.txt` | yes (bootsect, volume, runlist, unistr hit by the probe too) |
 
 Why they do not touch the probe: the probe opens the device O_RDONLY, mounts read-only,
@@ -143,6 +161,20 @@ flag, so on read-write mounts only. The tag read is stored in the index entries 
 locally by patch 0013 (not yet reported upstream: draft `build/upstream-reports/05-security-inode-sync-reparse.md`,
 git-ignored). No reproducer was built and no replay reaches it (the harness mounts read-only).
 
+### F7: `$AttrDef` inode leaked when its attribute cannot be opened
+
+Found by the leak replay of the F-PROBE run of 2026-11-16 (and reproduced with `fuzz_mountwalk`), not by
+libFuzzer, which runs with leak detection off. In `ntfs_device_mount()` the inode `ni` of `$AttrDef`
+(`volume.c:1240`) stays open when `ntfs_attr_open(ni, AT_DATA, AT_UNNAMED, 0)` returns NULL (a `$AttrDef`
+without an unnamed `$DATA`); the later failure exits of the `$AttrDef` block (size above 24 bits, allocation,
+short read) have the same shape, with `na` open as well. `error_exit` at the end of the function frees `m`,
+`m2` and calls `__ntfs_volume_release()`, none of which closes `ni`. LeakSanitizer reports a direct leak of
+136 bytes (the inode, `inode.c:95`) and an indirect leak of 4096 bytes (its record, `mft.c:361`). Library
+code only: `volume.c` is not touched by the patch series. Reproducer: `tests/fuzz/image/findings/F7-attrdef-inode-leak.bin`
+(replay `ASAN_OPTIONS=detect_leaks=1 fuzz_probe FILE`; the leak is also reported by `fuzz_mountwalk`). Not
+filed and not fixed here: a leak in an error path of a short-lived process, like F2 and F5. Suggested fix for a
+report: close `na` and `ni` before `goto error_exit` in the `$AttrDef` block.
+
 ### U: undefined behaviour in the library
 
 UBSan in the library is set to report and continue (each location once per process); in the
@@ -158,10 +190,13 @@ reported, one issue per file with the unsigned-arithmetic fix is the usual form.
 
 ## Open
 
-- F4 ends every libFuzzer process of F-MOUNT-WALK within minutes, so run B covers the paths
-  behind it less than 3603 s suggest. F4 is now fixed locally (patch 0011) and so are F1 and F3
-  (0012, 0010): a further run on the patched engine, without `--skip-security`, is advised;
-  T-M5-09 (8 CPU-hours) is the place.
+- F4 ended every libFuzzer process of run B of F-MOUNT-WALK within minutes, so run B covered the paths
+  behind it less than 3603 s suggested. Closed by the run of 2026-11-16: the engine carries 0010 to
+  0013, the run was made without `--skip-security`, it used one process for the whole 3601 s with no
+  crash (2,014,880 executions, 4756 edges against 4049, `security.c` 19.0 % against 6.8 %). The
+  8 CPU-hour run of T-M5-09 remains the place for depth.
+- F7 (engine leak, new in the run of 2026-11-16) is recorded here only; whether to report it with F2 and
+  F5 is an owner decision.
 - Leaks stop libFuzzer at the first one, so `inner.sh` runs with leak detection off and
   lists every distinct leak of the final corpus in a replay (`leaks.log.sym`). A leak that
   needs an input that added no coverage is not found this way.

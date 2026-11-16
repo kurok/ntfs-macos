@@ -1,0 +1,2 @@
+artifacts (crash, oom, timeout, slow unit) in verdict: 0
+corpus inputs after the run: 2427 (not stored)

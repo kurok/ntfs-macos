@@ -1,0 +1,12 @@
+      1 volume.c:273:44: runtime error: left shift of 4502512992256512 by 12 places cannot be represented in type 'LCN' (aka 'long')
+      1 unistr.c:376:15: runtime error: load of misaligned address 0x521005724e91 for type 'const ntfschar *' (aka 'const unsigned short *'), which requires 2 byte alignment
+      1 unistr.c:345:8: runtime error: load of misaligned address 0x519001b1f7cf for type 'const ntfschar' (aka 'const unsigned short'), which requires 2 byte alignment
+      1 unistr.c:188:14: runtime error: load of misaligned address 0x519000006101 for type 'const ntfschar' (aka 'const unsigned short'), which requires 2 byte alignment
+      1 unistr.c:183:31: runtime error: load of misaligned address 0x519000006101 for type 'const ntfschar' (aka 'const unsigned short'), which requires 2 byte alignment
+      1 runlist.c:899:8: runtime error: signed integer overflow: 5208492134042173440 + 9151313890162446532 cannot be represented in type 's64' (aka 'long')
+      1 runlist.c:897:26: runtime error: left shift of negative value -80
+      1 runlist.c:882:7: runtime error: signed integer overflow: 5980779598011147904 + 6567373413583641435 cannot be represented in type 's64' (aka 'long')
+      1 runlist.c:862:26: runtime error: left shift of negative value -10
+      1 dir.c:399:38: runtime error: left shift of 2344405265706603264 by 12 places cannot be represented in type 'VCN' (aka 'long')
+      1 bootsect.c:290:29: runtime error: left shift of 1 by 31 places cannot be represented in type 'int'
+      1 bootsect.c:229:21: runtime error: left shift of 1152921504606846974 by 9 places cannot be represented in type 's64' (aka 'long')

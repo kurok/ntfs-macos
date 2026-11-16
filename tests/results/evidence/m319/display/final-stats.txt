@@ -1,0 +1,7 @@
+#18696629	DONE   cov: 172 ft: 3552 corp: 868/115Kb lim: 1100 exec/s: 5192 rss: 521Mb
+Done 18696629 runs in 3601 second(s)
+stat::number_of_executed_units: 18696629
+stat::average_exec_per_sec:     5192
+stat::new_units_added:          10054
+stat::slowest_unit_time_sec:    0
+stat::peak_rss_mb:              521

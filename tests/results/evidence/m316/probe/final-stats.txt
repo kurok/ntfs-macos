@@ -1,0 +1,7 @@
+#3722680	DONE   cov: 3630 ft: 20404 corp: 4893/107Kb lim: 4096 exec/s: 1033 rss: 477Mb
+Done 3722680 runs in 3601 second(s)
+stat::number_of_executed_units: 3722680
+stat::average_exec_per_sec:     1033
+stat::new_units_added:          11522
+stat::slowest_unit_time_sec:    0
+stat::peak_rss_mb:              477

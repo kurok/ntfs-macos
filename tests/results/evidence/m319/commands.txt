@@ -1,0 +1,7 @@
+F-SANITIZE-01 (verdict), F-SANITIZE-02 (label), F-SANITIZE-03 (display), 3600 s each, Environment A
+(Debian container, clang 19.1.7, libFuzzer, ASan + UBSan, aarch64).
+Command: tests/fuzz/sanitize/run.sh --target all --seconds 3600
+The three targets ran in parallel from 2026-11-16T09:43:00Z to 10:43:02Z, one process each.
+Layout: <target>/summary.txt, final-stats.txt (libFuzzer -print_final_stats and the last progress line), crashes.txt.
+Corpora, logs and gcov files are not stored.
+Result: no finding in any target.

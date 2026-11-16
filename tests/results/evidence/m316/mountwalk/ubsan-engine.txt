@@ -1,0 +1,19 @@
+      1 volume.c:624:35: runtime error: signed integer overflow: 8358680908407272716 + 1116898273865502430 cannot be represented in type 'LCN' (aka 'long')
+      1 volume.c:273:44: runtime error: left shift of 71821194765276800 by 9 places cannot be represented in type 'LCN' (aka 'long')
+      1 unistr.c:345:8: runtime error: load of misaligned address 0x51900018baf9 for type 'const ntfschar' (aka 'const unsigned short'), which requires 2 byte alignment
+      1 runlist.c:897:26: runtime error: left shift of negative value -80
+      1 runlist.c:882:7: runtime error: signed integer overflow: 5425512962436320075 + 5425512962867593053 cannot be represented in type 's64' (aka 'long')
+      1 runlist.c:862:26: runtime error: left shift of negative value -3
+      1 reparse.c:848:9: runtime error: load of misaligned address 0x506000e3b7d7 for type 'ntfschar' (aka 'unsigned short'), which requires 2 byte alignment
+      1 reparse.c:841:8: runtime error: load of misaligned address 0x506000e3b7d5 for type 'ntfschar' (aka 'unsigned short'), which requires 2 byte alignment
+      1 reparse.c:347:13: runtime error: load of misaligned address 0x506000e3b7d5 for type 'ntfschar' (aka 'unsigned short'), which requires 2 byte alignment
+      1 reparse.c:333:12: runtime error: load of misaligned address 0x506000e3b7d5 for type 'ntfschar' (aka 'unsigned short'), which requires 2 byte alignment
+      1 reparse.c:327:11: runtime error: load of misaligned address 0x506000e3b7d5 for type 'ntfschar' (aka 'unsigned short'), which requires 2 byte alignment
+      1 reparse.c:167:30: runtime error: load of misaligned address 0x506000e3b7d5 for type 'ntfschar' (aka 'unsigned short'), which requires 2 byte alignment
+      1 reparse.c:156:14: runtime error: load of misaligned address 0x506000e3b7d5 for type 'ntfschar' (aka 'unsigned short'), which requires 2 byte alignment
+      1 bootsect.c:275:28: runtime error: left shift of 1 by 31 places cannot be represented in type 'int'
+      1 bootsect.c:231:3: runtime error: signed integer overflow: -9223372036854775808 - 1 cannot be represented in type 's64' (aka 'long')
+      1 bootsect.c:229:21: runtime error: left shift of 1152921504606846974 by 9 places cannot be represented in type 's64' (aka 'long')
+      1 bootsect.c:229:16: runtime error: signed integer overflow: -9223372036854775808 - 1 cannot be represented in type 's64' (aka 'long')
+      1 attrib.c:1073:10: runtime error: signed integer overflow: 9223372036854773759 + 4096 cannot be represented in type 's64' (aka 'long')
+      1 attrib.c:1040:10: runtime error: signed integer overflow: 9223372036854773759 + 4096 cannot be represented in type 's64' (aka 'long')

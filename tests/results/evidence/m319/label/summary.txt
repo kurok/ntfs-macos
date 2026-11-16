@@ -1,0 +1,23 @@
+target: label  seconds: 3600  host: aarch64  clang: Debian clang version 19.1.7 (3+b1)
+start: 2026-11-16T09:43:00Z
+seeds: 33
+libFuzzer exit: 0
+stat::number_of_executed_units: 38189056
+stat::average_exec_per_sec:     10605
+stat::new_units_added:          5425
+stat::slowest_unit_time_sec:    0
+stat::peak_rss_mb:              550
+last progress line: #38189056	DONE   cov: 363 ft: 4772 corp: 987/35Kb lim: 1100 exec/s: 10605 rss: 550Mb
+artifacts (crash, oom, timeout, slow unit): 0
+corpus after the run: 986 inputs
+coverage of the code under test (gcov, replay of the corpus above):
+File '/work/src/sanitize/display.c'
+Lines executed:0.00% of 44
+File '/work/src/sanitize/label.c'
+Lines executed:94.83% of 58
+File '/work/src/common/label_cp.c'
+Lines executed:97.37% of 76
+File '/work/src/sanitize/verdict.c'
+Lines executed:0.00% of 483
+end: 2026-11-16T10:43:02Z
+RESULT: no finding in 3600 s

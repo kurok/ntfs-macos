@@ -14,6 +14,7 @@
 #   upper       /hiberfil.sys           8 KiB  "HIBR"        hibernated (both)
 #   short       /hiberfil.sys           100 B  zeros         hibernated: size < 4096
 #   wake        /hiberfil.sys           8 KiB  "wake"        probe only (engine misses it)
+#   unknown     /hiberfil.sys           8 KiB  "link"        probe only (engine misses it)
 #   case        /HiberFil.sys           8 KiB  "hibr"        probe only (engine lookup is
 #                                                            case sensitive)
 #   subdir      /sub/hiberfil.sys       8 KiB  "hibr"        neither (not in the root)
@@ -26,7 +27,7 @@ set -eu
 die() { printf 'hiber_make: error: %s\n' "$*" >&2; exit 1; }
 
 [ $# -ge 2 ] && [ $# -le 3 ] || {
-	echo "usage: hiber_make.sh IMAGE lower|upper|short|wake|case|subdir|inactive [MOUNTPOINT]" >&2
+	echo "usage: hiber_make.sh IMAGE lower|upper|short|wake|unknown|case|subdir|inactive [MOUNTPOINT]" >&2
 	exit 2
 }
 img=$1
@@ -45,6 +46,7 @@ lower) ;;
 upper) sig=HIBR ;;
 short) sig=; size=100 ;;
 wake) sig=wake ;;
+unknown) sig=link ;;
 case) name=HiberFil.sys ;;
 subdir) dir=sub ;;
 inactive) sig= ;;

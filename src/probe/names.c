@@ -318,7 +318,10 @@ static void hiber_note(names_result *r, ntfsmac_probe_hiberfile h, uint32_t reas
 /*
  * The header rule of ntfs_volume_check_hiberfile(): fewer than 4096 bytes, or
  * `hibr`/`HIBR`, is hibernated; the probe also treats `wake`/`WAKE` (a resume
- * in progress) as hibernated. Anything else is an inactive file.
+ * in progress) as hibernated, and so is any other non-zero value in the first
+ * four bytes (an unknown signature, F-05; the engine's own comment says "all
+ * header bytes are zero" for the safe case but it only tests `hibr`/`HIBR`).
+ * Only four zero bytes make an inactive file.
  */
 static void hiber_eval(scan *s, uint64_t rec)
 {
@@ -354,6 +357,10 @@ static void hiber_eval(scan *s, uint64_t rec)
 	} else if (!memcmp(buf, "wake", 4) || !memcmp(buf, "WAKE", 4)) {
 		hiber_note(r, NTFSMAC_PROBE_HIBERFILE_HIBERNATED,
 			   NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_HIBER_WAKE));
+	} else if (buf[0] != 0 || buf[1] != 0 || buf[2] != 0 || buf[3] != 0) {
+		/* Not zeros and not a signature above: unknown, so not inactive (F-05). */
+		hiber_note(r, NTFSMAC_PROBE_HIBERFILE_HIBERNATED,
+			   NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_HIBER_SIGNATURE));
 	} else {
 		hiber_note(r, NTFSMAC_PROBE_HIBERFILE_INACTIVE, 0);
 	}

@@ -117,7 +117,8 @@ static void test_flags(void)
 		unsigned outside = f & ~VOLMARK_VOL_FLAGS_MASK;
 
 		rc = volmark_next_flags(VOLMARK_SET, (uint16_t)f, &out);
-		if ((f & VOLMARK_VOL_DIRTY) || outside) {
+		if ((f & VOLMARK_VOL_DIRTY) ||
+		    (f & ~(VOLMARK_VOL_MODIFIED_BY_CHKDSK | VOLMARK_VOL_MOUNTED_ON_NT4))) {
 			CHECK(rc == VOLMARK_EXIT_FLAGS);
 		} else {
 			CHECK(rc == VOLMARK_EXIT_OK);

@@ -1,0 +1,12 @@
+F-PROBE and F-MOUNT-WALK, 3600 s each, Environment A (Debian container, clang 19.1.7, libFuzzer, ASan + UBSan, aarch64).
+Command: tests/fuzz/image/run.sh --target all --seconds 3600   (F-MOUNT-WALK without --skip-security)
+Engine: libntfs-3g 2026.9.28 with patches 0003, 0004, 0006, 0007, 0008, 0009, 0010, 0011, 0012, 0013.
+Both targets ran in parallel from 2026-11-16T09:43:00Z to 10:43:15Z (fuzz), one process each, no restart.
+Layout: <target>/summary.txt (run summary), final-stats.txt (libFuzzer -print_final_stats and the last progress line),
+ubsan-engine.txt (distinct UBSan locations in the library), leaks.log.sym (leaks of the corpus replay), crashes.txt
+(artifact list: crash, oom, timeout, slow unit).
+Corpora, logs and gcov files are not stored.
+Result: no crash, no oracle failure, no timeout in either target; leak replay: probe one new engine leak (F7), mount-and-walk the known F5.
+The summary.txt of both targets ends with "RESULT: FINDING": run.sh gives that result when the leak replay reports a leak.
+It comes only from the leak stage (probe: F7; mount-and-walk: F5); crashes.txt lists 0 crash, oom and timeout artifacts.
+Tree state: commit d134b30 with the uncommitted M3 audit fixes F-04 to F-08 (fuzzed code: probe/names.c and patches 0006, 0009).

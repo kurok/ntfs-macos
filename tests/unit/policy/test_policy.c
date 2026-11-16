@@ -21,6 +21,9 @@ static void make_verdict(ntfsmac_probe_verdict *v, ntfsmac_probe_state st)
 {
 	memset(v, 0, sizeof(*v));
 	v->is_ntfs = true;
+	v->has_ntfs_version = true;
+	v->ntfs_version_major = 3;
+	v->ntfs_version_minor = 1;
 	v->serial = SERIAL;
 	v->total_sectors = SECTORS;
 	v->cluster_size = 4096;
@@ -234,6 +237,54 @@ static void test_fail_closed(void)
 	r = ntfsmac_policy_decide(&in);
 	CHECK_EQ_INT(r.decision, NTFSMAC_POLICY_RO);
 	CHECK_EQ_INT(r.note, NTFSMAC_POLICY_NOTE_UNKNOWN);
+
+	/* clean with a field that contradicts it: ro, never rw (section 3.1, F-04). */
+	{
+		static const struct {
+			const char *what;
+			int field;
+		} bad[] = { { "not NTFS", 0 }, { "BitLocker", 1 }, { "no version", 2 },
+			    { "log unclean", 3 }, { "log v2_fast_startup", 4 },
+			    { "log unreadable", 5 }, { "hiberfile hibernated", 6 },
+			    { "hiberfile unreadable", 7 }, { "DIRTY", 8 },
+			    { "CHKDSK_UNDERWAY", 9 }, { "RESIZE_LOG_FILE", 10 },
+			    { "UPGRADE_ON_MOUNT", 11 }, { "DELETE_USN_UNDERWAY", 12 },
+			    { "REPAIR_OBJECT_ID", 13 }, { "UNKNOWN_BITS", 14 } };
+		ntfsmac_journal_entry je;
+		size_t i;
+
+		make_entry(&je);
+		for (i = 0; i < sizeof(bad) / sizeof(bad[0]); i++) {
+			make_verdict(&v, NTFSMAC_PROBE_STATE_CLEAN);
+			switch (bad[i].field) {
+			case 0: v.is_ntfs = false; break;
+			case 1: v.bitlocker = true; break;
+			case 2: v.has_ntfs_version = false; break;
+			case 3: v.logfile = NTFSMAC_PROBE_LOGFILE_UNCLEAN; break;
+			case 4: v.logfile = NTFSMAC_PROBE_LOGFILE_V2_FAST_STARTUP; break;
+			case 5: v.logfile = NTFSMAC_PROBE_LOGFILE_UNREADABLE; break;
+			case 6: v.hiberfile = NTFSMAC_PROBE_HIBERFILE_HIBERNATED; break;
+			case 7: v.hiberfile = NTFSMAC_PROBE_HIBERFILE_UNREADABLE; break;
+			case 8: v.volume_flags = FLAG(DIRTY); break;
+			case 9: v.volume_flags = FLAG(CHKDSK_UNDERWAY); break;
+			case 10: v.volume_flags = FLAG(RESIZE_LOG_FILE); break;
+			case 11: v.volume_flags = FLAG(UPGRADE_ON_MOUNT); break;
+			case 12: v.volume_flags = FLAG(DELETE_USN_UNDERWAY); break;
+			case 13: v.volume_flags = FLAG(REPAIR_OBJECT_ID); break;
+			default: v.volume_flags = FLAG(UNKNOWN_BITS); break;
+			}
+			r = ntfsmac_policy_decide(&in);
+			CHECK_EQ_INT(r.decision, NTFSMAC_POLICY_RO);
+			CHECK_EQ_INT(r.note, NTFSMAC_POLICY_NOTE_UNKNOWN);
+			CHECK(!ntfsmac_policy_evidence_holds(&v, &je));
+		}
+		/* The informational flags and both quiet hiberfile values stay clean. */
+		make_verdict(&v, NTFSMAC_PROBE_STATE_CLEAN);
+		v.volume_flags = FLAG(MODIFIED_BY_CHKDSK) | FLAG(MOUNTED_ON_NT4);
+		v.hiberfile = NTFSMAC_PROBE_HIBERFILE_INACTIVE;
+		r = ntfsmac_policy_decide(&in);
+		CHECK_EQ_INT(r.decision, NTFSMAC_POLICY_RW);
+	}
 
 	/* The fail-closed probe verdict (probe.h: state unknown, CHECK_FAILED, rest zero). */
 	memset(&v, 0, sizeof(v));

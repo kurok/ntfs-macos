@@ -178,6 +178,7 @@ class Probe(unittest.TestCase):
         self.assertVerdict(self.verdict("hiber-case"), "hibernated", ["HIBER_SIGNATURE"], hiberfile="hibernated")
         self.assertVerdict(self.verdict("hiber-subdir"), "clean", [], hiberfile="absent")
         self.assertVerdict(self.verdict("hiber-wake"), "hibernated", ["HIBER_WAKE"], hiberfile="hibernated")
+        self.assertVerdict(self.verdict("hiber-unknown"), "hibernated", ["HIBER_SIGNATURE"], hiberfile="hibernated")
         self.assertVerdict(self.verdict("hiber-short"), "hibernated", ["HIBER_SHORT"], hiberfile="hibernated")
         self.assertVerdict(self.verdict("hiber-inactive"), "clean", [], hiberfile="inactive")
         self.assertVerdict(self.verdict("hiber-lower"), "hibernated", ["HIBER_SIGNATURE"])

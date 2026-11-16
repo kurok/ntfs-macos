@@ -1,0 +1,2 @@
+artifacts (crash, oom, timeout, slow unit) in mountwalk: 0
+corpus inputs after the run: 5708 (not stored)

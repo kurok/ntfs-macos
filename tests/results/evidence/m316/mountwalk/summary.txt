@@ -1,0 +1,85 @@
+target: mountwalk  seconds: 3600  host: aarch64  clang: Debian clang version 19.1.7 (3+b1)
+start: 2026-11-16T09:43:00Z
+libntfs-3g: 2026.9.28
+patches applied:
+  0003-inherited-device-descriptor.patch
+  0004-faultio-device-layer.patch
+  0006-session-channel.patch
+  0007-device-drive-flush.patch
+  0008-creation-time-conversion.patch
+  0009-xattr-names-exempt-windows-names.patch
+  0010-valid-descr-header-length.patch
+  0011-possible-symlink-header-length.patch
+  0012-retrievesecurityattr-bounds.patch
+  0013-inode-sync-reparse-tag-length.patch
+seeds: 495
+run 1: exit 0 after 3601 s (10:43:15Z)
+stat::average_exec_per_sec:     559
+stat::new_units_added:          10448
+stat::slowest_unit_time_sec:    0
+stat::peak_rss_mb:              1201
+executions in all runs: 2014880
+last progress line: #2014880	DONE   cov: 4756 ft: 27922 corp: 5297/124Kb lim: 3082 exec/s: 559 rss: 1201Mb
+artifacts (crash, oom, timeout, slow unit): 0
+UBSan reports (distinct lines, with counts): 19
+        1 volume.c:624:35: runtime error: signed integer overflow: 8358680908407272716 + 1116898273865502430 cannot be represented in type 'LCN' (aka 'long')
+        1 volume.c:273:44: runtime error: left shift of 71821194765276800 by 9 places cannot be represented in type 'LCN' (aka 'long')
+        1 unistr.c:345:8: runtime error: load of misaligned address 0x51900018baf9 for type 'const ntfschar' (aka 'const unsigned short'), which requires 2 byte alignment
+        1 runlist.c:897:26: runtime error: left shift of negative value -80
+        1 runlist.c:882:7: runtime error: signed integer overflow: 5425512962436320075 + 5425512962867593053 cannot be represented in type 's64' (aka 'long')
+        1 runlist.c:862:26: runtime error: left shift of negative value -3
+        1 reparse.c:848:9: runtime error: load of misaligned address 0x506000e3b7d7 for type 'ntfschar' (aka 'unsigned short'), which requires 2 byte alignment
+        1 reparse.c:841:8: runtime error: load of misaligned address 0x506000e3b7d5 for type 'ntfschar' (aka 'unsigned short'), which requires 2 byte alignment
+        1 reparse.c:347:13: runtime error: load of misaligned address 0x506000e3b7d5 for type 'ntfschar' (aka 'unsigned short'), which requires 2 byte alignment
+        1 reparse.c:333:12: runtime error: load of misaligned address 0x506000e3b7d5 for type 'ntfschar' (aka 'unsigned short'), which requires 2 byte alignment
+        1 reparse.c:327:11: runtime error: load of misaligned address 0x506000e3b7d5 for type 'ntfschar' (aka 'unsigned short'), which requires 2 byte alignment
+        1 reparse.c:167:30: runtime error: load of misaligned address 0x506000e3b7d5 for type 'ntfschar' (aka 'unsigned short'), which requires 2 byte alignment
+        1 reparse.c:156:14: runtime error: load of misaligned address 0x506000e3b7d5 for type 'ntfschar' (aka 'unsigned short'), which requires 2 byte alignment
+        1 bootsect.c:275:28: runtime error: left shift of 1 by 31 places cannot be represented in type 'int'
+        1 bootsect.c:231:3: runtime error: signed integer overflow: -9223372036854775808 - 1 cannot be represented in type 's64' (aka 'long')
+        1 bootsect.c:229:21: runtime error: left shift of 1152921504606846974 by 9 places cannot be represented in type 's64' (aka 'long')
+        1 bootsect.c:229:16: runtime error: signed integer overflow: -9223372036854775808 - 1 cannot be represented in type 's64' (aka 'long')
+        1 attrib.c:1073:10: runtime error: signed integer overflow: 9223372036854773759 + 4096 cannot be represented in type 's64' (aka 'long')
+        1 attrib.c:1040:10: runtime error: signed integer overflow: 9223372036854773759 + 4096 cannot be represented in type 's64' (aka 'long')
+corpus after the run: 5708 inputs
+fuzz CPU seconds: 3601
+leaks in the corpus replay: 1 (leaks.log.sym)
+  Direct leak of 56 byte(s) in 1 object(s) allocated from:
+      #0 ___interceptor_malloc at ??:?
+      #1 ntfs_malloc at /tmp/b-eng-fuzz/src/libntfs-3g/misc.c:57
+      #2 ntfs_attr_readall at /tmp/b-eng-fuzz/src/libntfs-3g/attrib.c:7025
+      #3 ntfs_make_symlink at /tmp/b-eng-fuzz/src/libntfs-3g/reparse.c:814
+coverage of the code under test (gcov, replay of the corpus above; lines executed of lines):
+  tests/fuzz/image/fuzz_mountwalk.c	Lines executed:81.25% of 256
+  tests/fuzz/image/image.c	Lines executed:86.67% of 135
+  acls.c	Lines executed:46.22% of 1071
+  attrib.c	Lines executed:18.00% of 3166
+  attrlist.c	Lines executed:0.00% of 138
+  bitmap.c	Lines executed:0.00% of 99
+  bootsect.c	Lines executed:96.26% of 107
+  cache.c	Lines executed:7.06% of 255
+  collate.c	Lines executed:34.07% of 91
+  compress.c	Lines executed:20.87% of 896
+  device.c	Lines executed:22.48% of 218
+  dir.c	Lines executed:33.06% of 1352
+  ea.c	Lines executed:6.28% of 191
+  efs.c	Lines executed:0.00% of 170
+  index.c	Lines executed:26.24% of 1029
+  inode.c	Lines executed:16.58% of 736
+  lcnalloc.c	Lines executed:0.00% of 354
+  logfile.c	Lines executed:0.00% of 280
+  logging.c	Lines executed:10.19% of 157
+  mft.c	Lines executed:9.05% of 917
+  misc.c	Lines executed:44.44% of 18
+  mst.c	Lines executed:48.44% of 64
+  object_id.c	Lines executed:3.45% of 203
+  realpath.c	Lines executed:0.00% of 22
+  reparse.c	Lines executed:26.82% of 619
+  runlist.c	Lines executed:29.80% of 661
+  security.c	Lines executed:19.03% of 1703
+  unistr.c	Lines executed:48.65% of 594
+  unix_io.c	Lines executed:0.00% of 222
+  volume.c	Lines executed:43.87% of 914
+  xattrs.c	Lines executed:33.91% of 174
+end: 2026-11-16T10:43:23Z
+RESULT: FINDING (artifacts/, libfuzzer-*.log)

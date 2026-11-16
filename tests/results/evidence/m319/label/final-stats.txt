@@ -1,0 +1,7 @@
+#38189056	DONE   cov: 363 ft: 4772 corp: 987/35Kb lim: 1100 exec/s: 10605 rss: 550Mb
+Done 38189056 runs in 3601 second(s)
+stat::number_of_executed_units: 38189056
+stat::average_exec_per_sec:     10605
+stat::new_units_added:          5425
+stat::slowest_unit_time_sec:    0
+stat::peak_rss_mb:              550

@@ -1,0 +1,2 @@
+artifacts (crash, oom, timeout, slow unit) in display: 0
+corpus inputs after the run: 876 (not stored)

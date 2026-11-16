@@ -1,0 +1,23 @@
+target: verdict  seconds: 3600  host: aarch64  clang: Debian clang version 19.1.7 (3+b1)
+start: 2026-11-16T09:43:00Z
+seeds: 62
+libFuzzer exit: 0
+stat::number_of_executed_units: 286328494
+stat::average_exec_per_sec:     79513
+stat::new_units_added:          28592
+stat::slowest_unit_time_sec:    0
+stat::peak_rss_mb:              558
+last progress line: #286328494	DONE   cov: 581 ft: 6760 corp: 2198/3902Kb lim: 70000 exec/s: 79513 rss: 558Mb
+artifacts (crash, oom, timeout, slow unit): 0
+corpus after the run: 2427 inputs
+coverage of the code under test (gcov, replay of the corpus above):
+File '/work/src/sanitize/display.c'
+Lines executed:84.09% of 44
+File '/work/src/sanitize/label.c'
+Lines executed:93.10% of 58
+File '/work/src/common/label_cp.c'
+Lines executed:76.32% of 76
+File '/work/src/sanitize/verdict.c'
+Lines executed:95.65% of 483
+end: 2026-11-16T10:43:02Z
+RESULT: no finding in 3600 s

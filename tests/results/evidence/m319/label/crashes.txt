@@ -1,0 +1,2 @@
+artifacts (crash, oom, timeout, slow unit) in label: 0
+corpus inputs after the run: 986 (not stored)

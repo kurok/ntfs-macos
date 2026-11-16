@@ -1,0 +1,55 @@
+INFO:     5409 files found in /tmp/fuzz-corpus
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: seed corpus: files: 5409 min: 1b max: 2283b total: 116201b rss: 73Mb
+
+=================================================================
+==7797==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 136 byte(s) in 1 object(s) allocated from:
+    #0 ___interceptor_calloc at ??:?
+    #1 ntfs_calloc at /tmp/b-eng-fuzz/src/libntfs-3g/misc.c:47
+    #2 ntfs_inode_open at /tmp/b-eng-fuzz/src/libntfs-3g/inode.c:95
+    #3 ntfs_device_mount at /tmp/b-eng-fuzz/src/libntfs-3g/volume.c:1240
+    #4 mount_view at /work/src/probe/probe.c:98
+    #5 ntfsmac_probe_run at /work/src/probe/probe.c:411
+    #6 LLVMFuzzerTestOneInput at /work/tests/fuzz/image/fuzz_probe.c:116
+    #7 fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) at :?
+    #8 fuzzer::Fuzzer::RunOne(unsigned char const*, unsigned long, bool, fuzzer::InputInfo*, bool, bool*) at :?
+    #9 fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::vector<fuzzer::SizedFile, std::allocator<fuzzer::SizedFile> >&) at :?
+    #10 fuzzer::Fuzzer::Loop(std::vector<fuzzer::SizedFile, std::allocator<fuzzer::SizedFile> >&) at :?
+    #11 fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) at :?
+    #12 main at ??:?
+    #13 __libc_start_call_main at ./csu/../sysdeps/nptl/libc_start_call_main.h:58
+    #14 __libc_start_main_impl at ./csu/../csu/libc-start.c:360
+    #15 _start at ??:?
+
+Indirect leak of 4096 byte(s) in 1 object(s) allocated from:
+    #0 ___interceptor_malloc at ??:?
+    #1 ntfs_malloc at /tmp/b-eng-fuzz/src/libntfs-3g/misc.c:57
+    #2 ntfs_file_record_read at /tmp/b-eng-fuzz/src/libntfs-3g/mft.c:361
+    #3 ntfs_inode_open at /tmp/b-eng-fuzz/src/libntfs-3g/inode.c:174
+    #4 ntfs_device_mount at /tmp/b-eng-fuzz/src/libntfs-3g/volume.c:1240
+    #5 mount_view at /work/src/probe/probe.c:98
+    #6 ntfsmac_probe_run at /work/src/probe/probe.c:411
+    #7 LLVMFuzzerTestOneInput at /work/tests/fuzz/image/fuzz_probe.c:116
+    #8 fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) at :?
+    #9 fuzzer::Fuzzer::RunOne(unsigned char const*, unsigned long, bool, fuzzer::InputInfo*, bool, bool*) at :?
+    #10 fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::vector<fuzzer::SizedFile, std::allocator<fuzzer::SizedFile> >&) at :?
+    #11 fuzzer::Fuzzer::Loop(std::vector<fuzzer::SizedFile, std::allocator<fuzzer::SizedFile> >&) at :?
+    #12 fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) at :?
+    #13 main at ??:?
+    #14 __libc_start_call_main at ./csu/../sysdeps/nptl/libc_start_call_main.h:58
+    #15 __libc_start_main_impl at ./csu/../csu/libc-start.c:360
+    #16 _start at ??:?
+
+SUMMARY: AddressSanitizer: 4232 byte(s) leaked in 2 allocation(s).
+
+INFO: a leak has been found in the initial corpus.
+
+INFO: to ignore leaks on libFuzzer side use -detect_leaks=0.
+
+MS: 0 ; base unit: 0000000000000000000000000000000000000000
+0x1,0x27,0x0,0x80,0x81,0x81,0x81,0x81,0x81,
+\001'\000\200\201\201\201\201\201
+artifact_prefix='./'; Test unit written to ./leak-2bfa16c648c7a9f40250736b2678ad6538fb36bc
+Base64: AScAgIGBgYGB

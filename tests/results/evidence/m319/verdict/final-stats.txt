@@ -1,0 +1,7 @@
+#286328494	DONE   cov: 581 ft: 6760 corp: 2198/3902Kb lim: 70000 exec/s: 79513 rss: 558Mb
+Done 286328494 runs in 3601 second(s)
+stat::number_of_executed_units: 286328494
+stat::average_exec_per_sec:     79513
+stat::new_units_added:          28592
+stat::slowest_unit_time_sec:    0
+stat::peak_rss_mb:              558

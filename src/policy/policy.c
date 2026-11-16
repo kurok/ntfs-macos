@@ -34,12 +34,24 @@ static bool verdict_in_range(const ntfsmac_probe_verdict *v)
 
 /*
  * `clean` must agree with its cross-field rule (state clean iff no reason
- * code, section 3.1). A verdict that says `clean` with a reason code is
- * inconsistent and is never trusted for rw.
+ * code, section 3.1) and with the fields the probe derives it from: a whole
+ * NTFS volume, not BitLocker, a clean log file, no active hibernation file,
+ * a known NTFS version and no volume flag beyond the informational ones. A
+ * verdict that says `clean` and contradicts any of them is inconsistent and
+ * is never trusted for rw.
  */
 static bool verdict_is_clean(const ntfsmac_probe_verdict *v)
 {
-	return v->state == NTFSMAC_PROBE_STATE_CLEAN && v->reason_codes == 0;
+	if (v->state != NTFSMAC_PROBE_STATE_CLEAN || v->reason_codes != 0)
+		return false;
+	if (!v->is_ntfs || v->bitlocker || !v->has_ntfs_version)
+		return false;
+	if (v->logfile != NTFSMAC_PROBE_LOGFILE_CLEAN)
+		return false;
+	if (v->hiberfile != NTFSMAC_PROBE_HIBERFILE_ABSENT &&
+	    v->hiberfile != NTFSMAC_PROBE_HIBERFILE_INACTIVE)
+		return false;
+	return (v->volume_flags & ~(uint32_t)INFO_FLAGS) == 0;
 }
 
 bool ntfsmac_policy_evidence_holds(const ntfsmac_probe_verdict *v,

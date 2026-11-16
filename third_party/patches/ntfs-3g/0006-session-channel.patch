@@ -19,6 +19,11 @@ NTFSMAC_ERRFD:
   U <n>            src/ntfs-3g.c ntfs_close(), only when ntfs_umount() returned 0 and S was written; n is
                    the number of E records this process tried to write (written or not).
 Record text is a literal in unix_io.c plus decimal integers; nothing comes from the disk.
+An E record means "a device call failed or returned a short count". ntfs_pwrite() in libntfs-3g/device.c
+loops until the whole buffer is written, so a single short write that the engine then completes still
+writes an E record and makes the session unclean (M3 audit F-08). Nothing is lost in that case; the next
+attach is read-only and the user is told to run chkdsk. This fails closed and is kept on purpose: the
+channel cannot tell a short write that is completed from one that is not.
 Hunks:
   - libntfs-3g/unix_io.c: the channel (init, write, four exported functions ntfsmac_errfd_session,
     _error, _warn, _unmounted), declared in include/ntfs-3g/device.h. The E records come from four

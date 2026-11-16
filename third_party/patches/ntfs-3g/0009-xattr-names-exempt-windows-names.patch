@@ -11,18 +11,22 @@ xattr, copyfile(COPYFILE_ALL) leaves an empty file).
 Product choice (owner decision 2026-11-15): windows_names stays on for file and directory names and is
 not applied to xattr names. The check protects names that Windows cannot open by path. An xattr name is
 never typed by a Windows user and never becomes a path on macOS, so the check gives no protection here.
-Hunk (src/ntfs-3g.c, ntfs_fuse_setxattr, one hunk):
+Hunks (src/ntfs-3g.c, two: ntfs_fuse_setxattr and ntfs_fuse_removexattr):
   - Under "#if defined(__APPLE__) || defined(__DARWIN__)" the ntfs_forbidden_chars() test is not made.
   - One guard stays: an empty stream name (lename_len == 0, for example the name "user." or an empty
     open-namespace name) is refused with EINVAL. ntfs_forbidden_chars() refused it by its "len == 0" rule,
     and without the guard the call would address the unnamed data stream, that is the file content.
   - The error path for lename_len == -1 (name conversion failure) is unchanged.
-  - The #else branch is the upstream text, so the Linux build (Environment A, internal FUSE) compiles the
+  - ntfs_fuse_removexattr gets the same empty-name guard (M3 audit F-07): upstream passes lename_len == 0 to
+    ntfs_attr_remove(ni, AT_DATA, lename, lename_len), which would remove the unnamed data stream, that is
+    the file content. The call cannot reach it today (the macOS VFS refuses an empty xattr name with EINVAL
+    before any file system sees it), so this is defence in depth, in the same style as the setxattr guard.
+  - The #else branches are the upstream text, so the Linux build (Environment A, internal FUSE) compiles the
     same code as before.
 Not changed: file and directory names (the ntfs_forbidden_names() calls in ntfs_fuse_create and
 ntfs_fuse_link, and in libntfs-3g) keep the windows_names check (I-NAME-04). ntfs_fuse_removexattr and
-ntfs_fuse_getxattr do not check the name (T-M3-08: an existing ':' stream is read and removed under
-windows_names), so they need no change. The stream-name length stays limited by the library
+ntfs_fuse_getxattr do not check the name for forbidden characters (T-M3-08: an existing ':' stream is read and
+removed under windows_names), so they need no change for that; removexattr gets only the empty-name guard above. The stream-name length stays limited by the library
 (NTFS_MAX_NAME_LEN, 255 UTF-16 units; macOS refuses names above 127 bytes before they reach the worker).
 Scope: FUSE glue only, no change to libntfs-3g, allocation, runlists, MFT or index code. src/lowntfs-3g.c
 is not patched and is not shipped (patch 0003).
@@ -31,8 +35,8 @@ contains ':' on a volume written this way. Windows cannot address such a stream 
 chkdsk drops or flags it: revert this patch and document that Finder tags, comments and backup exclusion
 are not stored and that copying a file that carries them fails.
 Note: on macOS the exemption covers the stream name under both streams_interface=xattr and
-openxattr (the product uses openxattr). getxattr and removexattr have no empty-name guard; that
-is upstream code and an empty name cannot reach them from the kernel.
+openxattr (the product uses openxattr). getxattr has no empty-name guard (it only
+reads; that is upstream code and an empty name cannot reach it from the kernel).
 Upstream status: product choice, not to be reported upstream (ADR-025).
 Test: I-XATTR-05 (':' and other Windows-invalid xattr names stored and read back under windows_names;
 file and directory names with the same characters still refused), I-XATTR-06 (ditto, cp -p, cp -c and
@@ -40,8 +44,8 @@ copyfile(COPYFILE_ALL) of a file with Finder tags and comment keep every xattr),
 and reads the ':' stream). Cases in tests/integration/xattr/, Environment B; I-XATTR-09 runs with
 run-env-b.sh --orchestrate. I-NAME-04 still refuses the same file and directory names.
 
---- a/src/ntfs-3g.c	2026-11-15 09:58:12.370846496 +0000
-+++ b/src/ntfs-3g.c	2026-11-15 09:58:12.443352319 +0000
+--- a/src/ntfs-3g.c	2026-11-16 09:42:19.434998311 +0000
++++ b/src/ntfs-3g.c	2026-11-16 09:42:28.347813684 +0000
 @@ -3602,12 +3602,22 @@
  	}
  #endif
@@ -65,3 +69,18 @@ run-env-b.sh --orchestrate. I-NAME-04 still refuses the same file and directory 
  	na = ntfs_attr_open(ni, AT_DATA, lename, lename_len);
  	if (na && flags == XATTR_CREATE) {
  		res = -EEXIST;
+@@ -3844,7 +3854,14 @@
+ 	}
+ #endif
+ 	lename_len = fix_xattr_prefix(name, namespace, &lename);
++#if defined(__APPLE__) || defined(__DARWIN__)
++	/* ntfs-macos 0009: an empty name would address the unnamed stream */
++	if (lename_len == 0)
++		errno = EINVAL;
++	if ((lename_len == -1) || (lename_len == 0)) {
++#else
+ 	if (lename_len == -1) {
++#endif
+ 		res = -errno;
+ 		goto exit;
+ 	}

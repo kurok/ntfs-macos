@@ -126,8 +126,13 @@ int volmark_next_flags(volmark_mode mode, uint16_t flags, uint16_t *out)
 
 	switch (mode) {
 	case VOLMARK_SET:
-		/* ntfs_volume_write_flags() would drop a bit outside the mask: refuse. */
-		if ((f & VOLMARK_VOL_DIRTY) || (f & ~VOLMARK_VOL_FLAGS_MASK))
+		/*
+		 * Refuse the dirty flag and every flag but the informational ones: a bit outside
+		 * the mask would be dropped by ntfs_volume_write_flags(), and chkdsk or
+		 * pending-work flags mean the volume is not one to mark and write (F-06).
+		 */
+		if ((f & VOLMARK_VOL_DIRTY) ||
+		    (f & ~(VOLMARK_VOL_MODIFIED_BY_CHKDSK | VOLMARK_VOL_MOUNTED_ON_NT4)))
 			return VOLMARK_EXIT_FLAGS;
 		*out = (uint16_t)(f | VOLMARK_VOL_DIRTY);
 		return VOLMARK_EXIT_OK;

@@ -17,7 +17,7 @@
 #define VOLMARK_EXIT_USAGE 2    /* bad command line; nothing opened */
 #define VOLMARK_EXIT_TOOL 3     /* descriptor not usable, out of memory, `w` not delivered; nothing written */
 #define VOLMARK_EXIT_REFUSED 10 /* step 1: mount, hibernation or $LogFile refusal; nothing written */
-#define VOLMARK_EXIT_FLAGS 11   /* step 3 of `set`: flag already set, or a bit outside VOLUME_FLAGS_MASK */
+#define VOLMARK_EXIT_FLAGS 11   /* step 3 of `set`: dirty flag set, or any flag but MODIFIED_BY_CHKDSK, MOUNTED_ON_NT4 */
 #define VOLMARK_EXIT_IO 12      /* step 4 or 5: the flag write, the unmount sync or fsync failed */
 #define VOLMARK_EXIT_ANOMALY 13 /* step 3 of `clear` / `clear-repair`: flags not as expected */
 #define VOLMARK_EXIT_READBACK 14 /* step 6: read-back mount failed or the flag differs */

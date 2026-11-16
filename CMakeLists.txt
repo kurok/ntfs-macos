@@ -9,7 +9,7 @@ set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Sanitizers: "", "address", "undefined" or "address,undefined".
-set(NTFSMAC_SANITIZE "" CACHE STRING "Sanitizers to enable (address, undefined)")
+set(NTFSMAC_SANITIZE "" CACHE STRING "Sanitizers to enable (address, undefined, or thread alone)")
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)

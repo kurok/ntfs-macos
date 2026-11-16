@@ -33,6 +33,15 @@
       }
     },
     {
+      "name": "tsan",
+      "displayName": "Debug + ThreadSanitizer (T-M4-15)",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "NTFSMAC_SANITIZE": "thread"
+      }
+    },
+    {
       "name": "linux",
       "displayName": "Linux container (portable parts); override with -B for a read-only source mount",
       "inherits": "base",
@@ -44,12 +53,14 @@
     { "name": "release", "configurePreset": "release" },
     { "name": "asan", "configurePreset": "asan" },
     { "name": "ubsan", "configurePreset": "ubsan" },
+    { "name": "tsan", "configurePreset": "tsan" },
     { "name": "linux", "configurePreset": "linux" }
   ],
   "testPresets": [
     { "name": "release", "configurePreset": "release", "output": { "outputOnFailure": true } },
     { "name": "asan", "configurePreset": "asan", "output": { "outputOnFailure": true } },
     { "name": "ubsan", "configurePreset": "ubsan", "output": { "outputOnFailure": true } },
+    { "name": "tsan", "configurePreset": "tsan", "output": { "outputOnFailure": true } },
     { "name": "linux", "configurePreset": "linux", "output": { "outputOnFailure": true } }
   ]
 }

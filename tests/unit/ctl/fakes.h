@@ -7,12 +7,31 @@
  * Nothing here calls the operating system, so every peer check can be made
  * to pass or fail on its own.
  */
+#include <pthread.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "ctl_priv.h"
 
 /* ---------------- operations ---------------- */
+
+/*
+ * The fake state is written by the test thread and read by the server thread
+ * (and the other way round for the call counters). The socket I/O between the
+ * two orders these accesses in real time, but ThreadSanitizer does not see an
+ * ordering through a socket. fake_sync() gives it one it can see: a lock and
+ * unlock of one mutex. The fakes call it on entry and on exit; the tests call
+ * it (through dial() and slurp()) after writing fake state and after reading
+ * a reply. The fake state is never touched by two threads at the same time.
+ */
+static pthread_mutex_t fake_sync_lock = PTHREAD_MUTEX_INITIALIZER;
+
+static inline void fake_sync(void)
+{
+	pthread_mutex_lock(&fake_sync_lock);
+	pthread_mutex_unlock(&fake_sync_lock);
+}
+
 
 typedef struct fake_ops_state {
 	int calls[NTFSMAC_CTL_CMD_COUNT_];
@@ -42,10 +61,15 @@ static inline int fake_total_calls(const fake_ops_state *s)
 static inline ntfsmac_dmn_status fake_finish(fake_ops_state *s, ntfsmac_ctl_cmd c, char *reply,
 					     size_t cap)
 {
+	ntfsmac_dmn_status st;
+
+	fake_sync();
 	s->calls[c]++;
 	if (s->reply != NULL)
 		snprintf(reply, cap, "%s", s->reply);
-	return s->status;
+	st = s->status;
+	fake_sync();
+	return st;
 }
 
 static inline ntfsmac_dmn_status f_list(void *ctx, char *reply, size_t cap)
@@ -164,6 +188,9 @@ static inline ntfsmac_ctl_sys_proc fs_proc_parent(void *ctx, pid_t pid, pid_t *p
 	fake_sys_state *s = ctx;
 	int i;
 
+	ntfsmac_ctl_sys_proc r = NTFSMAC_CTL_PROC_GONE;
+
+	fake_sync();
 	s->proc_calls++;
 	for (i = 0; i < s->nprocs; i++) {
 		if (s->procs[i].pid == pid) {
@@ -171,45 +198,63 @@ static inline ntfsmac_ctl_sys_proc fs_proc_parent(void *ctx, pid_t pid, pid_t *p
 				*ppid = s->procs[i].ppid;
 				*pgid = s->procs[i].pgid;
 			}
-			return s->procs[i].result;
+			r = s->procs[i].result;
+			break;
 		}
 	}
-	return NTFSMAC_CTL_PROC_GONE;
+	fake_sync();
+	return r;
 }
 
 static inline ntfsmac_ctl_sys_answer fs_signed(void *ctx, const ntfsmac_ctl_peer *peer)
 {
 	fake_sys_state *s = ctx;
+	ntfsmac_ctl_sys_answer a;
 
 	(void)peer;
+	fake_sync();
 	s->signed_calls++;
-	return s->signed_answer;
+	a = s->signed_answer;
+	fake_sync();
+	return a;
 }
 
 static inline ntfsmac_ctl_sys_answer fs_authz(void *ctx, const uint8_t form[NTFSMAC_CTL_AUTH_FORM_BYTES])
 {
 	fake_sys_state *s = ctx;
+	ntfsmac_ctl_sys_answer a;
 
+	fake_sync();
 	s->authz_calls++;
 	memcpy(s->last_form, form, sizeof s->last_form);
-	return s->authz_answer;
+	a = s->authz_answer;
+	fake_sync();
+	return a;
 }
 
 static inline ntfsmac_ctl_sys_answer fs_right(void *ctx)
 {
 	fake_sys_state *s = ctx;
+	ntfsmac_ctl_sys_answer a;
 
+	fake_sync();
 	s->right_calls++;
-	return s->right_answer;
+	a = s->right_answer;
+	fake_sync();
+	return a;
 }
 
 static inline int fs_peer_from_fd(void *ctx, int fd, ntfsmac_ctl_peer *out)
 {
 	fake_sys_state *s = ctx;
+	int rc;
 
 	(void)fd;
+	fake_sync();
 	*out = s->socket_peer;
-	return s->peer_rc;
+	rc = s->peer_rc;
+	fake_sync();
+	return rc;
 }
 
 /*

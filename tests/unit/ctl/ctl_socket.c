@@ -52,6 +52,7 @@ static int dial(void)
 	struct sockaddr_un sa;
 	int fd = socket(AF_UNIX, SOCK_STREAM, 0);
 
+	fake_sync(); /* publish the fake state the test set before connecting */
 	memset(&sa, 0, sizeof sa);
 	sa.sun_family = AF_UNIX;
 	snprintf(sa.sun_path, sizeof sa.sun_path, "%s", path);
@@ -99,6 +100,7 @@ static size_t slurp(int fd, char *buf, size_t cap, int want, int timeout_ms, boo
 				lines++;
 	}
 	buf[have] = '\0';
+	fake_sync(); /* the reply orders what the server wrote before the test reads it */
 	return have;
 }
 

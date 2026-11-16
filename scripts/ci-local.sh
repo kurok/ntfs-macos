@@ -7,6 +7,11 @@
 #
 # Usage: scripts/ci-local.sh --quick [--preset NAME] [--build-dir DIR]
 # Exit:  0 all stages passed, 1 a stage failed, 2 usage error or not implemented.
+#
+# ThreadSanitizer (T-M4-15, U-TSAN-*): `scripts/ci-local.sh --quick --preset tsan`
+# builds and runs the same tests with -fsanitize=thread (in build/tsan). The
+# default quick run does not use it: it is slower, and it runs the drivers of
+# tests/unit/tsan under the race detector.
 set -eu
 
 here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)

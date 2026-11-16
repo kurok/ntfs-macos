@@ -21,6 +21,16 @@ target_link_libraries(ntfsmac_daemon PUBLIC
   ntfsmac_policy ntfsmac_journal ntfsmac_sanitize ntfsmac_worker_options Threads::Threads)
 target_link_libraries(ntfsmac_daemon PRIVATE ntfsmac_options)
 
+# T-M4-06: test seams of the spawn module (spawn_config.h): another sandbox directory or tool,
+# no sandbox at all, a hook after argv_check(). They are on for the build that runs the tests and
+# off for the build that ships (preset `product`), so a shipped daemon cannot start a child
+# without the sandbox. The definition is PUBLIC: the tests include spawn_config.h and must see the
+# same struct as the library.
+option(NTFSMAC_TEST_SEAMS "Compile the test seams of the spawn module in" ON)
+if(NTFSMAC_TEST_SEAMS)
+  target_compile_definitions(ntfsmac_daemon PUBLIC NTFSMAC_TEST_SEAMS)
+endif()
+
 # da.c (T-M4-02) is the only file here that uses Disk Arbitration.
 # T-M4-04: ctl_sys.c uses code signing and Authorization Services (Security).
 if(APPLE)

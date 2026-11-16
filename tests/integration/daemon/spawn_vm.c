@@ -3,13 +3,16 @@
  * T-M4-01: driver for the spawn module in a macOS guest (Environment B),
  * run as root by spawn_vm.sh. It uses the module the way the daemon will.
  *
- *   spawn_vm IMAGE WORKER STUB UID GID WORKDIR
+ *   spawn_vm [--sandbox DIR] IMAGE WORKER STUB UID GID WORKDIR [CASE]
  *
  * IMAGE   an NTFS image file, mode 000 (the console user cannot open it)
  * WORKER  the patched ntfsmac-worker (ntfs-3g built with the patch series)
  * STUB    spawn_stub (tests/unit/spawn), stands in for the probe and volmark
  * UID GID the console user
  * WORKDIR an empty directory made by the script
+ * DIR     with --sandbox: a root-owned directory with the profiles of integration/sandbox/; the
+ *         children then start under them (T-M4-06) and WORKER and STUB must be given by real
+ *         paths, which is what a profile names
  *
  * Cases (each prints PASS or FAIL lines; exit 0 only if none failed):
  *   priv       I-DMN-09: probe and volmark start as `nobody`, the worker as the console user
@@ -51,6 +54,7 @@ static uid_t g_uid;
 static gid_t g_gid;
 static const char *g_image, *g_worker, *g_stub, *g_dir;
 static int g_log_fd = -1;
+static const char *g_sandbox_dir; /* --sandbox DIR: run the children under the profiles in DIR */
 
 #define PASS(...) \
 	do { printf("PASS: " __VA_ARGS__); printf("\n"); fflush(stdout); } while (0)
@@ -81,6 +85,7 @@ static ntfsmac_spawn_config base_config(void)
 	ntfsmac_spawn_config c;
 
 	ntfsmac_spawn_config_default(&c);
+	c.sandbox_dir = g_sandbox_dir; /* NULL unless --sandbox: the spawn module alone */
 	c.worker_path = g_worker;
 	c.child_stderr_fd = g_log_fd;
 	return c;
@@ -287,13 +292,13 @@ static void case_priv(void)
 	c.child_stderr_fd = open(path, O_RDWR | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
 	snprintf(path, sizeof(path), "%s/probe-ok", g_dir);
 	(void)unlink(path);
-	if (symlink(g_stub, path) != 0)
-		FAIL("symlink probe-ok");
+	if (link(g_stub, path) != 0)
+		FAIL("link probe-ok");
 	c.probe_path = strdup(path);
 	snprintf(path, sizeof(path), "%s/volmark-set", g_dir);
 	(void)unlink(path);
-	if (symlink(g_stub, path) != 0)
-		FAIL("symlink volmark-set");
+	if (link(g_stub, path) != 0)
+		FAIL("link volmark-set");
 	c.volmark_path = strdup(path);
 	ntfsmac_spawn_config_set(&c);
 
@@ -675,8 +680,14 @@ int main(int argc, char **argv)
 	char path[300];
 	const char *only;
 
+	if (argc >= 3 && !strcmp(argv[1], "--sandbox")) {
+		g_sandbox_dir = argv[2];
+		argc -= 2;
+		argv += 2;
+		argv[0] = (char *)"spawn_vm";
+	}
 	if (argc < 7) {
-		fprintf(stderr, "usage: spawn_vm IMAGE WORKER STUB UID GID WORKDIR [CASE]\n");
+		fprintf(stderr, "usage: spawn_vm [--sandbox DIR] IMAGE WORKER STUB UID GID WORKDIR [CASE]\n");
 		return 2;
 	}
 	g_image = argv[1];

@@ -3,8 +3,10 @@
  * Spawn and supervision of the probe, volmark and the worker (T-M4-01).
  * ARCHITECTURE.md sections 3.1, 3.3, 3.6, 4.1 (steps 4, 7, 8), 5 and 6.
  *
- * Plain POSIX plus two small macOS parts (getfsstat and the spawn flag
- * POSIX_SPAWN_CLOEXEC_DEFAULT). No Disk Arbitration and no CoreFoundation.
+ * Plain POSIX plus small macOS parts (getfsstat, the spawn flag
+ * POSIX_SPAWN_CLOEXEC_DEFAULT and libproc for the process tree and the open
+ * descriptors of a process; /proc on Linux). No Disk Arbitration and no
+ * CoreFoundation.
  *
  * How a child starts: the daemon forks, the child drops to the target user,
  * becomes the leader of its own process group, and then replaces itself with
@@ -14,6 +16,10 @@
  * (Linux, for tests) the child closes every other descriptor itself. A
  * pipe that is closed by a successful exec tells the daemon whether the
  * start worked, so a missing program is an error and not an exit code.
+ *
+ * On macOS the program is not started directly but through sandbox-exec,
+ * which applies a profile of integration/sandbox/ and then starts the program
+ * (T-M4-06; section "Sandbox" below).
  *
  * A fork in a thread-safe daemon races with the creation of descriptors in
  * other threads, so the descriptor creation and the fork are one critical
@@ -31,9 +37,11 @@
 
 #include "spawn_config.h"
 
+#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
+#include <limits.h>
 #include <poll.h>
 #include <pthread.h>
 #include <pwd.h>
@@ -43,7 +51,9 @@
 #include <stdlib.h>
 #include <string.h>
 #if defined(__APPLE__)
+#include <libproc.h>
 #include <sys/mount.h>
+#include <sys/proc_info.h>
 #endif
 #include <grp.h>
 #include <sys/stat.h>
@@ -52,6 +62,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "ntfsmac/ctl_proto.h"
 #include "ntfsmac/options.h"
 #include "ntfsmac/probe.h"
 
@@ -90,6 +101,9 @@ void ntfsmac_spawn_config_default(ntfsmac_spawn_config *cfg)
 		cfg->unpriv_uid = pw->pw_uid;
 		cfg->unpriv_gid = pw->pw_gid;
 	}
+#if defined(NTFSMAC_TEST_SEAMS) && defined(__APPLE__)
+	cfg->sandbox_dir = NTFSMAC_PATH_SANDBOX_DIR;
+#endif
 	cfg->child_stderr_fd = -1;
 	cfg->mount_poll_ms = DEFAULT_POLL_MS;
 	cfg->volmark_write_wait_s = NTFSMAC_VOLMARK_WRITE_WAIT_S;
@@ -120,6 +134,10 @@ static void config_get(ntfsmac_spawn_config *out)
 		out->volmark_write_wait_s = NTFSMAC_VOLMARK_WRITE_WAIT_S;
 	if (out->mount_lookup == NULL)
 		out->mount_lookup = mount_lookup_system;
+#if defined(NTFSMAC_TEST_SEAMS)
+	if (out->sandbox_exec_path == NULL)
+		out->sandbox_exec_path = NTFSMAC_PATH_SANDBOX_EXEC;
+#endif
 }
 
 /* ------------------------------------------------------------------ */
@@ -238,17 +256,296 @@ static bool reap_bounded(pid_t pid, int *status, unsigned ms)
 	}
 }
 
+/* ------------------------------------------------------------------ */
+/* Process tree and open descriptors (T-M4-06, audit M1)               */
+/* ------------------------------------------------------------------ */
+
+#define TREE_MAX 256    /* descendants of one child that are tracked */
+#define TREE_ROUNDS 16  /* rounds of the search for new descendants */
+#define HOLD_ROUNDS 25  /* looks for a holder of the device, 20 ms apart */
+#define HOLD_KILLED_MAX 32
+
+/* Number of the device, as the descriptor the child was given shows it. */
+typedef struct dev_ident {
+	dev_t dev;
+	ino_t ino;
+} dev_ident;
+
+#if defined(__APPLE__)
+
+/* Pids whose parent is `ppid`: the number found (at most `cap`), or -1. */
+static int proc_children(pid_t ppid, pid_t *out, int cap)
+{
+	int n = proc_listchildpids(ppid, out, cap * (int)sizeof(pid_t));
+
+	return n < 0 ? -1 : (n > cap ? cap : n);
+}
+
+/* The pids of the processes owned by `uid`, in a malloc'd array; NULL on error. */
+static pid_t *proc_pids_of_uid(uid_t uid, int *count)
+{
+	int bytes = proc_listpids(PROC_UID_ONLY, (uint32_t)uid, NULL, 0);
+	pid_t *pids;
+
+	*count = 0;
+	if (bytes < 0)
+		return NULL;
+	if (bytes == 0) /* no process of that user: an empty list, not an error */
+		return malloc(sizeof(pid_t));
+	bytes += 64 * (int)sizeof(pid_t); /* room for processes that start meanwhile */
+	pids = malloc((size_t)bytes);
+	if (pids == NULL)
+		return NULL;
+	bytes = proc_listpids(PROC_UID_ONLY, (uint32_t)uid, pids, bytes);
+	if (bytes < 0) {
+		free(pids);
+		return NULL;
+	}
+	*count = bytes / (int)sizeof(pid_t); /* 0: no process of that user */
+	return pids;
+}
+
+/* Does `pid` have a file descriptor on the vnode `id`? A process that cannot be read holds nothing. */
+static bool proc_holds_device(pid_t pid, const dev_ident *id)
+{
+	struct proc_fdinfo *fds;
+	int bytes, n, i;
+	bool held = false;
+
+	bytes = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, NULL, 0);
+	if (bytes <= 0)
+		return false;
+	bytes += 16 * (int)sizeof(*fds);
+	fds = malloc((size_t)bytes);
+	if (fds == NULL)
+		return false;
+	bytes = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, fds, bytes);
+	n = bytes > 0 ? bytes / (int)sizeof(*fds) : 0;
+	for (i = 0; i < n && !held; i++) {
+		struct vnode_fdinfo vi;
+
+		if (fds[i].proc_fdtype != PROX_FDTYPE_VNODE)
+			continue;
+		if (proc_pidfdinfo(pid, fds[i].proc_fd, PROC_PIDFDVNODEINFO, &vi, (int)sizeof(vi))
+		    != (int)sizeof(vi))
+			continue;
+		held = vi.pvi.vi_stat.vst_dev == (uint32_t)id->dev
+		       && vi.pvi.vi_stat.vst_ino == (uint64_t)id->ino;
+	}
+	free(fds);
+	return held;
+}
+
+#else /* Linux: /proc, for tests */
+
+static bool proc_numeric(const char *name)
+{
+	const char *c;
+
+	for (c = name; *c != '\0'; c++)
+		if (*c < '0' || *c > '9')
+			return false;
+	return name[0] != '\0';
+}
+
+/* The parent pid in /proc/<pid>/stat: "pid (comm) S ppid ..."; the name may hold ')' and spaces. */
+static pid_t proc_parent_of(pid_t pid)
+{
+	char path[64], line[512];
+	FILE *f;
+	const char *p;
+	long ppid;
+
+	snprintf(path, sizeof(path), "/proc/%d/stat", (int)pid);
+	f = fopen(path, "r");
+	if (f == NULL)
+		return -1;
+	p = fgets(line, sizeof(line), f);
+	fclose(f);
+	if (p == NULL || (p = strrchr(line, ')')) == NULL)
+		return -1;
+	if (sscanf(p + 1, " %*c %ld", &ppid) != 1)
+		return -1;
+	return (pid_t)ppid;
+}
+
+static int proc_children(pid_t ppid, pid_t *out, int cap)
+{
+	DIR *d = opendir("/proc");
+	struct dirent *e;
+	int n = 0;
+
+	if (d == NULL)
+		return -1;
+	while (n < cap && (e = readdir(d)) != NULL) {
+		if (proc_numeric(e->d_name) && proc_parent_of((pid_t)atoi(e->d_name)) == ppid)
+			out[n++] = (pid_t)atoi(e->d_name);
+	}
+	closedir(d);
+	return n;
+}
+
+static pid_t *proc_pids_of_uid(uid_t uid, int *count)
+{
+	DIR *d = opendir("/proc");
+	struct dirent *e;
+	pid_t *pids = NULL;
+	int n = 0, cap = 0;
+
+	*count = 0;
+	if (d == NULL)
+		return NULL;
+	while ((e = readdir(d)) != NULL) {
+		char path[64];
+		struct stat st;
+
+		if (!proc_numeric(e->d_name))
+			continue;
+		snprintf(path, sizeof(path), "/proc/%s", e->d_name);
+		if (stat(path, &st) != 0 || st.st_uid != uid)
+			continue;
+		if (n == cap) {
+			pid_t *g = realloc(pids, (size_t)(cap + 64) * sizeof(*pids));
+
+			if (g == NULL) {
+				free(pids);
+				closedir(d);
+				return NULL;
+			}
+			pids = g;
+			cap += 64;
+		}
+		pids[n++] = (pid_t)atoi(e->d_name);
+	}
+	closedir(d);
+	if (pids == NULL) /* none: an empty list is not an error */
+		pids = malloc(sizeof(*pids));
+	*count = n;
+	return pids;
+}
+
+static bool proc_holds_device(pid_t pid, const dev_ident *id)
+{
+	char dir[64], path[128];
+	DIR *d;
+	struct dirent *e;
+	bool held = false;
+
+	snprintf(dir, sizeof(dir), "/proc/%d/fd", (int)pid);
+	d = opendir(dir);
+	if (d == NULL)
+		return false;
+	while (!held && (e = readdir(d)) != NULL) {
+		struct stat st;
+
+		if (!proc_numeric(e->d_name))
+			continue;
+		snprintf(path, sizeof(path), "%s/%s", dir, e->d_name);
+		held = stat(path, &st) == 0 && st.st_dev == id->dev && st.st_ino == id->ino;
+	}
+	closedir(d);
+	return held;
+}
+
+#endif
+
+static bool pid_listed(const pid_t *list, unsigned n, pid_t pid)
+{
+	unsigned i;
+
+	for (i = 0; i < n; i++)
+		if (list[i] == pid)
+			return true;
+	return false;
+}
+
+/*
+ * SIGKILL to `root`, its process group and all its descendants, whatever their group. The
+ * descendants are found by walking the tree from `root` with proc_listchildpids(). Each process
+ * is stopped when it is found, so it cannot fork again before the kill, and the walk repeats
+ * until a round finds nobody new (or TREE_ROUNDS rounds). A descendant whose parent already
+ * died is not in the tree any more; for those see device_free() below.
+ */
+static void kill_tree(pid_t root)
+{
+	pid_t seen[TREE_MAX];
+	unsigned nseen = 0, round, i;
+
+	(void)kill(root, SIGSTOP);
+	for (round = 0; round < TREE_ROUNDS; round++) {
+		unsigned before = nseen, parent;
+
+		for (parent = 0; parent <= before; parent++) {
+			pid_t kids[TREE_MAX];
+			int nk = proc_children(parent == 0 ? root : seen[parent - 1], kids, TREE_MAX), k;
+
+			for (k = 0; k < nk; k++) {
+				if (kids[k] <= 1 || kids[k] == getpid() || pid_listed(seen, nseen, kids[k])
+				    || nseen >= TREE_MAX)
+					continue;
+				seen[nseen++] = kids[k];
+				(void)kill(kids[k], SIGSTOP);
+			}
+		}
+		if (nseen == before)
+			break;
+	}
+	(void)kill(-root, SIGKILL);
+	(void)kill(root, SIGKILL);
+	for (i = 0; i < nseen; i++)
+		(void)kill(seen[i], SIGKILL);
+}
+
 /*
  * SIGKILL to the whole group of `pid` (the child is the group leader) and to
- * the child itself, in case the group could not be set up. Never kills pid 0
- * or 1, nor a negative number: `kill(-1)` would hit every process.
+ * the child itself, in case the group could not be set up, and to every descendant of the child
+ * (kill_tree). Never kills pid 0 or 1, nor a negative number: `kill(-1)` would hit every process.
  */
 static void kill_group_of(pid_t pid)
 {
 	if (pid <= 1)
 		return;
-	(void)kill(-pid, SIGKILL);
-	(void)kill(pid, SIGKILL);
+	kill_tree(pid);
+}
+
+/*
+ * No process of `owner` may hold the device `id` after the worker is gone. Each one that does is
+ * killed, and the table is read again until a round finds none (HOLD_ROUNDS looks, 20 ms
+ * apart). The daemon itself is never touched, and only the processes of `owner` are looked at.
+ */
+static ntfsmac_dmn_status device_free(uid_t owner, const dev_ident *id, unsigned *killed)
+{
+	pid_t done[HOLD_KILLED_MAX];
+	unsigned ndone = 0, round;
+
+	if (killed != NULL)
+		*killed = 0;
+	for (round = 0; round < HOLD_ROUNDS; round++) {
+		int n, i;
+		pid_t *pids = proc_pids_of_uid(owner, &n);
+		unsigned held = 0;
+
+		if (pids == NULL)
+			return NTFSMAC_DMN_E_IO;
+		for (i = 0; i < n; i++) {
+			if (pids[i] <= 1 || pids[i] == getpid() || !proc_holds_device(pids[i], id))
+				continue;
+			held++;
+			(void)kill(pids[i], SIGKILL);
+			if (ndone < HOLD_KILLED_MAX && !pid_listed(done, ndone, pids[i]))
+				done[ndone++] = pids[i];
+		}
+		free(pids);
+		if (held == 0) {
+			if (killed != NULL)
+				*killed = ndone;
+			return NTFSMAC_DMN_OK;
+		}
+		sleep_ms(20);
+	}
+	if (killed != NULL)
+		*killed = ndone;
+	return NTFSMAC_DMN_E_BUSY;
 }
 
 static int exit_code_of(int status)
@@ -324,6 +621,186 @@ static bool privileges_ok(uid_t uid, gid_t gid, bool *drop)
 		return true;
 	}
 	return false;
+}
+
+/* ------------------------------------------------------------------ */
+/* Sandbox                                                             */
+/* ------------------------------------------------------------------ */
+
+#define SANDBOX_ARGV_MAX 40
+#define SANDBOX_STR_MAX 1100
+#define SANDBOX_PARAM_MAX 6
+#define SANDBOX_PROFILE_MAX 32768 /* the profiles are about 6 KiB; a larger file is refused */
+
+/*
+ * The command line of a sandboxed child (T-M4-06):
+ *
+ *   sandbox-exec -p <profile text> -D KEY=VALUE ... <program> <its arguments>
+ *
+ * sandbox-exec applies the profile to itself and then replaces itself with the
+ * program, so the program and everything it starts stay inside the profile
+ * and cannot leave it. The parameters carry the two names that are defined
+ * once in ntfsmac/ctl_proto.h (the control socket and the privileged XPC
+ * service) and the path of the program, so no profile repeats them. The control
+ * socket is given twice, as written and with the symbolic links of its directory
+ * resolved (/var/run is /private/var/run): the sandbox compares the path a process
+ * connects to with the rule as spelled, so a spelling that the rule does not
+ * have would not match (checked in the guest, audit M3). Applying the profile in the forked
+ * child instead would call into libsandbox, which allocates memory, in a child
+ * of a multi-threaded daemon.
+ */
+typedef struct sandbox_cmd {
+	const char *path; /* what to exec: sandbox-exec, or the program itself */
+	char *argv[SANDBOX_ARGV_MAX];
+	char text[SANDBOX_PROFILE_MAX];
+	char param[SANDBOX_PARAM_MAX][SANDBOX_STR_MAX];
+} sandbox_cmd;
+
+/*
+ * Read a profile that is trusted: the file is opened without following a link, and the checks are
+ * made on the open descriptor, so the file that was checked is the file that was read and nothing
+ * can be swapped in between. It must be a regular file owned by `owner` that no one else can
+ * write, and not larger than the buffer. The text is NUL-terminated.
+ */
+static bool profile_read(const char *path, uid_t owner, char *buf, size_t cap)
+{
+	struct stat st;
+	size_t len = 0;
+	bool ok = false;
+	int fd = open(path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
+
+	if (fd < 0)
+		return false;
+	if (fstat(fd, &st) == 0 && S_ISREG(st.st_mode) && st.st_uid == owner
+	    && (st.st_mode & (S_IWGRP | S_IWOTH)) == 0 && st.st_size > 0
+	    && (uint64_t)st.st_size < cap) {
+		for (;;) {
+			ssize_t n = read(fd, buf + len, cap - 1u - len);
+
+			if (n < 0 && errno == EINTR)
+				continue;
+			if (n <= 0) {
+				ok = n == 0 && len == (size_t)st.st_size;
+				break;
+			}
+			len += (size_t)n;
+			if (len >= cap - 1u)
+				break; /* the file grew: refuse it */
+		}
+	}
+	close(fd);
+	if (ok)
+		buf[len] = '\0';
+	return ok && memchr(buf, '\0', len) == NULL;
+}
+
+/* Where the profiles are, the tool, and who must own the profiles; NULL `*dir` means no sandbox. */
+static void sandbox_settings(const ntfsmac_spawn_config *cfg, const char **dir, const char **tool,
+			     uid_t *owner)
+{
+#if defined(NTFSMAC_TEST_SEAMS)
+	*dir = cfg->sandbox_dir;
+	*tool = cfg->sandbox_exec_path != NULL ? cfg->sandbox_exec_path : NTFSMAC_PATH_SANDBOX_EXEC;
+	*owner = cfg->sandbox_owner;
+#else
+	(void)cfg;
+#  if defined(__APPLE__)
+	*dir = NTFSMAC_PATH_SANDBOX_DIR;
+#  else
+	*dir = NULL; /* no sandbox on this platform: the portable parts only */
+#  endif
+	*tool = NTFSMAC_PATH_SANDBOX_EXEC;
+	*owner = 0;
+#endif
+}
+
+/* The control socket path with the links of its directory resolved; false if that cannot be done. */
+static bool ctl_socket_real(char *out, size_t cap)
+{
+	const char *path = NTFSMAC_CTL_SOCKET_PATH;
+	char dir[PATH_MAX], real[PATH_MAX];
+	const char *slash = strrchr(path, '/');
+	size_t dlen;
+	int w;
+
+	if (slash == NULL)
+		return false;
+	dlen = (size_t)(slash - path);
+	if (dlen >= sizeof(dir))
+		return false;
+	if (dlen == 0) {
+		snprintf(dir, sizeof(dir), "/");
+	} else {
+		memcpy(dir, path, dlen);
+		dir[dlen] = '\0';
+	}
+	if (realpath(dir, real) == NULL)
+		return false;
+	w = snprintf(out, cap, "CTL_SOCKET_REAL=%s%s%s", real, strcmp(real, "/") == 0 ? "" : "/", slash + 1);
+	return w > 0 && (size_t)w < cap;
+}
+
+/*
+ * `argv` is the program's own vector (argv[0] is its absolute path). Where there is no sandbox
+ * the result is that vector unchanged. `worker` adds the parameters that only the worker profile
+ * uses.
+ */
+static ntfsmac_dmn_status sandbox_wrap(const ntfsmac_spawn_config *cfg, const char *name,
+				       bool worker, char *const *argv, sandbox_cmd *out)
+{
+	size_t n = 0, np = 0, i;
+	char real[PATH_MAX], file[SANDBOX_STR_MAX];
+	const char *dir, *tool;
+	uid_t owner;
+	int w;
+
+	sandbox_settings(cfg, &dir, &tool, &owner);
+	if (dir == NULL) {
+		out->path = argv[0];
+		for (i = 0; argv[i] != NULL; i++) {
+			if (i >= SANDBOX_ARGV_MAX - 1u)
+				return NTFSMAC_DMN_E_INVAL;
+			out->argv[i] = argv[i];
+		}
+		out->argv[i] = NULL;
+		return NTFSMAC_DMN_OK;
+	}
+	w = snprintf(file, sizeof(file), "%s/%s.sb", dir, name);
+	if (w < 0 || (size_t)w >= sizeof(file) || !profile_read(file, owner, out->text, sizeof(out->text)))
+		return NTFSMAC_DMN_E_DENIED;
+
+	/* The profile names the program by the path the kernel resolves, so follow symlinks here. */
+	if (realpath(argv[0], real) == NULL)
+		return NTFSMAC_DMN_E_DENIED;
+	w = snprintf(out->param[np++], SANDBOX_STR_MAX, "EXEC_PATH=%s", real);
+	if (w < 0 || (size_t)w >= SANDBOX_STR_MAX)
+		return NTFSMAC_DMN_E_DENIED;
+	(void)snprintf(out->param[np++], SANDBOX_STR_MAX, "CTL_SOCKET=%s", NTFSMAC_CTL_SOCKET_PATH);
+	if (!ctl_socket_real(out->param[np++], SANDBOX_STR_MAX))
+		return NTFSMAC_DMN_E_DENIED;
+	(void)snprintf(out->param[np++], SANDBOX_STR_MAX, "XPC_SERVICE=%s", NTFSMAC_CTL_XPC_SERVICE);
+	if (worker) {
+		(void)snprintf(out->param[np++], SANDBOX_STR_MAX, "USERMAPPING_PATH=%s",
+			       NTFSMAC_USERMAPPING_PATH);
+		(void)snprintf(out->param[np++], SANDBOX_STR_MAX, "USERMAPPING=%s",
+			       cfg->usermapping ? "yes" : "no");
+	}
+
+	out->path = tool;
+	out->argv[n++] = (char *)tool;
+	out->argv[n++] = (char *)"-p";
+	out->argv[n++] = out->text;
+	for (i = 0; i < np; i++) {
+		out->argv[n++] = (char *)"-D";
+		out->argv[n++] = out->param[i];
+	}
+	for (i = 0; argv[i] != NULL; i++) {
+		if (n >= SANDBOX_ARGV_MAX - 1u)
+			return NTFSMAC_DMN_E_INVAL;
+		out->argv[n++] = argv[i];
+	}
+	out->argv[n] = NULL;
+	return NTFSMAC_DMN_OK;
 }
 
 static ntfsmac_dmn_status launch(const launch_spec *s, pid_t *pid_out, int *capture_rd)
@@ -559,6 +1036,7 @@ ntfsmac_dmn_status ntfsmac_spawn_probe(const ntfsmac_probe_run *run,
 	ntfsmac_spawn_config cfg;
 	ntfsmac_dmn_status st;
 	launch_spec ls;
+	sandbox_cmd sb;
 	char fdarg[16];
 	char *argv[4];
 	int keep[1];
@@ -584,9 +1062,12 @@ ntfsmac_dmn_status ntfsmac_spawn_probe(const ntfsmac_probe_run *run,
 	argv[2] = fdarg;
 	argv[3] = NULL;
 	keep[0] = run->device_fd;
+	st = sandbox_wrap(&cfg, "probe", false, argv, &sb);
+	if (st != NTFSMAC_DMN_OK)
+		return st;
 	memset(&ls, 0, sizeof(ls));
-	ls.path = cfg.probe_path;
-	ls.argv = argv;
+	ls.path = sb.path;
+	ls.argv = sb.argv;
 	ls.envp = g_env_min;
 	ls.keep = keep;
 	ls.nkeep = 1;
@@ -684,6 +1165,7 @@ ntfsmac_dmn_status ntfsmac_spawn_volmark(const ntfsmac_volmark_run *run, bool se
 	ntfsmac_spawn_config cfg;
 	ntfsmac_dmn_status st;
 	launch_spec ls;
+	sandbox_cmd sb;
 	volmark_watch w;
 	char fdarg[16], serial[24], sectors[24];
 	char *argv[9];
@@ -718,9 +1200,12 @@ ntfsmac_dmn_status ntfsmac_spawn_volmark(const ntfsmac_volmark_run *run, bool se
 	argv[7] = sectors;
 	argv[8] = NULL;
 	keep[0] = run->device_fd;
+	st = sandbox_wrap(&cfg, "volmark", false, argv, &sb);
+	if (st != NTFSMAC_DMN_OK)
+		return st;
 	memset(&ls, 0, sizeof(ls));
-	ls.path = cfg.volmark_path;
-	ls.argv = argv;
+	ls.path = sb.path;
+	ls.argv = sb.argv;
 	ls.envp = g_env_min;
 	ls.keep = keep;
 	ls.nkeep = 1;
@@ -885,6 +1370,18 @@ static bool usermapping_file_ok(void)
 	return S_ISREG(st.st_mode) && st.st_uid == 0 && (st.st_mode & 07777) == 0644;
 }
 
+/* The worker is gone: nothing of the user may keep its device (the result is for the later check). */
+static void worker_gone(const ntfsmac_child *child)
+{
+	if (child->dev_known) {
+		dev_ident id;
+
+		id.dev = child->dev_dev;
+		id.ino = child->dev_ino;
+		(void)device_free(child->owner, &id, NULL);
+	}
+}
+
 ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
 					ntfsmac_child *child, bool *mounted_ro)
 {
@@ -895,6 +1392,7 @@ ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
 	ntfsmac_policy_decision decision;
 	ntfsmac_dmn_status st;
 	launch_spec ls;
+	sandbox_cmd sb;
 	char errenv[40];
 	char *envp[3];
 	char *argv[NTFSMAC_WORKER_ARGC + 1];
@@ -909,6 +1407,10 @@ ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
 		return NTFSMAC_DMN_E_INVAL;
 	child->pid = -1;
 	child->status_fd = -1;
+	child->owner = 0;
+	child->dev_dev = 0;
+	child->dev_ino = 0;
+	child->dev_known = false;
 	*mounted_ro = false;
 	if (run == NULL || run->mount_point == NULL || run->mount_wait_s == 0
 	    || run->device_fd < NTFSMAC_WORKER_FD_MIN || run->device_fd > NTFSMAC_WORKER_FD_MAX
@@ -922,6 +1424,17 @@ ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
 	config_get(&cfg);
 	if (!privileges_ok(run->console_uid, run->console_gid, &drop))
 		return NTFSMAC_DMN_E_DENIED;
+	/* What ntfsmac_child_device_check() looks for once the worker is gone. */
+	{
+		struct stat dst;
+
+		if (fstat(run->device_fd, &dst) == 0) {
+			child->owner = run->console_uid;
+			child->dev_dev = dst.st_dev;
+			child->dev_ino = dst.st_ino;
+			child->dev_known = true;
+		}
+	}
 
 	decision = run->read_only ? NTFSMAC_POLICY_RO : NTFSMAC_POLICY_RW;
 	memset(&in, 0, sizeof(in));
@@ -947,8 +1460,10 @@ ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
 	expect.console_gid = (uint32_t)run->console_gid;
 	if (ntfsmac_argv_check(av.argv, NTFSMAC_WORKER_ARGC, &expect) != NTFSMAC_ARGV_OK)
 		return NTFSMAC_DMN_E_DENIED;
+#if defined(NTFSMAC_TEST_SEAMS)
 	if (cfg.after_check_hook != NULL)
 		cfg.after_check_hook(&av);
+#endif
 
 	for (i = 0; i < NTFSMAC_WORKER_ARGC; i++)
 		argv[i] = (char *)av.argv[i];
@@ -964,9 +1479,12 @@ ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
 		keep[nkeep++] = run->errfd_write;
 	}
 
+	st = sandbox_wrap(&cfg, "worker", true, argv, &sb);
+	if (st != NTFSMAC_DMN_OK)
+		return st;
 	memset(&ls, 0, sizeof(ls));
-	ls.path = cfg.worker_path;
-	ls.argv = argv;
+	ls.path = sb.path;
+	ls.argv = sb.argv;
 	ls.envp = envp;
 	ls.keep = keep;
 	ls.nkeep = nkeep;
@@ -1002,6 +1520,7 @@ ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
 
 			kill_group_of(pid);
 			(void)reap_bounded(pid, &wst, REAP_WAIT_MS);
+			worker_gone(child);
 			return NTFSMAC_DMN_E_IO;
 		}
 		if (now_ms() >= deadline) {
@@ -1010,6 +1529,8 @@ ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
 			kill_group_of(pid);
 			if (!reap_bounded(pid, &wst, REAP_WAIT_MS))
 				child->pid = pid; /* stuck: the caller keeps polling */
+			else
+				worker_gone(child);
 			return NTFSMAC_DMN_E_TIMEOUT;
 		}
 		sleep_ms(cfg.mount_poll_ms);
@@ -1035,13 +1556,18 @@ ntfsmac_dmn_status ntfsmac_child_poll(ntfsmac_child *child, bool *exited, int *e
 			return NTFSMAC_DMN_E_IO;
 		return NTFSMAC_DMN_OK;
 	}
-	/* The leader is a zombie: its group id is still reserved. Clear the group, then reap. */
+	/*
+	 * The leader is a zombie: its group id is still reserved. Clear the group, then reap. A
+	 * descendant that left the group is an orphan now and cannot be found through the tree; it
+	 * is found by the descriptor it still holds on the device.
+	 */
 	(void)kill(-child->pid, SIGKILL);
 	if (waitpid(child->pid, &wst, 0) != child->pid)
 		return NTFSMAC_DMN_E_IO;
 	*exited = true;
 	*exit_status = exit_code_of(wst);
 	child->pid = -1;
+	worker_gone(child);
 	return NTFSMAC_DMN_OK;
 }
 
@@ -1051,7 +1577,24 @@ ntfsmac_dmn_status ntfsmac_child_kill_group(ntfsmac_child *child)
 		return NTFSMAC_DMN_E_INVAL;
 	if (child->pid <= 1)
 		return NTFSMAC_DMN_E_STATE;
-	if (kill(-child->pid, SIGKILL) != 0 && errno != ESRCH)
+	kill_tree(child->pid);
+	/* kill_tree() has sent the kill already; a group that is only a zombie now answers ESRCH or EPERM. */
+	if (kill(-child->pid, SIGKILL) != 0 && errno != ESRCH && errno != EPERM)
 		return NTFSMAC_DMN_E_IO;
 	return NTFSMAC_DMN_OK;
+}
+
+ntfsmac_dmn_status ntfsmac_child_device_check(const ntfsmac_child *child, unsigned *killed)
+{
+	dev_ident id;
+
+	if (killed != NULL)
+		*killed = 0;
+	if (child == NULL)
+		return NTFSMAC_DMN_E_INVAL;
+	if (!child->dev_known)
+		return NTFSMAC_DMN_E_STATE;
+	id.dev = child->dev_dev;
+	id.ino = child->dev_ino;
+	return device_free(child->owner, &id, killed);
 }

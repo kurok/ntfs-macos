@@ -1,0 +1,52 @@
+;; ntfsmac-volmark: sets and clears the dirty flag of one NTFS volume, and repairs the stale
+;; mirror (ARCHITECTURE.md sections 3.6, 3.7 and 6, ADR-006, ADR-021). It runs as `nobody` and
+;; writes through one inherited descriptor, opened O_RDWR by the daemon.
+;;
+;; The spawn module (src/daemon/spawn.c) applies this profile with sandbox-exec and passes:
+;;   EXEC_PATH    real path of the volmark program
+;;   CTL_SOCKET   the daemon's control socket (ntfsmac/ctl_proto.h), as written there
+;;   CTL_SOCKET_REAL  the same path with the symbolic links of its directory resolved
+;;   XPC_SERVICE  the Mach service of the privileged requests (ntfsmac/ctl_proto.h)
+;;
+;; Volmark parses a hostile disk while it holds a writable descriptor, so it gets almost nothing:
+;; no file or directory by path, no network, no socket, no other program, no Mach service, no
+;; fork, no signal to another process. What it may do is below, each rule with its reason.
+;; It writes its progress (`w`, `d`) to stdout and diagnostics to stderr, which are descriptors
+;; it already has; no rule is needed for them.
+;;
+;; Checked in a macOS 27.2 guest on an image file and on a raw disk device
+;; (tests/integration/daemon/sandbox_vm.sh).
+
+(version 1)
+(deny default)
+
+;; sandbox-exec applies this profile and then starts volmark. The exec is the first thing
+;; checked, so volmark itself must be allowed.
+(allow process-exec (literal (param "EXEC_PATH")))
+
+;; dyld reads the root directory while it resolves the paths of the program and its libraries.
+(allow file-read* (literal "/"))
+
+;; The size of a device is asked from the descriptor (DKIOCGETBLOCKSIZE, DKIOCGETBLOCKCOUNT),
+;; and after a write the device's own cache is flushed (DKIOCSYNCHRONIZE, patch 0007). An
+;; ioctl is checked against the device's path even on an inherited descriptor, so these three
+;; commands are allowed on disk device nodes and nothing else is. Opening a node stays denied.
+(allow file-ioctl
+       (require-all (regex #"^/dev/r?disk[0-9]+(s[0-9]+)?$")
+                    (ioctl-command (_IO "d" 24))))
+(allow file-ioctl
+       (require-all (regex #"^/dev/r?disk[0-9]+(s[0-9]+)?$")
+                    (ioctl-command (_IO "d" 25))))
+(allow file-ioctl
+       (require-all (regex #"^/dev/r?disk[0-9]+(s[0-9]+)?$")
+                    (ioctl-command (_IO "d" 22))))
+
+;; ---- The daemon (ADR-019, amendment 2026-11-16) ----
+
+;; Explicit, though denied above: a later rule wins, so a rule added above this line can never
+;; open the way to the control socket or the privileged XPC service. The socket is denied under
+;; both spellings of its path, because the sandbox compares the path as the process wrote it
+;; (/var/run is a link to /private/var/run).
+(deny network-outbound (remote unix-socket (path-literal (param "CTL_SOCKET"))))
+(deny network-outbound (remote unix-socket (path-literal (param "CTL_SOCKET_REAL"))))
+(deny mach-lookup (global-name (param "XPC_SERVICE")))

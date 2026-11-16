@@ -88,5 +88,7 @@ cd "$root"
 stage bootstrap "$here/bootstrap.sh"
 stage configure cmake --preset "$preset" -B "$build_dir"
 stage build cmake --build "$build_dir"
+# T-M4-06: the daemon library must also build without the test seams (the shipping configuration).
+stage product sh -c 'cmake --preset product -B "$1" >/dev/null && cmake --build "$1" --target ntfsmac_daemon' sh "$root/build/product"
 stage ctest ctest --test-dir "$build_dir" --output-on-failure
 finish

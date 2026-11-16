@@ -11,7 +11,12 @@
 # run the driver as root, copy the output back, and always delete the VM.
 # Nothing touches a host disk. Every mount is of an image file inside the guest, with norecover.
 #
-# Usage: tests/integration/daemon/spawn_vm.sh [--out FILE] [CASE]
+# With --sandbox the three children run under the profiles of integration/sandbox/ (T-M4-06),
+# copied into a root-owned directory of the guest as the spawn module requires. The default
+# cases are then priv, rw, ro and u20: stop and nofskit start a shell wrapper, which the worker
+# profile does not allow to exec. The sandbox tests proper are in sandbox_vm.sh.
+#
+# Usage: tests/integration/daemon/spawn_vm.sh [--out FILE] [--sandbox] [CASE]
 #   CASE  one of priv, rw, ro, u20, stop, nofskit (default: all)
 # Exit:  the driver's exit code (0 all checks passed), 2 setup error.
 set -eu
@@ -22,10 +27,12 @@ tart_sh=$root/vm/macos/tart.sh
 name=ntfsmac-spawn-$$
 out=
 case_name=
+sandbox=0
 
 while [ $# -gt 0 ]; do
 	case "$1" in
 	--out) [ $# -ge 2 ] || { echo "spawn_vm: --out needs a file" >&2; exit 2; }; out=$2; shift 2 ;;
+	--sandbox) sandbox=1; shift ;;
 	-*) echo "spawn_vm: unknown option $1" >&2; exit 2 ;;
 	*) case_name=$1; shift ;;
 	esac
@@ -54,16 +61,16 @@ echo "spawn_vm: building NTFS-3G in the guest" >&2
 echo "spawn_vm: copying the sources of the module and the driver" >&2
 (cd "$root" && tar -cf - include src/daemon/spawn.c src/daemon/spawn_config.h src/daemon/internal.h \
 	src/daemon/status.c src/options src/sanitize src/common/label_cp.c src/common/label_cp_data.h \
-	src/policy tests/integration/daemon/spawn_vm.c tests/unit/spawn/spawn_stub.c) |
+	src/policy integration/sandbox tests/integration/daemon/spawn_vm.c tests/unit/spawn/spawn_stub.c) |
 	tart exec -i "$name" /bin/sh -c 'rm -rf ~/ntfsmac/spawn && mkdir -p ~/ntfsmac/spawn && tar -xf - -C ~/ntfsmac/spawn'
 
 # The guest script: build, make the image, run. Quoted so that nothing expands on the host.
 guest='set -eu
 d=$HOME/ntfsmac/spawn
-work=$(mktemp -d /tmp/spawnvm.XXXXXX)
+work=$(cd -P "$(mktemp -d /tmp/spawnvm.XXXXXX)" && pwd) # the real path: a profile names the worker by it
 chmod 755 "$work" # `nobody` must be able to run the stand-ins; the image stays mode 000
 cd "$d"
-cc -std=c17 -Wall -Wextra -Werror -O2 -I include -I src/daemon -I src/sanitize \
+cc -std=c17 -Wall -Wextra -Werror -O2 -DNTFSMAC_TEST_SEAMS -I include -I src/daemon -I src/sanitize \
 	-o "$work/spawn_vm" tests/integration/daemon/spawn_vm.c src/daemon/spawn.c src/daemon/status.c \
 	src/options/options.c src/options/argv_check.c src/sanitize/label.c src/sanitize/display.c \
 	src/sanitize/leaf.c src/sanitize/verdict.c src/common/label_cp.c src/policy/policy.c
@@ -73,18 +80,28 @@ img=$work/ntfs.img
 truncate -s 64m "$img"
 "$HOME/ntfsmac/deps/sbin/mkntfs" -F -Q -L spawnvm "$img" >/dev/null 2>&1 || { echo "mkntfs failed"; exit 2; }
 chmod 000 "$img"
+sbx=
+if [ "${SANDBOX:-0}" = 1 ]; then
+	sbx=$work/sandbox
+	sudo -n install -d -m 755 -o root -g wheel "$sbx"
+	sudo -n install -m 644 -o root -g wheel "$d"/integration/sandbox/*.sb "$sbx/"
+fi
 echo "guest: $(sw_vers -productVersion) $(uname -m), user $(id -un) uid $(id -u) gid $(id -g)"
 rc=0
-sudo -n "$work/spawn_vm" "$img" "$work/ntfsmac-worker" "$work/spawn_stub" "$(id -u)" "$(id -g)" "$work" ${CASE:-} || rc=$?
+cases=${CASE:-}
+[ -z "$cases" ] && [ -n "$sbx" ] && cases="priv rw ro u20" # stop and nofskit start a shell wrapper
+for c in ${cases:-""}; do
+	sudo -n "$work/spawn_vm" ${sbx:+--sandbox "$sbx"} "$img" "$work/ntfsmac-worker" "$work/spawn_stub" "$(id -u)" "$(id -g)" "$work" $c || rc=$?
+done
 sudo -n /usr/bin/pkill -9 -f "$work/" >/dev/null 2>&1 || true
-chmod 600 "$img"; rm -rf "$work"
+chmod 600 "$img"; sudo -n rm -rf "$work"
 exit $rc'
 
 rc=0
 if [ -n "$out" ]; then
-	"$tart_sh" exec "$name" -- "CASE=$case_name; export CASE; $guest" >"$out" 2>&1 || rc=$?
+	"$tart_sh" exec "$name" -- "CASE=$case_name; SANDBOX=$sandbox; export CASE SANDBOX; $guest" >"$out" 2>&1 || rc=$?
 	cat "$out"
 else
-	"$tart_sh" exec "$name" -- "CASE=$case_name; export CASE; $guest" || rc=$?
+	"$tart_sh" exec "$name" -- "CASE=$case_name; SANDBOX=$sandbox; export CASE SANDBOX; $guest" || rc=$?
 fi
 exit "$rc"

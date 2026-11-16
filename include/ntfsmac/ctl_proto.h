@@ -18,6 +18,15 @@ extern "C" {
 /* Default socket path (section 3.4). */
 #define NTFSMAC_CTL_SOCKET_PATH "/var/run/ntfsmacd.sock"
 
+/*
+ * Mach service of the privileged requests (journal_clear, repair; ADR-019,
+ * amendment 2026-11-16). T-M4-14 adds the listener and T-M4-08 the
+ * MachServices entry of the launchd plist. The worker and volmark sandbox
+ * profiles (integration/sandbox/) deny looking it up; the spawn module hands
+ * this name to them as the parameter XPC_SERVICE, so it is defined only here.
+ */
+#define NTFSMAC_CTL_XPC_SERVICE "org.ntfs-macos.ctl.privileged"
+
 /* One request line: at most 4096 bytes without the newline. */
 #define NTFSMAC_CTL_LINE_MAX 4096u
 

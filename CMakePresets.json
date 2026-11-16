@@ -15,6 +15,12 @@
       "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
     },
     {
+      "name": "product",
+      "displayName": "Release for shipping: no test seams (T-M4-06)",
+      "inherits": "base",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release", "NTFSMAC_TEST_SEAMS": "OFF" }
+    },
+    {
       "name": "asan",
       "displayName": "Debug + AddressSanitizer + UBSan",
       "inherits": "base",
@@ -51,6 +57,7 @@
   ],
   "buildPresets": [
     { "name": "release", "configurePreset": "release" },
+    { "name": "product", "configurePreset": "product" },
     { "name": "asan", "configurePreset": "asan" },
     { "name": "ubsan", "configurePreset": "ubsan" },
     { "name": "tsan", "configurePreset": "tsan" },

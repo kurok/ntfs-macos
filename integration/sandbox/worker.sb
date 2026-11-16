@@ -1,0 +1,111 @@
+;; ntfsmac-worker: serves one NTFS volume through macFUSE (ARCHITECTURE.md sections 3.3 and 6,
+;; ADR-004, ADR-019). It runs as the console user.
+;;
+;; The spawn module (src/daemon/spawn.c) applies this profile with sandbox-exec and passes:
+;;   EXEC_PATH         real path of the worker program
+;;   CTL_SOCKET        the daemon's control socket (ntfsmac/ctl_proto.h), as written there
+;;   CTL_SOCKET_REAL   the same path with the symbolic links of its directory resolved
+;;   XPC_SERVICE       the Mach service of the privileged requests (ntfsmac/ctl_proto.h)
+;;   USERMAPPING_PATH  the one file the opt-in usermapping= may read (ntfsmac/options.h)
+;;   USERMAPPING       "yes" if that option is set, else "no"
+;;
+;; Everything is denied unless a rule below allows it, and each rule says why. What the worker
+;; does not get: no file or directory by path (the device arrives as an inherited descriptor,
+;; the volume is reached through macFUSE), no network, no socket, no other program than the one
+;; macFUSE helper, no Mach service but the few below, and no way to the control socket or the
+;; privileged XPC service, which the last three rules close again for the case that a rule above
+;; is ever widened. A process the worker starts runs under the same profile.
+;;
+;; Known gap (R-07, ARCHITECTURE.md section 6): the mount service below takes a request from any
+;; libfuse program, so the worker can ask for a second FUSE mount of its own on a directory the
+;; console user owns. This profile cannot stop that (tests/integration/daemon/sandbox_vm.sh,
+;; case fuse2, I-SBX-09); the daemon is to watch the mount table (T-M4-08).
+;;
+;; Checked in a macOS 27.2 guest with macFUSE 5.5.0 (tests/integration/daemon/sandbox_vm.sh and
+;; spawn_vm.sh --sandbox): the worker mounts read/write and read-only with these rules, and each
+;; rule that is left out below that a note calls needed makes the mount fail or hang.
+
+(version 1)
+(deny default)
+
+;; ---- Start-up ----
+
+;; sandbox-exec applies this profile and then starts the worker. The exec is the first thing
+;; checked, so the worker itself must be allowed.
+(allow process-exec (literal (param "EXEC_PATH")))
+
+;; dyld reads the root directory while it resolves the paths of the program and its libraries:
+;; the data and the metadata of "/" itself. With the metadata alone, or the data alone, the
+;; worker dies at start or at the mount.
+(allow file-read-data file-read-metadata (literal "/"))
+
+;; The Security framework and its plug-ins: MFMount checks the code signature of macFUSE's file
+;; system extension with them. Without this rule the mount hangs. Read-only; the system volume is
+;; sealed. The rest of /System/Library is not needed.
+(allow file-read* (subpath "/System/Library/Frameworks/Security.framework"))
+
+;; The C library and CoreFoundation open /dev/null at start.
+(allow file-read* file-write-data (literal "/dev/null"))
+
+;; Unicode tables that libntfs-3g's name conversion reads through CoreFoundation.
+(allow file-read* (subpath "/usr/share/icu"))
+
+;; ---- The device ----
+
+;; ntfs-3g (patch 0003) looks at /dev/fd/N and then uses the inherited descriptor. Only the
+;; look is allowed; opening the path is not, because the descriptor is all the worker needs.
+(allow file-read-metadata (regex #"^/dev/fd/[0-9]+$"))
+
+;; ---- Mounting through macFUSE (the FSKit backend) ----
+
+;; libfuse and the macFUSE bundle: the library, MFMount.framework, the file system extension's
+;; Info.plist and the helper described below. The parent directories are listed for the path
+;; walk; they give no access to other entries.
+(allow file-read* (literal "/usr/local/lib/libfuse.2.dylib"))
+(allow file-read* (subpath "/Library/Filesystems/macfuse.fs"))
+(allow file-read-metadata (literal "/Library") (literal "/Library/Filesystems"))
+
+;; MFMount checks that macFUSE's privileged helper is installed before it mounts.
+(allow file-read* (literal "/Library/PrivilegedHelperTools/io.macfuse.app.launchservice.daemon"))
+
+;; The mount request itself: libfuse sends it to the macFUSE mount service [V: S6].
+(allow mach-lookup (global-name "io.macfuse.mount"))
+
+;; MFMount checks the code signature of the extension. Without these two the mount hangs.
+(allow mach-lookup (global-name "com.apple.trustd.agent"))
+(allow mach-lookup (global-name "com.apple.CodeSigningHelper"))
+
+;; libfuse opens a Disk Arbitration session when the mount is made. Without this lookup the mount
+;; still appears, but libfuse reports "failed to create DASessionRef" and the worker ends at
+;; once, so the volume cannot be used (the user's write fails and the unmount is refused).
+(allow mach-lookup (global-name "com.apple.DiskArbitration.diskarbitrationd"))
+
+;; MFMount starts macFUSE's own helper tool on every mount, also after the helper is installed,
+;; and the mount fails ("Failed to install helper tools") without the exec. libfuse forks to
+;; start it, so fork is allowed as well (it also lets the worker start copies of itself; they stay
+;; inside this profile). This is the one program the worker may start. It asks the installer
+;; service below whether the helper tools are in place; without that lookup the mount hangs.
+(allow process-fork)
+(allow process-exec
+       (literal "/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/MacOS/macfuse"))
+(allow mach-lookup (global-name "io.macfuse.app.xpcservice.installer"))
+
+;; ---- The opt-in usermapping= (ADR-012) ----
+
+;; With the option set, ntfs-3g reads this one fixed file. The daemon only sets the option
+;; if the file is owned by root and mode 0644 (ARCHITECTURE.md section 3.3).
+(if (string=? (param "USERMAPPING") "yes")
+    (allow file-read-data file-read-metadata (literal (param "USERMAPPING_PATH"))))
+
+;; ---- The daemon (ADR-019, amendment 2026-11-16) ----
+
+;; These come last on purpose: a later rule wins, so nothing above can open the way to the
+;; control socket or to the privileged XPC service, for the worker or any process it starts,
+;; whatever its process group or parent. The socket is denied under both spellings of its path,
+;; because the sandbox compares the path as the process wrote it: with only the path as written
+;; in ctl_proto.h, a connect() to the resolved spelling (or by a relative path from the
+;; directory) got through a widened profile in the guest. The daemon's other defences (the peer
+;; checks of ARCHITECTURE.md section 3.4) do not rely on this.
+(deny network-outbound (remote unix-socket (path-literal (param "CTL_SOCKET"))))
+(deny network-outbound (remote unix-socket (path-literal (param "CTL_SOCKET_REAL"))))
+(deny mach-lookup (global-name (param "XPC_SERVICE")))

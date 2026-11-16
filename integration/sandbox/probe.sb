@@ -1,0 +1,47 @@
+;; ntfsmac-probe: classifies one NTFS volume and prints one JSON verdict (ARCHITECTURE.md
+;; sections 3.1 and 6, ADR-004). It runs as `nobody` and reads the device through one inherited
+;; descriptor, opened O_RDONLY by the daemon.
+;;
+;; The spawn module (src/daemon/spawn.c) applies this profile with sandbox-exec and passes:
+;;   EXEC_PATH    real path of the probe program
+;;   CTL_SOCKET   the daemon's control socket (ntfsmac/ctl_proto.h), as written there
+;;   CTL_SOCKET_REAL  the same path with the symbolic links of its directory resolved
+;;   XPC_SERVICE  the Mach service of the privileged requests (ntfsmac/ctl_proto.h)
+;;
+;; The probe parses a hostile disk, so it gets almost nothing: no file or directory by path, no
+;; network, no socket, no other program, no Mach service, no fork, no signal to another process.
+;; What it may do is below, each rule with its reason. The probe writes its verdict to stdout
+;; and diagnostics to stderr, which are descriptors it already has; no rule is needed for them.
+;;
+;; Checked in a macOS 27.2 guest on an image file and on a raw disk device
+;; (tests/integration/daemon/sandbox_vm.sh).
+
+(version 1)
+(deny default)
+
+;; sandbox-exec applies this profile and then starts the probe. The exec is the first thing
+;; checked, so the probe itself must be allowed.
+(allow process-exec (literal (param "EXEC_PATH")))
+
+;; dyld reads the root directory while it resolves the paths of the program and its libraries.
+(allow file-read* (literal "/"))
+
+;; The size of a device is asked from the descriptor: DKIOCGETBLOCKSIZE and DKIOCGETBLOCKCOUNT.
+;; An ioctl is checked against the device's path even on an inherited descriptor, so the two
+;; commands are allowed on disk device nodes and nothing else is. Opening a node stays denied.
+(allow file-ioctl
+       (require-all (regex #"^/dev/r?disk[0-9]+(s[0-9]+)?$")
+                    (ioctl-command (_IO "d" 24))))
+(allow file-ioctl
+       (require-all (regex #"^/dev/r?disk[0-9]+(s[0-9]+)?$")
+                    (ioctl-command (_IO "d" 25))))
+
+;; ---- The daemon (ADR-019, amendment 2026-11-16) ----
+
+;; Explicit, though denied above: a later rule wins, so a rule added above this line can never
+;; open the way to the control socket or the privileged XPC service. The socket is denied under
+;; both spellings of its path, because the sandbox compares the path as the process wrote it
+;; (/var/run is a link to /private/var/run).
+(deny network-outbound (remote unix-socket (path-literal (param "CTL_SOCKET"))))
+(deny network-outbound (remote unix-socket (path-literal (param "CTL_SOCKET_REAL"))))
+(deny mach-lookup (global-name (param "XPC_SERVICE")))

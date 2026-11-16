@@ -18,6 +18,24 @@
  *                over 64 KiB, or output that the strict parser refused.
  *     In every status other than OK `verdict` is the fail-closed `unknown`.
  *
+ * Sandbox (T-M4-06): on macOS every child starts through /usr/bin/sandbox-exec
+ * with the profile `NTFSMAC_PATH_SANDBOX_DIR/probe.sb`, `volmark.sb` or
+ * `worker.sb`. The module opens the profile without following a link, checks
+ * with fstat on that descriptor that it is a regular file owned by root that
+ * no one else can write, reads it and gives sandbox-exec the text (`-p`), so
+ * the file cannot change between the check and the use. If the check fails the
+ * call returns DENIED and nothing starts. A profile that does not load makes
+ * sandbox-exec exit before the program runs, so the program never runs
+ * unsandboxed. The profiles are in integration/sandbox/; the parameters they
+ * take are listed there. Elsewhere (Linux, for tests of the portable parts)
+ * there is no sandbox.
+ *
+ * The test seams (the sandbox directory, the tool, the owner of the profiles,
+ * the hook after `argv_check()`) exist only if NTFSMAC_TEST_SEAMS is defined.
+ * CMake defines it unless the option of that name is OFF (preset `product`),
+ * so a product build cannot start a child without the sandbox or with another
+ * tool or profile directory.
+ *
  *   ntfsmac_spawn_volmark
  *     OK         exit code 0.
  *     INVAL      bad argument.
@@ -39,6 +57,13 @@
  *                group got SIGKILL. `child->pid` is -1 once the leader is
  *                reaped; if it could not be reaped in 5 s it stays set and the
  *                caller keeps calling ntfsmac_child_poll().
+ *
+ * Teardown of a worker (audit M1): every kill of a worker (the failures above,
+ * ntfsmac_child_kill_group()) also kills its descendants that left the process
+ * group, found by walking the process tree; and when the worker is gone
+ * (ntfsmac_child_poll() reports the exit, or a spawn fails) every process of the
+ * worker's user that still holds the device is killed. The daemon asks once more
+ * with ntfsmac_child_device_check() before it reports a volume detached.
  */
 
 #include <stdbool.h>
@@ -55,6 +80,10 @@ extern "C" {
 #define NTFSMAC_PATH_VOLMARK "/usr/local/libexec/ntfs-macos/ntfsmac-volmark"
 #define NTFSMAC_PATH_WORKER "/usr/local/libexec/ntfs-macos/ntfsmac-worker"
 
+/* Sandbox profiles and the tool that applies them (ARCHITECTURE.md section 6). */
+#define NTFSMAC_PATH_SANDBOX_DIR "/Library/Application Support/ntfs-macos/sandbox"
+#define NTFSMAC_PATH_SANDBOX_EXEC "/usr/bin/sandbox-exec"
+
 /* Further wait for volmark after it printed `w` (ARCHITECTURE.md section 3.6). */
 #define NTFSMAC_VOLMARK_WRITE_WAIT_S 120u
 
@@ -66,7 +95,7 @@ extern "C" {
 typedef ntfsmac_dmn_status (*ntfsmac_mount_lookup_fn)(const char *mount_point,
 						       bool *found, bool *read_only);
 
-/* Test seam: called after `argv_check()` accepted the vector, may change it. */
+/* Test seam (NTFSMAC_TEST_SEAMS): called after `argv_check()` accepted the vector, may change it. */
 typedef void (*ntfsmac_vector_hook_fn)(ntfsmac_worker_argv *av);
 
 /*
@@ -78,6 +107,11 @@ typedef struct ntfsmac_spawn_config {
 	const char *probe_path;
 	const char *volmark_path;
 	const char *worker_path;
+#if defined(NTFSMAC_TEST_SEAMS)
+	const char *sandbox_dir;       /* NULL: no sandbox */
+	const char *sandbox_exec_path; /* NULL: NTFSMAC_PATH_SANDBOX_EXEC */
+	uid_t sandbox_owner;           /* owner the profiles must have: 0 (root) */
+#endif
 	uid_t unpriv_uid;          /* probe and volmark run as this user ("nobody") */
 	gid_t unpriv_gid;
 	int child_stderr_fd;       /* stderr of every child; -1 is /dev/null */
@@ -87,10 +121,15 @@ typedef struct ntfsmac_spawn_config {
 	unsigned mount_poll_ms;    /* 0 means 50 */
 	unsigned volmark_write_wait_s; /* 0 means NTFSMAC_VOLMARK_WRITE_WAIT_S */
 	ntfsmac_mount_lookup_fn mount_lookup;      /* NULL: the system table */
-	ntfsmac_vector_hook_fn after_check_hook;   /* NULL: none (tests only) */
+#if defined(NTFSMAC_TEST_SEAMS)
+	ntfsmac_vector_hook_fn after_check_hook;   /* NULL: none */
+#endif
 } ntfsmac_spawn_config;
 
-/* Manifest paths, the user `nobody`, no opt-ins, no seams. */
+/*
+ * Manifest paths, the user `nobody`, no opt-ins, no seams. On macOS the sandbox
+ * is on (with seams, `sandbox_dir` is the install directory); elsewhere there is none.
+ */
 void ntfsmac_spawn_config_default(ntfsmac_spawn_config *cfg);
 void ntfsmac_spawn_config_set(const ntfsmac_spawn_config *cfg);
 

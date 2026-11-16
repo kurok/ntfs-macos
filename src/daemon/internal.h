@@ -180,6 +180,15 @@ const char *ntfsmac_vol_result_name(ntfsmac_vol_result r);
 typedef struct ntfsmac_child {
 	pid_t pid;
 	int status_fd; /* -1 if unused */
+	/*
+	 * Worker only. The user it runs as and its device (the device and inode numbers of the
+	 * descriptor it was given), kept after the worker is gone so that
+	 * ntfsmac_child_device_check() can look for a process that still holds the device.
+	 */
+	uid_t owner;
+	dev_t dev_dev;
+	ino_t dev_ino;
+	bool dev_known;
 } ntfsmac_child;
 
 typedef struct ntfsmac_probe_run {
@@ -228,8 +237,31 @@ ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
 /* Non-blocking wait on a child. OK with *exited false while it runs. */
 ntfsmac_dmn_status ntfsmac_child_poll(ntfsmac_child *child, bool *exited,
 				      int *exit_status);
-/* SIGKILL to the child's process group. */
+/*
+ * SIGKILL to the child's process group and to every descendant of the child, also those that
+ * left the group with setpgid() or setsid(). The descendants are found while the child is alive
+ * (it and each one found are stopped first, so that none can start another unseen), and the
+ * search repeats until a round finds no new one, at most 16 rounds.
+ */
 ntfsmac_dmn_status ntfsmac_child_kill_group(ntfsmac_child *child);
+
+/*
+ * To be called after the worker is gone and before the volume is reported detached: no process
+ * of the worker's user may still hold the device. A descendant that left the group and lost its
+ * parent cannot be found by walking the tree, but it still holds the descriptor it inherited.
+ * The call scans the processes of that user (not of others) for the device, sends SIGKILL to
+ * each one that holds it and looks again, 25 times 20 ms at most. `*killed` (may be NULL) counts
+ * the processes it killed. ntfsmac_child_poll() does this when it reports an exit, and
+ * ntfsmac_spawn_worker() when it gives up on a worker; the daemon calls it once more before the
+ * volume is reported detached, with the handle of the worker. The device is the one
+ * of the descriptor the last ntfsmac_spawn_worker() call was given, so no new worker of the same
+ * volume may be running.
+ *   OK      no process holds the device.
+ *   BUSY    one still did after the last round.
+ *   STATE   the handle has no device (no worker was started with it).
+ *   IO      the process table could not be read.
+ */
+ntfsmac_dmn_status ntfsmac_child_device_check(const ntfsmac_child *child, unsigned *killed);
 
 /* ------------------------------------------------------------------ */
 /* Disk Arbitration (da.c, T-M4-02; the only module that may use it)    */

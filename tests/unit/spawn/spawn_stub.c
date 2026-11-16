@@ -17,6 +17,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -96,6 +97,47 @@ static void spawn_grandchild(void)
 			sleep(60);
 	}
 	fprintf(stderr, "pids %d %d\n", (int)getpid(), (int)g);
+	fflush(stderr);
+}
+
+/*
+ * worker-tree: a child that leaves the process group (setpgid) and has a child of its own that
+ * leaves the session (setsid). Both keep running. Reported: "tree <worker> <child> <grandchild>".
+ * worker-orphan: one child that leaves the group; the worker exits after a moment, and the child
+ * stays behind with the descriptors it inherited. Reported: "orphan <worker> <child>".
+ */
+static void spawn_leavers(bool deep)
+{
+	pid_t c, g = 0;
+	int p[2];
+
+	if (deep && pipe(p) != 0)
+		return;
+	c = fork();
+	if (c == 0) {
+		(void)setpgid(0, 0);
+		if (deep) {
+			g = fork();
+			if (g == 0) {
+				(void)setsid();
+				for (;;)
+					sleep(60);
+			}
+			if (write(p[1], &g, sizeof(g)) != (ssize_t)sizeof(g))
+				_exit(1);
+		}
+		for (;;)
+			sleep(60);
+	}
+	if (deep) {
+		close(p[1]);
+		if (read(p[0], &g, sizeof(g)) != (ssize_t)sizeof(g))
+			g = 0;
+		close(p[0]);
+		fprintf(stderr, "tree %d %d %d\n", (int)getpid(), (int)c, (int)g);
+	} else {
+		fprintf(stderr, "orphan %d %d\n", (int)getpid(), (int)c);
+	}
 	fflush(stderr);
 }
 
@@ -233,6 +275,16 @@ static int do_worker(int argc, char **argv, const char *mode)
 		return 0;
 	if (ef >= 0 && write(ef, "S rw\n", 5) != 5)
 		return 4;
+	if (!strcmp(mode, "worker-tree")) {
+		spawn_leavers(true);
+		for (;;)
+			sleep(60);
+	}
+	if (!strcmp(mode, "worker-orphan")) {
+		spawn_leavers(false);
+		usleep(300000);
+		return 0;
+	}
 	spawn_grandchild();
 	if (!strcmp(mode, "worker-hang"))
 		signal(SIGTERM, SIG_IGN);

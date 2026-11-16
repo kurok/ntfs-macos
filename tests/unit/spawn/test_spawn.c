@@ -99,6 +99,7 @@ static ntfsmac_spawn_config base_config(void)
 	ntfsmac_spawn_config c;
 
 	ntfsmac_spawn_config_default(&c);
+	c.sandbox_dir = NULL; /* these tests run stand-ins; sandbox tests: test_sandbox.c */
 	c.unpriv_uid = getuid();
 	c.unpriv_gid = getgid();
 	c.mount_poll_ms = 10;
@@ -155,6 +156,37 @@ static bool read_pids(const char *file, pid_t *a, pid_t *b)
 	}
 	fclose(f);
 	return ok;
+}
+
+/* "<tag> a b [c]" reported by a stand-in on its stderr file; the number of pids found (0 if none). */
+static int read_tagged(const char *file, const char *tag, pid_t *out, int want)
+{
+	FILE *f;
+	char line[128], fmt[64];
+	int n = 0, i;
+
+	for (i = 0; i < 200; i++) { /* the stand-in reports a moment after the mount seems to be there */
+		f = fopen(file, "r");
+		if (f != NULL) {
+			snprintf(fmt, sizeof(fmt), "%s %%d %%d %%d", tag);
+			while (fgets(line, sizeof(line), f) != NULL) {
+				int a = 0, b = 0, c = 0;
+				int r = sscanf(line, fmt, &a, &b, &c);
+
+				if (r >= want) {
+					out[0] = (pid_t)a;
+					out[1] = (pid_t)b;
+					out[2] = (pid_t)c;
+					n = r;
+				}
+			}
+			fclose(f);
+		}
+		if (n >= want)
+			return n;
+		usleep(10000);
+	}
+	return 0;
 }
 
 static bool gone(pid_t p)
@@ -382,6 +414,8 @@ static void test_worker(void)
 	link_as("worker-hang");
 	link_as("worker-stop");
 	link_as("worker-nofskit");
+	link_as("worker-tree");
+	link_as("worker-orphan");
 	dev = open_device(O_RDWR);
 	if (pipe(ep) != 0)
 		exit(2);
@@ -429,6 +463,108 @@ static void test_worker(void)
 		CHECK(gone(p2));
 	else
 		CHECK(0 && "no pids reported");
+
+	/* U-SPN-30 (audit M1): a descendant that left the group, with a child of its own that left the
+	 * session, is killed with the worker by ntfsmac_child_kill_group(), while the worker is alive. */
+	{
+		pid_t t[3] = { 0, 0, 0 };
+		bool all_exist;
+
+		new_err_file();
+		c.child_stderr_fd = g_err_fd;
+		c.worker_path = path_of("worker-tree");
+		ntfsmac_spawn_config_set(&c);
+		g_polls = 0;
+		g_polls_until_mount = 0;
+		run = worker_run(dev, -1, false, 5);
+		CHECK_EQ_INT(ntfsmac_spawn_worker(&run, &child, &ro), NTFSMAC_DMN_OK);
+		CHECK_EQ_INT(read_tagged(g_err_path, "tree", t, 3), 3);
+		all_exist = t[1] > 1 && t[2] > 1 && kill(t[1], 0) == 0 && kill(t[2], 0) == 0;
+		CHECK(all_exist);
+		CHECK(all_exist && getpgid(t[1]) == t[1] && getpgid(t[1]) != getpgid(t[0])); /* it left the group */
+		CHECK(all_exist && getsid(t[2]) == t[2]);                                   /* and this one the session */
+		CHECK_EQ_INT(ntfsmac_child_kill_group(&child), NTFSMAC_DMN_OK);
+		exited = false;
+		for (i = 0; i < 300 && !exited; i++) {
+			(void)ntfsmac_child_poll(&child, &exited, &status);
+			usleep(10000);
+		}
+		CHECK(exited);
+		CHECK(gone(t[1]));
+		CHECK(gone(t[2]));
+	}
+
+	/* U-SPN-31 (audit M1): the worker exits by itself and leaves a descendant that left the group and
+	 * has no parent. The tree cannot find it, but it holds the device descriptor it inherited, so
+	 * the poll that reports the exit kills it. */
+	{
+		pid_t t[3] = { 0, 0, 0 };
+		unsigned killed = 99;
+
+		new_err_file();
+		c.child_stderr_fd = g_err_fd;
+		c.worker_path = path_of("worker-orphan");
+		ntfsmac_spawn_config_set(&c);
+		g_polls = 0;
+		g_polls_until_mount = 0;
+		run = worker_run(dev, -1, false, 5);
+		CHECK_EQ_INT(ntfsmac_spawn_worker(&run, &child, &ro), NTFSMAC_DMN_OK);
+		CHECK_EQ_INT(read_tagged(g_err_path, "orphan", t, 2), 2);
+		CHECK(t[1] > 1 && kill(t[1], 0) == 0);
+		exited = false;
+		for (i = 0; i < 300 && !exited; i++) {
+			(void)ntfsmac_child_poll(&child, &exited, &status);
+			usleep(10000);
+		}
+		CHECK(exited);
+		CHECK(gone(t[1]));
+		CHECK_EQ_INT(ntfsmac_child_device_check(&child, &killed), NTFSMAC_DMN_OK);
+		CHECK_EQ_INT(killed, 0);
+	}
+
+	/* U-SPN-32: the device check kills a holder of the device that belongs to the user of the worker,
+	 * and looks at no process of another user; a process that does not hold the device is left. */
+	{
+		int hp[2];
+		pid_t holder, bystander;
+		unsigned killed = 0;
+		ntfsmac_child other = child;
+
+		if (pipe(hp) != 0)
+			exit(2);
+		holder = fork();
+		if (holder == 0) { /* holds `dev` (inherited) and is in a group of its own */
+			(void)setpgid(0, 0);
+			close(hp[0]);
+			for (;;)
+				sleep(60);
+		}
+		bystander = fork();
+		if (bystander == 0) { /* does not hold it: it closes the descriptor first */
+			close(dev);
+			for (;;)
+				sleep(60);
+		}
+		close(hp[0]);
+		close(hp[1]);
+		usleep(100000);
+		CHECK(child.dev_known);
+		other.owner = getuid() + 1; /* nothing of this user holds the device: nothing is looked at */
+		CHECK_EQ_INT(ntfsmac_child_device_check(&other, &killed), NTFSMAC_DMN_OK);
+		CHECK_EQ_INT(killed, 0);
+		CHECK(kill(holder, 0) == 0);
+		CHECK_EQ_INT(ntfsmac_child_device_check(&child, &killed), NTFSMAC_DMN_OK);
+		/* the test process holds `dev` too, but the check never touches its own process */
+		CHECK_EQ_INT(killed, 1);
+		CHECK_EQ_INT(waitpid(holder, &status, 0), holder);
+		CHECK(WIFSIGNALED(status) && WTERMSIG(status) == SIGKILL);
+		CHECK(kill(bystander, 0) == 0);
+		(void)kill(bystander, SIGKILL);
+		(void)waitpid(bystander, &status, 0);
+		other.dev_known = false;
+		CHECK_EQ_INT(ntfsmac_child_device_check(&other, NULL), NTFSMAC_DMN_E_STATE);
+		CHECK_EQ_INT(ntfsmac_child_device_check(NULL, NULL), NTFSMAC_DMN_E_INVAL);
+	}
 
 	/* U-SPN-22: the mode of the mount is reported as the table shows it. */
 	g_polls = 0;

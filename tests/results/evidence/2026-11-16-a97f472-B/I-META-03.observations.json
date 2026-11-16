@@ -1,0 +1,32 @@
+{
+ "atime": {
+  "dir_updated": true,
+  "file_atime_disk": 1794826774562021000,
+  "file_atime_live": 1577836800000000000,
+  "file_updated": true
+ },
+ "default": {
+  "dir_updated": true,
+  "file_atime_disk": 1794826783466096000,
+  "file_atime_live": 1577836800000000000,
+  "file_updated": true
+ },
+ "noatime": {
+  "dir_updated": false,
+  "file_atime_disk": 1577836800000000000,
+  "file_atime_live": 1577836800000000000,
+  "file_updated": false
+ },
+ "product": {
+  "dir_updated": false,
+  "file_atime_disk": 1577836800000000000,
+  "file_atime_live": 1577836800000000000,
+  "file_updated": false
+ },
+ "relatime": {
+  "dir_updated": true,
+  "file_atime_disk": 1794826779033314000,
+  "file_atime_live": 1577836800000000000,
+  "file_updated": true
+ }
+}

@@ -1,0 +1,42 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "a97f472cc57c0cfbaabf46fa45076a575b92a851",
+  "dirty_tree": false,
+  "env": "A",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "Debian GNU/Linux 13 (trixie) aarch64",
+  "macfuse_version": null,
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-16T10:51:27Z",
+  "finished": "2026-11-16T10:55:08Z",
+  "cases": [
+    {
+      "id": "U-PROBE-ALL",
+      "status": "pass",
+      "duration_s": 0,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-unit/probe/summary.txt",
+        "evidence/2026-11-16-a97f472-unit/probe/release.log",
+        "evidence/2026-11-16-a97f472-unit/probe/asan.log",
+        "evidence/2026-11-16-a97f472-unit/probe/ctest-release.xml",
+        "evidence/2026-11-16-a97f472-unit/probe/ctest-asan.xml",
+        "evidence/2026-11-16-a97f472-unit/probe/unsafe-results.txt",
+        "evidence/2026-11-16-a97f472-unit/probe-run.log"
+      ],
+      "note": "tests/unit/probe/run.sh: probe ctest 25/25 release, 26/26 ASan+UBSan incl. fuzz.findings.F1, F3, F4 and fuzz.mountwalk_seeds; every fixture stage ok (unsafe, names, mirror, clean, vmk); fixture hiber-unknown (F-05) is hibernated in the probe and mounts ro and rw on Linux ntfs-3g -o norecover. Unit-level evidence produced outside the harness for the clean-tree re-run after the M3 audit fixes F-04 to F-10; run on the clean tree at this commit; duration_s 0 means not measured per case."
+    },
+    {
+      "id": "U-VMK-ALL",
+      "status": "pass",
+      "duration_s": 0,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-unit/volmark/summary.txt",
+        "evidence/2026-11-16-a97f472-unit/volmark/volmark-evidence.txt",
+        "evidence/2026-11-16-a97f472-unit/volmark/ctest-release.xml",
+        "evidence/2026-11-16-a97f472-unit/volmark/ctest-asan.xml",
+        "evidence/2026-11-16-a97f472-unit/volmark-run.log"
+      ],
+      "note": "tests/unit/volmark/run.sh (now executable in git): U-VMK-01..10 in release and ASan+UBSan with the faultio build, 2/2 ctest each, incl. the volmark.args sweep and the pending-work flag refusals of F-06. Unit-level evidence produced outside the harness for the clean-tree re-run after the M3 audit fixes F-04 to F-10; run on the clean tree at this commit; duration_s 0 means not measured per case."
+    }
+  ]
+}

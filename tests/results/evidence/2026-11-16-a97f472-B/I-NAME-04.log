@@ -1,0 +1,58 @@
+11:08:32 start I-NAME-04 (env B)
+11:08:32 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ueejtj72/vol.img -> rc=0
+11:08:32 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+11:08:32 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ueejtj72/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ueejtj72/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ueejtj72/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ueejtj72/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ueejtj72/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+11:08:32 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,windows_names /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ueejtj72/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ueejtj72/mnt -> rc=0
+11:08:35 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ueejtj72/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+11:08:35 create 'a:b' -> errno 22 (EINVAL)
+11:08:35 create 'CON' -> errno 22 (EINVAL)
+11:08:35 create 'aux.txt' -> errno 22 (EINVAL)
+11:08:35 create 'trail.' -> errno 22 (EINVAL)
+11:08:35 create 'sp ' -> errno 22 (EINVAL)
+11:08:35 create 'a"b' -> errno 22 (EINVAL)
+11:08:35 create 'lt<x' -> errno 22 (EINVAL)
+11:08:35 create 'gt>x' -> errno 22 (EINVAL)
+11:08:35 create 'a*b' -> errno 22 (EINVAL)
+11:08:35 create 'pipe|x' -> errno 22 (EINVAL)
+11:08:35 create 'q?x' -> errno 22 (EINVAL)
+11:08:35 create 'back\\slash' -> errno 22 (EINVAL)
+11:08:35 create 'NUL' -> errno 22 (EINVAL)
+11:08:35 create 'com1' -> errno 22 (EINVAL)
+11:08:35 create 'LPT9.txt' -> errno 22 (EINVAL)
+11:08:35 create 'con.txt' -> errno 22 (EINVAL)
+11:08:35 create 'Prn' -> errno 22 (EINVAL)
+11:08:35 create 'nul.tar.gz' -> errno 22 (EINVAL)
+11:08:35 create 'ctl\x01x' -> errno 22 (EINVAL)
+11:08:35 create 'two..' -> errno 22 (EINVAL)
+11:08:35 create 'x. ' -> errno 22 (EINVAL)
+11:08:35 mkdir 'dir.' -> errno 22 (EINVAL)
+11:08:35 mkdir 'dir ' -> errno 22 (EINVAL)
+11:08:35 mkdir 'd:ir' -> errno 22 (EINVAL)
+11:08:35 mkdir 'AUX' -> errno 22 (EINVAL)
+11:08:35 mkdir 'com5' -> errno 22 (EINVAL)
+11:08:35 rename to 'x:y' -> errno 22 (EINVAL)
+11:08:35 rename to 'CON' -> errno 22 (EINVAL)
+11:08:35 rename to 'end.' -> errno 22 (EINVAL)
+11:08:35 $ sync -> rc=0
+11:08:36 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ueejtj72/mnt -> rc=0
+11:08:36 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ueejtj72/vol.img -> rc=0
+11:08:36 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ueejtj72/vol.img was processed successfully.
+11:08:36 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,windows_names /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ueejtj72/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ueejtj72/mnt -> rc=0
+11:08:39 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ueejtj72/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:08:39 $ sync -> rc=0
+11:08:39 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-ueejtj72/mnt -> rc=0
+11:08:39 remount check (I-NAME-04): 11 files, 0 directories compared, 0 problems
+11:08:39 end I-NAME-04: pass

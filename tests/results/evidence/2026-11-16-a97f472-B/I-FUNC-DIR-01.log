@@ -1,0 +1,46 @@
+10:56:01 start I-FUNC-DIR-01 (env B)
+10:56:01 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/vol.img -> rc=0
+10:56:01 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+10:56:01 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+10:56:01 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/mnt -> rc=0
+10:56:05 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+10:56:05 deepest directory: lvl01/lvl02/lvl03/lvl04/lvl05/lvl06/lvl07/lvl08/lvl09/lvl10/lvl11/lvl12/lvl13/lvl14/lvl15/lvl16/lvl17/lvl18/lvl19/lvl20/lvl21/lvl22/lvl23/lvl24/lvl25/lvl26/lvl27/lvl28/lvl29/lvl30/lvl31/lvl32 (191 characters relative)
+10:56:05 rmdir of the non-empty leaf -> errno 66 (ENOTEMPTY)
+10:56:05 $ sync -> rc=0
+10:56:05 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/mnt -> rc=0
+10:56:05 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/vol.img -> rc=0
+10:56:05 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/vol.img was processed successfully.
+10:56:05 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/mnt -> rc=0
+10:56:08 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+10:56:08 $ sync -> rc=0
+10:56:08 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/mnt -> rc=0
+10:56:08 remount check (I-FUNC-DIR-01 (before removal)): 32 files, 32 directories compared, 0 problems
+10:56:08 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/mnt -> rc=0
+10:56:11 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+10:56:12 $ sync -> rc=0
+10:56:12 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/mnt -> rc=0
+10:56:12 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/vol.img -> rc=0
+10:56:12 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/vol.img was processed successfully.
+10:56:12 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/mnt -> rc=0
+10:56:15 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+10:56:15 $ sync -> rc=0
+10:56:15 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-1nn0om26/mnt -> rc=0
+10:56:15 remount check (I-FUNC-DIR-01 (after removal)): 0 files, 0 directories compared, 0 problems
+10:56:15 end I-FUNC-DIR-01: pass

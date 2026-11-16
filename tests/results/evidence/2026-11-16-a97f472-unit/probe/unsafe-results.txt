@@ -1,0 +1,95 @@
+dirty-flag ro=mounts-ro(rc=0) rw=mounts-rw(rc=0)
+  ro msg: -
+  rw msg: -
+  flags: flags_after=0x0001
+  log: log=empty
+unclean-log ro=mounts-ro(rc=0) rw=mounts-ro(rc=0)
+  ro msg: -
+  rw msg: The disk contains an unclean file system (0, 0). Falling back to read-only mount because the NTFS partition is in an unsafe state. Please resume and shutdown Windows fully (no hibernation or fast restarting.) Could not mount read-write, trying read-only
+  flags: flags_after=0x0000
+  log: page0 off=0 magic=RSTR version=1.1 usn=1 flags=0x0000 clients_in_use=1 current_lsn=0x0000000000100400 seq_bits=45 file_size=2097152 page1 off=4096 magic=RSTR version=1.1 usn=2 flags=0x0000 clients_in_use=1 current_lsn=0x0000000000100400 seq_bits=45 file_size=2097152 current_lsn=0x0000000000100400 log=unclean
+log-v2 ro=mounts-ro(rc=0) rw=mounts-ro(rc=0)
+  ro msg: -
+  rw msg: Metadata kept in Windows cache, refused to mount. Falling back to read-only mount because the NTFS partition is in an unsafe state. Please resume and shutdown Windows fully (no hibernation or fast restarting.) Could not mount read-write, trying read-only
+  flags: flags_after=0x0000
+  log: page0 off=0 magic=RSTR version=2.0 usn=1 flags=0x0002 clients_in_use=1 current_lsn=0x0000000000100400 seq_bits=45 file_size=2097152 page1 off=4096 magic=RSTR version=2.0 usn=2 flags=0x0002 clients_in_use=1 current_lsn=0x0000000000100400 seq_bits=45 file_size=2097152 current_lsn=0x0000000000100400 log=v2
+hiber-lower ro=mounts-ro(rc=0) rw=mounts-ro(rc=0)
+  ro msg: -
+  rw msg: Windows is hibernated, refused to mount. Falling back to read-only mount because the NTFS partition is in an unsafe state. Please resume and shutdown Windows fully (no hibernation or fast restarting.) Could not mount read-write, trying read-only
+  flags: flags_after=0x0000
+  log: log=empty
+hiber-upper ro=mounts-ro(rc=0) rw=mounts-ro(rc=0)
+  ro msg: -
+  rw msg: Windows is hibernated, refused to mount. Falling back to read-only mount because the NTFS partition is in an unsafe state. Please resume and shutdown Windows fully (no hibernation or fast restarting.) Could not mount read-write, trying read-only
+  flags: flags_after=0x0000
+  log: log=empty
+hiber-short ro=mounts-ro(rc=0) rw=mounts-ro(rc=0)
+  ro msg: -
+  rw msg: Hibernated non-system partition, refused to mount. Falling back to read-only mount because the NTFS partition is in an unsafe state. Please resume and shutdown Windows fully (no hibernation or fast restarting.) Could not mount read-write, trying read-only
+  flags: flags_after=0x0000
+  log: log=empty
+hiber-wake ro=mounts-ro(rc=0) rw=mounts-rw(rc=0)
+  ro msg: -
+  rw msg: -
+  flags: flags_after=0x0000
+  log: log=empty
+hiber-unknown ro=mounts-ro(rc=0) rw=mounts-rw(rc=0)
+  ro msg: -
+  rw msg: -
+  flags: flags_after=0x0000
+  log: log=empty
+hiber-case ro=mounts-ro(rc=0) rw=mounts-rw(rc=0)
+  ro msg: -
+  rw msg: -
+  flags: flags_after=0x0000
+  log: log=empty
+hiber-subdir ro=mounts-ro(rc=0) rw=mounts-rw(rc=0)
+  ro msg: -
+  rw msg: -
+  flags: flags_after=0x0000
+  log: log=empty
+hiber-inactive ro=mounts-ro(rc=0) rw=mounts-rw(rc=0)
+  ro msg: -
+  rw msg: -
+  flags: flags_after=0x0000
+  log: log=empty
+bitlocker-sig ro=fails(rc=12) rw=fails(rc=12)
+  ro msg: NTFS signature is missing. Failed to mount '/tmp/ntfsmac-unsafe/bitlocker-sig.img': Invalid argument The device '/tmp/ntfsmac-unsafe/bitlocker-sig.img' doesn't seem to have a valid NTFS. Maybe the wrong device is used? Or the whole disk instead of a partition (e.g. /dev/sda, not /dev/sda1)? Or the other way around?
+  rw msg: NTFS signature is missing. Failed to mount '/tmp/ntfsmac-unsafe/bitlocker-sig.img.rw': Invalid argument The device '/tmp/ntfsmac-unsafe/bitlocker-sig.img.rw' doesn't seem to have a valid NTFS. Maybe the wrong device is used? Or the whole disk instead of a partition (e.g. /dev/sda, not /dev/sda1)? Or the other way around?
+  flags: n/a
+  log: log=n/a
+truncated ro=fails(rc=13) rw=fails(rc=13)
+  ro msg: ntfs_attr_pread_i: ntfs_pread failed: Input/output error Failed to read $MFTMirr: Input/output error Failed to mount '/tmp/ntfsmac-unsafe/truncated.img': Input/output error NTFS is either inconsistent, or there is a hardware fault, or it's a SoftRAID/FakeRAID hardware. In the first case run chkdsk /f on Windows then reboot into Windows twice. The usage of the /f parameter is very important! If the device is a SoftRAID/FakeRAID then first activate it and mount a different device under the /dev/mapper/ directory, (e.g. /dev/mapper/nvidia_eahaabcc1). Please see the 'dmraid' documentation for more details.
+  rw msg: ntfs_attr_pread_i: ntfs_pread failed: Input/output error Failed to read $MFTMirr: Input/output error Failed to mount '/tmp/ntfsmac-unsafe/truncated.img.rw': Input/output error NTFS is either inconsistent, or there is a hardware fault, or it's a SoftRAID/FakeRAID hardware. In the first case run chkdsk /f on Windows then reboot into Windows twice. The usage of the /f parameter is very important! If the device is a SoftRAID/FakeRAID then first activate it and mount a different device under the /dev/mapper/ directory, (e.g. /dev/mapper/nvidia_eahaabcc1). Please see the 'dmraid' documentation for more details.
+  flags: n/a
+  log: log=n/a
+truncated-60 ro=mounts-ro(rc=0) rw=mounts-rw(rc=0)
+  ro msg: -
+  rw msg: -
+  flags: flags_after=0x0000
+  log: log=empty
+chkdsk-flag ro=mounts-ro(rc=0) rw=mounts-rw(rc=0)
+  ro msg: -
+  rw msg: -
+  flags: flags_after=0x8000
+  log: log=empty
+dirty-chkdsk-flag ro=mounts-ro(rc=0) rw=mounts-rw(rc=0)
+  ro msg: -
+  rw msg: -
+  flags: flags_after=0x8001
+  log: log=empty
+txf-nonresident ro=mounts-ro(rc=0) rw=mounts-rw(rc=0) txf_resident_after_rw=Yes txf_resident_after_ro=No
+  ro msg: -
+  rw msg: $TXF_DATA made resident
+  flags: flags_after=0x0000
+  log: log=empty
+log-init ro=mounts-ro(rc=0) rw=mounts-rw(rc=0)
+  ro msg: -
+  rw msg: -
+  flags: flags_after=0x0000
+  log: page0 off=0 magic=RSTR version=1.1 usn=1 flags=0x0002 clients_in_use=1 current_lsn=0x0000000000100400 seq_bits=45 file_size=2097152 page1 off=4096 magic=RSTR version=1.1 usn=2 flags=0x0002 clients_in_use=1 current_lsn=0x0000000000100400 seq_bits=45 file_size=2097152 current_lsn=0x0000000000100400 log=clean
+log-bumped ro=mounts-ro(rc=0) rw=mounts-rw(rc=0)
+  ro msg: -
+  rw msg: -
+  flags: flags_after=0x0000
+  log: page0 off=0 magic=RSTR version=1.1 usn=2 flags=0x0002 clients_in_use=1 current_lsn=0x0000000000180400 seq_bits=45 file_size=2097152 page1 off=4096 magic=RSTR version=1.1 usn=3 flags=0x0002 clients_in_use=1 current_lsn=0x0000000000180400 seq_bits=45 file_size=2097152 current_lsn=0x0000000000180400 log=clean

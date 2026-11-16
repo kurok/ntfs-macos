@@ -1,0 +1,225 @@
+11:08:53 start I-NAME-08 (env B)
+11:08:53 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img -> rc=0
+11:08:53 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+11:08:53 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+11:08:53 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img -> rc=0
+11:08:53 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+11:08:53 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+11:08:53 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:08:56 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+11:08:56 $ sync -> rc=0
+11:08:56 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:08:56 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,nonfconv /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:08:59 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:08:59 $ sync -> rc=0
+11:08:59 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:08:59 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:03 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:09:03 $ sync -> rc=0
+11:09:03 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:03 default|nfc read by default mount: {'listing': ['NFD'], 'read_nfc': 'nfc', 'read_nfd': 'nfc'}
+11:09:03 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,nonfconv /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:07 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:09:07 $ sync -> rc=0
+11:09:07 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:07 default|nfc read by nonfconv mount: {'listing': ['NFC'], 'read_nfc': 'nfc', 'read_nfd': 'ERRNO2'}
+11:09:07 default|nfc: on disk ['NFC']
+11:09:07 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img -> rc=0
+11:09:07 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+11:09:07 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+11:09:07 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:11 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+11:09:11 $ sync -> rc=0
+11:09:11 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:11 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,nonfconv /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:14 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:09:14 $ sync -> rc=0
+11:09:14 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:14 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:17 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:09:17 $ sync -> rc=0
+11:09:17 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:17 default|nfd read by default mount: {'listing': ['NFD'], 'read_nfc': 'nfd', 'read_nfd': 'nfd'}
+11:09:17 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,nonfconv /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:21 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:09:21 $ sync -> rc=0
+11:09:21 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:21 default|nfd read by nonfconv mount: {'listing': ['NFC'], 'read_nfc': 'nfd', 'read_nfd': 'ERRNO2'}
+11:09:21 default|nfd: on disk ['NFC']
+11:09:21 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img -> rc=0
+11:09:21 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+11:09:21 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+11:09:21 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:25 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+11:09:25 $ sync -> rc=0
+11:09:25 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:25 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,nonfconv /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:28 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:09:28 $ sync -> rc=0
+11:09:28 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:28 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:31 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:09:31 $ sync -> rc=0
+11:09:31 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:31 default|nfc+nfd read by default mount: {'listing': ['NFD'], 'read_nfc': 'nfd', 'read_nfd': 'nfd'}
+11:09:31 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,nonfconv /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:34 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:09:34 $ sync -> rc=0
+11:09:34 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:35 default|nfc+nfd read by nonfconv mount: {'listing': ['NFC'], 'read_nfc': 'nfd', 'read_nfd': 'ERRNO2'}
+11:09:35 default|nfc+nfd: on disk ['NFC']
+11:09:35 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img -> rc=0
+11:09:35 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+11:09:35 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+11:09:35 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,nonfconv /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:38 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+11:09:38 $ sync -> rc=0
+11:09:38 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:38 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,nonfconv /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:41 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:09:41 $ sync -> rc=0
+11:09:41 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:41 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:44 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:09:44 $ sync -> rc=0
+11:09:44 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:44 nonfconv|nfc read by default mount: {'listing': ['NFD'], 'read_nfc': 'nfc', 'read_nfd': 'nfc'}
+11:09:44 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,nonfconv /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:48 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:09:48 $ sync -> rc=0
+11:09:48 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:48 nonfconv|nfc read by nonfconv mount: {'listing': ['NFC'], 'read_nfc': 'nfc', 'read_nfd': 'ERRNO2'}
+11:09:48 nonfconv|nfc: on disk ['NFC']
+11:09:48 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img -> rc=0
+11:09:48 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+11:09:48 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+11:09:48 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,nonfconv /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:51 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+11:09:51 $ sync -> rc=0
+11:09:51 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:09:51 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,nonfconv /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:10:00 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:10:00 $ sync -> rc=0
+11:10:00 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:10:00 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:10:06 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:10:06 $ sync -> rc=0
+11:10:06 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:10:06 nonfconv|nfd read by default mount: {'listing': ['NFD'], 'read_nfc': 'ERRNO2', 'read_nfd': 'ERRNO2'}
+11:10:06 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,nonfconv /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:10:12 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:10:12 $ sync -> rc=0
+11:10:12 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:10:12 nonfconv|nfd read by nonfconv mount: {'listing': ['NFD'], 'read_nfc': 'ERRNO2', 'read_nfd': 'nfd'}
+11:10:12 nonfconv|nfd: on disk ['NFD']
+11:10:12 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img -> rc=0
+11:10:12 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+11:10:12 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+11:10:12 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,nonfconv /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:10:18 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+11:10:18 $ sync -> rc=0
+11:10:18 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:10:18 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,nonfconv /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:10:22 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:10:22 $ sync -> rc=0
+11:10:22 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:10:22 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:10:25 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:10:25 $ sync -> rc=0
+11:10:25 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:10:25 nonfconv|nfc+nfd read by default mount: {'listing': ['NFD', 'NFD'], 'read_nfc': 'nfc', 'read_nfd': 'nfc'}
+11:10:26 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,nonfconv /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:10:30 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:10:30 $ sync -> rc=0
+11:10:30 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:10:30 nonfconv|nfc+nfd read by nonfconv mount: {'listing': ['NFD', 'NFC'], 'read_nfc': 'nfc', 'read_nfd': 'nfd'}
+11:10:30 nonfconv|nfc+nfd: on disk ['NFD', 'NFC']
+11:10:30 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img -> rc=0
+11:10:30 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+11:10:30 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+11:10:30 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,nonfconv /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:10:34 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+11:10:34 $ sync -> rc=0
+11:10:34 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:10:34 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,debug /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt
+11:10:37 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:10:37 $ sync -> rc=0
+11:10:37 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:10:37 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,nonfconv,debug /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt
+11:10:40 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:10:40 $ sync -> rc=0
+11:10:40 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-mhqjpr1i/mnt -> rc=0
+11:10:40 worker received: {'default': [('LOOKUP /', '636166c3a9'), ('getattr /', '636166c3a9'), ('LOOKUP /', '63616665cc81'), ('getattr /', '63616665cc81')], 'nonfconv': [('LOOKUP /', '636166c3a9'), ('getattr /', '636166c3a9'), ('LOOKUP /', '63616665cc81'), ('getattr /', '63616665cc81')]}
+11:10:40 end I-NAME-08: pass

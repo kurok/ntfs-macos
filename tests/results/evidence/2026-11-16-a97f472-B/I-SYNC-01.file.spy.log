@@ -1,0 +1,9 @@
+1794827668.043070 open pid=28943 fd=3 path=/dev/null
+1794827668.043256 open pid=28943 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-i91drxah/file.img
+1794827668.043355 open pid=28943 fd=5 path=/dev/null
+1794827668.046909 open pid=28943 fd=5 path=/dev/null
+1794827671.200403 fullfsync pid=28943 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-i91drxah/file.img rc=0 errno=0 us=5997 writes=62 bytes=162810
+1794827674.425805 fullfsync pid=28943 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-i91drxah/file.img rc=0 errno=0 us=9845 writes=18 bytes=45057
+1794827677.007503 fullfsync pid=28943 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-i91drxah/file.img rc=0 errno=0 us=8273 writes=6 bytes=20480
+1794827679.450039 fullfsync pid=28943 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-i91drxah/file.img rc=0 errno=0 us=6931 writes=6 bytes=24576
+1794827683.327683 fullfsync pid=28943 fd=3 path=/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-i91drxah/file.img rc=0 errno=0 us=20 writes=6 bytes=28672

@@ -1,0 +1,683 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "a97f472cc57c0cfbaabf46fa45076a575b92a851",
+  "dirty_tree": false,
+  "env": "B",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "macOS 27.2 (26B123) arm64",
+  "macfuse_version": "5.5.0",
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-16T10:51:04Z",
+  "finished": "2026-11-16T11:18:35Z",
+  "cases": [
+    {
+      "id": "I-BIG-01",
+      "status": "pass",
+      "duration_s": 10.461,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-BIG-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-BIG-02",
+      "status": "pass",
+      "duration_s": 56.772,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-BIG-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-BIG-03",
+      "status": "pass",
+      "duration_s": 61.227,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-BIG-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-BIG-SPARSE-01",
+      "status": "pass",
+      "duration_s": 13.07,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-BIG-SPARSE-01.log",
+        "evidence/2026-11-16-a97f472-B/I-BIG-SPARSE-01.sparse01_all_hole.ntfsinfo.txt",
+        "evidence/2026-11-16-a97f472-B/I-BIG-SPARSE-01.sparse01_hole_end.ntfsinfo.txt",
+        "evidence/2026-11-16-a97f472-B/I-BIG-SPARSE-01.sparse01_hole_middle.ntfsinfo.txt",
+        "evidence/2026-11-16-a97f472-B/I-BIG-SPARSE-01.sparse01_hole_start.ntfsinfo.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-BIG-SPARSE-02",
+      "status": "pass",
+      "duration_s": 14.616,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-BIG-SPARSE-02.log",
+        "evidence/2026-11-16-a97f472-B/I-BIG-SPARSE-02.sparse02.ntfsinfo.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-03",
+      "status": "pass",
+      "duration_s": 6.715,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-ERR-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-05",
+      "status": "pass",
+      "duration_s": 6.467,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-ERR-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-06",
+      "status": "pass",
+      "duration_s": 38.074,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-ERR-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-07",
+      "status": "pass",
+      "duration_s": 22.405,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-ERR-07.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-01",
+      "status": "pass",
+      "duration_s": 6.422,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-FUNC-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-02",
+      "status": "pass",
+      "duration_s": 9.564,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-FUNC-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-03",
+      "status": "pass",
+      "duration_s": 6.746,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-FUNC-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-04",
+      "status": "pass",
+      "duration_s": 6.694,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-FUNC-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-05",
+      "status": "pass",
+      "duration_s": 6.239,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-FUNC-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-06",
+      "status": "pass",
+      "duration_s": 14.926,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-FUNC-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-07",
+      "status": "pass",
+      "duration_s": 9.15,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-FUNC-07.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-08",
+      "status": "pass",
+      "duration_s": 7.108,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-FUNC-08.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-DIR-01",
+      "status": "pass",
+      "duration_s": 13.825,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-FUNC-DIR-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-DIR-02",
+      "status": "error",
+      "duration_s": 93.063,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-FUNC-DIR-02.log"
+      ],
+      "note": "RuntimeError: command failed (rc=1): /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-64_lpx5o/mnt"
+    },
+    {
+      "id": "I-FUNC-DIR-03",
+      "status": "pass",
+      "duration_s": 8.294,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-FUNC-DIR-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-INT-01",
+      "status": "pass",
+      "duration_s": 10.407,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-INT-01.log",
+        "evidence/2026-11-16-a97f472-B/I-INT-01.sha256.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-INT-03",
+      "status": "pass",
+      "duration_s": 11.229,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-INT-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-INT-CYCLE-01",
+      "status": "pass",
+      "duration_s": 47.465,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-INT-CYCLE-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-01",
+      "status": "pass",
+      "duration_s": 8.807,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-META-01.log",
+        "evidence/2026-11-16-a97f472-B/I-META-01.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-02",
+      "status": "pass",
+      "duration_s": 8.234,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-META-02.log",
+        "evidence/2026-11-16-a97f472-B/I-META-02.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-03",
+      "status": "pass",
+      "duration_s": 26.546,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-META-03.log",
+        "evidence/2026-11-16-a97f472-B/I-META-03.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-04",
+      "status": "pass",
+      "duration_s": 10.272,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-META-04.log",
+        "evidence/2026-11-16-a97f472-B/I-META-04.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-05",
+      "status": "pass",
+      "duration_s": 8.819,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-META-05.log",
+        "evidence/2026-11-16-a97f472-B/I-META-05.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-06",
+      "status": "pass",
+      "duration_s": 10.115,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-META-06.log",
+        "evidence/2026-11-16-a97f472-B/I-META-06.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-07",
+      "status": "pass",
+      "duration_s": 17.185,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-META-07.log",
+        "evidence/2026-11-16-a97f472-B/I-META-07.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-01",
+      "status": "pass",
+      "duration_s": 14.418,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-MMAP-01.log",
+        "evidence/2026-11-16-a97f472-B/I-MMAP-01.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-02",
+      "status": "pass",
+      "duration_s": 50.705,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-MMAP-02.log",
+        "evidence/2026-11-16-a97f472-B/I-MMAP-02.observations.json",
+        "evidence/2026-11-16-a97f472-B/I-MMAP-02.worker-debug.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-03",
+      "status": "pass",
+      "duration_s": 65.037,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-MMAP-03.log",
+        "evidence/2026-11-16-a97f472-B/I-MMAP-03.observations.json",
+        "evidence/2026-11-16-a97f472-B/I-MMAP-03.worker-debug.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-04",
+      "status": "pass",
+      "duration_s": 58.089,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-MMAP-04.log",
+        "evidence/2026-11-16-a97f472-B/I-MMAP-04.observations.json",
+        "evidence/2026-11-16-a97f472-B/I-MMAP-04.worker-debug-fd+map.log",
+        "evidence/2026-11-16-a97f472-B/I-MMAP-04.worker-debug-force-first.log",
+        "evidence/2026-11-16-a97f472-B/I-MMAP-04.worker-debug-map-only.log",
+        "evidence/2026-11-16-a97f472-B/I-MMAP-04.worker-debug-redirty.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-05",
+      "status": "pass",
+      "duration_s": 26.223,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-MMAP-05.log",
+        "evidence/2026-11-16-a97f472-B/I-MMAP-05.observations.json",
+        "evidence/2026-11-16-a97f472-B/I-MMAP-05.worker-debug.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-06",
+      "status": "pass",
+      "duration_s": 161.969,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-MMAP-06.log",
+        "evidence/2026-11-16-a97f472-B/I-MMAP-06.observations.json",
+        "evidence/2026-11-16-a97f472-B/I-MMAP-06.worker-debug.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-07",
+      "status": "pass",
+      "duration_s": 59.735,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-MMAP-07.log",
+        "evidence/2026-11-16-a97f472-B/I-MMAP-07.observations.json",
+        "evidence/2026-11-16-a97f472-B/I-MMAP-07.worker-debug-kill-clean.log",
+        "evidence/2026-11-16-a97f472-B/I-MMAP-07.worker-debug-kill-dirty.log",
+        "evidence/2026-11-16-a97f472-B/I-MMAP-07.worker-debug-kill-synced-then-dirty.log",
+        "evidence/2026-11-16-a97f472-B/I-MMAP-07.worker-debug.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-01",
+      "status": "pass",
+      "duration_s": 9.77,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-NAME-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-02",
+      "status": "pass",
+      "duration_s": 10.551,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-NAME-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-03",
+      "status": "pass",
+      "duration_s": 19.894,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-NAME-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-04",
+      "status": "pass",
+      "duration_s": 6.801,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-NAME-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-05",
+      "status": "pass",
+      "duration_s": 6.878,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-NAME-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-06",
+      "status": "pass",
+      "duration_s": 6.706,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-NAME-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-08",
+      "status": "pass",
+      "duration_s": 107.849,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-NAME-08.log",
+        "evidence/2026-11-16-a97f472-B/I-NAME-08.matrix.txt",
+        "evidence/2026-11-16-a97f472-B/I-NAME-08.worker-default.log",
+        "evidence/2026-11-16-a97f472-B/I-NAME-08.worker-nonfconv.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-01",
+      "status": "pass",
+      "duration_s": 6.564,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-PERM-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-02",
+      "status": "pass",
+      "duration_s": 17.41,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-PERM-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-03",
+      "status": "pass",
+      "duration_s": 23.251,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-PERM-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-04",
+      "status": "pass",
+      "duration_s": 23.555,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-PERM-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-05",
+      "status": "pass",
+      "duration_s": 10.825,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-PERM-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-06",
+      "status": "pass",
+      "duration_s": 23.151,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-PERM-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-07",
+      "status": "pass",
+      "duration_s": 10.95,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-PERM-07.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-01",
+      "status": "pass",
+      "duration_s": 6.596,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-READ-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-02",
+      "status": "pass",
+      "duration_s": 7.504,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-READ-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-03",
+      "status": "pass",
+      "duration_s": 7.049,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-READ-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-04",
+      "status": "pass",
+      "duration_s": 53.547,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-READ-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-05",
+      "status": "pass",
+      "duration_s": 13.217,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-READ-05.driver-debug.log",
+        "evidence/2026-11-16-a97f472-B/I-READ-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-06",
+      "status": "pass",
+      "duration_s": 9.974,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-READ-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-07",
+      "status": "pass",
+      "duration_s": 13.383,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-READ-07.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-SYNC-01",
+      "status": "pass",
+      "duration_s": 83.248,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-SYNC-01.buf.fuse.log",
+        "evidence/2026-11-16-a97f472-B/I-SYNC-01.buf.spy.log",
+        "evidence/2026-11-16-a97f472-B/I-SYNC-01.file.fuse.log",
+        "evidence/2026-11-16-a97f472-B/I-SYNC-01.file.spy.log",
+        "evidence/2026-11-16-a97f472-B/I-SYNC-01.inject.fuse.log",
+        "evidence/2026-11-16-a97f472-B/I-SYNC-01.inject.spy.log",
+        "evidence/2026-11-16-a97f472-B/I-SYNC-01.injectdk.fuse.log",
+        "evidence/2026-11-16-a97f472-B/I-SYNC-01.injectdk.spy.log",
+        "evidence/2026-11-16-a97f472-B/I-SYNC-01.log",
+        "evidence/2026-11-16-a97f472-B/I-SYNC-01.raw.mountfail.log",
+        "evidence/2026-11-16-a97f472-B/I-SYNC-01.trace-buffered-dksync-fails.txt",
+        "evidence/2026-11-16-a97f472-B/I-SYNC-01.trace-buffered.txt",
+        "evidence/2026-11-16-a97f472-B/I-SYNC-01.trace-file-fullfsync-fails.txt",
+        "evidence/2026-11-16-a97f472-B/I-SYNC-01.trace-file.txt",
+        "evidence/2026-11-16-a97f472-B/I-SYNC-01.trace.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-SYNC-02",
+      "status": "pass",
+      "duration_s": 89.689,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-SYNC-02.alignment.txt",
+        "evidence/2026-11-16-a97f472-B/I-SYNC-02.bench.txt",
+        "evidence/2026-11-16-a97f472-B/I-SYNC-02.log",
+        "evidence/2026-11-16-a97f472-B/I-SYNC-02.node-io.txt",
+        "evidence/2026-11-16-a97f472-B/I-SYNC-02.u10.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-01",
+      "status": "pass",
+      "duration_s": 6.619,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-XATTR-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-02",
+      "status": "pass",
+      "duration_s": 6.966,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-XATTR-02.log",
+        "evidence/2026-11-16-a97f472-B/I-XATTR-02.max-size.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-03",
+      "status": "pass",
+      "duration_s": 9.991,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-XATTR-03.log",
+        "evidence/2026-11-16-a97f472-B/I-XATTR-03.worker-debug.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-04",
+      "status": "pass",
+      "duration_s": 10.101,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-XATTR-04.log",
+        "evidence/2026-11-16-a97f472-B/I-XATTR-04.worker-debug.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-05",
+      "status": "pass",
+      "duration_s": 16.718,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-XATTR-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-06",
+      "status": "pass",
+      "duration_s": 11.07,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-XATTR-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-07",
+      "status": "pass",
+      "duration_s": 6.626,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-XATTR-07.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-08",
+      "status": "pass",
+      "duration_s": 6.788,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B/I-XATTR-08.log"
+      ],
+      "note": null
+    }
+  ]
+}

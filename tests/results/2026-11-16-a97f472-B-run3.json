@@ -1,0 +1,23 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "a97f472cc57c0cfbaabf46fa45076a575b92a851",
+  "dirty_tree": false,
+  "env": "B",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "macOS 27.2 (26B123) arm64",
+  "macfuse_version": "5.5.0",
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-16T11:22:41Z",
+  "finished": "2026-11-16T11:24:31Z",
+  "cases": [
+    {
+      "id": "I-FUNC-DIR-02",
+      "status": "pass",
+      "duration_s": 109.507,
+      "evidence": [
+        "evidence/2026-11-16-a97f472-B-run3/I-FUNC-DIR-02.log"
+      ],
+      "note": null
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+10:51:17 start I-META-03 (env A)
+10:51:17 $ mkntfs -F -Q -L ntfsmac /tmp/ntfsmac-case-ojwyc3b5/vol.img -> rc=0
+10:51:17 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+10:51:17 stderr: /tmp/ntfsmac-case-ojwyc3b5/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/ntfsmac-case-ojwyc3b5/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/ntfsmac-case-ojwyc3b5/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/ntfsmac-case-ojwyc3b5/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/ntfsmac-case-ojwyc3b5/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+10:51:17 $ ntfs-3g /tmp/ntfsmac-case-ojwyc3b5/vol.img /tmp/ntfsmac-case-ojwyc3b5/mnt -o rw,big_writes -> rc=0
+10:51:17 $ echo content > /tmp/ntfsmac-case-ojwyc3b5/mnt/fa_noatime; mkdir /tmp/ntfsmac-case-ojwyc3b5/mnt/da_noatime; echo x > /tmp/ntfsmac-case-ojwyc3b5/mnt/da_noatime/inner -> rc=0
+10:51:17 $ echo content > /tmp/ntfsmac-case-ojwyc3b5/mnt/fa_atime; mkdir /tmp/ntfsmac-case-ojwyc3b5/mnt/da_atime; echo x > /tmp/ntfsmac-case-ojwyc3b5/mnt/da_atime/inner -> rc=0
+10:51:17 $ echo content > /tmp/ntfsmac-case-ojwyc3b5/mnt/fa_relatime; mkdir /tmp/ntfsmac-case-ojwyc3b5/mnt/da_relatime; echo x > /tmp/ntfsmac-case-ojwyc3b5/mnt/da_relatime/inner -> rc=0
+10:51:17 $ echo content > /tmp/ntfsmac-case-ojwyc3b5/mnt/fa_default; mkdir /tmp/ntfsmac-case-ojwyc3b5/mnt/da_default; echo x > /tmp/ntfsmac-case-ojwyc3b5/mnt/da_default/inner -> rc=0
+10:51:17 $ echo content > /tmp/ntfsmac-case-ojwyc3b5/mnt/fa_product; mkdir /tmp/ntfsmac-case-ojwyc3b5/mnt/da_product; echo x > /tmp/ntfsmac-case-ojwyc3b5/mnt/da_product/inner -> rc=0
+10:51:17 $ sync -> rc=0
+10:51:17 $ umount /tmp/ntfsmac-case-ojwyc3b5/mnt -> rc=0
+10:51:17 $ ntfs-3g /tmp/ntfsmac-case-ojwyc3b5/vol.img /tmp/ntfsmac-case-ojwyc3b5/mnt -o rw,big_writes,noatime -> rc=0
+10:51:18 $ sync -> rc=0
+10:51:18 $ umount /tmp/ntfsmac-case-ojwyc3b5/mnt -> rc=0
+10:51:18 noatime (-o noatime): file atime live 2020-01-01 00:00:00.000000000, disk 2020-01-01 00:00:00.000000000 (updated: False); dir atime live 2020-01-01 00:00:00.000000000, disk 2020-01-01 00:00:00.000000000 (updated: False); file mtime disk 2020-01-01 00:00:00.000000000
+10:51:18 $ ntfs-3g /tmp/ntfsmac-case-ojwyc3b5/vol.img /tmp/ntfsmac-case-ojwyc3b5/mnt -o rw,big_writes,atime -> rc=0
+10:51:19 $ sync -> rc=0
+10:51:19 $ umount /tmp/ntfsmac-case-ojwyc3b5/mnt -> rc=0
+10:51:19 atime (-o atime): file atime live 2026-11-16 10:51:18.501889400, disk 2026-11-16 10:51:18.501889400 (updated: True); dir atime live 2026-11-16 10:51:18.502171700, disk 2026-11-16 10:51:18.502171700 (updated: True); file mtime disk 2020-01-01 00:00:00.000000000
+10:51:19 $ ntfs-3g /tmp/ntfsmac-case-ojwyc3b5/vol.img /tmp/ntfsmac-case-ojwyc3b5/mnt -o rw,big_writes,relatime -> rc=0
+10:51:20 $ sync -> rc=0
+10:51:20 $ umount /tmp/ntfsmac-case-ojwyc3b5/mnt -> rc=0
+10:51:20 relatime (-o relatime): file atime live 2026-11-16 10:51:19.614846100, disk 2026-11-16 10:51:19.614846100 (updated: True); dir atime live 2026-11-16 10:51:19.615178900, disk 2026-11-16 10:51:19.615178900 (updated: True); file mtime disk 2020-01-01 00:00:00.000000000
+10:51:20 $ ntfs-3g /tmp/ntfsmac-case-ojwyc3b5/vol.img /tmp/ntfsmac-case-ojwyc3b5/mnt -o rw,big_writes -> rc=0
+10:51:21 $ sync -> rc=0
+10:51:21 $ umount /tmp/ntfsmac-case-ojwyc3b5/mnt -> rc=0
+10:51:21 default (-o -): file atime live 2026-11-16 10:51:20.730161500, disk 2026-11-16 10:51:20.730161500 (updated: True); dir atime live 2026-11-16 10:51:20.730376200, disk 2026-11-16 10:51:20.730376200 (updated: True); file mtime disk 2020-01-01 00:00:00.000000000
+10:51:21 $ ntfs-3g /tmp/ntfsmac-case-ojwyc3b5/vol.img /tmp/ntfsmac-case-ojwyc3b5/mnt -o rw,big_writes,noatime,fmask=0133,dmask=0022 -> rc=0
+10:51:22 $ sync -> rc=0
+10:51:22 $ umount /tmp/ntfsmac-case-ojwyc3b5/mnt -> rc=0
+10:51:22 product (-o noatime,fmask=0133,dmask=0022): file atime live 2020-01-01 00:00:00.000000000, disk 2020-01-01 00:00:00.000000000 (updated: False); dir atime live 2020-01-01 00:00:00.000000000, disk 2020-01-01 00:00:00.000000000 (updated: False); file mtime disk 2020-01-01 00:00:00.000000000
+10:51:22 $ ntfsfix -n /tmp/ntfsmac-case-ojwyc3b5/vol.img -> rc=0
+10:51:22 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /tmp/ntfsmac-case-ojwyc3b5/vol.img was processed successfully.
+10:51:22 end I-META-03: pass

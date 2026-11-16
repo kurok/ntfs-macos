@@ -1,0 +1,10 @@
+variant                      mounted   seq write 32 MiB MB/s  100 x 4 KiB files/s    fsync 4 KiB ms (med/max) unmount ms
+default (image file)         yes       723.4 (718.1/775.0/723.4) 480 (480/661/348)      4.1/13.5                 142.0
+sync option (image file)     yes       31.5 (31.5/23.3/38.3)  17 (14/17/18)          1.2/2.0                  158.0
+buffered node /dev/diskN     yes       154.5 (168.6/150.6/154.5) 521 (521/613/453)      3.5/12.2                 146.0
+sync option, buffered node   yes       35.0 (32.2/36.7/35.0)  17 (18/17/17)          1.2/43.4                 152.0
+raw node /dev/rdiskN         no        no mount on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-80ps9aig/mnt-braw (worker exited rc=12); worker output tail:
+
+device syncs for 4 x 1 MiB write + fsync + close (image file):
+{"fuse_fsync_requests": 1, "mean_fullfsync_ms": 7.88, "opts": "(default)", "syncs_at_fsync_and_close": 1, "syncs_during_4_MiB_write": 0}
+{"fuse_fsync_requests": 1, "mean_fullfsync_ms": 3.13, "opts": "sync", "syncs_at_fsync_and_close": 0, "syncs_during_4_MiB_write": 30}

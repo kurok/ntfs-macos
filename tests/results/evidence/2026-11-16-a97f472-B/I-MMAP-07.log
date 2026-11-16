@@ -1,0 +1,160 @@
+11:06:52 start I-MMAP-07 (env B)
+11:06:52 $ cc -Wall -Wextra -Werror -o /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mmaptool /tmp/ntfsmac-h.dsscN4/integration/mmap/mmaptool.c -> rc=0
+11:06:52 $ cc -Wall -Wextra -Werror -dynamiclib -arch arm64 -arch arm64e -o /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/syncspy.dylib /tmp/ntfsmac-h.dsscN4/integration/sync/syncspy.c -> rc=0
+11:06:52 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img -> rc=0
+11:06:52 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+11:06:52 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+11:06:52 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img -> rc=0
+11:06:52 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+11:06:52 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+11:06:52 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt
+11:06:56 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+11:06:59 /sbin/umount /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt -> rc=0 
+11:06:59 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt
+11:07:02 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+11:07:05 tool> open /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt/k.bin rw => ok fd=3
+11:07:05 tool> map 131072 rw => ok
+11:07:05 tool> mput 0 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-in.bin => ok 16384
+11:07:05 tool> mput 16384 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-in.bin => ok 16384
+11:07:06 tool> mget 0 16384 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-k0.bin => ok 16384
+11:07:06 tool> mget 16384 16384 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-k1.bin => ok 16384
+11:07:06 tool> mtouch 81920 => sigbus
+11:07:06 tool> mtouch 114688 => sigbus
+11:07:06 tool> mput 0 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-k2.bin => ok 16384
+11:07:06 tool> mput 98304 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-k3.bin => sigbus
+11:07:06 tool> msync sync => ok
+11:07:06 tool> fsync => err 6 Device not configured
+11:07:06 tool> pread 49152 100 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-pr.bin => err 6 Device not configured
+11:07:06 tool> pwrite 49152 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-pw.bin => err 6 Device not configured
+11:07:06 tool> fsize => ok 131072
+11:07:06 tool> munmap => ok
+11:07:06 tool> close => err 6 Device not configured
+11:07:06 tool> quit => EOF
+11:07:06 /sbin/umount /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt -> rc=1 umount: unmount(/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt): Device not configured
+11:07:06 diskutil unmount force -> rc=1 Volume macFUSE Volume on disk6s1 failed to unmount
+11:07:06 /sbin/umount -f /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt -> rc=0 
+11:07:06 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img -> rc=0
+11:07:06 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img was processed successfully.
+11:07:06 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt
+11:07:09 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:07:12 /sbin/umount /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt -> rc=0 
+11:07:12 variant dirty: {"diskutil_force": {"out": "Volume macFUSE Volume on disk6s1 failed to unmount", "rc": 1, "still_mounted": true}, "killed_worker_pid": 22653, "ls_mount_dir": [1, "ls: fts_read: Device not configured"], "mapper_after_kill": {"close": "err 6 Device not configured", "fsize": "ok 131072", "fsync": "err 6 Device not configured", "msync_sync": "ok", "munmap": "ok", "pread_page3": "err 6 Device not configured", "pwrite_page3": "err 6 Device not configured", "read_dirty_resident_page0": "ok 16384", "read_dirty_resident_page1": "ok 16384", "read_untouched_page5": "sigbus", "read_untouched_page7": "sigbus", "write_resident_page0": "ok 16384", "write_untouched_page6": "sigbus"}, "read_file_with_cat": 1, "seconds_to_run_probes": 0.1, "stat_file": [0, "131072"], "still_mounted_after_kill": true, "umount": {"out": "umount: unmount(/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt): Device not configured", "rc": 1, "still_mounted": true}, "umount_f": {"out": "", "rc": 0, "still_mounted": false}, "unmounted": true, "variant": "dirty", "verify": {"files": {"k.bin": "equals old", "other.bin": "ok"}, "fsck_rc": 0, "fsck_tail": ["Processing of $MFT and $MFTMirr completed successfully.", "Checking the alternate boot sector... OK", "NTFS volume version is 3.1.", "NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img was processed successfully."], "mount": "ok", "page_map": {"k.bin": ["old", "old", "old", "old", "old", "old", "old", "old"]}, "tag": "07-dirty"}, "worker_rc": -9}
+11:07:12 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img -> rc=0
+11:07:12 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+11:07:12 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+11:07:12 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt
+11:07:16 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+11:07:19 /sbin/umount /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt -> rc=0 
+11:07:19 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt
+11:07:22 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+11:07:25 tool> open /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt/k.bin rw => ok fd=3
+11:07:25 tool> map 131072 rw => ok
+11:07:25 tool> mput 0 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-in.bin => ok 16384
+11:07:25 tool> msync sync => ok
+11:07:25 tool> mput 16384 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-in.bin => ok 16384
+11:07:26 tool> mget 0 16384 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-k0.bin => ok 16384
+11:07:26 tool> mget 16384 16384 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-k1.bin => ok 16384
+11:07:26 tool> mtouch 81920 => sigbus
+11:07:26 tool> mtouch 114688 => sigbus
+11:07:26 tool> mput 0 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-k2.bin => ok 16384
+11:07:26 tool> mput 98304 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-k3.bin => sigbus
+11:07:26 tool> msync sync => ok
+11:07:26 tool> fsync => err 6 Device not configured
+11:07:26 tool> pread 49152 100 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-pr.bin => err 6 Device not configured
+11:07:26 tool> pwrite 49152 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-pw.bin => err 6 Device not configured
+11:07:26 tool> fsize => ok 131072
+11:07:26 tool> munmap => ok
+11:07:26 tool> close => err 6 Device not configured
+11:07:26 tool> quit => EOF
+11:07:26 /sbin/umount /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt -> rc=1 umount: unmount(/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt): Device not configured
+11:07:26 diskutil unmount force -> rc=1 Volume macFUSE Volume on disk6s1 failed to unmount
+11:07:26 /sbin/umount -f /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt -> rc=0 
+11:07:26 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img -> rc=0
+11:07:26 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img was processed successfully.
+11:07:26 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt
+11:07:29 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:07:32 /sbin/umount /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt -> rc=0 
+11:07:32 variant synced-then-dirty: {"diskutil_force": {"out": "Volume macFUSE Volume on disk6s1 failed to unmount", "rc": 1, "still_mounted": true}, "killed_worker_pid": 22810, "ls_mount_dir": [1, "ls: fts_read: Device not configured"], "mapper_after_kill": {"close": "err 6 Device not configured", "fsize": "ok 131072", "fsync": "err 6 Device not configured", "msync_sync": "ok", "munmap": "ok", "pread_page3": "err 6 Device not configured", "pwrite_page3": "err 6 Device not configured", "read_dirty_resident_page0": "ok 16384", "read_dirty_resident_page1": "ok 16384", "read_untouched_page5": "sigbus", "read_untouched_page7": "sigbus", "write_resident_page0": "ok 16384", "write_untouched_page6": "sigbus"}, "read_file_with_cat": 1, "seconds_to_run_probes": 0.1, "stat_file": [0, "131072"], "still_mounted_after_kill": true, "umount": {"out": "umount: unmount(/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt): Device not configured", "rc": 1, "still_mounted": true}, "umount_f": {"out": "", "rc": 0, "still_mounted": false}, "unmounted": true, "variant": "synced-then-dirty", "verify": {"files": {"k.bin": "sha differs", "other.bin": "ok"}, "fsck_rc": 0, "fsck_tail": ["Processing of $MFT and $MFTMirr completed successfully.", "Checking the alternate boot sector... OK", "NTFS volume version is 3.1.", "NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img was processed successfully."], "mount": "ok", "page_map": {"k.bin": ["p1", "old", "old", "old", "old", "old", "old", "old"]}, "tag": "07-synced-then-dirty"}, "worker_rc": -9}
+11:07:32 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img -> rc=0
+11:07:32 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+11:07:32 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+11:07:32 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt
+11:07:35 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+11:07:38 /sbin/umount /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt -> rc=0 
+11:07:38 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt
+11:07:42 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+11:07:45 tool> open /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt/k.bin rw => ok fd=3
+11:07:45 tool> map 131072 rw => ok
+11:07:45 tool> mget 0 32768 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-k.bin => ok 32768
+11:07:45 tool> mget 0 16384 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-k0.bin => ok 16384
+11:07:45 tool> mget 16384 16384 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-k1.bin => ok 16384
+11:07:45 tool> mtouch 81920 => sigbus
+11:07:45 tool> mtouch 114688 => sigbus
+11:07:45 tool> mput 0 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-k2.bin => ok 16384
+11:07:45 tool> mput 98304 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-k3.bin => sigbus
+11:07:45 tool> msync sync => ok
+11:07:45 tool> fsync => err 6 Device not configured
+11:07:45 tool> pread 49152 100 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-pr.bin => err 6 Device not configured
+11:07:45 tool> pwrite 49152 /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/tool-pw.bin => err 6 Device not configured
+11:07:45 tool> fsize => ok 131072
+11:07:45 tool> munmap => ok
+11:07:45 tool> close => err 6 Device not configured
+11:07:45 tool> quit => EOF
+11:07:45 /sbin/umount /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt -> rc=1 umount: unmount(/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt): Device not configured
+11:07:45 diskutil unmount force -> rc=1 Volume macFUSE Volume on disk6s1 failed to unmount
+11:07:45 /sbin/umount -f /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt -> rc=0 
+11:07:45 $ /Users/admin/ntfsmac/deps/bin/ntfsfix -n /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img -> rc=0
+11:07:45 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img was processed successfully.
+11:07:45 worker: /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug,ro /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt
+11:07:49 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+11:07:52 /sbin/umount /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt -> rc=0 
+11:07:52 variant clean: {"diskutil_force": {"out": "Volume macFUSE Volume on disk6s1 failed to unmount", "rc": 1, "still_mounted": true}, "killed_worker_pid": 22964, "ls_mount_dir": [1, "ls: fts_read: Device not configured"], "mapper_after_kill": {"close": "err 6 Device not configured", "fsize": "ok 131072", "fsync": "err 6 Device not configured", "msync_sync": "ok", "munmap": "ok", "pread_page3": "err 6 Device not configured", "pwrite_page3": "err 6 Device not configured", "read_dirty_resident_page0": "ok 16384", "read_dirty_resident_page1": "ok 16384", "read_untouched_page5": "sigbus", "read_untouched_page7": "sigbus", "write_resident_page0": "ok 16384", "write_untouched_page6": "sigbus"}, "read_file_with_cat": 1, "seconds_to_run_probes": 0.1, "stat_file": [0, "131072"], "still_mounted_after_kill": true, "umount": {"out": "umount: unmount(/private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/mnt): Device not configured", "rc": 1, "still_mounted": true}, "umount_f": {"out": "", "rc": 0, "still_mounted": false}, "unmounted": true, "variant": "clean", "verify": {"files": {"k.bin": "ok", "other.bin": "ok"}, "fsck_rc": 0, "fsck_tail": ["Processing of $MFT and $MFTMirr completed successfully.", "Checking the alternate boot sector... OK", "NTFS volume version is 3.1.", "NTFS partition /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-0032jodo/vol.img was processed successfully."], "mount": "ok", "page_map": {"k.bin": ["old", "old", "old", "old", "old", "old", "old", "old"]}, "tag": "07-clean"}, "worker_rc": -9}
+11:07:52 end I-MMAP-07: pass

@@ -1,0 +1,101 @@
+{
+ "after": {
+  "chmod444": {
+   "append": "ok",
+   "chmod": "ok",
+   "rename": "ok",
+   "truncate": "ok"
+  },
+  "plain": {
+   "append": "ok",
+   "chmod": "ok",
+   "rename": "ok",
+   "truncate": "ok"
+  },
+  "shown": {
+   "dk_uchg": [
+    493,
+    null
+   ],
+   "dk_xattr_ro": [
+    493,
+    null
+   ],
+   "k_chmod444": [
+    420,
+    null
+   ],
+   "k_plain": [
+    420,
+    null
+   ],
+   "k_xattr_ro": [
+    420,
+    null
+   ]
+  },
+  "xattr_ro": {
+   "append": "ok",
+   "chmod": "ok",
+   "rename": "ok",
+   "truncate": "ok"
+  }
+ },
+ "disk": {
+  "dk_uchg": 32,
+  "dk_xattr_ro": 33,
+  "k_chmod444": 32,
+  "k_plain": 32,
+  "k_xattr_ro": 33
+ },
+ "live": {
+  "chmod444": {
+   "append": "ok",
+   "chmod": "ok",
+   "rename": "ok",
+   "truncate": "ok",
+   "unlink": "ok"
+  },
+  "dir_uchg": {},
+  "dir_xattr_ro": {
+   "create_inside": "ok",
+   "rmdir_self": "-"
+  },
+  "plain": {
+   "append": "ok",
+   "chmod": "ok",
+   "rename": "ok",
+   "truncate": "ok",
+   "unlink": "ok"
+  },
+  "xattr_ro": {
+   "append": "ok",
+   "chmod": "ok",
+   "rename": "ok",
+   "truncate": "ok",
+   "unlink": "ok"
+  }
+ },
+ "permissions": {
+  "back": [
+   "ok",
+   "ok"
+  ],
+  "chmod444": "ok",
+  "disk": {
+   "p_back": 32,
+   "p_file": 33
+  },
+  "ops_on_0444": {
+   "append": "ok",
+   "chmod": "ok",
+   "rename": "ok",
+   "truncate": "ok"
+  }
+ },
+ "set": {
+  "chmod444": "ok",
+  "dir_xattr_ro": "ok",
+  "xattr_ro": "ok"
+ }
+}

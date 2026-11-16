@@ -1,0 +1,46 @@
+11:13:51 start I-READ-05 (env B)
+11:13:51 $ /Users/admin/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3dvjbwnb/vol.img -> rc=0
+11:13:51 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+11:13:51 stderr: /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3dvjbwnb/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3dvjbwnb/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3dvjbwnb/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3dvjbwnb/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3dvjbwnb/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+11:13:51 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3dvjbwnb/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3dvjbwnb/mnt -> rc=0
+11:13:54 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3dvjbwnb/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+11:13:54 $ sync -> rc=0
+11:13:54 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3dvjbwnb/mnt -> rc=0
+11:13:54 $ /Users/admin/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr,debug /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3dvjbwnb/vol.img /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3dvjbwnb/mnt
+11:13:57 mount: /dev/disk6s1 on /private/var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3dvjbwnb/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+11:13:58 d0 (0 bytes): 0 FUSE_READ requests reached the driver
+11:13:59 d1 (1 bytes): 8 FUSE_READ requests reached the driver
+11:13:59   8x READ 512 bytes from 0: driver returned 1, success, outsize 17
+11:14:00 d511 (511 bytes): 22 FUSE_READ requests reached the driver
+11:14:00   22x READ 512 bytes from 0: driver returned 511, success, outsize 527
+11:14:01 d4095 (4095 bytes): 22 FUSE_READ requests reached the driver
+11:14:01   22x READ 4096 bytes from 0: driver returned 4095, success, outsize 4111
+11:14:02 d4097 (4097 bytes): 22 FUSE_READ requests reached the driver
+11:14:02   22x READ 4608 bytes from 0: driver returned 4097, success, outsize 4113
+11:14:03 d1048577 (1048577 bytes): 24 FUSE_READ requests reached the driver
+11:14:03   10x READ 16384 bytes from 0: driver returned 16384, success, outsize 16400
+11:14:03   1x READ 65536 bytes from 0: driver returned 65536, success, outsize 24
+11:14:03   1x READ 81920 bytes from 0: driver returned 81920, success, outsize 24
+11:14:03   3x READ 1048576 bytes from 0: driver returned 1048576, success, outsize 24
+11:14:03   9x READ 512 bytes from 1048576: driver returned 1, success, outsize 17
+11:14:04 truncate under a reader: 5 FUSE_READ requests
+11:14:04   READ 16384 bytes from 491520: driver returned 16384, success, outsize 16400
+11:14:04   READ 512 bytes from 0: driver returned 100, success, outsize 116
+11:14:04   READ 512 bytes from 0: driver returned 100, success, outsize 116
+11:14:04   READ 512 bytes from 0: driver returned 100, success, outsize 116
+11:14:04   READ 16384 bytes from 1048576: driver returned 16384, success, outsize 16400
+11:14:04 $ sync -> rc=0
+11:14:04 $ /sbin/umount /var/folders/x3/8ck3h6js681b24d0_tw_p5dc0000gn/T/ntfsmac-case-3dvjbwnb/mnt -> rc=0
+11:14:04 103 FUSE_READ requests in all; empty replies below EOF: 0; empty replies at or past EOF: 0
+11:14:04 FUSE_READ requests at or past EOF that reached the driver: 0
+11:14:04 PASS: no application read failed; no READ below EOF was answered empty
+11:14:04 end I-READ-05: pass

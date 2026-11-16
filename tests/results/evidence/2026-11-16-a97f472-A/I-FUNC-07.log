@@ -1,0 +1,31 @@
+10:50:55 start I-FUNC-07 (env A)
+10:50:55 $ mkntfs -F -Q -L ntfsmac /tmp/ntfsmac-case-xx0eyqtk/vol.img -> rc=0
+10:50:55 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+10:50:55 stderr: /tmp/ntfsmac-case-xx0eyqtk/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for /tmp/ntfsmac-case-xx0eyqtk/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for /tmp/ntfsmac-case-xx0eyqtk/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for /tmp/ntfsmac-case-xx0eyqtk/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for /tmp/ntfsmac-case-xx0eyqtk/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+10:50:55 $ ntfs-3g /tmp/ntfsmac-case-xx0eyqtk/vol.img /tmp/ntfsmac-case-xx0eyqtk/mnt -o rw,big_writes -> rc=0
+10:50:55 stat after unlink -> errno 2 (ENOENT)
+10:50:55 unlink twice -> errno 2 (ENOENT)
+10:50:55 stat of the unlinked name -> errno 2 (ENOENT)
+10:50:56 free bytes: before 266551296, with 20 MiB file 245579776, after unlink 266551296
+10:50:56 $ sync -> rc=0
+10:50:56 $ umount /tmp/ntfsmac-case-xx0eyqtk/mnt -> rc=0
+10:50:56 $ ntfsfix -n /tmp/ntfsmac-case-xx0eyqtk/vol.img -> rc=0
+10:50:56 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition /tmp/ntfsmac-case-xx0eyqtk/vol.img was processed successfully.
+10:50:56 $ ntfs-3g /tmp/ntfsmac-case-xx0eyqtk/vol.img /tmp/ntfsmac-case-xx0eyqtk/mnt -o ro -> rc=0
+10:50:56 $ sync -> rc=0
+10:50:56 $ umount /tmp/ntfsmac-case-xx0eyqtk/mnt -> rc=0
+10:50:56 remount check (I-FUNC-07): 11 files, 2 directories compared, 0 problems
+10:50:56 end I-FUNC-07: pass

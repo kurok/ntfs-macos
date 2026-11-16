@@ -4,8 +4,25 @@ Native NTFS read/write support for macOS 27 and newer, built on mature open-sour
 components (NTFS-3G on the macFUSE FSKit userspace backend) rather than a from-scratch
 filesystem.
 
-> **Status: not started.** Nothing here is implemented or tested yet. Do not use this
-> on a drive that holds data you care about.
+> **Status: developer preview, cannot mount yet.** Milestones 1 to 3 are done: NTFS-3G runs on
+> the macFUSE FSKit backend, and the safety probe, the volume marker and the patched engine pass
+> their test gates. Milestone 4 (daemon, automount, Finder integration) is in progress. Do not use
+> this on a drive that holds data you care about.
+
+## Status
+
+| Milestone | State |
+|---|---|
+| M1 Architecture and groundwork | Done |
+| M2 Working prototype (NTFS-3G on the macFUSE FSKit backend) | Done |
+| M3 File system correctness (safety probe, volume marker, crash and fuzz tests) | Done |
+| M4 macOS integration (daemon, automount, `ntfsmac` command, Finder) | In progress |
+| M5 Automated validation, M6 Packaging, M7 Release readiness | Not started |
+
+The first package, `0.1.0-dev.20261116`, is a GitHub
+[pre-release](https://github.com/kurok/ntfs-macos/releases). It installs the engine and the
+tools for testing only; it does not mount volumes. See [docs/INSTALL.md](docs/INSTALL.md) and the
+[release notes](docs/releases/0.1.0-dev.20261116.md).
 
 ## Goals
 

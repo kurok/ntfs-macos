@@ -297,6 +297,8 @@ What reaches the worker [V: T-M2-06]: an application's `fsync` and `F_FULLFSYNC`
 
 **Consequences.** No automatic checks on push or on outside pull requests; the coordinator runs `ci-local.sh --quick` before every push once T-M1-07 has created the minimal script (until then: `scripts/bootstrap.sh` and a manual `cmake --build` and `ctest`), and the full run at each milestone gate (T-M5-08 completes the script). No hosted-CI cost (risk R-22). Human action H4 is withdrawn. Publishing CI or binaries later needs a new decision by the owner.
 
+**Amendment 2026-11-16 (owner decision).** The owner may publish a package that `scripts/release-local.sh` built and verified as a GitHub pre-release, by hand. The release carries the `.pkg`, `SHA256SUMS`, `BUILD-INFO` and the unmodified NTFS-3G source tarball (GPL source offer, ADR-010), and its tag points at the commit in `BUILD-INFO`. Release notes are in `docs/releases/`; user instructions in `docs/INSTALL.md`. Everything else stays as decided: no GitHub Actions, no hosted runners, no automated uploads. The first such release is `v0.1.0-dev.20261116`.
+
 
 ## ADR-016 Disk-derived strings in the root daemon
 

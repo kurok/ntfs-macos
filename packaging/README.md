@@ -1,7 +1,8 @@
 # Packaging
 
-Local, unsigned developer packages (ADR-011 unsigned path). Nothing is uploaded: packages
-stay in the git-ignored `dist/` directory (ADR-015).
+Local, unsigned developer packages (ADR-011 unsigned path). Packages are built in the git-ignored
+`dist/` directory. Only the owner uploads a package, by hand, as a GitHub pre-release (ADR-015,
+amended 2026-11-16); user instructions are in [docs/INSTALL.md](../docs/INSTALL.md).
 
 ## Build a package
 

@@ -16,6 +16,7 @@ publishes them.
 | F6 `ntfs_inode_sync_file_name()` reparse tag read without a length check | review of 0011 | security | private advisory | Drafted 2026-11-16, not filed | patch 0013 |
 | F2 `ntfs_mft_load()` leaks the run list on "not self-contained" | fuzzing | bug | public issue | Drafted 2026-11-16, not filed | none (4 KiB per failed mount) |
 | F5 `ntfs_make_symlink()` leaks the attribute on invalid data | fuzzing | bug | public issue | Drafted 2026-11-16, not filed | none (56 bytes per access) |
+| F7 `ntfs_device_mount()` leaks the `$AttrDef` inode when loading `$AttrDef` fails | fuzzing (re-run of 2026-11-16) | bug | public issue | Drafted 2026-11-16, not filed; reproduced with valgrind on stock 2026.9.28 | none (about 4 KiB per failed mount) |
 | Read-only mount refuses a volume whose `$MFTMirr` is one write behind `$MFT` | crash sweep, `docs/spikes/M3-crashsweep-triage.md` | bug / enhancement | public issue | Drafted 2026-11-16, not filed; related upstream issue #209 | ADR-021 (`mirror_split`, repair) |
 | `ntfs_fsync()` never flushes the drive cache of a block device on macOS | T-M3-10, patch 0007 | bug | public issue | Text in the 0007 header, not filed | patch 0007 (ADR-022) |
 | Creation time stored as a raw `tv_sec` FILETIME on macOS | T-M3-06, patch 0008 | bug | public issue | Text in the 0008 header, not filed | patch 0008 (ADR-024) |

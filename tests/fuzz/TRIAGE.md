@@ -172,8 +172,11 @@ short read) have the same shape, with `na` open as well. `error_exit` at the end
 136 bytes (the inode, `inode.c:95`) and an indirect leak of 4096 bytes (its record, `mft.c:361`). Library
 code only: `volume.c` is not touched by the patch series. Reproducer: `tests/fuzz/image/findings/F7-attrdef-inode-leak.bin`
 (replay `ASAN_OPTIONS=detect_leaks=1 fuzz_probe FILE`; the leak is also reported by `fuzz_mountwalk`). Not
-filed and not fixed here: a leak in an error path of a short-lived process, like F2 and F5. Suggested fix for a
-report: close `na` and `ni` before `goto error_exit` in the `$AttrDef` block.
+fixed here: a leak in an error path of a short-lived process, like F2 and F5. Drafted 2026-11-16 as a public
+issue (`docs/UPSTREAM_REPORTS.md`), not filed; reproduced on stock 2026.9.28 with valgrind on the image that
+`fz_image_build()` makes from the reproducer (`ntfs-3g -o ro`: "Failed to open ntfs attribute", 136 bytes
+definitely and 4096 bytes indirectly lost from `volume.c:1240`). Suggested fix: close `na` and `ni` before
+`goto error_exit` in the `$AttrDef` block, as the `bad_upcase` label does for `$UpCase`.
 
 ### U: undefined behaviour in the library
 
@@ -195,8 +198,8 @@ reported, one issue per file with the unsigned-arithmetic fix is the usual form.
   0013, the run was made without `--skip-security`, it used one process for the whole 3601 s with no
   crash (2,014,880 executions, 4756 edges against 4049, `security.c` 19.0 % against 6.8 %). The
   8 CPU-hour run of T-M5-09 remains the place for depth.
-- F7 (engine leak, new in the run of 2026-11-16) is recorded here only; whether to report it with F2 and
-  F5 is an owner decision.
+- F7 (engine leak, new in the run of 2026-11-16) is drafted as a public issue, like F2 and F5, and listed in
+  `docs/UPSTREAM_REPORTS.md`; reproduced with valgrind on stock 2026.9.28 (136 + 4096 bytes lost).
 - Leaks stop libFuzzer at the first one, so `inner.sh` runs with leak detection off and
   lists every distinct leak of the final corpus in a replay (`leaks.log.sym`). A leak that
   needs an input that added no coverage is not found this way.

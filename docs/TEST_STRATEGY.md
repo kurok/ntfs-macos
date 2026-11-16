@@ -385,6 +385,10 @@ No test in the `macos-build` stage may attach or mount a disk image; that stage 
 
 Build outputs, packages and release candidates stay on the local machine under `build/` and `dist/` (both git-ignored). Publishing binaries anywhere is a later, explicit human decision.
 
+`scripts/install-git-hooks.sh` installs a local `pre-push` hook that runs `ci-local.sh --quick`, so the "before every push" rule is enforced on this machine (`git push --no-verify` skips it once).
+
+Local release pipeline: `scripts/release-local.sh` runs `ci-local.sh --quick`, then `packaging/build-pkg.sh` in a disposable clone of the golden VM (the engine links macFUSE's libfuse, which the host does not have), copies the unsigned package to `dist/<label>/`, and installs it in a second fresh clone: every installed binary must load and run, and `uninstall.sh` must leave no file and no receipt. Both VMs are deleted afterwards. Until T-M6-01 the package holds only the parts that exist (worker, ntfsprogs, probe, volmark under `/usr/local/libexec/ntfs-macos/`) and has no install scripts; see `packaging/README.md`.
+
 ## 10. Recording results
 
 | Item | Rule |

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-2.0-or-later -->
+<!-- Template for packaging/build-pkg.sh: @VERSION@, @LABEL@ and @PKG_ID@ are replaced. -->
+<installer-gui-script minSpecVersion="2">
+    <title>ntfs-macos @LABEL@ (unsigned developer build)</title>
+    <options customize="never" require-scripts="false" hostArchitectures="arm64"/>
+    <domains enable_anywhere="false" enable_currentUserHome="false" enable_localSystem="true"/>
+    <volume-check>
+        <allowed-os-versions>
+            <os-version min="27.0"/>
+        </allowed-os-versions>
+    </volume-check>
+    <installation-check script="ntfsmacCheck()"/>
+    <script>
+    <![CDATA[
+    function ntfsmacCheck() {
+        if (!system.files.fileExistsAtPath('/Library/Filesystems/macfuse.fs')) {
+            my.result.type = 'Fatal';
+            my.result.title = 'macFUSE is required';
+            my.result.message = 'Install macFUSE 5.5.0 or newer and turn it on in System Settings, then run this installer again. ntfs-macos does not bundle macFUSE.';
+            return false;
+        }
+        return true;
+    }
+    ]]>
+    </script>
+    <choices-outline>
+        <line choice="default">
+            <line choice="@PKG_ID@"/>
+        </line>
+    </choices-outline>
+    <choice id="default"/>
+    <choice id="@PKG_ID@" visible="false">
+        <pkg-ref id="@PKG_ID@"/>
+    </choice>
+    <pkg-ref id="@PKG_ID@" version="@VERSION@" onConclusion="none">component.pkg</pkg-ref>
+</installer-gui-script>

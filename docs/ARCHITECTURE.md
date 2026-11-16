@@ -470,6 +470,8 @@ Anything short of the positive proof (a missing `S` or `U` record, an `E` record
 
 Advisory locks: the FSKit backend does not forward `fcntl`/`flock` locks to the file system; they are local to the Mac [V:S15][V:S1, remote locking is kernel-backend only]. This is acceptable for a locally attached disk.
 
+Volume state transitions (T-M4-00, `src/daemon/volume.c`; coordinator decisions 2026-11-16 where this document was silent): `START` moves `Appeared` or `Failed` to `Probing`, so `mount` is accepted only in those two states. A probe timeout or crash is a verdict of `unknown`, not a failure. A policy `refuse` ends in `Failed` with reason `POLICY_REFUSED`, so a later `mount` retries. A busy unmount (a user eject that is refused) returns `Unmounting` to `Mounted`. A finished unmount goes to `Appeared` when the disk is still attached (for example after `diskutil unmount`), else to `Gone`. A disk that disappears during `Mounting` or `Mounted` goes to `Unmounting`, because a worker or a mount point may exist; in the earlier states it goes to `Gone`. A `ro` decision that produced a writable mount is a mount failure; a `rw` decision with a read-only mount is recorded as `ro` (section 4.1 step 8). Passive mode (section 8.4) is not a state: the daemon does not start a volume's state machine.
+
 ## 6. Security model
 
 Threat: a malicious or corrupt NTFS volume (the user plugs in an untrusted USB drive). NTFS-3G had two releases labelled Security Release in 2026 (2026.7.7, 2026.9.18) and two further releases with a CVE or memory-safety fixes (2026.2.25, 2026.9.28), fixing heap overflows, use-after-free and out-of-bounds bugs triggered by crafted volumes [V:S10]. The metadata parser must be assumed exploitable.

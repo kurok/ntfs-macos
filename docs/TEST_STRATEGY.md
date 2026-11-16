@@ -327,7 +327,7 @@ Fault model: the sweep's images are files, and the kernel keeps every issued wri
 
 Sweep (`tests/stress/crashsweep/run.sh --mode full`, Environment A): for each of 5 workloads (`seqwrite`, `smallfiles`, `renamechurn`, `overwrite_truncate`, `dirtree`), get the write count W with `count`, then run with `cut:N` for 110 values of N spread over 1..W (550 points; criterion 3.9 needs at least 500). Controls: the `count` run of each workload and `cut:0`, which must leave the image byte-identical to the fresh one (10 controls). After each run, with the release build and `norecover`: read-only mount, `ntfsfix -n`, the durability claims (every file whose `fsync` of file and parent returned at a write count up to N, unless a later operation on that path had started) and an advisory walk (`walk_dirty`, not a failure). `tests/stress/crashsweep/README.md` has the details.
 
-A failing cut point is not automatically a project bug: NTFS-3G has no journal, so some windows of metadata inconsistency are inherent. Each failure is classified by Opus as (a) expected non-atomic window, documented in the limitations (ARCHITECTURE.md section 9), (b) engine defect, reported upstream, or (c) defect in our patches, release-blocking.
+A failing cut point is not automatically a project bug: NTFS-3G has no journal, so some windows of metadata inconsistency are inherent. Each failure is classified by the senior reviewer as (a) expected non-atomic window, documented in the limitations (ARCHITECTURE.md section 9), (b) engine defect, reported upstream, or (c) defect in our patches, release-blocking.
 
 **Classified window `mirror_split` (class a).** A failing cut point is `mirror_split` only if all three hold; anything else stays an unclassified failure:
 
@@ -364,7 +364,7 @@ Build: clang, `-fsanitize=fuzzer,address,undefined`, Environment A only. Mutatio
 
 Budgets: 5 minutes per target in the local full CI run; 1 CPU-hour per target for the M3 gate; 8 CPU-hours for M5 (local machine, 18 cores available).
 
-Handling of findings: crashes in engine code are expected (two NTFS-3G releases labelled Security Release in 2026 and two further releases with CVE or memory-safety fixes [V:S10]). They are recorded in `docs/SECURITY_FINDINGS.md`, a report for the NTFS-3G maintainers is drafted, and sending it is a human decision. A finding reachable through a read-only mount of a crafted volume raises risk R-07 and is reviewed by Opus.
+Handling of findings: crashes in engine code are expected (two NTFS-3G releases labelled Security Release in 2026 and two further releases with CVE or memory-safety fixes [V:S10]). They are recorded in `docs/SECURITY_FINDINGS.md`, a report for the NTFS-3G maintainers is drafted, and sending it is a human decision. A finding reachable through a read-only mount of a crafted volume raises risk R-07 and is independently reviewed.
 
 ## 9. Continuous integration (local only)
 

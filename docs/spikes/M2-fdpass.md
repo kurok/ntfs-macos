@@ -203,7 +203,7 @@ device 3 runs x 16/16 PASS, image 1 run 15/15 PASS (`patched-blockdev-run{1,2,3}
 6. ARCHITECTURE.md 3.3: note that NTFS-3G adds `blkdev,blksize=<cluster size, max page size>` for an
    inherited block device, accepted by macFUSE 5.5.0 FSKit, next to the existing note about
    `allow_other,nonempty,fsname=`. `fsname=/dev/fd/N` is what libfuse gets.
-7. third_party/patches/ntfs-3g/README.md numbering table: 0003 status "Needed (T-M2-05), applied"; Opus
+7. third_party/patches/ntfs-3g/README.md numbering table: 0003 status "Needed (T-M2-05), applied"; independent
    review pending per AGENT_TASKS.md.
 8. TEST_STRATEGY.md: register I-SMOKE-02 as `tests/integration/smoke/fd_pass.sh` (Environment B, needs
    passwordless sudo in the guest for `fd_pass` only).

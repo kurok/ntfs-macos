@@ -39,10 +39,10 @@ Investigate all licensing and distribution requirements before implementation.
 
 Use a hierarchical, coordinated multi-agent workflow.
 
-### Phase 1 — Architecture using Fable 5.2
+### Phase 1 — Architecture
 
-Model: Fable 5.2
-Use Fable exclusively for initial architecture and the technical implementation strategy.
+Role: architecture lead
+Use the architecture lead exclusively for initial architecture and the technical implementation strategy.
 Responsibilities:
 
 1. Evaluate feasible macOS filesystem architectures.
@@ -54,7 +54,7 @@ Responsibilities:
 7. Design an automated testing strategy.
 8. Define implementation milestones and measurable acceptance criteria.
 9. Split the work into independent tasks suitable for cheaper agents.
-10. Identify high-risk components that require Opus-level reasoning.
+10. Identify high-risk components that require senior-level reasoning.
 
 Produce:
 
@@ -65,22 +65,22 @@ Produce:
 * `docs/TEST_STRATEGY.md`
 * `docs/RISK_REGISTER.md`
 
-Use Fable for one focused architecture phase. After architecture is approved internally and recorded, release the Fable agent.
-Do not repeatedly invoke Fable for ordinary implementation decisions.
-If Fable is unavailable or its use requires paid credits beyond the available free allowance, stop and checkpoint instead of substituting another architecture model.
+Use the architecture lead for one focused architecture phase. After architecture is approved internally and recorded, release the architecture agent.
+Do not repeatedly invoke the architecture lead for ordinary implementation decisions.
+If the architecture lead is unavailable or its use requires paid credits beyond the available free allowance, stop and checkpoint instead of substituting another architecture resource.
 
-### Phase 2 — Implementation using Sonnet and Opus only
+### Phase 2 — Implementation
 
-Allowed models:
+Allowed roles:
 
-* Sonnet 5.5
-* Opus 5.5
+* Implementer
+* Senior reviewer
 
-Do not use Fable again during ordinary implementation, and do not use Haiku or other models.
+Do not use the architecture lead again during ordinary implementation.
 
 #### Agent A — Coordinator
 
-Model: Sonnet 5.5
+Level: implementer
 Responsibilities:
 
 * Maintain the project backlog and dependencies.
@@ -96,7 +96,7 @@ Avoid giving the coordinator large coding tasks.
 
 #### Agent B — Filesystem Engineer
 
-Model: Sonnet 5.5 by default; Opus 5.5 when necessary.
+Level: implementer by default; senior reviewer when necessary.
 Responsibilities:
 
 * Integrate NTFS-3G with the selected macFUSE backend.
@@ -105,11 +105,11 @@ Responsibilities:
 * Handle threading, locking, metadata, and error handling.
 * Implement safe write behavior and recovery mechanisms.
 
-Use Opus only when Sonnet cannot resolve a complex correctness issue or when significant data-loss risks require deeper analysis.
+Use the senior reviewer only when the implementer cannot resolve a complex correctness issue or when significant data-loss risks require deeper analysis.
 
 #### Agent C — macOS Integration Engineer
 
-Model: Sonnet 5.5
+Level: implementer
 Responsibilities:
 
 * macOS 27 compatibility.
@@ -124,7 +124,7 @@ Avoid modifying system-level settings without explicit user authorization.
 
 #### Agent D — Testing and Reliability Engineer
 
-Model: Sonnet 5.5
+Level: implementer
 Responsibilities:
 
 * Automated unit and integration tests.
@@ -139,7 +139,7 @@ Implement reusable test infrastructure rather than manually repeating tests.
 
 #### Agent E — Independent Blame and Audit Agent
 
-Model: Sonnet 5.5; escalate to Opus 5.5 for complex findings.
+Level: implementer; escalate to the senior reviewer for complex findings.
 This is an additional independent agent dedicated to reviewing completed work and investigating failures.
 Responsibilities:
 
@@ -168,9 +168,9 @@ The highest priority after filesystem correctness is minimizing AI execution cos
 * Never switch to a paid provider to bypass exhausted limits.
 * If remaining free usage cannot be verified and a call might create charges, stop.
 * Limit concurrency to reduce duplicate context consumption.
-* Prefer Sonnet for routine implementation.
-* Reserve Opus for difficult reasoning, security-sensitive decisions, and important correctness reviews.
-* Never use Fable for routine coding or repetitive debugging.
+* Prefer the implementer for routine implementation.
+* Reserve the senior reviewer for difficult reasoning, security-sensitive decisions, and important correctness reviews.
+* Never use the architecture lead for routine coding or repetitive debugging.
 
 ### Token efficiency
 
@@ -397,11 +397,11 @@ Do not label the project production-ready solely because it compiles or passes L
 Start with an environment and quota preflight.
 Then:
 
-1. Invoke Fable 5.2 for the architecture phase.
+1. Invoke the architecture lead for the architecture phase.
 2. Save the architecture and implementation backlog.
-3. Switch to Sonnet 5.5 as coordinator.
-4. Delegate independent implementation tasks to Sonnet agents.
-5. Use Opus 5.5 only for difficult or high-risk tasks.
+3. Switch to the implementer as coordinator.
+4. Delegate independent implementation tasks to implementer agents.
+5. Use the senior reviewer only for difficult or high-risk tasks.
 6. Run automated tests continuously.
 7. Use the extra Blame Agent for independent auditing and root-cause analysis.
 8. Integrate only verified changes.

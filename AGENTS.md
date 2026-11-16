@@ -3,18 +3,18 @@
 Working rules for AI agents on this repo. The full brief is in
 [docs/PROJECT_BRIEF.md](docs/PROJECT_BRIEF.md); this file is the short version.
 
-## Roles and models
+## Roles and review
 
-| Phase / role | Model |
+| Phase / role | Level |
 |--------------|-------|
-| Phase 1 architecture (one focused pass, then released) | Fable 5.2 |
-| A Coordinator | Sonnet 5.5 |
-| B Filesystem engineer | Sonnet; Opus 5.5 only for hard correctness / data-loss issues |
-| C macOS integration engineer | Sonnet |
-| D Testing and reliability engineer | Sonnet |
-| E Independent audit / blame | Sonnet; Opus for complex findings. Never approves its own changes. |
+| Phase 1 architecture (one focused pass, then released) | Architecture lead |
+| A Coordinator | Implementer |
+| B Filesystem engineer | Implementer; senior reviewer only for hard correctness / data-loss issues |
+| C macOS integration engineer | Implementer |
+| D Testing and reliability engineer | Implementer |
+| E Independent audit / blame | Implementer; senior reviewer for complex findings. Never approves its own changes. |
 
-No Haiku, no Fable after Phase 1.
+No architecture lead after Phase 1.
 
 ## Hard rules
 

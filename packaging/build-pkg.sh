@@ -113,6 +113,8 @@ done
 install_bin ntfsmac-probe ntfsmac-probe "$build/src/probe"
 install_bin ntfsmac-volmark ntfsmac-volmark "$build/src/volmark"
 install -m 0755 "$here/uninstall.sh" "$payload/$libexec/uninstall.sh"
+# the manifest the uninstaller reads (T-M4-10); it also lists what the daemon install adds
+install -m 0644 "$here/manifest.txt" "$payload/$libexec/manifest.txt"
 
 install -m 0644 "$root/COPYING" "$root/README.md" "$payload/$docdir/"
 cp -R "$root/LICENSES" "$payload/$docdir/LICENSES"
@@ -121,13 +123,13 @@ find "$payload/$docdir/LICENSES" -type f -exec chmod 0644 {} +
 # Unsigned developer build: ad-hoc signatures only (ADR-011). No hardened runtime: library
 # validation would refuse macFUSE's Developer ID libfuse in an ad-hoc signed worker.
 for f in "$payload/$libexec"/*; do
-	[ "${f##*/}" = uninstall.sh ] && continue
+	case ${f##*/} in uninstall.sh | manifest.txt) continue ;; esac
 	codesign --force --sign - "$f"
 done
 
 # Refuse a payload that links anything outside the system, macFUSE or itself.
 for f in "$payload/$libexec"/*; do
-	[ "${f##*/}" = uninstall.sh ] && continue
+	case ${f##*/} in uninstall.sh | manifest.txt) continue ;; esac
 	otool -L "$f" | tail -n +2 | awk '{print $1}' | while read -r lib; do
 		case $lib in
 		/usr/lib/* | /System/Library/* | /usr/local/lib/libfuse*.dylib) ;;
@@ -162,8 +164,9 @@ rm -f "$out/$name.pkg"
 productbuild --distribution "$work/distribution.xml" --package-path "$work" "$out/$name.pkg"
 
 install -m 0755 "$here/uninstall.sh" "$out/uninstall.sh"
+install -m 0644 "$here/manifest.txt" "$out/manifest.txt"
 cp "$payload/$docdir/BUILD-INFO" "$out/BUILD-INFO"
-(cd "$out" && shasum -a 256 "$name.pkg" uninstall.sh >SHA256SUMS)
+(cd "$out" && shasum -a 256 "$name.pkg" uninstall.sh manifest.txt >SHA256SUMS)
 
 log "payload:"
 pkgutil --payload-files "$out/$name.pkg" | sed 's/^/  /'

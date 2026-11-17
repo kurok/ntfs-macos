@@ -1,0 +1,62 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# Install manifest of ntfs-macos (T-M4-10; docs/ARCHITECTURE.md section 10, ADR-019).
+# The single list of what the developer installer (dev-install.sh) puts on a Mac and what the
+# uninstaller (uninstall.sh) is allowed to remove. The installer is driven by it (owner, group
+# and mode of every entry), the uninstaller removes exactly these paths and nothing else, and the
+# release package (T-M6-01) must install the same set.
+#
+# One entry per line: TYPE MODE OWNER GROUP PATH, separated by blanks; PATH is the rest of the
+# line (it may hold spaces) and is absolute. A line that starts with # and an empty line are
+# ignored.
+#
+#   dir        a directory this project owns; made by the installer, removed by the uninstaller
+#              only if it is empty afterwards (a file someone else put there stays, and so does
+#              the directory)
+#   file       a regular file; installed with this owner and mode
+#   statedir   a directory the daemon makes at run time; kept by uninstall.sh and removed only
+#              by `uninstall.sh --purge-state` (the journal of unsafe volumes is state a person
+#              may want to keep)
+#   statefile  the same for a regular file
+#   right      an authorization right (Authorization Services database, not a file); MODE,
+#              OWNER and GROUP are `-`, PATH is the right name. The definition is in
+#              dev-install.sh (class user, group admin, shared false, timeout 0; ADR-019)
+#
+# The launchd job org.ntfs-macos.ntfsmacd is loaded from the plist below and booted out by the
+# uninstaller. /usr/local/bin, /Library/LaunchDaemons and /var/log are shared directories: they
+# are not listed and never removed. uninstall.sh refuses a manifest that names a path outside the
+# paths of this file's kind (see its allow-list), and the test `packaging.manifest` keeps both in
+# step.
+
+dir  0755 root wheel /usr/local/libexec/ntfs-macos
+file 0755 root wheel /usr/local/libexec/ntfs-macos/ntfsmacd
+file 0755 root wheel /usr/local/libexec/ntfs-macos/ntfsmac-worker
+file 0755 root wheel /usr/local/libexec/ntfs-macos/ntfsmac-probe
+file 0755 root wheel /usr/local/libexec/ntfs-macos/ntfsmac-volmark
+file 0755 root wheel /usr/local/libexec/ntfs-macos/mkntfs
+file 0755 root wheel /usr/local/libexec/ntfs-macos/ntfsfix
+file 0755 root wheel /usr/local/libexec/ntfs-macos/ntfsinfo
+file 0755 root wheel /usr/local/libexec/ntfs-macos/ntfslabel
+file 0755 root wheel /usr/local/libexec/ntfs-macos/uninstall.sh
+file 0644 root wheel /usr/local/libexec/ntfs-macos/manifest.txt
+
+file 0755 root wheel /usr/local/bin/ntfsmac
+
+dir  0755 root wheel /Library/Application Support/ntfs-macos
+file 0644 root wheel /Library/Application Support/ntfs-macos/cli-requirement
+dir  0755 root wheel /Library/Application Support/ntfs-macos/sandbox
+file 0644 root wheel /Library/Application Support/ntfs-macos/sandbox/probe.sb
+file 0644 root wheel /Library/Application Support/ntfs-macos/sandbox/volmark.sb
+file 0644 root wheel /Library/Application Support/ntfs-macos/sandbox/worker.sb
+
+file 0644 root wheel /Library/LaunchDaemons/org.ntfs-macos.ntfsmacd.plist
+
+dir  0755 root wheel /usr/local/share/doc/ntfs-macos
+file 0644 root wheel /usr/local/share/doc/ntfs-macos/COPYING
+file 0644 root wheel /usr/local/share/doc/ntfs-macos/README.md
+file 0644 root wheel /usr/local/share/doc/ntfs-macos/BUILD-INFO
+
+right - - - org.ntfs-macos.journal-modify
+
+statedir  0755 root wheel /var/db/ntfs-macos
+statefile 0644 root wheel /var/log/ntfsmacd.log

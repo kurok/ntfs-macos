@@ -657,6 +657,7 @@ User-facing documentation must carry N1 to N5 and N9 to N22 verbatim in a "Limit
 | `ntfsmac-probe`, `ntfsmacd`, `ntfsmac` | CMake + Ninja (ADR-007) | `/usr/local/libexec/ntfs-macos/`, `/usr/local/bin/ntfsmac` |
 | `org.ntfs-macos.ntfsmacd.plist` | static file | `/Library/LaunchDaemons/` |
 | sandbox profiles, default config | static files | `/Library/Application Support/ntfs-macos/` |
+| `manifest.txt` (`packaging/`) | static file; the one list of every installed path, with owner, group and mode, that `packaging/dev-install.sh` installs from (preset `product`, T-M4-10) and `uninstall.sh` removes from; also installed as `/usr/local/libexec/ntfs-macos/manifest.txt` | `/usr/local/libexec/ntfs-macos/` |
 | `ntfs-macos-<ver>.pkg`, `uninstall.sh` | `pkgbuild`/`productbuild` (present in base macOS) | local `dist/` only (ADR-015) |
 
 Target: arm64, deployment target macOS 27.0. External runtime prerequisite: macFUSE >= 5.5.0 installed by the user.

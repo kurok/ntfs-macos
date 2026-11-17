@@ -123,7 +123,7 @@ fi
 log "verify install in fresh VM $verify_vm"
 "$tart_sh" clone "$verify_vm" --from golden >&2
 "$tart_sh" run "$verify_vm" >&2
-tar -cf - -C "$out" "$pkg" uninstall.sh |
+tar -cf - -C "$out" "$pkg" uninstall.sh manifest.txt |
 	tart exec -i "$verify_vm" /bin/sh -c 'rm -rf ~/ntfsmac-verify && mkdir -p ~/ntfsmac-verify && tar -xf - -C ~/ntfsmac-verify'
 # shellcheck disable=SC2016 # expanded in the guest
 gexec "$verify_vm" '
@@ -145,7 +145,7 @@ check mkntfs --version
 check ntfsfix --version
 check ntfsinfo --version
 check ntfslabel --version
-for f in "$d"/*; do codesign --verify "$f" 2>/dev/null || case $f in *.sh) ;; *) echo "FAIL signature $f"; fail=1 ;; esac; done
+for f in "$d"/*; do codesign --verify "$f" 2>/dev/null || case $f in *.sh | */manifest.txt) ;; *) echo "FAIL signature $f"; fail=1 ;; esac; done
 sudo -n sh ./uninstall.sh
 if pkgutil --pkg-info org.ntfs-macos.pkg >/dev/null 2>&1; then echo "FAIL receipt still present"; fail=1; fi
 if [ -e "$d" ] || [ -e /usr/local/share/doc/ntfs-macos ]; then echo "FAIL files left after uninstall"; fail=1; fi

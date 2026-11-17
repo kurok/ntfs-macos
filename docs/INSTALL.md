@@ -43,7 +43,7 @@ What is installed:
 
 | Path | Content |
 |---|---|
-| `/usr/local/libexec/ntfs-macos/` | `ntfsmac-worker` (NTFS-3G 2026.9.28 with this project's patch series), `ntfsmac-probe`, `ntfsmac-volmark`, `mkntfs`, `ntfsfix`, `ntfsinfo`, `ntfslabel`, `uninstall.sh` |
+| `/usr/local/libexec/ntfs-macos/` | `ntfsmac-worker` (NTFS-3G 2026.9.28 with this project's patch series), `ntfsmac-probe`, `ntfsmac-volmark`, `mkntfs`, `ntfsfix`, `ntfsinfo`, `ntfslabel`, `uninstall.sh`, `manifest.txt` |
 | `/usr/local/share/doc/ntfs-macos/` | `COPYING`, `LICENSES/`, `README.md`, `BUILD-INFO` |
 
 The package adds nothing to `PATH`. It installs no daemon or LaunchDaemon, and it has no
@@ -63,8 +63,14 @@ sudo /usr/local/libexec/ntfs-macos/uninstall.sh
 ```
 
 The script removes only the files listed in the package receipt `org.ntfs-macos.pkg`, and only
-below the two directories above. Then it removes the receipt. To see what it would remove without
-removing anything, add `--dry-run`.
+below the directories that `manifest.txt` names (the two directories above). Then it removes the
+receipt. It checks every path first and stops with nothing removed if one lies outside those
+directories. To see what it would remove without removing anything, add `--dry-run`.
+
+The same script and manifest remove a developer install made from source (see
+[packaging/README.md](../packaging/README.md)): it also unloads the launchd job and removes the
+authorization right, and it leaves the journal of unsafe volumes in `/var/db/ntfs-macos` unless you
+add `--purge-state`.
 
 macFUSE stays installed. Remove it with its own uninstaller if you no longer need it.
 

@@ -82,7 +82,7 @@ allowed_ops() {
 	case "$1" in
 	probe) echo "process-exec file-read* file-ioctl" ;;
 	volmark) echo "process-exec file-read* file-ioctl" ;;
-	worker) echo "process-exec process-fork file-read* file-read-data file-read-metadata file-write-data mach-lookup" ;;
+	worker) echo "process-exec process-fork file-read* file-read-data file-read-metadata file-write-data file-ioctl mach-lookup" ;;
 	esac
 }
 
@@ -170,6 +170,10 @@ if [ -f "$f" ]; then
 	printf '%s\n' "$rules" | grep -q 'UserMapping' && bad worker.sb "writes the UserMapping path; use the parameter"
 	printf '%s\n' "$rules" | grep -q '(if (string=? (param "USERMAPPING") "yes")' || bad worker.sb "the UserMapping rule is not conditional on the option"
 	printf '%s\n' "$rules" | grep -q '(literal (param "USERMAPPING_PATH"))' || bad worker.sb "no UserMapping rule that takes its path from USERMAPPING_PATH"
+	# The one device ioctl: DKIOCSYNCHRONIZE (_IO "d" 22) on disk device nodes, as in volmark.sb.
+	printf '%s\n' "$rules" | grep '(allow[^()]*file-ioctl' \
+		| grep -v '^(allow file-ioctl (require-all (regex #"^/dev/r?disk\[0-9\]+(s\[0-9\]+)?\$") (ioctl-command (_IO "d" 22))))$' \
+		| grep -q . && bad worker.sb "has a file-ioctl rule other than DKIOCSYNCHRONIZE on disk device nodes"
 	# Starting a program: only EXEC_PATH and the macFUSE helper, by literal path.
 	printf '%s\n' "$rules" | grep -o '(allow process-exec[^()]*([a-z]* [^()]*))' \
 		| grep -v 'EXEC_PATH\|macfuse.app/Contents/MacOS/macfuse"' | grep -q . && bad worker.sb "allows starting another program"

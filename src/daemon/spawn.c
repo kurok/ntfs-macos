@@ -52,6 +52,7 @@
 #include <string.h>
 #if defined(__APPLE__)
 #include <libproc.h>
+#include <mach-o/dyld.h>
 #include <sys/mount.h>
 #include <sys/proc_info.h>
 #endif
@@ -572,6 +573,7 @@ typedef struct launch_spec {
 	bool drop;         /* change to `uid` and `gid` before the exec */
 	uid_t uid;
 	gid_t gid;
+	bool user_session; /* with `drop`: start it in the bootstrap context of `uid` (see user_session_wrap) */
 } launch_spec;
 
 /* In the child: become `uid`, `gid` and prove that root cannot be regained. */
@@ -803,6 +805,108 @@ static ntfsmac_dmn_status sandbox_wrap(const ntfsmac_spawn_config *cfg, const ch
 	return NTFSMAC_DMN_OK;
 }
 
+/*
+ * U6, found by the first run of the wired daemon (T-M4-08): a FUSE server started by a launchd
+ * daemon lives in the system bootstrap domain, and the macFUSE mount service answers it
+ * "unsatisfiedPeerCodeSigningRequirement" and mounts nothing. The same worker started by a root
+ * process that sits in the user's session mounts (T-M4-01 ran that way). So the worker is started
+ * through `launchctl asuser UID`, which adopts the bootstrap namespace of the user and leaves the
+ * credentials alone, and a second step of this same program (`ntfsmacd --exec-as UID GID PROGRAM
+ * ARGS`, ntfsmac_spawn_exec_as) drops from root to the console user the way drop_privileges does,
+ * with the same descriptors, and starts the program. Nothing but launchctl and this program run
+ * as root in the chain, before the sandbox is applied.
+ */
+#define LAUNCHCTL_PATH "/bin/launchctl"
+#define WRAP_ARGV_MAX (SANDBOX_ARGV_MAX + 8)
+
+typedef struct session_wrap {
+	char *argv[WRAP_ARGV_MAX];
+	char uid[24];
+	char gid[24];
+	char self[PATH_MAX];
+} session_wrap;
+
+static bool user_session_wrap(const launch_spec *s, session_wrap *w)
+{
+	size_t n = 0, i;
+#if defined(__APPLE__)
+	uint32_t size = (uint32_t)sizeof w->self;
+
+	if (_NSGetExecutablePath(w->self, &size) != 0)
+		return false;
+#else
+	return false;
+#endif
+	if (snprintf(w->uid, sizeof w->uid, "%lu", (unsigned long)s->uid) >= (int)sizeof w->uid ||
+	    snprintf(w->gid, sizeof w->gid, "%lu", (unsigned long)s->gid) >= (int)sizeof w->gid)
+		return false;
+	w->argv[n++] = (char *)LAUNCHCTL_PATH;
+	w->argv[n++] = (char *)"asuser";
+	w->argv[n++] = w->uid;
+	w->argv[n++] = w->self;
+	w->argv[n++] = (char *)NTFSMAC_EXEC_AS_FLAG;
+	w->argv[n++] = w->uid;
+	w->argv[n++] = w->gid;
+	w->argv[n++] = (char *)s->path;
+	for (i = 1; s->argv[i] != NULL; i++) { /* argv[0] is `path` itself */
+		if (n >= WRAP_ARGV_MAX - 1u)
+			return false;
+		w->argv[n++] = s->argv[i];
+	}
+	w->argv[n] = NULL;
+	return true;
+}
+
+/*
+ * `ntfsmacd --exec-as UID GID PROGRAM [ARG...]`: the second step of the chain above. Returns
+ * only on failure (an exit code for main). Root only, and never to uid 0.
+ */
+int ntfsmac_spawn_exec_as(int argc, char **argv)
+{
+	char *end;
+	unsigned long u, g;
+
+	if (argc < 5 || argv[1] == NULL || strcmp(argv[1], NTFSMAC_EXEC_AS_FLAG) != 0)
+		return 2;
+	errno = 0;
+	u = strtoul(argv[2], &end, 10);
+	if (errno != 0 || argv[2][0] == '\0' || *end != '\0' || u == 0 || u > 0xFFFFFFFEu)
+		return 2;
+	g = strtoul(argv[3], &end, 10);
+	if (errno != 0 || argv[3][0] == '\0' || *end != '\0' || g == 0 || g > 0xFFFFFFFEu)
+		return 2;
+	if (argv[4][0] != '/')
+		return 2;
+	if (geteuid() != 0)
+		return 126;
+	if (drop_privileges((uid_t)u, (gid_t)g) != 0)
+		return 126;
+	/* An explicit environment, as the daemon built it: launchctl may have added its own. */
+	{
+		char *env[3];
+		size_t ne = 0, k;
+		static const char errfd[] = "NTFSMAC_ERRFD=";
+
+		env[ne++] = (char *)"PATH=/usr/bin:/bin";
+		for (k = 0; environ != NULL && environ[k] != NULL; k++) {
+			const char *e = environ[k];
+			size_t d;
+
+			if (strncmp(e, errfd, sizeof errfd - 1u) != 0)
+				continue;
+			for (d = sizeof errfd - 1u; e[d] >= '0' && e[d] <= '9'; d++)
+				;
+			if (d > sizeof errfd - 1u && e[d] == '\0' && d - (sizeof errfd - 1u) <= 4u) {
+				env[ne++] = environ[k];
+				break;
+			}
+		}
+		env[ne] = NULL;
+		execve(argv[4], &argv[4], env);
+	}
+	return 127;
+}
+
 static ntfsmac_dmn_status launch(const launch_spec *s, pid_t *pid_out, int *capture_rd)
 {
 	int devnull = -1, outp[2] = { -1, -1 }, stp[2] = { -1, -1 };
@@ -812,6 +916,10 @@ static ntfsmac_dmn_status launch(const launch_spec *s, pid_t *pid_out, int *capt
 	int e = 0;
 	ssize_t n;
 	uint64_t end;
+	const char *path = s->path;
+	char *const *argv = s->argv;
+	bool drop = s->drop;
+	session_wrap wrap;
 #if defined(__APPLE__)
 	posix_spawnattr_t attr;
 	posix_spawn_file_actions_t fa;
@@ -823,6 +931,13 @@ static ntfsmac_dmn_status launch(const launch_spec *s, pid_t *pid_out, int *capt
 	*pid_out = -1;
 	if (capture_rd != NULL)
 		*capture_rd = -1;
+	if (s->drop && s->user_session) {
+		if (!user_session_wrap(s, &wrap))
+			return NTFSMAC_DMN_E_INVAL;
+		path = LAUNCHCTL_PATH;
+		argv = wrap.argv;
+		drop = false; /* root until the --exec-as step */
+	}
 #if !defined(__APPLE__)
 	{
 		long m = sysconf(_SC_OPEN_MAX);
@@ -878,7 +993,7 @@ static ntfsmac_dmn_status launch(const launch_spec *s, pid_t *pid_out, int *capt
 			dummy = errno;
 			goto child_fail;
 		}
-		if (s->drop && drop_privileges(s->uid, s->gid) != 0) {
+		if (drop && drop_privileges(s->uid, s->gid) != 0) {
 			dummy = EPERM;
 			goto child_fail;
 		}
@@ -889,7 +1004,7 @@ static ntfsmac_dmn_status launch(const launch_spec *s, pid_t *pid_out, int *capt
 			}
 		}
 #if defined(__APPLE__)
-		dummy = posix_spawn(NULL, s->path, &fa, &attr, s->argv, s->envp);
+		dummy = posix_spawn(NULL, path, &fa, &attr, argv, s->envp);
 #else
 		{
 			int fd;
@@ -903,7 +1018,7 @@ static ntfsmac_dmn_status launch(const launch_spec *s, pid_t *pid_out, int *capt
 				if (!keep)
 					(void)close(fd);
 			}
-			execve(s->path, s->argv, s->envp);
+			execve(path, argv, s->envp);
 			dummy = errno;
 		}
 #endif
@@ -1510,6 +1625,7 @@ ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
 	ls.drop = drop;
 	ls.uid = run->console_uid;
 	ls.gid = run->console_gid;
+	ls.user_session = true; /* only the worker: it talks to the mount service of the user's session */
 
 	st = launch(&ls, &pid, NULL);
 	if (st != NTFSMAC_DMN_OK)

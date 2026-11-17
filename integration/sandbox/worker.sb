@@ -56,6 +56,16 @@
 ;; look is allowed; opening the path is not, because the descriptor is all the worker needs.
 (allow file-read-metadata (regex #"^/dev/fd/[0-9]+$"))
 
+;; After a sync point the worker flushes the drive's own cache (DKIOCSYNCHRONIZE, patch 0007,
+;; ADR-022 item 2). An ioctl is checked against the device's path even on an inherited
+;; descriptor, so this one command is allowed on disk device nodes and nothing else is (the
+;; same rule as in volmark.sb). Without it every flush answers EPERM, every rw session writes a
+;; `W flush` record and every eject says the drive did not confirm the flush (found in the VM
+;; run of T-M4-08). Opening a node stays denied.
+(allow file-ioctl
+       (require-all (regex #"^/dev/r?disk[0-9]+(s[0-9]+)?$")
+                    (ioctl-command (_IO "d" 22))))
+
 ;; ---- Mounting through macFUSE (the FSKit backend) ----
 
 ;; libfuse and the macFUSE bundle: the library, MFMount.framework, the file system extension's

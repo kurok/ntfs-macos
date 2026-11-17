@@ -150,10 +150,26 @@ static int real_read_block0(void *ctx, int fd, uint8_t *buf)
 	return 0;
 }
 
+/*
+ * Clear what a child could have set on the shared open file: O_NONBLOCK, O_APPEND and O_ASYNC.
+ * A disk device node answers fcntl(F_SETFL) with ENOTTY even when nothing changes (found in the
+ * first VM run of T-M4-08), so F_SETFL is called only when a flag is set.
+ */
+int ntfsmac_fd_reset_flags(int fd)
+{
+	int fl = fcntl(fd, F_GETFL);
+
+	if (fl < 0)
+		return -1;
+	if ((fl & (O_NONBLOCK | O_APPEND | O_ASYNC)) == 0)
+		return 0;
+	return fcntl(fd, F_SETFL, fl & ~(O_NONBLOCK | O_APPEND | O_ASYNC));
+}
+
 static int real_reset_flags(void *ctx, int fd)
 {
 	(void)ctx;
-	return fcntl(fd, F_SETFL, 0);
+	return ntfsmac_fd_reset_flags(fd);
 }
 
 static ntfsmac_dmn_status real_describe(void *ctx, const char *bsd, ntfsmac_disk_info *out)

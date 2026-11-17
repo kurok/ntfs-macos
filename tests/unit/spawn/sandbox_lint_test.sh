@@ -69,7 +69,7 @@ fresh; after_default "$tmp/m/worker.sb" ';; x\n(allow mach-lookup)'; expect work
 fresh; after_default "$tmp/m/probe.sb" ';; x\n(allow process-fork)'; expect probe-fork 'allows fork'
 fresh; after_default "$tmp/m/worker.sb" ';; x\n(allow signal)'; expect worker-signal 'signal allow rule'
 fresh; after_default "$tmp/m/worker.sb" ';; x\n(allow file*)'; expect worker-file-star 'every file operation'
-fresh; after_default "$tmp/m/worker.sb" ';; x\n(allow file-ioctl)'; expect worker-ioctl 'does not need'
+fresh; after_default "$tmp/m/worker.sb" ';; x\n(allow file-ioctl)'; expect worker-ioctl 'file-ioctl rule other than'
 fresh; after_default "$tmp/m/worker.sb" ';; x\n(allow network*)'; expect worker-network-star 'network allow rule'
 fresh; sed -e 's|(param "XPC_SERVICE")|"io.example.privileged"|' "$tmp/m/worker.sb" > "$tmp/m/w" && mv "$tmp/m/w" "$tmp/m/worker.sb"; expect worker-xpc-name-written 'last three rules'
 

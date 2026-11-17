@@ -439,6 +439,9 @@ static void case_fault(void)
 
 int main(int argc, char **argv)
 {
+	/* The worker's start runs this program once more as `--exec-as` inside the user's session. */
+	if (argc >= 2 && strcmp(argv[1], NTFSMAC_EXEC_AS_FLAG) == 0)
+		return ntfsmac_spawn_exec_as(argc, argv);
 	char path[300];
 	const char *only;
 

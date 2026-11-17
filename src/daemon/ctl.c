@@ -515,10 +515,12 @@ ntfsmac_dmn_status ntfsmac_ctl_start_env(const char *socket_path, const ntfsmac_
 	c->thread_started = true;
 	/*
 	 * Say it early if the right is not set up: every privileged request is
-	 * refused for that reason (each one checks again), the rest still works.
+	 * refused for that reason (each one checks again), the rest still works. Under ROOT_PEER
+	 * (check 4 does not use the right) there is nothing to say.
 	 */
-	if (env->sys->right_definition == NULL ||
-	    env->sys->right_definition(env->sys->ctx) != NTFSMAC_CTL_SYS_YES)
+	if (env->authz == NTFSMAC_CTL_AUTHZ_EXTERNAL_FORM &&
+	    (env->sys->right_definition == NULL ||
+	     env->sys->right_definition(env->sys->ctx) != NTFSMAC_CTL_SYS_YES))
 		fprintf(stderr, "ntfsmacd: the right %s is missing or not as intended; "
 				"journal_clear and repair are refused until it is installed\n",
 			NTFSMAC_CTL_RIGHT_NAME);

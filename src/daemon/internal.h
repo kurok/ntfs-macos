@@ -104,6 +104,7 @@ typedef enum ntfsmac_vol_reason {
 	NTFSMAC_VREASON_MOUNT_TIMEOUT,  /* the 30 s wait of step 8 */
 	NTFSMAC_VREASON_MODE_MISMATCH,  /* ro decision, writable mount (step 8) */
 	NTFSMAC_VREASON_UNMOUNT,        /* unmount failed (section 4.5) */
+	NTFSMAC_VREASON_STRAY_MOUNT,    /* the worker mounted another file system (T-M4-08, H1) */
 	NTFSMAC_VREASON_COUNT_
 } ntfsmac_vol_reason;
 
@@ -252,6 +253,15 @@ typedef struct ntfsmac_worker_run {
  */
 ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
 					ntfsmac_child *child, bool *mounted_ro);
+
+/*
+ * `ntfsmacd --exec-as UID GID PROGRAM [ARG...]`: the step of the worker's start that runs inside
+ * the console user's bootstrap context (`launchctl asuser`): drop from root to UID and GID, then
+ * exec PROGRAM. Returns only when it fails: 2 bad arguments, 126 not root or the drop failed, 127
+ * the exec failed.
+ */
+#define NTFSMAC_EXEC_AS_FLAG "--exec-as"
+int ntfsmac_spawn_exec_as(int argc, char **argv);
 
 /* Non-blocking wait on a child. OK with *exited false while it runs. */
 ntfsmac_dmn_status ntfsmac_child_poll(ntfsmac_child *child, bool *exited,
@@ -544,6 +554,9 @@ ntfsmac_bind_result ntfsmac_bind_check_disk(const char *probed_bsd, const char *
 					    ntfsmac_dmn_status describe_status);
 bool ntfsmac_bind_same_device(const ntfsmac_dev_id *a, const ntfsmac_dev_id *b);
 const char *ntfsmac_bind_result_name(ntfsmac_bind_result r);
+
+/* Clear O_NONBLOCK, O_APPEND and O_ASYNC on `fd`; F_SETFL only when one is set (device nodes refuse it). */
+int ntfsmac_fd_reset_flags(int fd);
 
 typedef struct ntfsmac_session ntfsmac_session; /* opaque, one per mounted volume */
 
@@ -1064,12 +1077,30 @@ typedef enum ntfsmac_notify_kind {
 	NTFSMAC_NOTIFY_WRITE_ERROR,
 	NTFSMAC_NOTIFY_REFUSED,
 	NTFSMAC_NOTIFY_VOLMARK_INTERRUPTED,
-	NTFSMAC_NOTIFY_MIRROR_SPLIT
+	NTFSMAC_NOTIFY_MIRROR_SPLIT,
+	NTFSMAC_NOTIFY_STRAY_MOUNT /* T-M4-08: the worker mounted another file system (H1) */
 } ntfsmac_notify_kind;
 
 /* `label` is the sanitised label only; `reason` is a fixed daemon text, not disk-derived. */
 ntfsmac_dmn_status ntfsmac_notify_post(ntfsmac_notify_kind kind, const char *label,
 				       const char *reason);
+
+/*
+ * The text of a notification, from a fixed template, `label` (sanitised) and `reason` (a fixed
+ * text of the daemon, or a time for WRITE_ERROR; both may be NULL). Control bytes are replaced.
+ * Returns the length (without the NUL), or 0 with an empty `buf` for a kind out of range or a
+ * `buf` that is too small. Pure.
+ */
+size_t ntfsmac_notify_text(ntfsmac_notify_kind kind, const char *label, const char *reason,
+			   char *buf, size_t cap);
+
+/*
+ * Where the text goes. The default shows a banner to the console user (macOS) and logs it; a
+ * sink replaces the banner (tests, and the VM driver that records the notifications). Pass NULL
+ * to restore the default. ntfsmac_notify_post() returns OK when a sink took the text.
+ */
+typedef void (*ntfsmac_notify_sink_fn)(ntfsmac_notify_kind kind, const char *text, void *ctx);
+void ntfsmac_notify_set_sink(ntfsmac_notify_sink_fn fn, void *ctx);
 
 #ifdef __cplusplus
 }

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  SPDX-License-Identifier: GPL-2.0-or-later
+
+  launchd job of the root daemon (T-M4-08; docs/ARCHITECTURE.md sections 3.4 and 10).
+  Installed at /Library/LaunchDaemons/org.ntfs-macos.ntfsmacd.plist, owned by root, mode 0644.
+
+  MachServices: the privileged XPC service of journal-clear and repair (ADR-019, amendment of
+  2026-11-16). NTFSMAC_CTL_XPC_SERVICE in include/ntfsmac/ctl_proto.h is the one definition of
+  the name; the key below must stay equal to it (the unit test of the plist checks that).
+  Without this entry the daemon's listener receives nothing and the CLI cannot reach it.
+
+  The Unix socket /var/run/ntfsmacd.sock is made by the daemon itself, not by launchd: it needs
+  the peer checks of section 3.4 and a replacement rule for a stale socket file.
+
+  ExitTimeOut: on SIGTERM the daemon unmounts the volumes it serves and settles their sessions
+  (section 4.5); launchd must not send SIGKILL before that is done.
+
+  No option of the daemon is set here except where the owner chooses it: add
+  <string>--automount-mode=ro</string> after the program path to attach every volume read-only
+  until `ntfsmac mount` is run (section 3.6).
+-->
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>org.ntfs-macos.ntfsmacd</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/usr/local/libexec/ntfs-macos/ntfsmacd</string>
+	</array>
+	<key>MachServices</key>
+	<dict>
+		<key>org.ntfs-macos.ctl.privileged</key>
+		<true/>
+	</dict>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>KeepAlive</key>
+	<true/>
+	<key>ThrottleInterval</key>
+	<integer>10</integer>
+	<key>ExitTimeOut</key>
+	<integer>60</integer>
+	<key>ProcessType</key>
+	<string>Interactive</string>
+	<key>StandardOutPath</key>
+	<string>/var/log/ntfsmacd.log</string>
+	<key>StandardErrorPath</key>
+	<string>/var/log/ntfsmacd.log</string>
+</dict>
+</plist>

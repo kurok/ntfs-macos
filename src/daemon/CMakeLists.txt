@@ -49,7 +49,7 @@ if(APPLE)
     "-framework DiskArbitration" "-framework Security" "-framework CoreFoundation")
 endif()
 
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/main.c)
+if(APPLE AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/main.c)
   add_executable(ntfsmacd main.c)
   target_link_libraries(ntfsmacd PRIVATE ntfsmac_daemon ntfsmac_options)
 endif()

@@ -211,9 +211,24 @@ typedef struct ntfsmac_volmark_run {
 	unsigned timeout_s;       /* 20 before the first write (section 3) */
 } ntfsmac_volmark_run;
 
-/* `set` or `clear` of the on-disk marker; the result is volmark's exit code mapped. */
+/*
+ * `set` or `clear` of the on-disk marker; the result is volmark's exit code mapped.
+ * `*exit_code` is volmark's exit code, or -1 (timeout before `w`: nothing was written), -2
+ * (timeout after `w`: a write may have been cut, ARCHITECTURE.md section 3.6), -3 (not run) or -4
+ * (status E_BUSY: SIGKILL was sent and the child could not be reaped, so it may still hold the
+ * device: the caller must not go on with this descriptor).
+ */
 ntfsmac_dmn_status ntfsmac_spawn_volmark(const ntfsmac_volmark_run *run,
 					 bool set, int *exit_code);
+
+/* The three marker commands of section 3.6 (T-M4-14 adds `clear-repair`, ADR-017). */
+typedef enum ntfsmac_volmark_op {
+	NTFSMAC_VOLMARK_SET = 0,
+	NTFSMAC_VOLMARK_CLEAR,
+	NTFSMAC_VOLMARK_CLEAR_REPAIR
+} ntfsmac_volmark_op;
+ntfsmac_dmn_status ntfsmac_spawn_volmark_op(const ntfsmac_volmark_run *run,
+					    ntfsmac_volmark_op op, int *exit_code);
 
 typedef struct ntfsmac_worker_run {
 	int device_fd;            /* A for ro, B for rw */
@@ -401,20 +416,242 @@ ntfsmac_dmn_status ntfsmac_errwatch_drain(ntfsmac_errwatch *w, int rd, unsigned 
 /* Session lifecycle (session.c, T-M4-14)                              */
 /* ------------------------------------------------------------------ */
 
-typedef struct ntfsmac_session ntfsmac_session; /* opaque, one per mounted volume */
+/*
+ * One session is one mount of one volume, from the journal entry to the removal of the entry
+ * (ARCHITECTURE.md sections 3.5, 3.6, 4.1 steps 6 and 9, 4.5). The module owns the device
+ * descriptor of the session: begin() takes over descriptor A (the probe's, O_RDONLY) and hands
+ * back the descriptor the worker gets, end() closes it. All system facts come through
+ * ntfsmac_session_sys, so every decision is tested on the host with fakes; the real one
+ * (ntfsmac_session_sys_real_init) opens device nodes by BSD name and runs the real volmark.
+ *
+ * How T-M4-08 calls it, in this order, on the volume's serial queue:
+ *   1. step 4: open A (O_RDONLY), read the first 4096 bytes through A into `block0`, run the
+ *      probe (ntfsmac_spawn_probe), note the DAMediaPath (ntfsmac_disk_info.media_path);
+ *   2. step 5: ntfsmac_session_decide() (journal lookup, evidence rule, policy table);
+ *   3. step 6 and the marker: ntfsmac_session_begin(); on NTFSMAC_DMN_E_DENIED the volume is
+ *      `Failed` with the reason in `res->failed`; otherwise spawn the worker with
+ *      ntfsmac_session_device_fd() and `res->mode` (never the decision: the session may have
+ *      fallen back to ro);
+ *   4. while it runs: when the errwatch parser reports an `E` record or a protocol error, call
+ *      ntfsmac_session_note_write_error();
+ *   5. step 3 of 4.5: ntfsmac_session_end() after the worker exit and ntfsmac_errwatch_drain();
+ *      show the notification that matches `res->report`, then ntfsmac_session_free().
+ * A daemon restart re-adopts a session without a ntfsmac_session object: it can never be
+ * proven clean, so the entry and the marker stay (section 7).
+ */
+
+#define NTFSMAC_BLOCK0_BYTES 4096u /* the bytes of section 4.1 step 4 that bind the device */
+
+/* Identity of an open device: st_rdev of a device node, or st_dev and st_ino of a file. */
+typedef struct ntfsmac_dev_id {
+	uint64_t a;
+	uint64_t b;
+} ntfsmac_dev_id;
+
+typedef struct ntfsmac_session_sys {
+	void *ctx;
+	/* Open the buffered node /dev/<bsd> (never /dev/rdisk*) with O_CLOEXEC; fd or -1. */
+	int (*open_device)(void *ctx, const char *bsd, bool writable);
+	void (*close_fd)(void *ctx, int fd);
+	/* Identity of the open descriptor; 0 on success. */
+	int (*dev_identity)(void *ctx, int fd, ntfsmac_dev_id *out);
+	/* Read the first NTFSMAC_BLOCK0_BYTES bytes through `fd` (offset 0); 0 on success. */
+	int (*read_block0)(void *ctx, int fd, uint8_t *buf);
+	/* F_SETFL reset of the status flags of descriptor A after the probe; 0 on success. */
+	int (*reset_flags)(void *ctx, int fd);
+	/* Fresh Disk Arbitration description of the disk (the "no other mount" part of the binding). */
+	ntfsmac_dmn_status (*describe)(void *ctx, const char *bsd, ntfsmac_disk_info *out);
+	/* ntfsmac_spawn_volmark_op() with the same meaning of `*exit_code`. */
+	ntfsmac_dmn_status (*volmark)(void *ctx, const ntfsmac_volmark_run *run,
+				      ntfsmac_volmark_op op, int *exit_code);
+	/* Section 4.5 step 3: fsync, then the drive flush. OK iff fsync worked; *flush_ok = flush. */
+	ntfsmac_dmn_status (*sync_device)(void *ctx, int fd, bool *flush_ok);
+	int64_t (*now)(void *ctx);             /* seconds since the epoch */
+	uint64_t (*new_session_id)(void *ctx); /* non-zero, unique per read/write session */
+} ntfsmac_session_sys;
+
+typedef struct ntfsmac_session_sys_real {
+	ntfsmac_session_sys sys;
+	ntfsmac_da *da; /* for describe(); NULL: describe fails, so every binding fails closed */
+} ntfsmac_session_sys_real;
+void ntfsmac_session_sys_real_init(ntfsmac_session_sys_real *r, ntfsmac_da *da);
+
+/* Configuration of the daemon that the session code reads. */
+typedef struct ntfsmac_session_config {
+	bool automount_ro;          /* `automount_mode=ro`: attaches are ro, no journal entry, no volmark */
+	bool evidence_rule_enabled; /* section 3.5 rule 2; false until U12 is resolved */
+#if defined(NTFSMAC_TEST_SEAMS)
+	bool marker_disabled;       /* test seam: marker=none, volmark is not run (absent in `product`) */
+#endif
+	unsigned volmark_timeout_s; /* 0 means 20 */
+} ntfsmac_session_config;
 
 /*
- * Start of a read/write session: journal entry, binding, volmark set,
- * ordering of section 3.6. Fills `mode` with the mode that results
- * (`ro` after a volmark failure).
+ * The policy input mode of an attach (section 3.2 request column). `automatic` is an attach
+ * seen by Disk Arbitration; a `mount` request from the CLI is not. With automount_mode=ro an
+ * automatic attach is `ro` (the user then unmounts and runs `ntfsmac mount` for rw, section
+ * 3.6); a request is `ro` only when it asked for it. Pure.
  */
-ntfsmac_dmn_status ntfsmac_session_begin(ntfsmac_journal *j, const ntfsmac_probe_verdict *v,
-					 ntfsmac_policy_decision decision,
-					 ntfsmac_session **out, ntfsmac_vol_mode *mode);
-/* End: applies the clean-session proof and journal rules (sections 3.5 and 4.5). */
+ntfsmac_policy_mode ntfsmac_session_policy_mode(const ntfsmac_session_config *cfg,
+						bool automatic, bool request_ro);
+
+typedef struct ntfsmac_session_decision {
+	ntfsmac_policy_result policy;
+	bool evidence_removed; /* path 2 fired now: the entry went to the tombstones; stays ro */
+	bool entry_corrupt;    /* the entry could not be read: treated as an entry that blocks rw */
+} ntfsmac_session_decision;
+
+/*
+ * Section 4.1 step 5: look up the entry for the verdict's serial (ntfsmac_journal_get), let
+ * ntfsmac_policy_decide() decide, and apply the journal action `remove` (rule 2, evidence of an
+ * external check) through ntfsmac_journal_remove_if(), unless `session_live` (may be NULL) says
+ * the entry's session is live. A missing entry is no entry; an entry that
+ * is corrupt or cannot be read stands in as an entry with marker `failed` and state
+ * `write_error`, so that it blocks rw and rule 2 (section 3.5). A removal that fails leaves the
+ * entry in place. The decision is never rw while an entry exists.
+ */
+ntfsmac_dmn_status ntfsmac_session_decide(const ntfsmac_session_config *cfg, ntfsmac_journal *j,
+					  const ntfsmac_probe_verdict *v, bool automatic,
+					  bool request_ro, int64_t now,
+					  bool (*session_live)(void *, uint64_t), void *live_ctx,
+					  ntfsmac_session_decision *out);
+
+/*
+ * Remove the entry for expected->serial only if it is still the one `expected` describes (same
+ * session_id and created; a stand-in with both 0 matches a corrupt entry). ERR_PATH_CONDITION
+ * when another entry is there now, NOT_FOUND when none. Serialised with the entry creation of
+ * ntfsmac_session_begin(): an entry that appeared after the caller looked is never removed.
+ * Every removal that follows a gate or a slow step uses this, not ntfsmac_journal_remove().
+ */
+ntfsmac_journal_status ntfsmac_journal_remove_if(ntfsmac_journal *j,
+						 const ntfsmac_journal_entry *expected,
+						 ntfsmac_journal_removal path, int64_t now);
+
+/* Binding (ADR-020), pure parts. */
+typedef enum ntfsmac_bind_result {
+	NTFSMAC_BIND_OK = 0,
+	NTFSMAC_BIND_APPLE_MOUNTED, /* only Apple's read-only driver has the disk: ro */
+	NTFSMAC_BIND_OTHER_MOUNTED, /* another file system has it: Failed */
+	NTFSMAC_BIND_DISK_CHANGED,  /* not the object the probe ran on (BSD name, DAMediaPath) */
+	NTFSMAC_BIND_NO_ANSWER      /* the description could not be had: fail closed */
+} ntfsmac_bind_result;
+ntfsmac_bind_result ntfsmac_bind_check_disk(const char *probed_bsd, const char *probed_media_path,
+					    const ntfsmac_disk_info *now,
+					    ntfsmac_dmn_status describe_status);
+bool ntfsmac_bind_same_device(const ntfsmac_dev_id *a, const ntfsmac_dev_id *b);
+const char *ntfsmac_bind_result_name(ntfsmac_bind_result r);
+
+typedef struct ntfsmac_session ntfsmac_session; /* opaque, one per mounted volume */
+
+/* Everything the attach flow knows at step 6. */
+typedef struct ntfsmac_session_begin_in {
+	const char *bsd;                   /* "disk4s1"; validated again here */
+	const ntfsmac_probe_verdict *verdict;
+	ntfsmac_policy_decision decision;  /* RW or RO; REFUSE is E_INVAL */
+	int probe_fd;                      /* descriptor A; the session owns it from the call on */
+	uint8_t block0[NTFSMAC_BLOCK0_BYTES]; /* first 4096 bytes read through A before the probe ran */
+	char media_path[128];              /* DAMediaPath of the disk at probe time */
+} ntfsmac_session_begin_in;
+
+/* Why the session is ro although rw was decided. Fixed texts only. */
+typedef enum ntfsmac_session_reason {
+	NTFSMAC_SREASON_NONE = 0,          /* rw as decided, or ro as decided */
+	NTFSMAC_SREASON_OTHER_DRIVER,      /* Apple's driver has the disk mounted: ro */
+	NTFSMAC_SREASON_JOURNAL,           /* the entry could not be created (or exists): ro */
+	NTFSMAC_SREASON_BINDING,           /* the writable descriptor did not match the probe: ro, nothing was written */
+	NTFSMAC_SREASON_MARKER_FAILED,     /* "could not mark the volume; mounted read-only" */
+	NTFSMAC_SREASON_MARKER_INTERRUPTED, /* the same, and a write may have been cut (section 3.6) */
+	NTFSMAC_SREASON_BINDING_AFTER_MARK  /* sector 0 differs after volmark: the flag may be on the disk
+					     * (repair --clear-dirty applies), unlike BINDING */
+} ntfsmac_session_reason;
+
+typedef struct ntfsmac_session_start {
+	ntfsmac_vol_mode mode;     /* the mode the worker gets: RO or RW; NONE on E_DENIED */
+	ntfsmac_session_reason reason;
+	ntfsmac_vol_reason failed; /* on E_DENIED: NTFSMAC_VREASON_BINDING, or _SPAWN when volmark
+				    * could not be reaped after SIGKILL */
+	uint64_t session_id;       /* 0 for a ro session without an entry */
+} ntfsmac_session_start;
+
+/*
+ * Section 4.1 step 6 and section 3.6 "Ordering in the daemon", steps 1 and 2. For rw:
+ *   journal entry (marker pending), synced
+ *   -> open B (O_RDWR) while A is open; identity(A) == identity(B) and the first 4096 bytes
+ *      through B equal block0; only then close A
+ *   -> volmark set (--expect-serial/--expect-sectors from the verdict; 20 s until `w`, then up
+ *      to 120 s, enforced by the spawn module); exit 0
+ *   -> first 4096 bytes through B equal block0 again
+ *   -> journal marker=set, synced
+ * Any failure on that path closes B, records marker=failed where the entry exists, opens a fresh
+ * O_RDONLY descriptor, binds it again (identity, bytes, Disk Arbitration) and returns mode RO
+ * with the reason; no worker ever writes in that attach. Before any of this the Disk Arbitration
+ * description must show the same disk (BSD name and DAMediaPath) with no mount path; Apple's
+ * read-only mount gives ro, another mount gives E_DENIED. For ro the session uses A itself after
+ * resetting its flags and checking the first 4096 bytes again; no entry, no volmark.
+ * Returns OK with `*out` set (also for a ro fallback), E_DENIED (`res->failed`) or E_INVAL.
+ * On any return the probe descriptor is no longer the caller's: it is closed or owned by `*out`.
+ */
+ntfsmac_dmn_status ntfsmac_session_begin(const ntfsmac_session_sys *sys,
+					 const ntfsmac_session_config *cfg, ntfsmac_journal *j,
+					 const ntfsmac_session_begin_in *in,
+					 ntfsmac_session **out, ntfsmac_session_start *res);
+
+int ntfsmac_session_device_fd(const ntfsmac_session *s); /* the descriptor for the worker */
+ntfsmac_vol_mode ntfsmac_session_mode(const ntfsmac_session *s);
+uint64_t ntfsmac_session_id(const ntfsmac_session *s);   /* 0 without an entry (ro) */
+/* True while the session holds a journal entry (a rw session): for the live-session gate. */
+bool ntfsmac_session_owns_entry(const ntfsmac_session *s);
+
+/*
+ * First `E` record, or a broken channel (section 7): journal state=write_error, synced.
+ * Idempotent; a ro session has no entry and does nothing.
+ */
+ntfsmac_dmn_status ntfsmac_session_note_write_error(ntfsmac_session *s);
+
+typedef enum ntfsmac_session_report {
+	NTFSMAC_SREPORT_RO_CLOSED = 0,  /* ro session: nothing to settle */
+	NTFSMAC_SREPORT_CLEAN,          /* "ejected, all data written" */
+	NTFSMAC_SREPORT_CLEAN_NO_FLUSH, /* clean, but the drive did not confirm the flush (W or flush failed) */
+	NTFSMAC_SREPORT_UNCLEAN,        /* no positive proof, or a failed device sync: entry and marker stay */
+	NTFSMAC_SREPORT_CLEAR_FAILED    /* proof held, volmark clear failed: marker stays set, run chkdsk */
+} ntfsmac_session_report;
+
+typedef struct ntfsmac_session_end_result {
+	ntfsmac_session_report report;
+	bool entry_removed;
+	bool clear_interrupted; /* volmark clear was cut after `w`: the residual text of section 3.6 */
+} ntfsmac_session_end_result;
+
+/*
+ * Section 4.5 step 3. A rw session is clean only if all hold: the positive proof of section 7
+ * (ntfsmac_errwatch_clean_proof, never re-adopted), the journal state is `open`, the daemon's
+ * device sync (`fsync`) succeeded, and `volmark clear` exited 0 (skipped when marker=none).
+ * Then the entry is removed (path 1). Anything less leaves the entry and the flag in place
+ * ("silence is never success"). An `E` record or a protocol error also records state=write_error.
+ * Closes the descriptor. The session stays allocated until ntfsmac_session_free().
+ */
 ntfsmac_dmn_status ntfsmac_session_end(ntfsmac_session *s, const ntfsmac_errwatch *w,
-				       bool unmount_seen_first, int worker_exit_status);
-void ntfsmac_session_free(ntfsmac_session *s);
+				       bool unmount_seen_first, int worker_exit_status,
+				       ntfsmac_session_end_result *res);
+void ntfsmac_session_free(ntfsmac_session *s); /* closes the descriptor if end() did not */
+
+/*
+ * A bound marker write outside a session (ADR-017 `repair --clear-dirty`). `in` is what was
+ * captured before the gate probe ran on descriptor A (bsd, verdict, probe_fd, block0 read before
+ * the probe, DAMediaPath), exactly as for ntfsmac_session_begin(); the call takes over probe_fd
+ * and closes it. The fresh Disk Arbitration description must show the same disk and no mount
+ * (Apple's included: the gate needs the volume unmounted), B (O_RDWR) must be the same device
+ * with the same first 4096 bytes as before the probe, A is closed, volmark `op` runs on B with
+ * the serial and sector count of the verdict, the first 4096 bytes are compared again and B is
+ * closed. Volmark itself checks serial, sector count and flags (exits 15, 13) as well.
+ * OK: volmark exited 0. E_DENIED: binding failed, nothing was written. E_IO or E_TIMEOUT:
+ * volmark failed, `*exit_code` as in ntfsmac_spawn_volmark_op(). E_IO with exit code 0: sector 0
+ * changed during the run.
+ */
+ntfsmac_dmn_status ntfsmac_session_marker_write(const ntfsmac_session_sys *sys,
+						const ntfsmac_session_begin_in *in,
+						ntfsmac_volmark_op op, unsigned timeout_s,
+						int *exit_code);
 
 /* ------------------------------------------------------------------ */
 /* Restart reconciliation (reconcile.c, T-M4-05)                       */
@@ -685,6 +922,103 @@ void ntfsmac_ctl_stop(ntfsmac_ctl *c);
 ntfsmac_dmn_status ntfsmac_ctl_handle_line(const ntfsmac_ctl_ops *ops, void *ctx,
 					   const ntfsmac_ctl_peer *peer, const char *line,
 					   size_t len, char *reply, size_t cap);
+
+/* ------------------------------------------------------------------ */
+/* Privileged requests (ctl_journal.c, T-M4-14)                        */
+/* ------------------------------------------------------------------ */
+
+/*
+ * `journal_clear` and `repair --clear-dirty` behind the five checks of ADR-019. Checks 1 to 4
+ * are done by ctl.c before these functions run (and only on the XPC door); check 5, the
+ * policy gates (section 3.2) and the typed label and serial, is done here. The fresh probe and
+ * the writes are the daemon's, so they come in through ntfsmac_priv_sys. The functions fit
+ * ntfsmac_ctl_ops.journal_clear and .repair with `ctx` pointing to a ntfsmac_priv; T-M4-08's
+ * ops table calls them from small wrappers, on the volume's queue or under the daemon's lock
+ * for the volume registry (they serialise among themselves with one mutex and nothing more).
+ * A repair `sync_mirror` is T-M4-16's: it answers NOTIMPL here.
+ */
+typedef struct ntfsmac_priv_volume {
+	bool mounted;    /* Mounting, Mounted or Unmounting, in any mode */
+	bool mounted_rw; /* mounted read/write now */
+} ntfsmac_priv_volume;
+
+/*
+ * What a fresh probe leaves behind for the write that may follow (section 4.1 steps 4 and 6):
+ * descriptor A, still open, the first 4096 bytes read through it before the probe ran, and the
+ * DAMediaPath of the disk at that time.
+ */
+typedef struct ntfsmac_priv_bind {
+	int fd; /* -1 when nothing is held */
+	uint8_t block0[NTFSMAC_BLOCK0_BYTES];
+	char media_path[128];
+} ntfsmac_priv_bind;
+
+typedef struct ntfsmac_priv_sys {
+	void *ctx;
+	/* The daemon's record of `bsd`. false: no such volume. */
+	bool (*volume)(void *ctx, const char *bsd, ntfsmac_priv_volume *out);
+	/*
+	 * A probe run for this request on the volume: open A (O_RDONLY), read block 0, note the
+	 * DAMediaPath, run ntfsmac_spawn_probe() on A. A stays open in `bind` (fd -1 on failure).
+	 */
+	ntfsmac_dmn_status (*probe_fresh)(void *ctx, const char *bsd, ntfsmac_probe_verdict *out,
+					  ntfsmac_priv_bind *bind);
+	/* Close the descriptor in `bind` and set it to -1 (every path that does not write). May be NULL. */
+	void (*bind_release)(void *ctx, ntfsmac_priv_bind *bind);
+	/* Is a volume, on any BSD name, Mounting or Mounted with this journal session id? */
+	bool (*session_live)(void *ctx, uint64_t session_id);
+	/*
+	 * Bound `volmark clear-repair` (ntfsmac_session_marker_write) on the descriptor in `bind`,
+	 * which it takes over and closes. *exit_code as there.
+	 */
+	ntfsmac_dmn_status (*clear_dirty)(void *ctx, const char *bsd, const ntfsmac_probe_verdict *v,
+					  ntfsmac_priv_bind *bind, int *exit_code);
+	int64_t (*now)(void *ctx);
+} ntfsmac_priv_sys;
+
+typedef struct ntfsmac_priv {
+	const ntfsmac_priv_sys *sys;
+	ntfsmac_journal *journal;
+} ntfsmac_priv;
+
+ntfsmac_dmn_status ntfsmac_priv_journal_clear(void *priv, const ntfsmac_ctl_peer *peer,
+					      const char *bsd, const char *confirm_label,
+					      const char *confirm_serial, char *reply, size_t cap);
+ntfsmac_dmn_status ntfsmac_priv_repair(void *priv, const ntfsmac_ctl_peer *peer, const char *bsd,
+				       const char *action, const char *confirm_label,
+				       const char *confirm_serial, char *reply, size_t cap);
+
+/*
+ * The `journal` member that the `status` reply carries for a volume that has a journal entry
+ * (T-M4-08 puts it into the reply), so that the CLI can show the specific warning of ADR-017
+ * BEFORE it asks for the typed confirmation and the password:
+ *   "journal":{"marker":"set","state":"write_error","warning":"write_error","left_open":"2026-11-17T08:00:00Z"}
+ * `warning` is none, write_error or lost_flush (ntfsmac_policy_journal_clear_warning(), with the
+ * last probe of the volume, which may be NULL); `left_open` is the creation time of the entry in
+ * UTC. Fixed words and a formatted time only. Returns the number of bytes written (without the
+ * NUL), or 0 if `e` is NULL or `cap` is too small.
+ */
+size_t ntfsmac_priv_journal_member(const ntfsmac_journal_entry *e, const ntfsmac_probe_verdict *last,
+				   char *buf, size_t cap);
+
+/* Fixed wire name of a policy gate result, the `reason` of a refusal ("probe_not_clean"). */
+const char *ntfsmac_priv_gate_name(ntfsmac_policy_gate g);
+
+/*
+ * The real system facts: the fresh probe is open A (O_RDONLY), ntfsmac_spawn_probe(), close A;
+ * clear_dirty is ntfsmac_session_marker_write() with `clear-repair`. `volume` and
+ * `session_live` are the daemon's registry (T-M4-08) and are given by the caller.
+ */
+typedef struct ntfsmac_priv_sys_real {
+	ntfsmac_priv_sys sys;
+	const ntfsmac_session_sys *ss;
+	bool (*volume)(void *ctx, const char *bsd, ntfsmac_priv_volume *out);
+	bool (*session_live)(void *ctx, uint64_t session_id);
+	void *registry_ctx;
+} ntfsmac_priv_sys_real;
+void ntfsmac_priv_sys_real_init(ntfsmac_priv_sys_real *r, const ntfsmac_session_sys *ss,
+				bool (*volume)(void *, const char *, ntfsmac_priv_volume *),
+				bool (*session_live)(void *, uint64_t), void *registry_ctx);
 
 /* ------------------------------------------------------------------ */
 /* Notifications (notify.c, T-M4-08)                                   */

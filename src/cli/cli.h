@@ -26,10 +26,30 @@ extern "C" {
 #define NTFSMAC_CLI_EXIT_USAGE 2       /* bad command line */
 #define NTFSMAC_CLI_EXIT_UNAVAILABLE 3 /* no daemon, no answer, not implemented */
 
+/*
+ * What the privileged commands (journal-clear, repair) need from the outside, so that tests can
+ * stand in for the system dialog, the XPC service and the terminal. NULL members mean the real
+ * thing. The real `ntfsmac` never sets them.
+ */
+typedef struct ntfsmac_cli_authz ntfsmac_cli_authz;
+typedef struct ntfsmac_cli_priv_hooks {
+	int (*authz_acquire)(const char *prompt, char hex[2 * NTFSMAC_CTL_AUTH_FORM_BYTES + 1],
+			     ntfsmac_cli_authz **out, char *err_text, size_t err_cap);
+	void (*authz_release)(ntfsmac_cli_authz *h);
+	int (*exchange)(const char *service, const char *line, int timeout_ms, char *reply,
+			size_t cap, char *err_text, size_t err_cap);
+	int (*is_root)(void);
+	/* the read-only `status` request on the socket that precedes the confirmation (NULL: real) */
+	int (*sock_exchange)(const char *socket_path, const char *line, int timeout_ms, char *reply,
+			     size_t cap, char *err_text, size_t err_cap);
+	FILE *in; /* where the typed confirmation is read from; NULL: stdin */
+} ntfsmac_cli_priv_hooks;
+
 typedef struct ntfsmac_cli_ctx {
 	const char *socket_path;
 	FILE *out;
 	FILE *err;
+	const ntfsmac_cli_priv_hooks *hooks; /* NULL in the real program */
 } ntfsmac_cli_ctx;
 
 /* ------------------------------------------------------------------ */
@@ -57,6 +77,8 @@ int ntfsmac_cli_req_end(ntfsmac_cli_req *r);
 const char *ntfsmac_cli_reason_text(const char *code);
 /* Text for a refusal id such as "not_admin", or NULL. */
 const char *ntfsmac_cli_refusal_text(const char *id);
+/* Text for the reason of a refused journal_clear or repair ("probe_not_clean"), or NULL. */
+const char *ntfsmac_cli_gate_text(const char *id);
 /* Text for an error code such as "bad_json", or NULL. */
 const char *ntfsmac_cli_error_text(const char *code);
 
@@ -96,8 +118,6 @@ int ntfsmac_cli_exchange(const char *socket_path, const char *line, int timeout_
 /* Administrator authorization (authz.c)                               */
 /* ------------------------------------------------------------------ */
 
-typedef struct ntfsmac_cli_authz ntfsmac_cli_authz;
-
 /*
  * Ask the system for the right org.ntfs-macos.journal-modify (shows the
  * password prompt) and return the external form as 64 hex digits plus NUL.
@@ -106,6 +126,15 @@ typedef struct ntfsmac_cli_authz ntfsmac_cli_authz;
  */
 int ntfsmac_cli_authz_acquire(const char *prompt, char hex[2 * NTFSMAC_CTL_AUTH_FORM_BYTES + 1],
 			      ntfsmac_cli_authz **out, char *err_text, size_t err_cap);
+/*
+ * The prompt call of Authorization Services does not fail without a GUI session: it waits (U17,
+ * finding 2). ntfsmac_cli_authz_acquire() therefore gives up after NTFSMAC_CLI_PROMPT_TIMEOUT_S
+ * seconds. The timeout is applied by this helper, which runs `fn(arg)` on its own thread and
+ * waits at most `timeout_ms`: true if `fn` returned in time. A thread that is still blocked is
+ * left behind (the program exits soon after). Portable; tested on every host.
+ */
+#define NTFSMAC_CLI_PROMPT_TIMEOUT_S 120
+bool ntfsmac_cli_run_with_timeout(void (*fn)(void *), void *arg, unsigned timeout_ms);
 void ntfsmac_cli_authz_release(ntfsmac_cli_authz *h);
 
 /* ------------------------------------------------------------------ */
@@ -119,9 +148,38 @@ int ntfsmac_cli_run_request(const ntfsmac_cli_ctx *ctx, ntfsmac_ctl_cmd cmd,
 /* `ntfsmac [--socket PATH] <command> ...`; argv[0] is the program name. */
 int ntfsmac_cli_main(int argc, char **argv, FILE *out, FILE *err);
 
-/* T-M4-14 replaces these two files. Until then they answer "not implemented". */
+/* `ntfsmac journal-clear [--label TEXT --serial HEX8] <bsd>` (cmd_journal.c). */
 int ntfsmac_cli_cmd_journal_clear(const ntfsmac_cli_ctx *ctx, int argc, char **argv);
+/* `ntfsmac repair --clear-dirty [--label TEXT --serial HEX8] <bsd>` (cmd_repair.c). */
 int ntfsmac_cli_cmd_repair(const ntfsmac_cli_ctx *ctx, int argc, char **argv);
+
+/*
+ * Same as ntfsmac_cli_main() with the hooks of the privileged commands (tests). `hooks` may be
+ * NULL.
+ */
+int ntfsmac_cli_main_hooks(int argc, char **argv, FILE *out, FILE *err,
+			   const ntfsmac_cli_priv_hooks *hooks);
+
+/* ------------------------------------------------------------------ */
+/* Privileged requests (priv.c, xpc_client.c)                          */
+/* ------------------------------------------------------------------ */
+
+/*
+ * One request to the XPC service `service` (NTFSMAC_CTL_XPC_SERVICE for the real program) and
+ * its reply line, within `timeout_ms`. 0, or -1 with text in `err_text`. macOS only.
+ */
+int ntfsmac_cli_privileged_exchange(const char *service, const char *line, int timeout_ms,
+				    char *reply, size_t cap, char *err_text, size_t err_cap);
+
+/*
+ * The flow of journal-clear and repair (ADR-017, ADR-019): print what the action does and does
+ * not do, collect the typed label and serial, get the administrator authorization (a system
+ * password dialog; a root caller has none and sends no form), send the request on the XPC
+ * service, release the authorization, show the reply. `action` is "clear_dirty" for repair and
+ * NULL for journal-clear. The authorization form only ever goes to NTFSMAC_CTL_XPC_SERVICE.
+ */
+int ntfsmac_cli_priv_run(const ntfsmac_cli_ctx *ctx, ntfsmac_ctl_cmd cmd, const char *action,
+			 int argc, char **argv);
 
 #ifdef __cplusplus
 }

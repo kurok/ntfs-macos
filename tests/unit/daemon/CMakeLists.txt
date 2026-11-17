@@ -10,7 +10,7 @@ foreach(t transitions invalid stubs)
 endforeach()
 
 # T-M4-03: mount point and unmount modules. T-M4-13: session channel (errwatch).
-foreach(t mountpoint unmount errwatch)
+foreach(t mountpoint unmount errwatch session privops)
   add_executable(${t}_test ${t}_test.c)
   target_include_directories(${t}_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(${t}_test PRIVATE ntfsmac_daemon ntfsmac_options)

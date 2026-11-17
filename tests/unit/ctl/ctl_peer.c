@@ -340,6 +340,7 @@ static void test_order(void)
 	do {                                                            \
 		fake_sys_init(&s, &sys);                                \
 		ntfsmac_ctl_replay_init(&replay);                       \
+		memset(&env, 0, sizeof env);                            \
 		env.sys = &sys;                                         \
 		env.replay = &replay;                                   \
 		p = good_peer();                                        \
@@ -435,6 +436,127 @@ static void test_order(void)
 	CHECK_EQ_INT(ntfsmac_ctl_authorise_privileged(&env, &ops, &o, &p, NULL), NTFSMAC_CTL_REFUSE_CHECK_UNAVAILABLE);
 }
 
+/*
+ * U-CTL-PEER-08 (T-M4-14): check 4 behind one seam with two strategies. EXTERNAL_FORM is the
+ * design of ADR-019 (the default); ROOT_PEER is its fallback while U17 is open: a root peer, no
+ * right, no form, checks 1 to 3 as before.
+ */
+static void test_strategies(void)
+{
+	fake_sys_state s;
+	ntfsmac_ctl_sys sys;
+	ntfsmac_ctl_replay replay;
+	ntfsmac_ctl_env env;
+	fake_ops_state o;
+	ntfsmac_ctl_ops ops = fake_ops();
+	ntfsmac_ctl_peer p;
+	ntfsmac_ctl_request req;
+
+	memset(&o, 0, sizeof o);
+	memset(&req, 0, sizeof req);
+	req.cmd = NTFSMAC_CTL_CMD_JOURNAL_CLEAR;
+	req.has_auth = true;
+	memset(req.auth, 0x42, sizeof req.auth);
+
+#define FRESH2(strategy)                                        \
+	do {                                                    \
+		fake_sys_init(&s, &sys);                        \
+		ntfsmac_ctl_replay_init(&replay);               \
+		memset(&env, 0, sizeof env);                    \
+		env.sys = &sys;                                 \
+		env.replay = &replay;                           \
+		env.authz = (strategy);                         \
+		env.channel = NTFSMAC_CTL_CHAN_XPC;             \
+		p = good_peer();                                \
+		memset(&o, 0, sizeof o);                        \
+	} while (0)
+#define CHK4() ntfsmac_ctl_check_admin_authorization(&env, &p, &req)
+#define ALL() ntfsmac_ctl_authorise_privileged(&env, &ops, &o, &p, &req)
+
+	/* the default is the design of the ADR, unless the build asks for the fallback */
+#if defined(NTFSMAC_CTL_AUTHZ_FALLBACK_ROOT) && NTFSMAC_CTL_AUTHZ_FALLBACK_ROOT
+	CHECK_EQ_INT(ntfsmac_ctl_default_authz(), NTFSMAC_CTL_AUTHZ_ROOT_PEER);
+#else
+	CHECK_EQ_INT(ntfsmac_ctl_default_authz(), NTFSMAC_CTL_AUTHZ_EXTERNAL_FORM);
+#endif
+	CHECK_EQ_INT(NTFSMAC_CTL_AUTHZ_EXTERNAL_FORM, 0); /* the zero value of an env is the design */
+
+	/* (a) external form through the seam: same results as the direct check */
+	FRESH2(NTFSMAC_CTL_AUTHZ_EXTERNAL_FORM);
+	CHECK_EQ_INT(CHK4(), PASS);
+	CHECK_EQ_INT(s.authz_calls, 1);
+	CHECK_EQ_INT(CHK4(), NTFSMAC_CTL_REFUSE_AUTHORIZATION_REPLAYED); /* the same form again */
+	FRESH2(NTFSMAC_CTL_AUTHZ_EXTERNAL_FORM);
+	req.has_auth = false;
+	CHECK_EQ_INT(CHK4(), NTFSMAC_CTL_REFUSE_NO_AUTHORIZATION);
+	req.has_auth = true;
+	FRESH2(NTFSMAC_CTL_AUTHZ_EXTERNAL_FORM);
+	p.uid = 0; /* root is not enough for the design: it still needs the form */
+	req.has_auth = false;
+	CHECK_EQ_INT(CHK4(), NTFSMAC_CTL_REFUSE_NO_AUTHORIZATION);
+	req.has_auth = true;
+	FRESH2(NTFSMAC_CTL_AUTHZ_EXTERNAL_FORM);
+	s.right_answer = NTFSMAC_CTL_SYS_NO;
+	CHECK_EQ_INT(CHK4(), NTFSMAC_CTL_REFUSE_AUTHORIZATION_RIGHT_INVALID);
+
+	/* (b) root peer: uid 0 only; no right, no form, no replay table */
+	FRESH2(NTFSMAC_CTL_AUTHZ_ROOT_PEER);
+	p.uid = 0;
+	req.has_auth = false;
+	CHECK_EQ_INT(CHK4(), PASS);
+	CHECK_EQ_INT(CHK4(), PASS); /* nothing is recorded: a second request passes too */
+	req.has_auth = true;
+	CHECK_EQ_INT(CHK4(), PASS);
+	CHECK_EQ_INT(s.authz_calls + s.right_calls, 0); /* a form, if sent, is never looked at */
+	CHECK_EQ_INT(replay.count, 0);
+	FRESH2(NTFSMAC_CTL_AUTHZ_ROOT_PEER);
+	p.uid = 501; /* an administrator with a form is not root */
+	CHECK_EQ_INT(CHK4(), NTFSMAC_CTL_REFUSE_AUTHORIZATION_DENIED);
+	p.uid = 1;
+	CHECK_EQ_INT(CHK4(), NTFSMAC_CTL_REFUSE_AUTHORIZATION_DENIED);
+	CHECK_EQ_INT(s.authz_calls + s.right_calls, 0);
+	s.right_answer = NTFSMAC_CTL_SYS_NO; /* the right is not needed in this mode */
+	p.uid = 0;
+	CHECK_EQ_INT(CHK4(), PASS);
+	CHECK_EQ_INT(ntfsmac_ctl_check_root_peer(NULL), NTFSMAC_CTL_REFUSE_CHECK_UNAVAILABLE);
+
+	/* (b) all four: checks 1 to 3 still decide first and in order */
+	FRESH2(NTFSMAC_CTL_AUTHZ_ROOT_PEER);
+	p.uid = 0;
+	CHECK_EQ_INT(ALL(), PASS);
+	FRESH2(NTFSMAC_CTL_AUTHZ_ROOT_PEER);
+	p.uid = 0;
+	p.admin = false;
+	CHECK_EQ_INT(ALL(), NTFSMAC_CTL_REFUSE_NOT_ADMIN);
+	FRESH2(NTFSMAC_CTL_AUTHZ_ROOT_PEER);
+	p.uid = 0;
+	o.spawned[0] = 400;
+	o.nspawned = 1;
+	CHECK_EQ_INT(ALL(), NTFSMAC_CTL_REFUSE_SPAWNED_PROCESS);
+	FRESH2(NTFSMAC_CTL_AUTHZ_ROOT_PEER);
+	p.uid = 0;
+	s.signed_answer = NTFSMAC_CTL_SYS_NO;
+	CHECK_EQ_INT(ALL(), NTFSMAC_CTL_REFUSE_CLIENT_NOT_SIGNED);
+	FRESH2(NTFSMAC_CTL_AUTHZ_ROOT_PEER);
+	p.uid = 0;
+	p.has_audit_token = false; /* check 3 needs the token of the message */
+	CHECK_EQ_INT(ALL(), NTFSMAC_CTL_REFUSE_CHECK_UNAVAILABLE);
+	FRESH2(NTFSMAC_CTL_AUTHZ_ROOT_PEER);
+	p.uid = 501;
+	CHECK_EQ_INT(ALL(), NTFSMAC_CTL_REFUSE_AUTHORIZATION_DENIED);
+
+	/* an unknown strategy never passes; NULL arguments fail closed */
+	FRESH2((ntfsmac_ctl_authz_strategy)7);
+	p.uid = 0;
+	CHECK_EQ_INT(CHK4(), NTFSMAC_CTL_REFUSE_CHECK_UNAVAILABLE);
+	CHECK_EQ_INT(ntfsmac_ctl_check_admin_authorization(NULL, &p, &req), NTFSMAC_CTL_REFUSE_CHECK_UNAVAILABLE);
+	CHECK_EQ_INT(ntfsmac_ctl_check_admin_authorization(&env, NULL, &req), NTFSMAC_CTL_REFUSE_CHECK_UNAVAILABLE);
+	CHECK_EQ_INT(ntfsmac_ctl_check_admin_authorization(&env, &p, NULL), NTFSMAC_CTL_REFUSE_CHECK_UNAVAILABLE);
+#undef FRESH2
+#undef CHK4
+#undef ALL
+}
+
 int main(void)
 {
 	test_gate_and_admin();
@@ -444,6 +566,7 @@ int main(void)
 	test_authorization();
 	test_right();
 	test_order();
+	test_strategies();
 	if (g_failures != 0) {
 		fprintf(stderr, "%d failure(s)\n", g_failures);
 		return 1;

@@ -312,6 +312,7 @@ static void test_volmark(void)
 
 	link_as("volmark-set");
 	link_as("volmark-clear");
+	link_as("volmark-clearrepair");
 	link_as("volmark-exit11");
 	link_as("volmark-hang");
 	link_as("volmark-hangafterw");
@@ -333,6 +334,17 @@ static void test_volmark(void)
 	ntfsmac_spawn_config_set(&c);
 	CHECK_EQ_INT(ntfsmac_spawn_volmark(&run, false, &code), NTFSMAC_DMN_OK);
 	CHECK_EQ_INT(code, 0);
+
+	/* U-SPN-10b (T-M4-14): the third command, `clear-repair`, and no other, gets that name. */
+	c.volmark_path = path_of("volmark-clearrepair");
+	ntfsmac_spawn_config_set(&c);
+	CHECK_EQ_INT(ntfsmac_spawn_volmark_op(&run, NTFSMAC_VOLMARK_CLEAR_REPAIR, &code),
+		     NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(code, 0);
+	CHECK_EQ_INT(ntfsmac_spawn_volmark_op(&run, NTFSMAC_VOLMARK_CLEAR, &code), NTFSMAC_DMN_E_IO);
+	CHECK_EQ_INT(code, 2);
+	CHECK_EQ_INT(ntfsmac_spawn_volmark_op(&run, (ntfsmac_volmark_op)9, &code),
+		     NTFSMAC_DMN_E_INVAL);
 
 	/* U-SPN-11: an exit code is passed on. */
 	c.volmark_path = path_of("volmark-exit11");

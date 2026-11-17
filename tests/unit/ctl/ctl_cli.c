@@ -386,6 +386,7 @@ static void test_end_to_end(void)
 
 	fake_sys_init(&s, &sys);
 	ntfsmac_ctl_replay_init(&replay);
+	memset(&env, 0, sizeof env);
 	env.sys = &sys;
 	env.replay = &replay;
 	memset(&o, 0, sizeof o);
@@ -462,7 +463,7 @@ static void test_end_to_end(void)
 	/*
 	 * journal-clear and repair refuse --socket (L5): a usage error before
 	 * anything is asked or sent, so no authorization form can reach another
-	 * socket. Without --socket they are stubs until T-M4-14.
+	 * socket. Without --socket they go to the XPC service (test_privileged).
 	 */
 	RUN("journal-clear", "disk4s1");
 	CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_USAGE);
@@ -475,21 +476,6 @@ static void test_end_to_end(void)
 	RUN("repair", "--sync-mirror", "disk4s1");
 	CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_USAGE);
 	cap_free(&c);
-	{
-		char *a3[] = {"ntfsmac", "journal-clear", "disk4s1"};
-		char *a4[] = {"ntfsmac", "repair", "--clear-dirty", "disk4s1"};
-
-		cap_open(&c);
-		rc = ntfsmac_cli_main(3, a3, c.ctx.out, c.ctx.err);
-		cap_close(&c);
-		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_UNAVAILABLE); /* the stub, not a usage error */
-		cap_free(&c);
-		cap_open(&c);
-		rc = ntfsmac_cli_main(4, a4, c.ctx.out, c.ctx.err);
-		cap_close(&c);
-		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_UNAVAILABLE);
-		cap_free(&c);
-	}
 	CHECK_EQ_INT(o.calls[NTFSMAC_CTL_CMD_JOURNAL_CLEAR] + o.calls[NTFSMAC_CTL_CMD_REPAIR], 0);
 
 	/* usage errors */
@@ -545,6 +531,381 @@ static void test_end_to_end(void)
 	rmdir(dir);
 }
 
+/* ---------------- 06 ---------------- */
+
+typedef struct priv_fake {
+	int acquire_calls, release_calls, xchg_calls;
+	int acquire_rc;
+	char acquire_err[64];
+	char prompt[256];
+	char service[128];
+	char line[NTFSMAC_CTL_LINE_MAX + 1];
+	const char *reply;
+	int xchg_rc;
+	int root;
+	int xchg_at_release; /* order check: the form is freed only after the exchange */
+} priv_fake;
+
+static priv_fake g_pf;
+
+static int pf_acquire(const char *prompt, char hex[2 * NTFSMAC_CTL_AUTH_FORM_BYTES + 1],
+		      ntfsmac_cli_authz **out, char *err_text, size_t err_cap)
+{
+	g_pf.acquire_calls++;
+	snprintf(g_pf.prompt, sizeof g_pf.prompt, "%s", prompt);
+	*out = NULL;
+	if (g_pf.acquire_rc != 0) {
+		snprintf(err_text, err_cap, "%s", g_pf.acquire_err);
+		return -1;
+	}
+	memset(hex, 'a', 2 * NTFSMAC_CTL_AUTH_FORM_BYTES);
+	hex[2 * NTFSMAC_CTL_AUTH_FORM_BYTES] = '\0';
+	*out = (ntfsmac_cli_authz *)&g_pf;
+	return 0;
+}
+
+static void pf_release(ntfsmac_cli_authz *h)
+{
+	CHECK(h == (ntfsmac_cli_authz *)&g_pf);
+	g_pf.release_calls++;
+	g_pf.xchg_at_release = g_pf.xchg_calls;
+}
+
+static int pf_xchg(const char *service, const char *line, int timeout_ms, char *reply, size_t cap,
+		   char *err_text, size_t err_cap)
+{
+	(void)timeout_ms;
+	g_pf.xchg_calls++;
+	snprintf(g_pf.service, sizeof g_pf.service, "%s", service);
+	snprintf(g_pf.line, sizeof g_pf.line, "%s", line);
+	if (g_pf.xchg_rc != 0) {
+		snprintf(err_text, err_cap, "the ntfsmac daemon is not running");
+		return -1;
+	}
+	snprintf(reply, cap, "%s", g_pf.reply);
+	return 0;
+}
+
+static const char *g_status_reply;
+static int g_status_calls;
+
+static int pf_sock(const char *path, const char *line, int timeout_ms, char *reply, size_t cap,
+		   char *err_text, size_t err_cap)
+{
+	(void)path;
+	(void)timeout_ms;
+	(void)err_cap;
+	g_status_calls++;
+	CHECK(strstr(line, "\"cmd\":\"status\"") != NULL);
+	if (g_status_reply == NULL) {
+		snprintf(err_text, err_cap, "no daemon");
+		return -1;
+	}
+	snprintf(reply, cap, "%s", g_status_reply);
+	return 0;
+}
+
+static int pf_is_root(void)
+{
+	return g_pf.root;
+}
+
+static void slow_fn(void *arg)
+{
+	(void)arg;
+	usleep(1500 * 1000);
+}
+
+static void quick_fn(void *arg)
+{
+	*(int *)arg = 7;
+}
+
+static const char *const priv_ok_reply = "{\"ok\":true,\"result\":\"cleared\",\"warning\":\"none\"}";
+
+/* Run `ntfsmac journal-clear --label L --serial 12345678 disk4s1` against the fake state in g_pf. */
+static int run_jc(cap *c, const ntfsmac_cli_priv_hooks *hk)
+{
+	char *a[] = {"ntfsmac", "journal-clear", "--label", "L", "--serial", "12345678", "disk4s1"};
+	int rc;
+
+	cap_open(c);
+	rc = ntfsmac_cli_main_hooks(7, a, c->ctx.out, c->ctx.err, hk);
+	cap_close(c);
+	return rc;
+}
+
+static void pf_reset(const char *reply)
+{
+	g_status_calls = 0;
+	memset(&g_pf, 0, sizeof g_pf);
+	g_pf.reply = reply;
+}
+
+static int run_priv(cap *c, ntfsmac_cli_priv_hooks *hk, FILE *in, int argc, char **argv)
+{
+	int rc;
+
+	pf_reset(priv_ok_reply);
+	hk->in = in;
+	cap_open(c);
+	rc = ntfsmac_cli_main_hooks(argc, argv, c->ctx.out, c->ctx.err, hk);
+	cap_close(c);
+	return rc;
+}
+
+static void test_privileged(void)
+{
+	ntfsmac_cli_priv_hooks hk = {pf_acquire, pf_release, pf_xchg, pf_is_root, pf_sock, NULL};
+	cap c;
+	int rc;
+	FILE *in;
+
+	/* options given: the dialog line, one prompt, the request on the XPC service with the form */
+	{
+		char *a[] = {"ntfsmac", "journal-clear", "--label", "My Disk", "--serial", "1a2b3c4d", "disk4s1"};
+
+		rc = run_priv(&c, &hk, NULL, 7, a);
+	}
+	CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_OK);
+	CHECK(strstr(c.err, "password") != NULL && strstr(c.err, "dialog") != NULL);
+	CHECK(strstr(c.err, "seconds") != NULL); /* the prompt has its own limit */
+	CHECK_EQ_INT(g_pf.acquire_calls, 1);
+	CHECK_EQ_INT(g_pf.xchg_calls, 1);
+	CHECK(strcmp(g_pf.service, NTFSMAC_CTL_XPC_SERVICE) == 0);
+	CHECK(strstr(g_pf.line, "\"cmd\":\"journal_clear\"") != NULL);
+	CHECK(strstr(g_pf.line, "\"bsd\":\"disk4s1\"") != NULL);
+	CHECK(strstr(g_pf.line, "\"confirm_label\":\"My Disk\"") != NULL);
+	CHECK(strstr(g_pf.line, "\"confirm_serial\":\"1A2B3C4D\"") != NULL); /* upper-cased */
+	CHECK(strstr(g_pf.line, "\"auth\":\"aaaaaaaa") != NULL);
+	CHECK_EQ_INT(g_pf.release_calls, 1);
+	CHECK_EQ_INT(g_pf.xchg_at_release, 1); /* freed after the exchange, not before */
+	CHECK(strstr(c.out, "cleared") != NULL);
+	CHECK(strstr(c.err, "does not check or repair") != NULL); /* what it does and does not do */
+	cap_free(&c);
+
+	/* the typed confirmation, from the terminal */
+	in = tmpfile();
+	CHECK(in != NULL);
+	fputs("Photos\n0000beef\n", in);
+	rewind(in);
+	{
+		char *a[] = {"ntfsmac", "journal-clear", "disk4s1"};
+
+		rc = run_priv(&c, &hk, in, 3, a);
+	}
+	CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_OK);
+	CHECK(strstr(g_pf.line, "\"confirm_label\":\"Photos\"") != NULL);
+	CHECK(strstr(g_pf.line, "\"confirm_serial\":\"0000BEEF\"") != NULL);
+	cap_free(&c);
+	fclose(in);
+
+	/* nothing typed: nothing sent, no dialog */
+	in = tmpfile();
+	{
+		char *a[] = {"ntfsmac", "journal-clear", "disk4s1"};
+
+		rc = run_priv(&c, &hk, in, 3, a);
+	}
+	CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_USAGE);
+	CHECK_EQ_INT(g_pf.acquire_calls + g_pf.xchg_calls, 0);
+	cap_free(&c);
+	fclose(in);
+
+	/* a serial of the wrong shape, a label that is too long, bad names and options */
+	{
+		char big[400];
+		char *a1[] = {"ntfsmac", "journal-clear", "--label", "L", "--serial", "12345", "disk4s1"};
+		char *a2[] = {"ntfsmac", "journal-clear", "--label", "L", "--serial", "1234567G", "disk4s1"};
+		char *a3[] = {"ntfsmac", "journal-clear", "--label", big, "--serial", "12345678", "disk4s1"};
+		char *a4[] = {"ntfsmac", "journal-clear", "--label", "L", "--serial", "12345678", "/dev/disk4s1"};
+		char *a5[] = {"ntfsmac", "journal-clear", "--label", "L", "--serial", "12345678", "disk4"};
+		char *a6[] = {"ntfsmac", "journal-clear", "--label", "L", "--serial", "12345678", "disk4s1", "disk5s1"};
+		char *a7[] = {"ntfsmac", "journal-clear", "--force", "disk4s1"};
+		char *a8[] = {"ntfsmac", "journal-clear", "--label", "L", "--label", "M", "--serial", "12345678", "disk4s1"};
+		char *a9[] = {"ntfsmac", "journal-clear", "--label", "L", "--serial", "12345678", "diskX"};
+
+		memset(big, 'x', sizeof big);
+		big[sizeof big - 1] = '\0';
+		rc = run_priv(&c, &hk, NULL, 7, a1);
+		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_USAGE);
+		CHECK_EQ_INT(g_pf.acquire_calls + g_pf.xchg_calls, 0);
+		cap_free(&c);
+		rc = run_priv(&c, &hk, NULL, 7, a2);
+		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_USAGE);
+		cap_free(&c);
+		rc = run_priv(&c, &hk, NULL, 7, a3);
+		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_USAGE);
+		CHECK_EQ_INT(g_pf.acquire_calls + g_pf.xchg_calls, 0);
+		cap_free(&c);
+		rc = run_priv(&c, &hk, NULL, 7, a4);
+		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_USAGE);
+		cap_free(&c);
+		rc = run_priv(&c, &hk, NULL, 7, a5);
+		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_OK); /* a whole disk name has the shape; the daemon decides */
+		cap_free(&c);
+		rc = run_priv(&c, &hk, NULL, 8, a6);
+		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_USAGE);
+		cap_free(&c);
+		rc = run_priv(&c, &hk, NULL, 4, a7);
+		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_USAGE);
+		cap_free(&c);
+		rc = run_priv(&c, &hk, NULL, 9, a8);
+		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_USAGE);
+		cap_free(&c);
+		rc = run_priv(&c, &hk, NULL, 7, a9);
+		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_USAGE);
+		cap_free(&c);
+	}
+
+	/* the dialog fails or times out: nothing sent */
+	pf_reset(priv_ok_reply);
+	g_pf.acquire_rc = -1;
+	snprintf(g_pf.acquire_err, sizeof g_pf.acquire_err, "no answer to the administrator prompt");
+	rc = run_jc(&c, &hk);
+	CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_FAILED);
+	CHECK(strstr(c.err, "no answer") != NULL);
+	CHECK_EQ_INT(g_pf.xchg_calls, 0);
+	CHECK_EQ_INT(g_pf.release_calls, 0);
+	cap_free(&c);
+
+	/* root: no dialog, no form in the request, said so */
+	pf_reset(priv_ok_reply);
+	g_pf.root = 1;
+	rc = run_jc(&c, &hk);
+	CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_OK);
+	CHECK_EQ_INT(g_pf.acquire_calls, 0);
+	CHECK(strstr(g_pf.line, "\"auth\"") == NULL);
+	CHECK(strstr(c.err, "root") != NULL);
+	CHECK_EQ_INT(g_pf.release_calls, 0);
+	cap_free(&c);
+
+	/* the daemon refuses: text from the table, exit code 1, the form still freed */
+	pf_reset("{\"ok\":false,\"error\":\"denied\",\"reason\":\"probe_not_clean\"}");
+	rc = run_jc(&c, &hk);
+	CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_FAILED);
+	CHECK(strstr(c.err, "not clean") != NULL);
+	CHECK_EQ_INT(g_pf.release_calls, 1);
+	cap_free(&c);
+	pf_reset("{\"ok\":false,\"error\":\"denied\",\"reason\":\"wrong_channel\"}");
+	rc = run_jc(&c, &hk);
+	CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_FAILED);
+	CHECK(strstr(c.err, "not served on this connection") != NULL);
+	cap_free(&c);
+
+	/* no service: unavailable, form freed */
+	pf_reset(NULL);
+	g_pf.xchg_rc = -1;
+	rc = run_jc(&c, &hk);
+	CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_UNAVAILABLE);
+	CHECK(strstr(c.err, "not running") != NULL);
+	CHECK_EQ_INT(g_pf.release_calls, 1);
+	cap_free(&c);
+
+	/* the stronger words of section 3.5 reach the user after the reply */
+	pf_reset("{\"ok\":true,\"result\":\"cleared\",\"warning\":\"write_error\"}");
+	rc = run_jc(&c, &hk);
+	CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_OK);
+	CHECK(strstr(c.err, "write error") != NULL);
+	cap_free(&c);
+	pf_reset("{\"ok\":true,\"result\":\"cleared\",\"warning\":\"lost_flush\"}");
+	rc = run_jc(&c, &hk);
+	CHECK(strstr(c.err, "nothing shows that this volume was checked") != NULL);
+	cap_free(&c);
+
+	/* repair --clear-dirty: the repair request with the action; --sync-mirror is not here yet */
+	{
+		char *a1[] = {"ntfsmac", "repair", "--clear-dirty", "--label", "L", "--serial", "12345678", "disk4s1"};
+		char *a2[] = {"ntfsmac", "repair", "--sync-mirror", "disk4s1"};
+		char *a3[] = {"ntfsmac", "repair", "disk4s1"};
+		char *a4[] = {"ntfsmac", "repair"};
+
+		rc = run_priv(&c, &hk, NULL, 8, a1);
+		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_OK);
+		CHECK(strstr(g_pf.line, "\"cmd\":\"repair\"") != NULL);
+		CHECK(strstr(g_pf.line, "\"action\":\"clear_dirty\"") != NULL);
+		CHECK(strstr(g_pf.line, "\"auth\":") != NULL);
+		CHECK(strstr(c.err, "does not check or repair") != NULL);
+		cap_free(&c);
+		rc = run_priv(&c, &hk, NULL, 4, a2);
+		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_UNAVAILABLE);
+		CHECK_EQ_INT(g_pf.acquire_calls + g_pf.xchg_calls, 0);
+		cap_free(&c);
+		rc = run_priv(&c, &hk, NULL, 3, a3);
+		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_USAGE);
+		cap_free(&c);
+		rc = run_priv(&c, &hk, NULL, 2, a4);
+		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_USAGE);
+		cap_free(&c);
+	}
+
+	/*
+	 * ADR-017: the specific warning is printed BEFORE the confirmation is read and before the
+	 * dialog: the status reply's journal member says what is special about this entry.
+	 */
+	{
+		char *a[] = {"ntfsmac", "journal-clear", "disk4s1"};
+		char *warn;
+		char *conf;
+
+		g_status_reply = "{\"ok\":true,\"journal\":{\"marker\":\"set\",\"state\":\"write_error\","
+				 "\"warning\":\"write_error\",\"left_open\":\"2026-11-16T09:30:00Z\"}}";
+		in = tmpfile();
+		fputs("L\n12345678\n", in);
+		rewind(in);
+		rc = run_priv(&c, &hk, in, 3, a);
+		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_OK);
+		CHECK_EQ_INT(g_status_calls, 1);
+		warn = strstr(c.err, "ended with a write error");
+		conf = strstr(c.err, "Type the volume label");
+		CHECK(strstr(c.err, "left the volume open on 2026-11-16T09:30:00Z") != NULL);
+		CHECK(warn != NULL && conf != NULL && warn < conf); /* the warning comes first */
+		CHECK(conf != NULL && strstr(c.err, "dialog") != NULL && conf < strstr(c.err, "dialog"));
+		cap_free(&c);
+		fclose(in);
+
+		g_status_reply = "{\"ok\":true,\"journal\":{\"marker\":\"set\",\"state\":\"open\","
+				 "\"warning\":\"lost_flush\",\"left_open\":\"2026-11-16T09:30:00Z\"}}";
+		in = tmpfile();
+		fputs("L\n12345678\n", in);
+		rewind(in);
+		rc = run_priv(&c, &hk, in, 3, a);
+		CHECK(strstr(c.err, "nothing shows that this volume was checked") != NULL);
+		CHECK(strstr(c.err, "nothing shows") < strstr(c.err, "Type the volume label"));
+		cap_free(&c);
+		fclose(in);
+
+		/* no entry, or no answer: nothing special is said, the request goes on */
+		g_status_reply = "{\"ok\":true,\"volume\":{}}";
+		in = tmpfile();
+		fputs("L\n12345678\n", in);
+		rewind(in);
+		rc = run_priv(&c, &hk, in, 3, a);
+		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_OK);
+		CHECK(strstr(c.err, "left the volume open on") == NULL);
+		cap_free(&c);
+		fclose(in);
+		g_status_reply = NULL;
+		in = tmpfile();
+		fputs("L\n12345678\n", in);
+		rewind(in);
+		rc = run_priv(&c, &hk, in, 3, a);
+		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_OK);
+		cap_free(&c);
+		fclose(in);
+	}
+
+	/* the time limit helper (U17 finding 2: a prompt that never returns) */
+	{
+		int v = 0;
+
+		CHECK(ntfsmac_cli_run_with_timeout(quick_fn, &v, 2000));
+		CHECK_EQ_INT(v, 7);
+		CHECK(!ntfsmac_cli_run_with_timeout(slow_fn, NULL, 100));
+		CHECK(!ntfsmac_cli_run_with_timeout(NULL, NULL, 100));
+	}
+}
+
 int main(void)
 {
 	test_tables();
@@ -552,6 +913,7 @@ int main(void)
 	test_safe();
 	test_render();
 	test_end_to_end();
+	test_privileged();
 	if (g_failures != 0) {
 		fprintf(stderr, "%d failure(s)\n", g_failures);
 		return 1;

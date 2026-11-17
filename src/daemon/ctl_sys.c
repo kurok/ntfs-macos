@@ -109,6 +109,26 @@ static int real_peer_from_fd(void *ctx, int fd, ntfsmac_ctl_peer *out)
 	return 0;
 }
 
+/* XPC: the identity of the sender of one message, from the audit token the system attached to it. */
+static int real_peer_from_token(void *ctx, const uint32_t token_words[8], ntfsmac_ctl_peer *out)
+{
+	audit_token_t token;
+
+	(void)ctx;
+	memset(out, 0, sizeof *out);
+	memcpy(&token, token_words, sizeof token);
+	/* audit_token_t words: 1 is the effective uid, 5 the pid (the accessors live in libbsm). */
+	out->uid = (uid_t)token.val[1];
+	out->pid = (pid_t)token.val[5];
+	if (out->pid <= 0)
+		return -1;
+	out->console_user = is_console_user(out->uid);
+	out->admin = is_admin(out->uid);
+	memcpy(out->audit_token, token_words, sizeof token);
+	out->has_audit_token = true;
+	return 0;
+}
+
 static ntfsmac_ctl_sys_proc real_proc_parent(void *ctx, pid_t pid, pid_t *ppid, pid_t *pgid)
 {
 	struct proc_bsdinfo info;
@@ -181,6 +201,11 @@ static bool read_requirement(const ntfsmac_ctl_sys_real *r, char *buf, size_t ca
 	while (n > 0 && (buf[n - 1] == '\n' || buf[n - 1] == '\r'))
 		buf[--n] = '\0';
 	return n > 0;
+}
+
+static bool real_requirement(void *ctx, char *buf, size_t cap)
+{
+	return read_requirement(ctx, buf, cap);
 }
 
 static ntfsmac_ctl_sys_answer real_client_signed(void *ctx, const ntfsmac_ctl_peer *peer)
@@ -381,6 +406,22 @@ static ntfsmac_ctl_sys_answer real_right_definition(void *ctx)
 	return answer;
 }
 #else /* not macOS */
+static int real_peer_from_token(void *ctx, const uint32_t token_words[8], ntfsmac_ctl_peer *out)
+{
+	(void)ctx;
+	(void)token_words;
+	(void)out;
+	return -1;
+}
+
+static bool real_requirement(void *ctx, char *buf, size_t cap)
+{
+	(void)ctx;
+	(void)buf;
+	(void)cap;
+	return false;
+}
+
 static ntfsmac_ctl_sys_answer real_right_definition(void *ctx)
 {
 	(void)ctx;
@@ -419,6 +460,8 @@ void ntfsmac_ctl_sys_real_init(ntfsmac_ctl_sys_real *r, const char *requirement_
 	r->sys.client_signed = real_client_signed;
 	r->sys.authz_verify = real_authz_verify;
 	r->sys.right_definition = real_right_definition;
+	r->sys.peer_from_token = real_peer_from_token;
+	r->sys.requirement = real_requirement;
 }
 
 static ntfsmac_ctl_sys_real g_default;

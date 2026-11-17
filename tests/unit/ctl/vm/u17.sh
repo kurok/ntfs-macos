@@ -6,7 +6,7 @@
 # it on a host. The VM is cloned from the golden image and deleted afterwards.
 #
 # Usage (in the guest):  sh u17.sh PATH-TO-ctl_vm_probe [PART ...]
-#   parts: A B1 B2 (default: all)
+#   parts: A B1 B2 B3 B4 (default: A B1 B2; B3 and B4 need a person at the VM window)
 # Needs: sudo without a password (true for the test login of the image),
 #        codesign, security, launchctl.
 #
@@ -18,7 +18,7 @@
 #       group admin, shared false, timeout 0): what the daemon does with
 #       references that lack the right, and what the prompt does without a
 #       GUI session
-# Do not add a part that answers a password prompt: a person must do that.
+# No part answers a password prompt: in B3 and B4 a person does that.
 set -u
 
 probe=${1:?usage: sh u17.sh PATH-TO-ctl_vm_probe [PART ...]}
@@ -137,6 +137,71 @@ EOF2
 	sed 's/^/  err: /' "$t/job.err" 2>/dev/null
 	grep -q copy_rights "$t/job.out" 2>/dev/null || echo "  no answer within 25 s (the call is waiting for a prompt)"
 	sudo -n launchctl remove org.example.u17 >/dev/null 2>&1
+	sudo -n security authorizationdb remove org.ntfs-macos.journal-modify >/dev/null 2>&1
+}
+
+# B3 and B4 need a person at the VM window (tart.sh run NAME --graphics). The
+# script never types or supplies a password; it only starts the client in the
+# GUI session of the logged-in user, where the system shows its own dialog.
+right_install() {
+	sudo -n security authorizationdb write org.ntfs-macos.journal-modify <"$t/right.plist" >/dev/null 2>&1
+}
+right_plist() {
+	cat >"$t/right.plist" <<'EOF3'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+	<key>class</key><string>user</string>
+	<key>comment</key><string>Clear a session journal entry or repair an NTFS volume with ntfsmac.</string>
+	<key>group</key><string>admin</string>
+	<key>shared</key><false/>
+	<key>timeout</key><integer>0</integer>
+	<key>authenticate-user</key><true/>
+	<key>version</key><integer>1</integer>
+</dict></plist>
+EOF3
+}
+# gui_prompt TAG HOLD: start authz-make with a prompt in the GUI session, as the
+# logged-in user; wait (U17_WAIT seconds, default 300) until the person has answered.
+gui_prompt() {
+	tag=$1; hold=$2
+	rm -f "$t/$tag.form" "$t/$tag.out"
+	sudo -n launchctl asuser "$(id -u)" sudo -n -u "$(id -un)" \
+		"$t/p" authz-make org.ntfs-macos.journal-modify prompt "$t/$tag.form" "$hold" >"$t/$tag.out" 2>&1 &
+	gp=$!
+	n=0; while [ ! -s "$t/$tag.form" ] && [ $n -lt $((${U17_WAIT:-300} * 5)) ] && kill -0 $gp 2>/dev/null; do sleep 0.2; n=$((n + 1)); done
+	echo "client side:"; sed 's/^/  /' "$t/$tag.out"
+	[ -s "$t/$tag.form" ] || echo "  no answer within ${U17_WAIT:-300} s"
+}
+
+part_B3() {
+	say "B3. password-authenticated grant (PERSON: type the admin password in the dialog)"
+	right_plist; right_install
+	echo "PERSON-ACTION: approve the dialog with the password" >&2
+	gui_prompt b3 40
+	if [ -s "$t/b3.form" ]; then
+		echo "root, first check (reference alive):"
+		sudo -n "$t/p" authz-check org.ntfs-macos.journal-modify "$(cat "$t/b3.form")" 2>&1 | sed 's/^/  /'
+		echo "root, second check with the same form (reference alive):"
+		sudo -n "$t/p" authz-check org.ntfs-macos.journal-modify "$(cat "$t/b3.form")" 2>&1 | sed 's/^/  /'
+		wait $gp
+		echo "client after hold:"; sed -n '$p' "$t/b3.out" | sed 's/^/  /'
+		echo "root, check after the client freed its reference:"
+		sudo -n "$t/p" authz-check org.ntfs-macos.journal-modify "$(cat "$t/b3.form")" 2>&1 | sed 's/^/  /'
+	fi
+	sudo -n security authorizationdb remove org.ntfs-macos.journal-modify >/dev/null 2>&1
+}
+
+part_B4() {
+	say "B4. cancelled prompt (PERSON: press Cancel in the dialog)"
+	right_plist; right_install
+	echo "PERSON-ACTION: press Cancel" >&2
+	gui_prompt b4 10
+	if [ -s "$t/b4.form" ]; then
+		echo "root checks the form of the cancelled request:"
+		sudo -n "$t/p" authz-check org.ntfs-macos.journal-modify "$(cat "$t/b4.form")" 2>&1 | sed 's/^/  /'
+	fi
+	wait $gp 2>/dev/null
 	sudo -n security authorizationdb remove org.ntfs-macos.journal-modify >/dev/null 2>&1
 }
 

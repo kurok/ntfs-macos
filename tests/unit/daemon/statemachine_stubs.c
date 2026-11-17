@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * U-DMN-SM-03: the stub modules compile, link and answer "not implemented".
+ * U-DMN-SM-03: the stub modules compile, link and answer "not implemented" (the session module is no stub any more).
  * A task that fills a stub replaces the matching check here with its own tests.
  */
 #include "check.h"
@@ -10,12 +10,11 @@ int main(void)
 {
 	ntfsmac_errwatch w;
 	ntfsmac_session *sess = (ntfsmac_session *)1;
-	ntfsmac_vol_mode mode = NTFSMAC_VMODE_RW;
+	ntfsmac_session_start res;
 
-	CHECK_EQ_INT(ntfsmac_session_begin(NULL, NULL, NTFSMAC_POLICY_RO, &sess, &mode),
-		     NTFSMAC_DMN_E_NOTIMPL);
+	/* session.c is real since T-M4-14 (tests/unit/daemon/session_test.c); bad arguments only. */
+	CHECK_EQ_INT(ntfsmac_session_begin(NULL, NULL, NULL, NULL, &sess, &res), NTFSMAC_DMN_E_INVAL);
 	CHECK(sess == NULL);
-	CHECK_EQ_INT(mode, NTFSMAC_VMODE_NONE);
 	CHECK_EQ_INT(ntfsmac_notify_post(NTFSMAC_NOTIFY_REFUSED, "x", "y"), NTFSMAC_DMN_E_NOTIMPL);
 
 	/* An empty channel never proves a session clean (parser tests: errwatch_test.c). */

@@ -113,6 +113,18 @@ typedef struct ntfsmac_ctl_sys {
 	 * UNAVAILABLE: the definition could not be read.
 	 */
 	ntfsmac_ctl_sys_answer (*right_definition)(void *ctx);
+	/*
+	 * T-M4-14, XPC channel: fill uid, pid, console_user, admin and the audit token of a
+	 * request from the audit token of its message (the identity belongs to the sender of
+	 * that message, ADR-019 amendment). 0 on success. NULL: the XPC channel refuses
+	 * everything.
+	 */
+	int (*peer_from_token)(void *ctx, const uint32_t token[8], ntfsmac_ctl_peer *out);
+	/*
+	 * The code requirement of check 3 as text, for the XPC connection
+	 * (xpc_connection_set_peer_code_signing_requirement). false if it cannot be read.
+	 */
+	bool (*requirement)(void *ctx, char *buf, size_t cap);
 } ntfsmac_ctl_sys;
 
 /* The real implementation (ctl_sys.c). Valid for the life of the process. */
@@ -176,11 +188,53 @@ ntfsmac_ctl_refusal ntfsmac_ctl_check_authorization(const ntfsmac_ctl_sys *sys,
 						    ntfsmac_ctl_replay *replay,
 						    const uint8_t *form);
 
+/*
+ * Check 4 has two implementations behind one function (T-M4-14, U17 not yet verified):
+ *
+ *   EXTERNAL_FORM  the design of ADR-019: the right and the external form above.
+ *   ROOT_PEER      the fallback of ADR-019: no right and no form; the request is accepted only
+ *                  from a root peer (euid 0 taken from the audit token, for example the CLI run
+ *                  with sudo). Checks 1 to 3 still apply.
+ *
+ * One switch picks one for the whole daemon: the macro NTFSMAC_CTL_AUTHZ_FALLBACK_ROOT (define
+ * it as 1 at build time) sets the default of ntfsmac_ctl_default_authz(); the daemon may also
+ * set ntfsmac_ctl_env.authz from its configuration. The default is EXTERNAL_FORM.
+ */
+typedef enum ntfsmac_ctl_authz_strategy {
+	NTFSMAC_CTL_AUTHZ_EXTERNAL_FORM = 0,
+	NTFSMAC_CTL_AUTHZ_ROOT_PEER
+} ntfsmac_ctl_authz_strategy;
+
+ntfsmac_ctl_authz_strategy ntfsmac_ctl_default_authz(void);
+/* Fixed name for the log: "external_form" or "root_peer". */
+const char *ntfsmac_ctl_authz_name(ntfsmac_ctl_authz_strategy a);
+
+/* Which door a request came through. The privileged requests are served on XPC only. */
+typedef enum ntfsmac_ctl_channel {
+	NTFSMAC_CTL_CHAN_SOCKET = 0, /* refuses journal_clear and repair (wrong_channel) */
+	NTFSMAC_CTL_CHAN_XPC         /* serves journal_clear and repair only */
+} ntfsmac_ctl_channel;
+
 /* What handle_line needs from the outside. */
 typedef struct ntfsmac_ctl_env {
 	const ntfsmac_ctl_sys *sys;
 	ntfsmac_ctl_replay *replay;
+	/*
+	 * Check 4. Only main.c sets this, from ntfsmac_ctl_default_authz() (the build option); there is
+	 * no run-time switch from a configuration file, so a config file can never weaken the check.
+	 * Tests set it directly.
+	 */
+	ntfsmac_ctl_authz_strategy authz;
+	ntfsmac_ctl_channel channel;      /* zero: the Unix socket */
 } ntfsmac_ctl_env;
+
+/* Check 4, the one seam: both strategies, chosen by `env->authz`. */
+ntfsmac_ctl_refusal ntfsmac_ctl_check_admin_authorization(const ntfsmac_ctl_env *env,
+							  const ntfsmac_ctl_peer *peer,
+							  const ntfsmac_ctl_request *req);
+
+/* Check 4, strategy ROOT_PEER: the peer's euid is 0. */
+ntfsmac_ctl_refusal ntfsmac_ctl_check_root_peer(const ntfsmac_ctl_peer *peer);
 
 /* Checks 1 to 4 in order; the first refusal is returned. */
 ntfsmac_ctl_refusal ntfsmac_ctl_authorise_privileged(const ntfsmac_ctl_env *env,
@@ -198,10 +252,48 @@ ntfsmac_dmn_status ntfsmac_ctl_handle_line_env(const ntfsmac_ctl_env *env,
 					       const ntfsmac_ctl_peer *peer, const char *line,
 					       size_t len, char *reply, size_t cap);
 
+/* The environment of the XPC door: system facts, the shared replay table, channel XPC. */
+ntfsmac_ctl_env ntfsmac_ctl_default_env_xpc(void);
+
 /* ntfsmac_ctl_start() with an explicit environment (tests). */
 ntfsmac_dmn_status ntfsmac_ctl_start_env(const char *socket_path, const ntfsmac_ctl_ops *ops,
 					 void *ctx, const ntfsmac_ctl_env *env,
 					 ntfsmac_ctl **out);
+
+/* ------------------------------------------------------------------ */
+/* XPC listener of the privileged requests (ctl_xpc.c, T-M4-14)        */
+/* ------------------------------------------------------------------ */
+
+/*
+ * Pure part, testable on every host: one XPC request message is a dictionary that holds the
+ * request line. `line` is the string value taken from the dictionary (NULL when the key is
+ * missing or not a string); `len` its length. Accepts a request line only when it is within
+ * the size limit, contains no newline and no NUL (a message is one request), and parses
+ * (ntfsmac_ctl_parse_request) to journal_clear or repair. Anything else is refused:
+ * NTFSMAC_CTL_PARSE_OK or the parser's result; a request that parses to another command is
+ * reported through `*wrong_channel`. `out` is meaningful only when the result is OK.
+ */
+ntfsmac_ctl_parse_result ntfsmac_xpc_check_request(const char *line, size_t len,
+						   ntfsmac_ctl_request *out, bool *wrong_channel);
+
+typedef struct ntfsmac_xpc ntfsmac_xpc; /* opaque */
+
+/*
+ * Start the listener for `service` (NTFSMAC_CTL_XPC_SERVICE in production; tests use another
+ * name). Every connection gets the code requirement of check 3 (`sys->requirement`) before it
+ * is resumed, so a client that does not satisfy it is dropped by the system; each message is
+ * then handled by ntfsmac_ctl_handle_line_env() with `env->channel` forced to
+ * NTFSMAC_CTL_CHAN_XPC and the peer taken from the audit token of that message. Messages are
+ * handled one at a time. Not implemented off macOS (E_NOTIMPL). T-M4-08 calls this after
+ * ntfsmac_ctl_start() and stops it before exit; the launchd plist needs the MachServices entry.
+ */
+ntfsmac_dmn_status ntfsmac_xpc_start(const char *service, const ntfsmac_ctl_ops *ops, void *ctx,
+				     const ntfsmac_ctl_env *env, ntfsmac_xpc **out);
+/*
+ * Stop the listener and make later messages no-ops. The object is not freed (connections that
+ * were accepted earlier may still have handlers queued); call it once at shutdown.
+ */
+void ntfsmac_xpc_stop(ntfsmac_xpc *x);
 
 /* ------------------------------------------------------------------ */
 /* macOS system implementation details (ctl_sys.c)                     */

@@ -19,7 +19,8 @@ typedef struct rig {
 	fake_sys_state s;
 	ntfsmac_ctl_sys sys;
 	ntfsmac_ctl_replay replay;
-	ntfsmac_ctl_env env;
+	ntfsmac_ctl_env env;     /* the socket door */
+	ntfsmac_ctl_env env_xpc; /* the XPC door: journal_clear and repair */
 	fake_ops_state o;
 	ntfsmac_ctl_ops ops;
 	ntfsmac_ctl_peer peer;
@@ -33,6 +34,8 @@ static void rig_init(rig *g)
 	ntfsmac_ctl_replay_init(&g->replay);
 	g->env.sys = &g->sys;
 	g->env.replay = &g->replay;
+	g->env_xpc = g->env;
+	g->env_xpc.channel = NTFSMAC_CTL_CHAN_XPC;
 	g->ops = fake_ops();
 	g->peer = good_peer();
 	g->o.status = NTFSMAC_DMN_OK;
@@ -41,7 +44,13 @@ static void rig_init(rig *g)
 static ntfsmac_dmn_status run(rig *g, const char *line)
 {
 	memset(g->reply, 'Z', sizeof g->reply); /* poison: the function must write the NUL itself */
-	return ntfsmac_ctl_handle_line_env(&g->env, &g->ops, &g->o, &g->peer, line, strlen(line),
+	/* A client picks the door by the command: the privileged ones go to XPC. */
+	const ntfsmac_ctl_env *env = (strstr(line, "\"journal_clear\"") != NULL ||
+				      strstr(line, "\"repair\"") != NULL)
+					     ? &g->env_xpc
+					     : &g->env;
+
+	return ntfsmac_ctl_handle_line_env(env, &g->ops, &g->o, &g->peer, line, strlen(line),
 					   g->reply, sizeof g->reply);
 }
 
@@ -356,12 +365,84 @@ static void test_reply_and_errors(void)
 	}
 }
 
+/*
+ * U-CTL-HANDLE-05 (T-M4-14): the two doors and the fallback of check 4 through the dispatcher.
+ * The socket never serves journal_clear and repair; the XPC door serves nothing else; with the
+ * root fallback a root peer needs no form.
+ */
+static void test_channels_and_fallback(void)
+{
+	rig g;
+	static const char *const plain[] = {"{\"cmd\":\"list\"}", "{\"cmd\":\"status\",\"bsd\":\"disk4\"}",
+					    "{\"cmd\":\"mount\",\"bsd\":\"disk4\",\"mode\":\"ro\"}",
+					    "{\"cmd\":\"unmount\",\"bsd\":\"disk4\"}", "{\"cmd\":\"doctor\"}"};
+	size_t i;
+
+	/* the socket refuses both privileged commands before any check runs and before any operation */
+	rig_init(&g);
+	CHECK_EQ_INT(ntfsmac_ctl_handle_line_env(&g.env, &g.ops, &g.o, &g.peer, LINE_JC(AUTH_FIELD),
+						 strlen(LINE_JC(AUTH_FIELD)), g.reply, sizeof g.reply),
+		     NTFSMAC_DMN_E_DENIED);
+	CHECK(reply_has(&g, "\"reason\":\"wrong_channel\""));
+	check_reply_shape(&g);
+	CHECK_EQ_INT(ntfsmac_ctl_handle_line_env(&g.env, &g.ops, &g.o, &g.peer, LINE_REPAIR(AUTH_FIELD),
+						 strlen(LINE_REPAIR(AUTH_FIELD)), g.reply, sizeof g.reply),
+		     NTFSMAC_DMN_E_DENIED);
+	CHECK(reply_has(&g, "\"reason\":\"wrong_channel\""));
+	CHECK_EQ_INT(g.s.proc_calls + g.s.signed_calls + g.s.authz_calls + g.s.right_calls, 0);
+	CHECK_EQ_INT(fake_total_calls(&g.o), 0);
+	CHECK_EQ_INT(g.replay.count, 0);
+
+	/* the XPC door refuses every other command */
+	for (i = 0; i < sizeof plain / sizeof plain[0]; i++) {
+		CHECK_EQ_INT(ntfsmac_ctl_handle_line_env(&g.env_xpc, &g.ops, &g.o, &g.peer, plain[i],
+							 strlen(plain[i]), g.reply, sizeof g.reply),
+			     NTFSMAC_DMN_E_DENIED);
+		CHECK(reply_has(&g, "\"reason\":\"wrong_channel\""));
+	}
+	CHECK_EQ_INT(fake_total_calls(&g.o), 0);
+	/* a request that does not parse still gets the parser's error on the XPC door */
+	CHECK_EQ_INT(ntfsmac_ctl_handle_line_env(&g.env_xpc, &g.ops, &g.o, &g.peer, "{", 1, g.reply,
+						 sizeof g.reply),
+		     NTFSMAC_DMN_E_INVAL);
+	CHECK(reply_has(&g, "bad_json"));
+	/* the gate still comes first on the XPC door */
+	g.peer.console_user = g.peer.admin = false;
+	CHECK_EQ_INT(ntfsmac_ctl_handle_line_env(&g.env_xpc, &g.ops, &g.o, &g.peer, LINE_JC(AUTH_FIELD),
+						 strlen(LINE_JC(AUTH_FIELD)), g.reply, sizeof g.reply),
+		     NTFSMAC_DMN_E_DENIED);
+	CHECK(reply_has(&g, "peer_not_allowed"));
+
+	/* the root fallback: a root peer, no form, the operation is reached */
+	rig_init(&g);
+	g.env_xpc.authz = NTFSMAC_CTL_AUTHZ_ROOT_PEER;
+	g.peer.uid = 0;
+	CHECK_EQ_INT(run(&g, LINE_JC("")), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(g.o.calls[NTFSMAC_CTL_CMD_JOURNAL_CLEAR], 1);
+	CHECK_EQ_INT(run(&g, LINE_JC("")), NTFSMAC_DMN_OK); /* nothing is used up */
+	CHECK_EQ_INT(run(&g, LINE_REPAIR("")), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(g.o.calls[NTFSMAC_CTL_CMD_REPAIR], 1);
+	CHECK_EQ_INT(g.s.authz_calls + g.s.right_calls, 0);
+	/* not root: refused, whatever form comes with it */
+	g.peer.uid = 501;
+	CHECK_EQ_INT(run(&g, LINE_JC(AUTH_FIELD)), NTFSMAC_DMN_E_DENIED);
+	CHECK(reply_has(&g, "authorization_denied"));
+	CHECK_EQ_INT(g.o.calls[NTFSMAC_CTL_CMD_JOURNAL_CLEAR], 2);
+	/* the other checks still apply with root: a spawned process that is root is refused */
+	g.peer.uid = 0;
+	g.o.spawned[0] = 400;
+	g.o.nspawned = 1;
+	CHECK_EQ_INT(run(&g, LINE_JC("")), NTFSMAC_DMN_E_DENIED);
+	CHECK(reply_has(&g, "spawned_process"));
+}
+
 int main(void)
 {
 	test_commands();
 	test_gate();
 	test_privileged_each_check();
 	test_reply_and_errors();
+	test_channels_and_fallback();
 	if (g_failures != 0) {
 		fprintf(stderr, "%d failure(s)\n", g_failures);
 		return 1;

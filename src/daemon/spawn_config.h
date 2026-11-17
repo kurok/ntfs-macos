@@ -44,6 +44,8 @@
  *                not 0 (`*exit_code` holds it; 128 + n for signal n).
  *     TIMEOUT    killed. `*exit_code` is -1 if it never printed `w` (no
  *                write was started) and -2 if it did (a write may be cut).
+ *     BUSY       killed but not reaped within the bound (`*exit_code` is -4): the
+ *                child may still hold the device.
  *
  *   ntfsmac_spawn_worker
  *     OK         the mount appeared; `child` is live, `*mounted_ro` is set.

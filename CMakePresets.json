@@ -18,7 +18,11 @@
       "name": "product",
       "displayName": "Release for shipping: no test seams (T-M4-06)",
       "inherits": "base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release", "NTFSMAC_TEST_SEAMS": "OFF" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "NTFSMAC_TEST_SEAMS": "OFF",
+        "NTFSMAC_AUTHZ_FALLBACK_ROOT": "OFF"
+      }
     },
     {
       "name": "asan",

@@ -1159,8 +1159,8 @@ static void volmark_progress(char c, uint64_t *deadline, void *arg)
 	}
 }
 
-ntfsmac_dmn_status ntfsmac_spawn_volmark(const ntfsmac_volmark_run *run, bool set,
-					 int *exit_code)
+ntfsmac_dmn_status ntfsmac_spawn_volmark_op(const ntfsmac_volmark_run *run,
+					    ntfsmac_volmark_op op, int *exit_code)
 {
 	ntfsmac_spawn_config cfg;
 	ntfsmac_dmn_status st;
@@ -1179,6 +1179,8 @@ ntfsmac_dmn_status ntfsmac_spawn_volmark(const ntfsmac_volmark_run *run, bool se
 	if (exit_code == NULL)
 		return NTFSMAC_DMN_E_INVAL;
 	*exit_code = -3;
+	if (op != NTFSMAC_VOLMARK_SET && op != NTFSMAC_VOLMARK_CLEAR && op != NTFSMAC_VOLMARK_CLEAR_REPAIR)
+		return NTFSMAC_DMN_E_INVAL;
 	if (run == NULL || run->device_fd < 3 || run->device_fd > MAX_FD || run->timeout_s == 0
 	    || run->total_sectors == 0 || run->total_sectors > UINT64_C(0x7fffffffffffffff))
 		return NTFSMAC_DMN_E_INVAL;
@@ -1191,7 +1193,9 @@ ntfsmac_dmn_status ntfsmac_spawn_volmark(const ntfsmac_volmark_run *run, bool se
 	snprintf(serial, sizeof(serial), "%016" PRIX64, run->serial);
 	snprintf(sectors, sizeof(sectors), "%" PRIu64, run->total_sectors);
 	argv[0] = (char *)cfg.volmark_path;
-	argv[1] = (char *)(set ? "set" : "clear");
+	argv[1] = (char *)(op == NTFSMAC_VOLMARK_SET	  ? "set"
+			   : op == NTFSMAC_VOLMARK_CLEAR ? "clear"
+							 : "clear-repair");
 	argv[2] = (char *)"--fd";
 	argv[3] = fdarg;
 	argv[4] = (char *)"--expect-serial";
@@ -1245,12 +1249,23 @@ ntfsmac_dmn_status ntfsmac_spawn_volmark(const ntfsmac_volmark_run *run, bool se
 		}
 	}
 	kill_group_of(pid);
-	(void)reap_bounded(pid, &wst, REAP_WAIT_MS);
+	if (!reap_bounded(pid, &wst, REAP_WAIT_MS)) {
+		/* Still not gone after SIGKILL: a process that may yet write to the device. */
+		*exit_code = -4;
+		return NTFSMAC_DMN_E_BUSY;
+	}
 	if (rc == 2) {
 		*exit_code = w.saw_w ? -2 : -1;
 		return NTFSMAC_DMN_E_TIMEOUT;
 	}
 	return NTFSMAC_DMN_E_IO;
+}
+
+ntfsmac_dmn_status ntfsmac_spawn_volmark(const ntfsmac_volmark_run *run, bool set,
+					 int *exit_code)
+{
+	return ntfsmac_spawn_volmark_op(run, set ? NTFSMAC_VOLMARK_SET : NTFSMAC_VOLMARK_CLEAR,
+					exit_code);
 }
 
 /* ------------------------------------------------------------------ */

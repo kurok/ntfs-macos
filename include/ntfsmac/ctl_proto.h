@@ -20,12 +20,18 @@ extern "C" {
 
 /*
  * Mach service of the privileged requests (journal_clear, repair; ADR-019,
- * amendment 2026-11-16). T-M4-14 adds the listener and T-M4-08 the
- * MachServices entry of the launchd plist. The worker and volmark sandbox
+ * amendment 2026-11-16). T-M4-14 adds the listener (src/daemon/ctl_xpc.c) and T-M4-08 the
+ * MachServices entry of the launchd plist. A request is one message: a dictionary with the
+ * string NTFSMAC_CTL_XPC_KEY_REQUEST (the same JSON line as on the socket); the reply is a
+ * dictionary with the string NTFSMAC_CTL_XPC_KEY_REPLY (the same reply line). The Unix socket
+ * answers `journal_clear` and `repair` with `denied`, reason `wrong_channel`, and this service
+ * answers every other command the same way. The worker and volmark sandbox
  * profiles (integration/sandbox/) deny looking it up; the spawn module hands
  * this name to them as the parameter XPC_SERVICE, so it is defined only here.
  */
 #define NTFSMAC_CTL_XPC_SERVICE "org.ntfs-macos.ctl.privileged"
+#define NTFSMAC_CTL_XPC_KEY_REQUEST "request"
+#define NTFSMAC_CTL_XPC_KEY_REPLY "reply"
 
 /* One request line: at most 4096 bytes without the newline. */
 #define NTFSMAC_CTL_LINE_MAX 4096u
@@ -73,7 +79,8 @@ extern "C" {
 	X(AUTHORIZATION_REPLAYED, "authorization_replayed")  \
 	X(AUTHORIZATION_DENIED, "authorization_denied")      \
 	X(AUTHORIZATION_RIGHT_INVALID, "authorization_right_invalid") \
-	X(CHECK_UNAVAILABLE, "check_unavailable")
+	X(CHECK_UNAVAILABLE, "check_unavailable")            \
+	X(WRONG_CHANNEL, "wrong_channel")
 
 typedef enum ntfsmac_ctl_cmd {
 #define X(id, str) NTFSMAC_CTL_CMD_##id,

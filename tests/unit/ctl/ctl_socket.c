@@ -356,7 +356,11 @@ static void test_peer(void)
 	close(fd);
 	CHECK_EQ_INT(fake_total_calls(&v.o), 0);
 
-	/* the peer record from the socket reaches the operation (journal_clear) */
+	/*
+	 * journal_clear and repair are not served on the socket at all (ADR-019 amendment): even
+	 * a peer that would pass every check gets `wrong_channel`, no check runs and no operation
+	 * is called. The privileged path through the handler is tested in ctl_handle.c.
+	 */
 	v.s.socket_peer = good_peer();
 	v.s.socket_peer.uid = 777;
 	fd = dial();
@@ -367,8 +371,15 @@ static void test_peer(void)
 		send_str(fd, req, strlen(req));
 	}
 	slurp(fd, buf, sizeof buf, 1, 2000, &eof);
+	CHECK(strstr(buf, "\"reason\":\"wrong_channel\"") != NULL);
+	CHECK_EQ_INT(v.o.calls[NTFSMAC_CTL_CMD_JOURNAL_CLEAR], 0);
+	CHECK_EQ_INT(v.s.authz_calls, 0);
+	close(fd);
+	/* the peer record from the socket still reaches the operations it serves (status) */
+	fd = dial();
+	send_str(fd, "{\"cmd\":\"status\",\"bsd\":\"disk3s2\"}\n", 33);
+	slurp(fd, buf, sizeof buf, 1, 2000, &eof);
 	CHECK(strncmp(buf, "{\"ok\":true", 10) == 0);
-	CHECK_EQ_INT(v.o.peer.uid, 777);
 	close(fd);
 
 	ntfsmac_ctl_stop(v.ctl);
@@ -473,49 +484,60 @@ static void test_live_socket(void)
 	ntfsmac_ctl_stop(v.ctl);
 }
 
-/* U-CTL-SOCK-08: the definition of the right is checked at start and before each request (M2). */
+/*
+ * U-CTL-SOCK-08: the definition of the right is checked at start and before each request (M2).
+ * The privileged requests arrive on the XPC door now, so the handler is called directly with
+ * the XPC environment of a server that is running on the socket.
+ */
 static void test_right(void)
 {
 	srv v;
-	char buf[512];
-	bool eof;
-	int fd, calls;
+	ntfsmac_ctl_env xenv;
+	ntfsmac_ctl_peer peer = good_peer();
+	char reply[NTFSMAC_CTL_REPLY_MIN * 2];
+	int calls;
 	char req[256];
 
 	srv_start(&v);
 	CHECK(v.s.right_calls >= 1); /* at start */
 	calls = v.s.right_calls;
+	xenv = v.env;
+	xenv.channel = NTFSMAC_CTL_CHAN_XPC;
 
 	snprintf(req, sizeof req, "{\"cmd\":\"journal_clear\",\"bsd\":\"disk3s2\",\"confirm_label\":\"L\","
-		 "\"confirm_serial\":\"00000001\",\"auth\":\"%s\"}\n", GOOD_AUTH);
+		 "\"confirm_serial\":\"00000001\",\"auth\":\"%s\"}", GOOD_AUTH);
 
 	/* missing or wrong definition: refused, the form is not even verified */
 	v.s.right_answer = NTFSMAC_CTL_SYS_NO;
-	fd = dial();
-	send_str(fd, req, strlen(req));
-	slurp(fd, buf, sizeof buf, 1, 2000, &eof);
-	CHECK(strstr(buf, "\"reason\":\"authorization_right_invalid\"") != NULL);
-	close(fd);
+	(void)ntfsmac_ctl_handle_line_env(&xenv, &v.ops, &v.o, &peer, req, strlen(req), reply,
+					  sizeof reply);
+	CHECK(strstr(reply, "\"reason\":\"authorization_right_invalid\"") != NULL);
 	CHECK(v.s.right_calls > calls);
 	CHECK_EQ_INT(v.s.authz_calls, 0);
 	CHECK_EQ_INT(v.o.calls[NTFSMAC_CTL_CMD_JOURNAL_CLEAR], 0);
 
 	/* it is read again for each request: fixed, the same request now passes */
 	v.s.right_answer = NTFSMAC_CTL_SYS_YES;
-	fd = dial();
-	send_str(fd, req, strlen(req));
-	slurp(fd, buf, sizeof buf, 1, 2000, &eof);
-	CHECK(strncmp(buf, "{\"ok\":true", 10) == 0);
-	close(fd);
+	(void)ntfsmac_ctl_handle_line_env(&xenv, &v.ops, &v.o, &peer, req, strlen(req), reply,
+					  sizeof reply);
+	CHECK(strncmp(reply, "{\"ok\":true", 10) == 0);
 	CHECK_EQ_INT(v.o.calls[NTFSMAC_CTL_CMD_JOURNAL_CLEAR], 1);
 
-	/* plain requests do not depend on the right */
+	/* plain requests do not depend on the right (and the XPC door does not serve them) */
 	v.s.right_answer = NTFSMAC_CTL_SYS_NO;
-	fd = dial();
-	send_str(fd, "{\"cmd\":\"list\"}\n", 15);
-	slurp(fd, buf, sizeof buf, 1, 2000, &eof);
-	CHECK(strncmp(buf, "{\"ok\":true", 10) == 0);
-	close(fd);
+	{
+		char buf[512];
+		bool eof;
+		int fd = dial();
+
+		send_str(fd, "{\"cmd\":\"list\"}\n", 15);
+		slurp(fd, buf, sizeof buf, 1, 2000, &eof);
+		CHECK(strncmp(buf, "{\"ok\":true", 10) == 0);
+		close(fd);
+	}
+	(void)ntfsmac_ctl_handle_line_env(&xenv, &v.ops, &v.o, &peer, "{\"cmd\":\"list\"}", 14, reply,
+					  sizeof reply);
+	CHECK(strstr(reply, "\"reason\":\"wrong_channel\"") != NULL);
 	ntfsmac_ctl_stop(v.ctl);
 }
 

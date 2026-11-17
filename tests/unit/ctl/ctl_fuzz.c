@@ -164,8 +164,11 @@ int main(void)
 
 		fake_sys_init(&s, &sys);
 		ntfsmac_ctl_replay_init(&replay);
+		memset(&env, 0, sizeof env);
 		env.sys = &sys;
 		env.replay = &replay;
+		env.channel = pick(2) == 0 ? NTFSMAC_CTL_CHAN_SOCKET : NTFSMAC_CTL_CHAN_XPC;
+		env.authz = pick(3) == 0 ? NTFSMAC_CTL_AUTHZ_ROOT_PEER : NTFSMAC_CTL_AUTHZ_EXTERNAL_FORM;
 		memset(&o, 0, sizeof o);
 		o.status = pick(4) == 0 ? NTFSMAC_DMN_E_BUSY : NTFSMAC_DMN_OK;
 		/* vary every fact the checks read */

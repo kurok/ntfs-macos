@@ -4,7 +4,7 @@
 # in every build as plain concurrency tests. Under the tsan preset
 # (cmake --preset tsan) ThreadSanitizer checks them for data races.
 
-foreach(t statemachine ctl_journal)
+foreach(t statemachine ctl_journal session)
   add_executable(tsan_${t} tsan_${t}.c)
   target_include_directories(tsan_${t} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(tsan_${t} PRIVATE ntfsmac_daemon ntfsmac_options)

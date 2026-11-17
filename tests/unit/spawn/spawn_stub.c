@@ -223,7 +223,8 @@ static int do_volmark(int argc, char **argv, const char *mode)
 	    || strcmp(argv[7], "2048") != 0)
 		return 2;
 	if ((!strcmp(mode, "volmark-set") && strcmp(argv[1], "set") != 0)
-	    || (!strcmp(mode, "volmark-clear") && strcmp(argv[1], "clear") != 0))
+	    || (!strcmp(mode, "volmark-clear") && strcmp(argv[1], "clear") != 0)
+	    || (!strcmp(mode, "volmark-clearrepair") && strcmp(argv[1], "clear-repair") != 0))
 		return 2;
 	fprintf(stderr, "uid=%u gid=%u\n", (unsigned)getuid(), (unsigned)getgid());
 	keep[0] = atoi(argv[3]);

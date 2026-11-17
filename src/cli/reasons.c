@@ -62,6 +62,8 @@ static const char *const refusal_text[NTFSMAC_CTL_REFUSE_COUNT_] = {
 		 "so the request was refused. Reinstall the package."),
 	[NTFSMAC_CTL_REFUSE_CHECK_UNAVAILABLE] =
 		"The daemon could not verify the request and refused it.",
+	[NTFSMAC_CTL_REFUSE_WRONG_CHANNEL] =
+		"This request is not served on this connection. Use the ntfsmac command for it.",
 };
 
 static const char *const error_text[NTFSMAC_CTL_ERR_COUNT_] = {
@@ -113,5 +115,55 @@ const char *ntfsmac_cli_error_text(const char *code)
 	for (i = 0; i < NTFSMAC_CTL_ERR_COUNT_; i++)
 		if (strcmp(code, ntfsmac_ctl_error_name((ntfsmac_ctl_error)i)) == 0)
 			return error_text[i];
+	return NULL;
+}
+
+/*
+ * Text for the reason of a refused journal_clear or repair: the gate of docs/ARCHITECTURE.md
+ * section 3.2 that failed, or a step before it (ctl_journal.c, ntfsmac_priv_gate_name()).
+ */
+static const struct {
+	const char *id;
+	const char *text;
+} gate_text[] = {
+	{"no_volume", "The daemon does not know this volume. Check the name with `ntfsmac list`."},
+	{"probe_failed", "The volume could not be checked just now (is it mounted by another driver?)."},
+	{"invalid_input", "The request was not valid."},
+	{"no_entry", "There is no session journal entry for this volume, so there is nothing to clear."},
+	{"probe_not_clean",
+	 "The volume is not clean. A journal entry can be cleared only on a volume that a fresh check "
+	 "finds clean. Run Windows chkdsk."},
+	{"mounted_rw", "The volume is mounted read/write. Unmount it first."},
+	{"live_session",
+	 "A mounted volume with the same serial (a clone, for example) owns this entry, so it was "
+	 "not touched."},
+	{"probe_not_dirty_flag",
+	 "The volume does not show only the dirty flag. Only that state can be repaired here; run "
+	 "Windows chkdsk."},
+	{"log_not_clean", "The log of the volume is not clean. Run Windows chkdsk."},
+	{"hiberfile", "The volume holds an active Windows hibernation file. Shut Windows down fully."},
+	{"flags",
+	 "The volume has flags besides the dirty flag that this tool will not clear. Run Windows "
+	 "chkdsk."},
+	{"mounted", "The volume is mounted. Unmount it first."},
+	{"peer", "The request did not pass the checks for who may send it."},
+	{"confirmation", "The label or the serial you typed does not match the volume."},
+	{"volmark_failed",
+	 "The tool that clears the flag failed. The volume was probably not changed; if in doubt, run "
+	 "Windows chkdsk."},
+	{"journal", "The journal entry could not be moved. Nothing else was changed."},
+	{"entry_changed", "The journal entry changed while the request was handled (another session started), so it was not touched."},
+	{"binding", "The device is not the volume that was checked (or another driver has it mounted)."},
+};
+
+const char *ntfsmac_cli_gate_text(const char *id)
+{
+	size_t i;
+
+	if (id == NULL)
+		return NULL;
+	for (i = 0; i < sizeof gate_text / sizeof gate_text[0]; i++)
+		if (strcmp(id, gate_text[i].id) == 0)
+			return gate_text[i].text;
 	return NULL;
 }

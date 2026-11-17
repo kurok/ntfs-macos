@@ -150,6 +150,16 @@ ntfsmac_dmn_status ntfsmac_ctl_handle_line_env(const ntfsmac_ctl_env *env,
 		return NTFSMAC_DMN_E_INVAL;
 	}
 
+	/*
+	 * The two channels serve disjoint sets (ADR-019 amendment 2026-11-16): the socket knows
+	 * only the uid of its peer, so it never serves journal_clear and repair; the XPC service
+	 * serves nothing else.
+	 */
+	if (is_privileged(req.cmd) != (env->channel == NTFSMAC_CTL_CHAN_XPC)) {
+		put_error(reply, cap, NTFSMAC_CTL_ERR_DENIED, (int)NTFSMAC_CTL_REFUSE_WRONG_CHANNEL);
+		return NTFSMAC_DMN_E_DENIED;
+	}
+
 	/* journal_clear and repair: checks 1 to 4 of ADR-019, before the operation. */
 	if (is_privileged(req.cmd)) {
 		refusal = ntfsmac_ctl_authorise_privileged(env, ops, ctx, peer, &req);
@@ -188,6 +198,17 @@ static ntfsmac_ctl_env default_env(void)
 	pthread_once(&g_replay_once, replay_once);
 	e.sys = ntfsmac_ctl_sys_default();
 	e.replay = &g_replay;
+	e.authz = ntfsmac_ctl_default_authz();
+	e.channel = NTFSMAC_CTL_CHAN_SOCKET;
+	return e;
+}
+
+/* The default environment of the other door: the XPC listener's, with the same replay table. */
+ntfsmac_ctl_env ntfsmac_ctl_default_env_xpc(void)
+{
+	ntfsmac_ctl_env e = default_env();
+
+	e.channel = NTFSMAC_CTL_CHAN_XPC;
 	return e;
 }
 
@@ -476,6 +497,7 @@ ntfsmac_dmn_status ntfsmac_ctl_start_env(const char *socket_path, const ntfsmac_
 	c->ops = ops;
 	c->ctx = ctx;
 	c->env = *env;
+	c->env.channel = NTFSMAC_CTL_CHAN_SOCKET; /* the socket never serves the privileged requests */
 
 	if (pipe(c->wake) != 0) {
 		st = NTFSMAC_DMN_E_IO;

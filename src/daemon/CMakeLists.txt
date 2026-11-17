@@ -31,6 +31,16 @@ if(NTFSMAC_TEST_SEAMS)
   target_compile_definitions(ntfsmac_daemon PUBLIC NTFSMAC_TEST_SEAMS)
 endif()
 
+# T-M4-14: check 4 of ADR-019 has two implementations behind one function (ctl_peer.c). The
+# default is the external form of the authorization right. If U17 shows that a password grant
+# does not satisfy the daemon's AuthorizationCopyRights, build with -DNTFSMAC_AUTHZ_FALLBACK_ROOT=ON:
+# the privileged requests are then accepted only from a root peer (sudo ntfsmac ...), checks 2 and
+# 3 still apply. The daemon may also choose at run time (ntfsmac_ctl_env.authz).
+option(NTFSMAC_AUTHZ_FALLBACK_ROOT "Check 4 of ADR-019: accept a root peer instead of the authorization form" OFF)
+if(NTFSMAC_AUTHZ_FALLBACK_ROOT)
+  target_compile_definitions(ntfsmac_daemon PUBLIC NTFSMAC_CTL_AUTHZ_FALLBACK_ROOT=1)
+endif()
+
 # da.c (T-M4-02) is the only file here that uses Disk Arbitration.
 # T-M4-04: ctl_sys.c uses code signing and Authorization Services (Security).
 if(APPLE)

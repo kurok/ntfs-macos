@@ -307,6 +307,8 @@ int ntfsmac_cli_render(const ntfsmac_cli_ctx *ctx, ntfsmac_ctl_cmd cmd, const ch
 		if (err != NULL && strcmp(err, "denied") == 0 && reason != NULL &&
 		    ntfsmac_cli_refusal_text(reason) != NULL)
 			text = ntfsmac_cli_refusal_text(reason);
+		else if (reason != NULL && ntfsmac_cli_gate_text(reason) != NULL)
+			text = ntfsmac_cli_gate_text(reason);
 		fputs("ntfsmac: ", ctx->err);
 		if (text != NULL) {
 			fputs(text, ctx->err);

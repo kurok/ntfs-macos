@@ -199,6 +199,56 @@ ntfsmac_ctl_refusal ntfsmac_ctl_check_authorization(const ntfsmac_ctl_sys *sys,
 }
 
 /* ------------------------------------------------------------------ */
+/* Check 4, the seam between the two strategies                        */
+/* ------------------------------------------------------------------ */
+
+ntfsmac_ctl_authz_strategy ntfsmac_ctl_default_authz(void)
+{
+#if defined(NTFSMAC_CTL_AUTHZ_FALLBACK_ROOT) && NTFSMAC_CTL_AUTHZ_FALLBACK_ROOT
+	return NTFSMAC_CTL_AUTHZ_ROOT_PEER;
+#else
+	return NTFSMAC_CTL_AUTHZ_EXTERNAL_FORM;
+#endif
+}
+
+const char *ntfsmac_ctl_authz_name(ntfsmac_ctl_authz_strategy a)
+{
+	return a == NTFSMAC_CTL_AUTHZ_EXTERNAL_FORM ? "external_form"
+	       : a == NTFSMAC_CTL_AUTHZ_ROOT_PEER   ? "root_peer"
+						    : "unknown";
+}
+
+/*
+ * Fallback of ADR-019: no right, no form. The peer must be root, and the uid comes from the
+ * audit token of the message (the XPC channel) or from LOCAL_PEERCRED (the socket never
+ * reaches this check for the privileged commands). A `sudo ntfsmac ...` run qualifies. An
+ * `auth` field, if the client sent one, is ignored: nothing is verified or recorded for it.
+ */
+ntfsmac_ctl_refusal ntfsmac_ctl_check_root_peer(const ntfsmac_ctl_peer *peer)
+{
+	if (peer == NULL)
+		return NTFSMAC_CTL_REFUSE_CHECK_UNAVAILABLE;
+	return peer->uid == 0 ? NTFSMAC_CTL_PASS : NTFSMAC_CTL_REFUSE_AUTHORIZATION_DENIED;
+}
+
+ntfsmac_ctl_refusal ntfsmac_ctl_check_admin_authorization(const ntfsmac_ctl_env *env,
+							  const ntfsmac_ctl_peer *peer,
+							  const ntfsmac_ctl_request *req)
+{
+	if (env == NULL || peer == NULL || req == NULL)
+		return NTFSMAC_CTL_REFUSE_CHECK_UNAVAILABLE;
+	switch (env->authz) {
+	case NTFSMAC_CTL_AUTHZ_EXTERNAL_FORM:
+		return ntfsmac_ctl_check_authorization(env->sys, env->replay,
+						       req->has_auth ? req->auth : NULL);
+	case NTFSMAC_CTL_AUTHZ_ROOT_PEER:
+		return ntfsmac_ctl_check_root_peer(peer);
+	default:
+		return NTFSMAC_CTL_REFUSE_CHECK_UNAVAILABLE; /* an unknown strategy never passes */
+	}
+}
+
+/* ------------------------------------------------------------------ */
 /* All four, in the order of the ADR                                   */
 /* ------------------------------------------------------------------ */
 
@@ -221,6 +271,5 @@ ntfsmac_ctl_refusal ntfsmac_ctl_authorise_privileged(const ntfsmac_ctl_env *env,
 	r = ntfsmac_ctl_check_client_signed(env->sys, peer);
 	if (r != NTFSMAC_CTL_PASS)
 		return r;
-	return ntfsmac_ctl_check_authorization(env->sys, env->replay,
-					       req->has_auth ? req->auth : NULL);
+	return ntfsmac_ctl_check_admin_authorization(env, peer, req);
 }

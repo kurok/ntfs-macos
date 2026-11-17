@@ -6,7 +6,7 @@
 # runs in a disposable macOS VM only (see its header). Tests link ntfsmac_cli,
 # which brings the daemon library with it.
 
-foreach(t parse peer handle fuzz socket cli)
+foreach(t parse peer handle fuzz socket cli xpc)
   add_executable(ctl_${t} ctl_${t}.c)
   target_include_directories(ctl_${t} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(ctl_${t} PRIVATE ntfsmac_cli ntfsmac_options)

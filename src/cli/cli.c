@@ -17,11 +17,15 @@ static void usage(FILE *f)
 	      "  mount [--ro] <bsd>           mount a volume (read-only with --ro)\n"
 	      "  unmount [--force] <bsd>      unmount a volume\n"
 	      "  doctor                       check the installation\n"
-	      "  journal-clear <bsd>          clear a session journal entry (administrator)\n"
-	      "  repair --clear-dirty <bsd>   clear the dirty flag (administrator)\n"
+	      "  journal-clear [--label TEXT --serial HEX8] <bsd>\n"
+	      "                               clear a session journal entry (administrator)\n"
+	      "  repair --clear-dirty [--label TEXT --serial HEX8] <bsd>\n"
+	      "                               clear the dirty flag (administrator)\n"
 	      "  repair --sync-mirror <bsd>   repair a stale MFT mirror (administrator)\n"
 	      "\n"
-	      "--socket is not allowed for journal-clear and repair.\n",
+	      "journal-clear and repair ask for the label shown by `list` and the last 8 hex digits\n"
+	      "of the serial, then for an administrator password in a system dialog. They use the\n"
+	      "built-in service and refuse --socket.\n",
 	      f);
 }
 
@@ -62,7 +66,16 @@ static bool plausible_bsd(const char *s)
 
 int ntfsmac_cli_main(int argc, char **argv, FILE *out, FILE *err)
 {
-	ntfsmac_cli_ctx ctx = {NTFSMAC_CTL_SOCKET_PATH, out, err};
+	return ntfsmac_cli_main_hooks(argc, argv, out, err, NULL);
+}
+
+int ntfsmac_cli_main_hooks(int argc, char **argv, FILE *out, FILE *err,
+			   const ntfsmac_cli_priv_hooks *hooks)
+{
+	ntfsmac_cli_ctx ctx = {.socket_path = NTFSMAC_CTL_SOCKET_PATH,
+			       .out = out,
+			       .err = err,
+			       .hooks = hooks};
 	ntfsmac_cli_req req;
 	const char *cmd;
 	bool socket_given = false;

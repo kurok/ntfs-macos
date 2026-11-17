@@ -454,10 +454,25 @@ static ntfsmac_ctl_sys_answer sys_right(void *ctx)
 	return NTFSMAC_CTL_SYS_YES;
 }
 
-static ntfsmac_ctl_sys g_sys = {NULL, sys_peer_from_fd, sys_proc_parent, sys_signed, sys_authz,
-				sys_right};
+static ntfsmac_ctl_sys g_sys = {.ctx = NULL,
+				.peer_from_fd = sys_peer_from_fd,
+				.proc_parent = sys_proc_parent,
+				.client_signed = sys_signed,
+				.authz_verify = sys_authz,
+				.right_definition = sys_right};
 static ntfsmac_ctl_replay g_replay;
-static ntfsmac_ctl_env g_env = {&g_sys, &g_replay};
+/* The socket door refuses journal_clear and repair; the XPC door serves only those (T-M4-14). */
+static ntfsmac_ctl_env g_env = {.sys = &g_sys, .replay = &g_replay};
+static ntfsmac_ctl_env g_env_xpc = {.sys = &g_sys, .replay = &g_replay,
+				    .channel = NTFSMAC_CTL_CHAN_XPC};
+
+/* The door a request line belongs to, as a client would pick it. */
+static const ntfsmac_ctl_env *env_for(const char *line)
+{
+	return strstr(line, "\"journal_clear\"") != NULL || strstr(line, "\"repair\"") != NULL
+		       ? &g_env_xpc
+		       : &g_env;
+}
 static ntfsmac_ctl_ops g_ops_table;
 
 /* ---------------- request builders ---------------- */
@@ -632,14 +647,14 @@ static void *direct_main(void *arg)
 			 "\"confirm_serial\":\"%08X\",\"auth\":\"%s\"}",
 			 SHARED_SERIAL(i), auth);
 		barrier_wait(&g_barrier);
-		(void)ntfsmac_ctl_handle_line_env(&g_env, &g_ops_table, NULL, &g_peer, line,
+		(void)ntfsmac_ctl_handle_line_env(env_for(line), &g_ops_table, NULL, &g_peer, line,
 						  strlen(line), reply, sizeof reply);
 		check_reply(reply);
 	}
 	/* Then random requests, as a client would send them. */
 	for (i = 0; i < DIRECT_LINES; i++) {
 		make_line(line, sizeof line, &rs, who, i);
-		(void)ntfsmac_ctl_handle_line_env(&g_env, &g_ops_table, NULL, &g_peer, line,
+		(void)ntfsmac_ctl_handle_line_env(env_for(line), &g_ops_table, NULL, &g_peer, line,
 						  strlen(line), reply, sizeof reply);
 		check_reply(reply);
 	}

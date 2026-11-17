@@ -78,6 +78,9 @@ static void check_reply_shape(const rig *g)
 #define LINE_REPAIR(auth)                                                                 \
 	"{\"cmd\":\"repair\",\"bsd\":\"disk3s2\",\"action\":\"clear_dirty\","              \
 	"\"confirm_label\":\"My Disk\",\"confirm_serial\":\"0a1b2c3d\"" auth "}"
+#define LINE_MIRROR(auth)                                                                 \
+	"{\"cmd\":\"repair\",\"bsd\":\"disk3s2\",\"action\":\"sync_mirror\","             \
+	"\"confirm_label\":\"My Disk\",\"confirm_serial\":\"0a1b2c3d\"" auth "}"
 #define AUTH_FIELD ",\"auth\":\"" GOOD_AUTH "\""
 
 static void test_commands(void)
@@ -126,7 +129,7 @@ static void test_gate(void)
 	static const char *const lines[] = {
 		"{\"cmd\":\"list\"}", "{\"cmd\":\"status\",\"bsd\":\"disk4\"}",
 		"{\"cmd\":\"mount\",\"bsd\":\"disk4\"}", "{\"cmd\":\"unmount\",\"bsd\":\"disk4\"}",
-		"{\"cmd\":\"doctor\"}", LINE_JC(AUTH_FIELD), LINE_REPAIR(AUTH_FIELD),
+		"{\"cmd\":\"doctor\"}", LINE_JC(AUTH_FIELD), LINE_REPAIR(AUTH_FIELD), LINE_MIRROR(AUTH_FIELD),
 		"garbage", "", "{\"cmd\":\"nope\"}"};
 	size_t i;
 
@@ -147,11 +150,14 @@ static void test_gate(void)
 
 static void test_privileged_each_check(void)
 {
-	static const char *const lines[] = {LINE_JC(AUTH_FIELD), LINE_REPAIR(AUTH_FIELD)};
-	static const ntfsmac_ctl_cmd cmds[] = {NTFSMAC_CTL_CMD_JOURNAL_CLEAR, NTFSMAC_CTL_CMD_REPAIR};
+	/* journal_clear, repair clear_dirty and repair sync_mirror (T-M4-16): the same five checks */
+	static const char *const lines[] = {LINE_JC(AUTH_FIELD), LINE_REPAIR(AUTH_FIELD), LINE_MIRROR(AUTH_FIELD)};
+	static const char *const noauth[] = {LINE_JC(""), LINE_REPAIR(""), LINE_MIRROR("")};
+	static const ntfsmac_ctl_cmd cmds[] = {NTFSMAC_CTL_CMD_JOURNAL_CLEAR, NTFSMAC_CTL_CMD_REPAIR,
+					       NTFSMAC_CTL_CMD_REPAIR};
 	size_t i;
 
-	for (i = 0; i < 2; i++) {
+	for (i = 0; i < 3; i++) {
 		rig g;
 
 		/* check 1: console user but not admin */
@@ -198,7 +204,7 @@ static void test_privileged_each_check(void)
 
 		/* check 4: no authorization, one the system does not accept, one the system cannot judge */
 		rig_init(&g);
-		CHECK_EQ_INT(run(&g, i == 0 ? LINE_JC("") : LINE_REPAIR("")), NTFSMAC_DMN_E_DENIED);
+		CHECK_EQ_INT(run(&g, noauth[i]), NTFSMAC_DMN_E_DENIED);
 		CHECK(reply_has(&g, "\"reason\":\"no_authorization\""));
 		CHECK_EQ_INT(fake_total_calls(&g.o), 0);
 		rig_init(&g);
@@ -248,6 +254,8 @@ static void test_privileged_each_check(void)
 		CHECK_EQ_INT(g.o.peer.pid, 500);
 		if (i == 1)
 			CHECK(strcmp(g.o.action, "clear_dirty") == 0);
+		if (i == 2)
+			CHECK(strcmp(g.o.action, "sync_mirror") == 0);
 		CHECK_EQ_INT(g.s.authz_calls, 1);
 		CHECK(strcmp(g.reply, "{\"ok\":true,\"result\":\"cleared\"}") == 0);
 
@@ -389,6 +397,10 @@ static void test_channels_and_fallback(void)
 						 strlen(LINE_REPAIR(AUTH_FIELD)), g.reply, sizeof g.reply),
 		     NTFSMAC_DMN_E_DENIED);
 	CHECK(reply_has(&g, "\"reason\":\"wrong_channel\""));
+	CHECK_EQ_INT(ntfsmac_ctl_handle_line_env(&g.env, &g.ops, &g.o, &g.peer, LINE_MIRROR(AUTH_FIELD),
+						 strlen(LINE_MIRROR(AUTH_FIELD)), g.reply, sizeof g.reply),
+		     NTFSMAC_DMN_E_DENIED);
+	CHECK(reply_has(&g, "\"reason\":\"wrong_channel\""));
 	CHECK_EQ_INT(g.s.proc_calls + g.s.signed_calls + g.s.authz_calls + g.s.right_calls, 0);
 	CHECK_EQ_INT(fake_total_calls(&g.o), 0);
 	CHECK_EQ_INT(g.replay.count, 0);
@@ -422,9 +434,15 @@ static void test_channels_and_fallback(void)
 	CHECK_EQ_INT(run(&g, LINE_JC("")), NTFSMAC_DMN_OK); /* nothing is used up */
 	CHECK_EQ_INT(run(&g, LINE_REPAIR("")), NTFSMAC_DMN_OK);
 	CHECK_EQ_INT(g.o.calls[NTFSMAC_CTL_CMD_REPAIR], 1);
+	CHECK_EQ_INT(run(&g, LINE_MIRROR("")), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(g.o.calls[NTFSMAC_CTL_CMD_REPAIR], 2);
+	CHECK(strcmp(g.o.action, "sync_mirror") == 0);
 	CHECK_EQ_INT(g.s.authz_calls + g.s.right_calls, 0);
 	/* not root: refused, whatever form comes with it */
 	g.peer.uid = 501;
+	CHECK_EQ_INT(run(&g, LINE_MIRROR(AUTH_FIELD)), NTFSMAC_DMN_E_DENIED);
+	CHECK(reply_has(&g, "authorization_denied"));
+	CHECK_EQ_INT(g.o.calls[NTFSMAC_CTL_CMD_REPAIR], 2);
 	CHECK_EQ_INT(run(&g, LINE_JC(AUTH_FIELD)), NTFSMAC_DMN_E_DENIED);
 	CHECK(reply_has(&g, "authorization_denied"));
 	CHECK_EQ_INT(g.o.calls[NTFSMAC_CTL_CMD_JOURNAL_CLEAR], 2);

@@ -106,7 +106,7 @@ cc -std=c17 -O2 -I include -I src/probe -I src/common $(pkg-config --cflags libn
 	src/probe/state.c src/probe/text.c src/probe/json.c src/common/mftmirr.c src/common/state_rank.c \
 	$(pkg-config --libs --static libntfs-3g) -framework CoreFoundation
 cc -std=c17 -O2 -I include -I src/volmark -I src/common $(pkg-config --cflags libntfs-3g) -o "$work/ntfsmac-volmark" \
-	src/volmark/main.c src/volmark/cli.c src/volmark/volmark.c src/volmark/vdev.c src/volmark/args.c \
+	src/volmark/main.c src/volmark/cli.c src/volmark/volmark.c src/volmark/syncmirror.c src/volmark/vdev.c src/volmark/args.c \
 	src/common/mftmirr.c $(pkg-config --libs --static libntfs-3g) -framework CoreFoundation
 cp "$HOME/ntfsmac/deps/bin/ntfs-3g" "$work/ntfsmac-worker"
 img=$work/ntfs.img

@@ -204,6 +204,39 @@ ntfsmac_policy_gate ntfsmac_policy_gate_repair(const ntfsmac_policy_repair_input
 	return NTFSMAC_GATE_ALLOWED;
 }
 
+ntfsmac_policy_gate ntfsmac_policy_gate_sync_mirror(const ntfsmac_policy_repair_input *in)
+{
+	const ntfsmac_probe_verdict *p;
+	uint32_t stale = NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_MFTMIRR_STALE);
+
+	if (in == NULL || in->probe == NULL)
+		return NTFSMAC_GATE_INVALID_INPUT;
+	p = in->probe;
+	if (p->state != NTFSMAC_PROBE_STATE_MIRROR_SPLIT)
+		return NTFSMAC_GATE_PROBE_NOT_MIRROR_SPLIT;
+	/*
+	 * MFTMIRR_STALE must be there, and nothing besides FLAG_DIRTY and NAMES_NOT_NFC: a split
+	 * that also shows another finding (an unclean log, a hibernation signature, a failed
+	 * check) is not one this tool may touch.
+	 */
+	if ((p->reason_codes & stale) == 0 ||
+	    (p->reason_codes & ~(stale | NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_FLAG_DIRTY) |
+				 NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_NAMES_NOT_NFC))) != 0)
+		return NTFSMAC_GATE_PROBE_NOT_MIRROR_SPLIT;
+	if (p->logfile != NTFSMAC_PROBE_LOGFILE_CLEAN)
+		return NTFSMAC_GATE_LOG_NOT_CLEAN;
+	if (p->hiberfile != NTFSMAC_PROBE_HIBERFILE_ABSENT &&
+	    p->hiberfile != NTFSMAC_PROBE_HIBERFILE_INACTIVE)
+		return NTFSMAC_GATE_HIBERFILE;
+	if (in->mounted)
+		return NTFSMAC_GATE_MOUNTED;
+	if (!in->peer_authorised)
+		return NTFSMAC_GATE_PEER;
+	if (!in->confirmation_ok)
+		return NTFSMAC_GATE_CONFIRMATION;
+	return NTFSMAC_GATE_ALLOWED;
+}
+
 ntfsmac_policy_clear_warning ntfsmac_policy_journal_clear_warning(
 	const ntfsmac_journal_entry *entry, const ntfsmac_probe_verdict *probe)
 {

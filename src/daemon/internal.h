@@ -221,11 +221,15 @@ typedef struct ntfsmac_volmark_run {
 ntfsmac_dmn_status ntfsmac_spawn_volmark(const ntfsmac_volmark_run *run,
 					 bool set, int *exit_code);
 
-/* The three marker commands of section 3.6 (T-M4-14 adds `clear-repair`, ADR-017). */
+/*
+ * The volmark commands: the three marker commands of section 3.6 (T-M4-14 adds `clear-repair`,
+ * ADR-017) and the stale-mirror repair `sync-mirror` of section 3.7 (T-M4-16, ADR-021).
+ */
 typedef enum ntfsmac_volmark_op {
 	NTFSMAC_VOLMARK_SET = 0,
 	NTFSMAC_VOLMARK_CLEAR,
-	NTFSMAC_VOLMARK_CLEAR_REPAIR
+	NTFSMAC_VOLMARK_CLEAR_REPAIR,
+	NTFSMAC_VOLMARK_SYNC_MIRROR
 } ntfsmac_volmark_op;
 ntfsmac_dmn_status ntfsmac_spawn_volmark_op(const ntfsmac_volmark_run *run,
 					    ntfsmac_volmark_op op, int *exit_code);
@@ -935,7 +939,7 @@ ntfsmac_dmn_status ntfsmac_ctl_handle_line(const ntfsmac_ctl_ops *ops, void *ctx
  * ntfsmac_ctl_ops.journal_clear and .repair with `ctx` pointing to a ntfsmac_priv; T-M4-08's
  * ops table calls them from small wrappers, on the volume's queue or under the daemon's lock
  * for the volume registry (they serialise among themselves with one mutex and nothing more).
- * A repair `sync_mirror` is T-M4-16's: it answers NOTIMPL here.
+ * A repair `sync_mirror` is handed to ntfsmac_priv_repair_mirror() (ctl_repair_mirror.c, T-M4-16).
  */
 typedef struct ntfsmac_priv_volume {
 	bool mounted;    /* Mounting, Mounted or Unmounting, in any mode */
@@ -973,6 +977,12 @@ typedef struct ntfsmac_priv_sys {
 	 */
 	ntfsmac_dmn_status (*clear_dirty)(void *ctx, const char *bsd, const ntfsmac_probe_verdict *v,
 					  ntfsmac_priv_bind *bind, int *exit_code);
+	/*
+	 * Bound `volmark sync-mirror` (T-M4-16, same contract as clear_dirty). NULL: the request is
+	 * answered NOTIMPL and nothing is probed.
+	 */
+	ntfsmac_dmn_status (*sync_mirror)(void *ctx, const char *bsd, const ntfsmac_probe_verdict *v,
+					  ntfsmac_priv_bind *bind, int *exit_code);
 	int64_t (*now)(void *ctx);
 } ntfsmac_priv_sys;
 
@@ -1003,6 +1013,27 @@ size_t ntfsmac_priv_journal_member(const ntfsmac_journal_entry *e, const ntfsmac
 
 /* Fixed wire name of a policy gate result, the `reason` of a refusal ("probe_not_clean"). */
 const char *ntfsmac_priv_gate_name(ntfsmac_policy_gate g);
+
+/*
+ * `repair` with action `sync_mirror` (ctl_repair_mirror.c, T-M4-16, ADR-021, section 3.7): fresh
+ * probe, gate ntfsmac_policy_gate_sync_mirror(), the bound write by `ntfsmac-volmark sync-mirror`,
+ * then a fresh probe whose state goes into the reply:
+ *   {"ok":true,"result":"repaired","state":"clean","journal_entry":"untouched"}
+ * The journal is neither read nor written. Called by ntfsmac_priv_repair() with the mutex of the
+ * privileged requests held, after its argument checks (so `p`, `bsd`, the strings and `reply` are
+ * not NULL); the reply conventions are those of ntfsmac_priv_repair().
+ */
+ntfsmac_dmn_status ntfsmac_priv_repair_mirror(ntfsmac_priv *p, const char *bsd,
+					      const char *confirm_label, const char *confirm_serial,
+					      char *reply, size_t cap);
+
+/* Shared by ctl_journal.c and ctl_repair_mirror.c (fixed-word replies of the privileged requests). */
+ntfsmac_dmn_status ntfsmac_priv_refuse(char *reply, size_t cap, const char *reason);
+ntfsmac_dmn_status ntfsmac_priv_failed(char *reply, size_t cap, ntfsmac_dmn_status st,
+				       const char *reason);
+bool ntfsmac_priv_confirmation_ok(const ntfsmac_probe_verdict *v, const char *label,
+				  const char *serial);
+void ntfsmac_priv_release_bind(const ntfsmac_priv *p, ntfsmac_priv_bind *bind);
 
 /*
  * The real system facts: the fresh probe is open A (O_RDONLY), ntfsmac_spawn_probe(), close A;

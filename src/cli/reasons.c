@@ -140,6 +140,10 @@ static const struct {
 	{"probe_not_dirty_flag",
 	 "The volume does not show only the dirty flag. Only that state can be repaired here; run "
 	 "Windows chkdsk."},
+	{"probe_not_mirror_split",
+	 "The volume does not show only the interrupted $MFT and $MFTMirr update that this tool can "
+	 "repair (another finding is present, or it was already repaired). Nothing was changed. Run "
+	 "Windows chkdsk, or shut Windows down fully."},
 	{"log_not_clean", "The log of the volume is not clean. Run Windows chkdsk."},
 	{"hiberfile", "The volume holds an active Windows hibernation file. Shut Windows down fully."},
 	{"flags",
@@ -148,9 +152,14 @@ static const struct {
 	{"mounted", "The volume is mounted. Unmount it first."},
 	{"peer", "The request did not pass the checks for who may send it."},
 	{"confirmation", "The label or the serial you typed does not match the volume."},
+	{"volmark_refused",
+	 "The repair tool looked at the volume and refused (it does not show exactly the damage it can "
+	 "repair, or it changed since the check). Nothing was changed."},
 	{"volmark_failed",
-	 "The tool that clears the flag failed. The volume was probably not changed; if in doubt, run "
-	 "Windows chkdsk."},
+	 "The tool that writes to the volume refused or failed. For repair --sync-mirror: it was "
+	 "interrupted or failed after it began to write, so the mirror may be partly written; run "
+	 "`ntfsmac status` for the volume's state now, Windows chkdsk is strongly preferred. For "
+	 "repair --clear-dirty: the volume was probably not changed; if in doubt, run Windows chkdsk."},
 	{"journal", "The journal entry could not be moved. Nothing else was changed."},
 	{"entry_changed", "The journal entry changed while the request was handled (another session started), so it was not touched."},
 	{"binding", "The device is not the volume that was checked (or another driver has it mounted)."},

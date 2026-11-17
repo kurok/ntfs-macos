@@ -2,7 +2,7 @@
 /*
  * Command line of ntfsmac-volmark (docs/ARCHITECTURE.md section 3.6):
  *
- *   ntfsmac-volmark set|clear|clear-repair --fd N --expect-serial <16 hex digits>
+ *   ntfsmac-volmark set|clear|clear-repair|sync-mirror --fd N --expect-serial <16 hex digits>
  *                   --expect-sectors <decimal> [--debug]
  *
  * stdout carries only the progress marks `w` (a write is about to start) and
@@ -32,7 +32,7 @@ static void on_alarm(int sig)
 
 static int usage(void)
 {
-	fputs("usage: ntfsmac-volmark set|clear|clear-repair --fd N --expect-serial <16 hex digits> "
+	fputs("usage: ntfsmac-volmark set|clear|clear-repair|sync-mirror --fd N --expect-serial <16 hex digits> "
 	      "--expect-sectors <decimal> [--debug]\n",
 	      stderr);
 	return VOLMARK_EXIT_USAGE;

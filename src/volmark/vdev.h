@@ -21,6 +21,8 @@
 
 #include <ntfs-3g/device.h>
 
+#define VDEV_MAX_OVERLAYS 4u
+
 typedef struct vdev {
 	/*
 	 * Must stay the first member: the unix_io functions read the descriptor as
@@ -29,6 +31,16 @@ typedef struct vdev {
 	int fd;
 	bool is_block; /* S_ISBLK or S_ISCHR */
 	uint64_t pos;  /* offset for seek/read/write; the descriptor's own offset is not used */
+	/*
+	 * Read-only overlay view (rule M6 of section 3.7): a read of [dst, dst + len) returns the
+	 * bytes at [src, src + len) of the same descriptor. A vdev with an overlay refuses every
+	 * write (EPERM), so a view can never be written through.
+	 */
+	unsigned noverlays;
+	struct {
+		uint64_t dst, src;
+		uint32_t len;
+	} overlay[VDEV_MAX_OVERLAYS];
 } vdev;
 
 /*
@@ -36,6 +48,9 @@ typedef struct vdev {
  * a block or character device (else ENODEV). 0 on success, -1 with errno.
  */
 int vdev_init(vdev *v, int fd);
+
+/* Add an overlay range (see above); false if the table is full or the range is empty. */
+bool vdev_add_overlay(vdev *v, uint64_t dst, uint64_t src, uint32_t len);
 
 /* Bytes behind the descriptor (file size, or the device size by ioctl). 0 on success, -1 with errno. */
 int vdev_size(const vdev *v, uint64_t *size);

@@ -54,24 +54,27 @@ const char *ntfsmac_priv_gate_name(ntfsmac_policy_gate g)
 		return "peer";
 	case NTFSMAC_GATE_CONFIRMATION:
 		return "confirmation";
+	case NTFSMAC_GATE_PROBE_NOT_MIRROR_SPLIT:
+		return "probe_not_mirror_split";
 	}
 	return "invalid_input";
 }
 
-static void release_bind(const ntfsmac_priv *p, ntfsmac_priv_bind *bind)
+void ntfsmac_priv_release_bind(const ntfsmac_priv *p, ntfsmac_priv_bind *bind)
 {
 	if (p->sys->bind_release != NULL)
 		p->sys->bind_release(p->sys->ctx, bind);
 	bind->fd = -1;
 }
 
-static ntfsmac_dmn_status refuse(char *reply, size_t cap, const char *reason)
+ntfsmac_dmn_status ntfsmac_priv_refuse(char *reply, size_t cap, const char *reason)
 {
 	snprintf(reply, cap, "{\"ok\":false,\"error\":\"denied\",\"reason\":\"%s\"}", reason);
 	return NTFSMAC_DMN_E_DENIED;
 }
 
-static ntfsmac_dmn_status failed(char *reply, size_t cap, ntfsmac_dmn_status st, const char *reason)
+ntfsmac_dmn_status ntfsmac_priv_failed(char *reply, size_t cap, ntfsmac_dmn_status st,
+				       const char *reason)
 {
 	snprintf(reply, cap, "{\"ok\":false,\"error\":\"failed\",\"status\":\"%s\",\"reason\":\"%s\"}",
 		 ntfsmac_dmn_status_name(st), reason);
@@ -79,7 +82,8 @@ static ntfsmac_dmn_status failed(char *reply, size_t cap, ntfsmac_dmn_status st,
 }
 
 /* The typed label is the sanitised label `list` shows; the serial is its last 8 hex digits. */
-static bool confirmation_ok(const ntfsmac_probe_verdict *v, const char *label, const char *serial)
+bool ntfsmac_priv_confirmation_ok(const ntfsmac_probe_verdict *v, const char *label,
+				  const char *serial)
 {
 	char want_label[NTFSMAC_LABEL_PART_SIZE];
 	char want_serial[16];
@@ -165,17 +169,17 @@ ntfsmac_dmn_status ntfsmac_priv_journal_clear(void *ctx, const ntfsmac_ctl_peer 
 	v = &verdict;
 	memset(&vol, 0, sizeof vol);
 	if (!p->sys->volume(p->sys->ctx, bsd, &vol)) {
-		st = refuse(reply, cap, "no_volume");
+		st = ntfsmac_priv_refuse(reply, cap, "no_volume");
 		goto out;
 	}
 	memset(v, 0, sizeof *v);
 	bind.fd = -1;
 	if (p->sys->probe_fresh(p->sys->ctx, bsd, v, &bind) != NTFSMAC_DMN_OK) {
-		release_bind(p, &bind);
-		st = refuse(reply, cap, "probe_failed");
+		ntfsmac_priv_release_bind(p, &bind);
+		st = ntfsmac_priv_refuse(reply, cap, "probe_failed");
 		goto out;
 	}
-	release_bind(p, &bind); /* journal-clear writes nothing to the volume */
+	ntfsmac_priv_release_bind(p, &bind); /* journal-clear writes nothing to the volume */
 	ep = load_entry(p->journal, v, &e, &present);
 
 	memset(&in, 0, sizeof in);
@@ -185,10 +189,10 @@ ntfsmac_dmn_status ntfsmac_priv_journal_clear(void *ctx, const ntfsmac_ctl_peer 
 	in.live_session_owns_entry = present && e.session_id != 0 &&
 				     p->sys->session_live(p->sys->ctx, e.session_id);
 	in.peer_authorised = true; /* checks 1 to 4 ran before this function was called */
-	in.confirmation_ok = confirmation_ok(v, confirm_label, confirm_serial);
+	in.confirmation_ok = ntfsmac_priv_confirmation_ok(v, confirm_label, confirm_serial);
 	gate = ntfsmac_policy_gate_journal_clear(&in);
 	if (gate != NTFSMAC_GATE_ALLOWED) {
-		st = refuse(reply, cap, ntfsmac_priv_gate_name(gate));
+		st = ntfsmac_priv_refuse(reply, cap, ntfsmac_priv_gate_name(gate));
 		goto out;
 	}
 
@@ -196,11 +200,11 @@ ntfsmac_dmn_status ntfsmac_priv_journal_clear(void *ctx, const ntfsmac_ctl_peer 
 	js = ntfsmac_journal_remove_if(p->journal, ep, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR,
 				       p->sys->now(p->sys->ctx));
 	if (js == NTFSMAC_JOURNAL_ERR_PATH_CONDITION || js == NTFSMAC_JOURNAL_ERR_NOT_FOUND) {
-		st = refuse(reply, cap, "entry_changed");
+		st = ntfsmac_priv_refuse(reply, cap, "entry_changed");
 		goto out;
 	}
 	if (js != NTFSMAC_JOURNAL_OK) {
-		st = failed(reply, cap, NTFSMAC_DMN_E_IO, "journal");
+		st = ntfsmac_priv_failed(reply, cap, NTFSMAC_DMN_E_IO, "journal");
 		goto out;
 	}
 	snprintf(reply, cap, "{\"ok\":true,\"result\":\"cleared\",\"warning\":\"%s\"}",
@@ -231,22 +235,30 @@ ntfsmac_dmn_status ntfsmac_priv_repair(void *ctx, const ntfsmac_ctl_peer *peer, 
 	    action == NULL || confirm_label == NULL || confirm_serial == NULL || reply == NULL ||
 	    cap == 0)
 		return NTFSMAC_DMN_E_INVAL;
+	if (strcmp(action, "sync_mirror") == 0) {
+		ntfsmac_dmn_status ms;
+
+		pthread_mutex_lock(&g_priv_mu);
+		ms = ntfsmac_priv_repair_mirror(p, bsd, confirm_label, confirm_serial, reply, cap);
+		pthread_mutex_unlock(&g_priv_mu);
+		return ms;
+	}
 	if (strcmp(action, "clear_dirty") != 0) {
-		reply[0] = '\0'; /* sync_mirror is T-M4-16's: the dispatcher answers "not implemented" */
+		reply[0] = '\0'; /* not an action of this daemon: the dispatcher answers "not implemented" */
 		return NTFSMAC_DMN_E_NOTIMPL;
 	}
 	pthread_mutex_lock(&g_priv_mu);
 	v = &verdict;
 	memset(&vol, 0, sizeof vol);
 	if (!p->sys->volume(p->sys->ctx, bsd, &vol)) {
-		st = refuse(reply, cap, "no_volume");
+		st = ntfsmac_priv_refuse(reply, cap, "no_volume");
 		goto out;
 	}
 	memset(v, 0, sizeof *v);
 	bind.fd = -1;
 	if (p->sys->probe_fresh(p->sys->ctx, bsd, v, &bind) != NTFSMAC_DMN_OK) {
-		release_bind(p, &bind);
-		st = refuse(reply, cap, "probe_failed");
+		ntfsmac_priv_release_bind(p, &bind);
+		st = ntfsmac_priv_refuse(reply, cap, "probe_failed");
 		goto out;
 	}
 
@@ -254,10 +266,10 @@ ntfsmac_dmn_status ntfsmac_priv_repair(void *ctx, const ntfsmac_ctl_peer *peer, 
 	in.probe = v;
 	in.mounted = vol.mounted;
 	in.peer_authorised = true;
-	in.confirmation_ok = confirmation_ok(v, confirm_label, confirm_serial);
+	in.confirmation_ok = ntfsmac_priv_confirmation_ok(v, confirm_label, confirm_serial);
 	gate = ntfsmac_policy_gate_repair(&in);
 	if (gate != NTFSMAC_GATE_ALLOWED) {
-		st = refuse(reply, cap, ntfsmac_priv_gate_name(gate));
+		st = ntfsmac_priv_refuse(reply, cap, ntfsmac_priv_gate_name(gate));
 		goto out;
 	}
 	/*
@@ -266,18 +278,18 @@ ntfsmac_dmn_status ntfsmac_priv_repair(void *ctx, const ntfsmac_ctl_peer *peer, 
 	 */
 	(void)load_entry(p->journal, v, &e, &present);
 	if (present && e.session_id != 0 && p->sys->session_live(p->sys->ctx, e.session_id)) {
-		st = refuse(reply, cap, ntfsmac_priv_gate_name(NTFSMAC_GATE_LIVE_SESSION));
+		st = ntfsmac_priv_refuse(reply, cap, ntfsmac_priv_gate_name(NTFSMAC_GATE_LIVE_SESSION));
 		goto out;
 	}
 
 	ws = p->sys->clear_dirty(p->sys->ctx, bsd, v, &bind, &vexit);
 	bind.fd = -1; /* taken over and closed by the write, whatever it returned */
 	if (ws == NTFSMAC_DMN_E_DENIED) {
-		st = refuse(reply, cap, "binding");
+		st = ntfsmac_priv_refuse(reply, cap, "binding");
 		goto out;
 	}
 	if (ws != NTFSMAC_DMN_OK) {
-		st = failed(reply, cap, ws, "volmark_failed");
+		st = ntfsmac_priv_failed(reply, cap, ws, "volmark_failed");
 		goto out;
 	}
 	if (present) {
@@ -291,7 +303,7 @@ ntfsmac_dmn_status ntfsmac_priv_repair(void *ctx, const ntfsmac_ctl_peer *peer, 
 		 present ? "journal_entry" : "none");
 	st = NTFSMAC_DMN_OK;
 out:
-	release_bind(p, &bind);
+	ntfsmac_priv_release_bind(p, &bind);
 	pthread_mutex_unlock(&g_priv_mu);
 	return st;
 }
@@ -360,8 +372,9 @@ static void real_bind_release(void *ctx, ntfsmac_priv_bind *bind)
 	bind->fd = -1;
 }
 
-static ntfsmac_dmn_status real_clear_dirty(void *ctx, const char *bsd, const ntfsmac_probe_verdict *v,
-					   ntfsmac_priv_bind *bind, int *exit_code)
+/* A bound volmark write on the descriptor in `bind`, which it takes over (clear-repair, sync-mirror). */
+static ntfsmac_dmn_status real_bound_write(void *ctx, const char *bsd, const ntfsmac_probe_verdict *v,
+					   ntfsmac_priv_bind *bind, ntfsmac_volmark_op op, int *exit_code)
 {
 	const ntfsmac_priv_sys_real *r = ctx;
 	ntfsmac_session_begin_in in;
@@ -373,9 +386,21 @@ static ntfsmac_dmn_status real_clear_dirty(void *ctx, const char *bsd, const ntf
 	in.probe_fd = bind->fd;
 	memcpy(in.block0, bind->block0, sizeof in.block0);
 	snprintf(in.media_path, sizeof in.media_path, "%s", bind->media_path);
-	st = ntfsmac_session_marker_write(r->ss, &in, NTFSMAC_VOLMARK_CLEAR_REPAIR, 20, exit_code);
+	st = ntfsmac_session_marker_write(r->ss, &in, op, 20, exit_code);
 	bind->fd = -1;
 	return st;
+}
+
+static ntfsmac_dmn_status real_clear_dirty(void *ctx, const char *bsd, const ntfsmac_probe_verdict *v,
+					   ntfsmac_priv_bind *bind, int *exit_code)
+{
+	return real_bound_write(ctx, bsd, v, bind, NTFSMAC_VOLMARK_CLEAR_REPAIR, exit_code);
+}
+
+static ntfsmac_dmn_status real_sync_mirror(void *ctx, const char *bsd, const ntfsmac_probe_verdict *v,
+					   ntfsmac_priv_bind *bind, int *exit_code)
+{
+	return real_bound_write(ctx, bsd, v, bind, NTFSMAC_VOLMARK_SYNC_MIRROR, exit_code);
 }
 
 static int64_t real_priv_now(void *ctx)
@@ -400,5 +425,6 @@ void ntfsmac_priv_sys_real_init(ntfsmac_priv_sys_real *r, const ntfsmac_session_
 	r->sys.bind_release = real_bind_release;
 	r->sys.session_live = real_session_live;
 	r->sys.clear_dirty = real_clear_dirty;
+	r->sys.sync_mirror = real_sync_mirror;
 	r->sys.now = real_priv_now;
 }

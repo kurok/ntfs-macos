@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# T-M3-12: ntfsmac-volmark tests (U-VMK-01..10, the crash table of ARCHITECTURE.md section 3.6,
+# T-M3-12, T-M4-16: ntfsmac-volmark tests (U-VMK-01..10, U-VMK-11..14 in syncmirror_test.py, the crash table of ARCHITECTURE.md section 3.6,
 # the vmk-split image for U15).
 #
 # Always registered (any host): volmark.args (command line and the step-3 flag decision).
@@ -38,5 +38,15 @@ if(NTFSMAC_PYTHON3 AND NTFSMAC_VOLMARK_FIXTURES AND TARGET ntfsmac-volmark AND T
             --volmark $<TARGET_FILE:ntfsmac-volmark> --volmark-test $<TARGET_FILE:volmark_test>
             --probe $<TARGET_FILE:ntfsmac-probe>
             --manifest ${PROJECT_SOURCE_DIR}/tests/fixtures/manifest.json
+            ${_fault} ${_out} ${_images})
+
+  # T-M4-16: U-VMK-11..14, the `sync-mirror` mode. Needs the mirror fixtures of
+  # tests/fixtures/gen/mirror.sh in one of the directories, and the fault-layer volmark_test for
+  # U-VMK-13 (volmark.syncmirror fails without it).
+  add_test(NAME volmark.syncmirror
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONDONTWRITEBYTECODE=1
+            ${NTFSMAC_PYTHON3} -B ${CMAKE_CURRENT_SOURCE_DIR}/syncmirror_test.py
+            --volmark $<TARGET_FILE:ntfsmac-volmark> --volmark-test $<TARGET_FILE:volmark_test>
+            --probe $<TARGET_FILE:ntfsmac-probe>
             ${_fault} ${_out} ${_images})
 endif()

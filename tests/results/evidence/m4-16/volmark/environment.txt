@@ -1,0 +1,4 @@
+ntfs-3g: ntfs-3g 2026.9.28 integrated FUSE 27
+kernel: Linux 7.0.14-linuxkit aarch64
+cc: cc (Debian 14.2.0-19) 14.2.0
+python: Python 3.13.5

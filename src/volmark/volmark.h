@@ -4,9 +4,9 @@
 
 /*
  * ntfsmac-volmark: the on-disk dirty marker (docs/ARCHITECTURE.md section 3.6,
- * ADR-006, ADR-017, ADR-020). Modes `set`, `clear` and `clear-repair`; the
- * stale-mirror repair `sync-mirror` (section 3.7, ADR-021) is T-M4-16 and gets
- * its own file (syncmirror.c) and mode value here.
+ * ADR-006, ADR-017, ADR-020). Modes `set`, `clear` and `clear-repair`, and the
+ * stale-mirror repair `sync-mirror` (section 3.7, ADR-021, T-M4-16), which has
+ * its own file (syncmirror.c).
  */
 
 #include <stdbool.h>
@@ -16,11 +16,12 @@
 #define VOLMARK_EXIT_OK 0
 #define VOLMARK_EXIT_USAGE 2    /* bad command line; nothing opened */
 #define VOLMARK_EXIT_TOOL 3     /* descriptor not usable, out of memory, `w` not delivered; nothing written */
-#define VOLMARK_EXIT_REFUSED 10 /* step 1: mount, hibernation or $LogFile refusal; nothing written */
+#define VOLMARK_EXIT_REFUSED 10 /* step 1: mount, hibernation or $LogFile refusal; nothing written
+				   (sync-mirror: also any failed rule M1 to M6, or nothing to repair) */
 #define VOLMARK_EXIT_FLAGS 11   /* step 3 of `set`: dirty flag set, or any flag but MODIFIED_BY_CHKDSK, MOUNTED_ON_NT4 */
 #define VOLMARK_EXIT_IO 12      /* step 4 or 5: the flag write, the unmount sync or fsync failed */
-#define VOLMARK_EXIT_ANOMALY 13 /* step 3 of `clear` / `clear-repair`: flags not as expected */
-#define VOLMARK_EXIT_READBACK 14 /* step 6: read-back mount failed or the flag differs */
+#define VOLMARK_EXIT_ANOMALY 13 /* step 3 of `clear` / `clear-repair`, step 2 of `sync-mirror`: flags not as expected */
+#define VOLMARK_EXIT_READBACK 14 /* step 6 (sync-mirror: step 5): read-back mount failed or the read-back differs */
 #define VOLMARK_EXIT_BINDING 15 /* step 2: serial or sector count differ from the expected values */
 
 /* $Volume flags (layout.h VOLUME_FLAGS), numeric as in section 3.1. */
@@ -32,8 +33,8 @@
 typedef enum volmark_mode {
 	VOLMARK_SET = 0,
 	VOLMARK_CLEAR,
-	VOLMARK_CLEAR_REPAIR
-	/* VOLMARK_SYNC_MIRROR: T-M4-16 (syncmirror.c) */
+	VOLMARK_CLEAR_REPAIR,
+	VOLMARK_SYNC_MIRROR
 } volmark_mode;
 
 typedef struct volmark_args {
@@ -50,7 +51,7 @@ typedef struct volmark_args {
 
 /*
  * Parse the command line (args.c, pure):
- *   ntfsmac-volmark set|clear|clear-repair --fd N --expect-serial <16 hex digits>
+ *   ntfsmac-volmark set|clear|clear-repair|sync-mirror --fd N --expect-serial <16 hex digits>
  *                   --expect-sectors <decimal> [--debug]
  * `test_opts` also accepts --stop-before-write and --no-alarm. Returns
  * VOLMARK_EXIT_OK and fills *a, or VOLMARK_EXIT_USAGE.
@@ -67,12 +68,18 @@ int volmark_parse_sectors(const char *s, uint64_t *v);
  * Step 3: may the flags read from the volume be changed by this mode?
  * Returns VOLMARK_EXIT_OK and the flags to write in *out, else
  * VOLMARK_EXIT_FLAGS (set) or VOLMARK_EXIT_ANOMALY (clear, clear-repair).
- * Pure; the only place that decides which bit changes.
+ * Pure; the only place that decides which bit changes. For sync-mirror nothing
+ * is written: it only decides whether the flags (read from the overlay view)
+ * may be there (only DIRTY and the informational two), *out is the same flags,
+ * else VOLMARK_EXIT_ANOMALY.
  */
 int volmark_next_flags(volmark_mode mode, uint16_t flags, uint16_t *out);
 
 /* Steps 1 to 6 on descriptor a->fd (volmark.c). Returns an exit status. */
 int volmark_run(const volmark_args *a);
+
+/* Mode sync-mirror (syncmirror.c): steps 1 to 5 of section 3.7. volmark_run() calls it. */
+int volmark_sync_mirror(const volmark_args *a);
 
 /* main() of both binaries (cli.c). */
 int volmark_main(int argc, char **argv, bool test_opts);

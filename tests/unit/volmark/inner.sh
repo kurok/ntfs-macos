@@ -39,7 +39,7 @@ if [ "$tar_out" -eq 1 ]; then exec 3>&1 1>&2; fi
 jobs=$(nproc 2>/dev/null || echo 2)
 summary=
 failed=0
-fix_dirs="/tmp/ntfsmac-unsafe;/tmp/ntfsmac-fixtures"
+fix_dirs="/tmp/ntfsmac-unsafe;/tmp/ntfsmac-fixtures;/tmp/ntfsmac-mirror"
 
 stage() { # NAME CMD...: run, log to $out/NAME.log, record the seconds
 	_n=$1; shift
@@ -97,6 +97,13 @@ fi
 # ---- fixtures -------------------------------------------------------------------------------
 stage fixtures-unsafe sh "$work/tests/fixtures/gen/unsafe.sh" --inner
 stage fixtures-clean sh "$work/tests/fixtures/gen/clean.sh" --inner --only clean-64m-4k
+# T-M4-16: the stale-mirror images of U-VMK-11..14 (mirror.sh builds the crash-sweep NTFS-3G once).
+mirror_fixtures() {
+	for _img in mirror-newer mirror-extra mirror-torn mirror-split-dirty mirror-split-hiber; do
+		sh "$work/tests/fixtures/gen/mirror.sh" --inner --only "$_img" || return 1
+	done
+}
+stage fixtures-mirror mirror_fixtures
 [ "$failed" -eq 0 ] || finish
 
 # ---- volmark_test against the fault layer ---------------------------------------------------------
@@ -107,15 +114,19 @@ fault_build() { # PKGDIR BUILDDIR [cmake args]
 stage build-faultio fault_build /tmp/deps-fio/lib/pkgconfig /tmp/bld-fio -DCMAKE_BUILD_TYPE=Release
 [ "$failed" -eq 0 ] || finish
 
+# The volmark tests need only these targets (the daemon library is built on macOS).
+vm_targets="ntfsmac-volmark volmark_test ntfsmac-probe test_volmark_args"
+
 # ---- release build and tests ----------------------------------------------------------------------
 release() {
 	PKG_CONFIG_PATH=/tmp/deps-rel/lib/pkgconfig cmake -S "$work" -B /tmp/bld-rel -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release "-DNTFSMAC_VOLMARK_FIXTURES=$fix_dirs" \
 		-DNTFSMAC_VOLMARK_FAULT_BIN=/tmp/bld-fio/src/volmark/volmark_test "-DNTFSMAC_VOLMARK_OUT=$out/vmk" &&
-		cmake --build /tmp/bld-rel &&
+		cmake --build /tmp/bld-rel --target $vm_targets &&
 		ctest --test-dir /tmp/bld-rel -R '^volmark\.' --output-on-failure --output-junit "$out/ctest-release.xml" &&
 		cp "$out/vmk/volmark-evidence.txt" "$out/volmark-evidence.txt" &&
-		cp "$out/vmk/vmk-split-record3.txt" "$out/vmk-split-record3.txt"
+		cp "$out/vmk/vmk-split-record3.txt" "$out/vmk-split-record3.txt" &&
+		cp "$out/vmk/syncmirror-evidence.txt" "$out/syncmirror-evidence.txt"
 }
 stage release release
 if [ "$failed" -ne 0 ]; then finish; fi
@@ -133,7 +144,7 @@ if [ "$do_asan" -eq 1 ]; then
 				-DCMAKE_BUILD_TYPE=Debug -DNTFSMAC_SANITIZE=address,undefined "-DNTFSMAC_VOLMARK_FIXTURES=$fix_dirs" \
 				-DNTFSMAC_VOLMARK_FAULT_BIN=/tmp/bld-asan-fio/src/volmark/volmark_test \
 				"-DNTFSMAC_VOLMARK_OUT=$out/vmk-asan" &&
-			cmake --build /tmp/bld-asan &&
+			cmake --build /tmp/bld-asan --target $vm_targets &&
 			ctest --test-dir /tmp/bld-asan -R '^volmark\.' --output-on-failure --output-junit "$out/ctest-asan.xml" ||
 			return 1
 		if ls /tmp/asan/* >/dev/null 2>&1; then

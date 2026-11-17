@@ -132,7 +132,9 @@ typedef enum ntfsmac_policy_gate {
 	NTFSMAC_GATE_FLAGS,             /* repair: DIRTY missing or another flag set */
 	NTFSMAC_GATE_MOUNTED,           /* repair: volume is mounted (any mode) */
 	NTFSMAC_GATE_PEER,              /* peer checks 1 to 4 of section 3.4 failed */
-	NTFSMAC_GATE_CONFIRMATION       /* typed label or serial does not match */
+	NTFSMAC_GATE_CONFIRMATION,      /* typed label or serial does not match */
+	NTFSMAC_GATE_PROBE_NOT_MIRROR_SPLIT /* repair --sync-mirror: state is not exactly mirror_split
+					       with MFTMIRR_STALE */
 } ntfsmac_policy_gate;
 
 /*
@@ -174,6 +176,18 @@ typedef struct ntfsmac_policy_repair_input {
 } ntfsmac_policy_repair_input;
 
 ntfsmac_policy_gate ntfsmac_policy_gate_repair(const ntfsmac_policy_repair_input *in);
+
+/*
+ * `repair --sync-mirror` gate (section 3.2, ADR-021, T-M4-16). Same input as the gate above.
+ * Allowed only when the probe state is exactly `mirror_split`, the reason codes hold
+ * MFTMIRR_STALE and otherwise at most FLAG_DIRTY (a split of record 3 carries the flag) and
+ * NAMES_NOT_NFC (ADR-023: not a damage finding); any other code (LOG_UNCLEAN, HIBER_SIGNATURE,
+ * CHECK_FAILED, ...) gives NTFSMAC_GATE_PROBE_NOT_MIRROR_SPLIT. Then `logfile` clean, `hiberfile`
+ * absent or inactive, the volume not mounted in any mode, the peer checks passed and the
+ * confirmation matching. A journal entry is neither required nor looked at. The checks run in this
+ * order and the first failure is returned. Gate only: the rule M1 to M6 itself is volmark's.
+ */
+ntfsmac_policy_gate ntfsmac_policy_gate_sync_mirror(const ntfsmac_policy_repair_input *in);
 
 /*
  * The stronger warnings of section 3.5 path 3, for the CLI text. Pure.

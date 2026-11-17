@@ -92,9 +92,61 @@ int vdev_size(const vdev *v, uint64_t *size)
 	return -1;
 }
 
+bool vdev_add_overlay(vdev *v, uint64_t dst, uint64_t src, uint32_t len)
+{
+	if (len == 0 || v->noverlays == VDEV_MAX_OVERLAYS)
+		return false;
+	v->overlay[v->noverlays].dst = dst;
+	v->overlay[v->noverlays].src = src;
+	v->overlay[v->noverlays].len = len;
+	v->noverlays++;
+	return true;
+}
+
 static vdev *priv(struct ntfs_device *dev)
 {
 	return (vdev *)dev->d_private;
+}
+
+/* Exact pread of the source bytes of an overlay; 0, or -1 with errno. */
+static int pread_all(int fd, void *buf, size_t len, uint64_t off)
+{
+	uint8_t *p = buf;
+
+	while (len > 0) {
+		ssize_t r = pread(fd, p, len, (off_t)off);
+
+		if (r < 0 && errno == EINTR)
+			continue;
+		if (r <= 0) {
+			if (r == 0)
+				errno = EIO;
+			return -1;
+		}
+		p += r;
+		off += (uint64_t)r;
+		len -= (size_t)r;
+	}
+	return 0;
+}
+
+/* Put the overlay bytes over buf[0..n), which was read at device offset `off`. 0, or -1 with errno. */
+static int apply_overlays(const vdev *v, void *buf, size_t n, uint64_t off)
+{
+	unsigned i;
+
+	for (i = 0; i < v->noverlays; i++) {
+		uint64_t dst = v->overlay[i].dst, len = v->overlay[i].len;
+		uint64_t from = off > dst ? off : dst;
+		uint64_t to = off + n < dst + len ? off + n : dst + len;
+
+		if (from >= to)
+			continue;
+		if (pread_all(v->fd, (uint8_t *)buf + (from - off), (size_t)(to - from),
+			      v->overlay[i].src + (from - dst)) != 0)
+			return -1;
+	}
+	return 0;
 }
 
 static int op_open(struct ntfs_device *dev, int flags)
@@ -176,13 +228,17 @@ static s64 op_seek(struct ntfs_device *dev, s64 offset, int whence)
 
 static s64 op_pread(struct ntfs_device *dev, void *buf, s64 count, s64 offset)
 {
-	return ntfs_device_unix_io_ops.pread(dev, buf, count, offset);
+	s64 r = ntfs_device_unix_io_ops.pread(dev, buf, count, offset);
+
+	if (r > 0 && priv(dev)->noverlays != 0 && apply_overlays(priv(dev), buf, (size_t)r, (uint64_t)offset) != 0)
+		return -1;
+	return r;
 }
 
 static s64 op_read(struct ntfs_device *dev, void *buf, s64 count)
 {
 	vdev *v = priv(dev);
-	s64 r = ntfs_device_unix_io_ops.pread(dev, buf, count, (s64)v->pos);
+	s64 r = op_pread(dev, buf, count, (s64)v->pos);
 
 	if (r > 0)
 		v->pos += (uint64_t)r;
@@ -191,6 +247,10 @@ static s64 op_read(struct ntfs_device *dev, void *buf, s64 count)
 
 static s64 op_pwrite(struct ntfs_device *dev, const void *buf, s64 count, s64 offset)
 {
+	if (priv(dev)->noverlays != 0) {
+		errno = EPERM; /* a view is never written through */
+		return -1;
+	}
 	/* Refuses with EROFS on a read-only open and marks the device dirty. */
 	return ntfs_device_unix_io_ops.pwrite(dev, buf, count, offset);
 }
@@ -198,7 +258,13 @@ static s64 op_pwrite(struct ntfs_device *dev, const void *buf, s64 count, s64 of
 static s64 op_write(struct ntfs_device *dev, const void *buf, s64 count)
 {
 	vdev *v = priv(dev);
-	s64 r = ntfs_device_unix_io_ops.pwrite(dev, buf, count, (s64)v->pos);
+	s64 r;
+
+	if (v->noverlays != 0) {
+		errno = EPERM;
+		return -1;
+	}
+	r = ntfs_device_unix_io_ops.pwrite(dev, buf, count, (s64)v->pos);
 
 	if (r > 0)
 		v->pos += (uint64_t)r;

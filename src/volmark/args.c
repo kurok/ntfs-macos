@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
  * Command line and the flag decision of ntfsmac-volmark (docs/ARCHITECTURE.md
- * section 3.6, step 3). Pure C, no I/O: unit tested on every host
+ * section 3.6, step 3; section 3.7, step 2). Pure C, no I/O: unit tested on every host
  * (tests/unit/volmark/test_args.c).
  */
 #include "volmark.h"
@@ -86,8 +86,10 @@ int volmark_parse_args(int argc, char **argv, bool test_opts, volmark_args *a)
 		a->mode = VOLMARK_CLEAR;
 	else if (!strcmp(argv[1], "clear-repair"))
 		a->mode = VOLMARK_CLEAR_REPAIR;
+	else if (!strcmp(argv[1], "sync-mirror"))
+		a->mode = VOLMARK_SYNC_MIRROR;
 	else
-		return VOLMARK_EXIT_USAGE; /* sync-mirror: T-M4-16 */
+		return VOLMARK_EXIT_USAGE;
 
 	for (i = 2; i < argc; i++) {
 		const char *o = argv[i];
@@ -151,6 +153,16 @@ int volmark_next_flags(volmark_mode mode, uint16_t flags, uint16_t *out)
 		    (f & ~(VOLMARK_VOL_DIRTY | VOLMARK_VOL_MODIFIED_BY_CHKDSK | VOLMARK_VOL_MOUNTED_ON_NT4)))
 			return VOLMARK_EXIT_ANOMALY;
 		*out = (uint16_t)(f & ~VOLMARK_VOL_DIRTY);
+		return VOLMARK_EXIT_OK;
+	case VOLMARK_SYNC_MIRROR:
+		/*
+		 * Section 3.7 step 2: the flag may be set (an interrupted `set` leaves it in $MFT) and
+		 * the informational two may be there; any other bit is a finding the probe reports as
+		 * `dirty_flag` and that this repair does not go near. Nothing is written for flags.
+		 */
+		if (f & ~(VOLMARK_VOL_DIRTY | VOLMARK_VOL_MODIFIED_BY_CHKDSK | VOLMARK_VOL_MOUNTED_ON_NT4))
+			return VOLMARK_EXIT_ANOMALY;
+		*out = (uint16_t)f;
 		return VOLMARK_EXIT_OK;
 	}
 	return VOLMARK_EXIT_USAGE;

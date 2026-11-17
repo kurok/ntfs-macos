@@ -7,7 +7,7 @@
 # scripts/build-ntfs3g.sh, found through PKG_CONFIG_PATH); without it, as on a plain host
 # checkout, it is skipped. Environment A builds it (tests/unit/volmark/run.sh), once against the
 # release library and once against the --enable-faultio library (patch 0004) for the cut tests.
-# T-M4-16 adds syncmirror.c here.
+# T-M4-16: syncmirror.c, the `sync-mirror` mode (docs/ARCHITECTURE.md section 3.7).
 
 add_library(ntfsmac_volmark_pure STATIC args.c)
 target_include_directories(ntfsmac_volmark_pure PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -19,7 +19,7 @@ if(PkgConfig_FOUND)
 endif()
 
 if(NTFS3G_FOUND)
-  add_library(ntfsmac_volmark_core STATIC volmark.c vdev.c cli.c)
+  add_library(ntfsmac_volmark_core STATIC volmark.c syncmirror.c vdev.c cli.c)
   target_include_directories(ntfsmac_volmark_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(ntfsmac_volmark_core
     PRIVATE ntfsmac_options

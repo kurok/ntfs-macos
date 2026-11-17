@@ -56,19 +56,20 @@
 
 #include "../common/mftmirr.h"
 #include "vdev.h"
+#include "volmark_int.h"
 
-static const char *const mode_name[] = { "set", "clear", "clear-repair" };
+static const char *const mode_name[] = { "set", "clear", "clear-repair", "sync-mirror" };
 
 static bool debug;
 
 /* One line on stderr. Fixed texts and errno strings only: nothing read from the disk (ADR-016). */
-static void say(const char *what, const char *detail)
+void volmark_say(const char *what, const char *detail)
 {
 	fprintf(stderr, "ntfsmac-volmark: %s%s%s\n", what, detail[0] ? ": " : "", detail);
 }
 
 /* ntfs_device_mount() through the descriptor layer, or NULL. */
-static ntfs_volume *mount_fd(vdev *v, ntfs_mount_flags flags)
+ntfs_volume *volmark_mount_fd(vdev *v, ntfs_mount_flags flags)
 {
 	struct ntfs_device *dev = ntfs_device_alloc("ntfsmac-volmark-fd", 0, &vdev_ops, v);
 	ntfs_volume *vol;
@@ -92,7 +93,7 @@ static ntfs_volume *mount_fd(vdev *v, ntfs_mount_flags flags)
  * whose newest restart page is version 2.0 (Windows Fast Startup) is refused.
  * Returns 0 if the log is acceptable.
  */
-static int check_log(ntfs_volume *vol)
+int volmark_check_log(ntfs_volume *vol)
 {
 	ntfs_inode *ni;
 	ntfs_attr *na;
@@ -124,7 +125,7 @@ static int check_log(ntfs_volume *vol)
  * part that is there (fixture truncated-60); the probe calls it `corrupt`, and
  * volmark refuses it the same way. 0 if it fits.
  */
-static int check_fits(ntfs_volume *vol, const vdev *v)
+int volmark_check_fits(ntfs_volume *vol, const vdev *v)
 {
 	struct ntfs_device *dev = vol->dev;
 	uint8_t boot[512];
@@ -147,26 +148,26 @@ static int check_binding(ntfs_volume *vol, const volmark_args *a)
 	ntfsmac_mm_geometry g;
 
 	if (dev->d_ops->pread(dev, boot, (s64)sizeof(boot), 0) != (s64)sizeof(boot)) {
-		say("binding", "sector 0 is not readable");
+		volmark_say("binding", "sector 0 is not readable");
 		return VOLMARK_EXIT_BINDING;
 	}
 	if (ntfsmac_mm_parse_boot(boot, &g) != 0) {
-		say("binding", "sector 0 is not a usable NTFS boot sector");
+		volmark_say("binding", "sector 0 is not a usable NTFS boot sector");
 		return VOLMARK_EXIT_BINDING;
 	}
 	if (g.serial != a->expect_serial) {
-		say("binding", "volume serial number differs from the expected value");
+		volmark_say("binding", "volume serial number differs from the expected value");
 		return VOLMARK_EXIT_BINDING;
 	}
 	if (g.total_sectors != a->expect_sectors) {
-		say("binding", "number of sectors differs from the expected value");
+		volmark_say("binding", "number of sectors differs from the expected value");
 		return VOLMARK_EXIT_BINDING;
 	}
 	return VOLMARK_EXIT_OK;
 }
 
 /* `w` and `d`: one line each, delivered before the process goes on. */
-static int progress(char c)
+int volmark_progress(char c)
 {
 	if (printf("%c\n", c) < 0 || fflush(stdout) != 0)
 		return -1;
@@ -174,7 +175,7 @@ static int progress(char c)
 }
 
 /* Block every catchable signal that would end the process, for the rest of the run. */
-static void block_termination(void)
+void volmark_block_termination(void)
 {
 	sigset_t s;
 
@@ -192,10 +193,10 @@ static void block_termination(void)
 }
 
 /* Step 5 after the unmount: fsync, then the drive flush (macOS, ADR-022). */
-static int sync_descriptor(const vdev *v)
+int volmark_sync_descriptor(const vdev *v)
 {
 	if (fsync(v->fd) != 0) {
-		say("fsync of the device failed", strerror(errno));
+		volmark_say("fsync of the device failed", strerror(errno));
 		return -1;
 	}
 #if defined(__APPLE__)
@@ -204,9 +205,9 @@ static int sync_descriptor(const vdev *v)
 
 		memset(&dk, 0, sizeof(dk));
 		if (ioctl(v->fd, DKIOCSYNCHRONIZE, &dk) != 0)
-			say("warning: DKIOCSYNCHRONIZE failed", strerror(errno));
+			volmark_say("warning: DKIOCSYNCHRONIZE failed", strerror(errno));
 	} else if (fcntl(v->fd, F_FULLFSYNC) == -1) {
-		say("warning: F_FULLFSYNC failed", strerror(errno));
+		volmark_say("warning: F_FULLFSYNC failed", strerror(errno));
 	}
 #endif
 	return 0;
@@ -215,17 +216,17 @@ static int sync_descriptor(const vdev *v)
 /* Step 6: a read-only mount reads the flags back. */
 static int read_back(vdev *v, uint16_t want)
 {
-	ntfs_volume *vol = mount_fd(v, NTFS_MNT_RDONLY);
+	ntfs_volume *vol = volmark_mount_fd(v, NTFS_MNT_RDONLY);
 	uint16_t got;
 
 	if (!vol) {
-		say("read-back: read-only mount failed", strerror(errno));
+		volmark_say("read-back: read-only mount failed", strerror(errno));
 		return VOLMARK_EXIT_READBACK;
 	}
 	got = le16_to_cpu(vol->flags);
 	ntfs_umount(vol, FALSE);
 	if (got != want) {
-		say("read-back", "the flags on disk are not the ones written");
+		volmark_say("read-back", "the flags on disk are not the ones written");
 		return VOLMARK_EXIT_READBACK;
 	}
 	return VOLMARK_EXIT_OK;
@@ -238,6 +239,8 @@ int volmark_run(const volmark_args *a)
 	uint16_t flags, next = 0;
 	int rc, wrc;
 
+	if (a->mode == VOLMARK_SYNC_MIRROR)
+		return volmark_sync_mirror(a);
 	debug = a->debug;
 	if (debug)
 		ntfs_log_set_handler(ntfs_log_handler_stderr);
@@ -245,34 +248,34 @@ int volmark_run(const volmark_args *a)
 		ntfs_log_set_handler(ntfs_log_handler_null);
 
 	if (vdev_init(&v, a->fd) != 0) {
-		say("descriptor not usable", strerror(errno));
+		volmark_say("descriptor not usable", strerror(errno));
 		return VOLMARK_EXIT_TOOL;
 	}
 
 	/* Step 1: read/write, NTFS_MNT_FORENSIC only. */
-	vol = mount_fd(&v, NTFS_MNT_FORENSIC);
+	vol = volmark_mount_fd(&v, NTFS_MNT_FORENSIC);
 	if (!vol) {
-		say("refused: the volume does not mount", strerror(errno));
+		volmark_say("refused: the volume does not mount", strerror(errno));
 		return VOLMARK_EXIT_REFUSED;
 	}
 	if (NVolReadOnly(vol)) {
 		/* Cannot happen with vdev (no EROFS on open); never write through a read-only mount. */
-		say("refused", "the volume mounted read-only");
+		volmark_say("refused", "the volume mounted read-only");
 		ntfs_umount(vol, FALSE);
 		return VOLMARK_EXIT_REFUSED;
 	}
-	if (check_fits(vol, &v) != 0) {
-		say("refused", "the volume does not fit the device");
+	if (volmark_check_fits(vol, &v) != 0) {
+		volmark_say("refused", "the volume does not fit the device");
 		ntfs_umount(vol, FALSE);
 		return VOLMARK_EXIT_REFUSED;
 	}
 	if (ntfs_volume_check_hiberfile(vol, 1) < 0) {
-		say("refused", "hibernation file is active or unreadable");
+		volmark_say("refused", "hibernation file is active or unreadable");
 		ntfs_umount(vol, FALSE);
 		return VOLMARK_EXIT_REFUSED;
 	}
-	if (check_log(vol) != 0) {
-		say("refused", "$LogFile is not clean, is version 2.0, or is unreadable");
+	if (volmark_check_log(vol) != 0) {
+		volmark_say("refused", "$LogFile is not clean, is version 2.0, or is unreadable");
 		ntfs_umount(vol, FALSE);
 		return VOLMARK_EXIT_REFUSED;
 	}
@@ -288,8 +291,9 @@ int volmark_run(const volmark_args *a)
 	flags = le16_to_cpu(vol->flags);
 	rc = volmark_next_flags(a->mode, flags, &next);
 	if (rc != VOLMARK_EXIT_OK) {
-		say(mode_name[a->mode], rc == VOLMARK_EXIT_FLAGS ? "refused: flag already set, or a bit outside the mask"
-								 : "refused: flags are not as expected");
+		volmark_say(mode_name[a->mode],
+			    rc == VOLMARK_EXIT_FLAGS ? "refused: flag already set, or a bit outside the mask"
+						     : "refused: flags are not as expected");
 		ntfs_umount(vol, FALSE);
 		return rc;
 	}
@@ -298,16 +302,16 @@ int volmark_run(const volmark_args *a)
 	if (a->stop_before_write)
 		raise(SIGSTOP); /* test build only: the test kills the process here */
 	alarm(0);
-	block_termination();
-	if (progress('w') != 0) {
+	volmark_block_termination();
+	if (volmark_progress('w') != 0) {
 		/* The daemon would not know that a write is under way: do not start it. */
-		say("refused", "progress mark could not be delivered");
+		volmark_say("refused", "progress mark could not be delivered");
 		ntfs_umount(vol, FALSE);
 		return VOLMARK_EXIT_TOOL;
 	}
 	wrc = ntfs_volume_write_flags(vol, cpu_to_le16(next));
 	if (wrc != 0) {
-		say("flag write failed", strerror(errno));
+		volmark_say("flag write failed", strerror(errno));
 		/*
 		 * The record is still marked dirty; ntfs_umount() would write it again. Do not:
 		 * the writes are exactly the ones the library attempted once (W1, then W2 if W1
@@ -315,21 +319,21 @@ int volmark_run(const volmark_args *a)
 		 */
 		NInoClearDirty(vol->vol_ni);
 	} else {
-		(void)progress('d'); /* the write is done either way; the exit status tells the rest */
+		(void)volmark_progress('d'); /* the write is done either way; the exit status tells the rest */
 	}
 
 	/* Step 5. */
 	if (ntfs_umount(vol, FALSE) != 0) {
-		say("unmount failed", strerror(errno));
-		(void)sync_descriptor(&v);
+		volmark_say("unmount failed", strerror(errno));
+		(void)volmark_sync_descriptor(&v);
 		return VOLMARK_EXIT_IO;
 	}
-	if (sync_descriptor(&v) != 0 || wrc != 0)
+	if (volmark_sync_descriptor(&v) != 0 || wrc != 0)
 		return VOLMARK_EXIT_IO;
 
 	/* Step 6. */
 	rc = read_back(&v, next);
 	if (rc == VOLMARK_EXIT_OK && debug)
-		say(mode_name[a->mode], "done");
+		volmark_say(mode_name[a->mode], "done");
 	return rc;
 }

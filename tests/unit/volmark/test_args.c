@@ -52,6 +52,14 @@ static void test_args(void)
 
 	/* modes */
 	CHECK(parse(false, &a, "sync-mirror", "--fd", "3", "--expect-serial", S, "--expect-sectors", "9", NULL) ==
+	      VOLMARK_EXIT_OK);
+	CHECK(a.mode == VOLMARK_SYNC_MIRROR && a.fd == 3 && a.expect_sectors == 9 && !a.stop_before_write);
+	CHECK(parse(false, &a, "sync-mirror", "--fd", "3", "--expect-serial", S, NULL, NULL, NULL) == VOLMARK_EXIT_USAGE);
+	CHECK(parse(false, &a, "sync-mirror", "--stop-before-write", "--fd", "3", "--expect-serial", S,
+		    "--expect-sectors", "9") == VOLMARK_EXIT_USAGE);
+	CHECK(parse(true, &a, "sync-mirror", "--fd", "3", "--expect-serial", S, "--expect-sectors", "9",
+		    "--stop-before-write") == VOLMARK_EXIT_OK && a.stop_before_write);
+	CHECK(parse(false, &a, "sync_mirror", "--fd", "3", "--expect-serial", S, "--expect-sectors", "9", NULL) ==
 	      VOLMARK_EXIT_USAGE);
 	CHECK(parse(false, &a, "SET", "--fd", "3", "--expect-serial", S, "--expect-sectors", "9", NULL) ==
 	      VOLMARK_EXIT_USAGE);
@@ -139,6 +147,16 @@ static void test_flags(void)
 			CHECK(out == (f & ~VOLMARK_VOL_DIRTY));
 		} else {
 			CHECK(rc == VOLMARK_EXIT_ANOMALY);
+		}
+
+		/* sync-mirror (section 3.7 step 2): DIRTY and the informational two may be set, nothing else; no bit changes. */
+		out = 0xa5a5;
+		rc = volmark_next_flags(VOLMARK_SYNC_MIRROR, (uint16_t)f, &out);
+		if (f & ~(VOLMARK_VOL_DIRTY | VOLMARK_VOL_MODIFIED_BY_CHKDSK | VOLMARK_VOL_MOUNTED_ON_NT4)) {
+			CHECK(rc == VOLMARK_EXIT_ANOMALY);
+		} else {
+			CHECK(rc == VOLMARK_EXIT_OK);
+			CHECK(out == f);
 		}
 		if (failures > 20)
 			return;

@@ -80,7 +80,7 @@ ntfs="$(pkg-config --cflags libntfs-3g)"
 nlibs="$(pkg-config --libs --static libntfs-3g)"
 cc -std=c17 -Wall -Wextra -Werror -O2 -DNTFSMAC_TEST_SEAMS -I include -I src/daemon -I src/sanitize -I src/journal \
 	-o "$work/journal_vm" tests/integration/daemon/journal_vm.c src/daemon/spawn.c src/daemon/status.c \
-	src/daemon/errwatch.c src/daemon/errwatch_io.c src/daemon/session.c src/daemon/ctl_journal.c \
+	src/daemon/errwatch.c src/daemon/errwatch_io.c src/daemon/session.c src/daemon/ctl_journal.c src/daemon/ctl_repair_mirror.c \
 	src/daemon/ctl_parse.c src/daemon/da.c src/daemon/da_filter.c src/journal/journal.c src/common/log.c \
 	src/options/options.c src/options/argv_check.c src/sanitize/label.c src/sanitize/display.c \
 	src/sanitize/leaf.c src/sanitize/verdict.c src/common/label_cp.c src/policy/policy.c src/probe/state.c \
@@ -93,7 +93,7 @@ cc -std=c17 -O2 -I include -I src/probe -I src/common $ntfs -o "$work/ntfsmac-pr
 	src/probe/state.c src/probe/text.c src/probe/json.c src/common/mftmirr.c src/common/state_rank.c \
 	$nlibs -framework CoreFoundation
 cc -std=c17 -O2 -I include -I src/volmark -I src/common $ntfs -o "$work/ntfsmac-volmark" \
-	src/volmark/main.c src/volmark/cli.c src/volmark/volmark.c src/volmark/vdev.c src/volmark/args.c \
+	src/volmark/main.c src/volmark/cli.c src/volmark/volmark.c src/volmark/syncmirror.c src/volmark/vdev.c src/volmark/args.c \
 	src/common/mftmirr.c $nlibs -framework CoreFoundation
 for t in setvolflags logfile_mark; do
 	cc -std=c17 -O2 -Wall -Wextra -Werror -D_DARWIN_C_SOURCE=1 $ntfs -o "$work/$t" tests/tools/$t.c $nlibs -framework CoreFoundation

@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * The flow shared by `ntfsmac journal-clear` and `ntfsmac repair --clear-dirty` (T-M4-14,
+ * The flow shared by `ntfsmac journal-clear`, `ntfsmac repair --clear-dirty` and `ntfsmac repair
+ * --sync-mirror` (T-M4-14, T-M4-16,
  * docs/ARCHITECTURE.md section 3.4, ADR-017, ADR-019):
  *
  *   1. say what the action does and does not do;
@@ -118,6 +119,37 @@ static void print_warning(const ntfsmac_cli_ctx *ctx, const char *reply)
 		      ctx->err);
 }
 
+/* A refused or failed `repair --sync-mirror` that still carries the state of the fresh check. */
+static void print_mirror_state(const ntfsmac_cli_ctx *ctx, const char *reply)
+{
+	json_doc *doc = json_parse(reply, strlen(reply));
+	const json_node *root = json_root(doc);
+	const char *state = root != NULL ? json_member_str(root, "state") : NULL;
+
+	if (state != NULL) {
+		fputs("A fresh check of the volume shows: ", ctx->err);
+		ntfsmac_cli_print_safe(ctx->err, state);
+		fputs(".\n", ctx->err);
+	}
+	json_free(doc);
+}
+
+/* After `repair --sync-mirror`: what the fresh probe says now, and what is still up to the user. */
+static void print_mirror_result(const ntfsmac_cli_ctx *ctx, const char *reply)
+{
+	json_doc *doc = json_parse(reply, strlen(reply));
+	const json_node *root = json_root(doc);
+	const char *state = root != NULL ? json_member_str(root, "state") : NULL;
+
+	fputs("The mirror was repaired. A fresh check of the volume now shows: ", ctx->err);
+	ntfsmac_cli_print_safe(ctx->err, state != NULL ? state : "unknown");
+	fputs(".\nThis was not a check of the file system. The volume was not mounted; the next "
+	      "mount decides again, and a volume that still has the dirty flag set is read-only. "
+	      "Windows chkdsk is the way to check it.\n",
+	      ctx->err);
+	json_free(doc);
+}
+
 /*
  * ADR-017: the specific warning comes BEFORE the typed confirmation and the password. The facts
  * are the `journal` member of the read-only `status` reply (the entry's state, the lost-flush
@@ -172,7 +204,8 @@ int ntfsmac_cli_priv_run(const ntfsmac_cli_ctx *ctx, ntfsmac_ctl_cmd cmd, const 
 {
 	const ntfsmac_cli_priv_hooks *h = ctx->hooks;
 	const char *name = cmd == NTFSMAC_CTL_CMD_JOURNAL_CLEAR ? "journal-clear" : "repair";
-	const char *flag = action != NULL ? "--clear-dirty" : NULL;
+	const bool mirror = action != NULL && strcmp(action, "sync_mirror") == 0;
+	const char *flag = action == NULL ? NULL : mirror ? "--sync-mirror" : "--clear-dirty";
 	const char *label_arg = NULL, *serial_arg = NULL, *bsd = NULL;
 	char label[PRIV_LABEL_MAX + 2];
 	char serial[16];
@@ -221,6 +254,15 @@ int ntfsmac_cli_priv_run(const ntfsmac_cli_ctx *ctx, ntfsmac_ctl_cmd cmd, const 
 		      "earlier session ended unclean, files written in it may be incomplete or damaged; "
 		      "Windows chkdsk is strongly preferred. The volume's current mount is not changed.\n",
 		      ctx->err);
+	else if (mirror)
+		fputs("This copies the first records of the $MFT over their copies in the $MFTMirr, the mirror "
+		      "that NTFS-3G refuses to mount when an update to the two was interrupted. It writes only "
+		      "the records that differ, never the data region, never the log, and it does not touch "
+		      "the dirty flag or this Mac's session journal. It does not check or repair the file "
+		      "system: Windows chkdsk is still the check. It is refused unless the volume shows "
+		      "exactly this damage, and the volume must not be mounted. It is not mounted for you "
+		      "afterwards: the next mount decides again.\n",
+		      ctx->err);
 	else
 		fputs("This clears the dirty flag on the volume. It does not check or repair the file "
 		      "system. If this Mac left the volume open earlier, files written in that session may "
@@ -228,7 +270,8 @@ int ntfsmac_cli_priv_run(const ntfsmac_cli_ctx *ctx, ntfsmac_ctl_cmd cmd, const 
 		      "be mounted.\n",
 		      ctx->err);
 
-	print_entry_facts(ctx, h, bsd);
+	if (!mirror)
+		print_entry_facts(ctx, h, bsd);
 
 	/* 2. The typed confirmation. */
 	if (label_arg != NULL) {
@@ -280,7 +323,8 @@ int ntfsmac_cli_priv_run(const ntfsmac_cli_ctx *ctx, ntfsmac_ctl_cmd cmd, const 
 		fflush(ctx->err);
 		if (acquire(cmd == NTFSMAC_CTL_CMD_JOURNAL_CLEAR
 				    ? "ntfsmac wants to clear the session journal entry of a volume."
-				    : "ntfsmac wants to clear the dirty flag of a volume.",
+			    : mirror ? "ntfsmac wants to repair the MFT mirror of a volume."
+				     : "ntfsmac wants to clear the dirty flag of a volume.",
 			    hex, &az, why, sizeof why) != 0) {
 			fprintf(ctx->err, "ntfsmac: %s.\n", why);
 			return NTFSMAC_CLI_EXIT_FAILED;
@@ -315,8 +359,12 @@ int ntfsmac_cli_priv_run(const ntfsmac_cli_ctx *ctx, ntfsmac_ctl_cmd cmd, const 
 	}
 	/* 5. Show it. */
 	rc = ntfsmac_cli_render(ctx, cmd, reply);
-	if (rc == NTFSMAC_CLI_EXIT_OK)
+	if (rc == NTFSMAC_CLI_EXIT_OK && mirror)
+		print_mirror_result(ctx, reply);
+	else if (rc == NTFSMAC_CLI_EXIT_OK)
 		print_warning(ctx, reply);
+	else if (mirror)
+		print_mirror_state(ctx, reply);
 done:
 	memset(hex, 0, sizeof hex);
 	memset(req.buf, 0, sizeof req.buf); /* the request holds the form */

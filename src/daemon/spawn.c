@@ -1179,7 +1179,8 @@ ntfsmac_dmn_status ntfsmac_spawn_volmark_op(const ntfsmac_volmark_run *run,
 	if (exit_code == NULL)
 		return NTFSMAC_DMN_E_INVAL;
 	*exit_code = -3;
-	if (op != NTFSMAC_VOLMARK_SET && op != NTFSMAC_VOLMARK_CLEAR && op != NTFSMAC_VOLMARK_CLEAR_REPAIR)
+	if (op != NTFSMAC_VOLMARK_SET && op != NTFSMAC_VOLMARK_CLEAR && op != NTFSMAC_VOLMARK_CLEAR_REPAIR &&
+	    op != NTFSMAC_VOLMARK_SYNC_MIRROR)
 		return NTFSMAC_DMN_E_INVAL;
 	if (run == NULL || run->device_fd < 3 || run->device_fd > MAX_FD || run->timeout_s == 0
 	    || run->total_sectors == 0 || run->total_sectors > UINT64_C(0x7fffffffffffffff))
@@ -1193,9 +1194,10 @@ ntfsmac_dmn_status ntfsmac_spawn_volmark_op(const ntfsmac_volmark_run *run,
 	snprintf(serial, sizeof(serial), "%016" PRIX64, run->serial);
 	snprintf(sectors, sizeof(sectors), "%" PRIu64, run->total_sectors);
 	argv[0] = (char *)cfg.volmark_path;
-	argv[1] = (char *)(op == NTFSMAC_VOLMARK_SET	  ? "set"
-			   : op == NTFSMAC_VOLMARK_CLEAR ? "clear"
-							 : "clear-repair");
+	argv[1] = (char *)(op == NTFSMAC_VOLMARK_SET		? "set"
+			   : op == NTFSMAC_VOLMARK_CLEAR	? "clear"
+			   : op == NTFSMAC_VOLMARK_SYNC_MIRROR ? "sync-mirror"
+								: "clear-repair");
 	argv[2] = (char *)"--fd";
 	argv[3] = fdarg;
 	argv[4] = (char *)"--expect-serial";

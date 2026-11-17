@@ -864,10 +864,10 @@ static void test_privileged(void)
 	CHECK(strstr(c.err, "nothing shows that this volume was checked") != NULL);
 	cap_free(&c);
 
-	/* repair --clear-dirty: the repair request with the action; --sync-mirror is not here yet */
+	/* repair --clear-dirty and --sync-mirror: the repair request with the action */
 	{
 		char *a1[] = {"ntfsmac", "repair", "--clear-dirty", "--label", "L", "--serial", "12345678", "disk4s1"};
-		char *a2[] = {"ntfsmac", "repair", "--sync-mirror", "disk4s1"};
+		char *a2[] = {"ntfsmac", "repair", "--sync-mirror", "--label", "L", "--serial", "12345678", "disk4s1"};
 		char *a3[] = {"ntfsmac", "repair", "disk4s1"};
 		char *a4[] = {"ntfsmac", "repair"};
 
@@ -878,8 +878,28 @@ static void test_privileged(void)
 		CHECK(strstr(g_pf.line, "\"auth\":") != NULL);
 		CHECK(strstr(c.err, "does not check or repair") != NULL);
 		cap_free(&c);
-		rc = run_priv(&c, &hk, NULL, 4, a2);
-		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_UNAVAILABLE);
+		/* the reply of the daemon carries the fresh probe state */
+		pf_reset("{\"ok\":true,\"result\":\"repaired\",\"state\":\"dirty_flag\",\"journal_entry\":\"untouched\"}");
+		cap_open(&c);
+		rc = ntfsmac_cli_main_hooks(8, a2, c.ctx.out, c.ctx.err, &hk);
+		cap_close(&c);
+		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_OK);
+		CHECK(strstr(g_pf.line, "\"cmd\":\"repair\"") != NULL);
+		CHECK(strstr(g_pf.line, "\"action\":\"sync_mirror\"") != NULL);
+		CHECK(strstr(g_pf.line, "\"confirm_serial\":\"12345678\"") != NULL);
+		CHECK(strstr(c.err, "$MFTMirr") != NULL && strstr(c.err, "does not check or repair") != NULL);
+		CHECK(strstr(c.err, "now shows: dirty_flag") != NULL);
+		/* the journal is not part of this request: no entry facts */
+		CHECK(strstr(c.err, "left the volume open") == NULL);
+		cap_free(&c);
+		/* not root in a root-only build: told to use sudo, before anything is typed */
+		pf_reset(priv_ok_reply);
+		g_pf.root_only = 1;
+		cap_open(&c);
+		rc = ntfsmac_cli_main_hooks(8, a2, c.ctx.out, c.ctx.err, &hk);
+		cap_close(&c);
+		CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_FAILED);
+		CHECK(strstr(c.err, "sudo ntfsmac repair --sync-mirror disk4s1") != NULL);
 		CHECK_EQ_INT(g_pf.acquire_calls + g_pf.xchg_calls, 0);
 		cap_free(&c);
 		rc = run_priv(&c, &hk, NULL, 3, a3);

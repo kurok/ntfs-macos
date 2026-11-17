@@ -1,0 +1,75 @@
+U-VMK-13 SIGKILL right before `w`: no output, image unchanged, probe mirror_split
+U-VMK-11 mirror-split.img: exit 0, w d; 5 byte(s) changed, all inside the mirror record(s) [0]; probe clean; ntfsinfo -m ok, ntfsfix -n exit 0
+U-VMK-11 mirror-split-dirty.img: exit 0, w d; 5 byte(s) changed, all inside the mirror record(s) [0]; probe dirty_flag; ntfsinfo -m ok, ntfsfix -n exit 0
+U-VMK-11 vmk-split.img: exit 0, w d; 4 byte(s) changed, all inside the mirror record(s) [3]; probe dirty_flag; ntfsinfo -m ok, ntfsfix -n exit 0
+U-VMK-11 vmk-split-clear.img: exit 0, w d; 4 byte(s) changed, all inside the mirror record(s) [3]; probe clean; ntfsinfo -m ok, ntfsfix -n exit 0
+U-VMK-11 split0and3.img: exit 0, w d; 9 byte(s) changed, all inside the mirror record(s) [0, 3]; probe dirty_flag; ntfsinfo -m ok, ntfsfix -n exit 0
+U-VMK-12 mirror-split with a wrong serial or sector count: exit 15, image unchanged
+U-VMK-12 split with a flag besides DIRTY and the informational two: exit 13, unchanged; with MODIFIED_BY_CHKDSK: exit 0
+U-VMK-12 mirror-newer: exit 10 (the mirror rule does not hold), no mark, image unchanged
+U-VMK-12 mirror-torn: exit 10 (the mirror rule does not hold), no mark, image unchanged
+U-VMK-12 mirror-extra: exit 10 (the mirror rule does not hold), no mark, image unchanged
+U-VMK-12 clean-64m-4k: exit 10 (the mirror rule does not hold), no mark, image unchanged
+U-VMK-12 hiber-lower: exit 10 (the mirror rule does not hold), no mark, image unchanged
+U-VMK-12 mirror-split-hiber: exit 10 (hibernation file), no mark, image unchanged
+U-VMK-12 unclean-log with a split mirror: exit 10 ($LogFile refusal on the view), no mark, image unchanged
+U-VMK-12 log-v2 with a split mirror: exit 10 ($LogFile refusal on the view), no mark, image unchanged
+U-VMK-11 mirror-split.img: exit 0, w d; 5 byte(s) changed, all inside the mirror record(s) [0]; probe clean; ntfsinfo -m ok, ntfsfix -n exit 0
+U-VMK-14 second run: exit 10, image unchanged
+U-VMK-13 count mirror-split.img: 1 write(s), at the $MFTMirr offset(s) of record(s) [0], 1024 bytes each, none before `w`
+U-VMK-13 count split0and3.img: 2 write(s), at the $MFTMirr offset(s) of record(s) [0, 3], 1024 bytes each, none before `w`
+U-VMK-13 mirror-split cut:0 +kill: exit -9, mirror records ['old'], probe mirror_split -> before step 3
+U-VMK-13 mirror-split cut:0: exit 14, mirror records ['old'], probe mirror_split -> before step 3
+U-VMK-13 mirror-split cut:1 +kill: exit 0, mirror records ['new'], probe clean -> after the last write
+U-VMK-13 mirror-split cut:1: exit 0, mirror records ['new'], probe clean -> after the last write
+U-VMK-13 mirror-split short:1:0 +kill: exit -9, mirror records ['old'], probe mirror_split -> before step 3
+U-VMK-13 mirror-split short:1:0: exit 14, mirror records ['old'], probe mirror_split -> before step 3
+U-VMK-13 mirror-split short:1:1 +kill: exit -9, mirror records ['old'], probe mirror_split -> before step 3
+U-VMK-13 mirror-split short:1:1: exit 14, mirror records ['old'], probe mirror_split -> before step 3
+U-VMK-13 mirror-split short:1:511 +kill: exit -9, mirror records ['torn'], probe corrupt -> inside a record write
+U-VMK-13 mirror-split short:1:511: exit 14, mirror records ['torn'], probe corrupt -> inside a record write
+U-VMK-13 mirror-split short:1:512 +kill: exit -9, mirror records ['torn'], probe corrupt -> inside a record write
+U-VMK-13 mirror-split short:1:512: exit 14, mirror records ['torn'], probe corrupt -> inside a record write
+U-VMK-13 mirror-split short:1:513 +kill: exit -9, mirror records ['torn'], probe corrupt -> inside a record write
+U-VMK-13 mirror-split short:1:513: exit 14, mirror records ['torn'], probe corrupt -> inside a record write
+U-VMK-13 mirror-split short:1:1023 +kill: exit -9, mirror records ['new'], probe clean -> after the last write
+U-VMK-13 mirror-split short:1:1023: exit 0, mirror records ['new'], probe clean -> after the last write
+U-VMK-13 mirror-split skip:1: exit 14, mirror records ['old'], probe mirror_split -> before step 3
+U-VMK-13 mirror-split eio:1: exit 12, mirror records ['old'], probe mirror_split -> before step 3
+U-VMK-13 mirror-split dead:1: exit 12, mirror records ['old'], probe mirror_split -> before step 3
+U-VMK-13 split0and3 cut:0 +kill: exit -9, mirror records ['old', 'old'], probe mirror_split -> before step 3
+U-VMK-13 split0and3 cut:0: exit 14, mirror records ['old', 'old'], probe mirror_split -> before step 3
+U-VMK-13 split0and3 cut:1 +kill: exit -9, mirror records ['new', 'old'], probe mirror_split -> between two record writes
+U-VMK-13 split0and3 cut:1: exit 14, mirror records ['new', 'old'], probe mirror_split -> between two record writes
+U-VMK-13 split0and3 cut:2 +kill: exit 0, mirror records ['new', 'new'], probe dirty_flag -> after the last write
+U-VMK-13 split0and3 cut:2: exit 0, mirror records ['new', 'new'], probe dirty_flag -> after the last write
+U-VMK-13 split0and3 short:1:0 +kill: exit -9, mirror records ['old', 'old'], probe mirror_split -> before step 3
+U-VMK-13 split0and3 short:1:0: exit 14, mirror records ['old', 'old'], probe mirror_split -> before step 3
+U-VMK-13 split0and3 short:1:1 +kill: exit -9, mirror records ['old', 'old'], probe mirror_split -> before step 3
+U-VMK-13 split0and3 short:1:1: exit 14, mirror records ['old', 'old'], probe mirror_split -> before step 3
+U-VMK-13 split0and3 short:1:511 +kill: exit -9, mirror records ['torn', 'old'], probe corrupt -> inside a record write
+U-VMK-13 split0and3 short:1:511: exit 14, mirror records ['torn', 'old'], probe corrupt -> inside a record write
+U-VMK-13 split0and3 short:1:512 +kill: exit -9, mirror records ['torn', 'old'], probe corrupt -> inside a record write
+U-VMK-13 split0and3 short:1:512: exit 14, mirror records ['torn', 'old'], probe corrupt -> inside a record write
+U-VMK-13 split0and3 short:1:513 +kill: exit -9, mirror records ['torn', 'old'], probe corrupt -> inside a record write
+U-VMK-13 split0and3 short:1:513: exit 14, mirror records ['torn', 'old'], probe corrupt -> inside a record write
+U-VMK-13 split0and3 short:1:1023 +kill: exit -9, mirror records ['new', 'old'], probe mirror_split -> between two record writes
+U-VMK-13 split0and3 short:1:1023: exit 14, mirror records ['new', 'old'], probe mirror_split -> between two record writes
+U-VMK-13 split0and3 short:2:0 +kill: exit -9, mirror records ['new', 'old'], probe mirror_split -> between two record writes
+U-VMK-13 split0and3 short:2:0: exit 14, mirror records ['new', 'old'], probe mirror_split -> between two record writes
+U-VMK-13 split0and3 short:2:1 +kill: exit -9, mirror records ['new', 'old'], probe mirror_split -> between two record writes
+U-VMK-13 split0and3 short:2:1: exit 14, mirror records ['new', 'old'], probe mirror_split -> between two record writes
+U-VMK-13 split0and3 short:2:511 +kill: exit -9, mirror records ['new', 'torn'], probe corrupt -> inside a record write
+U-VMK-13 split0and3 short:2:511: exit 14, mirror records ['new', 'torn'], probe corrupt -> inside a record write
+U-VMK-13 split0and3 short:2:512 +kill: exit -9, mirror records ['new', 'torn'], probe corrupt -> inside a record write
+U-VMK-13 split0and3 short:2:512: exit 14, mirror records ['new', 'torn'], probe corrupt -> inside a record write
+U-VMK-13 split0and3 short:2:513 +kill: exit -9, mirror records ['new', 'torn'], probe corrupt -> inside a record write
+U-VMK-13 split0and3 short:2:513: exit 14, mirror records ['new', 'torn'], probe corrupt -> inside a record write
+U-VMK-13 split0and3 short:2:1023 +kill: exit -9, mirror records ['new', 'new'], probe dirty_flag -> after the last write
+U-VMK-13 split0and3 short:2:1023: exit 0, mirror records ['new', 'new'], probe dirty_flag -> after the last write
+U-VMK-13 split0and3 skip:1: exit 14, mirror records ['old', 'new'], probe mirror_split -> between two record writes
+U-VMK-13 split0and3 skip:2: exit 14, mirror records ['new', 'old'], probe mirror_split -> between two record writes
+U-VMK-13 split0and3 eio:1: exit 12, mirror records ['old', 'old'], probe mirror_split -> before step 3
+U-VMK-13 split0and3 eio:2: exit 12, mirror records ['new', 'old'], probe mirror_split -> between two record writes
+U-VMK-13 split0and3 dead:1: exit 12, mirror records ['old', 'old'], probe mirror_split -> before step 3
+U-VMK-13 split0and3 dead:2: exit 12, mirror records ['new', 'old'], probe mirror_split -> between two record writes

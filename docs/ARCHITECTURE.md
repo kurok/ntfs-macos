@@ -399,9 +399,9 @@ A new kind of accepted difference needs a fixture that produces it and an amendm
 |---|---|
 | 1 | Binding: sector 0 `volume_serial_number` and `number_of_sectors` equal the expected values, else exit 15, nothing written. |
 | 2 | Rule M1 to M6 on its own reads, then on the overlay view the hibernation and `$LogFile` refusals of section 3.6 step 1 and a flags check (only `VOLUME_IS_DIRTY`, `MODIFIED_BY_CHKDSK` and `MOUNTED_ON_NT4` may be set). Any failure: exit 10 (rule, hibernation, log) or 13 (flags), nothing written. |
-| 3 | Print `w`. For each differing record k, in ascending order: one `pwrite` of the raw on-disk bytes of `$MFT` record k (with its own USN and sector tails, not re-protected) to `$MFTMirr` record k. Print `d`. Nothing else is written: not `$MFT`, not `$LogFile`, no flag. |
+| 3 | Print `w`. For each differing record k, in ascending order: one `pwrite` of the raw bytes of `$MFT` record k, as the rule read them (with its own USN and sector tails, not re-protected) to `$MFTMirr` record k. Print `d`. Nothing else is written: not `$MFT`, not `$LogFile`, no flag. |
 | 4 | `fsync(3)` and `ioctl(3, DKIOCSYNCHRONIZE)` (`F_FULLFSYNC` for a regular file; ADR-022). If `fsync` fails: exit 12; if only the flush fails: a warning (R-30). |
-| 5 | Read both copies back: byte-equal for records 0 to 3. Then an ordinary read-only mount (with the engine's compare) must succeed. Otherwise exit 14. |
+| 5 | Read back: each record written equals the `$MFT` record it was copied from (the bytes the rule checked, read once into memory; a record that did not differ may differ past `bytes_in_use` and is not touched). Then an ordinary read-only mount (with the engine's compare) must succeed. Otherwise exit 14. |
 
 The daemon then runs a fresh probe and returns its state with the reply (section 3.4). It never remounts by itself and never removes a journal entry; the next `mount` goes through the policy table, so a volume with `VOLUME_IS_DIRTY` set comes back as `dirty_flag` (`ro`).
 

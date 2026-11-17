@@ -486,6 +486,17 @@ static void make_repairable(ntfsmac_probe_verdict *v)
 	v->reason_codes = NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_FLAG_DIRTY);
 }
 
+/* A verdict the sync-mirror gate accepts; `dirty`: record 3 split, VOLUME_IS_DIRTY set. */
+static void make_splittable(ntfsmac_probe_verdict *v, int dirty)
+{
+	make_verdict(v, NTFSMAC_PROBE_STATE_MIRROR_SPLIT);
+	v->reason_codes = NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_MFTMIRR_STALE);
+	if (dirty) {
+		v->reason_codes |= NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_FLAG_DIRTY);
+		v->volume_flags = FLAG(DIRTY);
+	}
+}
+
 /* U-POL-GATE-REPAIR and U-POL-FLAGS */
 static void test_gate_repair(void)
 {
@@ -632,10 +643,8 @@ static void test_gate_repair(void)
  * U-POL-NAMES (ADR-023): `names_not_nfc` is `ro` in both columns, with and
  * without a journal entry, with the evidence switch on or off, and never
  * `remove`. NAMES_NOT_NFC beside another state does not change that state's
- * row, and the `repair --clear-dirty` gate ignores it. The `repair
- * --sync-mirror` gate does not exist yet (T-M4-16); its U-POL-NAMES case is
- * written with it. Here only the table row of `mirror_split` with both codes
- * is checked.
+ * row, and the `repair --clear-dirty` and `repair --sync-mirror` gates ignore
+ * it (the second one in test_names() below and in U-POL-SYNCMIRROR).
  */
 static void test_names(void)
 {
@@ -722,6 +731,110 @@ static void test_names(void)
 	rp.mounted = false;
 	v.state = NTFSMAC_PROBE_STATE_NAMES_NOT_NFC;
 	CHECK_EQ_INT(ntfsmac_policy_gate_repair(&rp), NTFSMAC_GATE_PROBE_NOT_DIRTY_FLAG);
+
+	/* repair --sync-mirror: mirror_split with both codes is repairable (U-POL-NAMES). */
+	make_splittable(&v, 0);
+	v.reason_codes |= NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_NAMES_NOT_NFC);
+	v.nonnfc_count = 22;
+	v.nonnfc_path_count = 16;
+	rp = rp_ok(&v);
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&rp), NTFSMAC_GATE_ALLOWED);
+}
+
+/* U-POL-SYNCMIRROR: the `repair --sync-mirror` gate (section 3.2, ADR-021), each condition alone. */
+static void test_gate_sync_mirror(void)
+{
+	static const int other_codes[] = {
+		NTFSMAC_PROBE_REASON_LOG_UNCLEAN,   NTFSMAC_PROBE_REASON_HIBER_SIGNATURE,
+		NTFSMAC_PROBE_REASON_CHECK_FAILED,  NTFSMAC_PROBE_REASON_VERSION_UNKNOWN,
+		NTFSMAC_PROBE_REASON_MOUNT_FAILED,
+	};
+	ntfsmac_probe_verdict v;
+	ntfsmac_policy_repair_input in;
+	size_t i;
+	int s;
+
+	/* Allowed: MFTMIRR_STALE alone, and with FLAG_DIRTY (a split of record 3). */
+	make_splittable(&v, 0);
+	in = rp_ok(&v);
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_ALLOWED);
+	make_splittable(&v, 1);
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_ALLOWED);
+	/* The informational volume flags do not matter to the gate. */
+	v.volume_flags |= FLAG(MODIFIED_BY_CHKDSK);
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_ALLOWED);
+
+	/* Bad input. */
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(NULL), NTFSMAC_GATE_INVALID_INPUT);
+	in.probe = NULL;
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_INVALID_INPUT);
+
+	/* Every state but mirror_split is refused, with the code set that fits it or not. */
+	for (s = 0; s < (int)NTFSMAC_PROBE_STATE_COUNT_; s++) {
+		if (s == (int)NTFSMAC_PROBE_STATE_MIRROR_SPLIT)
+			continue;
+		make_splittable(&v, 0);
+		in = rp_ok(&v);
+		v.state = (ntfsmac_probe_state)s;
+		CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_PROBE_NOT_MIRROR_SPLIT);
+	}
+	/* The state with no MFTMIRR_STALE code, and with no code at all. */
+	make_splittable(&v, 0);
+	in = rp_ok(&v);
+	v.reason_codes = 0;
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_PROBE_NOT_MIRROR_SPLIT);
+	v.reason_codes = NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_FLAG_DIRTY);
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_PROBE_NOT_MIRROR_SPLIT);
+	/* Any one other code beside MFTMIRR_STALE. */
+	for (i = 0; i < sizeof(other_codes) / sizeof(other_codes[0]); i++) {
+		make_splittable(&v, 0);
+		v.reason_codes |= NTFSMAC_PROBE_REASON_BIT(other_codes[i]);
+		CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_PROBE_NOT_MIRROR_SPLIT);
+	}
+
+	/* The log, the hibernation file, mounted, peer, confirmation: each alone. */
+	make_splittable(&v, 0);
+	v.logfile = NTFSMAC_PROBE_LOGFILE_UNCLEAN;
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_LOG_NOT_CLEAN);
+	v.logfile = NTFSMAC_PROBE_LOGFILE_UNREADABLE;
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_LOG_NOT_CLEAN);
+	make_splittable(&v, 0);
+	v.hiberfile = NTFSMAC_PROBE_HIBERFILE_HIBERNATED;
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_HIBERFILE);
+	v.hiberfile = NTFSMAC_PROBE_HIBERFILE_INACTIVE;
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_ALLOWED);
+	make_splittable(&v, 0);
+	in = rp_ok(&v);
+	in.mounted = true;
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_MOUNTED);
+	in = rp_ok(&v);
+	in.peer_authorised = false;
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_PEER);
+	in = rp_ok(&v);
+	in.confirmation_ok = false;
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_CONFIRMATION);
+
+	/* Order of the table: state, log, hibernation file, mounted, peer, confirmation. */
+	in = rp_ok(&v);
+	in.mounted = true;
+	in.peer_authorised = in.confirmation_ok = false;
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_MOUNTED);
+	in.mounted = false;
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_PEER);
+	in.peer_authorised = true;
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_CONFIRMATION);
+	in.mounted = true;
+	v.hiberfile = NTFSMAC_PROBE_HIBERFILE_HIBERNATED;
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_HIBERFILE);
+	v.logfile = NTFSMAC_PROBE_LOGFILE_UNCLEAN;
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_LOG_NOT_CLEAN);
+	v.state = NTFSMAC_PROBE_STATE_CLEAN;
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_PROBE_NOT_MIRROR_SPLIT);
+
+	/* A journal entry is neither needed nor looked at: the input has no member for it. */
+	make_splittable(&v, 1);
+	in = rp_ok(&v);
+	CHECK_EQ_INT(ntfsmac_policy_gate_sync_mirror(&in), NTFSMAC_GATE_ALLOWED);
 }
 
 /* U-POL-WARN */
@@ -770,6 +883,7 @@ int main(void)
 	test_gate_journal_clear();
 	test_gate_repair();
 	test_names();
+	test_gate_sync_mirror();
 	test_warning();
 	if (g_failures != 0) {
 		fprintf(stderr, "%d check(s) failed\n", g_failures);

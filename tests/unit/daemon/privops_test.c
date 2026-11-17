@@ -7,7 +7,7 @@
  *
  *   01 journal_clear refusals, each leaves the entry     05 label and serial confirmation
  *   02 journal_clear accepted, warnings, corrupt entry   06 gate names and reply shape
- *   03 live session on another disk (a clone)            07 sync_mirror is not here
+ *   03 live session on another disk (a clone)            07 repair sync_mirror (T-M4-16)
  *   04 repair --clear-dirty                              08 arguments
  */
 #include <errno.h>
@@ -36,6 +36,15 @@ typedef struct fake {
 	ntfsmac_journal *swap_j;
 	char clear_bsd[32];
 	uint64_t clear_serial;
+	/* sync_mirror (T-M4-16) */
+	ntfsmac_dmn_status sync_status;
+	int sync_exit;
+	int syncs;
+	bool after_set;               /* the probe after the write returns after_verdict */
+	bool after_probe_fails;
+	ntfsmac_probe_verdict after_verdict;
+	char sync_bsd[32];
+	uint64_t sync_serial;
 } fake;
 
 static bool f_volume(void *ctx, const char *bsd, ntfsmac_priv_volume *out)
@@ -55,9 +64,11 @@ static ntfsmac_dmn_status f_probe(void *ctx, const char *bsd, ntfsmac_probe_verd
 	(void)bsd;
 	bind->fd = -1;
 	f->probes++;
+	if (f->syncs > 0 && f->after_probe_fails)
+		return NTFSMAC_DMN_E_IO;
 	if (f->probe_fails)
 		return NTFSMAC_DMN_E_IO;
-	*out = f->verdict;
+	*out = f->syncs > 0 && f->after_set ? f->after_verdict : f->verdict;
 	return NTFSMAC_DMN_OK;
 }
 
@@ -87,6 +98,19 @@ static ntfsmac_dmn_status f_clear(void *ctx, const char *bsd, const ntfsmac_prob
 	f->clear_serial = v->serial;
 	*exit_code = f->clear_exit;
 	return f->clear_status;
+}
+
+static ntfsmac_dmn_status f_sync(void *ctx, const char *bsd, const ntfsmac_probe_verdict *v,
+				 ntfsmac_priv_bind *bind, int *exit_code)
+{
+	fake *f = ctx;
+
+	(void)bind;
+	f->syncs++;
+	snprintf(f->sync_bsd, sizeof f->sync_bsd, "%s", bsd);
+	f->sync_serial = v->serial;
+	*exit_code = f->sync_exit;
+	return f->sync_status;
 }
 
 /* A new session of the same serial starts: the entry is replaced by one of session 99. */
@@ -183,6 +207,7 @@ static void rig_init(rig *r)
 	r->sys.probe_fresh = f_probe;
 	r->sys.session_live = f_live;
 	r->sys.clear_dirty = f_clear;
+	r->sys.sync_mirror = f_sync;
 	r->sys.now = f_now;
 	r->priv.sys = &r->sys;
 	r->priv.journal = r->j;
@@ -637,13 +662,175 @@ static void test_journal_member(void)
 
 /* ---------------- 06, 07, 08 ---------------- */
 
+/* ---------------- 07 ---------------- */
+
+static ntfsmac_probe_verdict split_verdict(void)
+{
+	ntfsmac_probe_verdict v = clean_verdict();
+
+	v.state = NTFSMAC_PROBE_STATE_MIRROR_SPLIT;
+	v.reason_codes = NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_MFTMIRR_STALE);
+	return v;
+}
+
+static void test_sync_mirror(void)
+{
+	rig r;
+	size_t i;
+
+	/* accepted: the write runs once, then a second probe whose state is in the reply */
+	rig_init(&r);
+	r.f.verdict = split_verdict();
+	r.f.after_set = true;
+	r.f.after_verdict = clean_verdict();
+	CHECK_EQ_INT(rp(&r, "sync_mirror", GOOD_LABEL, GOOD_SERIAL), NTFSMAC_DMN_OK);
+	CHECK(has(&r, "\"ok\":true") && has(&r, "\"result\":\"repaired\"") && has(&r, "\"state\":\"clean\"") &&
+	      has(&r, "\"journal_entry\":\"untouched\""));
+	CHECK_EQ_INT(r.f.syncs, 1);
+	CHECK_EQ_INT(r.f.clears, 0);
+	CHECK_EQ_INT(r.f.probes, 2);
+	CHECK(strcmp(r.f.sync_bsd, "disk4s1") == 0 && r.f.sync_serial == SERIAL);
+	rig_done(&r);
+
+	/* a split with the dirty flag set (record 3): the volume comes back dirty_flag, as reported */
+	rig_init(&r);
+	r.f.verdict = split_verdict();
+	r.f.verdict.reason_codes |= NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_FLAG_DIRTY) |
+				    NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_NAMES_NOT_NFC);
+	r.f.verdict.volume_flags = NTFSMAC_PROBE_VOLFLAG_BIT(NTFSMAC_PROBE_VOLFLAG_DIRTY);
+	r.f.after_set = true;
+	r.f.after_verdict = dirty_verdict();
+	CHECK_EQ_INT(rp(&r, "sync_mirror", GOOD_LABEL, GOOD_SERIAL), NTFSMAC_DMN_OK);
+	CHECK(has(&r, "\"state\":\"dirty_flag\""));
+	rig_done(&r);
+
+	/* the journal is untouched: an entry (also of a live session) stays, no tombstone */
+	rig_init(&r);
+	r.f.verdict = split_verdict();
+	make_entry(&r, NTFSMAC_JOURNAL_MARKER_SET, NTFSMAC_JOURNAL_STATE_WRITE_ERROR, 0x1000, 77);
+	r.f.live_id = 77;
+	CHECK_EQ_INT(rp(&r, "sync_mirror", GOOD_LABEL, GOOD_SERIAL), NTFSMAC_DMN_OK);
+	CHECK(entry_exists(&r) && tombstones(&r) == 0);
+	CHECK(has(&r, "\"journal_entry\":\"untouched\""));
+	rig_done(&r);
+
+	/* the probe after the write fails: the repair happened, the state is unknown */
+	rig_init(&r);
+	r.f.verdict = split_verdict();
+	r.f.after_probe_fails = true;
+	CHECK_EQ_INT(rp(&r, "sync_mirror", GOOD_LABEL, GOOD_SERIAL), NTFSMAC_DMN_OK);
+	CHECK(has(&r, "\"state\":\"unknown\""));
+	rig_done(&r);
+
+	/* refusals: the write is never called, and only one probe ran */
+	rig_init(&r);
+	r.f.known = false;
+	refused(&r, rp(&r, "sync_mirror", GOOD_LABEL, GOOD_SERIAL), "no_volume");
+	CHECK_EQ_INT(r.f.probes, 0);
+	r.f.known = true;
+	r.f.probe_fails = true;
+	refused(&r, rp(&r, "sync_mirror", GOOD_LABEL, GOOD_SERIAL), "probe_failed");
+	r.f.probe_fails = false;
+	r.f.verdict = split_verdict();
+	r.f.vol.mounted = true;
+	refused(&r, rp(&r, "sync_mirror", GOOD_LABEL, GOOD_SERIAL), "mounted");
+	r.f.vol.mounted = false;
+	refused(&r, rp(&r, "sync_mirror", "Other", GOOD_SERIAL), "confirmation");
+	refused(&r, rp(&r, "sync_mirror", GOOD_LABEL, "00000000"), "confirmation");
+	r.f.verdict.logfile = NTFSMAC_PROBE_LOGFILE_UNCLEAN;
+	refused(&r, rp(&r, "sync_mirror", GOOD_LABEL, GOOD_SERIAL), "log_not_clean");
+	r.f.verdict = split_verdict();
+	r.f.verdict.hiberfile = NTFSMAC_PROBE_HIBERFILE_HIBERNATED;
+	refused(&r, rp(&r, "sync_mirror", GOOD_LABEL, GOOD_SERIAL), "hiberfile");
+	/* other states and other codes beside MFTMIRR_STALE */
+	{
+		static const ntfsmac_probe_state states[] = {
+			NTFSMAC_PROBE_STATE_CLEAN,      NTFSMAC_PROBE_STATE_DIRTY_FLAG,
+			NTFSMAC_PROBE_STATE_CORRUPT,    NTFSMAC_PROBE_STATE_UNCLEAN_LOG,
+			NTFSMAC_PROBE_STATE_HIBERNATED, NTFSMAC_PROBE_STATE_UNKNOWN};
+
+		for (i = 0; i < sizeof states / sizeof states[0]; i++) {
+			r.f.verdict = split_verdict();
+			r.f.verdict.state = states[i];
+			refused(&r, rp(&r, "sync_mirror", GOOD_LABEL, GOOD_SERIAL), "probe_not_mirror_split");
+		}
+	}
+	r.f.verdict = split_verdict();
+	r.f.verdict.reason_codes |= NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_LOG_UNCLEAN);
+	refused(&r, rp(&r, "sync_mirror", GOOD_LABEL, GOOD_SERIAL), "probe_not_mirror_split");
+	CHECK_EQ_INT(r.f.syncs, 0);
+	rig_done(&r);
+
+	/* volmark refused before `w` (exits 10, 13, pre-write timeout): denied, nothing written, state shown */
+	{
+		static const int refused_exit[] = { 10, 13, -1 };
+
+		for (i = 0; i < sizeof refused_exit / sizeof refused_exit[0]; i++) {
+			rig_init(&r);
+			r.f.verdict = split_verdict();
+			r.f.sync_status = refused_exit[i] == -1 ? NTFSMAC_DMN_E_TIMEOUT : NTFSMAC_DMN_E_IO;
+			r.f.sync_exit = refused_exit[i];
+			CHECK_EQ_INT(rp(&r, "sync_mirror", GOOD_LABEL, GOOD_SERIAL), NTFSMAC_DMN_E_DENIED);
+			CHECK(has(&r, "\"reason\":\"volmark_refused\"") && has(&r, "\"state\":\"mirror_split\""));
+			CHECK_EQ_INT(r.f.syncs, 1);
+			CHECK_EQ_INT(r.f.probes, 2); /* the gate probe and the fresh one */
+			rig_done(&r);
+		}
+	}
+	/* the binding failed in volmark (15) or in the daemon: reason binding */
+	rig_init(&r);
+	r.f.verdict = split_verdict();
+	r.f.sync_status = NTFSMAC_DMN_E_IO;
+	r.f.sync_exit = 15;
+	refused(&r, rp(&r, "sync_mirror", GOOD_LABEL, GOOD_SERIAL), "binding");
+	CHECK(has(&r, "\"state\":"));
+	r.f.syncs = 0;
+	r.f.sync_status = NTFSMAC_DMN_E_DENIED;
+	r.f.sync_exit = -3;
+	refused(&r, rp(&r, "sync_mirror", GOOD_LABEL, GOOD_SERIAL), "binding");
+	rig_done(&r);
+
+	/* interrupted or failed after `w` (timeout -2, exits 12 and 14, sector 0 changed, busy): failed, may be torn */
+	{
+		static const struct {
+			ntfsmac_dmn_status st;
+			int exit;
+		} after_w[] = { { NTFSMAC_DMN_E_TIMEOUT, -2 }, { NTFSMAC_DMN_E_IO, 12 }, { NTFSMAC_DMN_E_IO, 14 },
+				{ NTFSMAC_DMN_E_IO, 0 }, { NTFSMAC_DMN_E_BUSY, -4 } };
+
+		for (i = 0; i < sizeof after_w / sizeof after_w[0]; i++) {
+			rig_init(&r);
+			r.f.verdict = split_verdict();
+			r.f.sync_status = after_w[i].st;
+			r.f.sync_exit = after_w[i].exit;
+			r.f.after_set = true;
+			r.f.after_verdict = split_verdict();
+			r.f.after_verdict.state = NTFSMAC_PROBE_STATE_CORRUPT;
+			CHECK_EQ_INT(rp(&r, "sync_mirror", GOOD_LABEL, GOOD_SERIAL), after_w[i].st);
+			CHECK(has(&r, "\"error\":\"failed\"") && has(&r, "\"reason\":\"volmark_failed\"") &&
+			      has(&r, "\"state\":\"corrupt\""));
+			CHECK(!has(&r, "repaired"));
+			CHECK_EQ_INT(r.f.probes, 2);
+			rig_done(&r);
+		}
+	}
+
+	/* a daemon without the write seam answers "not implemented" and probes nothing */
+	rig_init(&r);
+	r.f.verdict = split_verdict();
+	r.sys.sync_mirror = NULL;
+	CHECK_EQ_INT(rp(&r, "sync_mirror", GOOD_LABEL, GOOD_SERIAL), NTFSMAC_DMN_E_NOTIMPL);
+	CHECK_EQ_INT(r.f.probes, 0);
+	rig_done(&r);
+}
+
 static void test_names_and_args(void)
 {
 	rig r;
 	int g;
 	ntfsmac_ctl_peer p = peer();
 
-	for (g = 0; g <= (int)NTFSMAC_GATE_CONFIRMATION; g++) {
+	for (g = 0; g <= (int)NTFSMAC_GATE_PROBE_NOT_MIRROR_SPLIT; g++) {
 		const char *n = ntfsmac_priv_gate_name((ntfsmac_policy_gate)g);
 		int k;
 
@@ -653,12 +840,11 @@ static void test_names_and_args(void)
 	}
 	CHECK(ntfsmac_priv_gate_name((ntfsmac_policy_gate)99) != NULL);
 
-	/* sync_mirror belongs to T-M4-16: nothing is probed, nothing is written */
+	/* an action this daemon does not know: nothing is probed, nothing is written */
 	rig_init(&r);
 	r.f.verdict = dirty_verdict();
-	CHECK_EQ_INT(rp(&r, "sync_mirror", GOOD_LABEL, GOOD_SERIAL), NTFSMAC_DMN_E_NOTIMPL);
-	CHECK_EQ_INT(r.f.probes + r.f.clears, 0);
 	CHECK_EQ_INT(rp(&r, "weird", GOOD_LABEL, GOOD_SERIAL), NTFSMAC_DMN_E_NOTIMPL);
+	CHECK_EQ_INT(r.f.probes + r.f.clears + r.f.syncs, 0);
 	rig_done(&r);
 
 	/* NULL and empty arguments fail closed */
@@ -697,6 +883,7 @@ int main(void)
 	test_clone();
 	test_entry_race();
 	test_repair();
+	test_sync_mirror();
 	test_confirmation();
 	test_names_and_args();
 	test_journal_member();

@@ -5,10 +5,11 @@
  *
  *   1. say what the action does and does not do;
  *   2. collect the typed label and serial (a guard against mistakes, not a boundary);
- *   3. get the administrator authorization: a system password dialog, with a time limit of our
- *      own because the call does not fail without a GUI session (U17). A root caller (sudo)
- *      has no dialog and sends no form: the daemon accepts that only when its fallback of
- *      ADR-019 is active;
+ *   3. get the administrator authorization. In the product (root fallback of ADR-019, chosen
+ *      after U17) the caller must be root (sudo): there is no dialog and no form, and a caller
+ *      that is not root is told to run the command with sudo before anything is typed. In a
+ *      build without the fallback: a system password dialog, with a time limit of our own
+ *      because the call does not fail without a GUI session (U17);
  *   4. send the request on the XPC service, never on the socket, and free the authorization;
  *   5. show the reply.
  *
@@ -23,6 +24,15 @@
 #include "json.h"
 
 #define PRIV_LABEL_MAX 255u /* the daemon's limit for confirm_label (decoded bytes) */
+
+int ntfsmac_cli_root_only(void)
+{
+#if defined(NTFSMAC_CTL_AUTHZ_FALLBACK_ROOT) && NTFSMAC_CTL_AUTHZ_FALLBACK_ROOT
+	return 1;
+#else
+	return 0;
+#endif
+}
 
 static size_t digits_at(const char *s, size_t *i)
 {
@@ -173,6 +183,8 @@ int ntfsmac_cli_priv_run(const ntfsmac_cli_ctx *ctx, ntfsmac_ctl_cmd cmd, const 
 	ntfsmac_cli_authz *az = NULL;
 	FILE *in = (h != NULL && h->in != NULL) ? h->in : stdin;
 	bool root = h != NULL && h->is_root != NULL ? h->is_root() != 0 : geteuid() == 0;
+	bool root_only = h != NULL && h->root_only != NULL ? h->root_only() != 0
+							   : ntfsmac_cli_root_only() != 0;
 	int rc, i;
 
 	for (i = 0; i < argc; i++) {
@@ -191,6 +203,15 @@ int ntfsmac_cli_priv_run(const ntfsmac_cli_ctx *ctx, ntfsmac_ctl_cmd cmd, const 
 		fputs("ntfsmac: a BSD name is needed, for example disk4s1.\n", ctx->err);
 		usage_priv(ctx, name, flag);
 		return NTFSMAC_CLI_EXIT_USAGE;
+	}
+
+	/* The daemon would refuse a caller that is not root: say so before anything is typed. */
+	if (root_only && !root) {
+		fprintf(ctx->err,
+			"ntfsmac: %s needs administrator rights. Run it again with sudo: "
+			"sudo ntfsmac %s%s%s %s\n",
+			name, name, flag != NULL ? " " : "", flag != NULL ? flag : "", bsd);
+		return NTFSMAC_CLI_EXIT_FAILED;
 	}
 
 	/* 1. What it does and what it does not do (ADR-017). */
@@ -242,9 +263,10 @@ int ntfsmac_cli_priv_run(const ntfsmac_cli_ctx *ctx, ntfsmac_ctl_cmd cmd, const 
 	/* 3. Administrator authorization. */
 	hex[0] = '\0';
 	if (root) {
-		fputs("ntfsmac: running as root, so there is no password dialog. The daemon accepts this "
-		      "only when its root fallback is active.\n",
-		      ctx->err);
+		if (!root_only)
+			fputs("ntfsmac: running as root, so there is no password dialog. This daemon "
+			      "expects the dialog and may refuse the request.\n",
+			      ctx->err);
 	} else {
 		int (*acquire)(const char *, char *, ntfsmac_cli_authz **, char *, size_t) =
 			h != NULL && h->authz_acquire != NULL ? h->authz_acquire

@@ -21,7 +21,7 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "NTFSMAC_TEST_SEAMS": "OFF",
-        "NTFSMAC_AUTHZ_FALLBACK_ROOT": "OFF"
+        "NTFSMAC_AUTHZ_FALLBACK_ROOT": "ON"
       }
     },
     {

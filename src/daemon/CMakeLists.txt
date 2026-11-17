@@ -31,12 +31,13 @@ if(NTFSMAC_TEST_SEAMS)
   target_compile_definitions(ntfsmac_daemon PUBLIC NTFSMAC_TEST_SEAMS)
 endif()
 
-# T-M4-14: check 4 of ADR-019 has two implementations behind one function (ctl_peer.c). The
-# default is the external form of the authorization right. If U17 shows that a password grant
-# does not satisfy the daemon's AuthorizationCopyRights, build with -DNTFSMAC_AUTHZ_FALLBACK_ROOT=ON:
-# the privileged requests are then accepted only from a root peer (sudo ntfsmac ...), checks 2 and
-# 3 still apply. The daemon may also choose at run time (ntfsmac_ctl_env.authz).
-option(NTFSMAC_AUTHZ_FALLBACK_ROOT "Check 4 of ADR-019: accept a root peer instead of the authorization form" OFF)
+# T-M4-14: check 4 of ADR-019 has two implementations behind one function (ctl_peer.c). U17
+# (2026-11-17, macOS 27.2 VM, tests/results/evidence/m4-14/u17_password.txt) showed that a password
+# grant of the CLI does not satisfy the daemon's AuthorizationCopyRights (-60007), so the default
+# is the fallback: journal_clear and repair are accepted only from a root peer (sudo ntfsmac ...);
+# checks 1 to 3 still apply. OFF builds the external-form design, kept for a later macOS that
+# allows it. The daemon may also choose at run time (ntfsmac_ctl_env.authz, set by main.c only).
+option(NTFSMAC_AUTHZ_FALLBACK_ROOT "Check 4 of ADR-019: accept a root peer instead of the authorization form" ON)
 if(NTFSMAC_AUTHZ_FALLBACK_ROOT)
   target_compile_definitions(ntfsmac_daemon PUBLIC NTFSMAC_CTL_AUTHZ_FALLBACK_ROOT=1)
 endif()

@@ -438,8 +438,8 @@ static void test_order(void)
 
 /*
  * U-CTL-PEER-08 (T-M4-14): check 4 behind one seam with two strategies. EXTERNAL_FORM is the
- * design of ADR-019 (the default); ROOT_PEER is its fallback while U17 is open: a root peer, no
- * right, no form, checks 1 to 3 as before.
+ * design of ADR-019; ROOT_PEER is its fallback and the product default since U17 (2026-11-17): a
+ * root peer, no right, no form, checks 1 to 3 as before.
  */
 static void test_strategies(void)
 {
@@ -473,7 +473,7 @@ static void test_strategies(void)
 #define CHK4() ntfsmac_ctl_check_admin_authorization(&env, &p, &req)
 #define ALL() ntfsmac_ctl_authorise_privileged(&env, &ops, &o, &p, &req)
 
-	/* the default is the design of the ADR, unless the build asks for the fallback */
+	/* the default follows the build option (ON: the fallback, as in the product) */
 #if defined(NTFSMAC_CTL_AUTHZ_FALLBACK_ROOT) && NTFSMAC_CTL_AUTHZ_FALLBACK_ROOT
 	CHECK_EQ_INT(ntfsmac_ctl_default_authz(), NTFSMAC_CTL_AUTHZ_ROOT_PEER);
 #else

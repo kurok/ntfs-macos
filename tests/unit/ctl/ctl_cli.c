@@ -543,6 +543,7 @@ typedef struct priv_fake {
 	const char *reply;
 	int xchg_rc;
 	int root;
+	int root_only; /* the daemon accepts only a root caller (the product, after U17) */
 	int xchg_at_release; /* order check: the form is freed only after the exchange */
 } priv_fake;
 
@@ -610,6 +611,11 @@ static int pf_is_root(void)
 	return g_pf.root;
 }
 
+static int pf_root_only(void)
+{
+	return g_pf.root_only;
+}
+
 static void slow_fn(void *arg)
 {
 	(void)arg;
@@ -656,7 +662,8 @@ static int run_priv(cap *c, ntfsmac_cli_priv_hooks *hk, FILE *in, int argc, char
 
 static void test_privileged(void)
 {
-	ntfsmac_cli_priv_hooks hk = {pf_acquire, pf_release, pf_xchg, pf_is_root, pf_sock, NULL};
+	ntfsmac_cli_priv_hooks hk = {pf_acquire, pf_release, pf_xchg, pf_is_root, pf_sock, NULL,
+				     pf_root_only};
 	cap c;
 	int rc;
 	FILE *in;
@@ -779,6 +786,50 @@ static void test_privileged(void)
 	CHECK(strstr(c.err, "root") != NULL);
 	CHECK_EQ_INT(g_pf.release_calls, 0);
 	cap_free(&c);
+
+	/* root-only daemon (the product after U17), caller not root: told to use sudo before
+	 * anything is typed; no dialog, no request */
+	pf_reset(priv_ok_reply);
+	g_pf.root_only = 1;
+	rc = run_jc(&c, &hk);
+	CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_FAILED);
+	CHECK(strstr(c.err, "sudo ntfsmac journal-clear disk4s1") != NULL);
+	CHECK(strstr(c.err, "Type the volume label") == NULL);
+	CHECK_EQ_INT(g_pf.acquire_calls, 0);
+	CHECK_EQ_INT(g_pf.xchg_calls, 0);
+	cap_free(&c);
+	{
+		char *a[] = {"ntfsmac", "repair", "--clear-dirty", "disk4s1"};
+
+		pf_reset(priv_ok_reply);
+		g_pf.root_only = 1;
+		cap_open(&c);
+		rc = ntfsmac_cli_main_hooks(4, a, c.ctx.out, c.ctx.err, &hk);
+		cap_close(&c);
+	}
+	CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_FAILED);
+	CHECK(strstr(c.err, "sudo ntfsmac repair --clear-dirty disk4s1") != NULL);
+	CHECK_EQ_INT(g_pf.xchg_calls, 0);
+	cap_free(&c);
+
+	/* root-only daemon, root caller: no dialog, no form, the request goes out */
+	pf_reset(priv_ok_reply);
+	g_pf.root_only = 1;
+	g_pf.root = 1;
+	rc = run_jc(&c, &hk);
+	CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_OK);
+	CHECK_EQ_INT(g_pf.acquire_calls, 0);
+	CHECK_EQ_INT(g_pf.xchg_calls, 1);
+	CHECK(strstr(g_pf.line, "\"auth\"") == NULL);
+	CHECK(strstr(c.err, "may refuse") == NULL);
+	cap_free(&c);
+
+	/* the build's choice matches the CMake option */
+#if defined(NTFSMAC_CTL_AUTHZ_FALLBACK_ROOT) && NTFSMAC_CTL_AUTHZ_FALLBACK_ROOT
+	CHECK_EQ_INT(ntfsmac_cli_root_only(), 1);
+#else
+	CHECK_EQ_INT(ntfsmac_cli_root_only(), 0);
+#endif
 
 	/* the daemon refuses: text from the table, exit code 1, the form still freed */
 	pf_reset("{\"ok\":false,\"error\":\"denied\",\"reason\":\"probe_not_clean\"}");

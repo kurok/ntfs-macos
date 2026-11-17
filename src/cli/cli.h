@@ -43,6 +43,9 @@ typedef struct ntfsmac_cli_priv_hooks {
 	int (*sock_exchange)(const char *socket_path, const char *line, int timeout_ms, char *reply,
 			     size_t cap, char *err_text, size_t err_cap);
 	FILE *in; /* where the typed confirmation is read from; NULL: stdin */
+	/* nonzero: the daemon accepts only a root caller (check 4 of ADR-019, strategy ROOT_PEER);
+	 * NULL: the choice of this build, ntfsmac_cli_root_only() */
+	int (*root_only)(void);
 } ntfsmac_cli_priv_hooks;
 
 typedef struct ntfsmac_cli_ctx {
@@ -178,6 +181,13 @@ int ntfsmac_cli_privileged_exchange(const char *service, const char *line, int t
  * service, release the authorization, show the reply. `action` is "clear_dirty" for repair and
  * NULL for journal-clear. The authorization form only ever goes to NTFSMAC_CTL_XPC_SERVICE.
  */
+/*
+ * Nonzero when this build's daemon accepts journal-clear and repair only from a root caller:
+ * U17 showed on macOS 27.2 that a password grant of the CLI does not satisfy the daemon's
+ * check, so the product is built with NTFSMAC_AUTHZ_FALLBACK_ROOT (ARCHITECTURE section 3.4).
+ */
+int ntfsmac_cli_root_only(void);
+
 int ntfsmac_cli_priv_run(const ntfsmac_cli_ctx *ctx, ntfsmac_ctl_cmd cmd, const char *action,
 			 int argc, char **argv);
 

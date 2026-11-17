@@ -189,16 +189,18 @@ ntfsmac_ctl_refusal ntfsmac_ctl_check_authorization(const ntfsmac_ctl_sys *sys,
 						    const uint8_t *form);
 
 /*
- * Check 4 has two implementations behind one function (T-M4-14, U17 not yet verified):
+ * Check 4 has two implementations behind one function (T-M4-14; U17 answered 2026-11-17):
  *
  *   EXTERNAL_FORM  the design of ADR-019: the right and the external form above.
  *   ROOT_PEER      the fallback of ADR-019: no right and no form; the request is accepted only
  *                  from a root peer (euid 0 taken from the audit token, for example the CLI run
  *                  with sudo). Checks 1 to 3 still apply.
  *
- * One switch picks one for the whole daemon: the macro NTFSMAC_CTL_AUTHZ_FALLBACK_ROOT (define
- * it as 1 at build time) sets the default of ntfsmac_ctl_default_authz(); the daemon may also
- * set ntfsmac_ctl_env.authz from its configuration. The default is EXTERNAL_FORM.
+ * One switch picks one for the whole daemon: the macro NTFSMAC_CTL_AUTHZ_FALLBACK_ROOT (the CMake
+ * option NTFSMAC_AUTHZ_FALLBACK_ROOT, ON by default and in the product preset) sets the default
+ * of ntfsmac_ctl_default_authz(); only main.c may set ntfsmac_ctl_env.authz. The product uses
+ * ROOT_PEER: U17 showed on macOS 27.2 that a password grant of the CLI fails the daemon's
+ * AuthorizationCopyRights with -60007, so EXTERNAL_FORM cannot pass there.
  */
 typedef enum ntfsmac_ctl_authz_strategy {
 	NTFSMAC_CTL_AUTHZ_EXTERNAL_FORM = 0,

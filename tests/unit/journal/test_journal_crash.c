@@ -345,7 +345,8 @@ static void verify_remove_common(ntfsmac_journal *j, const char *jdir,
 	ntfsmac_journal_entry g;
 	ntfsmac_journal_status st = ntfsmac_journal_get(j, SERIAL, &g);
 	struct tcount t;
-	int renamed = point == NULL || strcmp(point, "remove.begin") != 0;
+	int renamed = point == NULL || (strcmp(point, "remove.begin") != 0 &&
+					 strcmp(point, "remove.checked") != 0);
 
 	memset(&t, 0, sizeof(t));
 	CHECK_ST(ntfsmac_journal_list_tombstones(j, tomb_cb, &t), NTFSMAC_JOURNAL_OK);
@@ -463,6 +464,43 @@ static void fresh(const struct scenario *sc, char *base, size_t bsize, char *jdi
 	sc->setup(*jp, jdir);
 }
 
+/*
+ * Two removals of one serial race: the second reads the entry, then the first
+ * renames it away before the second's rename. The second must report
+ * NOT_FOUND (the entry is gone), not an I/O error.
+ */
+static ntfsmac_journal *g_race_j;
+
+static void race_hook(const char *point)
+{
+	if (strcmp(point, "remove.checked") != 0)
+		return;
+	ntfsmac_journal_testhook = NULL; /* the inner removal runs unhooked */
+	CHECK_ST(ntfsmac_journal_remove(g_race_j, SERIAL, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR,
+					T_REMOVE + 1),
+		 NTFSMAC_JOURNAL_OK);
+}
+
+static void test_remove_race(void)
+{
+	char base[PATH_MAX_T], jdir[PATH_MAX_T];
+	ntfsmac_journal_entry g;
+
+	jt_jdir(base, sizeof(base), jdir, sizeof(jdir));
+	CHECK_ST(ntfsmac_journal_open(jdir, &g_race_j), NTFSMAC_JOURNAL_OK);
+	setup_set_entry(g_race_j, jdir);
+	ntfsmac_journal_testhook = race_hook;
+	CHECK_ST(ntfsmac_journal_remove(g_race_j, SERIAL, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR,
+					T_REMOVE),
+		 NTFSMAC_JOURNAL_ERR_NOT_FOUND);
+	ntfsmac_journal_testhook = NULL;
+	CHECK_ST(ntfsmac_journal_get(g_race_j, SERIAL, &g), NTFSMAC_JOURNAL_ERR_NOT_FOUND);
+	CHECK(jt_count_names(jdir, jt_is_tmp) == 0);
+	ntfsmac_journal_close(g_race_j);
+	jt_rmrf(base);
+	printf("journal.crash: remove race, second remover gets NOT_FOUND\n");
+}
+
 int main(void)
 {
 	static char names[MAX_POINTS][40];
@@ -499,6 +537,7 @@ int main(void)
 		}
 		printf("journal.crash: %-36s %2d kill points, all consistent\n", sc->name, npoints);
 	}
+	test_remove_race();
 	printf("journal.crash: %d kills in %zu scenarios\n", total_kills,
 	       sizeof(SCENARIOS) / sizeof(SCENARIOS[0]));
 	return 0;

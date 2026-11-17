@@ -1085,9 +1085,15 @@ ntfsmac_journal_status ntfsmac_journal_remove(ntfsmac_journal *j, uint64_t seria
 		return NTFSMAC_JOURNAL_ERR_EXISTS; /* same second; entry stays */
 	if (errno != ENOENT)
 		return NTFSMAC_JOURNAL_ERR_IO;
-	if (rename_noreplace(j->dirfd, name, j->clrfd, tomb) != 0)
+	JRN_POINT("remove.checked");
+	if (rename_noreplace(j->dirfd, name, j->clrfd, tomb) != 0) {
+		/* ENOENT: another removal of the same serial renamed the entry
+		 * after our read; it is gone, as if we had come second. */
+		if (errno == ENOENT)
+			return NTFSMAC_JOURNAL_ERR_NOT_FOUND;
 		return errno == EEXIST ? NTFSMAC_JOURNAL_ERR_EXISTS
 				       : NTFSMAC_JOURNAL_ERR_IO;
+	}
 	JRN_POINT("remove.renamed");
 	if (full_fsync(j->clrfd) != 0)
 		return NTFSMAC_JOURNAL_ERR_IO;

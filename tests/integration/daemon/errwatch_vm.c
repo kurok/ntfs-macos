@@ -275,6 +275,7 @@ static void run_session(const char *tag, const char *worker, bool channel, bool 
 	ntfsmac_errwatch_init(&res->w);
 	res->exit_status = -1;
 	ntfsmac_spawn_config_default(&c);
+	c.sandbox_dir = NULL; /* the spawn module alone: no profiles are installed in the guest */
 	c.worker_path = worker;
 	c.child_stderr_fd = g_log_fd;
 	ntfsmac_spawn_config_set(&c);

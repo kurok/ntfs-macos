@@ -1,0 +1,76 @@
+guest: 27.2 arm64, user admin uid 501 gid 20
+== clean: rw session, workload, unmount (U16, I-DMN-24 happy path)
+PASS: clean: the rw mount appeared (ok)
+  write-end holders: 15944 (worker 15944)
+PASS: clean: only the worker holds the write end (U16)
+PASS: clean: the daemon's copy of the write end is closed
+NOTE: clean: the user's write test returned 0
+PASS: clean: unmount(2) (code 0)
+PASS: clean: the worker exited (status 0)
+PASS: clean: end-of-file within 2000 ms of the exit (ok, 0 ms)
+  channel: flags 0xd1 (S_RW 1 S_RO 0 E 0 W 0 U 1 U0 1 PROTO 0 EOF 1), 2 records
+PASS: clean: the mount is gone
+  log: Version 2026.9.28 external FUSE 29
+  log: Mounted /dev/fd/4 (Read-Write, label "errwatchvm", NTFS 3.1)
+  log: Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+  log: Mount options: backend=fskit,local,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/4
+  log: Global ownership and permissions enforced, configuration type 1
+  log: Unmounting /dev/fd/4 (errwatchvm)
+PASS: clean: the positive proof holds (exit status 0)
+PASS: clean: no protocol error and no E record
+== nochan: the worker without NTFSMAC_ERRFD (I-DMN-24 b)
+PASS: nochan: the rw mount appeared (ok)
+PASS: nochan: unmount(2) (code 0)
+PASS: nochan: the worker exited (status 0)
+PASS: nochan: end-of-file within 2000 ms of the exit (ok, 0 ms)
+  channel: flags 0x40 (S_RW 0 S_RO 0 E 0 W 0 U 0 U0 0 PROTO 0 EOF 1), 0 records
+PASS: nochan: the mount is gone
+  log: Global ownership and permissions enforced, configuration type 1
+  log: Unmounting /dev/fd/4 (errwatchvm)
+  log: Version 2026.9.28 external FUSE 29
+  log: Mounted /dev/fd/4 (Read-Write, label "errwatchvm", NTFS 3.1)
+  log: Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+  log: Mount options: backend=fskit,local,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/4
+  log: Global ownership and permissions enforced, configuration type 1
+  log: Unmounting /dev/fd/4 (errwatchvm)
+PASS: nochan: silence is not a clean session
+PASS: nochan: EOF and no record
+== fault: first device write of the workload fails with EIO (I-DMN-24 a)
+PASS: faultcount: the rw mount appeared (ok)
+NOTE: faultcount: device writes at mount time: 13
+PASS: faultcount: unmount(2) (code 0)
+PASS: faultcount: the worker exited (status 0)
+PASS: faultcount: end-of-file within 2000 ms of the exit (ok, 0 ms)
+  channel: flags 0xd1 (S_RW 1 S_RO 0 E 0 W 0 U 1 U0 1 PROTO 0 EOF 1), 2 records
+PASS: faultcount: the mount is gone
+  log: Unmounting /dev/fd/4 (errwatchvm)
+  log: Version 2026.9.28 external FUSE 29
+  log: Mounted /dev/fd/4 (Read-Write, label "errwatchvm", NTFS 3.1)
+  log: Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+  log: Mount options: backend=fskit,local,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/4
+  log: Global ownership and permissions enforced, configuration type 1
+  log: Unmounting /dev/fd/4 (errwatchvm)
+  log: ntfsmac-faultio: plan=count writes=13
+PASS: fault: the count run saw 13 device writes at mount
+PASS: fault: a faultio worker without a fault still ends clean
+PASS: faulteio: the rw mount appeared (ok)
+NOTE: faulteio: device writes at mount time: 13
+NOTE: faulteio: the user's write test returned 11
+PASS: faulteio: unmount(2) (code 0)
+PASS: faulteio: the worker exited (status 0)
+PASS: faulteio: end-of-file within 2000 ms of the exit (ok, 0 ms)
+  channel: flags 0xc5 (S_RW 1 S_RO 0 E 1 W 0 U 1 U0 0 PROTO 0 EOF 1), 3 records
+PASS: faulteio: the mount is gone
+  log: Version 2026.9.28 external FUSE 29
+  log: Mounted /dev/fd/4 (Read-Write, label "errwatchvm", NTFS 3.1)
+  log: Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+  log: Mount options: backend=fskit,local,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/4
+  log: Global ownership and permissions enforced, configuration type 1
+  log: Failed to write buffer to bitmap (-1 != 32). Leaving inconsistent metadata: Input/output error
+  log: Unmounting /dev/fd/4 (errwatchvm)
+  log: ntfsmac-faultio: plan=eio:14 writes=14
+PASS: fault: the session started with eio:14
+PASS: fault: an E record arrived
+PASS: fault: the records are within the grammar
+PASS: fault: the session is not clean
+== result: 0 failure(s)

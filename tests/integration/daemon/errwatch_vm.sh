@@ -68,7 +68,7 @@ d=$HOME/ntfsmac/errwatch
 work=$(mktemp -d /tmp/errwatchvm.XXXXXX)
 chmod 755 "$work" # the console user must be able to run the wrapper; the image stays mode 000
 cd "$d"
-cc -std=c17 -Wall -Wextra -Werror -O2 -I include -I src/daemon -I src/sanitize \
+cc -std=c17 -Wall -Wextra -Werror -O2 -DNTFSMAC_TEST_SEAMS -I include -I src/daemon -I src/sanitize \
 	-o "$work/errwatch_vm" tests/integration/daemon/errwatch_vm.c src/daemon/spawn.c src/daemon/status.c \
 	src/daemon/errwatch.c src/daemon/errwatch_io.c \
 	src/options/options.c src/options/argv_check.c src/sanitize/label.c src/sanitize/display.c \

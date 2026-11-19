@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 # T-M4-11, I-DMN-18 at daemon level: every hostile-label image of docs/TEST_STRATEGY.md section 3.3
-# (tests/fixtures/gen/labels.sh, 27 images) is attached to the real daemon. Pass: the mount point
+# (tests/fixtures/gen/labels.sh, 28 images) is attached to the real daemon. Pass: the mount point
 # is /Volumes/<expected leaf> (the expected leaf comes from the generator, written from ADR-016,
 # not from the code under test), `ps -o args` of the worker shows no option beyond the allow-list
 # and nothing of the label, `diskutil` names the volume from the leaf (U14: no `volname` is

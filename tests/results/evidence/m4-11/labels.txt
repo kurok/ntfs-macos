@@ -1,13 +1,13 @@
 ######## suite labels
 guest: 27.2 arm64, user admin uid 501, console owner admin
 == start the job
--- label-allrepl (disk6) expected leaf 'NTFS-185CB60D': mount point '/Volumes/NTFS-185CB60D'
+-- label-allrepl (disk6) expected leaf 'NTFS-195DB70E': mount point '/Volumes/NTFS-195DB70E'
 PASS: I-DMN-18 label-allrepl: state (Mounted rw)
-PASS: I-DMN-18 label-allrepl: mount point (/Volumes/NTFS-185CB60D)
+PASS: I-DMN-18 label-allrepl: mount point (/Volumes/NTFS-195DB70E)
 PASS: I-DMN-18 label-allrepl: the directory exists and is the mount
 PASS: I-DMN-18 label-allrepl: the worker's options are all on the allow-list, none is banned
 PASS: I-DMN-18 label-allrepl: the worker is started with a descriptor and the mount point only
-NOTE: I-DMN-18 label-allrepl: display name 'macFUSE Volume' differs from the leaf 'NTFS-185CB60D'
+NOTE: I-DMN-18 label-allrepl: display name 'macFUSE Volume' differs from the leaf 'NTFS-195DB70E'
 PASS: I-DMN-18 label-allrepl: the mount point directory is gone
 -- label-astral (disk6) expected leaf '😀 x': mount point '/Volumes/😀 x'
 PASS: I-DMN-18 label-astral: state (Mounted rw)
@@ -65,13 +65,13 @@ PASS: I-DMN-18 label-dotdot: the worker's options are all on the allow-list, non
 PASS: I-DMN-18 label-dotdot: the worker is started with a descriptor and the mount point only
 NOTE: I-DMN-18 label-dotdot: display name 'macFUSE Volume' differs from the leaf '_._.._etc_x'
 PASS: I-DMN-18 label-dotdot: the mount point directory is gone
--- label-dotsonly (disk6) expected leaf 'NTFS-175BB50C': mount point '/Volumes/NTFS-175BB50C'
+-- label-dotsonly (disk6) expected leaf 'NTFS-185CB60D': mount point '/Volumes/NTFS-185CB60D'
 PASS: I-DMN-18 label-dotsonly: state (Mounted rw)
-PASS: I-DMN-18 label-dotsonly: mount point (/Volumes/NTFS-175BB50C)
+PASS: I-DMN-18 label-dotsonly: mount point (/Volumes/NTFS-185CB60D)
 PASS: I-DMN-18 label-dotsonly: the directory exists and is the mount
 PASS: I-DMN-18 label-dotsonly: the worker's options are all on the allow-list, none is banned
 PASS: I-DMN-18 label-dotsonly: the worker is started with a descriptor and the mount point only
-NOTE: I-DMN-18 label-dotsonly: display name 'macFUSE Volume' differs from the leaf 'NTFS-175BB50C'
+NOTE: I-DMN-18 label-dotsonly: display name 'macFUSE Volume' differs from the leaf 'NTFS-185CB60D'
 PASS: I-DMN-18 label-dotsonly: the mount point directory is gone
 -- label-empty (disk6) expected leaf 'NTFS-0B4FA900': mount point '/Volumes/NTFS-0B4FA900'
 PASS: I-DMN-18 label-empty: state (Mounted rw)
@@ -113,6 +113,14 @@ PASS: I-DMN-18 label-hangul-filler: the worker's options are all on the allow-li
 PASS: I-DMN-18 label-hangul-filler: the worker is started with a descriptor and the mount point only
 NOTE: I-DMN-18 label-hangul-filler: display name 'macFUSE Volume' differs from the leaf 'a_b'
 PASS: I-DMN-18 label-hangul-filler: the mount point directory is gone
+-- label-hyphen (disk6) expected leaf '_e x': mount point '/Volumes/_e x'
+PASS: I-DMN-18 label-hyphen: state (Mounted rw)
+PASS: I-DMN-18 label-hyphen: mount point (/Volumes/_e x)
+PASS: I-DMN-18 label-hyphen: the directory exists and is the mount
+PASS: I-DMN-18 label-hyphen: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-hyphen: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-hyphen: display name 'macFUSE Volume' differs from the leaf '_e x'
+PASS: I-DMN-18 label-hyphen: the mount point directory is gone
 -- label-long (disk6) expected leaf 'éééééééééééééééééééééééééééééééé': mount point '/Volumes/éééééééééééééééééééééééééééééééé'
 PASS: I-DMN-18 label-long: state (Mounted rw)
 PASS: I-DMN-18 label-long: mount point (/Volumes/éééééééééééééééééééééééééééééééé)
@@ -177,13 +185,13 @@ PASS: I-DMN-18 label-slash: the worker's options are all on the allow-list, none
 PASS: I-DMN-18 label-slash: the worker is started with a descriptor and the mount point only
 NOTE: I-DMN-18 label-slash: display name 'macFUSE Volume' differs from the leaf 'a_b_c'
 PASS: I-DMN-18 label-slash: the mount point directory is gone
--- label-spaces (disk6) expected leaf 'NTFS-1256B007': mount point '/Volumes/NTFS-1256B007'
+-- label-spaces (disk6) expected leaf 'NTFS-1357B108': mount point '/Volumes/NTFS-1357B108'
 PASS: I-DMN-18 label-spaces: state (Mounted rw)
-PASS: I-DMN-18 label-spaces: mount point (/Volumes/NTFS-1256B007)
+PASS: I-DMN-18 label-spaces: mount point (/Volumes/NTFS-1357B108)
 PASS: I-DMN-18 label-spaces: the directory exists and is the mount
 PASS: I-DMN-18 label-spaces: the worker's options are all on the allow-list, none is banned
 PASS: I-DMN-18 label-spaces: the worker is started with a descriptor and the mount point only
-NOTE: I-DMN-18 label-spaces: display name 'macFUSE Volume' differs from the leaf 'NTFS-1256B007'
+NOTE: I-DMN-18 label-spaces: display name 'macFUSE Volume' differs from the leaf 'NTFS-1357B108'
 PASS: I-DMN-18 label-spaces: the mount point directory is gone
 -- label-trailing (disk6) expected leaf 'name': mount point '/Volumes/name'
 PASS: I-DMN-18 label-trailing: state (Mounted rw)
@@ -221,10 +229,10 @@ INFO: disk8: MOUNTED -> Mounted
 INFO: notification: DATA is mounted read/write.
 INFO: disk6: UNMOUNT -> Unmounting
 INFO: disk8: UNMOUNT -> Unmounting
-INFO: journal: entry 4000F91D0D51AB02 removed by path 1 (clean-session), tombstone 4000F91D0D51AB02-20261117T190508Z
+INFO: journal: entry 4000F91D0D51AB02 removed by path 1 (clean-session), tombstone 4000F91D0D51AB02-20261119T232727Z
 INFO: notification: DATA ejected, all data written.
 INFO: disk8: UNMOUNTED -> Appeared
-INFO: journal: entry 3EFFF81C0C50AA01 removed by path 1 (clean-session), tombstone 3EFFF81C0C50AA01-20261117T190508Z
+INFO: journal: entry 3EFFF81C0C50AA01 removed by path 1 (clean-session), tombstone 3EFFF81C0C50AA01-20261119T232727Z
 INFO: notification: DATA ejected, all data written.
 INFO: disk6: UNMOUNTED -> Appeared
 INFO: disk6: DISK_GONE -> Gone

@@ -156,6 +156,7 @@ TABLE = [
     ("label-dup-b", "DATA", "DATA"),
     # extras
     ("label-equals", "X=1", "X_1"),
+    ("label-hyphen", "-e x", "_e x"),  # never an option to a program (audit M4 F-01)
     ("label-slash", "a/b:c", "a_b_c"),
     ("label-esc", "a\x1b[31mred", "a__31mred"),
     ("label-trailing", "name. . ", "name"),
@@ -213,7 +214,7 @@ for idx, (name, label, leaf) in enumerate(TABLE, 1):
     if label == "":
         p = run(["ntfslabel", "--force", img, ""])
     else:
-        p = run(["ntfslabel", "--force", img, label.encode("utf-8")])
+        p = run(["ntfslabel", "--force", "--", img, label.encode("utf-8")])  # "--": a label may start with "-"
     if p.returncode != 0:
         sys.stderr.write("labels.py: ntfslabel failed for %s: %s\n" % (name, p.stderr.decode("utf-8", "replace")))
         sys.exit(1)

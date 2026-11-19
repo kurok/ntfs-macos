@@ -5,7 +5,7 @@ daemon integration (tests/integration/daemon/dmn_vm.sh, real launchd job, probe,
   classes    I-DMN-01..08, I-DMN-23        PASS 199  FAIL 0   (classes.txt; 23 fixtures, mounted within 3 to 6 s)
   kill       I-DMN-14, 15, 16              PASS  45  FAIL 0   (kill.txt)
   unmount    I-DMN-10..13, 17              PASS  42  FAIL 0   KNOWN-FAIL 1 (diskutil unmount, rc 1 and "failed to unmount")  (unmount.txt)
-  labels     I-DMN-18                      PASS 154  FAIL 0   (labels.txt; 27 images)
+  labels     I-DMN-18                      PASS 160  FAIL 0   (labels.txt; 28 images, label-hyphen added 2026-11-19)
   priv       I-DMN-19..22, 25 b/c, 27      PASS  85  FAIL 0   (priv.txt)
   slow       mount_timeout regression      PASS   5  FAIL 0   (slow.txt; probe 12 s late, 3 mounts)
   u15        U15                           PASS   5  FAIL 0   (u15.txt)

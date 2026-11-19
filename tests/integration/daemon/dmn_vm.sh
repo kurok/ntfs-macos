@@ -32,6 +32,14 @@
 #   --only       a space-separated list of fixture names; the classes suite runs only those
 #   --keep       development: copy everything in, run no suite and keep the guest (delete it yourself)
 #   --out        also write the output to FILE
+#   --graphics   open the guest's window (`vm/macos/tart.sh run NAME --graphics`), for a person to look at
+#   --attended   M4 criterion 4.7 with a person at the host (docs/runbooks/finder-4.7.md): implies --graphics;
+#                before the `finder` suite it triggers the Automation prompt once ('"tart-guest-agent" wants
+#                access to control "Finder"'; guest commands run through tart exec are attributed to the
+#                guest agent) and waits up to 5 minutes for the person to click Allow; the Finder cases
+#                are then required (a refusal is a FAIL, not a NOT RUNNABLE)
+#   --evidence DIR   where the finder suite's screenshots and manifests are copied to before the guest is
+#                deleted (default tests/results/evidence/m4-gate/finder/DATE-HEAD); done whenever `finder` runs
 # This script does not take a guest slot: the caller holds the lock it needs (dmn_all.sh --slot-dir does).
 # Exit: 0 all checks passed, 1 a check failed, 2 setup error.
 set -eu
@@ -47,6 +55,9 @@ deps_tar=
 suites=
 only=
 keep=0
+graphics=0
+attended=0
+evidence=
 
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -54,6 +65,9 @@ while [ $# -gt 0 ]; do
 	--fixtures) [ $# -ge 2 ] || { echo "dmn_vm: --fixtures needs a directory" >&2; exit 2; }; fx=$2; shift 2 ;;
 	--deps-tar) [ $# -ge 2 ] || { echo "dmn_vm: --deps-tar needs a file" >&2; exit 2; }; deps_tar=$2; shift 2 ;;
 	--keep) keep=1; shift ;;
+	--graphics) graphics=1; shift ;;
+	--attended) attended=1; graphics=1; shift ;;
+	--evidence) [ $# -ge 2 ] || { echo "dmn_vm: --evidence needs a directory" >&2; exit 2; }; evidence=$2; shift 2 ;;
 	--only) [ $# -ge 2 ] || { echo "dmn_vm: --only needs a list of fixture names" >&2; exit 2; }; only=$2; shift 2 ;;
 	--out) [ $# -ge 2 ] || { echo "dmn_vm: --out needs a file" >&2; exit 2; }; out=$2; shift 2 ;;
 	-*) echo "dmn_vm: unknown option $1" >&2; exit 2 ;;
@@ -107,7 +121,7 @@ tarball=$(awk '$1 == "ntfs-3g" { n = split($3, a, "/"); print a[n] }' "$root/thi
 	{ echo "dmn_vm: $root/third_party/cache/$tarball is missing; run scripts/fetch-deps.sh ntfs-3g" >&2; exit 2; }
 
 "$tart_sh" clone "$name" --from golden >&2
-"$tart_sh" run "$name" >&2
+if [ "$graphics" -eq 1 ]; then "$tart_sh" run "$name" --graphics >&2; else "$tart_sh" run "$name" >&2; fi
 
 if [ -n "$deps_tar" ] && [ -f "$deps_tar" ]; then
 	echo "dmn_vm: NTFS-3G from $deps_tar (no build)" >&2
@@ -140,6 +154,36 @@ if [ -n "$need" ]; then
 	(cd "$tmp" && tar -czf - fixtures) | tart exec -i "$name" /bin/sh -c 'tar -xzf - -C ~/ntfsmac/dmn'
 fi
 
+# finder_allow: trigger the Automation prompt for Finder once and wait for a person to click Allow in
+# the guest window. The prompt names the process that asks: for commands run with tart exec that is
+# the guest agent (checked in the guest: '"tart-guest-agent" wants access to control "Finder"').
+finder_allow() {
+	echo "dmn_vm: >>> ACTION NEEDED: in the VM window, click Allow on the '\"tart-guest-agent\" wants access to control \"Finder\"' prompt (waiting up to 5 minutes)" >&2
+	arc=0
+	"$tart_sh" exec "$name" -- "perl -e 'alarm 300; exec @ARGV or exit 127' osascript -e 'tell application \"Finder\" to get name of startup disk' >/dev/null 2>&1" || arc=$?
+	if [ "$arc" -eq 0 ]; then
+		echo "dmn_vm: Finder automation allowed" >&2
+	else
+		echo "dmn_vm: Finder automation was NOT allowed (osascript rc $arc: refused or no click in 5 minutes); the Finder cases will FAIL" >&2
+	fi
+}
+# copy_evidence: the finder suite's screenshots and manifests to the host, before the guest is deleted
+copy_evidence() {
+	if [ -z "$evidence" ]; then
+		rev=$(git -C "$root" rev-parse --short HEAD 2>/dev/null || echo nogit)
+		evidence=$root/tests/results/evidence/m4-gate/finder/$(date +%Y-%m-%d)-$rev
+	fi
+	mkdir -p "$evidence"
+	if tart exec "$name" /bin/sh -c 'cd ~/finder-evidence 2>/dev/null && tar -cf - .' | tar -xf - -C "$evidence" &&
+		[ -n "$(ls -A "$evidence")" ]; then
+		echo "dmn_vm: finder evidence copied to ${evidence#"$root"/}: $(ls "$evidence" | tr '\n' ' ')" >&2
+	elif rmdir "$evidence" 2>/dev/null; then
+		echo "dmn_vm: no finder evidence (the Finder cases did not run)" >&2
+	else
+		echo "dmn_vm: WARNING: no finder evidence could be copied" >&2
+	fi
+}
+
 # Each suite's exit status goes to a file, so that the output can stream through tee.
 run_all() {
 	[ "$keep" -eq 0 ] || { echo "dmn_vm: guest $name is up with everything copied in (--keep)"; return 0; }
@@ -148,8 +192,10 @@ run_all() {
 		g=tests/integration/daemon/dmn_${s}_guest.sh
 		[ "$s" = finder ] && g=tests/integration/finder/finder_guest.sh
 		rc=0
+		[ "$s" != finder ] || [ "$attended" -eq 0 ] || finder_allow
 		# the output is also kept in the guest (~/dmn-SUITE.log), so a long suite can be watched
-		"$tart_sh" exec "$name" -- "{ DMN_ONLY='$only' sh ~/ntfsmac/dmn/$g ~/ntfsmac/dmn; echo \$? >~/dmn-$s.rc; } 2>&1 | tee ~/dmn-$s.log; exit \$(cat ~/dmn-$s.rc)" || rc=$?
+		"$tart_sh" exec "$name" -- "{ DMN_ONLY='$only' FINDER_REQUIRED=$attended sh ~/ntfsmac/dmn/$g ~/ntfsmac/dmn; echo \$? >~/dmn-$s.rc; } 2>&1 | tee ~/dmn-$s.log; exit \$(cat ~/dmn-$s.rc)" || rc=$?
+		[ "$s" != finder ] || copy_evidence
 		echo "######## suite $s: exit $rc"
 		[ "$rc" -eq 0 ] || echo 1 >"$tmp/failed"
 	done

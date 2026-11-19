@@ -1,0 +1,510 @@
+######## suite classes
+guest: 27.2 arm64, user admin uid 501, console owner admin
+== start the job (real probe, volmark and worker)
+PASS: the privileged XPC service is registered with launchd
+== I-DMN-01: clean classes mount read/write
+-- I-DMN-01 clean-64m-4k (disk6): disk6  clean64m4k  Mounted  rw     /Volumes/clean64m4k  -
+PASS: I-DMN-01 clean-64m-4k: mounted within 10 s of the attach (criterion 4.1; 6 s)
+PASS: I-DMN-01 clean-64m-4k state (Mounted)
+PASS: I-DMN-01 clean-64m-4k mode (rw)
+PASS: I-DMN-01 clean-64m-4k: the kernel mount is a macfuse mount that is not read-only
+PASS: I-DMN-01 clean-64m-4k: a file can be written and read back
+PASS: I-DMN-01 clean-64m-4k: the session holds a journal entry
+NOTE: I-DMN-01 clean-64m-4k: image hash changed by the rw session: yes
+PASS: I-DMN-01 clean-64m-4k: the journal entry is gone after the clean unmount
+-- I-DMN-01 log-init (disk6): disk6  log-init  Mounted  rw     /Volumes/log-init  -
+PASS: I-DMN-01 log-init: mounted within 10 s of the attach (criterion 4.1; 4 s)
+PASS: I-DMN-01 log-init state (Mounted)
+PASS: I-DMN-01 log-init mode (rw)
+PASS: I-DMN-01 log-init: the kernel mount is a macfuse mount that is not read-only
+PASS: I-DMN-01 log-init: a file can be written and read back
+PASS: I-DMN-01 log-init: the session holds a journal entry
+NOTE: I-DMN-01 log-init: image hash changed by the rw session: yes
+PASS: I-DMN-01 log-init: the journal entry is gone after the clean unmount
+-- I-DMN-01 log-bumped (disk6): disk6  log-bumped  Mounted  rw     /Volumes/log-bumped  -
+PASS: I-DMN-01 log-bumped: mounted within 10 s of the attach (criterion 4.1; 5 s)
+PASS: I-DMN-01 log-bumped state (Mounted)
+PASS: I-DMN-01 log-bumped mode (rw)
+PASS: I-DMN-01 log-bumped: the kernel mount is a macfuse mount that is not read-only
+PASS: I-DMN-01 log-bumped: a file can be written and read back
+PASS: I-DMN-01 log-bumped: the session holds a journal entry
+NOTE: I-DMN-01 log-bumped: image hash changed by the rw session: yes
+PASS: I-DMN-01 log-bumped: the journal entry is gone after the clean unmount
+-- I-DMN-01 chkdsk-flag (disk6): disk6  chkdsk-flag  Mounted  rw     /Volumes/chkdsk-flag  -
+PASS: I-DMN-01 chkdsk-flag: mounted within 10 s of the attach (criterion 4.1; 4 s)
+PASS: I-DMN-01 chkdsk-flag state (Mounted)
+PASS: I-DMN-01 chkdsk-flag mode (rw)
+PASS: I-DMN-01 chkdsk-flag: the kernel mount is a macfuse mount that is not read-only
+PASS: I-DMN-01 chkdsk-flag: a file can be written and read back
+PASS: I-DMN-01 chkdsk-flag: the session holds a journal entry
+NOTE: I-DMN-01 chkdsk-flag: image hash changed by the rw session: yes
+PASS: I-DMN-01 chkdsk-flag: the journal entry is gone after the clean unmount
+-- I-DMN-01 hiber-inactive (disk6): disk6  hiber-inactive  Mounted  rw     /Volumes/hiber-inactive  -
+PASS: I-DMN-01 hiber-inactive: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-01 hiber-inactive state (Mounted)
+PASS: I-DMN-01 hiber-inactive mode (rw)
+PASS: I-DMN-01 hiber-inactive: the kernel mount is a macfuse mount that is not read-only
+PASS: I-DMN-01 hiber-inactive: a file can be written and read back
+PASS: I-DMN-01 hiber-inactive: the session holds a journal entry
+NOTE: I-DMN-01 hiber-inactive: image hash changed by the rw session: yes
+PASS: I-DMN-01 hiber-inactive: the journal entry is gone after the clean unmount
+-- I-DMN-01 hiber-subdir (disk6): disk6  hiber-subdir  Mounted  rw     /Volumes/hiber-subdir  -
+PASS: I-DMN-01 hiber-subdir: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-01 hiber-subdir state (Mounted)
+PASS: I-DMN-01 hiber-subdir mode (rw)
+PASS: I-DMN-01 hiber-subdir: the kernel mount is a macfuse mount that is not read-only
+PASS: I-DMN-01 hiber-subdir: a file can be written and read back
+PASS: I-DMN-01 hiber-subdir: the session holds a journal entry
+NOTE: I-DMN-01 hiber-subdir: image hash changed by the rw session: yes
+PASS: I-DMN-01 hiber-subdir: the journal entry is gone after the clean unmount
+-- I-DMN-01 txf-nonresident (disk6): disk6  txf-nonresident  Mounted  rw     /Volumes/txf-nonresident  -
+PASS: I-DMN-01 txf-nonresident: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-01 txf-nonresident state (Mounted)
+PASS: I-DMN-01 txf-nonresident mode (rw)
+PASS: I-DMN-01 txf-nonresident: the kernel mount is a macfuse mount that is not read-only
+PASS: I-DMN-01 txf-nonresident: a file can be written and read back
+PASS: I-DMN-01 txf-nonresident: the session holds a journal entry
+NOTE: I-DMN-01 txf-nonresident: image hash changed by the rw session: yes
+PASS: I-DMN-01 txf-nonresident: the journal entry is gone after the clean unmount
+== I-DMN-02: dirty flag
+-- I-DMN-02 dirty-flag (disk6): disk6  dirty-flag  Mounted  ro     /Volumes/dirty-flag  dirty_flag
+PASS: I-DMN-02 dirty-flag: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-02 dirty-flag state (Mounted)
+PASS: I-DMN-02 dirty-flag mode (ro)
+PASS: I-DMN-02 dirty-flag reason (dirty_flag)
+PASS: I-DMN-02 dirty-flag: the kernel mount is read-only
+PASS: I-DMN-02 dirty-flag: the root can be listed
+PASS: I-DMN-02 dirty-flag: a write is refused
+PASS: I-DMN-02 dirty-flag: no journal entry (no write session)
+PASS: I-DMN-02 dirty-flag: image hash unchanged after the session (0ff0062ccd13ab7c4d6488f9a66aefffbc3c040a7e273aefa55ef46513520397)
+-- I-DMN-02 dirty-chkdsk-flag (disk6): disk6  dirty-chkdsk-flag  Mounted  ro     /Volumes/dirty-chkdsk-flag  dirty_flag
+PASS: I-DMN-02 dirty-chkdsk-flag: mounted within 10 s of the attach (criterion 4.1; 4 s)
+PASS: I-DMN-02 dirty-chkdsk-flag state (Mounted)
+PASS: I-DMN-02 dirty-chkdsk-flag mode (ro)
+PASS: I-DMN-02 dirty-chkdsk-flag reason (dirty_flag)
+PASS: I-DMN-02 dirty-chkdsk-flag: the kernel mount is read-only
+PASS: I-DMN-02 dirty-chkdsk-flag: the root can be listed
+PASS: I-DMN-02 dirty-chkdsk-flag: a write is refused
+PASS: I-DMN-02 dirty-chkdsk-flag: no journal entry (no write session)
+PASS: I-DMN-02 dirty-chkdsk-flag: image hash unchanged after the session (28f25f15a0abae6c238e9db1de55841fce2c365cf25301bf9738d84c16c10dc2)
+== I-DMN-03: unclean log
+-- I-DMN-03 unclean-log (disk6): disk6  unclean-log  Mounted  ro     /Volumes/unclean-log  unclean_log
+PASS: I-DMN-03 unclean-log: mounted within 10 s of the attach (criterion 4.1; 4 s)
+PASS: I-DMN-03 unclean-log state (Mounted)
+PASS: I-DMN-03 unclean-log mode (ro)
+PASS: I-DMN-03 unclean-log reason (unclean_log)
+PASS: I-DMN-03 unclean-log: the kernel mount is read-only
+PASS: I-DMN-03 unclean-log: the root can be listed
+PASS: I-DMN-03 unclean-log: a write is refused
+PASS: I-DMN-03 unclean-log: no journal entry (no write session)
+PASS: I-DMN-03 unclean-log: image hash unchanged after the session (b2e161cce87506d47847e70028c75b9b2429389d026cff7f8b93af5ba7834abd)
+== I-DMN-04: log version 2 (fast startup)
+-- I-DMN-04 log-v2 (disk6): disk6  log-v2  Mounted  ro     /Volumes/log-v2  hibernated
+PASS: I-DMN-04 log-v2: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-04 log-v2 state (Mounted)
+PASS: I-DMN-04 log-v2 mode (ro)
+PASS: I-DMN-04 log-v2 reason (hibernated)
+PASS: I-DMN-04 log-v2: the kernel mount is read-only
+PASS: I-DMN-04 log-v2: the root can be listed
+PASS: I-DMN-04 log-v2: a write is refused
+PASS: I-DMN-04 log-v2: no journal entry (no write session)
+PASS: I-DMN-04 log-v2: image hash unchanged after the session (d12f44d4b48c8b4c76703b69789a36ed4dc895c70b55e5f2979d42caf7e937b9)
+== I-DMN-05: hibernation file, signature hibr, HIBR, other case
+-- I-DMN-05 hiber-lower (disk6): disk6  hiber-lower  Mounted  ro     /Volumes/hiber-lower  hibernated
+PASS: I-DMN-05 hiber-lower: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-05 hiber-lower state (Mounted)
+PASS: I-DMN-05 hiber-lower mode (ro)
+PASS: I-DMN-05 hiber-lower reason (hibernated)
+PASS: I-DMN-05 hiber-lower: the kernel mount is read-only
+hiberfil.sys
+PASS: I-DMN-05 hiber-lower: the root can be listed
+PASS: I-DMN-05 hiber-lower: a write is refused
+PASS: I-DMN-05 hiber-lower: no journal entry (no write session)
+PASS: I-DMN-05 hiber-lower: image hash unchanged after the session (5cfd3b3f22c7723a0251e73feaa2f98e7f96202fdbe54fca8cba1e65b55a2c62)
+-- I-DMN-05 hiber-upper (disk6): disk6  hiber-upper  Mounted  ro     /Volumes/hiber-upper  hibernated
+PASS: I-DMN-05 hiber-upper: mounted within 10 s of the attach (criterion 4.1; 4 s)
+PASS: I-DMN-05 hiber-upper state (Mounted)
+PASS: I-DMN-05 hiber-upper mode (ro)
+PASS: I-DMN-05 hiber-upper reason (hibernated)
+PASS: I-DMN-05 hiber-upper: the kernel mount is read-only
+hiberfil.sys
+PASS: I-DMN-05 hiber-upper: the root can be listed
+PASS: I-DMN-05 hiber-upper: a write is refused
+PASS: I-DMN-05 hiber-upper: no journal entry (no write session)
+PASS: I-DMN-05 hiber-upper: image hash unchanged after the session (b07428a0adab749d260fd0013e85d5e0fb5fdd4856ecdba5122848d0fab40f81)
+-- I-DMN-05 hiber-case (disk6): disk6  hiber-case  Mounted  ro     /Volumes/hiber-case  hibernated
+PASS: I-DMN-05 hiber-case: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-05 hiber-case state (Mounted)
+PASS: I-DMN-05 hiber-case mode (ro)
+PASS: I-DMN-05 hiber-case reason (hibernated)
+PASS: I-DMN-05 hiber-case: the kernel mount is read-only
+HiberFil.sys
+PASS: I-DMN-05 hiber-case: the root can be listed
+PASS: I-DMN-05 hiber-case: a write is refused
+PASS: I-DMN-05 hiber-case: no journal entry (no write session)
+PASS: I-DMN-05 hiber-case: image hash unchanged after the session (dabc58197dfca3f7e5cb8ae75e87dab0d5c2276a173acc6f1fc5c15a098913e9)
+== I-DMN-06: hibernation file, short, wake, unknown signature
+-- I-DMN-06 hiber-short (disk6): disk6  hiber-short  Mounted  ro     /Volumes/hiber-short  hibernated
+PASS: I-DMN-06 hiber-short: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-06 hiber-short state (Mounted)
+PASS: I-DMN-06 hiber-short mode (ro)
+PASS: I-DMN-06 hiber-short reason (hibernated)
+PASS: I-DMN-06 hiber-short: the kernel mount is read-only
+hiberfil.sys
+PASS: I-DMN-06 hiber-short: the root can be listed
+PASS: I-DMN-06 hiber-short: a write is refused
+PASS: I-DMN-06 hiber-short: no journal entry (no write session)
+PASS: I-DMN-06 hiber-short: image hash unchanged after the session (021fd3bc62be700c9e6984724d05870bb3c0f0d23a237fbb599941f3c4252232)
+-- I-DMN-06 hiber-wake (disk6): disk6  hiber-wake  Mounted  ro     /Volumes/hiber-wake  hibernated
+PASS: I-DMN-06 hiber-wake: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-06 hiber-wake state (Mounted)
+PASS: I-DMN-06 hiber-wake mode (ro)
+PASS: I-DMN-06 hiber-wake reason (hibernated)
+PASS: I-DMN-06 hiber-wake: the kernel mount is read-only
+hiberfil.sys
+PASS: I-DMN-06 hiber-wake: the root can be listed
+PASS: I-DMN-06 hiber-wake: a write is refused
+PASS: I-DMN-06 hiber-wake: no journal entry (no write session)
+PASS: I-DMN-06 hiber-wake: image hash unchanged after the session (252dcbc599b58dd824ada8d14d6f1599c4ab6647b0a33139f46196943c0cd74b)
+-- I-DMN-06 hiber-unknown (disk6): disk6  hiber-unknown  Mounted  ro     /Volumes/hiber-unknown  hibernated
+PASS: I-DMN-06 hiber-unknown: mounted within 10 s of the attach (criterion 4.1; 4 s)
+PASS: I-DMN-06 hiber-unknown state (Mounted)
+PASS: I-DMN-06 hiber-unknown mode (ro)
+PASS: I-DMN-06 hiber-unknown reason (hibernated)
+PASS: I-DMN-06 hiber-unknown: the kernel mount is read-only
+hiberfil.sys
+PASS: I-DMN-06 hiber-unknown: the root can be listed
+PASS: I-DMN-06 hiber-unknown: a write is refused
+PASS: I-DMN-06 hiber-unknown: no journal entry (no write session)
+PASS: I-DMN-06 hiber-unknown: image hash unchanged after the session (c93fe683338d05205cbad733beb3113eae5bd2ce2acedeb94070e9e3a2e7fdae)
+== I-DMN-07: corrupt and unsupported
+-- I-DMN-07 truncated (disk6): disk6  NTFS-02469FF7  Failed  none   -           refused
+NOTE: I-DMN-07 truncated: the refusal was reached 1 s after the attach
+PASS: I-DMN-07 truncated: no mount (state 'Failed', reason 'refused')
+PASS: I-DMN-07 truncated: the refusal ends in state Failed (Failed)
+NOTE: I-DMN-07 truncated: Apple's own ntfs.fs mount of the refused volume (U15): /dev/disk6 on /Volumes/truncated (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+PASS: I-DMN-07 truncated reason (refused)
+PASS: I-DMN-07 truncated: image hash unchanged after the session (358f91f6d024de50bbaa8a31b62eff99eab99f42d125726950196d3480cb5f92)
+-- I-DMN-07 truncated-60 (disk6): disk6  truncated-60  Failed  none   -           refused
+NOTE: I-DMN-07 truncated-60: the refusal was reached 1 s after the attach
+PASS: I-DMN-07 truncated-60: no mount (state 'Failed', reason 'refused')
+PASS: I-DMN-07 truncated-60: the refusal ends in state Failed (Failed)
+NOTE: I-DMN-07 truncated-60: Apple's own ntfs.fs mount of the refused volume (U15): /dev/disk6 on /Volumes/truncated-60 (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+PASS: I-DMN-07 truncated-60 reason (refused)
+PASS: I-DMN-07 truncated-60: image hash unchanged after the session (7ad76b2c1455bd08190cb8b4d6593e584f0546f64c94519f3a3831f38929c890)
+-- I-DMN-07 bitlocker-sig (disk6): disk6  -      Failed  none   -           refused
+NOTE: I-DMN-07 bitlocker-sig: the refusal was reached 1 s after the attach
+PASS: I-DMN-07 bitlocker-sig: no mount (state 'Failed', reason 'refused')
+PASS: I-DMN-07 bitlocker-sig: the refusal ends in state Failed (Failed)
+NOTE: I-DMN-07 bitlocker-sig: Apple's own ntfs.fs mount of the refused volume (U15): none
+PASS: I-DMN-07 bitlocker-sig reason (refused)
+PASS: I-DMN-07 bitlocker-sig: image hash unchanged after the session (65ddcf71165cc660d3ad11760fb62d6f059344801d0a879ec486105cd154c26e)
+== I-DMN-08: stale mirror
+-- I-DMN-08 mirror-split (disk6): disk6  mirror-split  Failed  none   -           mirror_split
+NOTE: I-DMN-08 mirror-split: the refusal was reached 1 s after the attach
+PASS: I-DMN-08 mirror-split: no mount (state 'Failed', reason 'mirror_split')
+PASS: I-DMN-08 mirror-split: the refusal ends in state Failed (Failed)
+NOTE: I-DMN-08 mirror-split: Apple's own ntfs.fs mount of the refused volume (U15): /dev/disk6 on /Volumes/mirror-split (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+PASS: I-DMN-08 mirror-split reason (mirror_split)
+PASS: I-DMN-08 mirror-split: image hash unchanged after the session (c3d024d952116dc2b085de7ce5b5d40cceceacc1804039dd9c67405d6903c7c3)
+-- I-DMN-08 vmk-split (disk6): disk6  clean64m4k  Failed  none   -           mirror_split
+NOTE: I-DMN-08 vmk-split: the refusal was reached 1 s after the attach
+PASS: I-DMN-08 vmk-split: no mount (state 'Failed', reason 'mirror_split')
+PASS: I-DMN-08 vmk-split: the refusal ends in state Failed (Failed)
+NOTE: I-DMN-08 vmk-split: Apple's own ntfs.fs mount of the refused volume (U15): /dev/disk6 on /Volumes/clean64m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+PASS: I-DMN-08 vmk-split reason (mirror_split)
+PASS: I-DMN-08 vmk-split: image hash unchanged after the session (9203b78a225236f66493ad99c7930e65c01891a1e757ca11cdaac3969f5589ab)
+-- I-DMN-08 vmk-split-clear (disk6): disk6  clean64m4k  Failed  none   -           mirror_split
+NOTE: I-DMN-08 vmk-split-clear: the refusal was reached 1 s after the attach
+PASS: I-DMN-08 vmk-split-clear: no mount (state 'Failed', reason 'mirror_split')
+PASS: I-DMN-08 vmk-split-clear: the refusal ends in state Failed (Failed)
+NOTE: I-DMN-08 vmk-split-clear: Apple's own ntfs.fs mount of the refused volume (U15): /dev/disk6 on /Volumes/clean64m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+PASS: I-DMN-08 vmk-split-clear reason (mirror_split)
+PASS: I-DMN-08 vmk-split-clear: image hash unchanged after the session (07652b9147a9acdf193c6b020769791340d02557b738f8565602d6305115f0d3)
+-- daemon log (first 120 lines)
+INFO: check 4 of ADR-019: root_peer
+ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: root_peer
+INFO: ntfsmacd: started
+INFO: disk4: appeared (6291456 bytes)
+INFO: disk4: START -> Probing
+INFO: disk4: PROBE_DONE -> Deciding
+INFO: disk4: probe state unsupported, decision refuse
+INFO: disk4: REFUSED -> Failed
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261117T190010Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: log-init is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261117T190017Z
+INFO: notification: log-init ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: log-bumped is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261117T190025Z
+INFO: notification: log-bumped ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: chkdsk-flag is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261117T190033Z
+INFO: notification: chkdsk-flag ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: hiber-inactive is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261117T190040Z
+INFO: notification: hiber-inactive ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: hiber-subdir is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261117T190047Z
+INFO: notification: hiber-subdir ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: txf-nonresident is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261117T190053Z
+INFO: notification: txf-nonresident ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state dirty_flag, decision ro
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: dirty-flag is mounted read-only: the volume is marked dirty; run chkdsk on Windows.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state dirty_flag, decision ro
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: dirty-chkdsk-flag is mounted read-only: the volume is marked dirty; run chkdsk on Windows.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state unclean_log, decision ro
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: unclean-log is mounted read-only: the NTFS journal shows an unclean shutdown; run chkdsk on Windows.
+INFO: disk6: UNMOUNT -> Unmounting
+PASS: no worker is left
+== I-DMN-23: a probe that reports clean for the unsafe images; the marker step is on
+-- I-DMN-23 dirty-flag (disk6): disk6  dirty-flag  Mounted  ro     /Volumes/dirty-flag  marker_failed
+PASS: I-DMN-23 dirty-flag: the probe stand-in said clean (status shows probe state clean)
+PASS: I-DMN-23 dirty-flag: state and mode (marker on: volmark refuses, so ro) (Mounted ro)
+PASS: I-DMN-23 dirty-flag: the reason is given ('marker_failed')
+PASS: I-DMN-23 dirty-flag: the kernel mount is read-only
+NOTE: I-DMN-23 dirty-flag: reported ro with reason 'marker_failed'
+PASS: I-DMN-23 dirty-flag: the image is no longer attached before it is hashed
+PASS: I-DMN-23 dirty-flag: image hash unchanged (no write reached the image) (0ff0062ccd13ab7c4d6488f9a66aefffbc3c040a7e273aefa55ef46513520397)
+-- I-DMN-23 unclean-log (disk6): disk6  unclean-log  Mounted  ro     /Volumes/unclean-log  marker_failed
+PASS: I-DMN-23 unclean-log: the probe stand-in said clean (status shows probe state clean)
+PASS: I-DMN-23 unclean-log: state and mode (marker on: volmark refuses, so ro) (Mounted ro)
+PASS: I-DMN-23 unclean-log: the reason is given ('marker_failed')
+PASS: I-DMN-23 unclean-log: the kernel mount is read-only
+NOTE: I-DMN-23 unclean-log: reported ro with reason 'marker_failed'
+PASS: I-DMN-23 unclean-log: the image is no longer attached before it is hashed
+PASS: I-DMN-23 unclean-log: image hash unchanged (no write reached the image) (b2e161cce87506d47847e70028c75b9b2429389d026cff7f8b93af5ba7834abd)
+-- I-DMN-23 log-v2 (disk6): disk6  log-v2  Mounted  ro     /Volumes/log-v2  marker_failed
+PASS: I-DMN-23 log-v2: the probe stand-in said clean (status shows probe state clean)
+PASS: I-DMN-23 log-v2: state and mode (marker on: volmark refuses, so ro) (Mounted ro)
+PASS: I-DMN-23 log-v2: the reason is given ('marker_failed')
+PASS: I-DMN-23 log-v2: the kernel mount is read-only
+NOTE: I-DMN-23 log-v2: reported ro with reason 'marker_failed'
+PASS: I-DMN-23 log-v2: the image is no longer attached before it is hashed
+PASS: I-DMN-23 log-v2: image hash unchanged (no write reached the image) (d12f44d4b48c8b4c76703b69789a36ed4dc895c70b55e5f2979d42caf7e937b9)
+-- I-DMN-23 hiber-lower (disk6): disk6  hiber-lower  Mounted  ro     /Volumes/hiber-lower  marker_failed
+PASS: I-DMN-23 hiber-lower: the probe stand-in said clean (status shows probe state clean)
+PASS: I-DMN-23 hiber-lower: state and mode (marker on: volmark refuses, so ro) (Mounted ro)
+PASS: I-DMN-23 hiber-lower: the reason is given ('marker_failed')
+PASS: I-DMN-23 hiber-lower: the kernel mount is read-only
+NOTE: I-DMN-23 hiber-lower: reported ro with reason 'marker_failed'
+PASS: I-DMN-23 hiber-lower: the image is no longer attached before it is hashed
+PASS: I-DMN-23 hiber-lower: image hash unchanged (no write reached the image) (5cfd3b3f22c7723a0251e73feaa2f98e7f96202fdbe54fca8cba1e65b55a2c62)
+-- daemon log
+INFO: check 4 of ADR-019: root_peer
+ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: root_peer
+INFO: ntfsmacd: started
+INFO: disk4: appeared (6291456 bytes)
+INFO: disk4: START -> Probing
+INFO: disk4: PROBE_DONE -> Deciding
+INFO: disk4: probe state clean, decision ro
+INFO: disk4: DECIDED -> Mounting
+ERROR: disk4: the worker did not mount (I/O error)
+INFO: disk4: MOUNT_FAILED -> Failed
+INFO: notification: the volume was not mounted: the file system program did not start.
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: dirty-flag is mounted read-only: could not mark the volume; mounted read-only.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: unclean-log is mounted read-only: could not mark the volume; mounted read-only.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: log-v2 is mounted read-only: could not mark the volume; mounted read-only.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: hiber-lower is mounted read-only: could not mark the volume; mounted read-only.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+== I-DMN-23 with the marker step disabled (--no-marker): the outcomes are recorded
+-- I-DMN-23 (no marker) dirty-flag (disk6): disk6  dirty-flag  Mounted  rw     /Volumes/dirty-flag  -
+NOTE: I-DMN-23 (no marker) dirty-flag: state Mounted mode rw reason '' (expected: written, rw: the engine does not check the flag)
+PASS: I-DMN-23 (no marker) dirty-flag: the image is no longer attached before it is hashed
+NOTE: I-DMN-23 (no marker) dirty-flag: image hash changed: yes
+-- I-DMN-23 (no marker) unclean-log (disk6): disk6  unclean-log  Mounted  ro     /Volumes/unclean-log  engine_ro
+PASS: I-DMN-23 (no marker) unclean-log: the engine's read-only fallback is reported as ro with a reason (Mounted ro)
+NOTE: I-DMN-23 (no marker) unclean-log: reason 'engine_ro'
+PASS: I-DMN-23 (no marker) unclean-log: the image is no longer attached before it is hashed
+PASS: I-DMN-23 (no marker) unclean-log: image hash unchanged (b2e161cce87506d47847e70028c75b9b2429389d026cff7f8b93af5ba7834abd)
+-- I-DMN-23 (no marker) log-v2 (disk6): disk6  log-v2  Mounted  ro     /Volumes/log-v2  engine_ro
+PASS: I-DMN-23 (no marker) log-v2: the engine's read-only fallback is reported as ro with a reason (Mounted ro)
+NOTE: I-DMN-23 (no marker) log-v2: reason 'engine_ro'
+PASS: I-DMN-23 (no marker) log-v2: the image is no longer attached before it is hashed
+PASS: I-DMN-23 (no marker) log-v2: image hash unchanged (d12f44d4b48c8b4c76703b69789a36ed4dc895c70b55e5f2979d42caf7e937b9)
+-- I-DMN-23 (no marker) hiber-lower (disk6): disk6  hiber-lower  Mounted  ro     /Volumes/hiber-lower  engine_ro
+PASS: I-DMN-23 (no marker) hiber-lower: the engine's read-only fallback is reported as ro with a reason (Mounted ro)
+NOTE: I-DMN-23 (no marker) hiber-lower: reason 'engine_ro'
+PASS: I-DMN-23 (no marker) hiber-lower: the image is no longer attached before it is hashed
+PASS: I-DMN-23 (no marker) hiber-lower: image hash unchanged (5cfd3b3f22c7723a0251e73feaa2f98e7f96202fdbe54fca8cba1e65b55a2c62)
+-- daemon log
+INFO: restart: a journal entry without a live mount stays (the next mount is read-only)
+INFO: check 4 of ADR-019: root_peer
+ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: root_peer
+INFO: ntfsmacd: started
+INFO: disk4: appeared (6291456 bytes)
+INFO: disk4: START -> Probing
+INFO: disk4: PROBE_DONE -> Deciding
+INFO: disk4: probe state clean, decision ro
+INFO: disk4: DECIDED -> Mounting
+ERROR: disk4: the worker did not mount (I/O error)
+INFO: disk4: MOUNT_FAILED -> Failed
+INFO: notification: the volume was not mounted: the file system program did not start.
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: dirty-flag is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261117T190327Z
+INFO: notification: dirty-flag ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: unclean-log is mounted read-only: the engine mounted read-only.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: notification: unclean-log did not end its session cleanly. The volume will be read-only next time; run chkdsk on Windows, then attach it again.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: log-v2 is mounted read-only: the engine mounted read-only.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: notification: log-v2 did not end its session cleanly. The volume will be read-only next time; run chkdsk on Windows, then attach it again.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: hiber-lower is mounted read-only: the engine mounted read-only.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: notification: hiber-lower did not end its session cleanly. The volume will be read-only next time; run chkdsk on Windows, then attach it again.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+result: 0 check(s) failed
+######## suite classes: exit 0

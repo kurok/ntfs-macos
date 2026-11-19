@@ -176,3 +176,73 @@ const char *ntfsmac_cli_gate_text(const char *id)
 			return gate_text[i].text;
 	return NULL;
 }
+
+/*
+ * Text of one `doctor` finding. The codes are those of ntfsmac_doctor_code in
+ * src/daemon/internal.h, which the daemon sends as numbers (no disk-derived string is ever in a
+ * finding). I-DMN-17 wants `doctor` to name a conflicting bundle, so a code is not left for the
+ * reader to look up. `buf` is used for the texts that carry a number.
+ */
+const char *ntfsmac_cli_doctor_text(int code, bool ok, long value, char *buf, size_t cap)
+{
+	if (value < 0)
+		value = 0; /* a count or a version cannot be negative: shown as nothing found */
+	switch (code) {
+	case NTFSMAC_CLI_DOCTOR_MACFUSE_INSTALLED:
+		snprintf(buf, cap, ok ? "macFUSE is installed."
+				      : "macFUSE is not installed. Install macFUSE %d.%d or newer.",
+			 NTFSMAC_CLI_MACFUSE_MIN_MAJOR, NTFSMAC_CLI_MACFUSE_MIN_MINOR);
+		return buf;
+	case NTFSMAC_CLI_DOCTOR_MACFUSE_VERSION:
+		if (!ok && value == 0)
+			return "The macFUSE version could not be read.";
+		snprintf(buf, cap,
+			 ok ? "macFUSE version %ld.%ld.%ld is supported."
+			    : "macFUSE version %ld.%ld.%ld is not supported; install %d.%d or newer.",
+			 value / 10000, (value / 100) % 100, value % 100, NTFSMAC_CLI_MACFUSE_MIN_MAJOR,
+			 NTFSMAC_CLI_MACFUSE_MIN_MINOR);
+		return buf;
+	case NTFSMAC_CLI_DOCTOR_MACFUSE_EXTENSION:
+		if (ok)
+			return "The macFUSE file system extension is enabled.";
+		return value == NTFSMAC_CLI_DOCTOR_EXT_NOT_APPROVED
+			       ? "The macFUSE file system extension is not approved: approve it in System "
+				 "Settings, then restart."
+			       : "The state of the macFUSE file system extension could not be read.";
+	case NTFSMAC_CLI_DOCTOR_CONFLICT_NONE:
+		return "No other NTFS driver is installed.";
+	case NTFSMAC_CLI_DOCTOR_CONFLICT_PARAGON:
+		return "Paragon NTFS (ufsd_NTFS.fs) is installed. ntfsmac is passive: it mounts nothing and "
+		       "does not stop the other driver from mounting.";
+	case NTFSMAC_CLI_DOCTOR_CONFLICT_TUXERA:
+		return "Tuxera NTFS (tuxera_ntfs.fs) is installed. ntfsmac is passive: it mounts nothing and "
+		       "does not stop the other driver from mounting.";
+	case NTFSMAC_CLI_DOCTOR_CONFLICT_OTHER:
+		return "Another NTFS driver (a bundle with ntfs in its name in /Library/Filesystems) is "
+		       "installed. ntfsmac is passive: it mounts nothing.";
+	case NTFSMAC_CLI_DOCTOR_CONFLICT_UNREADABLE:
+		return "The folder of file system drivers could not be read, so ntfsmac stays passive.";
+	case NTFSMAC_CLI_DOCTOR_JOURNAL_ENTRIES:
+		if (ok)
+			return "No session journal entries: no volume was left open by this Mac.";
+		snprintf(buf, cap,
+			 "%ld volume(s) were left open by this Mac: the next mount of each is read-only until "
+			 "Windows chkdsk has run (or `ntfsmac journal-clear`).",
+			 value);
+		return buf;
+	case NTFSMAC_CLI_DOCTOR_JOURNAL_CORRUPT:
+		if (ok)
+			return "No unreadable journal entries.";
+		snprintf(buf, cap,
+			 "%ld journal entries could not be read: the volumes they belong to are mounted read-only.",
+			 value);
+		return buf;
+	case NTFSMAC_CLI_DOCTOR_JOURNAL_CLEARED:
+		snprintf(buf, cap, "%ld cleared journal entries are kept as tombstones.", value);
+		return buf;
+	case NTFSMAC_CLI_DOCTOR_JOURNAL_UNREADABLE:
+		return "The session journal could not be opened.";
+	default:
+		return NULL;
+	}
+}

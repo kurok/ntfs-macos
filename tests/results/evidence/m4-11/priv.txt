@@ -1,0 +1,274 @@
+######## suite priv
+guest: 27.2 arm64, user admin uid 501, console owner admin
+== start the job
+== I-DMN-19: journal-clear over the real XPC service
+PASS: the killed session left the entry and the flag on the image
+-- (disk6) disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+NOTE: label 'clean64m4k', serial (last 8) '02469FF7'
+   This removes the record that this Mac left the volume open, so that the next mount can be read/write again. It does not check or repair the file system. If the earlier session ended unclean, files written in it may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume's current mount is not changed.
+   This Mac left the volume open on 2026-11-17T19:05:13Z (UTC); files written in that session may be incomplete or damaged. Windows chkdsk is strongly preferred.
+   ntfsmac: The volume is not clean. A journal entry can be cleared only on a volume that a fresh check finds clean. Run Windows chkdsk.
+PASS: I-DMN-19 probe not clean: refused (exit 1)
+PASS: I-DMN-19 probe not clean: the reason is given
+PASS: I-DMN-19 probe not clean: the entry is still there
+-- (disk6) disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  unclean_session
+PASS: I-DMN-20 flag cleared, LSN unchanged: ro, entry kept (state mode) (Mounted ro)
+PASS: I-DMN-20 flag cleared, LSN unchanged: reason (unclean_session)
+PASS: I-DMN-20 the entry is kept
+PASS: I-DMN-19 wrong label: refused (exit 1): ntfsmac: The label or the serial you typed does not match the volume.
+PASS: I-DMN-19 wrong label: the reason is the confirmation
+PASS: I-DMN-19 wrong serial: refused (exit 1)
+   This removes the record that this Mac left the volume open, so that the next mount can be read/write again. It does not check or repair the file system. If the earlier session ended unclean, files written in it may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume's current mount is not changed.
+   This Mac left the volume open on 2026-11-17T19:05:13Z (UTC); files written in that session may be incomplete or damaged. Windows chkdsk is strongly preferred.
+   Warning: the dirty marker is gone, but nothing shows that this volume was checked since this Mac used it (a drive can lose a write when it is unplugged).
+   ntfsmac: the ntfsmac daemon closed the connection without a reply (is this the installed, signed ntfsmac?).
+PASS: I-DMN-19 a re-signed copy of the CLI: refused by check 3, the connection is dropped (exit 3)
+PASS: I-DMN-19 a CLI without the hardened runtime: refused by check 3 (exit 3)
+   ntfsmac: journal-clear needs administrator rights. Run it again with sudo: sudo ntfsmac journal-clear disk6
+PASS: I-DMN-19 not root: the CLI says to use sudo before anything is typed (exit 1)
+PASS: I-DMN-19 none of the refusals touched the entry
+-- spawned peer: a stand-in worker runs a client of the XPC service, under a worker profile that allows everything
+   Warning: the dirty marker is gone, but nothing shows that this volume was checked since this Mac used it (a drive can lose a write when it is unplugged).
+   ntfsmac: The administrator authorization was not accepted.
+PASS: I-DMN-19 spawned peer: the control run from this shell is not refused by check 2 (it is stopped later by check 4: no root)
+PASS: I-DMN-19 spawned peer: the control run reaches check 4 (the root fallback refuses the form)
+PASS: I-DMN-19 spawned peer: the request was made from the stand-in worker
+-- the stand-in worker's client run:
+   This removes the record that this Mac left the volume open, so that the next mount can be read/write again. It does not check or repair the file system. If the earlier session ended unclean, files written in it may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume's current mount is not changed.
+   This Mac left the volume open on 2026-11-17T19:05:13Z (UTC); files written in that session may be incomplete or damaged. Windows chkdsk is strongly preferred.
+   Warning: the dirty marker is gone, but nothing shows that this volume was checked since this Mac used it (a drive can lose a write when it is unplugged).
+   ntfsmac: The request came from a process that the NTFS daemon started, so it was refused.
+   exit 1
+PASS: I-DMN-19 spawned peer: refused by check 2, the daemon's own text
+PASS: I-DMN-19 spawned peer: the entry is still there
+PASS: I-DMN-19 before the accept: ro, unclean_session (Mounted ro unclean_session)
+   This removes the record that this Mac left the volume open, so that the next mount can be read/write again. It does not check or repair the file system. If the earlier session ended unclean, files written in it may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume's current mount is not changed.
+   This Mac left the volume open on 2026-11-17T19:05:13Z (UTC); files written in that session may be incomplete or damaged. Windows chkdsk is strongly preferred.
+   Warning: the dirty marker is gone, but nothing shows that this volume was checked since this Mac used it (a drive can lose a write when it is unplugged).
+   Warning: the dirty marker is gone, but nothing shows that this volume was checked since this Mac used it. A drive can lose a write when it is unplugged. Windows chkdsk is strongly preferred.
+   result: cleared
+   warning: lost_flush
+PASS: I-DMN-19 accepted on a clean volume with an entry (exit 0)
+PASS: I-DMN-19 accepted: the entry moved to the tombstones
+PASS: I-DMN-19 accepted: the current mount mode is unchanged (ro)
+NOTE: ntfsmac mount: result: started volume:   bsd: disk6   label: clean64m4k   state: Mounting   mount: none   mountpoint: /Volumes/clean64m4k   reason:  
+PASS: I-DMN-19 accepted: the next mount is rw (Mounted rw)
+NOTE: flags on the image: 0x8000
+-- (disk6) disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  unclean_session
+PASS: I-DMN-19 accepted with only 0x8000 set (chkdsk-flag, N-04) (exit 0): warning: lost_flush
+PASS: the clean volume is rw (live session, entry present) (Mounted rw)
+   This removes the record that this Mac left the volume open, so that the next mount can be read/write again. It does not check or repair the file system. If the earlier session ended unclean, files written in it may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume's current mount is not changed.
+   ntfsmac: The volume is not clean. A journal entry can be cleared only on a volume that a fresh check finds clean. Run Windows chkdsk.
+PASS: I-DMN-19 volume mounted rw with a live session: refused (exit 1)
+PASS: I-DMN-19 mounted rw: the text names the gate that failed (the marker makes the probe see a dirty volume first)
+PASS: I-DMN-19 mounted rw: the entry stays
+PASS: I-DMN-19 no entry: refused (exit 1)
+PASS: I-DMN-19 no entry: the text says so
+== I-DMN-20: flag cleared and the LSN advanced; the evidence rule is off in the daemon
+NOTE: logfile_mark --bump-lsn exit 0
+-- (disk6) disk6  log-init  Mounted  ro     /Volumes/log-init  unclean_session
+PASS: I-DMN-20 LSN changed, rule disabled: attach is ro (Mounted ro)
+PASS: I-DMN-20 LSN changed, rule disabled: the entry is kept
+NOTE: I-DMN-20 rule ENABLED is not runnable at daemon level: evidence_rule_enabled is false in main.c (ARCHITECTURE.md section 3.5 rule 2, U12); the module level is journal_vm.sh case evidence
+== I-DMN-21: repair --clear-dirty
+PASS: dirty-flag attaches ro (Mounted ro dirty_flag)
+   This clears the dirty flag on the volume. It does not check or repair the file system. If this Mac left the volume open earlier, files written in that session may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume must not be mounted.
+   ntfsmac: The volume is mounted. Unmount it first.
+PASS: I-DMN-21 refused while mounted (exit 1)
+PASS: I-DMN-21 mounted: the text says to unmount first
+PASS: I-DMN-21 a re-signed CLI: refused by check 3 (exit 3)
+PASS: I-DMN-21 not root: told to use sudo (exit 1)
+PASS: I-DMN-21 wrong label: refused (exit 1)
+PASS: I-DMN-21 the refusals left the flag set
+   This clears the dirty flag on the volume. It does not check or repair the file system. If this Mac left the volume open earlier, files written in that session may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume must not be mounted.
+   result: repaired
+   journal_entry: none
+   warning: none
+PASS: I-DMN-21 accepted on dirty-flag (exit 0)
+PASS: I-DMN-21 the flag is clear on the image (0x0000)
+PASS: I-DMN-21 only a few bytes of the image changed (8; record 3 of $MFT and $MFTMirr)
+PASS: I-DMN-21 after the repair the volume mounts rw (Mounted rw)
+PASS: I-DMN-21 accepted on dirty-chkdsk-flag (exit 0)
+PASS: I-DMN-21 dirty-chkdsk-flag: the flag 0x8000 is kept, DIRTY cleared (0x8000)
+PASS: I-DMN-21 unclean-log: refused (exit 1): ntfsmac: The volume does not show only the dirty flag. Only that state can be repaired here; run Windows chkdsk.
+PASS: I-DMN-21 hiber-lower: refused (exit 1): ntfsmac: The volume does not show only the dirty flag. Only that state can be repaired here; run Windows chkdsk.
+PASS: I-DMN-21 an extra non-informational flag (CHKDSK_UNDERWAY): refused (exit 1): ntfsmac: The volume does not show only the dirty flag. Only that state can be repaired here; run Windows chkdsk.
+   This clears the dirty flag on the volume. It does not check or repair the file system. If this Mac left the volume open earlier, files written in that session may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume must not be mounted.
+   This Mac left the volume open on 2026-11-17T19:09:20Z (UTC); files written in that session may be incomplete or damaged. Windows chkdsk is strongly preferred.
+   Warning: this Mac left the volume open earlier; files written in that session may be incomplete or damaged. Windows chkdsk is strongly preferred.
+   result: repaired
+   journal_entry: removed
+   warning: journal_entry
+PASS: I-DMN-21 with a journal entry: the extra warning text is present
+== I-DMN-22: the dirty marker in the daemon flow
+PASS: I-DMN-22 rw mount (Mounted rw)
+PASS: I-DMN-22 during the rw session the image has VOLUME_IS_DIRTY (0x0001)
+PASS: I-DMN-22 after the clean eject the flag is clear (0x0000)
+PASS: I-DMN-22 after the kill (force-detach class) the flag stays set (0x0001)
+-- volmark replaced by a program that exits 1
+-- (disk6) disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  marker_failed
+PASS: I-DMN-22 volmark exits 1: ro mount (Mounted ro)
+PASS: I-DMN-22 volmark exits 1: reason (marker_failed)
+PASS: I-DMN-22 volmark exits 1: the image is unchanged (60ef76da0ba348929a5b48076bf65dbcbdb4e07c55680c2bc291c59eb2c21a04)
+-- I-DMN-25 c: a volmark that changes sector 0
+PASS: I-DMN-25 c: the attach happened (a BSD name and a row)
+-- (disk6) disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  marker_failed
+PASS: I-DMN-25 c: not mounted rw (state 'Mounted', mode 'ro')
+NOTE: I-DMN-25 c: reason 'marker_failed'
+PASS: I-DMN-25 c: the byte the stub changed is the only change
+NOTE: I-DMN-25 c: image hash changed: no
+== I-DMN-25 b: the disk is already mounted by Apple's driver when the daemon starts
+NOTE: Apple's mount before the daemon: /dev/disk6 on /Volumes/clean64m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+PASS: Apple's driver has the disk mounted (the premise)
+-- (disk6) disk6  clean64m4k  Mounted  rw     /Volumes/clean64m4k  -
+-- mount table for the disk:
+INFO: disk6: appeared (67108864 bytes, mounted by another driver)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+PASS: I-DMN-25 b: the daemon found the disk mounted by another driver and still mounts it (state mode) (Mounted rw)
+PASS: I-DMN-25 b: Apple's mount is gone (the daemon unmounted it before opening the device)
+PASS: I-DMN-25 b: the log says the disk was mounted by another driver at the start
+NOTE: I-DMN-25 b: image hash changed by the rw session: yes
+== I-DMN-27: repair --sync-mirror, the notification text and the XPC door
+-- disk6 is not Mounted (state 'Failed', reason 'mirror_split'): daemon log, then the children
+INFO: check 4 of ADR-019: root_peer
+ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: root_peer
+INFO: ntfsmacd: started
+INFO: disk6: appeared (67108864 bytes, mounted by another driver)
+INFO: disk6: START -> Probing
+INFO: disk4: appeared (6291456 bytes)
+INFO: disk4: START -> Probing
+INFO: disk4: PROBE_DONE -> Deciding
+INFO: disk4: probe state unsupported, decision refuse
+INFO: disk4: REFUSED -> Failed
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261117T191019Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state mirror_split, decision refuse
+INFO: disk6: REFUSED -> Failed
+INFO: notification: mirror-split: this volume was interrupted while NTFS-3G updated its file table; the data region was not touched. Run ntfsmac repair --sync-mirror, or Windows chkdsk.
+Version 2026.9.28 external FUSE 29
+Mounted /dev/fd/11 (Read-Write, label "clean64m4k", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+Mount options: backend=fskit,local,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/11,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+Unmounting /dev/fd/11 (clean64m4k)
+-- mount table (no apfs), /Volumes, the workers
+/dev/disk6 on /Volumes/mirror-split (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+total 0
+drwxr-xr-x   4 root   wheel   128 Nov 17 19:10 .
+drwxr-xr-x  23 root   wheel   736 Oct 22 23:10 ..
+lrwxr-xr-x   1 root   wheel     1 Nov 17 18:59 Macintosh HD -> /
+drwxr-xr-x   1 admin  staff  4096 Nov 17 16:28 mirror-split
+-- (disk6) disk6  mirror-split  Failed  none   -           mirror_split
+PASS: I-DMN-27 the attach of mirror-split is refused (state Failed)
+PASS: I-DMN-27 the reason is mirror_split
+-- notifications in the daemon log:
+INFO: notification: clean64m4k is mounted read/write.
+INFO: notification: clean64m4k ejected, all data written.
+INFO: notification: mirror-split: this volume was interrupted while NTFS-3G updated its file table; the data region was not touched. Run ntfsmac repair --sync-mirror, or Windows chkdsk.
+PASS: I-DMN-27 the notification names repair --sync-mirror
+PASS: I-DMN-27 the notification names Windows chkdsk
+PASS: I-DMN-27 the refused attach did not write the image (c3d024d952116dc2b085de7ce5b5d40cceceacc1804039dd9c67405d6903c7c3)
+NOTE: U15 in the daemon flow: Apple's ntfs.fs mounted the refused mirror-split image: /dev/disk6 on /Volumes/mirror-split (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+   This copies the first records of the $MFT over their copies in the $MFTMirr, the mirror that NTFS-3G refuses to mount when an update to the two was interrupted. It writes only the records that differ, never the data region, never the log, and it does not touch the dirty flag or this Mac's session journal. It does not check or repair the file system: Windows chkdsk is still the check. It is refused unless the volume shows exactly this damage, and the volume must not be mounted. It is not mounted for you afterwards: the next mount decides again.
+   ntfsmac: The volume could not be checked just now (is it mounted by another driver?).
+PASS: I-DMN-27 while Apple's driver has the disk mounted the repair is refused with the hint (exit 1)
+PASS: I-DMN-27 the refusal did not write the image (c3d024d952116dc2b085de7ce5b5d40cceceacc1804039dd9c67405d6903c7c3)
+PASS: I-DMN-27 diskutil unmount takes Apple's mount away
+PASS: I-DMN-27 wrong label: refused by the confirmation (exit 1)
+PASS: I-DMN-27 wrong serial: refused by the confirmation (exit 1)
+   This copies the first records of the $MFT over their copies in the $MFTMirr, the mirror that NTFS-3G refuses to mount when an update to the two was interrupted. It writes only the records that differ, never the data region, never the log, and it does not touch the dirty flag or this Mac's session journal. It does not check or repair the file system: Windows chkdsk is still the check. It is refused unless the volume shows exactly this damage, and the volume must not be mounted. It is not mounted for you afterwards: the next mount decides again.
+   ntfsmac: the ntfsmac daemon closed the connection without a reply (is this the installed, signed ntfsmac?).
+PASS: I-DMN-27 a re-signed CLI: refused over XPC (exit 3)
+PASS: I-DMN-27 a re-signed CLI: the refusal is check 3, not the volume
+PASS: I-DMN-27 a CLI without the hardened runtime: refused by check 3 (exit 3)
+PASS: I-DMN-27 not root: told to use sudo (exit 1)
+PASS: I-DMN-27 none of the refusals wrote the image (c3d024d952116dc2b085de7ce5b5d40cceceacc1804039dd9c67405d6903c7c3)
+   This copies the first records of the $MFT over their copies in the $MFTMirr, the mirror that NTFS-3G refuses to mount when an update to the two was interrupted. It writes only the records that differ, never the data region, never the log, and it does not touch the dirty flag or this Mac's session journal. It does not check or repair the file system: Windows chkdsk is still the check. It is refused unless the volume shows exactly this damage, and the volume must not be mounted. It is not mounted for you afterwards: the next mount decides again.
+   The mirror was repaired. A fresh check of the volume now shows: clean.
+   This was not a check of the file system. The volume was not mounted; the next mount decides again, and a volume that still has the dirty flag set is read-only. Windows chkdsk is the way to check it.
+   result: repaired
+   state: clean
+   journal_entry: untouched
+PASS: I-DMN-27 accepted on mirror-split (exit 0)
+PASS: I-DMN-27 the reply says repaired and shows a fresh state
+PASS: I-DMN-27 the image changed
+NOTE: I-DMN-27 bytes changed on the image: 5
+PASS: I-DMN-27 only a few bytes changed (5, at most 4096: the differing $MFTMirr records)
+-- ntfsfix -n on a copy after the repair
+Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition <tmp>/after.img was processed successfully.
+PASS: I-DMN-27 ntfsfix -n exit status on the repaired image (0)
+NOTE: ntfsmac mount: result: started volume:   bsd: disk6   label: mirror-split   state: Mounting   mount: none   mountpoint: /Volumes/mirror-split   reason:  
+-- (disk6) disk6  mirror-split  Mounted  rw     /Volumes/mirror-split  -
+PASS: I-DMN-27 after the repair the volume mounts rw (Mounted rw)
+-- daemon log (tail)
+INFO: check 4 of ADR-019: root_peer
+ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: root_peer
+INFO: ntfsmacd: started
+INFO: disk6: appeared (67108864 bytes, mounted by another driver)
+INFO: disk6: START -> Probing
+INFO: disk4: appeared (6291456 bytes)
+INFO: disk4: START -> Probing
+INFO: disk4: PROBE_DONE -> Deciding
+INFO: disk4: probe state unsupported, decision refuse
+INFO: disk4: REFUSED -> Failed
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261117T191019Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state mirror_split, decision refuse
+INFO: disk6: REFUSED -> Failed
+INFO: notification: mirror-split: this volume was interrupted while NTFS-3G updated its file table; the data region was not touched. Run ntfsmac repair --sync-mirror, or Windows chkdsk.
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: mirror-split is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261117T191033Z
+INFO: notification: mirror-split ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+-- children log (tail)
+Version 2026.9.28 external FUSE 29
+Mounted /dev/fd/11 (Read-Write, label "clean64m4k", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+Mount options: backend=fskit,local,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/11,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+Unmounting /dev/fd/11 (clean64m4k)
+Version 2026.9.28 external FUSE 29
+Mounted /dev/fd/13 (Read-Write, label "mirror-split", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+Mount options: backend=fskit,local,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/13,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+Unmounting /dev/fd/13 (mirror-split)
+result: 0 check(s) failed
+######## suite priv: exit 0

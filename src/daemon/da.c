@@ -81,7 +81,7 @@ static bool describe_disk(DADiskRef disk, ntfsmac_disk_info *out)
 {
 	CFDictionaryRef d;
 	const char *bsd;
-	char content[64];
+	char content[64], model[32], protocol[32];
 	CFTypeRef v;
 	bool has_content;
 	long long size = 0;
@@ -105,6 +105,15 @@ static bool describe_disk(DADiskRef disk, ntfsmac_disk_info *out)
 				 content, sizeof content);
 	out->is_ntfs_candidate =
 		ntfsmac_da_content_is_candidate(has_content ? content : NULL, out->whole_disk);
+	/* macFUSE's own 8 MiB device is never ours: no probe, no claim, no dissent (T-M4-11) */
+	if (!cf_to_cstr(CFDictionaryGetValue(d, kDADiskDescriptionDeviceModelKey), model, sizeof model))
+		model[0] = '\0';
+	if (!cf_to_cstr(CFDictionaryGetValue(d, kDADiskDescriptionDeviceProtocolKey), protocol,
+			sizeof protocol))
+		protocol[0] = '\0';
+	if (ntfsmac_da_is_macfuse_backing(out->size_bytes, out->whole_disk, has_content ? content : NULL,
+					  model, protocol))
+		out->is_ntfs_candidate = false;
 	v = CFDictionaryGetValue(d, kDADiskDescriptionVolumePathKey);
 	out->has_volume_path = v != NULL;
 	if (!cf_to_cstr(CFDictionaryGetValue(d, kDADiskDescriptionMediaPathKey),

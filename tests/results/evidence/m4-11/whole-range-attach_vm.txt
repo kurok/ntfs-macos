@@ -1,0 +1,329 @@
+guest: 27.2 arm64, user admin uid 501 gid 20, console owner admin
+/Library/LaunchDaemons/org.ntfs-macos.ntfsmacd.plist: OK
+PASS: plist is valid
+== disks the guest sees
+/dev/disk0 (internal, physical):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:                            clean64m4k             *67.1 MB    disk0
+
+/dev/disk1 (internal, physical):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:                            dirty-flag             *67.1 MB    disk1
+
+/dev/disk2 (internal, physical):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      GUID_partition_scheme                        *50.0 GB    disk2
+   1:             Apple_APFS_ISC Container disk3         524.3 MB   disk2s1
+   2:                 Apple_APFS Container disk5         44.1 GB    disk2s2
+   3:        Apple_APFS_Recovery Container disk4         5.4 GB     disk2s3
+
+/dev/disk5 (synthesized):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      APFS Container Scheme -                      +44.1 GB    disk5
+                                 Physical Store disk2s2
+   1:                APFS Volume Macintosh HD            13.8 GB    disk5s1
+   2:              APFS Snapshot com.apple.os.update-... 13.8 GB    disk5s1s1
+   3:                APFS Volume Preboot                 9.5 GB     disk5s2
+   4:                APFS Volume Recovery                1.5 GB     disk5s3
+   5:                APFS Volume Data                    11.9 GB    disk5s5
+   6:                APFS Volume VM                      20.5 KB    disk5s6
+
+== 0. a FUSE mount of the user before the attach
+PASS: the user's own FUSE mount is there before the daemon starts
+== 1. launchd job and automatic attach
+PASS: the control socket appears
+PASS: the privileged XPC service is registered with launchd
+PASS: both volumes settle
+-- ntfsmac list
+BSD    LABEL       STATE    MOUNT  MOUNTPOINT           REASON
+disk1  dirty-flag  Mounted  ro     /Volumes/dirty-flag  dirty_flag
+disk0  clean64m4k  Mounted  rw     /Volumes/clean64m4k  -
+-- ntfsmac status (clean)
+volume:
+  bsd: disk0
+  label: clean64m4k
+  state: Mounted
+  mount: rw
+  mountpoint: /Volumes/clean64m4k
+  reason: 
+probe:
+  state: clean
+  serial: 0x34F5EE1202469FF7
+  reason_codes: none
+  logfile: clean
+  hiberfile: absent
+  volume_flags: none
+  nonnfc_count: 0
+  nonnfc_paths: none
+PASS: clean-64m-4k is Mounted
+PASS: clean-64m-4k mounts rw
+PASS: dirty-flag is Mounted
+PASS: dirty-flag mounts ro
+PASS: dirty-flag says why: dirty_flag
+-- mount table
+/dev/disk8s1 on <home>/pre (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+/dev/disk10s1 on /Volumes/clean64m4k (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+/dev/disk9s1 on /Volumes/dirty-flag (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+PASS: the user's earlier FUSE mount survived the attach of both volumes
+PASS: the kernel table shows the clean volume as a macfuse mount that is not read-only
+PASS: the kernel table shows the dirty volume read-only
+PASS: the clean volume holds a journal entry while it is mounted rw
+PASS: two workers run
+PASS: every worker process is the worker binary and a direct child of the daemon
+PASS: the chain of launchctl and --exec-as left no process behind
+PASS: a file can be written on the rw volume
+PASS: a file cannot be written on the ro volume
+-- daemon log so far
+INFO: check 4 of ADR-019: root_peer
+ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: root_peer
+INFO: ntfsmacd: started
+INFO: disk6: appeared (6291456 bytes)
+INFO: disk6: START -> Probing
+INFO: disk0: appeared (67108864 bytes, mounted by another driver)
+INFO: disk0: START -> Probing
+INFO: disk1: appeared (67108864 bytes, mounted by another driver)
+INFO: disk1: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state unsupported, decision refuse
+INFO: disk6: REFUSED -> Failed
+INFO: disk1: PROBE_DONE -> Deciding
+INFO: disk0: PROBE_DONE -> Deciding
+INFO: disk1: probe state dirty_flag, decision ro
+INFO: disk0: probe state clean, decision rw
+INFO: disk0: DECIDED -> Mounting
+INFO: disk1: DECIDED -> Mounting
+INFO: disk10: appeared (8388608 bytes)
+INFO: disk10: START -> Probing
+INFO: disk10: PROBE_DONE -> Deciding
+INFO: disk10: probe state unsupported, decision refuse
+INFO: disk10: REFUSED -> Failed
+INFO: disk9: appeared (8388608 bytes)
+INFO: disk9: START -> Probing
+INFO: disk9: PROBE_DONE -> Deciding
+INFO: disk9: probe state unsupported, decision refuse
+INFO: disk9: REFUSED -> Failed
+INFO: disk9: DISK_GONE -> Gone
+INFO: disk10: DISK_GONE -> Gone
+INFO: disk0: MOUNTED -> Mounted
+INFO: disk1: MOUNTED -> Mounted
+INFO: notification: dirty-flag is mounted read-only: the volume is marked dirty; run chkdsk on Windows.
+INFO: notification: clean64m4k is mounted read/write.
+PASS: the daemon logged the notifications
+== 2. unmount of the rw volume (section 4.5), and mounting it again
+result: unmounting
+PASS: the clean volume returns to Appeared
+PASS: its mount point directory is gone
+PASS: the journal entry was removed by the clean session
+PASS: the daemon told the user: ejected, all data written (the full text, so the drive flush was confirmed)
+PASS: no notification says that the drive did not confirm its cache flush
+PASS: the worker's drive flush is not refused by its sandbox
+result: started
+volume:
+  bsd: disk0
+  label: clean64m4k
+  state: Mounting
+  mount: none
+  mountpoint: /Volumes/clean64m4k
+  reason: 
+PASS: the clean volume mounts rw again
+PASS: the second session holds a journal entry again
+result: unmounting
+PASS: and ends cleanly again
+PASS: with no journal entry
+== 3. stopping the job unmounts what it serves; starting it attaches again
+result: started
+volume:
+  bsd: disk0
+  label: clean64m4k
+  state: Mounting
+  mount: none
+  mountpoint: /Volumes/clean64m4k
+  reason: 
+PASS: after the stop no macfuse mount is left
+PASS: after the stop no worker runs
+PASS: the stop settled the rw session (no journal entry)
+PASS: both volumes settle again
+PASS: clean-64m-4k is Mounted rw again
+PASS: dirty-flag is Mounted ro again
+== 4. H1: another macFUSE mount owned by the user of the workers
+NOTE: workers before: 2
+NOTE: the stray mount (rc 0): 
+PASS: the daemon stops the workers (no worker left)
+PASS: the stray mount is gone
+PASS: the clean volume is Failed with the reason stray_mount
+PASS: the dirty volume is Failed with the reason stray_mount
+PASS: no macfuse mount is left but the user's earlier one
+PASS: the user's earlier FUSE mount is still there after the stray handling and the stop
+PASS: the killed rw session left its journal entry and marker (silence is never success)
+PASS: the daemon told the user
+PASS: the mount point directories are gone
+-- ntfsmac list after the stray mount
+BSD    LABEL       STATE   MOUNT  MOUNTPOINT  REASON
+disk1  dirty-flag  Failed  none   -           stray_mount
+disk0  clean64m4k  Failed  none   -           stray_mount
+-- journal
+total 8
+drwx------  4 root  wheel  128 Nov 17 18:25 .
+drwx------  3 root  wheel   96 Nov 17 18:24 ..
+-rw-------  1 root  wheel  215 Nov 17 18:25 34F5EE1202469FF7
+drwx------  5 root  wheel  160 Nov 17 18:25 cleared
+== 5. sudo ntfsmac journal-clear reaches the daemon
+NOTE: serial of the clean volume: 02469FF7
+PASS: the journal still holds the entry of the killed session
+This removes the record that this Mac left the volume open, so that the next mount can be read/write again. It does not check or repair the file system. If the earlier session ended unclean, files written in it may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume's current mount is not changed.
+This Mac left the volume open on 2026-11-17T18:25:22Z (UTC); files written in that session may be incomplete or damaged. Windows chkdsk is strongly preferred.
+Warning: that session ended with a write error. Files written in it may be damaged.
+ntfsmac: The volume is not clean. A journal entry can be cleared only on a volume that a fresh check finds clean. Run Windows chkdsk.
+PASS: journal-clear was refused (exit 1)
+PASS: the refusal is the daemon's: the volume is not clean
+PASS: the refused request left the entry in place
+PASS: no warning about a missing right
+== daemon log
+INFO: check 4 of ADR-019: root_peer
+ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: root_peer
+INFO: ntfsmacd: started
+INFO: disk6: appeared (6291456 bytes)
+INFO: disk6: START -> Probing
+INFO: disk0: appeared (67108864 bytes, mounted by another driver)
+INFO: disk0: START -> Probing
+INFO: disk1: appeared (67108864 bytes, mounted by another driver)
+INFO: disk1: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state unsupported, decision refuse
+INFO: disk6: REFUSED -> Failed
+INFO: disk1: PROBE_DONE -> Deciding
+INFO: disk0: PROBE_DONE -> Deciding
+INFO: disk1: probe state dirty_flag, decision ro
+INFO: disk0: probe state clean, decision rw
+INFO: disk0: DECIDED -> Mounting
+INFO: disk1: DECIDED -> Mounting
+INFO: disk10: appeared (8388608 bytes)
+INFO: disk10: START -> Probing
+INFO: disk10: PROBE_DONE -> Deciding
+INFO: disk10: probe state unsupported, decision refuse
+INFO: disk10: REFUSED -> Failed
+INFO: disk9: appeared (8388608 bytes)
+INFO: disk9: START -> Probing
+INFO: disk9: PROBE_DONE -> Deciding
+INFO: disk9: probe state unsupported, decision refuse
+INFO: disk9: REFUSED -> Failed
+INFO: disk9: DISK_GONE -> Gone
+INFO: disk10: DISK_GONE -> Gone
+INFO: disk0: MOUNTED -> Mounted
+INFO: disk1: MOUNTED -> Mounted
+INFO: notification: dirty-flag is mounted read-only: the volume is marked dirty; run chkdsk on Windows.
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk0: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261117T182511Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk0: UNMOUNTED -> Appeared
+INFO: disk0: START -> Probing
+INFO: disk0: PROBE_DONE -> Deciding
+INFO: disk0: probe state clean, decision rw
+INFO: disk0: DECIDED -> Mounting
+INFO: disk10: appeared (8388608 bytes)
+INFO: disk10: START -> Probing
+INFO: disk10: PROBE_DONE -> Deciding
+INFO: disk10: probe state unsupported, decision refuse
+INFO: disk10: REFUSED -> Failed
+INFO: disk10: DISK_GONE -> Gone
+INFO: disk0: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk0: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261117T182517Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk0: UNMOUNTED -> Appeared
+INFO: disk0: START -> Probing
+INFO: disk0: PROBE_DONE -> Deciding
+INFO: disk0: probe state clean, decision rw
+INFO: disk0: DECIDED -> Mounting
+INFO: disk10: appeared (8388608 bytes)
+INFO: disk10: START -> Probing
+INFO: disk10: PROBE_DONE -> Deciding
+INFO: disk10: probe state unsupported, decision refuse
+INFO: disk10: REFUSED -> Failed
+INFO: disk10: DISK_GONE -> Gone
+INFO: disk0: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: ntfsmacd: stopping
+INFO: disk1: UNMOUNT -> Unmounting
+INFO: disk1: UNMOUNTED -> Appeared
+INFO: disk0: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261117T182522Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk0: UNMOUNTED -> Appeared
+INFO: check 4 of ADR-019: root_peer
+ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: root_peer
+INFO: ntfsmacd: started
+INFO: disk6: appeared (6291456 bytes)
+INFO: disk6: START -> Probing
+INFO: disk0: appeared (67108864 bytes)
+INFO: disk1: appeared (67108864 bytes)
+INFO: disk1: START -> Probing
+INFO: disk0: START -> Probing
+INFO: disk0: PROBE_DONE -> Deciding
+INFO: disk0: probe state clean, decision rw
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk1: PROBE_DONE -> Deciding
+INFO: disk0: DECIDED -> Mounting
+INFO: disk6: probe state unsupported, decision refuse
+INFO: disk6: REFUSED -> Failed
+INFO: disk1: probe state dirty_flag, decision ro
+INFO: disk1: DECIDED -> Mounting
+INFO: disk9: appeared (8388608 bytes)
+INFO: disk9: START -> Probing
+INFO: disk9: PROBE_DONE -> Deciding
+INFO: disk9: probe state unsupported, decision refuse
+INFO: disk9: REFUSED -> Failed
+INFO: disk10: appeared (8388608 bytes)
+INFO: disk10: START -> Probing
+INFO: disk10: PROBE_DONE -> Deciding
+INFO: disk10: probe state unsupported, decision refuse
+INFO: disk10: REFUSED -> Failed
+INFO: disk10: DISK_GONE -> Gone
+INFO: disk9: DISK_GONE -> Gone
+INFO: disk0: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk1: MOUNTED -> Mounted
+INFO: notification: dirty-flag is mounted read-only: this Mac left the volume open and writes from that session may be incomplete; run chkdsk on Windows.
+INFO: disk11: appeared (8388608 bytes)
+INFO: disk11: START -> Probing
+INFO: disk11: PROBE_DONE -> Deciding
+INFO: disk11: probe state unsupported, decision refuse
+INFO: disk11: REFUSED -> Failed
+INFO: disk11: DISK_GONE -> Gone
+ERROR: disk1: a FUSE mount owned by the user of the worker is not a volume of this daemon (1 stray); stopping the worker
+ERROR: disk0: a FUSE mount owned by the user of the worker is not a volume of this daemon (1 stray); stopping the worker
+INFO: disk0: UNMOUNT -> Unmounting
+INFO: disk1: UNMOUNT -> Unmounting
+ERROR: disk1: a FUSE mount owned by the user of the worker is not a volume of this daemon (1 stray); stopping the worker
+WARN: disk0: forced unmount of a stray mount (as the user): ok
+WARN: disk1: forced unmount of a stray mount (as the user): wrong state
+WARN: disk0: forced unmount of the volume: ok
+WARN: disk1: forced unmount of the volume: ok
+INFO: notification: clean64m4k: the program that serves the volume mounted another file system. It was stopped and the volume was detached.
+INFO: notification: dirty-flag: the program that serves the volume mounted another file system. It was stopped and the volume was detached.
+INFO: disk1: UNMOUNT_FAILED -> Failed
+INFO: disk0: UNMOUNT_FAILED -> Failed
+== worker and probe stderr
+Mount options: backend=fskit,local,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/13,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+Unmounting /dev/fd/13 (clean64m4k)
+Version 2026.9.28 external FUSE 29
+Mounted /dev/fd/13 (Read-Write, label "clean64m4k", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+Mount options: backend=fskit,local,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/13,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+Unmounting /dev/fd/11 (dirty-flag)
+Unmounting /dev/fd/13 (clean64m4k)
+Version 2026.9.28 external FUSE 29
+Mounted /dev/fd/11 (Read-Only, label "dirty-flag", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022,ro
+Mount options: backend=fskit,local,ro,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/11,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+Version 2026.9.28 external FUSE 29
+Mounted /dev/fd/13 (Read-Write, label "clean64m4k", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+Mount options: backend=fskit,local,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/13,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+result: 0 check(s) failed

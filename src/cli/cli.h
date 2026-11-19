@@ -84,6 +84,34 @@ const char *ntfsmac_cli_refusal_text(const char *id);
 const char *ntfsmac_cli_gate_text(const char *id);
 /* Text for an error code such as "bad_json", or NULL. */
 const char *ntfsmac_cli_error_text(const char *code);
+/*
+ * The codes of `doctor` findings as the daemon sends them, and the oldest macFUSE it accepts.
+ * They are the values of ntfsmac_doctor_code and NTFSMAC_MACFUSE_MIN_* in src/daemon/internal.h;
+ * tests/unit/ctl/ctl_cli.c asserts at compile time that the two agree.
+ */
+enum {
+	NTFSMAC_CLI_DOCTOR_MACFUSE_INSTALLED = 1,
+	NTFSMAC_CLI_DOCTOR_MACFUSE_VERSION,
+	NTFSMAC_CLI_DOCTOR_MACFUSE_EXTENSION,
+	NTFSMAC_CLI_DOCTOR_CONFLICT_NONE,
+	NTFSMAC_CLI_DOCTOR_CONFLICT_PARAGON,
+	NTFSMAC_CLI_DOCTOR_CONFLICT_TUXERA,
+	NTFSMAC_CLI_DOCTOR_CONFLICT_OTHER,
+	NTFSMAC_CLI_DOCTOR_CONFLICT_UNREADABLE,
+	NTFSMAC_CLI_DOCTOR_JOURNAL_ENTRIES,
+	NTFSMAC_CLI_DOCTOR_JOURNAL_CORRUPT,
+	NTFSMAC_CLI_DOCTOR_JOURNAL_CLEARED,
+	NTFSMAC_CLI_DOCTOR_JOURNAL_UNREADABLE,
+	NTFSMAC_CLI_DOCTOR_EXT_NOT_APPROVED = 2 /* the `value` of EXTENSION: ntfsmac_doctor_ext_state */
+};
+#define NTFSMAC_CLI_MACFUSE_MIN_MAJOR 5
+#define NTFSMAC_CLI_MACFUSE_MIN_MINOR 5
+
+/*
+ * Text for one `doctor` finding (the code numbers of ntfsmac_doctor_code in src/daemon/internal.h),
+ * or NULL for a code this CLI does not know. `buf` takes the texts that carry a number.
+ */
+const char *ntfsmac_cli_doctor_text(int code, bool ok, long value, char *buf, size_t cap);
 
 /* ------------------------------------------------------------------ */
 /* Output (render.c)                                                   */

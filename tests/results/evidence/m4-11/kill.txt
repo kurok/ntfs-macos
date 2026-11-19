@@ -1,0 +1,169 @@
+######## suite kill
+guest: 27.2 arm64, user admin uid 501, console owner admin
+== start the job
+== I-DMN-14 a: SIGKILL of the worker during a rw session
+PASS: I-DMN-14 a: the volume mounts rw (Mounted rw)
+PASS: the journal holds the entry of the rw session
+NOTE: worker pid 849, killed with SIGKILL
+PASS: the volume leaves Mounted within 60 s
+-- after the kill: disk6  clean64m4k  Appeared  none   -           -
+PASS: no worker is left
+PASS: the mount of the dead worker is gone from the mount table
+PASS: the mount point directory is gone
+PASS: the journal entry stays (the session is not reported clean)
+PASS: the daemon told the user that the session did not end cleanly
+INFO: notification: clean64m4k is mounted read/write.
+INFO: notification: clean64m4k did not end its session cleanly. The volume will be read-only next time; run chkdsk on Windows, then attach it again.
+-- I-DMN-14 a next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: I-DMN-14 a next attach: state (Mounted)
+PASS: I-DMN-14 a next attach: mode (ro)
+NOTE: I-DMN-14 a next attach: reason 'dirty_flag_journal'
+PASS: I-DMN-14 a next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: I-DMN-14 a next attach: the file synced before the failure is intact
+PASS: I-DMN-14 a next attach: the journal entry is still there
+PASS: I-DMN-14 a next attach: the read-only session left the image unchanged (305f2e4cd912be868dc8e631ca6240d0eabfe93ed8e2c9fca0ebfba22383acf5)
+== I-DMN-14 b and I-DMN-15: SIGKILL of the daemon with a rw volume mounted, then the launchd restart
+PASS: I-DMN-14 b: the volume mounts rw (Mounted rw)
+NOTE: daemon pid 801, killed with SIGKILL; worker pids: 1185 
+PASS: launchd starts the daemon again (new pid)
+PASS: the control socket answers again
+-- after the restart: list
+BSD    LABEL       STATE    MOUNT  MOUNTPOINT           REASON
+disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+-- mount table
+/dev/disk7s1 on /Volumes/clean64m4k (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+-- workers: 1287 
+PASS: after the restart no worker of the dead daemon is alive (pids: 1185 )
+PASS: the restarted daemon holds no read/write mount: its volume is ro
+PASS: the journal entry is still there
+PASS: no read/write macfuse mount of the image is left after the restart (0)
+-- daemon log after the restart
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+WARN: restart: forced unmount of a mount of the earlier daemon: ok
+INFO: check 4 of ADR-019: root_peer
+ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: root_peer
+INFO: ntfsmacd: started
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk4: appeared (6291456 bytes)
+INFO: disk4: START -> Probing
+INFO: disk4: PROBE_DONE -> Deciding
+INFO: disk4: probe state unsupported, decision refuse
+INFO: disk4: REFUSED -> Failed
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state dirty_flag, decision ro
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read-only: this Mac left the volume open and writes from that session may be incomplete; run chkdsk on Windows.
+PASS: after the stop no macfuse mount is left
+-- I-DMN-14 b next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: I-DMN-14 b next attach: state (Mounted)
+PASS: I-DMN-14 b next attach: mode (ro)
+NOTE: I-DMN-14 b next attach: reason 'dirty_flag_journal'
+PASS: I-DMN-14 b next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: I-DMN-14 b next attach: the file synced before the failure is intact
+PASS: I-DMN-14 b next attach: the journal entry is still there
+PASS: I-DMN-14 b next attach: the read-only session left the image unchanged (b896b40c21709d1bf7c974c2c39f708095c069028519bf8487512344d0c90f45)
+== I-DMN-16: force-detach of the image during a write
+PASS: I-DMN-16: the volume mounts rw (Mounted rw)
+NOTE: writer pid 1620 is running; force-detach of /dev/disk6 now
+PASS: hdiutil detach -force is refused while the worker holds the device (rc 16, EBUSY) (16)
+PASS: the writer is still running at the moment of the yank
+PASS: the yank (kill of the process that serves the image) worked
+PASS: the volume row goes away within 120 s
+-- after the force-detach: row ''
+PASS: no worker is left
+PASS: no macfuse mount is left
+PASS: the mount point directory is gone
+PASS: the journal entry stays
+INFO: notification: clean64m4k is mounted read-only: this Mac left the volume open and writes from that session may be incomplete; run chkdsk on Windows.
+INFO: notification: clean64m4k is mounted read/write.
+INFO: notification: clean64m4k did not end its session cleanly. The volume will be read-only next time; run chkdsk on Windows, then attach it again.
+-- ntfsfix -n of the image after the force-detach (read-only check)
+Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition <tmp>/clean-64m-4k.img was processed successfully.
+PASS: ntfsfix -n exit status on the yanked image (0)
+PASS: the dirty flag is still set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- I-DMN-16 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: I-DMN-16 next attach: state (Mounted)
+PASS: I-DMN-16 next attach: mode (ro)
+NOTE: I-DMN-16 next attach: reason 'dirty_flag_journal'
+PASS: I-DMN-16 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: I-DMN-16 next attach: the file synced before the failure is intact
+PASS: I-DMN-16 next attach: the journal entry is still there
+PASS: I-DMN-16 next attach: the read-only session left the image unchanged (57e13e3cc41ce97dbafbe364ee32dce469b3d621135acc6f1631e1fa2b1a4c39)
+-- daemon log
+INFO: restart: a journal entry without a live mount stays (the next mount is read-only)
+INFO: check 4 of ADR-019: root_peer
+ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: root_peer
+INFO: ntfsmacd: started
+INFO: disk4: appeared (6291456 bytes)
+INFO: disk4: START -> Probing
+INFO: disk4: PROBE_DONE -> Deciding
+INFO: disk4: probe state unsupported, decision refuse
+INFO: disk4: REFUSED -> Failed
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state dirty_flag, decision ro
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read-only: this Mac left the volume open and writes from that session may be incomplete; run chkdsk on Windows.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: DISK_GONE -> Unmounting
+WARN: disk6: forced unmount of the volume: ok
+INFO: notification: clean64m4k did not end its session cleanly. The volume will be read-only next time; run chkdsk on Windows, then attach it again.
+INFO: disk6: UNMOUNTED -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state dirty_flag, decision ro
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read-only: this Mac left the volume open and writes from that session may be incomplete; run chkdsk on Windows.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+-- children log
+Mounted /dev/fd/10 (Read-Only, label "clean64m4k", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022,ro
+Mount options: backend=fskit,local,ro,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/10,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+Unmounting /dev/fd/10 (clean64m4k)
+Version 2026.9.28 external FUSE 29
+Mounted /dev/fd/11 (Read-Write, label "clean64m4k", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+Mount options: backend=fskit,local,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/11,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+ntfs_attr_pread_i: ntfs_pread failed: Device not configured
+Failed to read index block: Device not configured
+Index lookup failed, inode 5: Input/output error
+Failed to sync FILE_NAME (inode 442): Input/output error
+Version 2026.9.28 external FUSE 29
+Mounted /dev/fd/10 (Read-Only, label "clean64m4k", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022,ro
+Mount options: backend=fskit,local,ro,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/10,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+Unmounting /dev/fd/10 (clean64m4k)
+result: 0 check(s) failed
+######## suite kill: exit 0

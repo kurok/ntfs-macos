@@ -1,0 +1,35 @@
+T-M4-11 follow-up: the mount_timeout cause, captured on the daemon BEFORE the fix (same guest, macOS 27.2, macFUSE 5.5.0).
+Setup: a probe that answers 12 s late (dmn_probe_stub.c built with -DDMN_STUB_SLOW=12) installed as ntfsmac-probe, one clean
+volume attached with hdiutil -nomount. Output of the guest script (scrubbed; two runs gave the same result, the second run is shown).
+
+settled after 24 s
+BSD    LABEL       STATE    MOUNT  MOUNTPOINT  REASON
+disk8  -           Probing  none   -           -
+disk6  clean64m4k  Failed   none   -           spawn
+INFO: ntfsmacd: started
+INFO: disk7: appeared (8388608 bytes)
+INFO: disk4: appeared (6291456 bytes)
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk8: appeared (8388608 bytes)             <- macFUSE's own 8 MiB backing disk, taken for an NTFS candidate
+ERROR: disk6: the worker did not mount (I/O error)
+INFO: disk6: MOUNT_FAILED -> Failed
+INFO: notification: clean64m4k was not mounted: the file system program did not start.
+--- children (the worker)
+Mounted /dev/fd/10 (Read-Write, label "clean64m4k", NTFS 3.1)
+MFMount: MFMount(_:_:_:_:): Failed to activate virtual device for local mount
+fuse: mount failed with error: -1
+--- unified log (diskarbitrationd)
+... kind = disk mount approval, disk = <private>, dissented, status = 0xF8DA000A.     (not permitted: our dissenter)
+... kind = disk mount approval, disk = <private>, dissented, status = 0xF8DA0008.
+
+DA description of the disks at the time they appeared (dadump, CFShow of DADiskCopyDescription), the keys that matter:
+  macFUSE's disk    whole 1, size 8388608, DAMediaContent "",  DADeviceModel "Disk Image", DADeviceProtocol "Virtual Interface"
+  its partition     whole 0, size 8347648, DAMediaContent "E7B57692-6901-4734-AFFA-3ECD935F5C4E"
+  the NTFS fixture  whole 1, size 67108864, DAMediaContent "", DADeviceModel "Disk Image", DADeviceProtocol "Virtual Interface"
+The 8 MiB disk and the fixture differ only in size at that moment, so the filter now recognises exactly: whole, 8 MiB,
+no content, "Disk Image", "Virtual Interface" (ntfsmac_da_is_macfuse_backing, test U-DMN-DA-05).
+
+The reason mount_timeout seen in three earlier runs (worker log "Mounted ...", no kernel mount within 30 s) is believed to be the
+same cause with other timing; it was not reproduced separately. With the fix, three runs with the 12 s probe mount rw (dmn_slow_guest.sh).

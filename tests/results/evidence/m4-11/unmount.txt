@@ -1,0 +1,107 @@
+######## suite unmount
+guest: 27.2 arm64, user admin uid 501, console owner admin
+== start the job
+PASS: I-DMN-10: the volume mounts rw (Mounted rw)
+PASS: I-DMN-10: the journal holds the entry while the volume is rw
+-- I-DMN-10: trigger: "$CLI" unmount "$bsd" 2>&1
+result: unmounting
+NOTE: I-DMN-10: trigger returned 0
+PASS: I-DMN-10: the volume returns to Appeared
+PASS: I-DMN-10: the mount point directory is gone
+PASS: I-DMN-10: no macfuse mount is left
+PASS: I-DMN-10: the journal entry is gone (positive clean-session proof)
+PASS: I-DMN-10: the daemon said 'ejected, all data written'
+PASS: I-DMN-10: no worker is left
+PASS: I-DMN-10: the dirty flag on the image is clear (0x0000)
+PASS: I-DMN-10: the next attach is rw (the session ended clean) (Mounted rw)
+PASS: I-DMN-10: the data is intact after the next mount (d92fe9fe3deed85312b4fa972bf74c69cd997f5cadf1862af70cde2ef71a00a3)
+PASS: I-DMN-11: the volume mounts rw (Mounted rw)
+PASS: I-DMN-11: the journal holds the entry while the volume is rw
+-- I-DMN-11: trigger: diskutil unmount "/Volumes/$leaf" 2>&1
+Volume macFUSE Volume on disk7s1 failed to unmount
+NOTE: I-DMN-11: trigger returned 1
+KNOWN-FAIL: I-DMN-11: diskutil unmount of the worker's mount answers 'Volume macFUSE Volume on diskNs1 failed to unmount' (FSKit access check error 45 in the unified log); the same without the daemon, on a plain ntfs-3g mount, so it is the macFUSE 5.5.0 FSKit mount on this macOS, not the daemon; umount and ntfsmac unmount work
+PASS: I-DMN-12: the volume mounts rw (Mounted rw)
+PASS: I-DMN-12: the journal holds the entry while the volume is rw
+-- I-DMN-12: trigger: umount "/Volumes/$leaf" 2>&1
+
+NOTE: I-DMN-12: trigger returned 0
+PASS: I-DMN-12: the volume returns to Appeared
+PASS: I-DMN-12: the mount point directory is gone
+PASS: I-DMN-12: no macfuse mount is left
+PASS: I-DMN-12: the journal entry is gone (positive clean-session proof)
+PASS: I-DMN-12: the daemon said 'ejected, all data written'
+PASS: I-DMN-12: no worker is left
+PASS: I-DMN-12: the dirty flag on the image is clear (0x0000)
+PASS: I-DMN-12: the next attach is rw (the session ended clean) (Mounted rw)
+PASS: I-DMN-12: the data is intact after the next mount (91f6103247967b2bd8a98d4df358fe75e1c90793cc95d3a8a122751c756a1419)
+== I-DMN-13: Finder eject
+osascript rc 142: 
+NOTE: I-DMN-13: NOT RUNNABLE unattended here: Finder did not accept the AppleScript (rc 142). See tests/integration/finder/finder_guest.sh
+PASS: I-DMN-13: the volume mounts rw (Mounted rw)
+PASS: I-DMN-13: the journal holds the entry while the volume is rw
+-- I-DMN-13: trigger: o=$(tmo 60 osascript -l JavaScript -e "ObjC.import(\"AppKit\"); \$.NSWorkspace.sharedWorkspace.unmountAndEjectDeviceAtPath(\"/Volumes/$leaf\")" 2>&1); echo "NSWorkspace: $o"; [ "$o" = true ]
+NSWorkspace: true
+NOTE: I-DMN-13: trigger returned 0
+PASS: I-DMN-13: the volume returns to Appeared
+PASS: I-DMN-13: the mount point directory is gone
+PASS: I-DMN-13: no macfuse mount is left
+PASS: I-DMN-13: the journal entry is gone (positive clean-session proof)
+PASS: I-DMN-13: the daemon said 'ejected, all data written'
+PASS: I-DMN-13: no worker is left
+PASS: I-DMN-13: the dirty flag on the image is clear (0x0000)
+PASS: I-DMN-13: the next attach is rw (the session ended clean) (Mounted rw)
+PASS: I-DMN-13: the data is intact after the next mount (eae55de1838d21e8b455633ed0cf4478fb1c41ec736991f2f92e82c72e89f07c)
+-- daemon log
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261117T190126Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261117T190144Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261117T190148Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+== I-DMN-17: passive mode with a dummy third-party NTFS bundle
+NOTE: doctor output:
+ok: macFUSE is installed.
+ok: macFUSE version 5.5.0 is supported.
+problem: The state of the macFUSE file system extension could not be read.
+problem: Paragon NTFS (ufsd_NTFS.fs) is installed. ntfsmac is passive: it mounts nothing and does not stop the other driver from mounting.
+ok: No session journal entries: no volume was left open by this Mac.
+ok: No unreadable journal entries.
+ok: 8 cleared journal entries are kept as tombstones.
+PASS: doctor names the bundle
+PASS: the daemon says passive mode in its log
+-- list in passive mode
+BSD    LABEL  STATE     MOUNT  MOUNTPOINT  REASON
+disk6  -      Appeared  none   -           -
+disk4  -      Appeared  none   -           -
+PASS: the daemon did nothing with the disk: its state stays Appeared (no state machine was started)
+PASS: the system's own driver mounted the disk: the daemon issued no dissent
+PASS: the daemon did not mount it: no macfuse mount
+PASS: no worker was started
+PASS: I-DMN-17: image hash unchanged (60ef76da0ba348929a5b48076bf65dbcbdb4e07c55680c2bc291c59eb2c21a04)
+result: 0 check(s) failed
+######## suite unmount: exit 0

@@ -1,0 +1,153 @@
+guest: 27.2 arm64, user admin uid 501 gid 20
+== rw: marker set before the worker, cleared and the entry removed after a clean end (I-DMN-22)
+PASS: the journal opens
+PASS: the image probes clean before the session
+PASS: begin gave a rw session (ok, mode 2)
+PASS: the journal says marker=set, state=open before the worker starts
+PASS: the image has VOLUME_IS_DIRTY set (probe: dirty_flag)
+PASS: the worker mounted read/write
+NOTE: rw: the user's write test returned 0
+PASS: rw: unmount(2) (code 0)
+PASS: rw: the mount is gone
+INFO: journal: entry 43EA8B71270A5812 removed by path 1 (clean-session), tombstone 43EA8B71270A5812-20261117T191752Z
+PASS: session_end ran
+PASS: the report is a clean end (1)
+PASS: the entry was removed (path 1)
+PASS: the flag is clear after the clean eject (probe: clean)
+NOTE: bytes changed: 6 in the $Volume record and its mirror, 263636 elsewhere (the user's file, $MFT, bitmaps)
+== unclean: the worker is killed in the middle (I-DMN-22, the force-detach part)
+PASS: the journal opens
+PASS: a rw session
+NOTE: unclean: forced unmount after the kill gave 0
+PASS: unclean: the mount is gone
+PASS: the end is unclean (report 3)
+PASS: the entry and marker=set stay
+PASS: the flag stays on the disk (probe: dirty_flag)
+PASS: a second attach: probe
+PASS: the next decision is ro
+== markfail: volmark replaced by a program that fails (I-DMN-22)
+PASS: volmark exits 1: the journal opens
+PASS: volmark exits 1: the session is ro, reason 4
+PASS: volmark exits 1: the entry says marker=failed
+PASS: volmark exits 1: no rw descriptor
+PASS: volmark exits 1: the worker mounted read-only
+PASS: markfail: unmount(2) (code 0)
+PASS: markfail: the mount is gone
+PASS: volmark exits 1: the ro session closes
+PASS: volmark exits 1: the image is byte for byte unchanged
+PASS: volmark says nothing for 20 s: the journal opens
+PASS: volmark says nothing for 20 s: the session is ro, reason 4
+PASS: volmark says nothing for 20 s: the entry says marker=failed
+PASS: volmark says nothing for 20 s: no rw descriptor
+PASS: volmark says nothing for 20 s: the worker mounted read-only
+PASS: markfail: unmount(2) (code 0)
+PASS: markfail: the mount is gone
+PASS: volmark says nothing for 20 s: the ro session closes
+PASS: volmark says nothing for 20 s: the image is byte for byte unchanged
+== bind: the descriptor must be the volume that was probed (I-DMN-25 a, c)
+PASS: the journal opens
+PASS: image X: probe
+PASS: (a) another device under the same name: Failed, binding (denied)
+PASS: (a) image Y is unchanged
+PASS: (a) image X is unchanged
+PASS: (a) no descriptor kept
+PASS: the journal opens
+PASS: image X: probe
+PASS: (a2) other bytes in sector 0: Failed (denied)
+PASS: (a2) nothing was written after the change
+PASS: the journal opens
+PASS: (c) volmark changed sector 0: Failed or ro, never rw (status denied, mode 0)
+PASS: (c) no rw descriptor kept
+PASS: (c) the entry says marker=failed
+NOTE: (b) the description of the disk is a fake in this driver: pending for the wired daemon (T-M4-11)
+PASS: the journal opens
+PASS: (b, fake description) Apple's driver has it: ro with no write descriptor
+PASS: (b, fake description) another driver has it: Failed
+PASS: (b) the image is unchanged
+== evidence: the external-check rule with real flags and a real log sequence number (I-DMN-20)
+PASS: flag cleared and LSN advanced, rule on: the journal opens
+PASS: flag cleared and LSN advanced, rule on: an unclean rw session
+PASS: flag cleared and LSN advanced, rule on: setvolflags
+PASS: flag cleared and LSN advanced, rule on: logfile_mark --bump-lsn
+PASS: flag cleared and LSN advanced, rule on: probe
+PASS: flag cleared and LSN advanced, rule on: the probe says clean
+INFO: journal: entry 43EA8B71270A5812 removed by path 2 (external-check), tombstone 43EA8B71270A5812-20261117T191809Z
+PASS: flag cleared and LSN advanced, rule on: this attach is ro
+PASS: flag cleared and LSN advanced, rule on: the entry was removed
+PASS: flag cleared and LSN advanced, rule on: the next mount is rw
+PASS: flag cleared and LSN advanced, rule off: the journal opens
+PASS: flag cleared and LSN advanced, rule off: an unclean rw session
+PASS: flag cleared and LSN advanced, rule off: setvolflags
+PASS: flag cleared and LSN advanced, rule off: logfile_mark --bump-lsn
+PASS: flag cleared and LSN advanced, rule off: probe
+PASS: flag cleared and LSN advanced, rule off: the probe says clean
+PASS: flag cleared and LSN advanced, rule off: this attach is ro
+PASS: flag cleared and LSN advanced, rule off: the entry is kept
+PASS: flag cleared, LSN unchanged, rule on: the journal opens
+PASS: flag cleared, LSN unchanged, rule on: an unclean rw session
+PASS: flag cleared, LSN unchanged, rule on: setvolflags
+PASS: flag cleared, LSN unchanged, rule on: probe
+PASS: flag cleared, LSN unchanged, rule on: the probe says clean
+PASS: flag cleared, LSN unchanged, rule on: this attach is ro
+PASS: flag cleared, LSN unchanged, rule on: the entry is kept
+== clear: journal-clear gates with real probes (I-DMN-19, module level; the peer checks are U-CTL-*)
+PASS: the journal opens
+PASS: an unclean rw session leaves an entry
+PASS: refused while the flag is still set ({"ok":false,"error":"denied","reason":"probe_not_clean"})
+PASS: setvolflags: clear DIRTY
+PASS: refused with a wrong label
+PASS: refused with a wrong serial
+PASS: refused while mounted read/write
+PASS: the entry is still there
+PASS: refused while a live session (a clone on another disk) owns the entry
+PASS: every refusal left the entry
+INFO: journal: entry 43EA8B71270A5812 removed by path 3 (journal-clear), tombstone 43EA8B71270A5812-20261117T191809Z
+PASS: accepted on a clean probe, with the lost-flush warning (LSN unchanged): {"ok":true,"result":"cleared","warning":"lost_flush"}
+PASS: the entry moved to the tombstones
+PASS: probe
+PASS: the next mount is rw
+PASS: the journal opens again
+PASS: a second unclean session
+PASS: chkdsk-flag image
+PASS: logfile_mark --bump-lsn
+INFO: journal: entry 43EA8B71270A5812 removed by path 3 (journal-clear), tombstone 43EA8B71270A5812-20261117T191810Z
+PASS: accepted on chkdsk-flag with an entry and a moved log: {"ok":true,"result":"cleared","warning":"none"}
+== repair: repair --clear-dirty on real images (I-DMN-21, module level)
+PASS: the journal opens
+PASS: probe
+PASS: refused on a clean volume
+PASS: refused with a flag besides the informational ones ({"ok":false,"error":"denied","reason":"probe_not_dirty_flag"})
+PASS: the image is unchanged after the refusal
+The disk contains an unclean file system (0, 0).
+PASS: refused with an unclean log ({"ok":false,"error":"denied","reason":"probe_not_dirty_flag"})
+PASS: the image is unchanged after the refusal
+PASS: refused with a wrong label
+PASS: refused while mounted
+PASS: the image is unchanged after the refusals
+PASS: the volume probes dirty_flag
+PASS: accepted on dirty-flag ({"ok":true,"result":"repaired","journal_entry":"none","warning":"none"})
+PASS: the flag is clear afterwards (probe: clean)
+PASS: diff helper sanity
+PASS: only the $Volume record of $MFT and $MFTMirr changed (8 bytes inside, 0 outside)
+PASS: accepted on dirty-chkdsk-flag ({"ok":true,"result":"repaired","journal_entry":"none","warning":"none"})
+PASS: DIRTY is clear and the 0x8000 bit is kept
+PASS: the journal opens again
+PASS: an unclean session (entry, flag set)
+PASS: the entry exists
+INFO: journal: entry 43EA8B71270A5812 removed by path 4 (repair), tombstone 43EA8B71270A5812-20261117T191811Z
+PASS: accepted, the entry is removed and the warning is there ({"ok":true,"result":"repaired","journal_entry":"removed","warning":"journal_entry"})
+PASS: the entry is gone
+== result: 0 failure(s)
+== worker log tail
+  log: Version 2026.9.28 external FUSE 29
+  log: Mounted /dev/fd/6 (Read-Only, label "jvmvol", NTFS 3.1)
+  log: Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022,ro
+  log: Mount options: backend=fskit,local,ro,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/6
+  log: Global ownership and permissions enforced, configuration type 1
+  log: Unmounting /dev/fd/6 (jvmvol)
+  log: Version 2026.9.28 external FUSE 29
+  log: Mounted /dev/fd/6 (Read-Only, label "jvmvol", NTFS 3.1)
+  log: Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022,ro
+  log: Mount options: backend=fskit,local,ro,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/6
+  log: Global ownership and permissions enforced, configuration type 1
+  log: Unmounting /dev/fd/6 (jvmvol)

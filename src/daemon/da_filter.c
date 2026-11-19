@@ -59,6 +59,15 @@ bool ntfsmac_da_content_is_candidate(const char *content, bool whole)
 	return equal_nocase(content, MBR_NTFS) || equal_nocase(content, GPT_BASIC_DATA);
 }
 
+bool ntfsmac_da_is_macfuse_backing(uint64_t size_bytes, bool whole, const char *content,
+				   const char *model, const char *protocol)
+{
+	return whole && size_bytes == NTFSMAC_DA_MACFUSE_BACKING_BYTES &&
+	       (content == NULL || content[0] == '\0') && model != NULL &&
+	       strcmp(model, "Disk Image") == 0 && protocol != NULL &&
+	       strcmp(protocol, "Virtual Interface") == 0;
+}
+
 void ntfsmac_da_table_init(ntfsmac_da_table *t)
 {
 	memset(t, 0, sizeof *t);

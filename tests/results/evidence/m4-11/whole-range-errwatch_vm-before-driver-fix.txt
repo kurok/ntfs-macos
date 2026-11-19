@@ -1,0 +1,19 @@
+guest: 27.2 arm64, user admin uid 501 gid 20
+== clean: rw session, workload, unmount (U16, I-DMN-24 happy path)
+FAIL: clean: the rw mount appeared (denied)
+FAIL: clean: the positive proof holds (exit status -1)
+PASS: clean: no protocol error and no E record
+== nochan: the worker without NTFSMAC_ERRFD (I-DMN-24 b)
+FAIL: nochan: the rw mount appeared (denied)
+FAIL: nochan: silence is not a clean session
+FAIL: nochan: EOF and no record
+== fault: first device write of the workload fails with EIO (I-DMN-24 a)
+FAIL: faultcount: the rw mount appeared (denied)
+FAIL: fault: the count run saw 0 device writes at mount
+FAIL: fault: a faultio worker without a fault still ends clean
+FAIL: faulteio: the rw mount appeared (denied)
+FAIL: fault: the session started with eio:1
+FAIL: fault: an E record arrived
+PASS: fault: the records are within the grammar
+PASS: fault: the session is not clean
+== result: 11 failure(s)

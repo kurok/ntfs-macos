@@ -1,0 +1,60 @@
+guest: 27.2 arm64, user admin uid 501 gid 20
+ntfsfix audit: ntfsmac-probe mentions ntfsfix in 1 line(s) of its bytes (text from libntfs-3g, not run):
+  | ?Note : chkdsk cannot fix this, try ntfsfix
+ntfsfix audit: ntfsmac-volmark mentions ntfsfix in 1 line(s) of its bytes (text from libntfs-3g, not run):
+  | ?Note : chkdsk cannot fix this, try ntfsfix
+== refuse: repair --sync-mirror refusals on real images (I-DMN-27)
+PASS: the journal opens
+PASS: probe
+PASS: the split probes mirror_split with MFTMIRR_STALE (state mirror_split)
+PASS: attach: the policy refuses a mirror_split volume (note mirror_split)
+PASS: refused with a wrong label ({"ok":false,"error":"denied","reason":"confirmation"})
+PASS: refused with a wrong serial ({"ok":false,"error":"denied","reason":"confirmation"})
+PASS: refused while mounted ({"ok":false,"error":"denied","reason":"mounted"})
+PASS: the image hash is unchanged after the refusals
+PASS: probe of clean
+PASS: refused on clean with probe state clean ({"ok":false,"error":"denied","reason":"probe_not_mirror_split"})
+PASS: the image hash is unchanged after the refusal on clean
+PASS: probe of newer
+PASS: refused on newer with probe state corrupt ({"ok":false,"error":"denied","reason":"probe_not_mirror_split"})
+PASS: the image hash is unchanged after the refusal on newer
+PASS: probe of splitlog
+PASS: refused on splitlog with probe state mirror_split ({"ok":false,"error":"denied","reason":"probe_not_mirror_split"})
+PASS: the image hash is unchanged after the refusal on splitlog
+== repair: repair --sync-mirror on mirror-split and mirror-split-dirty (I-DMN-27)
+PASS: the journal opens
+PASS: probe
+PASS: a journal entry exists
+PASS: the entry is marked set, as after an unclean session
+PASS: the entry reads back
+PASS: accepted on mirror-split, the reply carries the fresh state clean ({"ok":true,"result":"repaired","state":"clean","journal_entry":"untouched"})
+PASS: only bytes inside the $MFTMirr records changed (5 changed, 0 outside)
+PASS: the $MFTMirr record 0 equals the $MFT record 0 byte for byte
+PASS: the journal entry is unchanged
+PASS: the next probe says clean
+PASS: probe again
+PASS: the next attach follows the policy table (an entry of an unclean session: ro)
+PASS: nothing of this image is mounted
+PASS: a second request is refused ({"ok":false,"error":"denied","reason":"probe_not_mirror_split"})
+PASS: the image is unchanged by the second request
+PASS: the journal opens
+PASS: probe of mirror-split-dirty
+PASS: it probes mirror_split with FLAG_DIRTY
+PASS: accepted, the reply carries dirty_flag ({"ok":true,"result":"repaired","state":"dirty_flag","journal_entry":"untouched"})
+PASS: only the $MFTMirr records changed (5 changed, 0 outside)
+PASS: probe again
+PASS: the next attach is read-only (dirty_flag)
+== volmark: volmark replaced by test binaries (I-DMN-27)
+PASS: the journal opens
+PASS: probe
+PASS: jstub-exit1: the request does not succeed (status 5, {"ok":false,"error":"failed","status":"I/O error","reason":"volmark_failed","state":"mirror_split"})
+PASS: jstub-exit1: the reply carries the state of a fresh probe
+PASS: jstub-exit1: a fixed word, the image is unchanged
+PASS: the journal opens
+PASS: probe
+PASS: jstub-sector0: the request does not succeed (status 5, {"ok":false,"error":"failed","status":"I/O error","reason":"volmark_failed","state":"mirror_split"})
+PASS: jstub-sector0: the reply carries the state of a fresh probe
+PASS: jstub-sector0: the mirror record was not written (changed 1, only the byte the stub changed)
+== result: 0 failure(s)
+ntfsfix audit: 0 sample(s) saw an ntfsfix process
+== worker log tail

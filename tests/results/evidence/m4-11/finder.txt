@@ -1,0 +1,35 @@
+######## suite finder
+guest: 27.2 arm64, user admin uid 501, console owner admin
+== start the job and attach a clean volume
+PASS: the volume mounts rw (Mounted rw)
+-- mount point '/Volumes/clean64m4k'
+== what does not need Finder
+PASS: I-FND-01 the mount point is /Volumes/<leaf> and is a directory
+PASS: I-FND-01 the volume is listed by diskutil under its disk
+RESULT U14: display name of /Volumes/clean64m4k is 'macFUSE Volume' (the leaf is 'clean64m4k')
+NOTE: U14: the system's display name for the worker's mount is 'macFUSE Volume', the leaf is 'clean64m4k'
+NOTE: mdls kMDItemDisplayName: kMDItemDisplayName = (null)
+NOTE: Finder running: 420 (empty: no Finder in this session)
+== can this session drive Finder?
+osascript rc 142: 
+NOTE: NOT RUNNABLE UNATTENDED: osascript failed or timed out (rc 142). The Finder cases below were not run; use --guided in the guest's GUI session.
+== steps without Finder automation
+PASS: a ditto copy in (the call Finder's copy ends in) has the same bytes
+-- daemon log (tail)
+INFO: disk4: PROBE_DONE -> Deciding
+INFO: disk4: probe state unsupported, decision refuse
+INFO: disk4: REFUSED -> Failed
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261117T191129Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+result: 0 check(s) failed
+######## suite finder: exit 0

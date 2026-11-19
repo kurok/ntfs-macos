@@ -1,0 +1,69 @@
+######## suite u15
+guest: 27.2 arm64
+PASS: the daemon is not loaded (nothing dissents)
+== clean-64m-4k
+hdiutil attach rc 0: hdiutil: WARNING: 'hdiutil attach ...' is deprecated. Please use 'diskutil image attach ...' instead.
+/dev/disk6          	                               	/Volumes/clean64m4k
+-- diskutil info disk6
+   Device Node:               /dev/disk6
+   Volume Name:               clean64m4k
+   Mounted:                   Yes
+   Mount Point:               /Volumes/clean64m4k
+   File System Personality:   NTFS
+   Type (Bundle):             ntfs
+-- mount table
+/dev/disk6 on /Volumes/clean64m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+NOTE: U15 clean-64m-4k: Apple's driver MOUNTED it: /dev/disk6 on /Volumes/clean64m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+NOTE: U15 clean-64m-4k: listing of the root: boundary docs empty large link-to-readme long many small sparse unicode with spaces 
+RESULT U15 clean-64m-4k mounted=1
+PASS: clean-64m-4k: the image is unchanged (60ef76da0ba348929a5b48076bf65dbcbdb4e07c55680c2bc291c59eb2c21a04)
+== vmk-split
+hdiutil attach rc 0: hdiutil: WARNING: 'hdiutil attach ...' is deprecated. Please use 'diskutil image attach ...' instead.
+/dev/disk6          	                               	/Volumes/clean64m4k
+-- diskutil info disk6
+   Device Node:               /dev/disk6
+   Volume Name:               clean64m4k
+   Mounted:                   Yes
+   Mount Point:               /Volumes/clean64m4k
+   File System Personality:   NTFS
+   Type (Bundle):             ntfs
+-- mount table
+/dev/disk6 on /Volumes/clean64m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+NOTE: U15 vmk-split: Apple's driver MOUNTED it: /dev/disk6 on /Volumes/clean64m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+NOTE: U15 vmk-split: listing of the root: boundary docs empty large link-to-readme long many small sparse unicode with spaces 
+RESULT U15 vmk-split mounted=1
+PASS: vmk-split: the image is unchanged (9203b78a225236f66493ad99c7930e65c01891a1e757ca11cdaac3969f5589ab)
+== vmk-split-clear
+hdiutil attach rc 0: hdiutil: WARNING: 'hdiutil attach ...' is deprecated. Please use 'diskutil image attach ...' instead.
+/dev/disk6          	                               	/Volumes/clean64m4k
+-- diskutil info disk6
+   Device Node:               /dev/disk6
+   Volume Name:               clean64m4k
+   Mounted:                   Yes
+   Mount Point:               /Volumes/clean64m4k
+   File System Personality:   NTFS
+   Type (Bundle):             ntfs
+-- mount table
+/dev/disk6 on /Volumes/clean64m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+NOTE: U15 vmk-split-clear: Apple's driver MOUNTED it: /dev/disk6 on /Volumes/clean64m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+NOTE: U15 vmk-split-clear: listing of the root: boundary docs empty large link-to-readme long many small sparse unicode with spaces 
+RESULT U15 vmk-split-clear mounted=1
+PASS: vmk-split-clear: the image is unchanged (07652b9147a9acdf193c6b020769791340d02557b738f8565602d6305115f0d3)
+== mirror-split
+hdiutil attach rc 0: hdiutil: WARNING: 'hdiutil attach ...' is deprecated. Please use 'diskutil image attach ...' instead.
+/dev/disk6          	                               	/Volumes/mirror-split
+-- diskutil info disk6
+   Device Node:               /dev/disk6
+   Volume Name:               mirror-split
+   Mounted:                   Yes
+   Mount Point:               /Volumes/mirror-split
+   File System Personality:   NTFS
+   Type (Bundle):             ntfs
+-- mount table
+/dev/disk6 on /Volumes/mirror-split (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+NOTE: U15 mirror-split: Apple's driver MOUNTED it: /dev/disk6 on /Volumes/mirror-split (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+NOTE: U15 mirror-split: listing of the root: d0 d1 d2 
+RESULT U15 mirror-split mounted=1
+PASS: mirror-split: the image is unchanged (c3d024d952116dc2b085de7ce5b5d40cceceacc1804039dd9c67405d6903c7c3)
+result: 0 check(s) failed
+######## suite u15: exit 0

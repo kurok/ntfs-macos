@@ -12,6 +12,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,6 +30,20 @@ bool ntfsmac_da_bsd_name_valid(const char *name);
  * partition map is not a candidate: its partitions are.
  */
 bool ntfsmac_da_content_is_candidate(const char *content, bool whole);
+
+/*
+ * macFUSE's own device (T-M4-11). Every FSKit mount of the worker makes macFUSE attach an 8 MiB
+ * disk image with a GUID partition map (its "virtual device"). When that disk appears its content
+ * is still empty, so the filter above would take it for a raw NTFS disk and the daemon would
+ * give a mount-approval dissent for it; the dissent refuses macFUSE's own mount ("Failed to
+ * activate virtual device", reason `spawn` or `mount_timeout`) whenever the probe is slow. It is
+ * recognised by what no physical disk has: a whole virtual disk image (DADeviceModel "Disk
+ * Image", protocol "Virtual Interface") of exactly 8 MiB with no content yet. A raw NTFS disk
+ * image of exactly 8 MiB is therefore not handled by this product (Apple's driver mounts it).
+ */
+#define NTFSMAC_DA_MACFUSE_BACKING_BYTES (UINT64_C(8) * 1024u * 1024u)
+bool ntfsmac_da_is_macfuse_backing(uint64_t size_bytes, bool whole, const char *content,
+				   const char *model, const char *protocol);
 
 /* Table of BSD names, each with one flag. Fixed size; the caller locks. */
 #define NTFSMAC_DA_TABLE_MAX 128

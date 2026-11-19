@@ -1,0 +1,28 @@
+T-M4-11 results after the review round (guest macOS 27.2, arm64; every image is a file attached with hdiutil inside the guest)
+Counts are PASS lines of the guest output; FAIL is 0 unless stated. KNOWN-FAIL and NOTE lines are not counted.
+
+daemon integration (tests/integration/daemon/dmn_vm.sh, real launchd job, probe, volmark, sandbox, worker)
+  classes    I-DMN-01..08, I-DMN-23        PASS 199  FAIL 0   (classes.txt; 23 fixtures, mounted within 3 to 6 s)
+  kill       I-DMN-14, 15, 16              PASS  45  FAIL 0   (kill.txt)
+  unmount    I-DMN-10..13, 17              PASS  42  FAIL 0   KNOWN-FAIL 1 (diskutil unmount, rc 1 and "failed to unmount")  (unmount.txt)
+  labels     I-DMN-18                      PASS 154  FAIL 0   (labels.txt; 27 images)
+  priv       I-DMN-19..22, 25 b/c, 27      PASS  85  FAIL 0   (priv.txt)
+  slow       mount_timeout regression      PASS   5  FAIL 0   (slow.txt; probe 12 s late, 3 mounts)
+  u15        U15                           PASS   5  FAIL 0   (u15.txt)
+  finder     I-FND-*                       PASS   4  FAIL 0   (finder.txt; the Finder cases are NOT RUNNABLE unattended)
+
+whole I-DMN-* range, run with dmn_all.sh (one guest per driver); spawn-sbx and sandbox_vm (the I-SBX range) were NOT part of this run
+  spawn_vm.sh        I-DMN-09, I-DMN-26 b and c            PASS  39  FAIL 0   (earlier run, same code)
+  errwatch_vm.sh     I-DMN-24 a and b                      PASS  32  FAIL 0   (after the driver fix; before: PASS 3 FAIL 11, whole-range-errwatch_vm-before-driver-fix.txt)
+  journal_vm.sh      I-DMN-19..22, I-DMN-25 a and c        PASS 121  FAIL 0   (re-run after the driver fix of a double free in its failure path;
+                                                           under host load (cmake/asan builds on the host at the same time) one run had PASS 111 FAIL 3 with
+                                                           "the worker did not mount (I/O error)" and no crash: whole-range-journal_vm-under-host-load.txt)
+  xpc_vm.sh          XPC door of I-DMN-19                  PASS  15  FAIL 0   (earlier run, same code)
+  dmn_mirror_vm.sh   I-DMN-27 (module level)               PASS  49  FAIL 0   (earlier run, same code)
+  attach_vm.sh       T-M4-08 manual attach                 PASS  50  FAIL 0   (earlier run, before the da.c change below)
+
+mount_timeout: root cause found and fixed. With a slow probe the daemon gave a mount-approval dissent for macFUSE's own 8 MiB
+backing disk (it appears while a volume is Mounting, with no content yet, and looked like a raw NTFS disk), which made macFUSE's
+mount fail. The filter now recognises that disk (ntfsmac_da_is_macfuse_backing, U-DMN-DA-05) and the daemon never probes, claims
+or dissents it. Before: mount_timeout-before-fix.txt; after: slow.txt. The journal_vm failure under host load is a different
+case (that driver has no dissenter); it was not analysed further and is Open.

@@ -17,6 +17,24 @@
 #include "fakes.h"
 #include "json.h"
 #include "ntfsmac/probe.h"
+#include "internal.h"
+
+/* the doctor codes and the oldest macFUSE of the CLI are those of the daemon (M6) */
+_Static_assert(NTFSMAC_CLI_DOCTOR_MACFUSE_INSTALLED == NTFSMAC_DOCTOR_MACFUSE_INSTALLED, "doctor code");
+_Static_assert(NTFSMAC_CLI_DOCTOR_MACFUSE_VERSION == NTFSMAC_DOCTOR_MACFUSE_VERSION, "doctor code");
+_Static_assert(NTFSMAC_CLI_DOCTOR_MACFUSE_EXTENSION == NTFSMAC_DOCTOR_MACFUSE_EXTENSION, "doctor code");
+_Static_assert(NTFSMAC_CLI_DOCTOR_CONFLICT_NONE == NTFSMAC_DOCTOR_CONFLICT_NONE, "doctor code");
+_Static_assert(NTFSMAC_CLI_DOCTOR_CONFLICT_PARAGON == NTFSMAC_DOCTOR_CONFLICT_PARAGON, "doctor code");
+_Static_assert(NTFSMAC_CLI_DOCTOR_CONFLICT_TUXERA == NTFSMAC_DOCTOR_CONFLICT_TUXERA, "doctor code");
+_Static_assert(NTFSMAC_CLI_DOCTOR_CONFLICT_OTHER == NTFSMAC_DOCTOR_CONFLICT_OTHER, "doctor code");
+_Static_assert(NTFSMAC_CLI_DOCTOR_CONFLICT_UNREADABLE == NTFSMAC_DOCTOR_CONFLICT_UNREADABLE, "doctor code");
+_Static_assert(NTFSMAC_CLI_DOCTOR_JOURNAL_ENTRIES == NTFSMAC_DOCTOR_JOURNAL_ENTRIES, "doctor code");
+_Static_assert(NTFSMAC_CLI_DOCTOR_JOURNAL_CORRUPT == NTFSMAC_DOCTOR_JOURNAL_CORRUPT, "doctor code");
+_Static_assert(NTFSMAC_CLI_DOCTOR_JOURNAL_CLEARED == NTFSMAC_DOCTOR_JOURNAL_CLEARED, "doctor code");
+_Static_assert(NTFSMAC_CLI_DOCTOR_JOURNAL_UNREADABLE == NTFSMAC_DOCTOR_JOURNAL_UNREADABLE, "doctor code");
+_Static_assert(NTFSMAC_CLI_DOCTOR_EXT_NOT_APPROVED == NTFSMAC_EXT_NOT_APPROVED, "ext state");
+_Static_assert(NTFSMAC_CLI_MACFUSE_MIN_MAJOR == NTFSMAC_MACFUSE_MIN_MAJOR, "macFUSE minimum");
+_Static_assert(NTFSMAC_CLI_MACFUSE_MIN_MINOR == NTFSMAC_MACFUSE_MIN_MINOR, "macFUSE minimum");
 
 /* ---------------- 01 ---------------- */
 
@@ -281,6 +299,62 @@ static void test_render(void)
 	cap_close(&c);
 	CHECK_EQ_INT(rc, 0);
 	CHECK(strcmp(c.out, "No NTFS volumes.\n") == 0);
+	cap_free(&c);
+
+	/* doctor (I-DMN-17, T-M4-11): one line per finding, with text; the conflicting bundle is named */
+	cap_open(&c);
+	rc = ntfsmac_cli_render(&c.ctx, NTFSMAC_CTL_CMD_DOCTOR,
+		"{\"ok\":true,\"findings\":[{\"code\":1,\"ok\":true,\"value\":0},"
+		"{\"code\":2,\"ok\":true,\"value\":50500},{\"code\":3,\"ok\":false,\"value\":2},"
+		"{\"code\":5,\"ok\":false,\"value\":0},{\"code\":9,\"ok\":false,\"value\":2},"
+		"{\"code\":99,\"ok\":false,\"value\":7}]}");
+	cap_close(&c);
+	CHECK_EQ_INT(rc, 0);
+	CHECK(strstr(c.out, "ok: macFUSE is installed.\n") != NULL);
+	CHECK(strstr(c.out, "ok: macFUSE version 5.5.0 is supported.\n") != NULL);
+	CHECK(strstr(c.out, "problem: The macFUSE file system extension is not approved") != NULL);
+	CHECK(strstr(c.out, "problem: Paragon NTFS (ufsd_NTFS.fs) is installed. ntfsmac is passive") != NULL);
+	CHECK(strstr(c.out, "problem: 2 volume(s) were left open by this Mac") != NULL);
+	CHECK(strstr(c.out, "problem: finding 99 (value 7)\n") != NULL); /* an unknown code is shown, not hidden */
+	CHECK(strstr(c.out, "code:") == NULL);                           /* not the raw dump */
+	cap_free(&c);
+	/* macFUSE version unreadable (value 0, not ok): not "0.0.0 is not supported" */
+	{
+		char b[256];
+
+		CHECK(strcmp(ntfsmac_cli_doctor_text(2, false, 0, b, sizeof b), "The macFUSE version could not be read.") == 0);
+		CHECK(strstr(ntfsmac_cli_doctor_text(2, false, 50300, b, sizeof b), "5.3.0 is not supported; install 5.5 or newer") != NULL);
+		CHECK(strstr(ntfsmac_cli_doctor_text(2, false, -7, b, sizeof b), "could not be read") != NULL); /* negative */
+		CHECK(strstr(ntfsmac_cli_doctor_text(9, false, -3, b, sizeof b), "0 volume(s)") != NULL);       /* negative count */
+		CHECK(ntfsmac_cli_doctor_text(0, true, 0, b, sizeof b) == NULL);
+		CHECK(ntfsmac_cli_doctor_text(-1, true, 0, b, sizeof b) == NULL);
+		CHECK(ntfsmac_cli_doctor_text(1001, true, 0, b, sizeof b) == NULL);
+		CHECK(ntfsmac_cli_doctor_text(13, true, 0, b, sizeof b) == NULL);
+	}
+	/* codes outside 1..1000 or below 1 are not findings: the reply is dumped, nothing is half printed */
+	cap_open(&c);
+	rc = ntfsmac_cli_render(&c.ctx, NTFSMAC_CTL_CMD_DOCTOR,
+		"{\"ok\":true,\"findings\":[{\"code\":1,\"ok\":true,\"value\":0},{\"code\":1001,\"ok\":true,\"value\":0}]}");
+	cap_close(&c);
+	CHECK_EQ_INT(rc, 0);
+	CHECK(strstr(c.out, "code: 1001") != NULL && strstr(c.out, "macFUSE is installed") == NULL);
+	cap_free(&c);
+	cap_open(&c);
+	rc = ntfsmac_cli_render(&c.ctx, NTFSMAC_CTL_CMD_DOCTOR, "{\"ok\":true,\"findings\":[{\"code\":0,\"ok\":true,\"value\":0}]}");
+	cap_close(&c);
+	CHECK(strstr(c.out, "code: 0") != NULL);
+	cap_free(&c);
+	cap_open(&c);
+	rc = ntfsmac_cli_render(&c.ctx, NTFSMAC_CTL_CMD_DOCTOR, "{\"ok\":true,\"findings\":[{\"code\":-4,\"ok\":true,\"value\":-2}]}");
+	cap_close(&c);
+	CHECK(strstr(c.out, "code: -4") != NULL);
+	cap_free(&c);
+	/* a reply that is not in the shape of findings is still shown (as a dump), never dropped */
+	cap_open(&c);
+	rc = ntfsmac_cli_render(&c.ctx, NTFSMAC_CTL_CMD_DOCTOR, "{\"ok\":true,\"findings\":[{\"code\":\"x\"}]}");
+	cap_close(&c);
+	CHECK_EQ_INT(rc, 0);
+	CHECK(strstr(c.out, "code: x") != NULL);
 	cap_free(&c);
 
 	/* status: a dump; reason codes get their text; strings are safe */

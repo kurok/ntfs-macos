@@ -3,6 +3,7 @@
  * Output of the CLI (T-M4-04). Everything printed goes through
  * ntfsmac_cli_print_safe(), so no byte of a reply can act on the terminal.
  */
+#include <stdlib.h>
 #include <string.h>
 
 #include "cli.h"
@@ -282,6 +283,55 @@ static void render_list(FILE *f, const json_node *root)
 }
 
 /* ------------------------------------------------------------------ */
+/* doctor: one line per finding, with the text of its code             */
+/* ------------------------------------------------------------------ */
+
+/* The number of a JSON number member, 0 if absent or not a number. */
+static long number_of(const json_node *obj, const char *key)
+{
+	const json_node *m = json_member(obj, key);
+	char *end;
+	long v;
+
+	if (m == NULL || m->type != JSON_NUMBER || m->text == NULL)
+		return 0;
+	v = strtol(m->text, &end, 10);
+	return *end == '\0' ? v : 0;
+}
+
+/* False if the reply has no findings array in the shape the daemon sends (then dump() shows it). */
+static bool render_doctor(FILE *f, const json_node *root)
+{
+	const json_node *arr = json_member(root, "findings");
+	const json_node *c;
+
+	if (arr == NULL || arr->type != JSON_ARRAY)
+		return false;
+	for (c = arr->first; c != NULL; c = c->next) { /* the shape first, so nothing is half printed */
+		const json_node *okm = c->type == JSON_OBJECT ? json_member(c, "ok") : NULL;
+
+		if (okm == NULL || okm->type != JSON_BOOL || number_of(c, "code") < 1 || number_of(c, "code") > 1000)
+			return false;
+	}
+	for (c = arr->first; c != NULL; c = c->next) {
+		bool ok = json_member(c, "ok")->boolean;
+		long code = number_of(c, "code");
+		long value = number_of(c, "value");
+		char buf[256];
+		const char *text;
+
+		text = ntfsmac_cli_doctor_text((int)code, ok, value, buf, sizeof buf);
+		fprintf(f, "%s: ", ok ? "ok" : "problem");
+		if (text != NULL)
+			ntfsmac_cli_print_safe(f, text);
+		else
+			fprintf(f, "finding %ld (value %ld)", code, value);
+		fputc('\n', f);
+	}
+	return true;
+}
+
+/* ------------------------------------------------------------------ */
 /* Entry point                                                         */
 /* ------------------------------------------------------------------ */
 
@@ -328,6 +378,8 @@ int ntfsmac_cli_render(const ntfsmac_cli_ctx *ctx, ntfsmac_ctl_cmd cmd, const ch
 	} else {
 		if (cmd == NTFSMAC_CTL_CMD_LIST)
 			render_list(ctx->out, root);
+		else if (cmd == NTFSMAC_CTL_CMD_DOCTOR && render_doctor(ctx->out, root))
+			; /* printed */
 		else
 			dump(ctx->out, root, 0);
 		rc = NTFSMAC_CLI_EXIT_OK;

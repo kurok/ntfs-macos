@@ -38,6 +38,25 @@ static void test_filter(void)
 	CHECK(!ntfsmac_da_content_is_candidate("EBD0A0A2-B9E5-4433-87C0-68B6B72699C78", false));
 }
 
+static void test_macfuse_backing(void)
+{
+	const uint64_t mib8 = UINT64_C(8) * 1024 * 1024;
+
+	/* U-DMN-DA-05: macFUSE's own 8 MiB virtual disk is recognised, nothing else is */
+	CHECK(ntfsmac_da_is_macfuse_backing(mib8, true, "", "Disk Image", "Virtual Interface"));
+	CHECK(ntfsmac_da_is_macfuse_backing(mib8, true, NULL, "Disk Image", "Virtual Interface"));
+	CHECK(!ntfsmac_da_is_macfuse_backing(mib8 + 512, true, "", "Disk Image", "Virtual Interface"));
+	CHECK(!ntfsmac_da_is_macfuse_backing(mib8 - 512, true, "", "Disk Image", "Virtual Interface"));
+	CHECK(!ntfsmac_da_is_macfuse_backing(mib8, false, "", "Disk Image", "Virtual Interface"));
+	CHECK(!ntfsmac_da_is_macfuse_backing(mib8, true, "GUID_partition_scheme", "Disk Image",
+					     "Virtual Interface"));
+	CHECK(!ntfsmac_da_is_macfuse_backing(mib8, true, "", "SanDisk Ultra", "USB"));
+	CHECK(!ntfsmac_da_is_macfuse_backing(mib8, true, "", "Disk Image", "USB"));
+	CHECK(!ntfsmac_da_is_macfuse_backing(mib8, true, "", NULL, "Virtual Interface"));
+	CHECK(!ntfsmac_da_is_macfuse_backing(mib8, true, "", "Disk Image", NULL));
+	CHECK(!ntfsmac_da_is_macfuse_backing(0, true, "", "Disk Image", "Virtual Interface"));
+}
+
 static void test_names(void)
 {
 	/* U-DMN-DA-02 */
@@ -140,6 +159,7 @@ static void test_api_args(void)
 int main(void)
 {
 	test_filter();
+	test_macfuse_backing();
 	test_names();
 	test_table();
 	test_api_args();

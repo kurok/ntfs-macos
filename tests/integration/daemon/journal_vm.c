@@ -582,9 +582,8 @@ static void case_rw(void)
 		CHECK(er.report == NTFSMAC_SREPORT_CLEAN || er.report == NTFSMAC_SREPORT_CLEAN_NO_FLUSH,
 		      "the report is a clean end (%d)", (int)er.report);
 		CHECK(er.entry_removed && !entry_get(j, ENTRY_SERIAL(at.v), &e), "the entry was removed (path 1)");
-	} else {
-		ntfsmac_session_free(s);
 	}
+	/* freed once, whether or not the worker mounted (the failure path freed it twice: a segmentation fault) */
 	ntfsmac_session_free(s);
 	CHECK(strcmp(probe_state_now(), "clean") == 0, "the flag is clear after the clean eject (probe: clean)");
 	/* only MFT record 3 and its mirror (the flag, the update sequence numbers) plus the user's file changed */

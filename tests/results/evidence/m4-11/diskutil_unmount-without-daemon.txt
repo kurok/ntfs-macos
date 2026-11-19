@@ -1,0 +1,17 @@
+guest: 27.2 arm64
+daemon loaded: no
+-- mount table
+/dev/disk6s1 on <home>/exp9mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+-- diskutil unmount of the mount point (plain ntfs-3g mount, no ntfsmacd)
+Volume macFUSE Volume on disk6s1 failed to unmount
+rc=1
+-- unified log, last 15 s: the FSKit access check
+2026-11-17 18:58:40.498 E  io.macfuse.app.fsmodule.macfuse-local[2680:407c] [com.apple.FSKit:default] -[FSVolumeConnector checkAccessTo:requestedAccess:auditToken:requestID:replyHandler:]_block_invoke:reply:error:45
+2026-11-17 18:58:40.498 E  io.macfuse.app.fsmodule.macfuse-local[2680:407c] [com.apple.FSKit:default] -[FSVolumeConnector checkAccessTo:requestedAccess:auditToken:requestID:replyHandler:]_block_invoke:reply:error:45
+2026-11-17 18:58:41.214 E  io.macfuse.app.fsmodule.macfuse-local[2680:407c] [com.apple.FSKit:default] -[FSVolumeConnector checkAccessTo:requestedAccess:auditToken:requestID:replyHandler:]_block_invoke:reply:error:45
+2026-11-17 18:58:41.214 E  io.macfuse.app.fsmodule.macfuse-local[2680:407c] [com.apple.FSKit:default] -[FSVolumeConnector checkAccessTo:requestedAccess:auditToken:requestID:replyHandler:]_block_invoke:reply:error:45
+2026-11-17 18:58:41.215 E  io.macfuse.app.fsmodule.macfuse-local[2680:407c] [com.apple.FSKit:default] -[FSVolumeConnector checkAccessTo:requestedAccess:auditToken:requestID:replyHandler:]_block_invoke:reply:error:45
+2026-11-17 18:58:41.215 E  io.macfuse.app.fsmodule.macfuse-local[2680:407c] [com.apple.FSKit:default] -[FSVolumeConnector checkAccessTo:requestedAccess:auditToken:requestID:replyHandler:]_block_invoke:reply:error:45
+-- umount
+umount rc=0
+0

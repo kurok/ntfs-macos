@@ -1,0 +1,24 @@
+######## suite slow
+guest: 27.2 arm64, user admin uid 501, console owner admin
+PASS: slow probe, run 1: the volume mounts rw (17 s) (Mounted rw)
+PASS: slow probe, run 2: the volume mounts rw (16 s) (Mounted rw)
+PASS: slow probe, run 3: the volume mounts rw (17 s) (Mounted rw)
+PASS: no 'did not mount' in the daemon log
+PASS: macFUSE's own 8 MiB disks were never taken for NTFS disks (no 'appeared (8388608' line)
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261117T190759Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+result: 0 check(s) failed
+######## suite slow: exit 0

@@ -23,3 +23,11 @@ publishes them.
 
 When a fixed NTFS-3G release is pinned, drop each carried fix it covers (ADR-026) and update
 this table.
+
+## Reports to macFUSE
+
+Filing is an owner action, as above.
+
+| Item | Source | Kind | Channel | Status | Local fix |
+|---|---|---|---|---|---|
+| `diskutil unmount` of an FSKit-backend mount answers "failed to unmount" (FSKit access check error 45), macFUSE 5.5.0 on macOS 27.2 | T-M4-11, `tests/results/evidence/m4-11/diskutil_unmount-without-daemon.txt` | bug | public issue | Drafted 2026-11-19, not filed | none: `ntfsmac unmount`, `umount` and Finder eject work (R-37) |

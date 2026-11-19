@@ -61,7 +61,11 @@ size_t ntfsmac_label_sanitize(const char *label, size_t len, uint64_t serial, ch
 		i += clen;
 	}
 
-	/* Path component: leading spaces, then a leading dot or combining mark becomes `_`. */
+	/*
+	 * Path component: leading spaces, then a leading dot, hyphen or combining mark becomes `_`.
+	 * A leading hyphen would make the label an option to a program that gets it as an
+	 * argument (osascript in notify.c; audit M4 F-01).
+	 */
 	start = 0;
 	while (start < n && buf[start] == ' ')
 		start++;
@@ -69,7 +73,7 @@ size_t ntfsmac_label_sanitize(const char *label, size_t len, uint64_t serial, ch
 		uint32_t cp = 0;
 		size_t clen = ntfsmac_utf8_decode(buf + start, n - start, &cp);
 
-		if (buf[start] == '.') {
+		if (buf[start] == '.' || buf[start] == '-') {
 			buf[start] = '_';
 			kept[start] = false;
 		} else if (clen > 0 && ntfsmac_label_cp_is_mark(cp)) {

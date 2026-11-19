@@ -86,8 +86,8 @@ static void u_label_01(void)
 
 		san(&in, 1, out);
 		n = strlen(out);
-		/* a space, a dot and every disallowed byte leave nothing that survived: the fallback */
-		if (c == ' ' || c == '.' || !oracle_cp_allowed((uint32_t)c)) {
+		/* a space, a dot, a hyphen and every disallowed byte leave nothing that survived */
+		if (c == ' ' || c == '.' || c == '-' || !oracle_cp_allowed((uint32_t)c)) {
 			CHECK(strcmp(out, FALLBACK) == 0);
 			continue;
 		}
@@ -123,6 +123,10 @@ static void u_label_03(void)
 	expect("..", FALLBACK);
 	expect("../../etc/x", "_._.._etc_x");
 	expect(".hidden", "_hidden");
+	expect("-e x", "_e x");      /* never an option to a program (M4 F-01) */
+	expect("  -x", "_x");
+	expect("-", FALLBACK);
+	expect("a-b", "a-b");
 	expect(" . ", FALLBACK);
 	expect("  x  ", "x");
 	expect("name...", "name");
@@ -294,7 +298,8 @@ static void u_label_07(void)
 	expect(",_", "__");
 	expect(",a", "_a");
 	expect("a,", "a_");
-	expect("-,", "-_");
+	expect("-,", FALLBACK); /* a leading hyphen is replaced (M4 F-01) */
+	expect("a-,", "a-_");
 	{
 		char out[NTFSMAC_LABEL_PART_SIZE];
 

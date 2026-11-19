@@ -155,8 +155,8 @@ static inline const char *oracle_label_violation(const char *s, size_t len, size
 		return "too long";
 	if (memchr(s, '\0', len) != NULL)
 		return "NUL inside";
-	if (s[0] == '.' || s[0] == ' ')
-		return "leading dot or space";
+	if (s[0] == '.' || s[0] == '-' || s[0] == ' ')
+		return "leading dot, hyphen or space";
 	if (s[len - 1] == '.' || s[len - 1] == ' ')
 		return "trailing dot or space";
 	while (i < len) {
@@ -241,7 +241,7 @@ static inline size_t oracle_label_sanitize(const char *label, size_t len, uint64
 	first = 0;
 	while (first < n && cps[first] == ' ')
 		first++;
-	if (first < n && (cps[first] == '.' || oracle_is_mark(cps[first]))) {
+	if (first < n && (cps[first] == '.' || cps[first] == '-' || oracle_is_mark(cps[first]))) {
 		cps[first] = '_';
 		kept[first] = false;
 	}

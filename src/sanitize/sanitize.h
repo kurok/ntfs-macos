@@ -50,7 +50,7 @@ extern "C" {
  * ADR: strict UTF-8 decoding (any invalid byte: the whole label is replaced by the
  * fallback); every code point that ntfsmac_label_cp_allowed() refuses becomes `_` (also NUL
  * and every other control byte); the result is cut at 64 bytes on a code point boundary;
- * leading spaces are removed; a leading `.` or a leading combining mark becomes `_`; trailing
+ * leading spaces are removed; a leading `.`, a leading `-` or a leading combining mark becomes `_`; trailing
  * spaces and dots are removed; a result that is empty, or consists only of `_` that replaced
  * something (no allowed original code point survived), becomes the fallback
  * `NTFS-<last 8 hex digits of serial>` (upper case, formatted from the integer). The result is

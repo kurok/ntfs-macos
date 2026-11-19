@@ -203,7 +203,8 @@ static void *banner_thread(void *arg)
 			(char *)"-e", (char *)"on run argv",
 			(char *)"-e", (char *)"display notification (item 1 of argv) with title (item 2 of argv)",
 			(char *)"-e", (char *)"end run",
-			b->text, (char *)NOTIFY_TITLE, NULL};
+			/* "--": the text is never read as an option, even if it starts with "-" (M4 F-01) */
+			(char *)"--", b->text, (char *)NOTIFY_TITLE, NULL};
 	uint64_t deadline;
 	int st;
 

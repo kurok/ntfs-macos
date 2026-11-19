@@ -183,7 +183,7 @@ These ids come from the M1 audit fixes (ADR-016, ADR-017, ADR-006, ADR-018, ADR-
 |---|---|---|
 | `U-LABEL-01` | Every ASCII byte `0x00`-`0x7F` as a one-byte label | Only the ADR-016 allow-list survives; all others become `_`; no output byte in `, = \ / :` or below `0x20` |
 | `U-LABEL-02` | `X,remove_hiberfile`, `X,allow_other`, `X=1`, `a\,b` | No `,` `=` `\` in output |
-| `U-LABEL-03` | `.`, `..`, `../../etc/x`, `.hidden`, ` . `, trailing dots and spaces | Never `.` or `..`; no leading `.`; no `/`; no leading or trailing space or dot |
+| `U-LABEL-03` | `.`, `..`, `../../etc/x`, `.hidden`, ` . `, `-e x`, ` -x`, `-`, trailing dots and spaces | Never `.` or `..`; no leading `.` or `-`; no `/`; no leading or trailing space or dot |
 | `U-LABEL-04` | Invalid UTF-8: overlong `/` (`C0 AF`), lone continuation bytes, surrogates, 5-byte forms | Whole label replaced by the fallback |
 | `U-LABEL-05` | C1 controls, bidi and format characters, default ignorables, spaces other than U+0020, Hangul fillers, U+2028/2029, private use, noncharacters, code points unassigned in Unicode 15.1.0, slash and colon look-alikes; every code point of Unicode against an independent oracle | Each replaced by `_`; a combining mark at the start of a part becomes `_` too |
 | `U-LABEL-06` | 128 UTF-16 units of 1-, 2-, 3- and 4-byte characters | Output at most 64 bytes, valid UTF-8, cut on a code-point boundary |

@@ -218,11 +218,27 @@ echo "-- ntfsmac list and doctor"
 rc=$?
 cat "$work/doctor.out"
 if [ "$rc" -eq 0 ]; then pass "ntfsmac doctor exits 0"; else failf "ntfsmac doctor exits $rc"; fi
-# findings print as "code: N" then "ok: yes|no"; code 3 is the macFUSE extension state, for which the
-# daemon has no hook yet (T-M4-07 open item), so it is reported not ok on every Mac
-notok=$(awk '/code:/ { c = $2 } /ok:/ && $2 == "no" { printf "%s ", c }' "$work/doctor.out")
-if [ "$notok" = "3 " ] || [ -z "$notok" ]; then pass "doctor: macFUSE installed, version ok, no conflicting driver, journal readable (not ok: ${notok:-none})"; else failf "doctor reports not ok: $notok"; fi
-[ "$notok" = "3 " ] && note "doctor code 3 (macFUSE extension state) is not ok: known open item of T-M4-07, not part of the install"
+# T-M4-07 (criterion 4.6): every finding is "ok:", the macFUSE extension (approved in the golden
+# image) included. The extension state is read from `pluginkit` as the console user; it is then
+# disabled for that user, `doctor` must say "not approved", and it is enabled again.
+problems=$(grep -c '^problem:' "$work/doctor.out" || true)
+if [ "$problems" = 0 ] && grep -q '^ok: The macFUSE file system extension is enabled' "$work/doctor.out"; then pass "doctor is green: macFUSE installed, version ok, extension enabled, no conflicting driver, journal readable"; else failf "doctor reports $problems problem(s) or not the extension as enabled"; fi
+EXT=io.macfuse.app.fsmodule.macfuse-local
+echo "-- doctor with the macFUSE extension disabled for $(id -un) (pluginkit -e ignore)"
+pluginkit -m -v -i "$EXT"
+pluginkit -e ignore -i "$EXT"
+sleep 2
+pluginkit -m -v -i "$EXT"
+"$CLI" doctor >"$work/doctor_off.out" 2>&1
+cat "$work/doctor_off.out"
+check "doctor says the extension is not approved" grep -q '^problem: The macFUSE file system extension is not approved' "$work/doctor_off.out"
+echo "-- doctor with the extension enabled again (pluginkit -e use)"
+pluginkit -e use -i "$EXT"
+sleep 2
+pluginkit -m -v -i "$EXT"
+"$CLI" doctor >"$work/doctor_on.out" 2>&1
+cat "$work/doctor_on.out"
+check "doctor is green again" sh -c "! grep -q '^problem:' $work/doctor_on.out && grep -q '^ok: The macFUSE file system extension is enabled' $work/doctor_on.out"
 
 echo "-- the privileged door accepts the installed CLI (root peer, recorded requirement)"
 sudo -n "$CLI" journal-clear --label x --serial 00000000 disk99s1 >"$work/priv.out" 2>&1

@@ -1,0 +1,139 @@
+T-M4-07 / criterion 4.6: how ntfsmac doctor reads the macFUSE extension state
+Guest: macOS 27.2 arm64 (tart clone of the golden image, macFUSE 5.5.0), console user uid 501.
+Module id: io.macfuse.app.fsmodule.macfuse-local (the other module, io.macfuse.app.fsmodule.macfuse, is not used).
+Findings: the election mark in column 0 of 'pluginkit -m -v -i ID' is '+' (use), '-' (ignore) or blank (default,
+not elected). Root and the console user got the same answer here (sudo kept HOME); the daemon still runs the query as
+the console user, 'launchctl asuser UID sudo -n -u #UID pluginkit ...', since the election is per user.
+An unknown id prints '  (no matches)' with exit 0. Raw output follows (tabs are real tabs).
+
+##### raw: disabled / unknown id / enabled / default, as user, root, root via asuser
+===== ignore (disabled) as user
+set rc=0
+-- user: pluginkit -m -v -i io.macfuse.app.fsmodule.macfuse-local
+-    io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
+ (1 plug-in)
+rc=0
+-- root: pluginkit -m -v -i io.macfuse.app.fsmodule.macfuse-local
+-    io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
+ (1 plug-in)
+rc=0
+-- root via asuser: pluginkit -m -v -i io.macfuse.app.fsmodule.macfuse-local
+-    io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
+ (1 plug-in)
+rc=0
+-- user: pluginkit -m -v -p com.apple.fskit.fsmodule
+     com.apple.fskit.ftp((null))	94C5D9E9-4659-5E9F-BBD5-A89A23D7BE66	2026-10-31 04:17:12 +0000	/System/Library/ExtensionKit/Extensions/com.apple.fskit.ftp.appex
+     com.apple.fskit.exfat((null))	260C94B1-3690-5C7F-B606-9D54FB7CAED5	2026-10-31 04:17:17 +0000	/System/Library/ExtensionKit/Extensions/com.apple.fskit.exfat.appex
+     com.apple.fskit.msdos((null))	26128F50-1494-5AAF-B338-A4F4699EA073	2026-10-31 04:17:17 +0000	/System/Library/ExtensionKit/Extensions/com.apple.fskit.msdos.appex
+-    io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
++    io.macfuse.app.fsmodule.macfuse((null))	2ED5C206-355B-4530-8EB5-F13B060C3CCF	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse.appex
+ (5 plug-ins)
+rc=0
+===== unknown id
+  (no matches)
+rc=0
+  (no matches)
+rc=0
+===== use (enabled) as user
+set rc=0
+-- user: pluginkit -m -v -i io.macfuse.app.fsmodule.macfuse-local
++    io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
+ (1 plug-in)
+rc=0
+-- root: pluginkit -m -v -i io.macfuse.app.fsmodule.macfuse-local
++    io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
+ (1 plug-in)
+rc=0
+-- root via asuser: pluginkit -m -v -i io.macfuse.app.fsmodule.macfuse-local
++    io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
+ (1 plug-in)
+rc=0
+-- user: pluginkit -m -v -p com.apple.fskit.fsmodule
+     com.apple.fskit.ftp((null))	94C5D9E9-4659-5E9F-BBD5-A89A23D7BE66	2026-10-31 04:17:12 +0000	/System/Library/ExtensionKit/Extensions/com.apple.fskit.ftp.appex
+     com.apple.fskit.exfat((null))	260C94B1-3690-5C7F-B606-9D54FB7CAED5	2026-10-31 04:17:17 +0000	/System/Library/ExtensionKit/Extensions/com.apple.fskit.exfat.appex
+     com.apple.fskit.msdos((null))	26128F50-1494-5AAF-B338-A4F4699EA073	2026-10-31 04:17:17 +0000	/System/Library/ExtensionKit/Extensions/com.apple.fskit.msdos.appex
++    io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
++    io.macfuse.app.fsmodule.macfuse((null))	2ED5C206-355B-4530-8EB5-F13B060C3CCF	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse.appex
+ (5 plug-ins)
+rc=0
+===== default election (reset)
+set rc=0
+-- user: pluginkit -m -v -i io.macfuse.app.fsmodule.macfuse-local
+     io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
+ (1 plug-in)
+rc=0
+-- root: pluginkit -m -v -i io.macfuse.app.fsmodule.macfuse-local
+     io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
+ (1 plug-in)
+rc=0
+-- root via asuser: pluginkit -m -v -i io.macfuse.app.fsmodule.macfuse-local
+     io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
+ (1 plug-in)
+rc=0
+-- user: pluginkit -m -v -p com.apple.fskit.fsmodule
+     com.apple.fskit.ftp((null))	94C5D9E9-4659-5E9F-BBD5-A89A23D7BE66	2026-10-31 04:17:12 +0000	/System/Library/ExtensionKit/Extensions/com.apple.fskit.ftp.appex
+     com.apple.fskit.exfat((null))	260C94B1-3690-5C7F-B606-9D54FB7CAED5	2026-10-31 04:17:17 +0000	/System/Library/ExtensionKit/Extensions/com.apple.fskit.exfat.appex
+     com.apple.fskit.msdos((null))	26128F50-1494-5AAF-B338-A4F4699EA073	2026-10-31 04:17:17 +0000	/System/Library/ExtensionKit/Extensions/com.apple.fskit.msdos.appex
+     io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
++    io.macfuse.app.fsmodule.macfuse((null))	2ED5C206-355B-4530-8EB5-F13B060C3CCF	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse.appex
+ (5 plug-ins)
+rc=0
+===== ignore as root only
+set rc=0
+-- user: pluginkit -m -v -i io.macfuse.app.fsmodule.macfuse-local
+-    io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
+ (1 plug-in)
+rc=0
+-- root: pluginkit -m -v -i io.macfuse.app.fsmodule.macfuse-local
+-    io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
+ (1 plug-in)
+rc=0
+-- root via asuser: pluginkit -m -v -i io.macfuse.app.fsmodule.macfuse-local
+-    io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
+ (1 plug-in)
+rc=0
+-- user: pluginkit -m -v -p com.apple.fskit.fsmodule
+     com.apple.fskit.ftp((null))	94C5D9E9-4659-5E9F-BBD5-A89A23D7BE66	2026-10-31 04:17:12 +0000	/System/Library/ExtensionKit/Extensions/com.apple.fskit.ftp.appex
+     com.apple.fskit.exfat((null))	260C94B1-3690-5C7F-B606-9D54FB7CAED5	2026-10-31 04:17:17 +0000	/System/Library/ExtensionKit/Extensions/com.apple.fskit.exfat.appex
+     com.apple.fskit.msdos((null))	26128F50-1494-5AAF-B338-A4F4699EA073	2026-10-31 04:17:17 +0000	/System/Library/ExtensionKit/Extensions/com.apple.fskit.msdos.appex
+-    io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
++    io.macfuse.app.fsmodule.macfuse((null))	2ED5C206-355B-4530-8EB5-F13B060C3CCF	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse.appex
+ (5 plug-ins)
+rc=0
+
+##### ntfsmac doctor, installed with packaging/dev-install.sh (product build, no seams), console user admin
+-- ntfsmac list and doctor
+No NTFS volumes.
+ok: macFUSE is installed.
+ok: macFUSE version 5.5.0 is supported.
+ok: The macFUSE file system extension is enabled.
+ok: No other NTFS driver is installed.
+ok: No session journal entries: no volume was left open by this Mac.
+ok: No unreadable journal entries.
+ok: 0 cleared journal entries are kept as tombstones.
+PASS: ntfsmac doctor exits 0
+PASS: doctor is green: macFUSE installed, version ok, extension enabled, no conflicting driver, journal readable
+-- doctor with the macFUSE extension disabled for admin (pluginkit -e ignore)
++    io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
+ (1 plug-in)
+-    io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
+ (1 plug-in)
+ok: macFUSE is installed.
+ok: macFUSE version 5.5.0 is supported.
+problem: The macFUSE file system extension is not approved: approve it in System Settings, then restart.
+ok: No other NTFS driver is installed.
+ok: No session journal entries: no volume was left open by this Mac.
+ok: No unreadable journal entries.
+ok: 0 cleared journal entries are kept as tombstones.
+PASS: doctor says the extension is not approved
+-- doctor with the extension enabled again (pluginkit -e use)
++    io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
+ (1 plug-in)
+ok: macFUSE is installed.
+ok: macFUSE version 5.5.0 is supported.
+ok: The macFUSE file system extension is enabled.
+ok: No other NTFS driver is installed.
+ok: No session journal entries: no volume was left open by this Mac.
+ok: No unreadable journal entries.
+ok: 0 cleared journal entries are kept as tombstones.
+PASS: doctor is green again

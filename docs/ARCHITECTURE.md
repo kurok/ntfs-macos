@@ -595,6 +595,8 @@ Finder writes `.DS_Store`, `._*` companions or xattrs. With `streams_interface=o
 | fuse-t present (as on this host) | No conflict: fuse-t registers its own FSKit module and is not an NTFS claimant [V:S17]. Our worker links macFUSE's `libfuse` by absolute path, never fuse-t's. |
 | Tests | Never run mount tests on the developer host. All mount tests run in the macOS VM, which has no Paragon driver (TEST_STRATEGY.md section 2). |
 
+**macFUSE extension state (`doctor`, finding 3).** FSKit modules are elected per user, so the daemon asks as the user at the console (the owner of `/dev/console`; nobody logged in gives "unknown"): `/bin/launchctl asuser UID /usr/bin/sudo -n -u #UID /usr/bin/pluginkit -m -v -i io.macfuse.app.fsmodule.macfuse-local`. The arguments are fixed, the environment is `PATH=/usr/bin:/bin:/usr/sbin:/sbin`, there is no shell, the child gets `POSIX_SPAWN_CLOEXEC_DEFAULT` and its own process group, its output comes through a pipe capped at 4096 bytes, and the group is killed after 3 s. `ntfsmac_doctor_ext_parse` reads the answer: exactly one line for that module whose path is below `/Library/Filesystems/macfuse.fs/` and one ` (1 plug-in)` trailer, and the mark in column 0: `+` enabled, `-` (ignored) or blank (never elected) not approved. Anything else (no match, a non-zero exit, a timeout, too much output, another format) is "unknown" and never "enabled". Recorded on macOS 27.2 in `tests/results/evidence/m4-gate/doctor_ext.txt`. The blank mark is the state after `pluginkit -e default`; a Mac where the user never saw the approval prompt was not available, so that it prints a blank there is inferred.
+
 This project never unloads, disables or removes another vendor's driver.
 
 ## 9. Durability guarantees

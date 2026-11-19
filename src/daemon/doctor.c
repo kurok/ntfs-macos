@@ -26,6 +26,64 @@
 
 /* ---- pure helpers ---- */
 
+/*
+ * The output of `pluginkit -m -v -i <id>` (macOS 27.2, tests/results/evidence/m4-gate/doctor_ext.txt):
+ *   "+    <id>((null))\t<uuid>\t<date>\t<path of the .appex>\n (1 plug-in)\n"
+ * Column 0 is the election: '+' use, '-' ignore, ' ' not elected. No match prints "  (no matches)".
+ */
+ntfsmac_doctor_ext_state ntfsmac_doctor_ext_parse(const char *buf, size_t len)
+{
+	static const char id[] = NTFSMAC_EXT_MODULE_ID;
+	static const char trailer[] = " (1 plug-in)";
+	static const char bundle[] = "\t/Library/Filesystems/macfuse.fs/";
+	size_t i = 0, idlen = sizeof id - 1, tlen = sizeof trailer - 1;
+	char mark = 0;
+	unsigned lines_mod = 0, lines_trl = 0;
+
+	if (buf == NULL || len == 0 || len > NTFSMAC_EXT_OUT_MAX)
+		return NTFSMAC_EXT_UNKNOWN;
+	for (i = 0; i < len; i++) {
+		unsigned char c = (unsigned char)buf[i];
+
+		if (c != '\n' && c != '\t' && (c < 0x20 || c > 0x7e))
+			return NTFSMAC_EXT_UNKNOWN;
+	}
+	if (buf[len - 1] != '\n')
+		return NTFSMAC_EXT_UNKNOWN;
+	for (i = 0; i < len;) {
+		const char *l = buf + i;
+		size_t n = 0, k;
+		bool has_bundle = false;
+
+		while (i + n < len && l[n] != '\n')
+			n++;
+		i += n + 1;
+		if (n == tlen && memcmp(l, trailer, tlen) == 0) {
+			lines_trl++;
+			continue;
+		}
+		if (n > idlen + 5 && memcmp(l + 1, "    ", 4) == 0 && memcmp(l + 5, id, idlen) == 0 &&
+		    l[5 + idlen] == '(') {
+			for (k = 5 + idlen; k + sizeof bundle - 1 <= n; k++)
+				if (memcmp(l + k, bundle, sizeof bundle - 1) == 0)
+					has_bundle = true;
+			if (!has_bundle)
+				return NTFSMAC_EXT_UNKNOWN;
+			mark = l[0];
+			lines_mod++;
+			continue;
+		}
+		return NTFSMAC_EXT_UNKNOWN;
+	}
+	if (lines_mod != 1 || lines_trl != 1)
+		return NTFSMAC_EXT_UNKNOWN;
+	if (mark == '+')
+		return NTFSMAC_EXT_ENABLED;
+	if (mark == '-' || mark == ' ')
+		return NTFSMAC_EXT_NOT_APPROVED;
+	return NTFSMAC_EXT_UNKNOWN;
+}
+
 bool ntfsmac_version_parse(const char *s, ntfsmac_version *out)
 {
 	unsigned parts[3] = {0, 0, 0};

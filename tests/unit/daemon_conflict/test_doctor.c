@@ -205,6 +205,58 @@ static void test_macfuse(void)
 	tmp_rmrf(base);
 }
 
+/* U-DMN-DOC-08: the pluginkit parser, with the outputs recorded in a macOS 27.2 guest. */
+#define PK_LINE(mark)                                                                          \
+	mark "    io.macfuse.app.fsmodule.macfuse-local((null))\tAAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24\t" \
+	"2026-11-14 10:39:39 +0000\t/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/" \
+	"Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex\n"
+#define PK_TRAILER " (1 plug-in)\n"
+
+static ntfsmac_doctor_ext_state ext_parse(const char *s)
+{
+	return ntfsmac_doctor_ext_parse(s, strlen(s));
+}
+
+static void test_ext_parse(void)
+{
+	char big[NTFSMAC_EXT_OUT_MAX + 64];
+
+	CHECK_EQ_INT(ext_parse(PK_LINE("+") PK_TRAILER), NTFSMAC_EXT_ENABLED);
+	CHECK_EQ_INT(ext_parse(PK_LINE("-") PK_TRAILER), NTFSMAC_EXT_NOT_APPROVED);
+	CHECK_EQ_INT(ext_parse(PK_LINE(" ") PK_TRAILER), NTFSMAC_EXT_NOT_APPROVED);
+	/* unexpected mark, no match, empty, NULL, no trailing newline */
+	CHECK_EQ_INT(ext_parse(PK_LINE("!") PK_TRAILER), NTFSMAC_EXT_UNKNOWN);
+	CHECK_EQ_INT(ext_parse("  (no matches)\n"), NTFSMAC_EXT_UNKNOWN);
+	CHECK_EQ_INT(ext_parse(""), NTFSMAC_EXT_UNKNOWN);
+	CHECK_EQ_INT(ntfsmac_doctor_ext_parse(NULL, 5), NTFSMAC_EXT_UNKNOWN);
+	CHECK_EQ_INT(ntfsmac_doctor_ext_parse("+", 0), NTFSMAC_EXT_UNKNOWN);
+	CHECK_EQ_INT(ext_parse(PK_LINE("+") " (1 plug-in)"), NTFSMAC_EXT_UNKNOWN);
+	/* no trailer, two trailers, a second module line, a foreign line, plural trailer */
+	CHECK_EQ_INT(ext_parse(PK_LINE("+")), NTFSMAC_EXT_UNKNOWN);
+	CHECK_EQ_INT(ext_parse(PK_LINE("+") PK_TRAILER PK_TRAILER), NTFSMAC_EXT_UNKNOWN);
+	CHECK_EQ_INT(ext_parse(PK_LINE("+") PK_LINE("+") PK_TRAILER), NTFSMAC_EXT_UNKNOWN);
+	CHECK_EQ_INT(ext_parse(PK_LINE("+") "warning: something\n" PK_TRAILER), NTFSMAC_EXT_UNKNOWN);
+	CHECK_EQ_INT(ext_parse(PK_LINE("+") " (2 plug-ins)\n"), NTFSMAC_EXT_UNKNOWN);
+	/* another module id, an id that only starts like ours, a bundle outside macfuse.fs */
+	CHECK_EQ_INT(ext_parse("+    com.apple.fskit.exfat((null))\t260C94B1\t2026\t/System/x.appex\n"
+			       PK_TRAILER), NTFSMAC_EXT_UNKNOWN);
+	CHECK_EQ_INT(ext_parse("+    io.macfuse.app.fsmodule.macfuse-localx((null))\tx\ty\t"
+			       "/Library/Filesystems/macfuse.fs/z\n" PK_TRAILER), NTFSMAC_EXT_UNKNOWN);
+	CHECK_EQ_INT(ext_parse("+    io.macfuse.app.fsmodule.macfuse-local((null))\tx\ty\t/tmp/evil.appex\n"
+			       PK_TRAILER), NTFSMAC_EXT_UNKNOWN);
+	/* a control byte, a NUL inside the length, a byte above 0x7e */
+	CHECK_EQ_INT(ext_parse(PK_LINE("+") "\x1b" PK_TRAILER), NTFSMAC_EXT_UNKNOWN);
+	CHECK_EQ_INT(ntfsmac_doctor_ext_parse(PK_LINE("+") PK_TRAILER, strlen(PK_LINE("+") PK_TRAILER) + 1),
+		     NTFSMAC_EXT_UNKNOWN);
+	CHECK_EQ_INT(ext_parse(PK_LINE("+") "\xc3\xa9\n" PK_TRAILER), NTFSMAC_EXT_UNKNOWN);
+	/* oversized: a valid text padded past the cap is refused, not truncated */
+	memset(big, ' ', sizeof big);
+	memcpy(big, PK_LINE("+") PK_TRAILER, strlen(PK_LINE("+") PK_TRAILER));
+	big[sizeof big - 1] = '\n';
+	CHECK_EQ_INT(ntfsmac_doctor_ext_parse(big, sizeof big), NTFSMAC_EXT_UNKNOWN);
+	CHECK_EQ_INT(ntfsmac_doctor_ext_parse(big, NTFSMAC_EXT_OUT_MAX + 1), NTFSMAC_EXT_UNKNOWN);
+}
+
 static void test_conflicts(void)
 {
 	char fs[PATH_MAX], jd[PATH_MAX], base[PATH_MAX];
@@ -324,6 +376,7 @@ int main(void)
 	test_version();
 	test_no_macfuse_no_journal();
 	test_macfuse();
+	test_ext_parse();
 	test_conflicts();
 	test_journal();
 	test_run_control();

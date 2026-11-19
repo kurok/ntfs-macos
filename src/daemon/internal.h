@@ -844,6 +844,17 @@ typedef enum ntfsmac_doctor_ext_state {
 	NTFSMAC_EXT_NOT_APPROVED
 } ntfsmac_doctor_ext_state;
 
+/*
+ * Reads the answer of `pluginkit -m -v -i io.macfuse.app.fsmodule.macfuse-local` (T-M4-07, section
+ * 8.4). `buf` is the whole output; more than NTFSMAC_EXT_OUT_MAX bytes, a byte outside printable
+ * ASCII, tab and newline, a line that is not the module line or the "(1 plug-in)" trailer, or a
+ * module line that is not the macFUSE bundle: NTFSMAC_EXT_UNKNOWN. The election mark in column 0
+ * decides: '+' enabled, '-' or blank (ignored, or never elected) not approved.
+ */
+#define NTFSMAC_EXT_OUT_MAX 4096u
+#define NTFSMAC_EXT_MODULE_ID "io.macfuse.app.fsmodule.macfuse-local"
+ntfsmac_doctor_ext_state ntfsmac_doctor_ext_parse(const char *buf, size_t len);
+
 /* One `doctor` finding: a fixed code, mapped to text by the CLI. */
 typedef struct ntfsmac_doctor_finding {
 	int code;                 /* ntfsmac_doctor_code */

@@ -40,15 +40,18 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <libproc.h>
+#include <poll.h>
 #include <pthread.h>
 #include <pwd.h>
 #include <signal.h>
+#include <spawn.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/event.h>
 #include <sys/proc_info.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
@@ -187,7 +190,7 @@ static void copy_str(char *dst, size_t cap, const char *src)
 	snprintf(dst, cap, "%s", src != NULL ? src : "");
 }
 
-/* The user at the console and his group. false when no one is logged in (root owns the node). */
+/* The user at the console and their group. false when no one is logged in (root owns the node). */
 static bool console_ids(uid_t *uid, gid_t *gid)
 {
 	struct stat sb;
@@ -1855,14 +1858,141 @@ static int doctor_cb(const ntfsmac_doctor_finding *f, void *ctx)
 	return 0;
 }
 
+#define EXT_QUERY_WAIT_MS 3000u /* under the 5 s of the control socket */
+
+static uint64_t ext_now_ms(void)
+{
+	struct timespec ts;
+
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return (uint64_t)ts.tv_sec * 1000u + (uint64_t)ts.tv_nsec / 1000000u;
+}
+
 /*
- * The macFUSE extension state (doctor.c asks for a hook). Not read yet: pluginkit's output format
- * on macOS 27 is to be confirmed in the VM (T-M4-11), so the finding says unknown.
+ * The macFUSE extension state (doctor.c asks for a hook; ARCHITECTURE.md section 8.4). The election
+ * of an FSKit module is per user, so the query runs as the user at the console, in their session:
+ * `launchctl asuser UID sudo -n -u #UID pluginkit -m -v -i <id>`, as notify.c starts osascript.
+ * Fixed paths and arguments, a fixed environment, no shell; the output is read through a pipe up
+ * to NTFSMAC_EXT_OUT_MAX bytes and the child group is killed after EXT_QUERY_WAIT_MS. Nobody at
+ * the console, a failed start, a timeout, a non-zero exit or too much output: unknown.
  */
 static ntfsmac_doctor_ext_state ext_state_cb(void *ctx)
 {
+	uid_t uid;
+	gid_t gid;
+	char uidtxt[16], who[24];
+	char out[NTFSMAC_EXT_OUT_MAX + 1];
+	size_t got = 0;
+	int p[2], st = 0;
+	bool ok = true, reaped = false;
+	pid_t pid = -1;
+	posix_spawn_file_actions_t fa;
+	posix_spawnattr_t at;
+	char *envp[] = {(char *)"PATH=/usr/bin:/bin:/usr/sbin:/sbin", NULL};
+	char *argv[] = {(char *)"/bin/launchctl", (char *)"asuser", uidtxt, (char *)"/usr/bin/sudo",
+			(char *)"-n", (char *)"-u", who, (char *)"/usr/bin/pluginkit",
+			(char *)"-m", (char *)"-v", (char *)"-i",
+			(char *)NTFSMAC_EXT_MODULE_ID, NULL};
+	uint64_t deadline;
+
 	(void)ctx;
-	return NTFSMAC_EXT_UNKNOWN;
+	if (!console_ids(&uid, &gid))
+		return NTFSMAC_EXT_UNKNOWN;
+	snprintf(uidtxt, sizeof uidtxt, "%u", (unsigned)uid);
+	snprintf(who, sizeof who, "#%u", (unsigned)uid);
+	if (pipe(p) != 0)
+		return NTFSMAC_EXT_UNKNOWN;
+	(void)fcntl(p[0], F_SETFD, FD_CLOEXEC);
+	(void)fcntl(p[1], F_SETFD, FD_CLOEXEC);
+	(void)fcntl(p[0], F_SETFL, O_NONBLOCK);
+	if (posix_spawn_file_actions_init(&fa) != 0) {
+		close(p[0]);
+		close(p[1]);
+		return NTFSMAC_EXT_UNKNOWN;
+	}
+	if (posix_spawnattr_init(&at) != 0) {
+		posix_spawn_file_actions_destroy(&fa);
+		close(p[0]);
+		close(p[1]);
+		return NTFSMAC_EXT_UNKNOWN;
+	}
+	(void)posix_spawnattr_setpgroup(&at, 0);
+	(void)posix_spawnattr_setflags(&at, POSIX_SPAWN_CLOEXEC_DEFAULT | POSIX_SPAWN_SETPGROUP);
+	(void)posix_spawn_file_actions_addopen(&fa, 0, "/dev/null", O_RDONLY, 0);
+	(void)posix_spawn_file_actions_adddup2(&fa, p[1], 1);
+	(void)posix_spawn_file_actions_addopen(&fa, 2, "/dev/null", O_WRONLY, 0);
+	if (posix_spawn(&pid, argv[0], &fa, &at, argv, envp) != 0)
+		ok = false;
+	posix_spawn_file_actions_destroy(&fa);
+	posix_spawnattr_destroy(&at);
+	close(p[1]);
+	if (ok) {
+		deadline = ext_now_ms() + EXT_QUERY_WAIT_MS;
+		for (;;) {
+			struct pollfd pf = {p[0], POLLIN, 0};
+			uint64_t now = ext_now_ms();
+			ssize_t r;
+
+			if (now >= deadline) {
+				ok = false;
+				break;
+			}
+			r = poll(&pf, 1, (int)(deadline - now));
+			if (r < 0 && errno == EINTR)
+				continue;
+			if (r <= 0) {
+				ok = false;
+				break;
+			}
+			r = read(p[0], out + got, sizeof out - got);
+			if (r < 0 && (errno == EINTR || errno == EAGAIN))
+				continue;
+			if (r < 0) {
+				ok = false;
+				break;
+			}
+			if (r == 0)
+				break; /* end of output */
+			got += (size_t)r;
+			if (got > NTFSMAC_EXT_OUT_MAX) {
+				ok = false;
+				break;
+			}
+		}
+	}
+	close(p[0]);
+	if (pid > 0) {
+		if (ok) {
+			/* the pipe is closed by the child's exit; the status follows at once */
+			uint64_t until = ext_now_ms() + 1000u;
+
+			for (;;) {
+				pid_t w = waitpid(pid, &st, WNOHANG);
+
+				if (w == pid) {
+					reaped = true;
+					break;
+				}
+				if (w < 0 && errno != EINTR)
+					break;
+				if (ext_now_ms() >= until)
+					break;
+				{
+					struct timespec ts = {0, 10 * 1000000L};
+
+					nanosleep(&ts, NULL);
+				}
+			}
+			if (!reaped || !WIFEXITED(st) || WEXITSTATUS(st) != 0)
+				ok = false;
+		}
+		if (!reaped) {
+			(void)killpg(pid, SIGKILL);
+			(void)kill(pid, SIGKILL);
+			(void)waitpid(pid, &st, 0);
+		}
+	}
+	return ok ? ntfsmac_doctor_ext_parse(out, got) : NTFSMAC_EXT_UNKNOWN;
 }
 
 static ntfsmac_dmn_status op_doctor(void *ctx, char *reply, size_t cap)

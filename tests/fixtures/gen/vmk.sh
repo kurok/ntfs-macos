@@ -45,8 +45,15 @@ done
 if [ "$inner" -eq 0 ]; then
 	if [ -n "$export_dir" ]; then
 		mkdir -p "$export_dir"
-		sh "$repo/vm/linux/run.sh" run -- sh /work/tests/fixtures/gen/vmk.sh --inner --tar |
-			tar -xzf - -C "$export_dir"
+		# A file, not a pipe: the status of the run in Environment A must not be lost.
+		tgz=$(mktemp "${TMPDIR:-/tmp}/fixgen.XXXXXX") || exit 1
+		if ! sh "$repo/vm/linux/run.sh" run -- sh /work/tests/fixtures/gen/vmk.sh --inner --tar >"$tgz" ||
+			! tar -xzf "$tgz" -C "$export_dir"; then
+			rm -f "$tgz"
+			printf 'vmk.sh: error: the run in Environment A or the unpacking failed\n' >&2
+			exit 1
+		fi
+		rm -f "$tgz"
 		exit 0
 	fi
 	exec sh "$repo/vm/linux/run.sh" run -- sh /work/tests/fixtures/gen/vmk.sh --inner

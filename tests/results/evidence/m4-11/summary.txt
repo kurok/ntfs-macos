@@ -19,7 +19,7 @@ whole I-DMN-* range, run with dmn_all.sh (one guest per driver); spawn-sbx and s
                                                            "the worker did not mount (I/O error)" and no crash: whole-range-journal_vm-under-host-load.txt)
   xpc_vm.sh          XPC door of I-DMN-19                  PASS  15  FAIL 0   (earlier run, same code)
   dmn_mirror_vm.sh   I-DMN-27 (module level)               PASS  49  FAIL 0   (earlier run, same code)
-  attach_vm.sh       T-M4-08 manual attach                 PASS  50  FAIL 0   (earlier run, before the da.c change below)
+  attach_vm.sh       T-M4-08 manual attach                 PASS  50  FAIL 0   (re-run 2026-11-19 on c9b2cf4, after the da.c change below)
 
 mount_timeout: root cause found and fixed. With a slow probe the daemon gave a mount-approval dissent for macFUSE's own 8 MiB
 backing disk (it appears while a volume is Mounting, with no content yet, and looked like a raw NTFS disk), which made macFUSE's

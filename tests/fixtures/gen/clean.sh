@@ -58,9 +58,16 @@ if [ "$inner" -eq 0 ]; then
 	[ "$print_only" -eq 0 ] || args="$args --print"
 	if [ -n "$export_dir" ]; then
 		mkdir -p "$export_dir"
+		# A file, not a pipe: the status of the run in Environment A must not be lost.
+		tgz=$(mktemp "${TMPDIR:-/tmp}/fixgen.XXXXXX") || exit 1
 		# shellcheck disable=SC2086
-		sh "$repo/vm/linux/run.sh" run -- sh /work/tests/fixtures/gen/clean.sh $args --tar |
-			tar -xzf - -C "$export_dir"
+		if ! sh "$repo/vm/linux/run.sh" run -- sh /work/tests/fixtures/gen/clean.sh $args --tar >"$tgz" ||
+			! tar -xzf "$tgz" -C "$export_dir"; then
+			rm -f "$tgz"
+			printf 'clean.sh: error: the run in Environment A or the unpacking failed\n' >&2
+			exit 1
+		fi
+		rm -f "$tgz"
 		exit 0
 	fi
 	# shellcheck disable=SC2086

@@ -398,7 +398,7 @@ class DryRunTest(unittest.TestCase):
                          ["preflight", "selftest", "unit-probe", "unit-volmark", "harness", "stress-crashsweep"])
         self.assertEqual([n for n, _ in self.names("--env", "B")],
                          ["preflight", "build-release", "fixtures", "integration", "compat", "daemon", "stress-disconnect",
-                          "stress-kill", "stress-leaks"])
+                          "stress-kill", "stress-leaks", "stress-parallel", "stress-soak"])
 
     def test_host_never_runs_the_vm_cases(self):
         d = dict(self.names("--env", "host"))
@@ -437,7 +437,7 @@ class DryRunTest(unittest.TestCase):
         r = self.run_all("--list-stress", "A")
         self.assertEqual(r.returncode, 0)
         self.assertIn("crashsweep", r.stdout.decode())
-        self.assertEqual(self.run_all("--list-stress", "B").stdout.decode().split(), ["disconnect", "kill", "leaks"])
+        self.assertEqual(self.run_all("--list-stress", "B").stdout.decode().split(), ["disconnect", "kill", "leaks", "parallel", "soak"])
 
     def test_usage_text_states_three_commands(self):
         r = subprocess.run(["sh", os.path.join(REPO, "scripts", "test-all.sh"), "--help"], stdout=subprocess.PIPE,

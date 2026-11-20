@@ -332,6 +332,15 @@ static int check_journal(const char *dir, ntfsmac_doctor_cb cb, void *ctx)
 	       emit(cb, ctx, NTFSMAC_DOCTOR_JOURNAL_CLEARED, true, (long)tombs);
 }
 
+/* The last banner (T-M7-06): never sent is "unknown" (ok), not a failure. */
+static int check_notify(ntfsmac_doctor_cb cb, void *ctx)
+{
+	ntfsmac_banner_outcome o = ntfsmac_banner_last();
+	ntfsmac_doctor_finding f = ntfsmac_banner_finding(&o);
+
+	return emit(cb, ctx, NTFSMAC_DOCTOR_NOTIFY_DELIVERY, f.ok, f.value);
+}
+
 ntfsmac_dmn_status ntfsmac_doctor_run_env(const ntfsmac_doctor_env *env, ntfsmac_doctor_cb cb,
 					  void *ctx)
 {
@@ -346,7 +355,7 @@ ntfsmac_dmn_status ntfsmac_doctor_run_env(const ntfsmac_doctor_env *env, ntfsmac
 	journal_dir = env->journal_dir != NULL ? env->journal_dir : NTFSMAC_JOURNAL_DEFAULT_DIR;
 
 	if (check_macfuse(env, fs_dir, cb, ctx) || check_conflicts(fs_dir, cb, ctx) ||
-	    check_journal(journal_dir, cb, ctx))
+	    check_journal(journal_dir, cb, ctx) || check_notify(cb, ctx))
 		return NTFSMAC_DMN_OK; /* the callback stopped the run */
 	return NTFSMAC_DMN_OK;
 }

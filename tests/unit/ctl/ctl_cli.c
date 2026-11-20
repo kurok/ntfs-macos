@@ -32,6 +32,8 @@ _Static_assert((int)NTFSMAC_CLI_DOCTOR_JOURNAL_ENTRIES == (int)NTFSMAC_DOCTOR_JO
 _Static_assert((int)NTFSMAC_CLI_DOCTOR_JOURNAL_CORRUPT == (int)NTFSMAC_DOCTOR_JOURNAL_CORRUPT, "doctor code");
 _Static_assert((int)NTFSMAC_CLI_DOCTOR_JOURNAL_CLEARED == (int)NTFSMAC_DOCTOR_JOURNAL_CLEARED, "doctor code");
 _Static_assert((int)NTFSMAC_CLI_DOCTOR_JOURNAL_UNREADABLE == (int)NTFSMAC_DOCTOR_JOURNAL_UNREADABLE, "doctor code");
+_Static_assert((int)NTFSMAC_CLI_DOCTOR_NOTIFY_DELIVERY == (int)NTFSMAC_DOCTOR_NOTIFY_DELIVERY, "doctor code");
+_Static_assert(NTFSMAC_CLI_BANNER_WAIT_S * 1000 == (int)NTFSMAC_BANNER_WAIT_MS, "banner wait");
 _Static_assert((int)NTFSMAC_CLI_DOCTOR_EXT_NOT_APPROVED == (int)NTFSMAC_EXT_NOT_APPROVED, "ext state");
 _Static_assert(NTFSMAC_CLI_MACFUSE_MIN_MAJOR == NTFSMAC_MACFUSE_MIN_MAJOR, "macFUSE minimum");
 _Static_assert(NTFSMAC_CLI_MACFUSE_MIN_MINOR == NTFSMAC_MACFUSE_MIN_MINOR, "macFUSE minimum");
@@ -329,7 +331,16 @@ static void test_render(void)
 		CHECK(ntfsmac_cli_doctor_text(0, true, 0, b, sizeof b) == NULL);
 		CHECK(ntfsmac_cli_doctor_text(-1, true, 0, b, sizeof b) == NULL);
 		CHECK(ntfsmac_cli_doctor_text(1001, true, 0, b, sizeof b) == NULL);
-		CHECK(ntfsmac_cli_doctor_text(13, true, 0, b, sizeof b) == NULL);
+		CHECK(ntfsmac_cli_doctor_text(14, true, 0, b, sizeof b) == NULL);
+		/* T-M7-06: the banner finding, one text per state; value = state * 1000 + status */
+		CHECK(strstr(ntfsmac_cli_doctor_text(13, true, 0, b, sizeof b), "delivery is unknown") != NULL);
+		CHECK(strstr(ntfsmac_cli_doctor_text(13, true, 1000, b, sizeof b), "was delivered") != NULL);
+		CHECK(strstr(ntfsmac_cli_doctor_text(13, false, 2000, b, sizeof b), "could not be started") != NULL);
+		CHECK(strstr(ntfsmac_cli_doctor_text(13, false, 3001, b, sizeof b), "sudo refused it") != NULL);
+		CHECK(strstr(ntfsmac_cli_doctor_text(13, false, 4000, b, sizeof b), "timed out after 10 seconds") != NULL);
+		CHECK(strstr(ntfsmac_cli_doctor_text(13, false, 5127, b, sizeof b), "exited with status 127.") != NULL);
+		CHECK(strstr(ntfsmac_cli_doctor_text(13, false, 9000, b, sizeof b), "not known") != NULL);
+		CHECK(strstr(ntfsmac_cli_doctor_text(13, false, -5, b, sizeof b), "delivery is unknown") != NULL);
 	}
 	/* codes outside 1..1000 or below 1 are not findings: the reply is dumped, nothing is half printed */
 	cap_open(&c);

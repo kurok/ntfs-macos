@@ -884,7 +884,8 @@ typedef enum ntfsmac_doctor_code {
 	NTFSMAC_DOCTOR_JOURNAL_ENTRIES,       /* value = entries; not ok if any (next mount ro) */
 	NTFSMAC_DOCTOR_JOURNAL_CORRUPT,       /* value = unreadable entries; not ok if any */
 	NTFSMAC_DOCTOR_JOURNAL_CLEARED,       /* value = tombstones kept; always ok */
-	NTFSMAC_DOCTOR_JOURNAL_UNREADABLE     /* the journal directory could not be opened */
+	NTFSMAC_DOCTOR_JOURNAL_UNREADABLE,    /* the journal directory could not be opened */
+	NTFSMAC_DOCTOR_NOTIFY_DELIVERY        /* value = ntfsmac_banner_value(); ok when no banner yet */
 } ntfsmac_doctor_code;
 
 typedef enum ntfsmac_doctor_ext_state {
@@ -1161,6 +1162,70 @@ size_t ntfsmac_notify_text(ntfsmac_notify_kind kind, const char *label, const ch
  */
 typedef void (*ntfsmac_notify_sink_fn)(ntfsmac_notify_kind kind, const char *text, void *ctx);
 void ntfsmac_notify_set_sink(ntfsmac_notify_sink_fn fn, void *ctx);
+
+/*
+ * Outcome of the last banner (T-M7-06, audit M4 F-05). The banner needs root's sudoers to allow
+ * `sudo -n -u #UID`; when it does not, the helper fails and nothing was shown. The daemon keeps
+ * the last outcome so that `doctor` can say why a banner is missing. It only ever feeds the
+ * report and one warning in the log: no decision reads it.
+ *
+ * What can be told apart (the helper is `launchctl asuser UID sudo -n -u #UID osascript ...`, all
+ * output discarded):
+ *  - TIMEOUT (our own SIGKILL after NTFSMAC_BANNER_WAIT_MS ended it) and START_FAILED are exact.
+ *  - A non-zero exit is NONZERO_EXIT with its status. Status 1 has two sources: `sudo -n` when it
+ *    would need a password, and osascript or launchctl. So on status 1 the same thread runs
+ *    `sudo -n -u #UID /usr/bin/true` once (bounded by NTFSMAC_BANNER_PROBE_WAIT_MS, never in
+ *    doctor). Probe status 1: SUDO_REFUSED (exact). Probe status 0 or anything else (not started,
+ *    timed out): stays NONZERO_EXIT 1, which is all that is known.
+ */
+#define NTFSMAC_BANNER_WAIT_MS 10000u      /* the helper is killed after this long */
+#define NTFSMAC_BANNER_PROBE_WAIT_MS 3000u /* the sudo precondition probe */
+
+typedef enum ntfsmac_banner_state {
+	NTFSMAC_BANNER_NEVER = 0, /* no banner was handed to the helper yet: unknown */
+	NTFSMAC_BANNER_OK,        /* the helper exited 0 */
+	NTFSMAC_BANNER_START_FAILED,
+	NTFSMAC_BANNER_SUDO_REFUSED, /* helper status 1 and the probe says sudo refuses */
+	NTFSMAC_BANNER_TIMEOUT,
+	NTFSMAC_BANNER_NONZERO_EXIT
+} ntfsmac_banner_state;
+
+typedef struct ntfsmac_banner_outcome {
+	ntfsmac_banner_state state;
+	int exit_code; /* 1..255 for SUDO_REFUSED and NONZERO_EXIT, else 0 */
+} ntfsmac_banner_outcome;
+
+/*
+ * Pure: the outcome of one helper run. `started` is false when posix_spawn failed; `timed_out`
+ * when our SIGKILL ended it; `status` as ntfsmac_banner_status() (-1: unknown, reported as
+ * NONZERO_EXIT 255). Status 1 is NONZERO_EXIT 1 here; see ntfsmac_banner_refine().
+ */
+ntfsmac_banner_outcome ntfsmac_banner_classify(bool started, bool timed_out, int status);
+/* Pure: from a wait status: the exit status, 128 + signal, or -1 when !waited or unreadable. */
+int ntfsmac_banner_status(bool waited, int wst);
+/* Pure: true when the wait status says our SIGKILL ended the child (the timeout). */
+bool ntfsmac_banner_killed(bool waited, int wst);
+/* Pure: whether the outcome (NONZERO_EXIT 1) needs the sudo probe to be told apart. */
+bool ntfsmac_banner_needs_probe(const ntfsmac_banner_outcome *o);
+/* Pure: apply the probe's status (-1: probe not run or not conclusive) to an outcome. */
+ntfsmac_banner_outcome ntfsmac_banner_refine(ntfsmac_banner_outcome o, int probe_status);
+/* Pure: a fixed name for logs. */
+const char *ntfsmac_banner_state_name(ntfsmac_banner_state s);
+
+/* Pure: the doctor finding of an outcome. NEVER is ok (unknown), OK is ok, the rest are not ok. */
+ntfsmac_doctor_finding ntfsmac_banner_finding(const ntfsmac_banner_outcome *o);
+/* Pure: the `value` of that finding: state * 1000 + exit_code. */
+long ntfsmac_banner_value(const ntfsmac_banner_outcome *o);
+
+/* Thread-safe store of the last outcome. Recording NEVER forgets the last one. */
+void ntfsmac_banner_record(const ntfsmac_banner_outcome *o);
+/*
+ * A banner takes a sequence number when it starts; its result is stored only if no newer banner
+ * has stored one, so a slow older helper never overwrites a newer outcome. Returns whether stored.
+ */
+uint64_t ntfsmac_banner_begin(void);
+bool ntfsmac_banner_record_seq(uint64_t seq, const ntfsmac_banner_outcome *o);
+ntfsmac_banner_outcome ntfsmac_banner_last(void);
 
 #ifdef __cplusplus
 }

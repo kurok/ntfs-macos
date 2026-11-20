@@ -259,7 +259,7 @@ The daemon authenticates the peer with `LOCAL_PEERCRED` and accepts mount and un
 | `status` | `bsd` | one volume record plus last probe verdict (with `nonnfc_paths` after the display sanitiser of ADR-023) |
 | `mount` | `bsd`, `mode` (`auto`/`ro`) | result, mount point, effective mode, reason |
 | `unmount` | `bsd`, `force` (bool) | result |
-| `doctor` | none | macFUSE version, extension state, conflicting NTFS drivers found, journal entries |
+| `doctor` | none | macFUSE version, extension state, conflicting NTFS drivers found, journal entries, outcome of the last notification banner (unknown until one was sent; on exit status 1 the banner thread runs `sudo -n -u #UID /usr/bin/true` once, bounded at 3 s, so "sudo refused" is exact and otherwise the exit status is shown; that check adds one entry to the sudo log) |
 | `journal_clear` | `bsd`, `confirm_label` (the sanitised label as shown by `list`), `confirm_serial` (last 8 hex digits of the serial) | `cleared` or `refused` with reason |
 | `repair` | `bsd`, `action` (`clear_dirty` or `sync_mirror`), `confirm_label`, `confirm_serial` | `repaired` or `refused` with reason; for `sync_mirror` also the state of the fresh probe run after the write (ADR-021) |
 

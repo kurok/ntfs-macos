@@ -242,6 +242,35 @@ const char *ntfsmac_cli_doctor_text(int code, bool ok, long value, char *buf, si
 		return buf;
 	case NTFSMAC_CLI_DOCTOR_JOURNAL_UNREADABLE:
 		return "The session journal could not be opened.";
+	case NTFSMAC_CLI_DOCTOR_NOTIFY_DELIVERY:
+		/* value = state * 1000 + exit status (ntfsmac_banner_value() in src/daemon/internal.h):
+		 * 0 none yet, 1 delivered, 2 not started, 3 sudo refused, 4 timeout, 5 non-zero exit. */
+		switch (value / 1000) {
+		case 0:
+			return "No notification banner has been sent since the daemon started, so banner "
+			       "delivery is unknown.";
+		case 1:
+			return "The last notification banner was delivered.";
+		case 2:
+			return "The last notification banner was not shown: its helper could not be started.";
+		case 3:
+			return "The last notification banner was not shown: sudo refused it. Check that sudoers "
+			       "lets root run commands as the console user (sudo -n -u).";
+		case 4:
+			snprintf(buf, cap,
+				 "The last notification banner was not shown: its helper timed out after %d "
+				 "seconds.",
+				 NTFSMAC_CLI_BANNER_WAIT_S);
+			return buf;
+		case 5:
+			snprintf(buf, cap,
+				 "The last notification banner was not shown: the helper exited with status "
+				 "%ld.",
+				 value % 1000);
+			return buf;
+		default:
+			return "The state of the last notification banner is not known to this program.";
+		}
 	default:
 		return NULL;
 	}

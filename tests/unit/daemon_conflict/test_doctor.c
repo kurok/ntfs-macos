@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * U-DMN-DOC-01..07: version and plist helpers (pure), and each doctor check
+ * U-DMN-DOC-01..09: version and plist helpers (pure), and each doctor check
  * against temporary directories.
  */
 #include "tmpdir.h"
@@ -135,8 +135,42 @@ static void test_no_macfuse_no_journal(void)
 	EXPECT(c, NTFSMAC_DOCTOR_JOURNAL_ENTRIES, true, 0);
 	EXPECT(c, NTFSMAC_DOCTOR_JOURNAL_CORRUPT, true, 0);
 	EXPECT(c, NTFSMAC_DOCTOR_JOURNAL_CLEARED, true, 0);
+	/* T-M7-06: no banner was ever sent: "unknown", reported as ok, never as a failure. */
+	EXPECT(c, NTFSMAC_DOCTOR_NOTIFY_DELIVERY, true, 0);
 	/* Doctor only reads: it must not create the journal directory. */
 	CHECK(lstat(jd, &st) != 0 && errno == ENOENT);
+	tmp_rmrf(base);
+}
+
+/* U-DMN-DOC-09 (T-M7-06): the last banner outcome is a finding of its own. */
+static void test_notify_delivery(void)
+{
+	char fs[PATH_MAX], jd[PATH_MAX], base[PATH_MAX];
+	ntfsmac_doctor_env env = {fs, jd, NULL, NULL};
+	ntfsmac_banner_outcome ok = {NTFSMAC_BANNER_OK, 0};
+	ntfsmac_banner_outcome sr = {NTFSMAC_BANNER_SUDO_REFUSED, 1};
+	ntfsmac_banner_outcome to = {NTFSMAC_BANNER_TIMEOUT, 0};
+	ntfsmac_banner_outcome never = {NTFSMAC_BANNER_NEVER, 0};
+	collected c;
+
+	tmp_make(base, sizeof base);
+	PATHF(fs, "%s/fs", base);
+	PATHF(jd, "%s/journal", base);
+	tmp_mkdir(base, "fs");
+
+	memset(&c, 0, sizeof c);
+	ntfsmac_banner_record(&sr);
+	CHECK_EQ_INT(ntfsmac_doctor_run_env(&env, collect, &c), NTFSMAC_DMN_OK);
+	EXPECT(c, NTFSMAC_DOCTOR_NOTIFY_DELIVERY, false, 3001);
+	memset(&c, 0, sizeof c);
+	ntfsmac_banner_record(&to);
+	CHECK_EQ_INT(ntfsmac_doctor_run_env(&env, collect, &c), NTFSMAC_DMN_OK);
+	EXPECT(c, NTFSMAC_DOCTOR_NOTIFY_DELIVERY, false, 4000);
+	memset(&c, 0, sizeof c);
+	ntfsmac_banner_record(&ok);
+	CHECK_EQ_INT(ntfsmac_doctor_run_env(&env, collect, &c), NTFSMAC_DMN_OK);
+	EXPECT(c, NTFSMAC_DOCTOR_NOTIFY_DELIVERY, true, 1000);
+	ntfsmac_banner_record(&never);
 	tmp_rmrf(base);
 }
 
@@ -375,6 +409,7 @@ int main(void)
 {
 	test_version();
 	test_no_macfuse_no_journal();
+	test_notify_delivery();
 	test_macfuse();
 	test_ext_parse();
 	test_conflicts();

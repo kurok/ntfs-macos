@@ -1,10 +1,13 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * U-DMN-NT-01..04: notification texts (src/daemon/notify.c; ARCHITECTURE.md sections 3.2, 3.6, 3.7,
+ * U-DMN-NT-01..10: notification texts (src/daemon/notify.c; ARCHITECTURE.md sections 3.2, 3.6, 3.7,
  * 4.1 step 9, 4.5 step 3, 7). The texts are pure; delivery goes to a sink here, so a unit test never
  * shows a banner.
  */
+#include <signal.h>
 #include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "check.h"
 #include "internal.h"
@@ -99,8 +102,195 @@ static void test_sink(void)
 	ntfsmac_notify_set_sink(NULL, NULL);
 }
 
+/* U-DMN-NT-05 (T-M7-06): the outcome of a helper run, as a pure function driven by fake outcomes. */
+static void test_banner_classify(void)
+{
+	ntfsmac_banner_outcome o;
+
+	o = ntfsmac_banner_classify(true, false, 0);
+	CHECK_EQ_INT(o.state, NTFSMAC_BANNER_OK);
+	CHECK_EQ_INT(o.exit_code, 0);
+	o = ntfsmac_banner_classify(false, false, 0); /* posix_spawn failed: no status to read */
+	CHECK_EQ_INT(o.state, NTFSMAC_BANNER_START_FAILED);
+	CHECK_EQ_INT(o.exit_code, 0);
+	o = ntfsmac_banner_classify(false, true, 1); /* not started wins over everything */
+	CHECK_EQ_INT(o.state, NTFSMAC_BANNER_START_FAILED);
+	o = ntfsmac_banner_classify(true, true, 137); /* killed after 10 s: timeout, not exit 137 */
+	CHECK_EQ_INT(o.state, NTFSMAC_BANNER_TIMEOUT);
+	CHECK_EQ_INT(o.exit_code, 0);
+	o = ntfsmac_banner_classify(true, false, 1); /* 1 alone proves nothing: see test_banner_probe */
+	CHECK_EQ_INT(o.state, NTFSMAC_BANNER_NONZERO_EXIT);
+	CHECK_EQ_INT(o.exit_code, 1);
+	o = ntfsmac_banner_classify(true, false, 2);
+	CHECK_EQ_INT(o.state, NTFSMAC_BANNER_NONZERO_EXIT);
+	CHECK_EQ_INT(o.exit_code, 2);
+	o = ntfsmac_banner_classify(true, false, 137); /* 128 + SIGKILL by someone else */
+	CHECK_EQ_INT(o.state, NTFSMAC_BANNER_NONZERO_EXIT);
+	CHECK_EQ_INT(o.exit_code, 137);
+	o = ntfsmac_banner_classify(true, false, -1); /* the wait failed */
+	CHECK_EQ_INT(o.state, NTFSMAC_BANNER_NONZERO_EXIT);
+	CHECK_EQ_INT(o.exit_code, 255);
+}
+
+/* A real wait status of a child that exits with `code` (code >= 0) or dies of signal -code. */
+static int child_status(int code)
+{
+	int st = 0;
+	pid_t p = fork();
+
+	if (p == 0) {
+		if (code >= 0)
+			_exit(code);
+		signal(-code, SIG_DFL);
+		raise(-code);
+		pause();
+		_exit(99);
+	}
+	CHECK(p > 0 && waitpid(p, &st, 0) == p);
+	return st;
+}
+
+/* U-DMN-NT-08: wait status -> status and "our SIGKILL ended it", with real statuses. */
+static void test_banner_status(void)
+{
+	int s0 = child_status(0), s1 = child_status(1), s77 = child_status(77);
+	int sterm = child_status(-SIGTERM), skill = child_status(-SIGKILL);
+
+	CHECK_EQ_INT(ntfsmac_banner_status(true, s0), 0);
+	CHECK_EQ_INT(ntfsmac_banner_status(true, s1), 1);
+	CHECK_EQ_INT(ntfsmac_banner_status(true, s77), 77);
+	CHECK_EQ_INT(ntfsmac_banner_status(true, sterm), 128 + SIGTERM);
+	CHECK_EQ_INT(ntfsmac_banner_status(true, skill), 128 + SIGKILL);
+	CHECK_EQ_INT(ntfsmac_banner_status(false, s0), -1); /* the wait failed: the status is garbage */
+	CHECK(!ntfsmac_banner_killed(true, s0));
+	CHECK(!ntfsmac_banner_killed(true, s1));
+	CHECK(!ntfsmac_banner_killed(true, sterm)); /* died of another signal: not our timeout */
+	CHECK(ntfsmac_banner_killed(true, skill));
+	CHECK(!ntfsmac_banner_killed(false, skill));
+	/* a child that died of SIGTERM while we were killing it keeps its real status */
+	{
+		ntfsmac_banner_outcome o = ntfsmac_banner_classify(
+			true, ntfsmac_banner_killed(true, sterm), ntfsmac_banner_status(true, sterm));
+
+		CHECK_EQ_INT(o.state, NTFSMAC_BANNER_NONZERO_EXIT);
+		CHECK_EQ_INT(o.exit_code, 128 + SIGTERM);
+		o = ntfsmac_banner_classify(true, ntfsmac_banner_killed(true, skill),
+					    ntfsmac_banner_status(true, skill));
+		CHECK_EQ_INT(o.state, NTFSMAC_BANNER_TIMEOUT);
+	}
+}
+
+/* U-DMN-NT-09: status 1 and the sudo probe: exact SUDO_REFUSED, or nothing claimed. */
+static void test_banner_probe(void)
+{
+	ntfsmac_banner_outcome one = ntfsmac_banner_classify(true, false, 1);
+	ntfsmac_banner_outcome two = ntfsmac_banner_classify(true, false, 2);
+	ntfsmac_banner_outcome ok = ntfsmac_banner_classify(true, false, 0);
+	ntfsmac_banner_outcome o;
+
+	CHECK(ntfsmac_banner_needs_probe(&one));
+	CHECK(!ntfsmac_banner_needs_probe(&two));
+	CHECK(!ntfsmac_banner_needs_probe(&ok));
+	o = ntfsmac_banner_refine(one, 1); /* sudo itself refuses */
+	CHECK_EQ_INT(o.state, NTFSMAC_BANNER_SUDO_REFUSED);
+	CHECK_EQ_INT(o.exit_code, 1);
+	o = ntfsmac_banner_refine(one, 0); /* sudo allows it: osascript or launchctl failed */
+	CHECK_EQ_INT(o.state, NTFSMAC_BANNER_NONZERO_EXIT);
+	CHECK_EQ_INT(o.exit_code, 1);
+	o = ntfsmac_banner_refine(one, -1); /* probe not run, timed out or unreadable */
+	CHECK_EQ_INT(o.state, NTFSMAC_BANNER_NONZERO_EXIT);
+	o = ntfsmac_banner_refine(one, 2);
+	CHECK_EQ_INT(o.state, NTFSMAC_BANNER_NONZERO_EXIT);
+	o = ntfsmac_banner_refine(two, 1); /* only status 1 is refined */
+	CHECK_EQ_INT(o.state, NTFSMAC_BANNER_NONZERO_EXIT);
+	CHECK_EQ_INT(o.exit_code, 2);
+	o = ntfsmac_banner_refine(ok, 1);
+	CHECK_EQ_INT(o.state, NTFSMAC_BANNER_OK);
+	CHECK(strcmp(ntfsmac_banner_state_name(NTFSMAC_BANNER_SUDO_REFUSED), "sudo-refused") == 0);
+	CHECK(strcmp(ntfsmac_banner_state_name(NTFSMAC_BANNER_TIMEOUT), "timeout") == 0);
+	CHECK(strcmp(ntfsmac_banner_state_name((ntfsmac_banner_state)99), "unknown") == 0);
+}
+
+/* U-DMN-NT-10: a slow older banner never overwrites a newer outcome. */
+static void test_banner_seq(void)
+{
+	ntfsmac_banner_outcome ok = {NTFSMAC_BANNER_OK, 0};
+	ntfsmac_banner_outcome to = {NTFSMAC_BANNER_TIMEOUT, 0};
+	ntfsmac_banner_outcome never = {NTFSMAC_BANNER_NEVER, 0};
+	uint64_t older = ntfsmac_banner_begin(), newer = ntfsmac_banner_begin();
+
+	CHECK(newer > older);
+	CHECK(ntfsmac_banner_record_seq(newer, &ok));
+	CHECK(!ntfsmac_banner_record_seq(older, &to)); /* finished late: dropped */
+	CHECK_EQ_INT(ntfsmac_banner_last().state, NTFSMAC_BANNER_OK);
+	CHECK(ntfsmac_banner_record_seq(newer, &to)); /* same banner may refine its own record */
+	CHECK_EQ_INT(ntfsmac_banner_last().state, NTFSMAC_BANNER_TIMEOUT);
+	ntfsmac_banner_record(&never); /* a fresh sequence number: always newest */
+	CHECK_EQ_INT(ntfsmac_banner_last().state, NTFSMAC_BANNER_NEVER);
+}
+
+/* U-DMN-NT-06: outcome -> doctor finding; no banner yet is ok ("unknown"), not a failure. */
+static void test_banner_finding(void)
+{
+	ntfsmac_banner_outcome never = {NTFSMAC_BANNER_NEVER, 0};
+	ntfsmac_banner_outcome ok = {NTFSMAC_BANNER_OK, 0};
+	ntfsmac_banner_outcome sf = {NTFSMAC_BANNER_START_FAILED, 0};
+	ntfsmac_banner_outcome sr = {NTFSMAC_BANNER_SUDO_REFUSED, 1};
+	ntfsmac_banner_outcome to = {NTFSMAC_BANNER_TIMEOUT, 0};
+	ntfsmac_banner_outcome nz = {NTFSMAC_BANNER_NONZERO_EXIT, 77};
+	ntfsmac_doctor_finding f;
+
+	f = ntfsmac_banner_finding(&never);
+	CHECK_EQ_INT(f.code, NTFSMAC_DOCTOR_NOTIFY_DELIVERY);
+	CHECK(f.ok);
+	CHECK_EQ_INT(f.value, 0);
+	f = ntfsmac_banner_finding(&ok);
+	CHECK(f.ok);
+	CHECK_EQ_INT(f.value, 1000);
+	f = ntfsmac_banner_finding(&sf);
+	CHECK(!f.ok);
+	CHECK_EQ_INT(f.value, 2000);
+	f = ntfsmac_banner_finding(&sr);
+	CHECK(!f.ok);
+	CHECK_EQ_INT(f.value, 3001);
+	f = ntfsmac_banner_finding(&to);
+	CHECK(!f.ok);
+	CHECK_EQ_INT(f.value, 4000);
+	f = ntfsmac_banner_finding(&nz);
+	CHECK(!f.ok);
+	CHECK_EQ_INT(f.value, 5077);
+	CHECK_EQ_INT(f.code, NTFSMAC_DOCTOR_NOTIFY_DELIVERY);
+}
+
+/* U-DMN-NT-07: the store keeps the last outcome; a sink (tests) delivers nothing and records nothing. */
+static void test_banner_store(void)
+{
+	ntfsmac_banner_outcome sr = {NTFSMAC_BANNER_SUDO_REFUSED, 1};
+	ntfsmac_banner_outcome never = {NTFSMAC_BANNER_NEVER, 0};
+	ntfsmac_banner_outcome o = ntfsmac_banner_last();
+
+	CHECK_EQ_INT(o.state, NTFSMAC_BANNER_NEVER);
+	ntfsmac_notify_set_sink(sink, NULL);
+	CHECK_EQ_INT(ntfsmac_notify_post(NTFSMAC_NOTIFY_MOUNTED_RW, "Disk", NULL), NTFSMAC_DMN_OK);
+	ntfsmac_notify_set_sink(NULL, NULL);
+	g_calls = 0;
+	CHECK_EQ_INT(ntfsmac_banner_last().state, NTFSMAC_BANNER_NEVER);
+	ntfsmac_banner_record(&sr);
+	o = ntfsmac_banner_last();
+	CHECK_EQ_INT(o.state, NTFSMAC_BANNER_SUDO_REFUSED);
+	CHECK_EQ_INT(o.exit_code, 1);
+	ntfsmac_banner_record(&never);
+	CHECK_EQ_INT(ntfsmac_banner_last().state, NTFSMAC_BANNER_NEVER);
+}
+
 int main(void)
 {
+	test_banner_status();
+	test_banner_probe();
+	test_banner_seq();
+	test_banner_classify();
+	test_banner_finding();
+	test_banner_store();
 	test_wording();
 	test_safety();
 	test_all_kinds();

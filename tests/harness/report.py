@@ -390,10 +390,19 @@ def _aggregate(works, env, repo, out_path, out_dir, rid, stage_dir, sha, dirty, 
                     "evidence": evidence, "note": note or None}
             add_unique(case)
             stage_cases.append(case)
-        rdir = os.path.join(work, "results")
-        for fn in sorted(os.listdir(rdir)) if os.path.isdir(rdir) else []:
-            if not fn.endswith(".json"):
-                continue
+        # result files: work/results/*.json (harness runs) and artifacts/<stage>/result.json (a stress entry
+        # point that writes its own result in this schema; its evidence paths are relative to that directory
+        # and are kept under the stage's name, where the stage's artifacts are copied as well)
+        sources = []
+        rdir0 = os.path.join(work, "results")
+        for fn in sorted(os.listdir(rdir0)) if os.path.isdir(rdir0) else []:
+            if fn.endswith(".json"):
+                sources.append((rdir0, fn, ""))
+        adir0 = os.path.join(work, "artifacts")
+        for sd in sorted(os.listdir(adir0)) if os.path.isdir(adir0) else []:
+            if os.path.isfile(os.path.join(adir0, sd, "result.json")):
+                sources.append((os.path.join(adir0, sd), "result.json", sd + "/"))
+        for rdir, fn, prefix in sources:
             with open(os.path.join(rdir, fn), "r", encoding="utf-8") as f:
                 sub = json.load(f)
             errs = validate(sub)
@@ -413,7 +422,7 @@ def _aggregate(works, env, repo, out_path, out_dir, rid, stage_dir, sha, dirty, 
                 new_ev, missing = [], []
                 for p in c["evidence"]:
                     src = os.path.join(rdir, p)
-                    rest = p[len("evidence/"):] if p.startswith("evidence/") else p
+                    rest = prefix + (p[len("evidence/"):] if p.startswith("evidence/") else p)
                     rel = store(src, rest) if os.path.isfile(src) else None
                     if rel:
                         new_ev.append(rel)

@@ -142,7 +142,7 @@ Environment column: where the test must pass to count. `A*` means "also run on L
 | **Reliability** | | | | |
 | Long-running workload | `S-SOAK-01` | 6 h mixed workload | B | T-M5-02 |
 | Parallel operations | `S-PAR-01` | 16 processes, 30 min | B | T-M5-02 |
-| Memory leaks | `S-LEAK-01`, ASan runs | `leaks` on worker; ASan suite on Linux | B, A | T-M5-03 |
+| Memory leaks | `S-LEAK-01`, ASan runs | `leaks` on worker; ASan suite on Linux. `S-LEAK-01` (`tests/stress/leaks`): a dedicated workload (`workload.py`) stands in for "the functional suite"; the test starts the worker itself (the daemon's argument vector, the device as an inherited descriptor of an image file, `MallocStackLogging=1`, no sandbox profile, no launchd job), because the daemon gives the worker a fixed environment and `leaks` prints no stacks without it. Leaks are classified by stack into project (patched lines and functions of `third_party/patches`) and engine; engine leaks are listed | B, A | T-M5-03 |
 | Device disconnection | `S-DISC-*`, `H-USB-*` | image force-detach; real unplug | B, C | T-M5-04, T-M5-10 |
 | Low disk space | `S-NOSPC-01` | fill to `ENOSPC`, verify earlier files | B, A* | T-M5-06 |
 | Corruption detection | `U-PROBE-*`, `F-*` | truncated and mutated images never crash the probe or the daemon | A | T-M3-16 |

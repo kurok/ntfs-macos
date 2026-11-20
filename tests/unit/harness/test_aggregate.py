@@ -178,6 +178,29 @@ class ScrubTest(AggregateBase):
         case = self.agg()["cases"][0]
         self.assertIn("capped", case["note"])
 
+    def test_stress_entry_result_cases_are_merged(self):
+        """artifacts/<stage>/result.json of a stress entry: its cases appear next to the stage case, with evidence."""
+        art = os.path.join(self.work, "artifacts", "stress-leaks")
+        put(os.path.join(art, "summary.txt"), "at /Users/z/q\n")
+        write_doc(art, "result.json", "B", [mkcase("S-LEAK-01", evidence=["summary.txt", "gone.txt"]),
+                                           mkcase("S-LEAK-01-CONTROL")])
+        doc = self.agg()
+        self.assertEqual(report.validate(doc), [])
+        cases = {c["id"]: c for c in doc["cases"]}
+        self.assertIn("S-LEAK-01", cases)
+        self.assertIn("S-LEAK-01-CONTROL", cases)
+        self.assertIn("evidence not stored: gone.txt", cases["S-LEAK-01"]["note"])
+        ev = cases["S-LEAK-01"]["evidence"]
+        self.assertEqual(len(ev), 1)
+        with open(self.evidence_file(ev[0])) as f:
+            self.assertNotIn("/Users/", f.read())
+
+    def test_stress_entry_failing_case_is_kept(self):
+        art = os.path.join(self.work, "artifacts", "stress-leaks")
+        write_doc(art, "result.json", "B", [mkcase("S-LEAK-01", "fail", "project leak")])
+        c = [c for c in self.agg()["cases"] if c["id"] == "S-LEAK-01"][0]
+        self.assertEqual(c["status"], "fail")
+
     def test_missing_sub_evidence_is_noted(self):
         write_doc(os.path.join(self.work, "results"), "sub.json", "B",
                   [mkcase("I-X-01", evidence=["evidence/sub/gone.log"])])
@@ -374,7 +397,7 @@ class DryRunTest(unittest.TestCase):
         self.assertEqual([n for n, _ in self.names("--env", "A")],
                          ["preflight", "selftest", "unit-probe", "unit-volmark", "harness", "stress-crashsweep"])
         self.assertEqual([n for n, _ in self.names("--env", "B")],
-                         ["preflight", "build-release", "fixtures", "integration", "compat", "daemon", "stress"])
+                         ["preflight", "build-release", "fixtures", "integration", "compat", "daemon", "stress-leaks"])
 
     def test_host_never_runs_the_vm_cases(self):
         d = dict(self.names("--env", "host"))
@@ -413,7 +436,7 @@ class DryRunTest(unittest.TestCase):
         r = self.run_all("--list-stress", "A")
         self.assertEqual(r.returncode, 0)
         self.assertIn("crashsweep", r.stdout.decode())
-        self.assertEqual(self.run_all("--list-stress", "B").stdout.decode().strip(), "")
+        self.assertEqual(self.run_all("--list-stress", "B").stdout.decode().split(), ["leaks"])
 
     def test_usage_text_states_three_commands(self):
         r = subprocess.run(["sh", os.path.join(REPO, "scripts", "test-all.sh"), "--help"], stdout=subprocess.PIPE,

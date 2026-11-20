@@ -44,13 +44,16 @@ static void *timed_call_main(void *p)
 
 bool ntfsmac_cli_run_with_timeout(void (*fn)(void *), void *arg, unsigned timeout_ms)
 {
-	struct timed_call *t = calloc(1, sizeof *t);
+	struct timed_call *t;
 	pthread_t th;
 	struct timespec until;
 	bool ok = false;
 	int r = 0;
 
-	if (t == NULL || fn == NULL)
+	if (fn == NULL)
+		return false;
+	t = calloc(1, sizeof *t);
+	if (t == NULL)
 		return false;
 	t->fn = fn;
 	t->arg = arg;

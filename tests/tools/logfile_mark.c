@@ -86,7 +86,9 @@
  *
  * Exit status: 0 success, 1 failure (message on stderr), 2 usage error.
  */
+#ifndef _DEFAULT_SOURCE
 #define _DEFAULT_SOURCE
+#endif
 #define _POSIX_C_SOURCE 200809L
 
 #include <errno.h>

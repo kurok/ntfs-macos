@@ -651,10 +651,11 @@ if [ "$quick" -eq 0 ]; then
 		_rc=0
 		for _p in linux asan; do
 			echo "== linux-build-test: preset $_p"
+			echo "NOTE: fuzz.findings.F1/F3/F4 are not run here: the image of Environment A links pristine NTFS-3G, where these replays fail by design (they pass against the patched library in the A-unit asan stage, tests/unit/probe/inner.sh)"
 			_o=$work/A/linux-$_p.out
 			_prc=0
 			sh "$root/vm/linux/run.sh" run -- bash -c \
-				"set -e; cmake --preset $_p -S /work -B /tmp/b-$_p >/dev/null && cmake --build /tmp/b-$_p && ctest --test-dir /tmp/b-$_p --output-on-failure" \
+				"set -e; cmake --preset $_p -S /work -B /tmp/b-$_p -DNTFSMAC_NTFS3G_PATCHED=OFF >/dev/null && cmake --build /tmp/b-$_p && ctest --test-dir /tmp/b-$_p --output-on-failure" \
 				>"$_o" 2>&1 || _prc=$?
 			cat "$_o"
 			if [ "$_prc" -ne 0 ]; then

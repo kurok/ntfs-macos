@@ -231,12 +231,12 @@ void ntfsmac_xpc_stop(ntfsmac_xpc *x)
 ntfsmac_dmn_status ntfsmac_xpc_start(const char *service, const ntfsmac_ctl_ops *ops, void *ctx,
 				     const ntfsmac_ctl_env *env, ntfsmac_xpc **out)
 {
-	(void)service;
-	(void)ops;
 	(void)ctx;
-	(void)env;
 	if (out != NULL)
 		*out = NULL;
+	if (service == NULL || ops == NULL || env == NULL || env->sys == NULL || env->replay == NULL ||
+	    out == NULL)
+		return NTFSMAC_DMN_E_INVAL; /* the same arguments are refused as on macOS */
 	return NTFSMAC_DMN_E_NOTIMPL;
 }
 

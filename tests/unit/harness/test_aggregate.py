@@ -23,6 +23,10 @@ sys.path.insert(0, TESTS)
 
 from harness import report  # noqa: E402
 
+# A read-only checkout in a container has no usable git state. The stubbed runs put a `git` stub on
+# PATH (GIT_STUB); nothing here sets variables in os.environ.
+GIT_STUB = 'case "$*" in *rev-parse*) echo 1111111111111111111111111111111111111111 ;; esac; exit 0'
+
 SHA = "0123456789abcdef0123456789abcdef01234567"
 SHA2 = "fedcba9876543210fedcba9876543210fedcba98"
 STARTED = "2026-11-20T10:00:00Z"
@@ -448,6 +452,8 @@ class DryRunTest(unittest.TestCase):
 def make_stubs(d, scripts):
     bindir = os.path.join(d, "bin")
     os.makedirs(bindir, exist_ok=True)
+    scripts = dict(scripts)
+    scripts.setdefault("git", GIT_STUB)
     for name, body in scripts.items():
         p = os.path.join(bindir, name)
         with open(p, "w") as f:
@@ -658,3 +664,22 @@ class RunSuiteTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class GitInfoEnvTest(unittest.TestCase):
+    """git-info reads the tree, never the environment."""
+
+    def test_exported_sha_and_dirty_have_no_effect(self):
+        with tempfile.TemporaryDirectory() as d:
+            bindir = make_stubs(d, {})
+            e = dict(os.environ, PATH=bindir + os.pathsep + os.environ["PATH"],
+                     NTFSMAC_GIT_SHA="2" * 40, NTFSMAC_GIT_DIRTY="false")
+            r = subprocess.run([sys.executable, "-B", os.path.join(TESTS, "harness", "report.py"), "--repo", REPO,
+                                "git-info"], env=e, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.assertEqual(r.stdout.decode().split(), ["1" * 40, "false"], r.stderr.decode())
+            e["PATH"] = bindir + os.pathsep + "/usr/bin:/bin"
+            with open(os.path.join(bindir, "git"), "w") as f:
+                f.write('#!/bin/sh\ncase "$*" in *rev-parse*) echo %s ;; *status*) echo " M x" ;; esac\n' % ("3" * 40))
+            r = subprocess.run([sys.executable, "-B", os.path.join(TESTS, "harness", "report.py"), "--repo", REPO,
+                                "git-info"], env=e, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.assertEqual(r.stdout.decode().split(), ["3" * 40, "true"], r.stderr.decode())

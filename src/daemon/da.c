@@ -563,6 +563,8 @@ bool ntfsmac_da_same_path(const char *a, const char *b)
 
 #else /* !__APPLE__ */
 
+#include <string.h>
+
 bool ntfsmac_da_same_path(const char *a, const char *b)
 {
 	return a != NULL && b != NULL && strcmp(a, b) == 0;

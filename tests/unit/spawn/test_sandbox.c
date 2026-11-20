@@ -10,7 +10,9 @@
  * (tests/integration/daemon/sandbox_vm.sh, I-SBX-01..08); this test runs on every host.
  * The profile files are lint-checked by sandbox_lint.sh (U-SBX-08).
  */
+#ifndef _DEFAULT_SOURCE
 #define _DEFAULT_SOURCE
+#endif
 #define _POSIX_C_SOURCE 200809L
 #if defined(__APPLE__) && !defined(_DARWIN_C_SOURCE)
 #define _DARWIN_C_SOURCE 1
@@ -35,12 +37,21 @@
 #include "ntfsmac/options.h"
 #include "spawn_config.h"
 
+/* snprintf that aborts instead of truncating a path */
+#define PATHF(buf, ...) \
+	do { \
+		if (snprintf((buf), sizeof(buf), __VA_ARGS__) >= (int)sizeof(buf)) { \
+			fprintf(stderr, "path too long\n"); \
+			abort(); \
+		} \
+	} while (0)
+
 /* What the profile files hold in these tests: the text sandbox-exec must be given. */
 #define PROFILE_TEXT_PROBE "(version 1)\n;; probe-profile\n"
 #define PROFILE_TEXT_VOLMARK "(version 1)\n;; volmark-profile\n"
 #define PROFILE_TEXT_WORKER "(version 1)\n;; worker-profile\n"
 
-static char g_dir[256];     /* scratch directory */
+static char g_dir[PATH_MAX];     /* scratch directory */
 static char g_sbx[300];     /* sandbox_dir: holds probe.sb, volmark.sb, worker.sb */
 static char g_wrap[300];    /* the fake sandbox-exec */
 static char g_log[300];     /* what the fake wrote */
@@ -54,12 +65,12 @@ static const char *ctl_real_param(void)
 	char dir[PATH_MAX], real[PATH_MAX];
 	const char *slash = strrchr(NTFSMAC_CTL_SOCKET_PATH, '/');
 
-	snprintf(dir, sizeof(dir), "%.*s", (int)(slash - NTFSMAC_CTL_SOCKET_PATH), NTFSMAC_CTL_SOCKET_PATH);
+	PATHF(dir, "%.*s", (int)(slash - NTFSMAC_CTL_SOCKET_PATH), NTFSMAC_CTL_SOCKET_PATH);
 	if (realpath(dir, real) == NULL) {
 		perror("realpath");
 		exit(2);
 	}
-	snprintf(out, sizeof(out), "-D CTL_SOCKET_REAL=%s/%s ", real, slash + 1);
+	PATHF(out, "-D CTL_SOCKET_REAL=%s/%s ", real, slash + 1);
 	return out;
 }
 
@@ -87,7 +98,7 @@ static void link_as(const char *name)
 {
 	char path[300];
 
-	snprintf(path, sizeof(path), "%s/%s", g_dir, name);
+	PATHF(path, "%s/%s", g_dir, name);
 	(void)unlink(path);
 	if (symlink(SPAWN_STUB_PATH, path) != 0) {
 		perror("symlink");
@@ -101,7 +112,8 @@ static const char *path_of(const char *name)
 	static int k;
 	char *b = bufs[k++ & 3];
 
-	snprintf(b, 300, "%s/%s", g_dir, name);
+	if (snprintf(b, 300, "%s/%s", g_dir, name) >= 300)
+		abort();
 	return b;
 }
 
@@ -153,7 +165,7 @@ static int open_device(void)
 	char path[300];
 	int fd;
 
-	snprintf(path, sizeof(path), "%s/device.img", g_dir);
+	PATHF(path, "%s/device.img", g_dir);
 	fd = open(path, O_RDWR | O_CREAT | O_TRUNC | O_CLOEXEC, 0600);
 	if (fd < 0 || write(fd, "ABCDEFGH", 8) != 8) {
 		perror("device");
@@ -202,12 +214,12 @@ static void test_probe(void)
 	CHECK(has(w, "-p " PROFILE_TEXT_PROBE)); /* the text of the file, not its name */
 	CHECK(!has(w, " -f "));
 	CHECK(!has(w, "probe.sb"));
-	snprintf(want, sizeof(want), "-D EXEC_PATH=%s ", g_stub_real); /* the real path, not the link */
+	PATHF(want, "-D EXEC_PATH=%s ", g_stub_real); /* the real path, not the link */
 	CHECK(has(w, want));
 	CHECK(has(w, "-D CTL_SOCKET=" NTFSMAC_CTL_SOCKET_PATH " "));
 	CHECK(has(w, ctl_real_param())); /* U-SBX-10 */
 	CHECK(has(w, "-D XPC_SERVICE=" NTFSMAC_CTL_XPC_SERVICE " "));
-	snprintf(want, sizeof(want), "%s/probe-ok --fd ", g_dir);
+	PATHF(want, "%s/probe-ok --fd ", g_dir);
 	CHECK(has(w, want)); /* the program and its own arguments follow the options */
 	CHECK(!has(w, "USERMAPPING"));
 	close(fd);
@@ -276,7 +288,7 @@ static void test_worker(void)
 	CHECK(has(w, "-D XPC_SERVICE=" NTFSMAC_CTL_XPC_SERVICE " "));
 	CHECK(has(w, "-D USERMAPPING_PATH=" NTFSMAC_USERMAPPING_PATH " "));
 	CHECK(has(w, "-D USERMAPPING=no "));
-	snprintf(want, sizeof(want), "%s/worker-ok /dev/fd/%d /Volumes/SBXTEST -o ", g_dir, fd);
+	PATHF(want, "%s/worker-ok /dev/fd/%d /Volumes/SBXTEST -o ", g_dir, fd);
 	CHECK(has(w, want));
 	kill_worker(&child);
 	close(fd);
@@ -296,8 +308,8 @@ static void test_bad_profile(void)
 	c.probe_path = path_of("probe-ok");
 	run.device_fd = fd;
 	run.timeout_s = 5;
-	snprintf(good, sizeof(good), "%s/probe.sb", g_sbx);
-	snprintf(other, sizeof(other), "%s/probe-copy.sb", g_sbx);
+	PATHF(good, "%s/probe.sb", g_sbx);
+	PATHF(other, "%s/probe-copy.sb", g_sbx);
 
 	/* missing */
 	(void)unlink(good);
@@ -401,7 +413,7 @@ static void test_wrapper_failure(void)
 	(void)unlink(g_fail);
 
 	/* sandbox-exec is missing: the start fails, nothing falls back to the bare program */
-	snprintf(marker, sizeof(marker), "%s/no-such-sandbox-exec", g_dir);
+	PATHF(marker, "%s/no-such-sandbox-exec", g_dir);
 	c.sandbox_exec_path = marker;
 	ntfsmac_spawn_config_set(&c);
 	forget();
@@ -455,7 +467,7 @@ int main(void)
 
 	if (tmp == NULL || tmp[0] == '\0')
 		tmp = "/tmp";
-	snprintf(tmpl, sizeof(tmpl), "%s/sandbox-test.XXXXXX", tmp);
+	PATHF(tmpl, "%s/sandbox-test.XXXXXX", tmp);
 	if (mkdtemp(tmpl) == NULL) {
 		perror("mkdtemp");
 		return 2;
@@ -464,10 +476,10 @@ int main(void)
 		perror("realpath");
 		return 2;
 	}
-	snprintf(g_sbx, sizeof(g_sbx), "%s/sandbox", g_dir);
-	snprintf(g_wrap, sizeof(g_wrap), "%s/sandbox-exec", g_dir);
-	snprintf(g_log, sizeof(g_log), "%s/wrap.log", g_dir);
-	snprintf(g_fail, sizeof(g_fail), "%s/wrap.fail", g_dir);
+	PATHF(g_sbx, "%s/sandbox", g_dir);
+	PATHF(g_wrap, "%s/sandbox-exec", g_dir);
+	PATHF(g_log, "%s/wrap.log", g_dir);
+	PATHF(g_fail, "%s/wrap.fail", g_dir);
 	if (mkdir(g_sbx, 0755) != 0) {
 		perror("mkdir");
 		return 2;
@@ -478,11 +490,11 @@ int main(void)
 		size_t i;
 
 		for (i = 0; i < 3; i++) {
-			snprintf(cmd, sizeof(cmd), "%s/%s", g_sbx, names[i]);
+			PATHF(cmd, "%s/%s", g_sbx, names[i]);
 			write_file(cmd, texts[i], 0644);
 		}
 	}
-	snprintf(text, sizeof(text),
+	PATHF(text,
 		 "#!/bin/sh\n"
 		 "printf '%%s\\n' \"$*\" > '%s'\n"
 		 "[ -e '%s' ] && exit 65\n"
@@ -501,7 +513,7 @@ int main(void)
 	test_no_sandbox();
 	test_defaults();
 
-	snprintf(cmd, sizeof(cmd), "rm -rf '%s'", g_dir);
+	PATHF(cmd, "rm -rf '%s'", g_dir);
 	if (system(cmd) != 0)
 		fprintf(stderr, "warning: could not remove %s\n", g_dir);
 	if (g_failures != 0) {

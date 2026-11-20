@@ -58,12 +58,12 @@ static void test_scan(void)
 	CHECK_EQ_INT(ntfsmac_conflict_scan(base, &r), NTFSMAC_DMN_OK);
 	CHECK(!r.passive);
 	/* A dangling link is not a bundle either. */
-	snprintf(path, sizeof path, "%s/tuxera_ntfs.fs", base);
+	PATHF(path, "%s/tuxera_ntfs.fs", base);
 	CHECK(symlink("/nonexistent-ntfsmac-target", path) == 0);
 	CHECK_EQ_INT(ntfsmac_conflict_scan(base, &r), NTFSMAC_DMN_OK);
 	CHECK(!r.passive);
 	CHECK(unlink(path) == 0);
-	snprintf(path, sizeof path, "%s/ufsd_NTFS.fs", base);
+	PATHF(path, "%s/ufsd_NTFS.fs", base);
 	CHECK(unlink(path) == 0);
 
 	/* U-DMN-CFL-03: the dummy Paragon bundle (a directory) gives passive mode. */
@@ -88,18 +88,18 @@ static void test_scan(void)
 	 * directory means no driver; an unreadable one means passive and E_IO. */
 	tmp_make(base, sizeof base);
 	tmp_mkdir(base, "real");
-	snprintf(target, sizeof target, "%s/real", base);
-	snprintf(path, sizeof path, "%s/tuxera_ntfs.fs", base);
+	PATHF(target, "%s/real", base);
+	PATHF(path, "%s/tuxera_ntfs.fs", base);
 	CHECK(symlink(target, path) == 0);
 	CHECK_EQ_INT(ntfsmac_conflict_scan(base, &r), NTFSMAC_DMN_OK);
 	CHECK(r.passive);
 	CHECK_EQ_INT(r.drivers_found, 1);
-	snprintf(path, sizeof path, "%s/missing", base);
+	PATHF(path, "%s/missing", base);
 	CHECK_EQ_INT(ntfsmac_conflict_scan(path, &r), NTFSMAC_DMN_OK);
 	CHECK(!r.passive);
 	CHECK_EQ_INT(r.drivers_found, 0);
 	tmp_write(base, "afile", "x");
-	snprintf(path, sizeof path, "%s/afile", base); /* not a directory */
+	PATHF(path, "%s/afile", base); /* not a directory */
 	CHECK_EQ_INT(ntfsmac_conflict_scan(path, &r), NTFSMAC_DMN_E_IO);
 	CHECK(r.passive);
 	tmp_rmrf(base);

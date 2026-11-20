@@ -543,7 +543,10 @@ static int dial(void)
 
 	memset(&sa, 0, sizeof sa);
 	sa.sun_family = AF_UNIX;
-	snprintf(sa.sun_path, sizeof sa.sun_path, "%s", g_sock);
+	if (snprintf(sa.sun_path, sizeof sa.sun_path, "%s", g_sock) >= (int)sizeof sa.sun_path) {
+		fprintf(stderr, "socket path too long\n");
+		exit(2);
+	}
 	if (fd < 0 || connect(fd, (struct sockaddr *)&sa, sizeof sa) != 0) {
 		if (fd >= 0)
 			close(fd);

@@ -65,7 +65,15 @@ set_tests_properties(fuzz.probe_seeds fuzz.mountwalk_seeds PROPERTIES ENVIRONMEN
 #   cannot show the defect; it only shows that the patched library does not crash. F3 is then
 #   checked by valgrind on the standalone image or by an -O0 or clang build (docs/AGENT_TASKS.md
 #   T-M3-25). With the patches all three pass in every build above.
-if(NTFSMAC_SANITIZE MATCHES "address")
+# The replay shows a fixed defect only against the library of build-ntfs3g.sh, which applies the series
+# of third_party/patches/ntfs-3g. A caller that links pristine upstream (the image of Environment A,
+# vm/linux/Dockerfile, in scripts/ci-local.sh linux-build-test) passes -DNTFSMAC_NTFS3G_PATCHED=OFF:
+# there F1, F3 and F4 are the unfixed upstream defects and must fail, so they are not registered.
+option(NTFSMAC_NTFS3G_PATCHED "libntfs-3g carries the patch series (ADR-026); OFF for pristine upstream" ON)
+
+if(NTFSMAC_SANITIZE MATCHES "address" AND NOT NTFSMAC_NTFS3G_PATCHED)
+  message(STATUS "NTFSMAC_NTFS3G_PATCHED=OFF: fuzz.findings.F1/F3/F4 not registered (pristine libntfs-3g)")
+elseif(NTFSMAC_SANITIZE MATCHES "address")
   set(_findings ${CMAKE_CURRENT_SOURCE_DIR}/findings)
   # The image sets ASAN_OPTIONS (log_path and more); the options of the replay are appended to them.
   set(_asan_extra "detect_leaks=0:allocator_may_return_null=0:max_allocation_size_mb=1024")

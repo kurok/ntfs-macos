@@ -55,7 +55,10 @@ static int dial(void)
 	fake_sync(); /* publish the fake state the test set before connecting */
 	memset(&sa, 0, sizeof sa);
 	sa.sun_family = AF_UNIX;
-	snprintf(sa.sun_path, sizeof sa.sun_path, "%s", path);
+	if (snprintf(sa.sun_path, sizeof sa.sun_path, "%s", path) >= (int)sizeof sa.sun_path) {
+		fprintf(stderr, "socket path too long\n");
+		exit(2);
+	}
 	if (fd < 0 || connect(fd, (struct sockaddr *)&sa, sizeof sa) != 0) {
 		perror("connect");
 		exit(2);
@@ -177,7 +180,10 @@ static void test_start_stop(void)
 
 		memset(&sa, 0, sizeof sa);
 		sa.sun_family = AF_UNIX;
-		snprintf(sa.sun_path, sizeof sa.sun_path, "%s", path);
+		if (snprintf(sa.sun_path, sizeof sa.sun_path, "%s", path) >= (int)sizeof sa.sun_path) {
+			fprintf(stderr, "socket path too long\n");
+			exit(2);
+		}
 		CHECK(bind(s, (struct sockaddr *)&sa, sizeof sa) == 0);
 		close(s); /* the file stays, nobody listens */
 	}
@@ -547,7 +553,6 @@ static void test_real_sys(void)
 	const ntfsmac_ctl_sys *sys = ntfsmac_ctl_sys_default();
 	int sv[2];
 	ntfsmac_ctl_peer p;
-	pid_t ppid = -1, pgid = -1;
 	ntfsmac_ctl_sys_real r;
 
 	CHECK(sys != NULL && sys->peer_from_fd != NULL && sys->proc_parent != NULL);
@@ -556,6 +561,8 @@ static void test_real_sys(void)
 	CHECK_EQ_INT(p.uid, getuid());
 	CHECK_EQ_INT(p.pid, getpid());
 #if defined(__APPLE__)
+	pid_t ppid = -1, pgid = -1;
+
 	CHECK(p.has_audit_token);
 	CHECK_EQ_INT(p.audit_token[5], (uint32_t)getpid()); /* pid is word 5 of audit_token_t */
 	CHECK_EQ_INT(sys->proc_parent(sys->ctx, getpid(), &ppid, &pgid), NTFSMAC_CTL_PROC_OK);

@@ -10,7 +10,9 @@
  * are at their defaults, the argument vector and environment are the fixed
  * ones. A failed check shows as a failed spawn call.
  */
+#ifndef _DEFAULT_SOURCE
 #define _DEFAULT_SOURCE
+#endif
 #define _POSIX_C_SOURCE 200809L
 #if defined(__APPLE__) && !defined(_DARWIN_C_SOURCE)
 #define _DARWIN_C_SOURCE 1

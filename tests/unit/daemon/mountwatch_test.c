@@ -138,7 +138,11 @@ static void test_unmount_calls(void)
 	CHECK_EQ_INT(ntfsmac_mw_unmount_bounded("relative", false, 0, 1000, &busy), NTFSMAC_DMN_E_INVAL);
 	/* A path that does not exist: refused by the kernel, quickly, with a status. */
 	st = ntfsmac_mw_unmount_bounded("/nonexistent-ntfsmac-test", false, 0, 5000, &busy);
+#if defined(__APPLE__)
 	CHECK_EQ_INT(st, NTFSMAC_DMN_E_STATE);
+#else
+	CHECK_EQ_INT(st, NTFSMAC_DMN_E_IO); /* unmount(2) of the daemon is macOS only; no other host unmounts */
+#endif
 	CHECK_EQ_INT(ntfsmac_mw_unmount_as_user("/tmp", 0, 0, 1000), NTFSMAC_DMN_E_INVAL); /* never root */
 	CHECK_EQ_INT(ntfsmac_mw_unmount_as_user(NULL, 501, 20, 1000), NTFSMAC_DMN_E_INVAL);
 	CHECK_EQ_INT(ntfsmac_mw_unmount_as_user("relative", 501, 20, 1000), NTFSMAC_DMN_E_INVAL);

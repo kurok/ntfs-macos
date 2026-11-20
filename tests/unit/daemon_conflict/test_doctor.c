@@ -122,8 +122,8 @@ static void test_no_macfuse_no_journal(void)
 	struct stat st;
 
 	tmp_make(base, sizeof base);
-	snprintf(fs, sizeof fs, "%s/fs", base);
-	snprintf(jd, sizeof jd, "%s/journal", base);
+	PATHF(fs, "%s/fs", base);
+	PATHF(jd, "%s/journal", base);
 	tmp_mkdir(base, "fs");
 
 	/* U-DMN-DOC-03: macFUSE missing; no other driver; no journal directory. */
@@ -147,12 +147,12 @@ static void test_macfuse(void)
 	collected c;
 
 	tmp_make(base, sizeof base);
-	snprintf(fs, sizeof fs, "%s/fs", base);
-	snprintf(jd, sizeof jd, "%s/journal", base);
+	PATHF(fs, "%s/fs", base);
+	PATHF(jd, "%s/journal", base);
 	tmp_mkdir(base, "fs");
 	tmp_mkdir(fs, "macfuse.fs");
 	tmp_mkdir(fs, "macfuse.fs/Contents");
-	snprintf(p, sizeof p, "macfuse.fs/Contents/Info.plist");
+	PATHF(p, "macfuse.fs/Contents/Info.plist");
 
 	/* U-DMN-DOC-04: version 5.5.0 and an enabled extension: all ok. */
 	tmp_write(fs, p,
@@ -186,7 +186,7 @@ static void test_macfuse(void)
 	{
 		char full[PATH_MAX];
 
-		snprintf(full, sizeof full, "%s/%s", fs, p);
+		PATHF(full, "%s/%s", fs, p);
 		CHECK(unlink(full) == 0);
 	}
 	memset(&c, 0, sizeof c);
@@ -264,8 +264,8 @@ static void test_conflicts(void)
 	collected c;
 
 	tmp_make(base, sizeof base);
-	snprintf(fs, sizeof fs, "%s/fs", base);
-	snprintf(jd, sizeof jd, "%s/journal", base);
+	PATHF(fs, "%s/fs", base);
+	PATHF(jd, "%s/journal", base);
 	tmp_mkdir(base, "fs");
 
 	/* U-DMN-DOC-06: a dummy Paragon bundle is named; fuse-t is not a conflict. */
@@ -287,7 +287,7 @@ static void test_conflicts(void)
 
 	/* An unreadable bundle directory (a file instead): reported, not ignored. */
 	tmp_write(base, "notdir", "x");
-	snprintf(fs, sizeof fs, "%s/notdir", base);
+	PATHF(fs, "%s/notdir", base);
 	memset(&c, 0, sizeof c);
 	CHECK_EQ_INT(ntfsmac_doctor_run_env(&env, collect, &c), NTFSMAC_DMN_OK);
 	EXPECT(c, NTFSMAC_DOCTOR_CONFLICT_UNREADABLE, false, 0);
@@ -318,8 +318,8 @@ static void test_journal(void)
 	collected c;
 
 	tmp_make(base, sizeof base);
-	snprintf(fs, sizeof fs, "%s/fs", base);
-	snprintf(jd, sizeof jd, "%s/journal", base);
+	PATHF(fs, "%s/fs", base);
+	PATHF(jd, "%s/journal", base);
 	tmp_mkdir(base, "fs");
 
 	/* U-DMN-DOC-07: two entries, one unreadable, one tombstone. */
@@ -342,7 +342,7 @@ static void test_journal(void)
 
 	/* A journal path that is a file: unreadable, reported. */
 	tmp_write(base, "jfile", "x");
-	snprintf(jd, sizeof jd, "%s/jfile", base);
+	PATHF(jd, "%s/jfile", base);
 	memset(&c, 0, sizeof c);
 	CHECK_EQ_INT(ntfsmac_doctor_run_env(&env, collect, &c), NTFSMAC_DMN_OK);
 	EXPECT(c, NTFSMAC_DOCTOR_JOURNAL_UNREADABLE, false, 0);
@@ -357,8 +357,8 @@ static void test_run_control(void)
 	collected c;
 
 	tmp_make(base, sizeof base);
-	snprintf(fs, sizeof fs, "%s/fs", base);
-	snprintf(jd, sizeof jd, "%s/journal", base);
+	PATHF(fs, "%s/fs", base);
+	PATHF(jd, "%s/journal", base);
 	tmp_mkdir(base, "fs");
 
 	/* The callback can stop the run; a NULL callback is refused. */

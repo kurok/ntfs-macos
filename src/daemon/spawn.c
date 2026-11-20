@@ -412,7 +412,8 @@ static pid_t *proc_pids_of_uid(uid_t uid, int *count)
 
 		if (!proc_numeric(e->d_name))
 			continue;
-		snprintf(path, sizeof(path), "/proc/%s", e->d_name);
+		if (snprintf(path, sizeof(path), "/proc/%s", e->d_name) >= (int)sizeof(path))
+			continue; /* not a pid: too long for one */
 		if (stat(path, &st) != 0 || st.st_uid != uid)
 			continue;
 		if (n == cap) {
@@ -451,7 +452,8 @@ static bool proc_holds_device(pid_t pid, const dev_ident *id)
 
 		if (!proc_numeric(e->d_name))
 			continue;
-		snprintf(path, sizeof(path), "%s/%s", dir, e->d_name);
+		if (snprintf(path, sizeof(path), "%s/%s", dir, e->d_name) >= (int)sizeof(path))
+			continue; /* not a descriptor number: too long for one */
 		held = stat(path, &st) == 0 && st.st_dev == id->dev && st.st_ino == id->ino;
 	}
 	closedir(d);

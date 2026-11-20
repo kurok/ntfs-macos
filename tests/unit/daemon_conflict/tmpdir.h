@@ -4,7 +4,9 @@
 
 #ifdef __linux__
 #define _XOPEN_SOURCE 700
+#ifndef _DEFAULT_SOURCE
 #define _DEFAULT_SOURCE
+#endif
 #endif
 #include <errno.h>
 #include <fcntl.h>
@@ -15,6 +17,15 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+/* snprintf that aborts instead of truncating a path */
+#define PATHF(buf, ...) \
+	do { \
+		if (snprintf((buf), sizeof(buf), __VA_ARGS__) >= (int)sizeof(buf)) { \
+			fprintf(stderr, "path too long\n"); \
+			abort(); \
+		} \
+	} while (0)
 
 /* Create a fresh directory under $TMPDIR (or /tmp). Exits on failure. */
 static void tmp_make(char *out, size_t cap)

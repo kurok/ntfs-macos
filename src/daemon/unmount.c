@@ -191,6 +191,11 @@ static bool path_ok(const char *p)
 	return true;
 }
 
+bool ntfsmac_unmount_seen(bool mount_gone, bool daemon_requested, bool da_volume_gone)
+{
+	return mount_gone && (daemon_requested || da_volume_gone);
+}
+
 ntfsmac_dmn_status ntfsmac_unmount_run(const char *mount_point, const ntfsmac_unmount_opts *opts,
 				       pid_t *busy_pid, const ntfsmac_unmount_hooks *hooks)
 {

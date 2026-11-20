@@ -70,6 +70,25 @@ bool ntfsmac_da_table_set_flag(ntfsmac_da_table *t, const char *name, bool flag)
 /* Reads the flag of a present name; false if the name is absent. */
 bool ntfsmac_da_table_get_flag(const ntfsmac_da_table *t, const char *name, bool *flag);
 
+/*
+ * macFUSE's disks of live mounts (kind "macfuse-local"): BSD name and the mount path that the
+ * disk had when it appeared. The path is gone from the description by the time the disk
+ * disappears, so it is kept here. Fixed size; the caller locks.
+ */
+#define NTFSMAC_DA_FUSE_PATH_MAX 128
+
+typedef struct ntfsmac_da_fuse_table {
+	unsigned count;
+	char names[NTFSMAC_DA_TABLE_MAX][NTFSMAC_DA_NAME_MAX];
+	char paths[NTFSMAC_DA_TABLE_MAX][NTFSMAC_DA_FUSE_PATH_MAX];
+} ntfsmac_da_fuse_table;
+
+void ntfsmac_da_fuse_init(ntfsmac_da_fuse_table *t);
+/* Adds or updates `name` with `path`. False: invalid name, empty or too long path, or table full. */
+bool ntfsmac_da_fuse_add(ntfsmac_da_fuse_table *t, const char *name, const char *path);
+/* True if `name` was present and is removed; its path is copied to `path` (cap bytes). */
+bool ntfsmac_da_fuse_take(ntfsmac_da_fuse_table *t, const char *name, char *path, size_t cap);
+
 #ifdef __cplusplus
 }
 #endif

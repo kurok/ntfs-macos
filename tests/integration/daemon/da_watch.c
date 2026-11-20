@@ -158,7 +158,7 @@ static void open_test(const char *bsd, const char *tag)
 
 int main(int argc, char **argv)
 {
-	ntfsmac_da_callbacks cb = { cb_appeared, cb_disappeared, cb_mounted, cb_unmounted };
+	ntfsmac_da_callbacks cb = { cb_appeared, cb_disappeared, cb_mounted, cb_unmounted, NULL, NULL };
 	int duration = 60, i;
 	double first_appeared = -1;
 	bool handed = false;

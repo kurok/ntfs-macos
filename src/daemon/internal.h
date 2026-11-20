@@ -305,6 +305,7 @@ typedef struct ntfsmac_disk_info {
 	bool has_volume_path;     /* DAVolumePath present: some driver mounted it (ADR-020) */
 	char media_path[128];     /* DAMediaPath, for the binding check */
 	char volume_kind[16];     /* DAVolumeKind ("ntfs" for Apple's driver), "" if none or odd */
+	char volume_path[128];    /* DAVolumePath as a file system path, "" if none or too long */
 } ntfsmac_disk_info;
 
 typedef struct ntfsmac_da_callbacks {
@@ -314,6 +315,14 @@ typedef struct ntfsmac_da_callbacks {
 	void (*disk_mounted)(const ntfsmac_disk_info *disk, void *ctx);
 	/* The disk was unmounted (user eject, `umount`, or our own). */
 	void (*disk_unmounted)(const char *bsd_name, void *ctx);
+	/*
+	 * macFUSE's own disk of a mount (kind "macfuse-local") disappeared: the mount at `mount_path`
+	 * was taken down through the file system layer, by `umount`, Finder eject or our own
+	 * unmount. It does not happen when the FSKit module process is killed (T-M5-05). May be NULL.
+	 */
+	void (*fuse_volume_gone)(const char *bsd_name, void *ctx);
+	/* A macFUSE disk got a volume path (the mount): the BSD name and the path, to bind it. */
+	void (*fuse_volume_mounted)(const char *bsd_name, const char *mount_path, void *ctx);
 } ntfsmac_da_callbacks;
 
 typedef struct ntfsmac_da ntfsmac_da; /* opaque */
@@ -324,6 +333,8 @@ void ntfsmac_da_stop(ntfsmac_da *da);
 /* Mount-approval dissenter for one disk (section 4.1 step 3) and its withdrawal. */
 ntfsmac_dmn_status ntfsmac_da_dissent(ntfsmac_da *da, const char *bsd_name);
 ntfsmac_dmn_status ntfsmac_da_withdraw(ntfsmac_da *da, const char *bsd_name);
+/* True if two file system paths name the same thing under Unicode normalisation (NFC/NFD). */
+bool ntfsmac_da_same_path(const char *a, const char *b);
 /* Fresh description, for the binding check (step 6). */
 ntfsmac_dmn_status ntfsmac_da_describe(ntfsmac_da *da, const char *bsd_name,
 				       ntfsmac_disk_info *out);
@@ -352,6 +363,42 @@ typedef struct ntfsmac_unmount_opts {
 	bool force;               /* explicit forced eject or the worker is gone */
 	unsigned retries;         /* plain unmount retries on EBUSY */
 } ntfsmac_unmount_opts;
+
+/*
+ * Rule 3 of the clean-session proof (ARCHITECTURE section 7): the daemon saw the unmount before
+ * the worker exited. A mount that is merely gone does not count (a killed macFUSE module ends the
+ * mount the same way, T-M5-05): the daemon must also have requested the unmount itself, or
+ * Disk Arbitration must have reported macFUSE's disk of the volume gone.
+ */
+bool ntfsmac_unmount_seen(bool mount_gone, bool daemon_requested, bool da_volume_gone);
+
+/*
+ * What one session knows about its unmount (unmount_ev.c, pure; the caller locks). `requested`:
+ * the daemon's own unmount call returned OK and no mount was left (never on a timeout or busy).
+ * `fuse_bsd`: macFUSE's disk of THIS session's mount, bound when a `macfuse-local` disk gets the
+ * session's mount point as its volume path while the session is current. `da_seen`: that disk
+ * disappeared while the session was still current.
+ */
+typedef struct ntfsmac_unmount_ev {
+	uint64_t session_id; /* 0: no session */
+	bool requested;
+	bool da_seen;
+	char fuse_bsd[32];
+} ntfsmac_unmount_ev;
+
+void ntfsmac_uev_begin(ntfsmac_unmount_ev *e, uint64_t session_id); /* attach */
+void ntfsmac_uev_reset(ntfsmac_unmount_ev *e);                       /* teardown */
+/* After a daemon unmount call: sets `requested` only for OK with no mount left, else clears it. */
+void ntfsmac_uev_note_unmount_call(ntfsmac_unmount_ev *e, ntfsmac_dmn_status st, bool still_mounted);
+void ntfsmac_uev_unmount_failed(ntfsmac_unmount_ev *e); /* the UNMOUNT_BUSY path */
+/* False (nothing bound) unless `current_session` is the session of `e` and is not 0. */
+bool ntfsmac_uev_bind(ntfsmac_unmount_ev *e, uint64_t current_session, const char *bsd);
+/* True and `da_seen` set only for the bound BSD name while the session is current. */
+bool ntfsmac_uev_da_gone(ntfsmac_unmount_ev *e, uint64_t current_session, const char *bsd);
+bool ntfsmac_uev_have(const ntfsmac_unmount_ev *e);
+/* The bounded wait after a worker exit: keep waiting while nothing is known. */
+bool ntfsmac_uev_wait_more(const ntfsmac_unmount_ev *e, unsigned waited_ms, unsigned max_ms,
+			   bool stopping);
 
 /* On E_BUSY, `busy_pid` is a process that holds the volume, or 0 if unknown. */
 ntfsmac_dmn_status ntfsmac_unmount_path(const char *mount_point,

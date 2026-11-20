@@ -141,3 +141,59 @@ bool ntfsmac_da_table_get_flag(const ntfsmac_da_table *t, const char *name, bool
 	*flag = t->flags[i];
 	return true;
 }
+
+void ntfsmac_da_fuse_init(ntfsmac_da_fuse_table *t)
+{
+	memset(t, 0, sizeof *t);
+}
+
+static int fuse_find(const ntfsmac_da_fuse_table *t, const char *name)
+{
+	unsigned i;
+
+	if (name == NULL)
+		return -1;
+	for (i = 0; i < t->count; i++)
+		if (strcmp(t->names[i], name) == 0)
+			return (int)i;
+	return -1;
+}
+
+bool ntfsmac_da_fuse_add(ntfsmac_da_fuse_table *t, const char *name, const char *path)
+{
+	int i;
+
+	if (!ntfsmac_da_bsd_name_valid(name) || strlen(name) >= NTFSMAC_DA_NAME_MAX)
+		return false;
+	if (path == NULL || path[0] == '\0' || strlen(path) >= NTFSMAC_DA_FUSE_PATH_MAX)
+		return false;
+	i = fuse_find(t, name);
+	if (i < 0) {
+		if (t->count >= NTFSMAC_DA_TABLE_MAX)
+			return false;
+		i = (int)t->count++;
+		strcpy(t->names[i], name);
+	}
+	strcpy(t->paths[i], path);
+	return true;
+}
+
+bool ntfsmac_da_fuse_take(ntfsmac_da_fuse_table *t, const char *name, char *path, size_t cap)
+{
+	int i = fuse_find(t, name);
+
+	if (i < 0)
+		return false;
+	if (path != NULL && cap > 0) {
+		strncpy(path, t->paths[i], cap - 1);
+		path[cap - 1] = '\0';
+	}
+	t->count--;
+	if ((unsigned)i != t->count) {
+		memcpy(t->names[i], t->names[t->count], NTFSMAC_DA_NAME_MAX);
+		memcpy(t->paths[i], t->paths[t->count], NTFSMAC_DA_FUSE_PATH_MAX);
+	}
+	t->names[t->count][0] = '\0';
+	t->paths[t->count][0] = '\0';
+	return true;
+}

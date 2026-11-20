@@ -31,6 +31,7 @@
 #include <DiskArbitration/DiskArbitration.h>
 #include <dispatch/dispatch.h>
 #include <pthread.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -45,6 +46,8 @@ struct ntfsmac_da {
 	pthread_mutex_t lock;
 	ntfsmac_da_table dissent; /* flag: a mount of this disk was refused */
 	ntfsmac_da_table known;   /* candidates seen; flag: reported as mounted */
+	ntfsmac_da_fuse_table fuse; /* macFUSE disks of live mounts and their mount paths */
+	bool fuse_full_logged;
 };
 
 /* ---------------------------------------------------------------- */
@@ -116,6 +119,11 @@ static bool describe_disk(DADiskRef disk, ntfsmac_disk_info *out)
 		out->is_ntfs_candidate = false;
 	v = CFDictionaryGetValue(d, kDADiskDescriptionVolumePathKey);
 	out->has_volume_path = v != NULL;
+	out->volume_path[0] = '\0';
+	if (v != NULL && CFGetTypeID(v) == CFURLGetTypeID() &&
+	    !CFURLGetFileSystemRepresentation((CFURLRef)v, true, (UInt8 *)out->volume_path,
+					      (CFIndex)sizeof out->volume_path))
+		out->volume_path[0] = '\0';
 	if (!cf_to_cstr(CFDictionaryGetValue(d, kDADiskDescriptionMediaPathKey),
 			out->media_path, sizeof out->media_path))
 		out->media_path[0] = '\0';
@@ -151,13 +159,40 @@ static ntfsmac_dmn_status map_dareturn(DAReturn r)
 /* Callbacks (run on the DA queue)                                   */
 /* ---------------------------------------------------------------- */
 
+/*
+ * macFUSE's disk of a mount ("macfuse-local") is remembered with its mount path while the path is
+ * known: once the disk disappears the description no longer has it.
+ */
+static void fuse_track(struct ntfsmac_da *da, const ntfsmac_disk_info *info)
+{
+	bool ok, full;
+
+	if (strcmp(info->volume_kind, "macfuse-local") != 0 || info->volume_path[0] == '\0')
+		return;
+	pthread_mutex_lock(&da->lock);
+	ok = ntfsmac_da_fuse_add(&da->fuse, info->bsd_name, info->volume_path);
+	full = !ok && !da->fuse_full_logged;
+	if (full)
+		da->fuse_full_logged = true;
+	pthread_mutex_unlock(&da->lock);
+	if (full)
+		fprintf(stderr, "ntfsmacd: the table of macFUSE disks is full: unmounts of later mounts are not reported\n");
+	/* The entry is kept when a later change shows no path: an orderly umount sends that change
+	 * before the disappearance (T-M5-05 VM run). The daemon binds the BSD name to its session. */
+	if (ok && da->cb.fuse_volume_mounted != NULL)
+		da->cb.fuse_volume_mounted(info->bsd_name, info->volume_path, da->ctx);
+}
+
 static void on_appeared(DADiskRef disk, void *context)
 {
 	struct ntfsmac_da *da = context;
 	ntfsmac_disk_info info;
 	bool known;
 
-	if (!describe_disk(disk, &info) || !info.is_ntfs_candidate)
+	if (!describe_disk(disk, &info))
+		return;
+	fuse_track(da, &info);
+	if (!info.is_ntfs_candidate)
 		return;
 	pthread_mutex_lock(&da->lock);
 	known = ntfsmac_da_table_add(&da->known, info.bsd_name);
@@ -177,12 +212,17 @@ static void on_disappeared(DADiskRef disk, void *context)
 {
 	struct ntfsmac_da *da = context;
 	const char *bsd = DADiskGetBSDName(disk);
-	char name[NTFSMAC_DA_NAME_MAX];
-	bool was_known, flag;
+	char name[NTFSMAC_DA_NAME_MAX], fuse_path[NTFSMAC_DA_FUSE_PATH_MAX];
+	bool was_known, flag, was_fuse;
 
 	if (bsd == NULL || !ntfsmac_da_bsd_name_valid(bsd) || strlen(bsd) >= sizeof name)
 		return;
 	strcpy(name, bsd);
+	pthread_mutex_lock(&da->lock);
+	was_fuse = ntfsmac_da_fuse_take(&da->fuse, name, fuse_path, sizeof fuse_path);
+	pthread_mutex_unlock(&da->lock);
+	if (was_fuse && da->cb.fuse_volume_gone != NULL)
+		da->cb.fuse_volume_gone(name, da->ctx);
 	pthread_mutex_lock(&da->lock);
 	was_known = ntfsmac_da_table_remove(&da->known, name, &flag);
 	ntfsmac_da_table_remove(&da->dissent, name, &flag);
@@ -200,6 +240,7 @@ static void on_changed(DADiskRef disk, CFArrayRef keys, void *context)
 	(void)keys;
 	if (!describe_disk(disk, &info))
 		return;
+	fuse_track(da, &info);
 	pthread_mutex_lock(&da->lock);
 	known = ntfsmac_da_table_get_flag(&da->known, info.bsd_name, &was_mounted);
 	if (known && was_mounted != info.has_volume_path)
@@ -257,6 +298,7 @@ ntfsmac_dmn_status ntfsmac_da_start(const ntfsmac_da_callbacks *cb, void *ctx,
 	pthread_mutex_init(&da->lock, NULL);
 	ntfsmac_da_table_init(&da->dissent);
 	ntfsmac_da_table_init(&da->known);
+	ntfsmac_da_fuse_init(&da->fuse);
 	da->session = DASessionCreate(kCFAllocatorDefault);
 	da->queue = dispatch_queue_create("ntfsmac.da", DISPATCH_QUEUE_SERIAL);
 	watch = CFArrayCreate(kCFAllocatorDefault, (const void **)&watch_key, 1,
@@ -479,7 +521,50 @@ ntfsmac_dmn_status ntfsmac_da_eject(ntfsmac_da *da, const char *bsd_name)
 	return wait_for(w);
 }
 
+bool ntfsmac_da_same_path(const char *a, const char *b)
+{
+	CFStringRef x, y;
+	CFMutableStringRef mx, my;
+	bool same;
+
+	if (a == NULL || b == NULL)
+		return false;
+	if (strcmp(a, b) == 0)
+		return true;
+	x = CFStringCreateWithCString(kCFAllocatorDefault, a, kCFStringEncodingUTF8);
+	y = CFStringCreateWithCString(kCFAllocatorDefault, b, kCFStringEncodingUTF8);
+	if (x == NULL || y == NULL) {
+		if (x != NULL)
+			CFRelease(x);
+		if (y != NULL)
+			CFRelease(y);
+		return false;
+	}
+	mx = CFStringCreateMutableCopy(kCFAllocatorDefault, 0, x);
+	my = CFStringCreateMutableCopy(kCFAllocatorDefault, 0, y);
+	CFRelease(x);
+	CFRelease(y);
+	if (mx == NULL || my == NULL) {
+		if (mx != NULL)
+			CFRelease(mx);
+		if (my != NULL)
+			CFRelease(my);
+		return false;
+	}
+	CFStringNormalize(mx, kCFStringNormalizationFormC);
+	CFStringNormalize(my, kCFStringNormalizationFormC);
+	same = CFStringCompare(mx, my, 0) == kCFCompareEqualTo;
+	CFRelease(mx);
+	CFRelease(my);
+	return same;
+}
+
 #else /* !__APPLE__ */
+
+bool ntfsmac_da_same_path(const char *a, const char *b)
+{
+	return a != NULL && b != NULL && strcmp(a, b) == 0;
+}
 
 /* No Disk Arbitration on this host: every call reports "not implemented". */
 

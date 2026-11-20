@@ -1257,6 +1257,55 @@ static void test_end_unclean(void)
 	}
 }
 
+/*
+ * Rule 3 of the clean-session proof through the daemon's rule-3 function (T-M5-05 finding): a
+ * mount that vanished with no unmount request of the daemon and no Disk Arbitration report (the
+ * macFUSE module was killed) must not be clean, however perfect the worker's records are.
+ */
+static void test_end_unmount_evidence(void)
+{
+	static const struct {
+		bool mount_gone, requested, da_seen, clean;
+		const char *what;
+	} cases[] = {
+		{true, false, false, false, "module death: mount gone, no request, no DA report"},
+		{false, false, false, false, "mount still there"},
+		{false, true, false, false, "requested but the mount is still there"},
+		{false, false, true, false, "DA report but the mount is still there"},
+		{true, true, false, true, "the daemon's own unmount (ntfsmac unmount, eject, shutdown)"},
+		{true, false, true, true, "DA report: umount, Finder eject"},
+		{true, true, true, true, "request and DA report"},
+	};
+	size_t i;
+
+	for (i = 0; i < sizeof cases / sizeof cases[0]; i++) {
+		fake f;
+		ntfsmac_session_config c = cfg0();
+		begun b;
+		ntfsmac_session_end_result r;
+		ntfsmac_errwatch w;
+		bool seen = ntfsmac_unmount_seen(cases[i].mount_gone, cases[i].requested, cases[i].da_seen);
+
+		fake_init(&f);
+		b = rw_session(&f, &c);
+		w = channel("S rw\nU 0\n", true);
+		CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, seen, 0, &r), NTFSMAC_DMN_OK);
+		if ((r.report == NTFSMAC_SREPORT_CLEAN) != cases[i].clean || r.entry_removed != cases[i].clean)
+			fprintf(stderr, "case: %s\n", cases[i].what);
+		CHECK_EQ_INT(r.report == NTFSMAC_SREPORT_CLEAN, cases[i].clean);
+		CHECK_EQ_INT(r.entry_removed, cases[i].clean);
+		CHECK_EQ_INT(entry_exists(&f), !cases[i].clean);
+		if (!cases[i].clean) {
+			/* not clean: no volmark clear (the marker stays set), the journal entry stays open */
+			CHECK_EQ_INT(r.report, NTFSMAC_SREPORT_UNCLEAN);
+			CHECK_EQ_INT(f.vm_calls, 1);
+			CHECK(entry_is(&f, NTFSMAC_JOURNAL_MARKER_SET, NTFSMAC_JOURNAL_STATE_OPEN));
+		}
+		ntfsmac_session_free(b.s);
+		fake_done(&f);
+	}
+}
+
 static void test_end_failures(void)
 {
 	fake f;
@@ -1430,6 +1479,7 @@ int main(void)
 	test_write_error();
 	test_end_clean();
 	test_end_unclean();
+	test_end_unmount_evidence();
 	test_end_failures();
 	test_real_sys();
 	rm_tree(g_dir);

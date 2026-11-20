@@ -71,6 +71,7 @@
 #define REAP_WAIT_MS 5000u
 #define FORCE_UNMOUNT_MS 10000u
 #define PLAIN_UNMOUNT_MS 6000u /* a plain unmount with its EBUSY retries */
+#define DA_SEEN_WAIT_MS 5000u  /* after a worker exit: wait for Disk Arbitration's unmount report */
 #define SHUTDOWN_WAIT_MS 50000u /* all volumes at SIGTERM; the plist's ExitTimeOut is 60 s */
 #define REQUEST_WAIT_MS 3000u
 #define MW_POLL_S 2u
@@ -132,6 +133,7 @@ struct vol {
 	uid_t wk_uid;                         /* (m) the user it runs as */
 	gid_t wk_gid;                         /* (m) and its group */
 	bool stray_pending;                   /* (m) a stray-mount action is queued */
+	ntfsmac_unmount_ev uev;               /* (m) this session's evidence of its unmount (rule 3) */
 
 	ntfsmac_mountpoint mp;
 	bool mp_valid;
@@ -712,6 +714,67 @@ static ntfsmac_notify_kind report_kind(ntfsmac_session_report r, bool *post)
 }
 
 /*
+ * Rule 3 of the clean-session proof (section 7): the unmount was seen before the worker ended.
+ * Two things count, nothing else: the daemon's own successful (or still running) unmount call,
+ * and the Disk Arbitration report that macFUSE's disk of this volume's mount disappeared. A mount
+ * that is merely gone does not count: killing the FSKit module process ends the mount without
+ * either, and what the kernel still held for the worker is lost (T-M5-05).
+ */
+static void note_unmount_call(vol *v, ntfsmac_dmn_status st)
+{
+	/* Only OK counts, and only when no mount is left: a timeout can also mean that every
+	 * unmount(2) got EBUSY, and the mount is then still there. */
+	bool still = v->mp_valid && mount_present(v->mp.path);
+
+	pthread_mutex_lock(&g_mu);
+	ntfsmac_uev_note_unmount_call(&v->uev, st, still);
+	pthread_mutex_unlock(&g_mu);
+}
+
+static void note_unmount_failed(vol *v)
+{
+	pthread_mutex_lock(&g_mu);
+	ntfsmac_uev_unmount_failed(&v->uev);
+	pthread_mutex_unlock(&g_mu);
+}
+
+static bool unmount_evidence(vol *v, bool *requested, bool *da_seen)
+{
+	ntfsmac_unmount_ev e;
+
+	pthread_mutex_lock(&g_mu);
+	e = v->uev;
+	pthread_mutex_unlock(&g_mu);
+	if (requested != NULL)
+		*requested = e.requested;
+	if (da_seen != NULL)
+		*da_seen = e.da_seen;
+	return ntfsmac_uev_have(&e);
+}
+
+/*
+ * The worker has ended after a plain unmount that the daemon did not make: the DA report may
+ * still be on its way (it can arrive after the worker's exit). Wait for it, bounded; a module
+ * death never produces it, so that case ends here after the bound with the session not clean.
+ */
+static void wait_unmount_evidence(vol *v)
+{
+	unsigned waited = 0;
+
+	for (;;) {
+		ntfsmac_unmount_ev e;
+
+		pthread_mutex_lock(&g_mu);
+		e = v->uev;
+		pthread_mutex_unlock(&g_mu);
+		if (!ntfsmac_uev_wait_more(&e, waited, DA_SEEN_WAIT_MS, g_stopping != 0))
+			break;
+		sleep_ms(50);
+		waited += 50;
+	}
+}
+
+/*
  * After the worker is gone (or is made to go): section 4.5 steps 2 to 4 and the H1 steps. On the
  * volume's queue. The volume must be Mounted or Unmounting.
  */
@@ -786,8 +849,18 @@ static void vol_teardown(vol *v, const td_args *a)
 	 * removed by force (the worker is gone, section 4.5 step 1).
 	 */
 	if (v->mp_valid) {
+		bool requested = false, da_seen = false;
+
 		still_mounted = mount_present(v->mp.path);
-		unmount_first = !still_mounted;
+		/* Only a worker that ended by itself with exit 0 can still make a clean session. */
+		if (!still_mounted && exit_status == 0 && !stray && !a->kill_first)
+			wait_unmount_evidence(v);
+		(void)unmount_evidence(v, &requested, &da_seen);
+		unmount_first = ntfsmac_unmount_seen(!still_mounted, requested, da_seen);
+		if (!still_mounted && !unmount_first)
+			NTFSMAC_LOGW("%s: the mount ended with no unmount request of ours and no Disk "
+				     "Arbitration report of one (the macFUSE module died?): the session is "
+				     "not clean", v->bsd);
 		if (still_mounted) {
 			st = ntfsmac_mw_force_unmount(v->mp.path, FORCE_UNMOUNT_MS);
 			sleep_ms(100);
@@ -865,6 +938,9 @@ static void vol_teardown(vol *v, const td_args *a)
 	}
 	v->worker.pid = -1;
 	v->want_unmount = false;
+	pthread_mutex_lock(&g_mu);
+	ntfsmac_uev_reset(&v->uev);
+	pthread_mutex_unlock(&g_mu);
 
 	/* 8. Report the volume detached. */
 	if (stray)
@@ -911,6 +987,7 @@ static void unmount_after_error(vol *v)
 	/* Every unmount has a time bound: a stopped worker can hold unmount(2) for minutes. */
 	st = ntfsmac_mw_unmount_bounded(v->mp.path, force, force ? 0u : 1u,
 					force ? FORCE_UNMOUNT_MS : PLAIN_UNMOUNT_MS, &busy);
+	note_unmount_call(v, st);
 	if (st == NTFSMAC_DMN_OK || st == NTFSMAC_DMN_E_STATE)
 		v->want_unmount = false;
 }
@@ -1255,6 +1332,7 @@ static void attach_run(void *arg)
 	v->wk_uid = cuid;
 	v->wk_gid = cgid;
 	v->wk_live = true;
+	ntfsmac_uev_begin(&v->uev, v->session_id);
 	pthread_mutex_unlock(&g_mu);
 	(void)sm_apply(v, NTFSMAC_VEV_DECIDED, mode, NTFSMAC_VREASON_NONE, NULL);
 
@@ -1396,10 +1474,13 @@ static void unmount_run(void *arg)
 	/* 4 retries: the transient EBUSY of T-M2-04 (section 4.5 step 1); a bound on the whole call. */
 	u->st = ntfsmac_mw_unmount_bounded(v->mp.path, u->force, u->force ? 0u : 4u,
 					   u->force ? FORCE_UNMOUNT_MS : PLAIN_UNMOUNT_MS, &u->busy);
+	note_unmount_call(v, u->st);
 	if (u->st == NTFSMAC_DMN_E_STATE)
 		u->st = NTFSMAC_DMN_OK; /* it is not a mount any more: the worker is ending */
-	if (u->st != NTFSMAC_DMN_OK)
+	if (u->st != NTFSMAC_DMN_OK) {
+		note_unmount_failed(v);
 		(void)sm_apply(v, NTFSMAC_VEV_UNMOUNT_BUSY, NTFSMAC_VMODE_NONE, NTFSMAC_VREASON_NONE, NULL);
+	}
 	/* On success the worker ends and the tick runs the teardown. */
 out:
 	/* `u` belongs to the requester: it frees it after it has seen the semaphore, and leaves it
@@ -1552,6 +1633,43 @@ static void cb_disk_unmounted(const char *bsd, void *ctx)
 		return;
 	pthread_mutex_lock(&g_mu);
 	v->apple_mounted = false;
+	pthread_mutex_unlock(&g_mu);
+}
+
+/*
+ * A macFUSE disk got a volume path. The one that has the mount point of a volume that is Mounting
+ * or Mounted is that session's disk: its BSD name is bound to the session (the path is compared
+ * with Unicode normalisation; nothing later depends on the path).
+ */
+static void cb_fuse_volume_mounted(const char *bsd, const char *mount_path, void *ctx)
+{
+	vol *v;
+
+	(void)ctx;
+	wait_da_ready();
+	pthread_mutex_lock(&g_mu);
+	for (v = g_vols; v != NULL; v = v->next)
+		if (v->mountpoint[0] != '\0' &&
+		    (v->sm.state == NTFSMAC_VOL_MOUNTING || v->sm.state == NTFSMAC_VOL_MOUNTED) &&
+		    ntfsmac_da_same_path(v->mountpoint, mount_path))
+			(void)ntfsmac_uev_bind(&v->uev, v->session_id, bsd);
+	pthread_mutex_unlock(&g_mu);
+}
+
+/*
+ * macFUSE's disk of a mount disappeared: the mount was taken down through the file system layer
+ * (`umount`, Finder eject, our own unmount). Killing the module process does not produce this.
+ * Only the disk bound to the volume's current session counts.
+ */
+static void cb_fuse_volume_gone(const char *bsd, void *ctx)
+{
+	vol *v;
+
+	(void)ctx;
+	wait_da_ready();
+	pthread_mutex_lock(&g_mu);
+	for (v = g_vols; v != NULL; v = v->next)
+		(void)ntfsmac_uev_da_gone(&v->uev, v->session_id, bsd);
 	pthread_mutex_unlock(&g_mu);
 }
 
@@ -2154,7 +2272,8 @@ static void shutdown_vol(void *arg)
 	if (v->mp_valid && s == NTFSMAC_VOL_MOUNTED) {
 		pid_t busy;
 
-		(void)ntfsmac_mw_unmount_bounded(v->mp.path, false, 3u, PLAIN_UNMOUNT_MS, &busy);
+		note_unmount_call(v, ntfsmac_mw_unmount_bounded(v->mp.path, false, 3u,
+								PLAIN_UNMOUNT_MS, &busy));
 	}
 	memset(&a, 0, sizeof a);
 	while (v->worker.pid > 1 && waited < 8000u) {
@@ -2352,6 +2471,8 @@ int main(int argc, char **argv)
 	cb.disk_disappeared = cb_disk_disappeared;
 	cb.disk_mounted = cb_disk_mounted;
 	cb.disk_unmounted = cb_disk_unmounted;
+	cb.fuse_volume_gone = cb_fuse_volume_gone;
+	cb.fuse_volume_mounted = cb_fuse_volume_mounted;
 	st = ntfsmac_da_start(&cb, NULL, &g_da);
 	if (st != NTFSMAC_DMN_OK) {
 		fprintf(stderr, "ntfsmacd: Disk Arbitration did not start: %s\n", ntfsmac_dmn_status_name(st));

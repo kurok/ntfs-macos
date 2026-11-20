@@ -156,9 +156,49 @@ static void test_api_args(void)
 #endif
 }
 
+static void test_fuse_table(void)
+{
+	/* U-DMN-DA-05: macFUSE's disks of live mounts, kept with the mount path (T-M5-05). */
+	static ntfsmac_da_fuse_table t;
+	char path[NTFSMAC_DA_FUSE_PATH_MAX], small[8], name[32], longp[NTFSMAC_DA_FUSE_PATH_MAX + 8];
+	unsigned i;
+
+	ntfsmac_da_fuse_init(&t);
+	CHECK(!ntfsmac_da_fuse_take(&t, "disk7s1", path, sizeof path));
+	CHECK(!ntfsmac_da_fuse_add(&t, "bad name", "/Volumes/X"));
+	CHECK(!ntfsmac_da_fuse_add(&t, NULL, "/Volumes/X"));
+	CHECK(!ntfsmac_da_fuse_add(&t, "disk7s1", NULL));
+	CHECK(!ntfsmac_da_fuse_add(&t, "disk7s1", ""));
+	memset(longp, 'a', sizeof longp - 1);
+	longp[0] = '/';
+	longp[sizeof longp - 1] = '\0';
+	CHECK(!ntfsmac_da_fuse_add(&t, "disk7s1", longp));
+	CHECK(t.count == 0);
+	CHECK(ntfsmac_da_fuse_add(&t, "disk7s1", "/Volumes/X"));
+	CHECK(ntfsmac_da_fuse_add(&t, "disk8s1", "/Volumes/Y"));
+	CHECK(ntfsmac_da_fuse_add(&t, "disk7s1", "/Volumes/X2")); /* the same disk again: updated */
+	CHECK(t.count == 2);
+	/* the disk that disappears gives back its path once; another disk is not touched */
+	CHECK(ntfsmac_da_fuse_take(&t, "disk7s1", path, sizeof path));
+	CHECK(strcmp(path, "/Volumes/X2") == 0);
+	CHECK(!ntfsmac_da_fuse_take(&t, "disk7s1", path, sizeof path));
+	CHECK(!ntfsmac_da_fuse_take(&t, "disk7", path, sizeof path)); /* the whole disk was never tracked */
+	CHECK(ntfsmac_da_fuse_take(&t, "disk8s1", small, sizeof small));
+	CHECK(strcmp(small, "/Volume") == 0); /* truncated to the buffer, terminated */
+	CHECK(t.count == 0);
+	for (i = 0; i < NTFSMAC_DA_TABLE_MAX; i++) {
+		snprintf(name, sizeof name, "disk%us1", i);
+		CHECK(ntfsmac_da_fuse_add(&t, name, "/Volumes/Z"));
+	}
+	CHECK(!ntfsmac_da_fuse_add(&t, "disk999s1", "/Volumes/Z")); /* full: refused, nothing lost */
+	CHECK(ntfsmac_da_fuse_take(&t, "disk0s1", NULL, 0));
+	CHECK(ntfsmac_da_fuse_add(&t, "disk999s1", "/Volumes/Z"));
+}
+
 int main(void)
 {
 	test_filter();
+	test_fuse_table();
 	test_macfuse_backing();
 	test_names();
 	test_table();

@@ -189,6 +189,22 @@ int main(void)
 	CHECK(strcmp(f.last_path, "/Volumes/a..b/.c d") == 0);
 	CHECK_EQ_INT(ntfsmac_unmount_path("relative", &o, &busy), NTFSMAC_DMN_E_INVAL);
 
+	/*
+	 * U-DMN-UM-xx: rule 3 of the clean-session proof. The mount must be gone AND the unmount must
+	 * have been seen: requested by the daemon, or reported by Disk Arbitration (macFUSE's disk of
+	 * the volume gone). A mount that is merely gone (a killed FSKit module, T-M5-05) is not enough.
+	 * The inputs are monotone flags, so the result does not depend on the order in which the
+	 * request, the DA report and the mount-table change arrived.
+	 */
+	CHECK(!ntfsmac_unmount_seen(true, false, false));
+	CHECK(ntfsmac_unmount_seen(true, true, false));
+	CHECK(ntfsmac_unmount_seen(true, false, true));
+	CHECK(ntfsmac_unmount_seen(true, true, true));
+	CHECK(!ntfsmac_unmount_seen(false, false, false));
+	CHECK(!ntfsmac_unmount_seen(false, true, false));
+	CHECK(!ntfsmac_unmount_seen(false, false, true));
+	CHECK(!ntfsmac_unmount_seen(false, true, true));
+
 	if (g_failures != 0) {
 		fprintf(stderr, "%d failure(s)\n", g_failures);
 		return 1;

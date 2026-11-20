@@ -47,7 +47,10 @@ static void test_profile(const char *dir)
 	FILE *f;
 	bool found = false;
 
-	snprintf(path, sizeof(path), "%s/worker.sb", dir);
+	if (snprintf(path, sizeof(path), "%s/worker.sb", dir) >= (int)sizeof(path)) {
+		CHECK(0); /* the profile directory path is too long */
+		return;
+	}
 	snprintf(want, sizeof(want), "(literal \"%s\")", NTFSMAC_PATH_MACFUSE_HELPER);
 	f = fopen(path, "r");
 	if (f == NULL) {

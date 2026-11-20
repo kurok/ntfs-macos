@@ -100,8 +100,8 @@
     {
       "option": "usermapping=<absolute path>",
       "class": "effective",
-      "requires": "the file must exist: a missing file is accepted silently (class silent) and the mount behaves as without it",
-      "note": "turns on NTFS permissions; chmod works and persists across remounts, also together with uid/gid. Modes are stored and shown, not enforced (I-PERM-07). A mapping file whose implicit line (::SID) ends in a number below 1000 is accepted with the message Bad implicit SID pattern and the line is dropped (I-PERM-06); the daemon's file check should also refuse such a line"
+      "requires": "the file must exist: a missing file is accepted silently (class silent) and the mount behaves as without it; the daemon enables the option only for a file it opened, checked (root, 0644, at most 1 MiB) and parsed itself, and otherwise mounts without it",
+      "note": "turns on NTFS permissions; chmod works and persists across remounts, also together with uid/gid. Modes are stored and shown, not enforced (I-PERM-07). A mapping file whose implicit line (::SID) ends in a number below 1000 is accepted with the message Bad implicit SID pattern and the line is dropped (I-PERM-06); the daemon now refuses such a file (issue 2, ADR-012) and mounts without the option"
     },
     {
       "option": "permissions",

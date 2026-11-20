@@ -37,6 +37,7 @@
 
 #include "spawn_config.h"
 #include "spawn_holder.h"
+#include "usermap_file.h"
 #include "ntfsmac/log.h"
 
 #include <dirent.h>
@@ -1633,14 +1634,46 @@ static ntfsmac_dmn_status mount_lookup_system(const char *mount_point, bool *fou
 /* Worker                                                              */
 /* ------------------------------------------------------------------ */
 
-/* The check of ARCHITECTURE.md section 3.3 before a spawn with `usermapping=`. */
-static bool usermapping_file_ok(void)
+/*
+ * The check of ARCHITECTURE.md section 3.3 for `usermapping=`: the daemon opens the file itself,
+ * checks the descriptor, reads and parses it. True only for a file it accepted (`um->fd` is then
+ * open); otherwise the reason is logged, with the line number for a content refusal, and the mount
+ * goes ahead without the option.
+ */
+static void usermapping_target(const ntfsmac_spawn_config *cfg, const char **path, uid_t *owner)
 {
-	struct stat st;
+	*path = NTFSMAC_USERMAPPING_PATH;
+	*owner = 0;
+#if defined(NTFSMAC_TEST_SEAMS)
+	if (cfg->usermapping_path != NULL) {
+		*path = cfg->usermapping_path;
+		*owner = cfg->usermapping_owner;
+	}
+#else
+	(void)cfg;
+#endif
+}
 
-	if (lstat(NTFSMAC_USERMAPPING_PATH, &st) != 0)
-		return false;
-	return S_ISREG(st.st_mode) && st.st_uid == 0 && (st.st_mode & 07777) == 0644;
+static bool usermapping_accept(const ntfsmac_spawn_config *cfg, ntfsmac_usermap_file *um)
+{
+	const char *path;
+	uid_t owner;
+	unsigned line = 0;
+	ntfsmac_usermap_parse p = NTFSMAC_USERMAP_P_OK;
+	ntfsmac_usermap_verdict v;
+
+	usermapping_target(cfg, &path, &owner);
+	v = ntfsmac_usermap_file_open(path, owner, um, &line, &p);
+	if (v == NTFSMAC_USERMAP_V_ENABLE)
+		return true;
+	if (v == NTFSMAC_USERMAP_V_PARSE && line != 0)
+		NTFSMAC_LOGW("usermapping= not used: %s line %u: %s", path, line,
+			     ntfsmac_usermap_parse_str(p));
+	else if (v == NTFSMAC_USERMAP_V_PARSE)
+		NTFSMAC_LOGW("usermapping= not used: %s: %s", path, ntfsmac_usermap_parse_str(p));
+	else
+		NTFSMAC_LOGW("usermapping= not used: %s: %s", path, ntfsmac_usermap_verdict_str(v));
+	return false;
 }
 
 /* The worker is gone: nothing of the user may keep its device (the result is for the later check). */
@@ -1675,9 +1708,12 @@ ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
 	pid_t pid;
 	bool drop = false;
 	uint64_t deadline;
+	ntfsmac_usermap_file um;
+	bool use_um;
 
 	if (child == NULL || mounted_ro == NULL)
 		return NTFSMAC_DMN_E_INVAL;
+	ntfsmac_usermap_file_init(&um);
 	child->pid = -1;
 	child->status_fd = -1;
 	child->owner = 0;
@@ -1719,11 +1755,19 @@ ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
 	in.console_gid = (uint32_t)run->console_gid;
 	in.hide_hid_files = cfg.hide_hid_files;
 	in.permissions = cfg.permissions;
-	in.usermapping = cfg.usermapping;
-	if (cfg.usermapping && !usermapping_file_ok())
+	/*
+	 * `usermapping=` is enabled only for a file the daemon opened, checked on the descriptor, read
+	 * and parsed itself. A file it does not accept is not an error: the mount is built as without
+	 * the option (never a guess, never a failed mount because of it).
+	 */
+	use_um = cfg.usermapping && usermapping_accept(&cfg, &um);
+rebuild:
+	cfg.usermapping = use_um;
+	in.usermapping = use_um;
+	if (ntfsmac_options_build(&in, &av) != NTFSMAC_OPTIONS_OK) {
+		ntfsmac_usermap_file_close(&um);
 		return NTFSMAC_DMN_E_DENIED;
-	if (ntfsmac_options_build(&in, &av) != NTFSMAC_OPTIONS_OK)
-		return NTFSMAC_DMN_E_DENIED;
+	}
 
 	memset(&expect, 0, sizeof(expect));
 	expect.worker_path = cfg.worker_path;
@@ -1731,8 +1775,10 @@ ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
 	expect.decision = decision;
 	expect.console_uid = (uint32_t)run->console_uid;
 	expect.console_gid = (uint32_t)run->console_gid;
-	if (ntfsmac_argv_check(av.argv, NTFSMAC_WORKER_ARGC, &expect) != NTFSMAC_ARGV_OK)
+	if (ntfsmac_argv_check(av.argv, NTFSMAC_WORKER_ARGC, &expect) != NTFSMAC_ARGV_OK) {
+		ntfsmac_usermap_file_close(&um);
 		return NTFSMAC_DMN_E_DENIED;
+	}
 #if defined(NTFSMAC_TEST_SEAMS)
 	if (cfg.after_check_hook != NULL)
 		cfg.after_check_hook(&av);
@@ -1745,6 +1791,7 @@ ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
 	envp[0] = (char *)"PATH=/usr/bin:/bin";
 	envp[1] = NULL;
 	envp[2] = NULL;
+	nkeep = 0;
 	keep[nkeep++] = run->device_fd;
 	if (run->errfd_write >= 0) {
 		snprintf(errenv, sizeof(errenv), "NTFSMAC_ERRFD=%d", run->errfd_write);
@@ -1753,8 +1800,32 @@ ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
 	}
 
 	st = sandbox_wrap(&cfg, "worker", true, argv, &sb);
-	if (st != NTFSMAC_DMN_OK)
+	if (st != NTFSMAC_DMN_OK) {
+		ntfsmac_usermap_file_close(&um);
 		return st;
+	}
+	/*
+	 * The check/use gap (audit M4 F-03): the worker opens the file by path, inside the sandbox, so
+	 * the daemon compares the path with the descriptor it read (device, inode, type, owner, mode,
+	 * size, mtime; the name must not be a link) as the last step before the spawn. A mismatch
+	 * refuses the option and the worker vector is built again without it. What stays is the time
+	 * from this check to the worker's own open (the sandbox-exec start-up); see section 3.3.
+	 */
+	if (use_um) {
+		const char *um_path;
+		uid_t um_owner;
+		ntfsmac_usermap_verdict uv;
+
+		usermapping_target(&cfg, &um_path, &um_owner);
+		uv = ntfsmac_usermap_file_reverify(um_path, um_owner, &um);
+
+		ntfsmac_usermap_file_close(&um);
+		if (uv != NTFSMAC_USERMAP_V_ENABLE) {
+			NTFSMAC_LOGW("usermapping= not used: %s: %s", um_path, ntfsmac_usermap_verdict_str(uv));
+			use_um = false;
+			goto rebuild;
+		}
+	}
 	memset(&ls, 0, sizeof(ls));
 	ls.path = sb.path;
 	ls.argv = sb.argv;

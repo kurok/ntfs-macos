@@ -50,8 +50,9 @@
  *   ntfsmac_spawn_worker
  *     OK         the mount appeared; `child` is live, `*mounted_ro` is set.
  *     INVAL      bad argument.
- *     DENIED     the option builder, `argv_check()` or the check of the
- *                `usermapping` file refused. Nothing was started.
+ *     DENIED     the option builder or `argv_check()` refused. Nothing was
+ *                started. (A `usermapping` file the daemon does not accept is not
+ *                a refusal: the worker is started without the option.)
  *     IO         could not start, or the worker exited before the mount
  *                appeared. The process group was killed and reaped and
  *                `child->pid` is -1.
@@ -120,6 +121,14 @@ typedef struct ntfsmac_spawn_config {
 	const char *sandbox_dir;       /* NULL: no sandbox */
 	const char *sandbox_exec_path; /* NULL: NTFSMAC_PATH_SANDBOX_EXEC */
 	uid_t sandbox_owner;           /* owner the profiles must have: 0 (root) */
+	/*
+	 * The file the daemon reads and checks for `usermapping=`, and the owner it must have; NULL is
+	 * NTFSMAC_USERMAPPING_PATH and 0 (root) is the owner when the path is NULL. Only the file that
+	 * is read changes: the option in the vector and the sandbox parameters keep the product path
+	 * (`argv_check()` rule 3 requires it).
+	 */
+	const char *usermapping_path;
+	uid_t usermapping_owner;       /* used only if `usermapping_path` is not NULL */
 #endif
 	uid_t unpriv_uid;          /* probe and volmark run as this user ("nobody") */
 	gid_t unpriv_gid;

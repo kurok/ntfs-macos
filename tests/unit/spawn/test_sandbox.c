@@ -294,6 +294,95 @@ static void test_worker(void)
 	close(fd);
 }
 
+/* A mapping file the daemon accepts; the lines are the engine's grammar (usermap.h). */
+#define UM_TEXT "# test\n501:20:S-1-5-21-1-2-3-1001\n::S-1-5-21-1-2-3-1000\n"
+
+static char g_um_file[300], g_um_other[300];
+static int g_um_swaps;
+
+/* The hook runs after argv_check(): it puts another file under the name, once. */
+static void swap_um_hook(ntfsmac_worker_argv *av)
+{
+	(void)av;
+	if (g_um_swaps++ == 0 && rename(g_um_other, g_um_file) != 0) {
+		perror("rename");
+		exit(2);
+	}
+}
+
+static void um_run(ntfsmac_spawn_config *c, int fd, const char *want_um)
+{
+	ntfsmac_worker_run run;
+	ntfsmac_child child;
+	const char *w;
+	bool ro = true;
+	int i;
+
+	ntfsmac_spawn_config_set(c);
+	memset(&run, 0, sizeof(run));
+	run.device_fd = fd;
+	run.errfd_write = -1;
+	run.mount_point = "/Volumes/SBXTEST";
+	run.console_uid = getuid();
+	run.console_gid = getgid();
+	run.mount_wait_s = 5;
+	forget();
+	CHECK_EQ_INT(ntfsmac_spawn_worker(&run, &child, &ro), NTFSMAC_DMN_OK);
+	for (i = 0; i < 300 && wrapped()[0] == '\0'; i++) {
+		struct timespec ts = { 0, 10 * 1000000L };
+
+		nanosleep(&ts, NULL);
+	}
+	w = wrapped();
+	if (strcmp(want_um, "yes") == 0) {
+		CHECK(has(w, "-D USERMAPPING=yes "));
+		CHECK(has(w, ",usermapping=" NTFSMAC_USERMAPPING_PATH));
+	} else {
+		CHECK(has(w, "-D USERMAPPING=no "));
+		CHECK(!has(w, "usermapping="));
+	}
+	kill_worker(&child);
+}
+
+/*
+ * U-UMP-30: usermapping= asked for. The daemon enables it for the file it accepted (the vector has
+ * the option, the profile parameter is "yes"); for a file that is swapped under the name between
+ * the read and the spawn (hook after argv_check) the vector is built again without the option and
+ * the parameter is "no"; for a refused file it is "no" at once. The file read is the seam path.
+ */
+static void test_usermapping_worker(void)
+{
+	ntfsmac_spawn_config c = base_config();
+	int fd = open_device();
+
+	link_as("worker-ok");
+	c.worker_path = path_of("worker-ok");
+	c.usermapping = true;
+	PATHF(g_um_file, "%s/UserMapping", g_dir);
+	PATHF(g_um_other, "%s/UserMapping.new", g_dir);
+	c.usermapping_path = g_um_file;
+	c.usermapping_owner = geteuid();
+
+	write_file(g_um_file, UM_TEXT, 0644);
+	um_run(&c, fd, "yes");
+
+	write_file(g_um_file, UM_TEXT, 0644);
+	write_file(g_um_other, UM_TEXT, 0644);
+	g_um_swaps = 0;
+	c.after_check_hook = swap_um_hook;
+	um_run(&c, fd, "no");
+	CHECK_EQ_INT(g_um_swaps, 2); /* the vector was built twice */
+	c.after_check_hook = NULL;
+
+	write_file(g_um_file, "::S-1-5-21-1-2-3-999\n", 0644); /* ADR-012 */
+	um_run(&c, fd, "no");
+	write_file(g_um_file, UM_TEXT, 0664); /* wrong mode */
+	um_run(&c, fd, "no");
+	(void)unlink(g_um_file);
+	um_run(&c, fd, "no");
+	close(fd);
+}
+
 /* U-SBX-04, U-SBX-11: a profile that is missing, not root's and private, or not readable as one
  * piece of text, stops the spawn before anything starts. */
 static void test_bad_profile(void)
@@ -508,6 +597,7 @@ int main(void)
 	test_probe();
 	test_volmark();
 	test_worker();
+	test_usermapping_worker();
 	test_bad_profile();
 	test_wrapper_failure();
 	test_no_sandbox();

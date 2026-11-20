@@ -96,6 +96,13 @@ static void drop_fskit_hook(ntfsmac_worker_argv *av)
 		memcpy(p, "backend=xxxxx", 13);
 }
 
+static int g_um_seen = -1; /* 1 if the vector had usermapping=, 0 if not */
+
+static void um_hook(ntfsmac_worker_argv *av)
+{
+	g_um_seen = strstr(av->optstr, "usermapping=") != NULL;
+}
+
 static ntfsmac_spawn_config base_config(void)
 {
 	ntfsmac_spawn_config c;
@@ -735,16 +742,36 @@ static void test_worker(void)
 		run.console_uid = geteuid() + 1; /* a user we cannot become */
 		CHECK_EQ_INT(ntfsmac_spawn_worker(&run, &child, &ro), NTFSMAC_DMN_E_DENIED);
 	}
-	/* `usermapping=` needs the root-owned file; without it nothing is started. */
+	/*
+	 * U-UMP-20: `usermapping=` asked for, but the file is not one the daemon accepts (here: there is
+	 * none): the worker is started as without the option (issue 2, ADR-012); it is not a refusal.
+	 */
 	{
 		struct stat sb;
 
 		if (lstat(NTFSMAC_USERMAPPING_PATH, &sb) != 0) {
 			c.usermapping = true;
+			c.worker_path = path_of("worker-ok");
+			c.after_check_hook = um_hook;
 			ntfsmac_spawn_config_set(&c);
-			run = worker_run(dev, ep[1], false, 1);
-			CHECK_EQ_INT(ntfsmac_spawn_worker(&run, &child, &ro), NTFSMAC_DMN_E_DENIED);
+			g_um_seen = -1;
+			g_polls = 0;
+			g_polls_until_mount = 1;
+			g_mount_ro = false;
+			run = worker_run(dev, ep[1], false, 5);
+			CHECK_EQ_INT(ntfsmac_spawn_worker(&run, &child, &ro), NTFSMAC_DMN_OK);
+			CHECK_EQ_INT(g_um_seen, 0);
+			if (child.pid > 1) {
+				exited = false;
+				CHECK_EQ_INT(ntfsmac_child_kill_group(&child), NTFSMAC_DMN_OK);
+				for (i = 0; i < 200 && !exited; i++) {
+					(void)ntfsmac_child_poll(&child, &exited, &status);
+					usleep(10000);
+				}
+				CHECK(exited);
+			}
 			c.usermapping = false;
+			c.after_check_hook = NULL;
 			ntfsmac_spawn_config_set(&c);
 		}
 	}

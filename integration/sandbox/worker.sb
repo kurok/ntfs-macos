@@ -103,7 +103,8 @@
 ;; ---- The opt-in usermapping= (ADR-012) ----
 
 ;; With the option set, ntfs-3g reads this one fixed file. The daemon only sets the option
-;; if the file is owned by root and mode 0644 (ARCHITECTURE.md section 3.3).
+;; for a file it opened, checked (root, mode 0644, at most 1 MiB), read and parsed itself, and
+;; compared with the path just before the spawn (ARCHITECTURE.md section 3.3, ADR-012).
 (if (string=? (param "USERMAPPING") "yes")
     (allow file-read-data file-read-metadata (literal (param "USERMAPPING_PATH"))))
 

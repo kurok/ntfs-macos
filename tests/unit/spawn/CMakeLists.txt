@@ -8,8 +8,21 @@
 # (U-HLD-*). Pure code, so no test seams are needed.
 add_executable(test_holder test_holder.c)
 target_include_directories(test_holder PRIVATE ${PROJECT_SOURCE_DIR}/tests/unit/daemon)
-target_link_libraries(test_holder PRIVATE ntfsmac_daemon)
+target_link_libraries(test_holder PRIVATE ntfsmac_daemon ntfsmac_options)
 add_test(NAME daemon.spawn_holder COMMAND test_holder ${PROJECT_SOURCE_DIR}/integration/sandbox)
+
+# Issue 2 (audit M4 F-03, ADR-012): the grammar of the usermapping file and the decision whether
+# `usermapping=` may be enabled (U-UMP-01..06, pure), and the daemon's reading and re-check of the
+# file on real files in a scratch directory (U-UMP-10..17). Neither needs the test seams.
+add_executable(test_usermap test_usermap.c)
+target_include_directories(test_usermap PRIVATE ${PROJECT_SOURCE_DIR}/tests/unit/daemon)
+target_link_libraries(test_usermap PRIVATE ntfsmac_daemon ntfsmac_options)
+add_test(NAME daemon.usermap COMMAND test_usermap)
+
+add_executable(test_usermap_file test_usermap_file.c)
+target_include_directories(test_usermap_file PRIVATE ${PROJECT_SOURCE_DIR}/tests/unit/daemon)
+target_link_libraries(test_usermap_file PRIVATE ntfsmac_daemon ntfsmac_options)
+add_test(NAME daemon.usermap_file COMMAND test_usermap_file ${CMAKE_CURRENT_BINARY_DIR}/usermap_scratch)
 
 # The tests set the test seams of spawn_config.h, which a product build does not have
 # (NTFSMAC_TEST_SEAMS=OFF, preset `product`); that build compiles the library and runs no spawn test.

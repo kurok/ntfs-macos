@@ -23,6 +23,8 @@ copy_tree() {
 	(cd "$repo" && git ls-files --cached --others --exclude-standard | while IFS= read -r f; do
 		[ -e "$f" ] && printf '%s\n' "$f"
 	done | tar -cf - -T -) | (cd "$1" && tar -xf -)
+	# the harness unit tests (harness.unit) read the git state of the tree they run in
+	(cd "$1" && git init -q && git add -A && git -c user.name=t -c user.email=t@example.invalid commit -q -m copy)
 }
 
 run() { # dir args...; sets rc, output in $work/out
@@ -34,17 +36,17 @@ run() { # dir args...; sets rc, output in $work/out
 # 1. usage errors exit 2 (run from the real tree: they never build)
 run "$repo" --bogus
 if [ $rc -eq 2 ]; then r=0; else r=1; fi; check "unknown option exits 2" "$r"
-run "$repo"
-if [ $rc -eq 2 ] && grep -q 'not implemented' "$work/out"; then r=0; else r=1; fi; check "no --quick exits 2" "$r"
-run "$repo" --verify-result x
-if [ $rc -eq 2 ] && grep -q 'not implemented' "$work/out"; then r=0; else r=1; fi; check "--verify-result exits 2" "$r"
+run "$repo" --dry-run
+if [ $rc -eq 0 ] && grep -q 'ci-local full plan' "$work/out"; then r=0; else r=1; fi; check "no --quick selects full mode (--dry-run only prints the plan)" "$r"
+run "$repo" --verify-result "$work/missing.json"
+if [ $rc -eq 2 ] && grep -q 'cannot read' "$work/out"; then r=0; else r=1; fi; check "--verify-result of a missing file exits 2" "$r"
 run "$repo" --quick --preset
 if [ $rc -eq 2 ]; then r=0; else r=1; fi; check "missing --preset value exits 2" "$r"
 
 # 2. clean copy passes
 copy_tree "$work/clean"
 run "$work/clean" --quick --build-dir "$work/clean-build"
-if [ $rc -eq 0 ]; then r=0; else r=1; fi; check "quick run on a clean copy exits 0" "$r"
+if [ $rc -eq 0 ]; then r=0; else r=1; tail -30 "$work/out"; fi; check "quick run on a clean copy exits 0" "$r"
 if grep -c '^\(bootstrap\|configure\|build\|ctest\) .* ok ' "$work/out" | grep -qx 4; then r=0; else r=1; fi; check "summary lists all four stages" "$r"
 
 # 3. compile error breaks the build -> exit 1

@@ -228,6 +228,12 @@ typedef struct ntfsmac_ctl_env {
 	 */
 	ntfsmac_ctl_authz_strategy authz;
 	ntfsmac_ctl_channel channel;      /* zero: the Unix socket */
+	/*
+	 * Test seam of the stale-socket takeover: called between socket_in_use() and the second
+	 * lstat(), so a test can replace the path at the worst moment. NULL in production.
+	 */
+	void (*before_unlink)(void *ctx, const char *path);
+	void *before_unlink_ctx;
 } ntfsmac_ctl_env;
 
 /* Check 4, the one seam: both strategies, chosen by `env->authz`. */
@@ -256,6 +262,29 @@ ntfsmac_dmn_status ntfsmac_ctl_handle_line_env(const ntfsmac_ctl_env *env,
 
 /* The environment of the XPC door: system facts, the shared replay table, channel XPC. */
 ntfsmac_ctl_env ntfsmac_ctl_default_env_xpc(void);
+
+/*
+ * Stale-socket decision of ntfsmac_ctl_start() (ctl.c, M4 F-06), pure. Given the device and
+ * inode of the socket that was examined and the result of a second lstat() of the path, say
+ * whether the path may be unlinked (REMOVE), is already gone so that bind() may proceed (GONE),
+ * or was replaced or cannot be examined and must be left alone (REFUSE).
+ */
+typedef enum ntfsmac_ctl_stale_action {
+	NTFSMAC_CTL_STALE_REMOVE = 0,
+	NTFSMAC_CTL_STALE_GONE,
+	NTFSMAC_CTL_STALE_REFUSE
+} ntfsmac_ctl_stale_action;
+
+typedef struct ntfsmac_ctl_stale_stat {
+	bool ok;      /* the second lstat() succeeded */
+	int err;      /* errno of the failed lstat(), when !ok */
+	dev_t dev;    /* st_dev, when ok */
+	ino_t ino;    /* st_ino, when ok */
+	mode_t mode;  /* st_mode, when ok */
+} ntfsmac_ctl_stale_stat;
+
+ntfsmac_ctl_stale_action ntfsmac_ctl_stale_socket_decide(dev_t want_dev, ino_t want_ino,
+							 const ntfsmac_ctl_stale_stat *now);
 
 /* ntfsmac_ctl_start() with an explicit environment (tests). */
 ntfsmac_dmn_status ntfsmac_ctl_start_env(const char *socket_path, const ntfsmac_ctl_ops *ops,

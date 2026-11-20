@@ -200,6 +200,8 @@ static ntfsmac_ctl_env default_env(void)
 	e.replay = &g_replay;
 	e.authz = ntfsmac_ctl_default_authz();
 	e.channel = NTFSMAC_CTL_CHAN_SOCKET;
+	e.before_unlink = NULL;
+	e.before_unlink_ctx = NULL;
 	return e;
 }
 
@@ -236,6 +238,9 @@ struct ntfsmac_ctl {
 	pthread_t thread;
 	bool thread_started;
 	bool bound; /* our own bind() made the file at `path` */
+	bool bound_id; /* bound_dev and bound_ino are those of the file our bind() made */
+	dev_t bound_dev;
+	ino_t bound_ino;
 	char path[sizeof(((struct sockaddr_un *)0)->sun_path)];
 	const ntfsmac_ctl_ops *ops;
 	void *ctx;
@@ -427,6 +432,70 @@ static bool socket_in_use(const struct sockaddr_un *sa)
 	return in_use;
 }
 
+/*
+ * The stale-socket decision, pure (no system call): `want_*` is the device and
+ * inode of the socket that bind_socket() examined and found stale; `now` is the
+ * result of a second lstat() of the same path, taken just before the unlink.
+ *   - second lstat() failed with ENOENT: the name is gone, so there is nothing to
+ *     remove; bind() may proceed (NTFSMAC_CTL_STALE_GONE). bind() fails by itself
+ *     if something appeared in the meantime.
+ *   - second lstat() failed for any other reason: refuse (fail closed).
+ *   - not a socket any more, or another device or inode: the name was replaced
+ *     after it was examined; refuse, and the caller leaves the path alone.
+ *   - same device, same inode, still a socket: remove it.
+ * This pins the decision to the object that was examined. It does not close the
+ * window between this second lstat() and the unlink(): unlink() works on a name,
+ * and POSIX has no way to unlink "this inode". The directory is root-owned, so
+ * only root can race it.
+ */
+ntfsmac_ctl_stale_action ntfsmac_ctl_stale_socket_decide(dev_t want_dev, ino_t want_ino,
+							 const ntfsmac_ctl_stale_stat *now)
+{
+	if (now == NULL)
+		return NTFSMAC_CTL_STALE_REFUSE;
+	if (!now->ok)
+		return now->err == ENOENT ? NTFSMAC_CTL_STALE_GONE : NTFSMAC_CTL_STALE_REFUSE;
+	if (!S_ISSOCK(now->mode) || now->dev != want_dev || now->ino != want_ino)
+		return NTFSMAC_CTL_STALE_REFUSE;
+	return NTFSMAC_CTL_STALE_REMOVE;
+}
+
+/* lstat() the path into the plain-data form the pure decision takes. */
+static ntfsmac_ctl_stale_stat stat_path(const char *path)
+{
+	ntfsmac_ctl_stale_stat now;
+	struct stat st;
+
+	memset(&now, 0, sizeof now);
+	now.ok = lstat(path, &st) == 0;
+	if (now.ok) {
+		now.dev = st.st_dev;
+		now.ino = st.st_ino;
+		now.mode = st.st_mode;
+	} else {
+		now.err = errno;
+	}
+	return now;
+}
+
+/*
+ * Remove the socket file that our own bind() made, and only that one: the path must still
+ * name the same socket inode that was recorded right after bind(). If the name was replaced
+ * the replacement is left alone. The window between the lstat() and the unlink() stays (see
+ * ntfsmac_ctl_stale_socket_decide()).
+ */
+static void unlink_own_socket(const struct ntfsmac_ctl *c)
+{
+	ntfsmac_ctl_stale_stat now;
+
+	if (!c->bound || !c->bound_id)
+		return; /* not our file, or its identity is unknown: fail closed */
+	now = stat_path(c->path);
+	if (ntfsmac_ctl_stale_socket_decide(c->bound_dev, c->bound_ino, &now) ==
+	    NTFSMAC_CTL_STALE_REMOVE)
+		(void)unlink(c->path);
+}
+
 /* Bind with mode 0660 and, as root, group staff (section 3.4). */
 static ntfsmac_dmn_status bind_socket(struct ntfsmac_ctl *c)
 {
@@ -442,8 +511,35 @@ static ntfsmac_dmn_status bind_socket(struct ntfsmac_ctl *c)
 			return NTFSMAC_DMN_E_IO; /* never remove something that is not our socket */
 		if (socket_in_use(&sa))
 			return NTFSMAC_DMN_E_BUSY; /* another daemon is running: do not take over */
-		if (unlink(c->path) != 0)
-			return NTFSMAC_DMN_E_IO;
+		/* Pin the decision to the inode that was examined (M4 F-06). */
+		{
+			ntfsmac_ctl_stale_stat now;
+
+			if (c->env.before_unlink != NULL)
+				c->env.before_unlink(c->env.before_unlink_ctx, c->path);
+			now = stat_path(c->path);
+			switch (ntfsmac_ctl_stale_socket_decide(st.st_dev, st.st_ino, &now)) {
+			case NTFSMAC_CTL_STALE_REMOVE:
+				if (unlink(c->path) != 0)
+					return NTFSMAC_DMN_E_IO;
+				break;
+			case NTFSMAC_CTL_STALE_GONE:
+				break; /* already gone: nothing to remove, bind() follows */
+			case NTFSMAC_CTL_STALE_REFUSE:
+			default:
+				if (!now.ok)
+					fprintf(stderr,
+						"ntfsmacd: %s cannot be examined again (%s); not starting, "
+						"path left untouched\n",
+						c->path, strerror(now.err));
+				else
+					fprintf(stderr,
+						"ntfsmacd: %s was replaced (different inode or type) while "
+						"it was examined; not starting, path left untouched\n",
+						c->path);
+				return NTFSMAC_DMN_E_BUSY;
+			}
+		}
 	}
 	c->listen_fd = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (c->listen_fd < 0)
@@ -462,6 +558,16 @@ static ntfsmac_dmn_status bind_socket(struct ntfsmac_ctl *c)
 	if (bind(c->listen_fd, (struct sockaddr *)&sa, sizeof sa) != 0)
 		return NTFSMAC_DMN_E_IO;
 	c->bound = true;
+	{
+		/* the identity of the file our own bind() made; stop and failure unlink only that */
+		ntfsmac_ctl_stale_stat mine = stat_path(c->path);
+
+		if (!mine.ok || !S_ISSOCK(mine.mode))
+			return NTFSMAC_DMN_E_IO;
+		c->bound_dev = mine.dev;
+		c->bound_ino = mine.ino;
+		c->bound_id = true;
+	}
 	if (geteuid() == 0) {
 		struct group *gr = getgrnam("staff");
 
@@ -531,8 +637,7 @@ ntfsmac_dmn_status ntfsmac_ctl_start_env(const char *socket_path, const ntfsmac_
 fail:
 	if (c->listen_fd >= 0)
 		close(c->listen_fd);
-	if (c->bound)
-		unlink(c->path); /* never remove a file that our own bind did not make */
+	unlink_own_socket(c); /* never remove a file that our own bind did not make */
 	if (c->wake[0] >= 0)
 		close(c->wake[0]);
 	if (c->wake[1] >= 0)
@@ -563,7 +668,7 @@ void ntfsmac_ctl_stop(ntfsmac_ctl *c)
 		pthread_join(c->thread, NULL);
 	}
 	close(c->listen_fd);
-	unlink(c->path);
+	unlink_own_socket(c); /* a replacement of the file is left alone */
 	close(c->wake[0]);
 	close(c->wake[1]);
 	free(c);

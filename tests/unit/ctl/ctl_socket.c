@@ -10,6 +10,9 @@
  *   06 a refused or silent peer costs almost nothing (closed at once; 1 s to the first byte)
  *   07 a socket with a live daemon behind it is never taken over
  *   08 the definition of the right is checked at start and before each privileged request
+ *   09 the stale-socket decision is pinned to the inode that was examined (pure function)
+ *   10 bind_socket() uses it: a path replaced after socket_in_use() is left alone, start refused
+ *   11 stop removes only the file its own bind() made; a replacement is left alone
  * Nothing here needs root, a signed client or an authorization.
  */
 #include <errno.h>
@@ -590,6 +593,160 @@ static void test_real_sys(void)
 	CHECK_EQ_INT(r.sys.client_signed(r.sys.ctx, &p), NTFSMAC_CTL_SYS_UNAVAILABLE);
 }
 
+/*
+ * U-CTL-SOCK-09: the stale-socket decision (M4 F-06). The path is unlinked only when a second
+ * lstat() still shows the same device and inode and a socket. A vanished path (ENOENT) needs no
+ * unlink and bind() proceeds; any other lstat failure refuses.
+ */
+static ntfsmac_ctl_stale_stat st_of(dev_t d, ino_t i, mode_t m)
+{
+	ntfsmac_ctl_stale_stat s;
+
+	memset(&s, 0, sizeof s);
+	s.ok = true;
+	s.dev = d;
+	s.ino = i;
+	s.mode = m;
+	return s;
+}
+
+static void test_stale_decision(void)
+{
+	ntfsmac_ctl_stale_stat s;
+
+	/* unchanged: remove */
+	s = st_of(7, 42, S_IFSOCK | 0660);
+	CHECK_EQ_INT(ntfsmac_ctl_stale_socket_decide(7, 42, &s), NTFSMAC_CTL_STALE_REMOVE);
+	/* replaced by another socket (new inode), or on another device: refuse */
+	s = st_of(7, 43, S_IFSOCK | 0660);
+	CHECK_EQ_INT(ntfsmac_ctl_stale_socket_decide(7, 42, &s), NTFSMAC_CTL_STALE_REFUSE);
+	s = st_of(8, 42, S_IFSOCK | 0660);
+	CHECK_EQ_INT(ntfsmac_ctl_stale_socket_decide(7, 42, &s), NTFSMAC_CTL_STALE_REFUSE);
+	/* same inode number but not a socket any more (regular file, symlink, directory) */
+	s = st_of(7, 42, S_IFREG | 0644);
+	CHECK_EQ_INT(ntfsmac_ctl_stale_socket_decide(7, 42, &s), NTFSMAC_CTL_STALE_REFUSE);
+	s = st_of(7, 42, S_IFLNK | 0777);
+	CHECK_EQ_INT(ntfsmac_ctl_stale_socket_decide(7, 42, &s), NTFSMAC_CTL_STALE_REFUSE);
+	s = st_of(7, 42, S_IFDIR | 0755);
+	CHECK_EQ_INT(ntfsmac_ctl_stale_socket_decide(7, 42, &s), NTFSMAC_CTL_STALE_REFUSE);
+	/* second lstat() failed: ENOENT means gone (bind proceeds), anything else refuses */
+	memset(&s, 0, sizeof s);
+	s.err = ENOENT;
+	CHECK_EQ_INT(ntfsmac_ctl_stale_socket_decide(7, 42, &s), NTFSMAC_CTL_STALE_GONE);
+	s.err = EACCES;
+	CHECK_EQ_INT(ntfsmac_ctl_stale_socket_decide(7, 42, &s), NTFSMAC_CTL_STALE_REFUSE);
+	s.err = EIO;
+	CHECK_EQ_INT(ntfsmac_ctl_stale_socket_decide(7, 42, &s), NTFSMAC_CTL_STALE_REFUSE);
+	CHECK_EQ_INT(ntfsmac_ctl_stale_socket_decide(7, 42, NULL), NTFSMAC_CTL_STALE_REFUSE);
+}
+
+/*
+ * U-CTL-SOCK-10: the takeover refuses when the path is replaced between the check and the unlink.
+ * The env hook runs right after socket_in_use() and replaces the stale socket.
+ */
+static void make_stale_socket(void)
+{
+	struct sockaddr_un sa;
+	int fd = socket(AF_UNIX, SOCK_STREAM, 0);
+
+	memset(&sa, 0, sizeof sa);
+	sa.sun_family = AF_UNIX;
+	snprintf(sa.sun_path, sizeof sa.sun_path, "%s", path);
+	unlink(path);
+	CHECK(fd >= 0 && bind(fd, (struct sockaddr *)&sa, sizeof sa) == 0);
+	close(fd); /* the file stays, nobody listens: a crashed daemon's leftover */
+}
+
+static int g_replace_with_socket;
+static int g_hook_fd = -1;
+
+static void hook_replace(void *ctx, const char *p)
+{
+	char tmp[sizeof(((struct sockaddr_un *)0)->sun_path)];
+
+	(void)ctx;
+	/* Make the replacement at a second name while the old socket still exists, then rename it
+	 * over the path: the new object can never reuse the old inode number (ext4 can hand a
+	 * freed number straight back), so the test always sees a different inode. */
+	if (snprintf(tmp, sizeof tmp, "%s.new", p) >= (int)sizeof tmp) {
+		fprintf(stderr, "hook_replace: path too long\n");
+		return;
+	}
+	unlink(tmp);
+	if (g_replace_with_socket) {
+		struct sockaddr_un sa;
+
+		g_hook_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+		memset(&sa, 0, sizeof sa);
+		sa.sun_family = AF_UNIX;
+		snprintf(sa.sun_path, sizeof sa.sun_path, "%s", tmp);
+		if (bind(g_hook_fd, (struct sockaddr *)&sa, sizeof sa) != 0) /* another socket file */
+			perror("bind");
+	} else {
+		int fd = open(tmp, O_CREAT | O_WRONLY, 0600);
+
+		if (fd >= 0)
+			close(fd);
+	}
+	if (rename(tmp, p) != 0)
+		perror("rename");
+}
+
+static void test_replaced_during_takeover(void)
+{
+	int kind;
+
+	for (kind = 0; kind < 2; kind++) {
+		srv v;
+		ntfsmac_ctl *out = (ntfsmac_ctl *)1;
+		struct stat before, after;
+
+		memset(&v, 0, sizeof v);
+		fake_sys_init(&v.s, &v.sys);
+		ntfsmac_ctl_replay_init(&v.replay);
+		v.env.sys = &v.sys;
+		v.env.replay = &v.replay;
+		v.env.before_unlink = hook_replace;
+		v.ops = fake_ops();
+		g_replace_with_socket = (kind == 0);
+		make_stale_socket();
+		CHECK(lstat(path, &before) == 0);
+		CHECK_EQ_INT(ntfsmac_ctl_start_env(path, &v.ops, &v.o, &v.env, &out),
+			     NTFSMAC_DMN_E_BUSY);
+		CHECK(out == NULL);
+		/* the replacement (made by the hook) is still there, not removed */
+		CHECK(lstat(path, &after) == 0);
+		CHECK(kind == 0 ? S_ISSOCK(after.st_mode) : S_ISREG(after.st_mode));
+		CHECK(after.st_ino != before.st_ino || after.st_dev != before.st_dev);
+		if (g_hook_fd >= 0)
+			close(g_hook_fd);
+		g_hook_fd = -1;
+		unlink(path);
+	}
+}
+
+/* U-CTL-SOCK-11: stop leaves a replacement of its socket file alone; a normal stop removes it. */
+static void test_stop_removes_only_own(void)
+{
+	srv v;
+	struct stat st;
+	int fd;
+
+	srv_start(&v);
+	CHECK(lstat(path, &st) == 0);
+	ntfsmac_ctl_stop(v.ctl);
+	CHECK(lstat(path, &st) != 0 && errno == ENOENT); /* own file removed */
+
+	srv_start(&v);
+	CHECK(unlink(path) == 0);
+	fd = open(path, O_CREAT | O_WRONLY, 0600); /* replaced by a regular file */
+	CHECK(fd >= 0);
+	close(fd);
+	ntfsmac_ctl_stop(v.ctl);
+	CHECK(lstat(path, &st) == 0 && S_ISREG(st.st_mode)); /* left alone */
+	unlink(path);
+}
+
 int main(void)
 {
 	make_dir();
@@ -601,6 +758,9 @@ int main(void)
 	test_live_socket();
 	test_right();
 	test_real_sys();
+	test_stale_decision();
+	test_replaced_during_takeover();
+	test_stop_removes_only_own();
 	remove_dir();
 	if (g_failures != 0) {
 		fprintf(stderr, "%d failure(s)\n", g_failures);

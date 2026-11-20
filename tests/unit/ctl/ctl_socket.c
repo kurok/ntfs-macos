@@ -651,7 +651,12 @@ static void make_stale_socket(void)
 
 	memset(&sa, 0, sizeof sa);
 	sa.sun_family = AF_UNIX;
-	snprintf(sa.sun_path, sizeof sa.sun_path, "%s", path);
+	if (snprintf(sa.sun_path, sizeof sa.sun_path, "%s", path) >= (int)sizeof sa.sun_path) {
+		CHECK(0); /* the test path does not fit a socket address */
+		if (fd >= 0)
+			close(fd);
+		return;
+	}
 	unlink(path);
 	CHECK(fd >= 0 && bind(fd, (struct sockaddr *)&sa, sizeof sa) == 0);
 	close(fd); /* the file stays, nobody listens: a crashed daemon's leftover */

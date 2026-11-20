@@ -260,7 +260,15 @@ rep() {
 		[ -z "$mod" ] || sudo -n kill -9 "$mod"
 		;;
 	detach)
-		( dd if=/dev/zero of="$mp/big.bin" bs=64k count=600 2>/dev/null ) &
+		# One process rewrites a 10 MiB file from offset 0 until a write fails (the yank) and exits with
+		# that errno; a writer of fixed size can end before the yank on a fast mount (docs/spikes/M5-perf.md).
+		# The file is made first and opened without O_CREAT, so nothing is ever created after the mount
+		# is gone (on the system volume under /Volumes). Exit 200 to 203: no open, or a failure without an errno.
+		: >"$mp/big.bin" || failf "$id: cannot create the writer's file"
+		perl -MFcntl -e 'sysopen(my $h, $ARGV[0], O_WRONLY) or exit 200; my $b = "\0" x 65536;
+			for (;;) { defined sysseek($h, 0, 0) or exit(($! + 0) || 201);
+				for (1 .. 160) { my $n = syswrite($h, $b); defined $n or exit(($! + 0) || 202);
+					$n == 65536 or exit 203; } }' "$mp/big.bin" &
 		wpid=$!
 		sleep 1
 		check "$id: the writer is still writing at the moment of the yank" kill -0 "$wpid"
@@ -285,7 +293,16 @@ rep() {
 	*)
 		if [ "$tgt" = detach ]; then
 			check "$id: the volume row goes away within ${step} s" wait_for "$step" gone "$bsd"
-			kill -9 "$wpid" >/dev/null 2>&1
+			# the writer must end by itself, with the error of a write to a yanked volume (not ENOSPC,
+			# 28: the volume filled up; not 137: killed here at the deadline; not 200-203: never wrote)
+			( sleep "$step"; kill -9 "$wpid" ) >/dev/null 2>&1 &
+			wkp=$!
+			wrc=0
+			wait "$wpid" || wrc=$?
+			kill "$wkp" >/dev/null 2>&1
+			wpid=
+			check "$id: the writer ended with a write error after the yank (exit $wrc = errno)" \
+				test "$wrc" -ge 1 -a "$wrc" -le 199 -a "$wrc" -ne 28
 		else
 			check "$id: the volume leaves Mounted within ${step} s" wait_for "$step" left_mounted "$bsd"
 		fi
@@ -309,10 +326,10 @@ rep() {
 	if [ "$tgt" = daemon ]; then
 		stop_daemon
 		check "$id: after the stop of the job no macfuse mount is left" wait_for "$step" no_fuse_mounts
-		detach_image "$bsd"
+		detach_image "$bsd" || { failf "$id: the image is still attached after the detach (see the NOTE lines above)"; start_daemon; return 1; }
 		start_daemon
 	else
-		detach_image "$bsd"
+		detach_image "$bsd" || { failf "$id: the image is still attached after the detach (see the NOTE lines above)"; return 1; }
 	fi
 	if [ "$inject" = flags ] && [ "$ctl" = 1 ]; then "$work/bin/setvolflags" "$img" --clear DIRTY >/dev/null 2>&1; fi
 	check "$id: the dirty flag is still set on the image after the kill ($(flags_of "$img"))" image_dirty "$img"

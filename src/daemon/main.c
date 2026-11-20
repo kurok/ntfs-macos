@@ -2395,6 +2395,10 @@ int main(int argc, char **argv)
 	}
 	signal(SIGPIPE, SIG_IGN);
 	umask(077);
+	/* Before any thread: the daemon's own disk I/O and every child it starts are passive, so a disk
+	 * image's diskimages-helper is not throttled by them (docs/spikes/M5-perf.md). */
+	if (ntfsmac_spawn_io_passive() != 0)
+		fprintf(stderr, "ntfsmacd: passive disk I/O not set: %s\n", strerror(errno));
 
 	/* The spawn module: manifest paths, the sandbox on, the user `nobody` for probe and volmark. */
 	ntfsmac_spawn_config_default(&cfg);

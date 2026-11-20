@@ -149,7 +149,20 @@ detach_image() {
 	fi
 	_detach_raw "$1"
 }
-_detach_raw() { tmo 60 hdiutil detach "/dev/$1" >/dev/null 2>&1 || tmo 60 hdiutil detach "/dev/$1" -force >/dev/null 2>&1 || true; }
+# _detach_raw BSD: detach, then force-detach. On failure the answers of hdiutil, what `hdiutil info` lists for the
+# disk and who holds it (lsof) are printed as NOTE lines, and the status is 1 (callers that only clean up ignore it).
+_detach_raw() {
+	_o1=$(tmo 60 hdiutil detach "/dev/$1" 2>&1) && return 0
+	_o2=$(tmo 60 hdiutil detach "/dev/$1" -force 2>&1) && return 0
+	hdiutil info 2>/dev/null | grep -qE "^/dev/$1[[:space:]]" || return 0 # gone after all
+	{
+		echo "detach of /dev/$1 failed: $_o1"
+		echo "force-detach of /dev/$1 failed: $_o2"
+		echo "hdiutil info:"; hdiutil info 2>&1 | grep -E "image-path|^/dev/$1([[:space:]]|s)"
+		echo "lsof /dev/$1*:"; sudo -n lsof 2>/dev/null | grep -E "/dev/r?$1(s[0-9]+)?\$" || echo "(no holder found)"
+	} | sed 's/^/NOTE: /'
+	return 1
+}
 # every virtual disk of this run is detached at the end
 detach_all() {
 	hdiutil info 2>/dev/null | awk -v w="$work/" '/^image-path/ { p = $3 } /^\/dev\/disk[0-9]+[[:space:]]/ { if (index(p, w) == 1) print $1 }' |

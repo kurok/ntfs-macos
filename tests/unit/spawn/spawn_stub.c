@@ -20,6 +20,9 @@
 #include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
+#if defined(__APPLE__)
+#include <sys/resource.h>
+#endif
 
 extern char **environ;
 
@@ -76,6 +79,15 @@ static int state_ok(void)
 			return 0;
 		}
 	}
+#if defined(__APPLE__)
+	/* Disk I/O is passive, so that it does not throttle diskimages-helper (docs/spikes/M5-perf.md). */
+	if (getiopolicy_np(IOPOL_TYPE_DISK, IOPOL_SCOPE_PROCESS) != IOPOL_PASSIVE) {
+		fprintf(stderr, "disk I/O policy %d, not passive\n",
+			getiopolicy_np(IOPOL_TYPE_DISK, IOPOL_SCOPE_PROCESS));
+		g_why = "iopolicy";
+		return 0;
+	}
+#endif
 	return 1;
 }
 

@@ -55,6 +55,7 @@
 #include <mach-o/dyld.h>
 #include <sys/mount.h>
 #include <sys/proc_info.h>
+#include <sys/resource.h>
 #endif
 #include <grp.h>
 #include <sys/stat.h>
@@ -602,6 +603,30 @@ static int drop_privileges(uid_t uid, gid_t gid)
 	return 0;
 }
 
+/*
+ * Disk I/O of this process becomes passive (macOS only; elsewhere a no-op that returns 0). Called
+ * by the daemon's main() before any thread starts, so the daemon's own I/O and every child it
+ * starts inherit it, and again in each child of launch() and in the --exec-as step.
+ *
+ * The daemon runs as an Interactive launchd job (I/O tier 0), and its children inherit that tier.
+ * A tier-0 I/O to a disk image node counted as activity that throttled diskimages-helper, which
+ * serves the image with tier-1 passive I/O on the disk that holds the image file: in the
+ * measurement the helper then served one request every 5.5 to 6 ms, and the worker's writes and
+ * reads on the image node were 28 to 89 times slower than the node itself (docs/spikes/M5-perf.md).
+ * A passive I/O keeps its own tier but is not counted as activity, so it delays no one, the helper
+ * included. Nothing else changes: the order and the completion of the I/O, fsync and the device
+ * flush of ADR-022 are the same. One system call, safe between fork and exec.
+ * Returns 0, or -1 with errno set.
+ */
+int ntfsmac_spawn_io_passive(void)
+{
+#if defined(__APPLE__)
+	return setiopolicy_np(IOPOL_TYPE_DISK, IOPOL_SCOPE_PROCESS, IOPOL_PASSIVE);
+#else
+	return 0;
+#endif
+}
+
 /* In the child: signals back to their defaults and an empty mask. */
 static void reset_signals(void)
 {
@@ -890,6 +915,9 @@ int ntfsmac_spawn_exec_as(int argc, char **argv)
 		return 126;
 	if (drop_privileges((uid_t)u, (gid_t)g) != 0)
 		return 126;
+	/* Defensive: launchctl asuser was not observed to reset the policy inherited from the daemon. */
+	if (ntfsmac_spawn_io_passive() != 0)
+		fprintf(stderr, "ntfsmacd --exec-as: passive disk I/O not set: %s\n", strerror(errno));
 	/* An explicit environment, as the daemon built it: launchctl may have added its own. */
 	{
 		char *env[3];
@@ -997,6 +1025,7 @@ static ntfsmac_dmn_status launch(const launch_spec *s, pid_t *pid_out, int *capt
 
 		(void)setpgid(0, 0);
 		reset_signals();
+		(void)ntfsmac_spawn_io_passive();
 		if (dup2(devnull, 0) < 0 || dup2(s->capture ? outp[1] : devnull, 1) < 0
 		    || dup2(err_fd, 2) < 0) {
 			dummy = errno;

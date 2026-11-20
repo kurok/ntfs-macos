@@ -262,6 +262,8 @@ ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
  */
 #define NTFSMAC_EXEC_AS_FLAG "--exec-as"
 int ntfsmac_spawn_exec_as(int argc, char **argv);
+/* Passive disk I/O for this process and what it starts (docs/spikes/M5-perf.md). 0 or -1 and errno. */
+int ntfsmac_spawn_io_passive(void);
 
 /* Non-blocking wait on a child. OK with *exited false while it runs. */
 ntfsmac_dmn_status ntfsmac_child_poll(ntfsmac_child *child, bool *exited,

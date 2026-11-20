@@ -23,6 +23,8 @@
 #   stress-kill   tests/stress/kill/kill_guest.sh (T-M5-05, S-KILL-*): repeated SIGKILL of the worker, the daemon
 #             and the macFUSE module process and the yank of the image, KILL_REPS (default 2) times each, with
 #             deadlines; started by tests/stress/kill/run.sh, which takes the KILL_* parameters from its options
+#   perf      tests/perf/perf_guest.sh (T-M5-07, P-*): the benchmark on a daemon mount, PERF_ARGS are the bench.py
+#             parameters; started by tests/perf/run.sh, which makes the fixture perf-ntfs.img
 #   finder    tests/integration/finder: what Finder (and the system) show for a mounted volume
 #
 # Usage: tests/integration/daemon/dmn_vm.sh [--build-dir DIR] [--fixtures DIR] [--deps-tar FILE]
@@ -99,6 +101,7 @@ fixtures_for() {
 		[ -z "$only" ] || { echo "$only"; return; }
 		echo "clean-64m-4k log-init log-bumped chkdsk-flag hiber-inactive hiber-subdir txf-nonresident dirty-flag dirty-chkdsk-flag unclean-log log-v2 hiber-lower hiber-upper hiber-case hiber-short hiber-wake hiber-unknown truncated truncated-60 bitlocker-sig vmk-split vmk-split-clear mirror-split" ;;
 	kill | stress-kill) echo "clean-64m-4k" ;;
+	perf) echo "perf-ntfs" ;;
 	priv) echo "clean-64m-4k dirty-flag dirty-chkdsk-flag unclean-log hiber-lower log-init mirror-split" ;;
 	unmount | finder) echo "clean-64m-4k" ;;
 	slow) echo "clean-64m-4k" ;;
@@ -109,7 +112,7 @@ fixtures_for() {
 }
 need=
 for s in $suites; do
-	[ -f "$here/dmn_${s}_guest.sh" ] || [ "$s" = finder ] || [ "$s" = stress-kill ] || { echo "dmn_vm: no suite $s" >&2; exit 2; }
+	[ -f "$here/dmn_${s}_guest.sh" ] || [ "$s" = finder ] || [ "$s" = stress-kill ] || [ "$s" = perf ] || { echo "dmn_vm: no suite $s" >&2; exit 2; }
 	for f in $(fixtures_for "$s"); do
 		case " $need " in *" $f "*) ;; *) need="$need $f" ;; esac
 		[ -f "$fx/$f.img" ] || { echo "dmn_vm: $fx/$f.img is missing" >&2; exit 2; }
@@ -155,7 +158,7 @@ echo "dmn_vm: copying the sources, the host-built daemon and the fixtures" >&2
 mkdir -p "$tmp/bin" "$tmp/fixtures"
 cp "$build/src/daemon/ntfsmacd" "$build/src/cli/ntfsmac" "$tmp/bin/"
 (cd "$root" && tar -cf - include integration src/probe src/volmark src/common src/cli src/daemon src/journal \
-	src/policy src/options src/sanitize tests/integration/daemon tests/integration/finder tests/stress/kill tests/tools) |
+	src/policy src/options src/sanitize tests/integration/daemon tests/integration/finder tests/stress/kill tests/perf tests/tools) |
 	tart exec -i "$name" /bin/sh -c 'rm -rf ~/ntfsmac/dmn && mkdir -p ~/ntfsmac/dmn && tar -xf - -C ~/ntfsmac/dmn'
 (cd "$tmp" && tar -cf - bin) | tart exec -i "$name" /bin/sh -c 'tar -xf - -C ~/ntfsmac/dmn'
 if [ -n "$need" ]; then
@@ -217,11 +220,12 @@ run_all() {
 		g=tests/integration/daemon/dmn_${s}_guest.sh
 		[ "$s" = finder ] && g=tests/integration/finder/finder_guest.sh
 		[ "$s" = stress-kill ] && g=tests/stress/kill/kill_guest.sh
+		[ "$s" = perf ] && g=tests/perf/perf_guest.sh
 		rc=0
 		[ "$s" != finder ] || [ "$attended" -eq 0 ] || finder_allow
 		[ "$s" != finder ] || [ "$base" != golden-finder ] || finder_check
 		# the output is also kept in the guest (~/dmn-SUITE.log), so a long suite can be watched
-		"$tart_sh" exec "$name" -- "{ DMN_ONLY='$only' KILL_REPS='${KILL_REPS:-}' KILL_TARGETS='${KILL_TARGETS:-}' KILL_STEP='${KILL_STEP:-}' KILL_CONTROL='${KILL_CONTROL:-}' FINDER_REQUIRED=$require_finder sh ~/ntfsmac/dmn/$g ~/ntfsmac/dmn; echo \$? >~/dmn-$s.rc; } 2>&1 | tee ~/dmn-$s.log; exit \$(cat ~/dmn-$s.rc)" || rc=$?
+		"$tart_sh" exec "$name" -- "{ DMN_ONLY='$only' KILL_REPS='${KILL_REPS:-}' KILL_TARGETS='${KILL_TARGETS:-}' KILL_STEP='${KILL_STEP:-}' KILL_CONTROL='${KILL_CONTROL:-}' PERF_ARGS='${PERF_ARGS:-}' PERF_LABEL='${PERF_LABEL:-}' FINDER_REQUIRED=$require_finder sh ~/ntfsmac/dmn/$g ~/ntfsmac/dmn; echo \$? >~/dmn-$s.rc; } 2>&1 | tee ~/dmn-$s.log; exit \$(cat ~/dmn-$s.rc)" || rc=$?
 		[ "$s" != finder ] || copy_evidence
 		echo "######## suite $s: exit $rc"
 		[ "$rc" -eq 0 ] || echo 1 >"$tmp/failed"

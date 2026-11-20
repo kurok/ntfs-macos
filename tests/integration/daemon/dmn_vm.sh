@@ -20,6 +20,9 @@
 #             rule, `repair`, the marker, the disk mounted by another driver, notification text
 #   slow      the mount_timeout regression: a probe that answers 12 s late
 #   u15       U15: does Apple's ntfs.fs mount the vmk-split and mirror-split images (no daemon)
+#   stress-kill   tests/stress/kill/kill_guest.sh (T-M5-05, S-KILL-*): repeated SIGKILL of the worker, the daemon
+#             and the macFUSE module process and the yank of the image, KILL_REPS (default 2) times each, with
+#             deadlines; started by tests/stress/kill/run.sh, which takes the KILL_* parameters from its options
 #   finder    tests/integration/finder: what Finder (and the system) show for a mounted volume
 #
 # Usage: tests/integration/daemon/dmn_vm.sh [--build-dir DIR] [--fixtures DIR] [--deps-tar FILE]
@@ -29,6 +32,8 @@
 #   --fixtures   a directory with the image files (tests/fixtures/gen/*.sh --export DIR)
 #   --deps-tar   a tar of the guest's ~/ntfsmac/deps, used instead of building NTFS-3G when the file
 #                exists; when it does not, the build is made and its result saved there
+#   --name NAME  the guest's name (default ntfsmac-dmn-PID): the clone is named NAME exactly, so a caller knows it
+#                before the clone and can delete it on every exit path
 #   --only       a space-separated list of fixture names; the classes suite runs only those
 #   --keep       development: copy everything in, run no suite and keep the guest (delete it yourself)
 #   --out        also write the output to FILE
@@ -74,6 +79,7 @@ while [ $# -gt 0 ]; do
 	--attended) attended=1; require_finder=1; graphics=1; shift ;;
 	--finder-base) base=golden-finder; require_finder=1; shift ;;
 	--evidence) [ $# -ge 2 ] || { echo "dmn_vm: --evidence needs a directory" >&2; exit 2; }; evidence=$2; shift 2 ;;
+	--name) [ $# -ge 2 ] || { echo "dmn_vm: --name needs a guest name" >&2; exit 2; }; name=$2; shift 2 ;;
 	--only) [ $# -ge 2 ] || { echo "dmn_vm: --only needs a list of fixture names" >&2; exit 2; }; only=$2; shift 2 ;;
 	--out) [ $# -ge 2 ] || { echo "dmn_vm: --out needs a file" >&2; exit 2; }; out=$2; shift 2 ;;
 	-*) echo "dmn_vm: unknown option $1" >&2; exit 2 ;;
@@ -92,7 +98,7 @@ fixtures_for() {
 	classes)
 		[ -z "$only" ] || { echo "$only"; return; }
 		echo "clean-64m-4k log-init log-bumped chkdsk-flag hiber-inactive hiber-subdir txf-nonresident dirty-flag dirty-chkdsk-flag unclean-log log-v2 hiber-lower hiber-upper hiber-case hiber-short hiber-wake hiber-unknown truncated truncated-60 bitlocker-sig vmk-split vmk-split-clear mirror-split" ;;
-	kill) echo "clean-64m-4k" ;;
+	kill | stress-kill) echo "clean-64m-4k" ;;
 	priv) echo "clean-64m-4k dirty-flag dirty-chkdsk-flag unclean-log hiber-lower log-init mirror-split" ;;
 	unmount | finder) echo "clean-64m-4k" ;;
 	slow) echo "clean-64m-4k" ;;
@@ -103,7 +109,7 @@ fixtures_for() {
 }
 need=
 for s in $suites; do
-	[ -f "$here/dmn_${s}_guest.sh" ] || [ "$s" = finder ] || { echo "dmn_vm: no suite $s" >&2; exit 2; }
+	[ -f "$here/dmn_${s}_guest.sh" ] || [ "$s" = finder ] || [ "$s" = stress-kill ] || { echo "dmn_vm: no suite $s" >&2; exit 2; }
 	for f in $(fixtures_for "$s"); do
 		case " $need " in *" $f "*) ;; *) need="$need $f" ;; esac
 		[ -f "$fx/$f.img" ] || { echo "dmn_vm: $fx/$f.img is missing" >&2; exit 2; }
@@ -149,7 +155,7 @@ echo "dmn_vm: copying the sources, the host-built daemon and the fixtures" >&2
 mkdir -p "$tmp/bin" "$tmp/fixtures"
 cp "$build/src/daemon/ntfsmacd" "$build/src/cli/ntfsmac" "$tmp/bin/"
 (cd "$root" && tar -cf - include integration src/probe src/volmark src/common src/cli src/daemon src/journal \
-	src/policy src/options src/sanitize tests/integration/daemon tests/integration/finder tests/tools) |
+	src/policy src/options src/sanitize tests/integration/daemon tests/integration/finder tests/stress/kill tests/tools) |
 	tart exec -i "$name" /bin/sh -c 'rm -rf ~/ntfsmac/dmn && mkdir -p ~/ntfsmac/dmn && tar -xf - -C ~/ntfsmac/dmn'
 (cd "$tmp" && tar -cf - bin) | tart exec -i "$name" /bin/sh -c 'tar -xf - -C ~/ntfsmac/dmn'
 if [ -n "$need" ]; then
@@ -210,11 +216,12 @@ run_all() {
 		echo "######## suite $s"
 		g=tests/integration/daemon/dmn_${s}_guest.sh
 		[ "$s" = finder ] && g=tests/integration/finder/finder_guest.sh
+		[ "$s" = stress-kill ] && g=tests/stress/kill/kill_guest.sh
 		rc=0
 		[ "$s" != finder ] || [ "$attended" -eq 0 ] || finder_allow
 		[ "$s" != finder ] || [ "$base" != golden-finder ] || finder_check
 		# the output is also kept in the guest (~/dmn-SUITE.log), so a long suite can be watched
-		"$tart_sh" exec "$name" -- "{ DMN_ONLY='$only' FINDER_REQUIRED=$require_finder sh ~/ntfsmac/dmn/$g ~/ntfsmac/dmn; echo \$? >~/dmn-$s.rc; } 2>&1 | tee ~/dmn-$s.log; exit \$(cat ~/dmn-$s.rc)" || rc=$?
+		"$tart_sh" exec "$name" -- "{ DMN_ONLY='$only' KILL_REPS='${KILL_REPS:-}' KILL_TARGETS='${KILL_TARGETS:-}' KILL_STEP='${KILL_STEP:-}' KILL_CONTROL='${KILL_CONTROL:-}' FINDER_REQUIRED=$require_finder sh ~/ntfsmac/dmn/$g ~/ntfsmac/dmn; echo \$? >~/dmn-$s.rc; } 2>&1 | tee ~/dmn-$s.log; exit \$(cat ~/dmn-$s.rc)" || rc=$?
 		[ "$s" != finder ] || copy_evidence
 		echo "######## suite $s: exit $rc"
 		[ "$rc" -eq 0 ] || echo 1 >"$tmp/failed"

@@ -90,9 +90,9 @@ static int streq_n(const char *s, size_t n, const char *lit)
 /*
  * Rule 2: the leaf is a label part of ADR-016 (1 to 64 bytes, strict UTF-8, every code point on
  * the shared allow-list ntfsmac_label_cp_allowed(), no leading or trailing space or dot, no
- * combining mark first), optionally followed by a collision suffix: a space and 2 to 9, or 10
- * to 99 (no leading zero, no 100). Both forms are tried: the whole leaf as a part, or a part
- * and a suffix.
+ * leading hyphen (audit M4 F-01, fuzz finding M5-01), no combining mark first), optionally
+ * followed by a collision suffix: a space and 2 to 9, or 10 to 99 (no leading zero, no 100).
+ * Both forms are tried: the whole leaf as a part, or a part and a suffix.
  */
 static int suffix_ok(const char *s, size_t n)
 {

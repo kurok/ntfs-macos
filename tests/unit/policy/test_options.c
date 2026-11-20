@@ -650,7 +650,7 @@ static void test_argv_layout(void)
 		"/Volumes/ " LEAF, "/Volumes/.hidden", "/Volumes/a,b", "/Volumes/a=b",
 		"/Volumes/a\\b", "/Volumes/a:b", "", "relative",
 	};
-	static const char *const bad_leafs_in_expect[] = { "", "a/b", ".x", " x", "x ", "x.", "a,b" };
+	static const char *const bad_leafs_in_expect[] = { "", "a/b", ".x", " x", "x ", "x.", "a,b", "-", "-x" };
 
 	mk_variant(&x, 0, 0, 0, 0);
 	for (i = 0; i < NTFSMAC_WORKER_ARGC; i++)

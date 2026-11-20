@@ -33,6 +33,11 @@ foreach(_t ${_targets})
   add_test(NAME fuzz.sanitize_${_t}_seeds COMMAND fuzz_replay_${_t} ${_corpus}/${_t})
 endforeach()
 
+# Regression input of finding M5-01 (docs/SECURITY_FINDINGS.md): argv_check rule 2 accepted a leaf that
+# starts with "-". The replay aborts on the oracle failure unpatched. Same naming as fuzz.findings.F1/F3/F4.
+add_test(NAME fuzz.findings.M5-01
+  COMMAND fuzz_replay_label ${PROJECT_SOURCE_DIR}/tests/fuzz/findings/M5-01-label.bin)
+
 if(NTFSMAC_FUZZ)
   if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
     message(FATAL_ERROR "NTFSMAC_FUZZ needs clang (libFuzzer)")

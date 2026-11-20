@@ -111,7 +111,7 @@ bool ntfsmac_label_part_ok(const char *s, size_t len)
 
 	if (s == NULL || len == 0 || len > NTFSMAC_LABEL_PART_MAX_BYTES)
 		return false;
-	if (s[0] == ' ' || s[0] == '.' || s[len - 1] == ' ' || s[len - 1] == '.')
+	if (s[0] == ' ' || s[0] == '.' || s[0] == '-' || s[len - 1] == ' ' || s[len - 1] == '.')
 		return false;
 	while (i < len) {
 		uint32_t cp;

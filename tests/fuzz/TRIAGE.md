@@ -207,3 +207,6 @@ reported, one issue per file with the unsigned-arithmetic fix is the usual form.
   because the seeds include F2.
 - The probe seeds reach the walk of a mounted volume; hostile names of the kind of
   `U-NAME-*` come from the base images and the edit seeds only (no dictionary).
+- T-M5-09: the extended campaign (driver `tests/fuzz/campaign/run.sh`, classification and the finding M5-01 in
+  `docs/SECURITY_FINDINGS.md`) covers all targets, including the new F-CTL-01 (`tests/fuzz/ctl/`), and
+  replaces the by-hand recipe of this file for new runs. The 8 CPU-hour run itself is still to be made.

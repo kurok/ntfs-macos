@@ -1310,7 +1310,7 @@ static void attach_run(void *arg)
 	in->probe_fd = fd;
 	ba.in = in;
 	dispatch_sync_f(g_journal_q, &ba, jq_begin);
-	fd = -1;
+	fd = -1; /* NOLINT(clang-analyzer-deadcode.DeadStores): ownership marker, the session module owns it now */
 	if (ba.st != NTFSMAC_DMN_OK) {
 		NTFSMAC_LOGW("%s: the session was refused (%s, %s)", v->bsd, ntfsmac_dmn_status_name(ba.st),
 			     ntfsmac_report_vreason_token(ba.res.failed));

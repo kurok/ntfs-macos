@@ -71,6 +71,8 @@ static size_t emit(FILE *f, const char *str)
 	const unsigned char *s = (const unsigned char *)str;
 	size_t cols = 0;
 
+	if (str == NULL)
+		return 0; /* nothing to show */
 	while (*s != '\0') {
 		size_t n = *s < 0x80 ? 1 : utf8_len(s);
 		size_t i;
@@ -136,7 +138,7 @@ static void print_scalar(FILE *f, const json_node *n)
 		fputs("-", f);
 		break;
 	default:
-		ntfsmac_cli_print_safe(f, n->text != NULL ? n->text : "");
+		ntfsmac_cli_print_safe(f, n->text);
 		break;
 	}
 }
@@ -185,7 +187,7 @@ static void dump(FILE *f, const json_node *n, unsigned depth)
 		}
 		if (n->type == JSON_OBJECT) {
 			fputs(indent, f);
-			ntfsmac_cli_print_safe(f, c->key != NULL ? c->key : "");
+			ntfsmac_cli_print_safe(f, c->key);
 			fputc(':', f);
 		} else {
 			fprintf(f, "%s-", indent);

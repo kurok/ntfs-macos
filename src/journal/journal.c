@@ -903,7 +903,7 @@ static ntfsmac_journal_status write_entry(ntfsmac_journal *j,
 		fd = -1;
 		goto fail;
 	}
-	fd = -1;
+	fd = -1; /* NOLINT(clang-analyzer-deadcode.DeadStores): ownership marker, `fail:` closes fd >= 0 */
 	if (noreplace)
 		rc = rename_noreplace(j->dirfd, tmp, j->dirfd, name);
 	else

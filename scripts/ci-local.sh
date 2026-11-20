@@ -613,14 +613,25 @@ if [ "$quick" -eq 0 ]; then
 				echo "static-analysis: no src/ file in $_cdb/compile_commands.json"; _rc=1
 			else
 				# shellcheck disable=SC2086
-				clang-tidy -p "$_cdb" --checks='-*,clang-diagnostic-*,clang-analyzer-*' --warnings-as-errors='*' $_srcs || _rc=1
+				# Off, as checks that do not fit this project:
+				#  insecureAPI.DeprecatedOrUnsafeBufferHandling  wants the C11 Annex K *_s functions, which macOS lacks
+				#  optin.performance.Padding                      struct layout is not a performance goal here
+				# optin.performance.GCDAntipattern stays on: the one semaphore wait (the CLI waits for an XPC
+				# reply) carries an inline NOLINT with its reason
+				_checks='-*,clang-diagnostic-*,clang-analyzer-*'
+				_checks="$_checks,-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling"
+				_checks="$_checks,-clang-analyzer-optin.performance.Padding"
+				clang-tidy -p "$_cdb" --checks="$_checks" --warnings-as-errors='*' $_srcs || _rc=1
 			fi
 		else
 			echo "static-analysis: clang-tidy is not installed (brew install llvm)"; _rc=1
 		fi
 		if command -v cppcheck >/dev/null 2>&1; then
 			echo "cppcheck"
-			cppcheck --error-exitcode=1 --enable=warning,performance,portability --inline-suppr --quiet -I include src || _rc=1
+			# __has_feature is a clang built-in that cppcheck does not know; -D fixes the configuration to
+			# one, so --force makes it check the others too (the macOS branches included)
+			cppcheck --error-exitcode=1 --enable=warning,performance,portability --inline-suppr --quiet \
+				'-D__has_feature(x)=0' --force -I include src || _rc=1
 		else
 			echo "static-analysis: cppcheck is not installed (brew install cppcheck)"; _rc=1
 		fi

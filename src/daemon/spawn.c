@@ -165,8 +165,11 @@ static void sleep_ms(unsigned ms)
 static void close_fd(int *fd)
 {
 	if (*fd >= 0) {
+		int err = errno; /* error paths report errno: a close must not replace it */
+
 		close(*fd);
 		*fd = -1;
+		errno = err;
 	}
 }
 
@@ -179,7 +182,10 @@ static int fd_high(int fd)
 		return fd;
 	n = fcntl(fd, F_DUPFD_CLOEXEC, 3);
 	if (n < 0) {
+		int err = errno;
+
 		close(fd);
+		errno = err; /* the caller reports errno: a close must not replace it */
 		return -1;
 	}
 	close(fd);
@@ -192,8 +198,11 @@ static int pipe_cloexec(int p[2])
 	if (pipe(p) != 0)
 		return -1;
 	if (fcntl(p[0], F_SETFD, FD_CLOEXEC) != 0 || fcntl(p[1], F_SETFD, FD_CLOEXEC) != 0) {
+		int err = errno;
+
 		close(p[0]);
 		close(p[1]);
+		errno = err;
 		return -1;
 	}
 	p[0] = fd_high(p[0]);

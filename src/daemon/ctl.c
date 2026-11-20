@@ -320,6 +320,7 @@ static void serve_connection(struct ntfsmac_ctl *c, int fd)
 		return;
 
 	while (requests < CONN_MAX_REQUESTS) {
+		/* cppcheck-suppress legacyUninitvar ; false positive: `have` bytes are valid, 0 reads nothing */
 		char *nl = memchr(buf, '\n', have);
 		size_t linelen;
 

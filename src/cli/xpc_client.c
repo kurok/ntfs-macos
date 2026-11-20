@@ -40,6 +40,9 @@ int ntfsmac_cli_privileged_exchange(const char *service, const char *line, int t
 
 	if (cap < 2 || sem == NULL || slot == NULL) {
 		snprintf(err_text, err_cap, "internal error: no memory or reply buffer too small");
+		free(slot);
+		if (sem != NULL)
+			dispatch_release(sem);
 		return -1;
 	}
 	slot->rc = -1;
@@ -47,6 +50,8 @@ int ntfsmac_cli_privileged_exchange(const char *service, const char *line, int t
 	conn = xpc_connection_create_mach_service(service, NULL, XPC_CONNECTION_MACH_SERVICE_PRIVILEGED);
 	if (conn == NULL) {
 		snprintf(err_text, err_cap, "cannot reach the ntfsmac daemon");
+		free(slot); /* no block was queued: nothing else can touch the record */
+		dispatch_release(sem);
 		return -1;
 	}
 	xpc_connection_set_event_handler(conn, ^(xpc_object_t event) {
@@ -75,11 +80,17 @@ int ntfsmac_cli_privileged_exchange(const char *service, const char *line, int t
 		}
 		dispatch_semaphore_signal(sem);
 	});
+	/*
+	 * A one-shot CLI turns the reply into a synchronous result with its own time limit; the
+	 * reply block runs on a global queue, not on this thread, and the wait is bounded.
+	 */
+	/* NOLINTNEXTLINE(clang-analyzer-optin.performance.GCDAntipattern) */
 	if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)timeout_ms *
 								  (int64_t)NSEC_PER_MSEC)) != 0) {
 		/* the block may still run and owns `slot` and `sem`: nothing is freed here */
 		snprintf(err_text, err_cap, "the daemon did not answer in time");
 		xpc_connection_cancel(conn);
+		/* cppcheck-suppress memleak ; deliberate: the late reply block still owns `slot` */
 		return -1;
 	}
 	rc = slot->rc;

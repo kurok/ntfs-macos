@@ -256,6 +256,8 @@ static void on_changed(DADiskRef disk, CFArrayRef keys, void *context)
 	}
 }
 
+/* DiskArbitration releases the dissenter that an approval callback returns (a +1 object). */
+static DADissenterRef on_approval(DADiskRef disk, void *context) CF_RETURNS_RETAINED;
 static DADissenterRef on_approval(DADiskRef disk, void *context)
 {
 	struct ntfsmac_da *da = context;

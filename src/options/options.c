@@ -63,7 +63,6 @@ ntfsmac_options_status ntfsmac_options_build(const ntfsmac_options_input *in,
 		return fail(out, NTFSMAC_OPTIONS_ERR_LEAF);
 
 	/* Always row: fixed literals. */
-	len = 0;
 	n = snprintf(out->optstr, sizeof(out->optstr),
 		     "backend=fskit,local,norecover,noatime,windows_names,"
 		     "nocompression,no_detach,streams_interface=openxattr");

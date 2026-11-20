@@ -69,6 +69,7 @@ static void jw_str(jw *w, const char *s)
 	const unsigned char *p = (const unsigned char *)(s != NULL ? s : "");
 
 	jw_raw(w, "\"");
+	/* NOLINTNEXTLINE(clang-analyzer-security.ArrayBound): the analyzer does not model the NUL of the literal "" */
 	for (; *p != '\0' && !w->ovf; p++) {
 		if (*p == '"')
 			jw_raw(w, "\\\"");

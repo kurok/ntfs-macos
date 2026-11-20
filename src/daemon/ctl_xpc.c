@@ -83,11 +83,15 @@ struct ntfsmac_xpc {
 static void send_reply(xpc_object_t message, const char *reply_line)
 {
 	xpc_object_t reply = xpc_dictionary_create_reply(message);
+	xpc_connection_t remote;
 
 	if (reply == NULL)
 		return;
-	xpc_dictionary_set_string(reply, NTFSMAC_CTL_XPC_KEY_REPLY, reply_line);
-	xpc_connection_send_message(xpc_dictionary_get_remote_connection(message), reply);
+	remote = xpc_dictionary_get_remote_connection(message);
+	if (remote != NULL) {
+		xpc_dictionary_set_string(reply, NTFSMAC_CTL_XPC_KEY_REPLY, reply_line);
+		xpc_connection_send_message(remote, reply);
+	}
 	xpc_release(reply);
 }
 
@@ -217,7 +221,7 @@ void ntfsmac_xpc_stop(ntfsmac_xpc *x)
 		return;
 	xpc_connection_cancel(x->listener);
 	/* On the serial queue: everything queued before this runs first, nothing after sees `ops`. */
-	dispatch_sync(x->queue, ^{
+	dispatch_sync(x->queue, ^(void) {
 		x->stopped = true;
 	});
 }

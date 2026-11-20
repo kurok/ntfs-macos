@@ -1,0 +1,84 @@
+######## suite finder
+dmn_vm: Finder automation allowed (from ntfsmac-golden-finder)
+guest: 27.2 arm64, user admin uid 501, console owner admin
+== start the job and attach a clean volume
+PASS: the volume mounts rw (Mounted rw)
+-- mount point '/Volumes/clean64m4k'
+== what does not need Finder
+PASS: I-FND-01 the mount point is /Volumes/<leaf> and is a directory
+PASS: I-FND-01 the volume is listed by diskutil under its disk
+RESULT U14: display name of /Volumes/clean64m4k is 'macFUSE Volume' (the leaf is 'clean64m4k')
+NOTE: U14: the system's display name for the worker's mount is 'macFUSE Volume', the leaf is 'clean64m4k'
+NOTE: mdls kMDItemDisplayName: kMDItemDisplayName = (null)
+NOTE: Finder running: 372 (empty: no Finder in this session)
+== can this session drive Finder?
+osascript rc 0: .AssetData, Hardware, Macintosh HD, Preboot, Update, VM, clean64m4k, home, iSCPreboot, xarts
+== I-FND-01: visibility
+PASS: I-FND-01 Finder lists the volume (as 'clean64m4k'; the leaf is 'clean64m4k')
+NOTE: I-FND-01 the name Finder shows for the disk: 'clean64m4k' (U14: the leaf is 'clean64m4k')
+NOTE: Finder desktop preferences: ShowExternalHardDrivesOnDesktop=1 ShowMountedServersOnDesktop=Error: Could not find key 'ShowMountedServersOnDesktop' in domain 'com.apple.finder'. (unset: the system default)
+NOTE: I-FND-01 items on the desktop: clean64m4k
+PASS: I-FND-01 the volume is an item of the desktop
+PASS: I-FND-01 screenshot of the desktop with the volume icon (fnd01-desktop.png)
+
+PASS: I-FND-01 the Finder window shows its sidebar (width '198')
+PASS: I-FND-01 screenshot of a Finder window of the volume with the sidebar (fnd01-sidebar.png)
+== I-FND-02: copy in and out with Finder (1,000 files)
+PASS: I-FND-02 the generated source tree has exactly 1000 files (1000)
+PASS: I-FND-02 the source manifest counts 1000 files (1000)
+document file one.bin of disk clean64m4k
+PASS: I-FND-02 the file copied in by Finder has the same bytes (1edcf3023bbe7b118428bc53dde0faf87319253e8b728a84c4fcdf8281b3c02d)
+copy in (Finder duplicate, 43 s): folder tree of disk clean64m4k
+NOTE: I-FND-02 on the volume: 1000 files
+PASS: I-FND-02 the volume holds 1000 files after the copy in (1000)
+PASS: I-FND-02 SHA-256 of every file on the volume equals the source
+NOTE: names differ in bytes between fnd02-source and fnd02-volume but not after normalization to form C (the volume or the copy returns another Unicode form)
+copy out (Finder duplicate, 47 s): folder tree of folder fout of folder dmnvm.FDq7N9 of folder tmp of item private of startup disk
+PASS: I-FND-02 the copy out holds 1000 files (1000)
+PASS: I-FND-02 SHA-256 of every file copied out equals the source
+NOTE: names differ in bytes between fnd02-source and fnd02-out but not after normalization to form C (the volume or the copy returns another Unicode form)
+== I-FND-03: rename and delete with Finder
+renamed.bin
+PASS: I-FND-03 Finder renamed the file
+document file renamed.bin of item 501 of item .Trashes of disk clean64m4k
+PASS: I-FND-03 the file is no longer in the root of the volume
+NOTE: I-FND-03 where the Trash put it: .Trashes|.fseventsd|boundary|docs|empty|large|link-to-readme|long|many|small|sparse|tree|unicode|with spaces|
+== I-FND-04: Finder eject
+osascript eject: 
+PASS: I-FND-04 the volume returns to Appeared
+PASS: I-FND-04 the mount point is gone
+PASS: I-FND-04 the journal entry is gone
+PASS: I-FND-04 the daemon said 'ejected, all data written'
+-- Finder cases not run: 0 (a case that did not run is never counted as passed)
+-- evidence in <home>/finder-evidence:
+total 14888
+-rw-r--r--@ 1 admin  staff  4846900 Nov 20 08:45 fnd01-desktop.png
+-rw-r--r--@ 1 admin  staff  2119982 Nov 20 08:45 fnd01-sidebar.png
+-rw-r--r--  1 admin  staff        5 Nov 20 08:47 fnd02-out.count
+-rw-r--r--  1 admin  staff   102809 Nov 20 08:47 fnd02-out.lines
+-rw-r--r--  1 admin  staff   104238 Nov 20 08:47 fnd02-out.raw
+-rw-r--r--  1 admin  staff        5 Nov 20 08:45 fnd02-source.count
+-rw-r--r--  1 admin  staff   102809 Nov 20 08:45 fnd02-source.lines
+-rw-r--r--  1 admin  staff   102809 Nov 20 08:45 fnd02-source.raw
+-rw-r--r--  1 admin  staff        5 Nov 20 08:46 fnd02-volume.count
+-rw-r--r--  1 admin  staff   102809 Nov 20 08:46 fnd02-volume.lines
+-rw-r--r--  1 admin  staff   104238 Nov 20 08:46 fnd02-volume.raw
+-- daemon log (tail)
+INFO: disk4: PROBE_DONE -> Deciding
+INFO: disk4: probe state unsupported, decision refuse
+INFO: disk4: REFUSED -> Failed
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: journal: entry 34F5EE1202469FF7 removed by path 1 (clean-session), tombstone 34F5EE1202469FF7-20261120T084710Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+result: 0 check(s) failed
+dmn_vm: finder evidence copied to tests/results/evidence/m4-gate/finder/2026-11-20-16fd109: fnd01-desktop.png fnd01-sidebar.png fnd02-out.count fnd02-out.lines fnd02-out.raw fnd02-source.count fnd02-source.lines fnd02-source.raw fnd02-volume.count fnd02-volume.lines fnd02-volume.raw 
+######## suite finder: exit 0

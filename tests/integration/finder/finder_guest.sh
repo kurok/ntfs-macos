@@ -160,6 +160,11 @@ if [ "$runnable" -eq 1 ]; then
 	o=$(asc "tell application \"Finder\" to activate" ; asc "tell application \"Finder\" to open disk \"$fname\"")
 	echo "$o"
 	asc 'tell application "Finder" to set bounds of front window to {80, 80, 1000, 640}' >/dev/null
+	# A window opened by a script may come without its toolbar and sidebar; show both for the evidence.
+	asc 'tell application "Finder" to set toolbar visible of front window to true' >/dev/null
+	asc 'tell application "Finder" to set sidebar width of front window to 200' >/dev/null
+	sw=$(asc 'tell application "Finder" to get sidebar width of front window')
+	check "I-FND-01 the Finder window shows its sidebar (width '$sw')" test "${sw:-0}" -gt 0 2>/dev/null
 	check "I-FND-01 screenshot of a Finder window of the volume with the sidebar (fnd01-sidebar.png)" shot fnd01-sidebar
 	asc 'tell application "Finder" to close every window' >/dev/null
 

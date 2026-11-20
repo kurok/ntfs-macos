@@ -2,6 +2,8 @@
 
 Task T-M1-04. Wrapper: `tart.sh` (`pull`, `clone [--from golden]`, `run [--graphics]`, `exec`/`ssh`, `stop`, `delete`, `selftest`).
 Golden VM with macFUSE (T-M2-02): `provision-golden.sh`, documented in `docs/VM_SETUP.md`.
+Finder base VM (M4 criterion 4.7): `provision-finder-base.sh` clones golden to `ntfsmac-golden-finder`
+with Finder automation allowed once; see `docs/runbooks/finder-4.7.md`.
 Pins: `versions.env`. State (logs, pid files, scratch disks): `~/.cache/ntfsmac-vm`.
 All VMs are named `ntfsmac-*`; the script never clones, stops or deletes anything else.
 

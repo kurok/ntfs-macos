@@ -38,6 +38,9 @@
 #                access to control "Finder"'; guest commands run through tart exec are attributed to the
 #                guest agent) and waits up to 5 minutes for the person to click Allow; the Finder cases
 #                are then required (a refusal is a FAIL, not a NOT RUNNABLE)
+#   --finder-base    clone from ntfsmac-golden-finder (vm/macos/provision-finder-base.sh: Finder automation
+#                already allowed there) instead of ntfsmac-golden; the Finder cases are required and no
+#                person is needed. Use it for M4 criterion 4.7 when the click in --attended is lost.
 #   --evidence DIR   where the finder suite's screenshots and manifests are copied to before the guest is
 #                deleted (default tests/results/evidence/m4-gate/finder/DATE-HEAD); done whenever `finder` runs
 # This script does not take a guest slot: the caller holds the lock it needs (dmn_all.sh --slot-dir does).
@@ -57,6 +60,8 @@ only=
 keep=0
 graphics=0
 attended=0
+base=golden
+require_finder=0
 evidence=
 
 while [ $# -gt 0 ]; do
@@ -66,7 +71,8 @@ while [ $# -gt 0 ]; do
 	--deps-tar) [ $# -ge 2 ] || { echo "dmn_vm: --deps-tar needs a file" >&2; exit 2; }; deps_tar=$2; shift 2 ;;
 	--keep) keep=1; shift ;;
 	--graphics) graphics=1; shift ;;
-	--attended) attended=1; graphics=1; shift ;;
+	--attended) attended=1; require_finder=1; graphics=1; shift ;;
+	--finder-base) base=golden-finder; require_finder=1; shift ;;
 	--evidence) [ $# -ge 2 ] || { echo "dmn_vm: --evidence needs a directory" >&2; exit 2; }; evidence=$2; shift 2 ;;
 	--only) [ $# -ge 2 ] || { echo "dmn_vm: --only needs a list of fixture names" >&2; exit 2; }; only=$2; shift 2 ;;
 	--out) [ $# -ge 2 ] || { echo "dmn_vm: --out needs a file" >&2; exit 2; }; out=$2; shift 2 ;;
@@ -120,7 +126,7 @@ tarball=$(awk '$1 == "ntfs-3g" { n = split($3, a, "/"); print a[n] }' "$root/thi
 [ -f "$root/third_party/cache/$tarball" ] || { [ -n "$deps_tar" ] && [ -f "$deps_tar" ]; } ||
 	{ echo "dmn_vm: $root/third_party/cache/$tarball is missing; run scripts/fetch-deps.sh ntfs-3g" >&2; exit 2; }
 
-"$tart_sh" clone "$name" --from golden >&2
+"$tart_sh" clone "$name" --from "$base" >&2
 if [ "$graphics" -eq 1 ]; then "$tart_sh" run "$name" --graphics >&2; else "$tart_sh" run "$name" >&2; fi
 
 if [ -n "$deps_tar" ] && [ -f "$deps_tar" ]; then
@@ -160,11 +166,24 @@ fi
 finder_allow() {
 	echo "dmn_vm: >>> ACTION NEEDED: in the VM window, click Allow on the '\"tart-guest-agent\" wants access to control \"Finder\"' prompt (waiting up to 5 minutes)" >&2
 	arc=0
-	"$tart_sh" exec "$name" -- "perl -e 'alarm 300; exec @ARGV or exit 127' osascript -e 'tell application \"Finder\" to get name of startup disk' >/dev/null 2>&1" || arc=$?
+	# AppleScript gives up on a reply after 2 minutes unless told otherwise (-1712), and the prompt
+	# blocks the reply: wait the full 5 minutes. The error text is shown, so a refusal (-1743) and a
+	# timeout can be told apart.
+	aout=$("$tart_sh" exec "$name" -- "perl -e 'alarm 310; exec @ARGV or exit 127' osascript -e 'with timeout of 300 seconds' -e 'tell application \"Finder\" to get name of startup disk' -e 'end timeout' 2>&1 >/dev/null") || arc=$?
 	if [ "$arc" -eq 0 ]; then
 		echo "dmn_vm: Finder automation allowed" >&2
 	else
-		echo "dmn_vm: Finder automation was NOT allowed (osascript rc $arc: refused or no click in 5 minutes); the Finder cases will FAIL" >&2
+		echo "dmn_vm: Finder automation was NOT allowed (osascript rc $arc: ${aout:-no message}); the Finder cases will FAIL" >&2
+	fi
+}
+# finder_check: with --finder-base the permission is already in the guest; one quick event shows it.
+finder_check() {
+	arc=0
+	aout=$("$tart_sh" exec "$name" -- "perl -e 'alarm 40; exec @ARGV or exit 127' osascript -e 'with timeout of 30 seconds' -e 'tell application \"Finder\" to get name of startup disk' -e 'end timeout' 2>&1 >/dev/null") || arc=$?
+	if [ "$arc" -eq 0 ]; then
+		echo "dmn_vm: Finder automation allowed (from ntfsmac-golden-finder)" >&2
+	else
+		echo "dmn_vm: Finder automation was NOT allowed in the clone of ntfsmac-golden-finder (osascript rc $arc: ${aout:-no message}); rebuild it with vm/macos/provision-finder-base.sh --rebuild" >&2
 	fi
 }
 # copy_evidence: the finder suite's screenshots and manifests to the host, before the guest is deleted
@@ -193,8 +212,9 @@ run_all() {
 		[ "$s" = finder ] && g=tests/integration/finder/finder_guest.sh
 		rc=0
 		[ "$s" != finder ] || [ "$attended" -eq 0 ] || finder_allow
+		[ "$s" != finder ] || [ "$base" != golden-finder ] || finder_check
 		# the output is also kept in the guest (~/dmn-SUITE.log), so a long suite can be watched
-		"$tart_sh" exec "$name" -- "{ DMN_ONLY='$only' FINDER_REQUIRED=$attended sh ~/ntfsmac/dmn/$g ~/ntfsmac/dmn; echo \$? >~/dmn-$s.rc; } 2>&1 | tee ~/dmn-$s.log; exit \$(cat ~/dmn-$s.rc)" || rc=$?
+		"$tart_sh" exec "$name" -- "{ DMN_ONLY='$only' FINDER_REQUIRED=$require_finder sh ~/ntfsmac/dmn/$g ~/ntfsmac/dmn; echo \$? >~/dmn-$s.rc; } 2>&1 | tee ~/dmn-$s.log; exit \$(cat ~/dmn-$s.rc)" || rc=$?
 		[ "$s" != finder ] || copy_evidence
 		echo "######## suite $s: exit $rc"
 		[ "$rc" -eq 0 ] || echo 1 >"$tmp/failed"

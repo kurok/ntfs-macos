@@ -81,6 +81,13 @@ extern "C" {
 #define NTFSMAC_PATH_PROBE "/usr/local/libexec/ntfs-macos/ntfsmac-probe"
 #define NTFSMAC_PATH_VOLMARK "/usr/local/libexec/ntfs-macos/ntfsmac-volmark"
 #define NTFSMAC_PATH_WORKER "/usr/local/libexec/ntfs-macos/ntfsmac-worker"
+/*
+ * The one other program the worker's sandbox lets it exec (process-exec in
+ * integration/sandbox/worker.sb; a test keeps the two equal). A leftover of it is a leftover of
+ * the worker for the device sweep.
+ */
+#define NTFSMAC_PATH_MACFUSE_HELPER \
+	"/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/MacOS/macfuse"
 
 /* Sandbox profiles and the tool that applies them (ARCHITECTURE.md section 6). */
 #define NTFSMAC_PATH_SANDBOX_DIR "/Library/Application Support/ntfs-macos/sandbox"

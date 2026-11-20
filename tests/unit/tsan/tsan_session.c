@@ -224,7 +224,7 @@ static void *session_main(void *arg)
 		ntfsmac_errwatch_init(&w);
 		ntfsmac_errwatch_feed(&w, want_error ? bad : good, strlen(want_error ? bad : good));
 		ntfsmac_errwatch_eof(&w);
-		CHECK(ntfsmac_session_end(s, &w, true, 0, &er) == NTFSMAC_DMN_OK);
+		CHECK(ntfsmac_session_end(s, &w, true, 0, false, &er) == NTFSMAC_DMN_OK);
 		/*
 		 * A live session is never robbed of its entry: if the proof held, the removal found
 		 * the entry and the report is CLEAN. An unclean one leaves it for journal-clear.

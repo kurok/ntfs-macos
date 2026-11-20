@@ -378,7 +378,8 @@ static void jq_end(void *p)
 
 	if (a->note_error_first)
 		(void)ntfsmac_session_note_write_error(a->sess);
-	a->st = ntfsmac_session_end(a->sess, a->ew, a->unmount_first, a->exit_status, &a->res);
+	a->st = ntfsmac_session_end(a->sess, a->ew, a->unmount_first, a->exit_status,
+				   a->note_error_first, &a->res);
 }
 
 static void jq_note_error(void *p)
@@ -783,6 +784,7 @@ static void vol_teardown(vol *v, const td_args *a)
 	int exit_status = a->exit_status;
 	bool unmount_first, still_mounted = false, session_ok = true;
 	unsigned killed = 0;
+	bool device_held = false;
 	ntfsmac_dmn_status st;
 	ntfsmac_vol_state state = vol_state(v);
 	size_t i;
@@ -874,8 +876,10 @@ static void vol_teardown(vol *v, const td_args *a)
 
 	/* 5. Nothing of the worker's user may still hold the device. */
 	st = ntfsmac_child_device_check(&v->worker, &killed);
-	if (st != NTFSMAC_DMN_OK && st != NTFSMAC_DMN_E_STATE)
-		NTFSMAC_LOGE("%s: a process still holds the device (%s)", v->bsd, ntfsmac_dmn_status_name(st));
+	device_held = st != NTFSMAC_DMN_OK && st != NTFSMAC_DMN_E_STATE;
+	if (device_held)
+		NTFSMAC_LOGE("%s: a process still holds the device (%s): the session is not clean", v->bsd,
+			     ntfsmac_dmn_status_name(st));
 	if (killed > 0)
 		NTFSMAC_LOGW("%s: %u process(es) that held the device were killed", v->bsd, killed);
 
@@ -888,7 +892,9 @@ static void vol_teardown(vol *v, const td_args *a)
 		ea.ew = &v->ew;
 		ea.unmount_first = unmount_first;
 		ea.exit_status = exit_status;
-		ea.note_error_first = stray; /* "mark the session failed in the journal" */
+		/* "mark the session failed in the journal": a stray mount, or a holder of the device that
+		 * could not be cleared, so the entry and the marker stay and the next attach is ro. */
+		ea.note_error_first = stray || device_held;
 		dispatch_sync_f(g_journal_q, &ea, jq_end);
 		session_ok = ea.st == NTFSMAC_DMN_OK;
 		if (!session_ok)
@@ -905,7 +911,9 @@ static void vol_teardown(vol *v, const td_args *a)
 				       "The dirty marker could not be cleared. If the volume does not "
 				       "mount, run ntfsmac repair --sync-mirror or Windows chkdsk.");
 			else if (post && k == NTFSMAC_NOTIFY_SESSION_UNCLEAN) {
-				if (!v->write_error_noted)
+				if (device_held)
+					notify(v, k, "A program still had the drive open; see the log.");
+				else if (!v->write_error_noted)
 					notify(v, k, ea.res.report == NTFSMAC_SREPORT_CLEAR_FAILED
 							     ? "The dirty marker could not be cleared."
 							     : NULL);
@@ -1090,6 +1098,7 @@ static void settle_failed_spawn(vol *v, int rd, int wr)
 	}
 	if (v->mp_valid && mount_present(v->mp.path))
 		(void)ntfsmac_mw_force_unmount(v->mp.path, FORCE_UNMOUNT_MS);
+	/* A holder that remains changes nothing below: this session never gets a proof of a clean end. */
 	(void)ntfsmac_child_device_check(&v->worker, &killed);
 	if (wr >= 0)
 		close(wr);

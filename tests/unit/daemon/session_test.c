@@ -668,11 +668,11 @@ static void test_ro(void)
 		ntfsmac_session_end_result r;
 		ntfsmac_errwatch w = channel("", true);
 
-		CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, &r), NTFSMAC_DMN_OK);
+		CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, false, &r), NTFSMAC_DMN_OK);
 		CHECK_EQ_INT(r.report, NTFSMAC_SREPORT_RO_CLOSED);
 		CHECK_EQ_INT(count_open(&f), 0);
 		/* a second end is refused */
-		CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, &r), NTFSMAC_DMN_E_STATE);
+		CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, false, &r), NTFSMAC_DMN_E_STATE);
 	}
 	ntfsmac_session_free(b.s);
 	fake_done(&f);
@@ -1083,7 +1083,7 @@ static void test_marker_disabled(void)
 	CHECK_EQ_INT(b.res.mode, NTFSMAC_VMODE_RW);
 	CHECK_EQ_INT(f.vm_calls, 0);
 	CHECK(entry_is(&f, NTFSMAC_JOURNAL_MARKER_NONE, NTFSMAC_JOURNAL_STATE_OPEN));
-	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, &r), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, false, &r), NTFSMAC_DMN_OK);
 	CHECK_EQ_INT(r.report, NTFSMAC_SREPORT_CLEAN);
 	CHECK_EQ_INT(f.vm_calls, 0); /* no clear either */
 	CHECK(r.entry_removed && !entry_exists(&f));
@@ -1150,7 +1150,7 @@ static void test_end_clean(void)
 	fake_init(&f);
 	b = rw_session(&f, &c);
 	w = channel("S rw\nU 0\n", true);
-	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, &r), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, false, &r), NTFSMAC_DMN_OK);
 	CHECK_EQ_INT(r.report, NTFSMAC_SREPORT_CLEAN);
 	CHECK(r.entry_removed && !r.clear_interrupted);
 	CHECK(!entry_exists(&f));
@@ -1169,7 +1169,7 @@ static void test_end_clean(void)
 	fake_init(&f);
 	b = rw_session(&f, &c);
 	w = channel("S rw\nW flush 5\nU 0\n", true);
-	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, &r), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, false, &r), NTFSMAC_DMN_OK);
 	CHECK_EQ_INT(r.report, NTFSMAC_SREPORT_CLEAN_NO_FLUSH);
 	CHECK(r.entry_removed);
 	ntfsmac_session_free(b.s);
@@ -1180,7 +1180,7 @@ static void test_end_clean(void)
 	f.flush_ok = false;
 	b = rw_session(&f, &c);
 	w = channel("S rw\nU 0\n", true);
-	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, &r), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, false, &r), NTFSMAC_DMN_OK);
 	CHECK_EQ_INT(r.report, NTFSMAC_SREPORT_CLEAN_NO_FLUSH);
 	CHECK(r.entry_removed);
 	ntfsmac_session_free(b.s);
@@ -1190,12 +1190,12 @@ static void test_end_clean(void)
 	fake_init(&f);
 	b = rw_session(&f, &c);
 	w = channel("S rw\nU 0\n", true);
-	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, &r), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, false, &r), NTFSMAC_DMN_OK);
 	CHECK(r.entry_removed);
 	ntfsmac_session_free(b.s);
 	f.next_session_id = 2000;
 	b = rw_session(&f, &c);
-	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, &r), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, false, &r), NTFSMAC_DMN_OK);
 	CHECK_EQ_INT(r.report, NTFSMAC_SREPORT_UNCLEAN);
 	CHECK(!r.entry_removed && entry_exists(&f));
 	ntfsmac_session_free(b.s);
@@ -1234,7 +1234,7 @@ static void test_end_unclean(void)
 		fake_init(&f);
 		b = rw_session(&f, &c);
 		w = channel(cases[i].text, cases[i].eof);
-		CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, cases[i].unmount_first, cases[i].exit_status, &r),
+		CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, cases[i].unmount_first, cases[i].exit_status, false, &r),
 			     NTFSMAC_DMN_OK);
 		if (r.report != NTFSMAC_SREPORT_UNCLEAN)
 			fprintf(stderr, "case: %s\n", cases[i].what);
@@ -1289,7 +1289,7 @@ static void test_end_unmount_evidence(void)
 		fake_init(&f);
 		b = rw_session(&f, &c);
 		w = channel("S rw\nU 0\n", true);
-		CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, seen, 0, &r), NTFSMAC_DMN_OK);
+		CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, seen, 0, false, &r), NTFSMAC_DMN_OK);
 		if ((r.report == NTFSMAC_SREPORT_CLEAN) != cases[i].clean || r.entry_removed != cases[i].clean)
 			fprintf(stderr, "case: %s\n", cases[i].what);
 		CHECK_EQ_INT(r.report == NTFSMAC_SREPORT_CLEAN, cases[i].clean);
@@ -1314,11 +1314,41 @@ static void test_end_failures(void)
 	ntfsmac_session_end_result r;
 	ntfsmac_errwatch w = channel("S rw\nU 0\n", true);
 
+	/* force_unclean (a holder of the device that could not be cleared), journal update works:
+	 * UNCLEAN, no sync, no clear, the entry stays with state write_error and the marker set */
+	fake_init(&f);
+	b = rw_session(&f, &c);
+	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, true, &r), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(r.report, NTFSMAC_SREPORT_UNCLEAN);
+	CHECK(!r.entry_removed);
+	CHECK_EQ_INT(f.vm_calls, 1);
+	CHECK(entry_is(&f, NTFSMAC_JOURNAL_MARKER_SET, NTFSMAC_JOURNAL_STATE_WRITE_ERROR));
+	ntfsmac_session_free(b.s);
+	fake_done(&f);
+
+	/* force_unclean and the journal update itself fails (directory closed to writes): the state
+	 * stays `open`, which alone would let the proof pass, but the report is still UNCLEAN and
+	 * the entry and the marker stay */
+	if (geteuid() != 0) {
+		fake_init(&f);
+		b = rw_session(&f, &c);
+		CHECK_EQ_INT(chmod(g_jdir, 0500), 0);
+		CHECK_EQ_INT(ntfsmac_session_note_write_error(b.s), NTFSMAC_DMN_E_IO); /* the premise */
+		CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, true, &r), NTFSMAC_DMN_OK);
+		CHECK_EQ_INT(r.report, NTFSMAC_SREPORT_UNCLEAN);
+		CHECK(!r.entry_removed);
+		CHECK_EQ_INT(f.vm_calls, 1);
+		CHECK_EQ_INT(chmod(g_jdir, 0700), 0);
+		CHECK(entry_is(&f, NTFSMAC_JOURNAL_MARKER_SET, NTFSMAC_JOURNAL_STATE_OPEN));
+		ntfsmac_session_free(b.s);
+		fake_done(&f);
+	}
+
 	/* the daemon's fsync failed: not clean, no clear */
 	fake_init(&f);
 	f.sync_status = NTFSMAC_DMN_E_IO;
 	b = rw_session(&f, &c);
-	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, &r), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, false, &r), NTFSMAC_DMN_OK);
 	CHECK_EQ_INT(r.report, NTFSMAC_SREPORT_UNCLEAN);
 	CHECK_EQ_INT(f.vm_calls, 1);
 	CHECK(entry_exists(&f));
@@ -1330,7 +1360,7 @@ static void test_end_failures(void)
 	b = rw_session(&f, &c);
 	f.vm_status[1] = NTFSMAC_DMN_E_IO;
 	f.vm_exit[1] = 13;
-	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, &r), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, false, &r), NTFSMAC_DMN_OK);
 	CHECK_EQ_INT(r.report, NTFSMAC_SREPORT_CLEAR_FAILED);
 	CHECK(!r.clear_interrupted && !r.entry_removed);
 	CHECK(entry_is(&f, NTFSMAC_JOURNAL_MARKER_SET, NTFSMAC_JOURNAL_STATE_OPEN));
@@ -1342,7 +1372,7 @@ static void test_end_failures(void)
 	b = rw_session(&f, &c);
 	f.vm_status[1] = NTFSMAC_DMN_E_TIMEOUT;
 	f.vm_exit[1] = -2;
-	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, &r), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, false, &r), NTFSMAC_DMN_OK);
 	CHECK_EQ_INT(r.report, NTFSMAC_SREPORT_CLEAR_FAILED);
 	CHECK(r.clear_interrupted);
 	CHECK(entry_exists(&f));
@@ -1354,7 +1384,7 @@ static void test_end_failures(void)
 	b = rw_session(&f, &c);
 	f.vm_status[1] = NTFSMAC_DMN_E_TIMEOUT;
 	f.vm_exit[1] = -1;
-	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, &r), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, false, &r), NTFSMAC_DMN_OK);
 	CHECK_EQ_INT(r.report, NTFSMAC_SREPORT_CLEAR_FAILED);
 	CHECK(!r.clear_interrupted);
 	ntfsmac_session_free(b.s);
@@ -1364,7 +1394,7 @@ static void test_end_failures(void)
 	fake_init(&f);
 	b = rw_session(&f, &c);
 	CHECK_EQ_INT(ntfsmac_session_note_write_error(b.s), NTFSMAC_DMN_OK);
-	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, &r), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, false, &r), NTFSMAC_DMN_OK);
 	CHECK_EQ_INT(r.report, NTFSMAC_SREPORT_UNCLEAN);
 	CHECK_EQ_INT(f.vm_calls, 1);
 	CHECK(entry_exists(&f));
@@ -1377,7 +1407,7 @@ static void test_end_failures(void)
 	f.vm_exit[0] = 11;
 	b = do_begin(&f, &c, NTFSMAC_POLICY_RW);
 	CHECK_EQ_INT(b.res.mode, NTFSMAC_VMODE_RO);
-	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, &r), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, false, &r), NTFSMAC_DMN_OK);
 	CHECK_EQ_INT(r.report, NTFSMAC_SREPORT_RO_CLOSED);
 	CHECK_EQ_INT(f.vm_calls, 1);
 	CHECK(entry_is(&f, NTFSMAC_JOURNAL_MARKER_FAILED, NTFSMAC_JOURNAL_STATE_OPEN));
@@ -1385,12 +1415,12 @@ static void test_end_failures(void)
 	fake_done(&f);
 
 	/* arguments */
-	CHECK_EQ_INT(ntfsmac_session_end(NULL, &w, true, 0, &r), NTFSMAC_DMN_E_INVAL);
+	CHECK_EQ_INT(ntfsmac_session_end(NULL, &w, true, 0, false, &r), NTFSMAC_DMN_E_INVAL);
 	fake_init(&f);
 	b = rw_session(&f, &c);
-	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, NULL), NTFSMAC_DMN_E_INVAL);
+	CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, false, NULL), NTFSMAC_DMN_E_INVAL);
 	/* no channel at all: unclean */
-	CHECK_EQ_INT(ntfsmac_session_end(b.s, NULL, true, 0, &r), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(ntfsmac_session_end(b.s, NULL, true, 0, false, &r), NTFSMAC_DMN_OK);
 	CHECK_EQ_INT(r.report, NTFSMAC_SREPORT_UNCLEAN);
 	ntfsmac_session_free(b.s);
 	ntfsmac_session_free(NULL);

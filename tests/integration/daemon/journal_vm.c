@@ -578,7 +578,7 @@ static void case_rw(void)
 	if (mount_session(&m, s, "rw")) {
 		CHECK(!m.mounted_ro, "the worker mounted read/write");
 		settle(&m, s, "rw", false, true, &um, &xs);
-		CHECK(ntfsmac_session_end(s, &m.w, um, xs, &er) == NTFSMAC_DMN_OK, "session_end ran");
+		CHECK(ntfsmac_session_end(s, &m.w, um, xs, false, &er) == NTFSMAC_DMN_OK, "session_end ran");
 		CHECK(er.report == NTFSMAC_SREPORT_CLEAN || er.report == NTFSMAC_SREPORT_CLEAN_NO_FLUSH,
 		      "the report is a clean end (%d)", (int)er.report);
 		CHECK(er.entry_removed && !entry_get(j, ENTRY_SERIAL(at.v), &e), "the entry was removed (path 1)");
@@ -622,7 +622,7 @@ static void case_unclean(void)
 	}
 	if (mount_session(&m, s, "unclean")) {
 		settle(&m, s, "unclean", true, false, &um, &xs);
-		CHECK(ntfsmac_session_end(s, &m.w, um, xs, &er) == NTFSMAC_DMN_OK && er.report == NTFSMAC_SREPORT_UNCLEAN,
+		CHECK(ntfsmac_session_end(s, &m.w, um, xs, false, &er) == NTFSMAC_DMN_OK && er.report == NTFSMAC_SREPORT_UNCLEAN,
 		      "the end is unclean (report %d)", (int)er.report);
 		CHECK(!er.entry_removed && entry_get(j, ENTRY_SERIAL(at.v), &e) && e.marker == NTFSMAC_JOURNAL_MARKER_SET,
 		      "the entry and marker=set stay");
@@ -686,7 +686,7 @@ static void case_markfail(void)
 		if (mount_session(&m, s, "markfail")) {
 			CHECK(m.mounted_ro, "%s: the worker mounted read-only", cases[i].what);
 			settle(&m, s, "markfail", false, false, &um, &xs);
-			CHECK(ntfsmac_session_end(s, &m.w, um, xs, &er) == NTFSMAC_DMN_OK && er.report == NTFSMAC_SREPORT_RO_CLOSED,
+			CHECK(ntfsmac_session_end(s, &m.w, um, xs, false, &er) == NTFSMAC_DMN_OK && er.report == NTFSMAC_SREPORT_RO_CLOSED,
 			      "%s: the ro session closes", cases[i].what);
 		}
 		ntfsmac_session_free(s);
@@ -870,7 +870,7 @@ static bool make_unclean(ntfsmac_journal *j, attach *at)
 	}
 	ntfsmac_errwatch_init(&w);
 	ntfsmac_errwatch_eof(&w); /* a channel with no record: silence is not a clean end */
-	(void)ntfsmac_session_end(s, &w, false, -1, &er);
+	(void)ntfsmac_session_end(s, &w, false, -1, false, &er);
 	ntfsmac_session_free(s);
 	return er.report == NTFSMAC_SREPORT_UNCLEAN;
 }

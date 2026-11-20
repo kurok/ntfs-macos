@@ -117,8 +117,10 @@ static void spawn_grandchild(void)
  * leaves the session (setsid). Both keep running. Reported: "tree <worker> <child> <grandchild>".
  * worker-orphan: one child that leaves the group; the worker exits after a moment, and the child
  * stays behind with the descriptors it inherited. Reported: "orphan <worker> <child>".
+ * worker-orphan-exec: as worker-orphan, but the child then execs /bin/sleep (another binary) and
+ * keeps the descriptors.
  */
-static void spawn_leavers(bool deep)
+static void spawn_leavers(bool deep, bool exec_other)
 {
 	pid_t c, g = 0;
 	int p[2];
@@ -137,6 +139,10 @@ static void spawn_leavers(bool deep)
 			}
 			if (write(p[1], &g, sizeof(g)) != (ssize_t)sizeof(g))
 				_exit(1);
+		}
+		if (exec_other) { /* keeps every descriptor, runs a program that is not the worker */
+			execl("/bin/sleep", "sleep", "600", (char *)NULL);
+			_exit(1);
 		}
 		for (;;)
 			sleep(60);
@@ -289,12 +295,12 @@ static int do_worker(int argc, char **argv, const char *mode)
 	if (ef >= 0 && write(ef, "S rw\n", 5) != 5)
 		return 4;
 	if (!strcmp(mode, "worker-tree")) {
-		spawn_leavers(true);
+		spawn_leavers(true, false);
 		for (;;)
 			sleep(60);
 	}
-	if (!strcmp(mode, "worker-orphan")) {
-		spawn_leavers(false);
+	if (!strcmp(mode, "worker-orphan") || !strcmp(mode, "worker-orphan-exec")) {
+		spawn_leavers(false, strcmp(mode, "worker-orphan-exec") == 0);
 		usleep(300000);
 		return 0;
 	}

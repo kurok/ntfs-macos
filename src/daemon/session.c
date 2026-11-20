@@ -685,7 +685,7 @@ ntfsmac_dmn_status ntfsmac_session_note_write_error(ntfsmac_session *s)
 }
 
 ntfsmac_dmn_status ntfsmac_session_end(ntfsmac_session *s, const ntfsmac_errwatch *w,
-				       bool unmount_seen_first, int worker_exit_status,
+				       bool unmount_seen_first, int worker_exit_status, bool force_unclean,
 				       ntfsmac_session_end_result *res)
 {
 	ntfsmac_volmark_run run;
@@ -711,7 +711,9 @@ ntfsmac_dmn_status ntfsmac_session_end(ntfsmac_session *s, const ntfsmac_errwatc
 	}
 
 	/* Rule 1 of section 3.5, one condition after the other; the first that fails keeps the entry. */
-	if (w == NULL || !ntfsmac_errwatch_clean_proof(w, unmount_seen_first, false,
+	if (force_unclean) /* best effort; the report does not depend on the journal write */
+		(void)ntfsmac_session_note_write_error(s);
+	if (force_unclean || w == NULL || !ntfsmac_errwatch_clean_proof(w, unmount_seen_first, false,
 						       worker_exit_status) ||
 	    s->entry.state != NTFSMAC_JOURNAL_STATE_OPEN) {
 		res->report = NTFSMAC_SREPORT_UNCLEAN;

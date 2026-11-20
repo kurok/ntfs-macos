@@ -36,6 +36,8 @@
 #endif
 
 #include "spawn_config.h"
+#include "spawn_holder.h"
+#include "ntfsmac/log.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -292,6 +294,22 @@ static int proc_children(pid_t ppid, pid_t *out, int cap)
 	return n < 0 ? -1 : (n > cap ? cap : n);
 }
 
+/* The parent pid of `pid`, or -1. */
+static pid_t proc_parent_of(pid_t pid)
+{
+	struct proc_bsdinfo bi;
+
+	if (proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &bi, (int)sizeof(bi)) != (int)sizeof(bi))
+		return -1;
+	return (pid_t)bi.pbi_ppid;
+}
+
+/* The executable path of `pid` into `buf`; false if it cannot be read. */
+static bool proc_exe_of(pid_t pid, char *buf, size_t cap)
+{
+	return cap > 0 && proc_pidpath(pid, buf, (uint32_t)cap) > 0;
+}
+
 /* The pids of the processes owned by `uid`, in a malloc'd array; NULL on error. */
 static pid_t *proc_pids_of_uid(uid_t uid, int *count)
 {
@@ -378,6 +396,20 @@ static pid_t proc_parent_of(pid_t pid)
 	if (sscanf(p + 1, " %*c %ld", &ppid) != 1)
 		return -1;
 	return (pid_t)ppid;
+}
+
+/* The executable path of `pid` into `buf`; false if it cannot be read. */
+static bool proc_exe_of(pid_t pid, char *buf, size_t cap)
+{
+	char link[64];
+	ssize_t n;
+
+	snprintf(link, sizeof(link), "/proc/%d/exe", (int)pid);
+	n = cap > 1 ? readlink(link, buf, cap - 1) : -1;
+	if (n <= 0)
+		return false;
+	buf[n] = '\0';
+	return true;
 }
 
 static int proc_children(pid_t ppid, pid_t *out, int cap)
@@ -521,16 +553,72 @@ static void kill_group_of(pid_t pid)
 	kill_tree(pid);
 }
 
-/*
- * No process of `owner` may hold the device `id` after the worker is gone. Each one that does is
- * killed, and the table is read again until a round finds none (HOLD_ROUNDS looks, 20 ms
- * apart). The daemon itself is never touched, and only the processes of `owner` are looked at.
- */
-static ntfsmac_dmn_status device_free(uid_t owner, const dev_ident *id, unsigned *killed)
+/* Fill `h` for `pid`: its parent chain and its executable path (stored in `exe`). */
+static void holder_describe(pid_t pid, ntfsmac_holder *h, char *exe, size_t exe_cap)
 {
-	pid_t done[HOLD_KILLED_MAX];
-	unsigned ndone = 0, round;
+	pid_t p = pid;
 
+	memset(h, 0, sizeof(*h));
+	h->pid = pid;
+	while (h->nancestors < NTFSMAC_HOLDER_ANC_MAX) {
+		p = proc_parent_of(p);
+		if (p <= 1)
+			break;
+		h->ancestors[h->nancestors++] = p;
+	}
+	h->exe = proc_exe_of(pid, exe, exe_cap) ? exe : NULL;
+	if (h->exe != NULL) {
+		struct stat st;
+
+		if (stat(h->exe, &st) == 0) {
+			h->exe_known = true;
+			h->exe_id.dev = st.st_dev;
+			h->exe_id.ino = st.st_ino;
+		}
+	}
+}
+
+/* Add the identity of the file `path` to `ids`, if it can be stat'ed. */
+static void exe_id_add(ntfsmac_exe_id *ids, unsigned *n, const char *path)
+{
+	struct stat st;
+
+	if (path != NULL && stat(path, &st) == 0) {
+		ids[*n].dev = st.st_dev;
+		ids[*n].ino = st.st_ino;
+		(*n)++;
+	}
+}
+
+/*
+ * No process of `owner` may hold the device `id` after the worker is gone, and only leftovers of
+ * the worker are killed. A holder is killed only if ntfsmac_holder_is_worker_leftover() says so:
+ * its executable file (device and inode of stat(proc_pidpath), not the name) is the worker binary
+ * cfg.worker_path or the macFUSE helper the sandbox lets the worker exec; or, while the worker is
+ * alive (`worker_pid` > 1; callers pass -1 once it is reaped, its descendants are reparented and
+ * the pid could be reused), the worker or a descendant of it. The match of the device is only the
+ * vnode's number and libproc has no access mode of a descriptor, so every other holder (an lsof,
+ * diskutil or backup agent that merely opened the device, or a process whose executable cannot
+ * be read) is NOT killed: it is logged once at warning level with its pid and executable path.
+ * It still counts as holding the device, because the sweep cannot show that it is not a worker
+ * leftover: the table is read again until a round finds no holder (HOLD_ROUNDS looks, 20 ms
+ * apart, so a reader that exits meanwhile is fine), and a holder still there gives
+ * NTFSMAC_DMN_E_BUSY. The caller must then not report the session clean, so the next attach is
+ * read-only. A worker binary replaced by an upgrade while a leftover of the old one runs no
+ * longer matches by inode: the leftover is kept, warned about and gives BUSY (fail closed). The
+ * daemon itself is never touched, and only the processes of `owner` are looked at.
+ */
+static ntfsmac_dmn_status device_free(uid_t owner, const dev_ident *id, pid_t worker_pid,
+				      unsigned *killed)
+{
+	pid_t done[HOLD_KILLED_MAX], warned[HOLD_KILLED_MAX];
+	unsigned ndone = 0, nwarned = 0, round, nknown = 0;
+	ntfsmac_exe_id known[2];
+	ntfsmac_spawn_config cfg;
+
+	config_get(&cfg);
+	exe_id_add(known, &nknown, cfg.worker_path);
+	exe_id_add(known, &nknown, NTFSMAC_PATH_MACFUSE_HELPER);
 	if (killed != NULL)
 		*killed = 0;
 	for (round = 0; round < HOLD_ROUNDS; round++) {
@@ -541,9 +629,22 @@ static ntfsmac_dmn_status device_free(uid_t owner, const dev_ident *id, unsigned
 		if (pids == NULL)
 			return NTFSMAC_DMN_E_IO;
 		for (i = 0; i < n; i++) {
+			ntfsmac_holder h;
+			char exe[PATH_MAX];
+
 			if (pids[i] <= 1 || pids[i] == getpid() || !proc_holds_device(pids[i], id))
 				continue;
+			holder_describe(pids[i], &h, exe, sizeof(exe));
 			held++;
+			if (!ntfsmac_holder_is_worker_leftover(&h, worker_pid, known, nknown)) {
+				if (nwarned < HOLD_KILLED_MAX && !pid_listed(warned, nwarned, pids[i])) {
+					warned[nwarned++] = pids[i];
+					NTFSMAC_LOGW("device holder not killed (not the worker or its leftover): "
+						     "pid %d, executable %s", (int)pids[i],
+						     h.exe != NULL ? h.exe : "(unreadable)");
+				}
+				continue;
+			}
 			(void)kill(pids[i], SIGKILL);
 			if (ndone < HOLD_KILLED_MAX && !pid_listed(done, ndone, pids[i]))
 				done[ndone++] = pids[i];
@@ -1543,14 +1644,14 @@ static bool usermapping_file_ok(void)
 }
 
 /* The worker is gone: nothing of the user may keep its device (the result is for the later check). */
-static void worker_gone(const ntfsmac_child *child)
+static void worker_gone(const ntfsmac_child *child, pid_t worker_pid)
 {
 	if (child->dev_known) {
 		dev_ident id;
 
 		id.dev = child->dev_dev;
 		id.ino = child->dev_ino;
-		(void)device_free(child->owner, &id, NULL);
+		(void)device_free(child->owner, &id, worker_pid, NULL);
 	}
 }
 
@@ -1692,8 +1793,7 @@ ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
 			int wst;
 
 			kill_group_of(pid);
-			(void)reap_bounded(pid, &wst, REAP_WAIT_MS);
-			worker_gone(child);
+			worker_gone(child, reap_bounded(pid, &wst, REAP_WAIT_MS) ? -1 : pid);
 			return NTFSMAC_DMN_E_IO;
 		}
 		if (now_ms() >= deadline) {
@@ -1703,7 +1803,7 @@ ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
 			if (!reap_bounded(pid, &wst, REAP_WAIT_MS))
 				child->pid = pid; /* stuck: the caller keeps polling */
 			else
-				worker_gone(child);
+				worker_gone(child, -1); /* reaped: its pid may be reused */
 			return NTFSMAC_DMN_E_TIMEOUT;
 		}
 		sleep_ms(cfg.mount_poll_ms);
@@ -1740,7 +1840,7 @@ ntfsmac_dmn_status ntfsmac_child_poll(ntfsmac_child *child, bool *exited, int *e
 	*exited = true;
 	*exit_status = exit_code_of(wst);
 	child->pid = -1;
-	worker_gone(child);
+	worker_gone(child, -1); /* reaped: its pid may be reused */
 	return NTFSMAC_DMN_OK;
 }
 
@@ -1769,5 +1869,5 @@ ntfsmac_dmn_status ntfsmac_child_device_check(const ntfsmac_child *child, unsign
 		return NTFSMAC_DMN_E_STATE;
 	id.dev = child->dev_dev;
 	id.ino = child->dev_ino;
-	return device_free(child->owner, &id, killed);
+	return device_free(child->owner, &id, child->pid, killed);
 }

@@ -536,8 +536,47 @@ static void test_worker(void)
 		CHECK_EQ_INT(killed, 0);
 	}
 
-	/* U-SPN-32: the device check kills a holder of the device that belongs to the user of the worker,
-	 * and looks at no process of another user; a process that does not hold the device is left. */
+	/* U-SPN-33 (issue 1): the worker exits and leaves an orphan that exec'd another program
+	 * (/bin/sleep, not the worker binary) and kept the device descriptor. It is not a leftover by
+	 * the rules, so it is not killed, and the check reports it as still holding the device. */
+	{
+		pid_t t[3] = { 0, 0, 0 };
+		unsigned killed = 99;
+
+		link_as("worker-orphan-exec");
+		new_err_file();
+		c.child_stderr_fd = g_err_fd;
+		c.worker_path = path_of("worker-orphan-exec");
+		ntfsmac_spawn_config_set(&c);
+		g_polls = 0;
+		g_polls_until_mount = 0;
+		run = worker_run(dev, -1, false, 5);
+		CHECK_EQ_INT(ntfsmac_spawn_worker(&run, &child, &ro), NTFSMAC_DMN_OK);
+		CHECK_EQ_INT(read_tagged(g_err_path, "orphan", t, 2), 2);
+		CHECK(t[1] > 1);
+		exited = false;
+		for (i = 0; i < 300 && !exited; i++) {
+			(void)ntfsmac_child_poll(&child, &exited, &status);
+			usleep(10000);
+		}
+		CHECK(exited);
+		usleep(100000); /* the orphan has exec'd by now */
+		CHECK(kill(t[1], 0) == 0);
+		CHECK_EQ_INT(ntfsmac_child_device_check(&child, &killed), NTFSMAC_DMN_E_BUSY);
+		CHECK_EQ_INT(killed, 0);
+		CHECK(kill(t[1], 0) == 0);
+		(void)kill(t[1], SIGKILL);
+		for (i = 0; i < 300 && !gone(t[1]); i++)
+			usleep(10000);
+		CHECK(gone(t[1]));
+		CHECK_EQ_INT(ntfsmac_child_device_check(&child, &killed), NTFSMAC_DMN_OK);
+	}
+
+	/* U-SPN-32 (issue 1, audit M4 F-02): the device check looks at no process of another user and
+	 * leaves a process that does not hold the device. A holder of the device that is the user's
+	 * but is neither the worker nor running the worker binary (this test process's own child: it
+	 * only inherited the descriptor) is not killed; it still holds the device, so the check is
+	 * not OK (BUSY, fail closed). The decision itself is tested in test_holder (U-HLD-*). */
 	{
 		int hp[2];
 		pid_t holder, bystander;
@@ -567,9 +606,11 @@ static void test_worker(void)
 		CHECK_EQ_INT(ntfsmac_child_device_check(&other, &killed), NTFSMAC_DMN_OK);
 		CHECK_EQ_INT(killed, 0);
 		CHECK(kill(holder, 0) == 0);
-		CHECK_EQ_INT(ntfsmac_child_device_check(&child, &killed), NTFSMAC_DMN_OK);
+		CHECK_EQ_INT(ntfsmac_child_device_check(&child, &killed), NTFSMAC_DMN_E_BUSY);
 		/* the test process holds `dev` too, but the check never touches its own process */
-		CHECK_EQ_INT(killed, 1);
+		CHECK_EQ_INT(killed, 0);
+		CHECK(kill(holder, 0) == 0);
+		(void)kill(holder, SIGKILL);
 		CHECK_EQ_INT(waitpid(holder, &status, 0), holder);
 		CHECK(WIFSIGNALED(status) && WTERMSIG(status) == SIGKILL);
 		CHECK(kill(bystander, 0) == 0);

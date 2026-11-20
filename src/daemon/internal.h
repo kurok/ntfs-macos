@@ -280,15 +280,21 @@ ntfsmac_dmn_status ntfsmac_child_kill_group(ntfsmac_child *child);
  * To be called after the worker is gone and before the volume is reported detached: no process
  * of the worker's user may still hold the device. A descendant that left the group and lost its
  * parent cannot be found by walking the tree, but it still holds the descriptor it inherited.
- * The call scans the processes of that user (not of others) for the device, sends SIGKILL to
- * each one that holds it and looks again, 25 times 20 ms at most. `*killed` (may be NULL) counts
- * the processes it killed. ntfsmac_child_poll() does this when it reports an exit, and
- * ntfsmac_spawn_worker() when it gives up on a worker; the daemon calls it once more before the
- * volume is reported detached, with the handle of the worker. The device is the one
- * of the descriptor the last ntfsmac_spawn_worker() call was given, so no new worker of the same
- * volume may be running.
+ * The call scans the processes of that user (not of others) for the device and looks again, 25
+ * times 20 ms at most. It sends SIGKILL only to a leftover of the worker: a process running the
+ * worker binary or the macFUSE helper (same device and inode as cfg.worker_path or
+ * NTFSMAC_PATH_MACFUSE_HELPER), or, while the worker is alive, the worker and its descendants.
+ * Every other holder (lsof, diskutil, a backup agent, a process whose executable cannot be read,
+ * a leftover of a worker binary that was replaced since) is not killed and is logged at warning
+ * level with pid and executable path, but it still counts as holding the device. `*killed` (may
+ * be NULL) counts the processes it killed. ntfsmac_child_poll() does this when it reports an
+ * exit, and ntfsmac_spawn_worker() when it gives up on a worker (both ignore the result); the
+ * daemon calls it once more before the volume is reported detached, with the handle of the
+ * worker, and a non-OK result there makes the session unclean (state write_error; the entry and
+ * the marker stay, so the next attach is read-only). The device is the one of the descriptor the
+ * last ntfsmac_spawn_worker() call was given, so no new worker of the same volume may be running.
  *   OK      no process holds the device.
- *   BUSY    one still did after the last round.
+ *   BUSY    a process still did after the last round (killed leftover or not).
  *   STATE   the handle has no device (no worker was started with it).
  *   IO      the process table could not be read.
  */
@@ -694,10 +700,13 @@ typedef struct ntfsmac_session_end_result {
  * device sync (`fsync`) succeeded, and `volmark clear` exited 0 (skipped when marker=none).
  * Then the entry is removed (path 1). Anything less leaves the entry and the flag in place
  * ("silence is never success"). An `E` record or a protocol error also records state=write_error.
+ * `force_unclean` (a stray mount, or a holder of the device that could not be cleared) is a hard
+ * "not clean": the report is UNCLEAN and the entry and marker stay, whatever the proof and the
+ * state of the journal entry say (also if recording state=write_error failed).
  * Closes the descriptor. The session stays allocated until ntfsmac_session_free().
  */
 ntfsmac_dmn_status ntfsmac_session_end(ntfsmac_session *s, const ntfsmac_errwatch *w,
-				       bool unmount_seen_first, int worker_exit_status,
+				       bool unmount_seen_first, int worker_exit_status, bool force_unclean,
 				       ntfsmac_session_end_result *res);
 void ntfsmac_session_free(ntfsmac_session *s); /* closes the descriptor if end() did not */
 

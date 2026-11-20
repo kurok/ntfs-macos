@@ -4,6 +4,13 @@
 # probe, volmark and the worker; its behaviour is chosen by the base name of
 # the path it is started under (the test makes one symlink per behaviour).
 
+# Issue 1 (audit M4 F-02): which holder of the device the sweep may kill, with a fake holder list
+# (U-HLD-*). Pure code, so no test seams are needed.
+add_executable(test_holder test_holder.c)
+target_include_directories(test_holder PRIVATE ${PROJECT_SOURCE_DIR}/tests/unit/daemon)
+target_link_libraries(test_holder PRIVATE ntfsmac_daemon)
+add_test(NAME daemon.spawn_holder COMMAND test_holder ${PROJECT_SOURCE_DIR}/integration/sandbox)
+
 # The tests set the test seams of spawn_config.h, which a product build does not have
 # (NTFSMAC_TEST_SEAMS=OFF, preset `product`); that build compiles the library and runs no spawn test.
 if(NOT NTFSMAC_TEST_SEAMS)

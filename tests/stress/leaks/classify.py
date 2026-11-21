@@ -383,7 +383,8 @@ def finalize(d, repo, started=None, project_images=()):
     with open(os.path.join(d, "classification.json"), "w", encoding="utf-8") as f:
         json.dump({"series": pmap.get("series"), "scans": scans, "control": control, "meta": meta}, f, indent=1)
         f.write("\n")
-    lines = ["S-LEAK-01 %s" % status_main.upper(), ""]
+    # the same id as the result file: a shortened run must not print the criterion id (M5-F04)
+    lines = ["S-LEAK-01%s %s" % ("" if is_criterion(meta) else "-SHORT", status_main.upper()), ""]
     lines += notes
     lines += ["", "control: %s" % control["detail"], ""]
     for s in scans:

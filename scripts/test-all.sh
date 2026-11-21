@@ -267,6 +267,13 @@ finish() {
 		_dirty=true
 		record tree-state pass 0 "the working tree became dirty during the run: result marked dirty" ""
 	fi
+	# the run mode, for the gate (ci-local.sh --verify-result accepts only `full`): case STAGE-<ENV>-MODE
+	_mode=full
+	[ "$quick" -eq 0 ] || _mode=quick
+	if [ -n "$cases" ]; then
+		if [ "$quick" -eq 1 ]; then _mode="quick cases=$cases"; else _mode="cases=$cases"; fi
+	fi
+	record mode pass 0 "$_mode" ""
 	set -- aggregate --env "$env_name" --work "$work" --started "$started" --git-sha "$git_sha" --dirty "$_dirty"
 	[ ! -d "$work/b" ] || set -- "$@" --work "$work/b"
 	[ -z "$out" ] || set -- "$@" --out "$out"

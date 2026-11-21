@@ -1,0 +1,39 @@
+# Cases that must be present and `pass` in the result files of the M5 gate
+# (scripts/ci-local.sh --verify-result ... --require-env host,A,B --milestone M5; TEST_STRATEGY.md section 10).
+# One case id per line; # starts a comment. A skip, an absent case or a failure rejects the gate.
+# This list checks presence and status only. It does not check the parameters of the run
+# (6 h soak, 20 kill repetitions, 50 leak iterations, ...): that is finding M5-F04 and is open.
+# It does not cover the performance criterion 5.6 (the P-* cases, tests/perf).
+# Every id here must be one that a real result builder writes as `pass`
+# (tests/unit/ci/gate_cases_check.py checks this; S-*-RUN cases exist only on failure and are not listed).
+
+# soak and its negative control
+S-SOAK-01
+S-SOAK-01-CONTROL
+
+# parallel access
+S-PAR-01
+S-PAR-01-CONTROL
+
+# leaks
+S-LEAK-01
+S-LEAK-01-CONTROL
+
+# low disk space and its negative controls
+S-NOSPC-01
+S-NOSPC-02
+
+# kills: worker, daemon, macFUSE module process, force-detach, controls, the run
+S-KILL-01
+S-KILL-02
+S-KILL-03
+S-KILL-04
+S-KILL-05
+S-KILL-RUN
+
+# disconnect (yank) workloads and their controls
+S-DISC-01
+S-DISC-02
+S-DISC-03
+S-DISC-04
+S-DISC-05

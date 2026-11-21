@@ -503,6 +503,56 @@ class TestAllStubbedTest(unittest.TestCase):
         self.assertEqual(by["STAGE-HOST-BUILD-ASAN"]["status"], "skip")
         self.assertEqual(self.leftovers(), [])  # the work directory is removed after a good run
 
+    def test_mode_record_full_quick_cases(self):
+        """STAGE-HOST-MODE says which kind of run wrote the file (ci-local --verify-result accepts only full)."""
+        for name, args, want in (("full.json", (), "full"), ("quick.json", ("--quick",), "quick"),
+                                 ("cases.json", ("--cases", "X-*"), "cases=X-*")):
+            out = os.path.join(self.d, name)
+            self.run_all(HOST_STUBS, "--env", "host", "--out", out, *args)
+            _doc, by = self.result(name)
+            self.assertEqual(by["STAGE-HOST-MODE"]["status"], "pass", name)
+            self.assertEqual(by["STAGE-HOST-MODE"]["note"], want, name)
+
+    @unittest.skipUnless(subprocess.run(["git", "-C", REPO, "rev-parse", "--verify", "-q", "HEAD"],
+                                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0,
+                         "no git checkout (the Linux container): the gate needs a commit; runs in the host ctest")
+    def test_real_full_host_result_passes_the_gate_stage_and_mode_rules(self):
+        """A real (stubbed-command) full host result, through ci-local --verify-result with the REAL plan: the
+        by-design skips of the plan (harness, stress) and the mode record are accepted. It would have failed
+        while the gate and test-all.sh disagreed about the note of the host harness skip."""
+        out = os.path.join(self.d, "r.json")
+        r = self.run_all(HOST_STUBS, "--env", "host", "--out", out)
+        self.assertEqual(r.returncode, 0, r.stderr.decode())
+        doc, by = self.result()
+        self.assertEqual(by["STAGE-HOST-HARNESS"]["status"], "skip")
+        self.assertEqual(by["STAGE-HOST-STRESS"]["status"], "skip")
+        git_sha = subprocess.run(["git", "-C", REPO, "rev-parse", "HEAD"], stdout=subprocess.PIPE).stdout.decode().strip()
+        doc["git_sha"], doc["dirty_tree"] = git_sha, False  # the tree under test is this checkout, maybe dirty
+        res = os.path.join(self.d, "2026-11-20-%s-host.json" % git_sha[:7])
+        with open(res, "w") as f:
+            json.dump(doc, f)
+        ci_doc = dict(doc, cases=[{"id": "STAGE-HOST-TSAN", "status": "pass", "duration_s": 1, "evidence": [], "note": None},
+                                  {"id": "STAGE-HOST-STATIC-ANALYSIS", "status": "pass", "duration_s": 1, "evidence": [],
+                                   "note": None}])
+        ci_res = os.path.join(self.d, "2026-11-20-%s-host-ci.json" % git_sha[:7])
+        with open(ci_res, "w") as f:
+            json.dump(ci_doc, f)
+        e = dict(os.environ, TMPDIR=os.path.join(self.d, "tmp"))
+        e.pop("CI_LOCAL_TEST_ALL", None)
+        cmd = ["sh", os.path.join(REPO, "scripts", "ci-local.sh"), "--verify-result", res, "--pre-commit",
+               "--require-env", "host"]
+        g = subprocess.run(cmd + ["--verify-result", ci_res], cwd=REPO, env=e, stdout=subprocess.PIPE,
+                           stderr=subprocess.STDOUT)
+        self.assertEqual(g.returncode, 0, g.stdout.decode())
+        self.assertIn("verify-result: PASSED", g.stdout.decode())
+        # the same result without the -ci file only lacks the own stages: no stage or mode complaint
+        g = subprocess.run(cmd, cwd=REPO, env=e, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        txt = g.stdout.decode()
+        self.assertEqual(g.returncode, 1, txt)
+        self.assertIn("lacks the stage case(s): STAGE-HOST-TSAN, STAGE-HOST-STATIC-ANALYSIS", txt)
+        for bad in ("not passed", "not a full run", "run-mode"):
+            self.assertNotIn(bad, txt)
+
     def test_failure_does_not_stop_the_run(self):
         out = os.path.join(self.d, "r.json")
         r = self.run_all(HOST_STUBS, "--env", "host", "--quick", "--out", out, STUB_CTEST_RC="1")

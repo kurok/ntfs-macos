@@ -239,7 +239,11 @@ cat >"$work/stub.sh" <<'STUB'
 #!/bin/sh
 # stub of scripts/test-all.sh: --env E --out FILE [--dry-run ...]
 # STUB_FAIL=E: a stage of E fails (exit 1); STUB_NOFILE=E: exit 0 without a result file;
-# STUB_MISSING=E: the result of E lacks its last plan stage
+# STUB_MISSING=E: the result of E lacks its last plan stage; STUB_MODE=TEXT: the run mode recorded (default
+# full); STUB_NOMODE=E: the result of E has no mode record; STUB_SKIP=CASE-ID: that case is a skip with the
+# note STUB_SKIPNOTE (default: the note of the real plan for the by-design skips); STUB_EXTRA="ID:status ...":
+# more cases in the result (stress and harness cases merged into a real result). The plan of env host is the
+# REAL one (STUB_REAL_TEST_ALL --env host --dry-run), notes of the by-design skips included.
 env=; out=; dry=0
 while [ $# -gt 0 ]; do
 	case $1 in
@@ -251,7 +255,7 @@ while [ $# -gt 0 ]; do
 done
 plan() {
 	case $1 in
-	host) echo "build-release unit-release" ;;
+	host) sh "$STUB_REAL_TEST_ALL" --env host --dry-run | sed -n 's/^ *[0-9][0-9]*  \([^ ]*\) .*/\1/p' ;;
 	A) echo "preflight selftest harness" ;;
 	B) echo "preflight build-release integration" ;;
 	esac
@@ -259,6 +263,7 @@ plan() {
 if [ $dry = 1 ]; then
 	echo "test-all plan: env=$env"
 	n=0
+	if [ "$env" = host ]; then sh "$STUB_REAL_TEST_ALL" --env host --dry-run; exit 0; fi
 	for s in $(plan "$env"); do n=$((n + 1)); printf '%2d  %-22s something\n' "$n" "$s"; done
 	echo "dry run: nothing was run"
 	exit 0
@@ -276,6 +281,24 @@ if os.environ.get("STUB_MISSING") == env:
     names = names[:-1]
 st = "fail" if os.environ.get("STUB_FAIL") == env else "pass"
 cases = [{"id": report.stage_case_id(env, n), "status": st, "duration_s": 1, "evidence": [], "note": None} for n in names]
+import re
+by_design = {}
+if env == "host":  # what the real plan declares as skipped, with its notes
+    real = subprocess.run(["sh", os.environ["STUB_REAL_TEST_ALL"], "--env", "host", "--dry-run"], stdout=subprocess.PIPE).stdout.decode()
+    for n, note in re.findall(r"^\s*\d+ {2}(\S+) .*? {2}\[([^\]]+)\]\s*$", real, re.M):
+        by_design[report.stage_case_id(env, n)] = note
+for x in os.environ.get("STUB_EXTRA", "").split():
+    i, st_ = x.rsplit(":", 1)
+    cases.append({"id": i, "status": st_, "duration_s": 1, "evidence": [], "note": "why" if st_ == "skip" else None})
+skip = os.environ.get("STUB_SKIP", "")
+for c in cases:
+    if c["id"] in by_design and c["status"] == "pass":
+        c["status"], c["note"] = "skip", by_design[c["id"]]
+    if c["id"] == skip:
+        c["status"], c["note"] = "skip", os.environ.get("STUB_SKIPNOTE") or by_design.get(skip, "some note")
+if os.environ.get("STUB_NOMODE") != env:
+    cases.append({"id": report.stage_case_id(env, "mode"), "status": "pass", "duration_s": 0, "evidence": [],
+                  "note": os.environ.get("STUB_MODE", "full")})
 doc = {"schema": "ntfsmac-test-result/1", "git_sha": sha, "dirty_tree": dirty, "env": env, "host_os": "macOS",
        "guest_os": None, "macfuse_version": None, "ntfs3g_version": None, "started": "2026-11-20T10:00:00Z",
        "finished": "2026-11-20T10:00:01Z", "cases": cases}
@@ -284,6 +307,7 @@ PY
 [ "${STUB_FAIL:-}" != "$env" ]
 STUB
 chmod +x "$work/stub.sh"
+export STUB_REAL_TEST_ALL="$repo/scripts/test-all.sh"
 export STUB_REPO="$work/r" STUB_LOG="$work/stub.log" CI_LOCAL_TEST_ALL="$work/stub.sh"
 
 # results for HEAD in the stub's format, written by the stub itself
@@ -293,9 +317,18 @@ n7=$(printf '%.7s' "$head")
 for e in host A B; do
 	"$work/stub.sh" --env "$e" --out "$stubres/2026-11-20-$n7-$e.json"
 done
-ci --verify-result "$stubres/2026-11-20-$n7-host.json" --verify-result "$stubres/2026-11-20-$n7-A.json" \
-	--verify-result "$stubres/2026-11-20-$n7-B.json" --pre-commit --require-env host,A,B
-expect "host, A and B results with every plan stage satisfy --require-env host,A,B" 0 'verify-result: PASSED'
+# the -ci files (stages ci-local runs itself), as full mode writes them
+mk "$stubres" "$head" false host -ci STAGE-HOST-TSAN:pass STAGE-HOST-STATIC-ANALYSIS:pass
+mk "$stubres" "$head" false A -ci STAGE-A-LINUX-BUILD-TEST:pass STAGE-A-FUZZ-SHORT:pass
+mk "$stubres" "$head" false B -ci STAGE-B-PACKAGE:pass
+gate() { # [extra args...]: the gate check over the stub results, files host A B and the three -ci files
+	ci --verify-result "$stubres/2026-11-20-$n7-host.json" --verify-result "$stubres/2026-11-20-$n7-A.json" \
+		--verify-result "${gateB:-$stubres/2026-11-20-$n7-B.json}" --verify-result "$stubres/2026-11-20-$n7-host-ci.json" \
+		--verify-result "$stubres/2026-11-20-$n7-A-ci.json" --verify-result "$stubres/2026-11-20-$n7-B-ci.json" \
+		--pre-commit "$@"
+}
+gate --require-env host,A,B
+expect "host, A and B results with every plan stage, the -ci stages and mode full satisfy --require-env host,A,B" 0 'verify-result: PASSED'
 ci --verify-result "$stubres/2026-11-20-$n7-host.json" --verify-result "$stubres/2026-11-20-$n7-A.json" \
 	--pre-commit --require-env host,A,B
 expect "--require-env rejects a missing environment" 1 'no accepted result for environment B'
@@ -308,8 +341,168 @@ expect "--require-env rejects a result without STAGE cases" 1 'lacks the stage c
 ci --verify-result "$stubres/2026-11-20-$n7-host.json" --verify-result "$pc/2026-11-20-${b7}-A-failed.json" --pre-commit --require-env host
 expect "one rejected file fails the whole check" 1 'verify-result: FAILED'
 
+# ---- F01: the gate accepts only pass (and the by-design skips), and only a full run -------------------
+# the test-all result of one environment, written by the stub with one knob turned
+stubone() { # ENV NAME [VAR=VALUE]...: writes $stubres/2026-11-20-$n7-ENV-NAME.json, sets mkf
+	_e=$1; _n=$2; shift 2
+	mkf=$stubres/2026-11-20-$n7-$_e-$_n.json
+	env "$@" "$work/stub.sh" --env "$_e" --out "$mkf"
+}
+stubone host skipasan STUB_SKIP=STAGE-HOST-BUILD-ASAN STUB_SKIPNOTE="skipped by --quick"
+ci --verify-result "$mkf" --pre-commit --require-env host
+expect "F01: a skipped long stage (quick-shaped host result) is rejected" 1 'STAGE-HOST-BUILD-ASAN=skip (skipped by --quick)'
+stubone B skipcompat STUB_SKIP=STAGE-B-INTEGRATION STUB_SKIPNOTE="skipped by --quick"
+ci --verify-result "$mkf" --pre-commit --require-env B
+expect "F01: a quick-shaped B result is rejected" 1 'STAGE-B-INTEGRATION=skip'
+stubone A skipharness STUB_SKIP=STAGE-A-HARNESS STUB_SKIPNOTE="not selected by --cases"
+ci --verify-result "$mkf" --pre-commit --require-env A
+expect "F01: a quick-shaped A result is rejected" 1 'STAGE-A-HARNESS=skip'
+stubone host design
+ci --verify-result "$mkf" --pre-commit --require-env host
+expect "F01: the by-design host skips (harness, stress) are accepted; only the -ci stages are missing" 1 'lacks the stage case.*STAGE-HOST-TSAN'
+if grep -q 'not passed' "$work/out" || grep -q 'run-mode' "$work/out" || grep -q 'not a full run' "$work/out"; then r=1; else r=0; fi
+check "F01: ... and nothing else is wrong with that result" "$r"
+stubone host badnote STUB_SKIP=STAGE-HOST-HARNESS STUB_SKIPNOTE="skipped by --quick"
+ci --verify-result "$mkf" --pre-commit --require-env host
+expect "F01: the by-design skip of host harness with another note is rejected" 1 'STAGE-HOST-HARNESS=skip (skipped by --quick)'
+stubone host badnote2 STUB_SKIP=STAGE-HOST-STRESS STUB_SKIPNOTE="none registered for A"
+ci --verify-result "$mkf" --pre-commit --require-env host
+expect "F01: the by-design skip of host stress with another note is rejected" 1 'STAGE-HOST-STRESS=skip (none registered for A)'
+stubone A skipselftest STUB_SKIP=STAGE-A-SELFTEST STUB_SKIPNOTE="they run in --env B"
+ci --verify-result "$mkf" --pre-commit --require-env A
+expect "F01: a by-design note on any other stage is rejected (matched on stage too)" 1 'STAGE-A-SELFTEST=skip'
+stubone host nomode STUB_NOMODE=host
+ci --verify-result "$mkf" --pre-commit --require-env host
+expect "F01: a result without the mode record is rejected" 1 'no run-mode record (STAGE-HOST-MODE)'
+stubone host quick STUB_MODE=quick
+ci --verify-result "$mkf" --pre-commit --require-env host
+expect "F01: mode quick is rejected" 1 'not a full run (STAGE-HOST-MODE: pass (quick))'
+stubone host cases STUB_MODE="cases=I-INT-*"
+ci --verify-result "$mkf" --pre-commit --require-env host
+expect "F01: mode cases=... is rejected" 1 'not a full run (STAGE-HOST-MODE: pass (cases=I-INT-\*))'
+mk "$pc" "$head" false B -modeonly STAGE-B-MODE:pass STAGE-B-SELFTEST:skip
+ci --verify-result "$mkf" --pre-commit
+expect "F01: the mode record alone does not count as a passed case" 1 'no case passed'
+gate --require-env host,A,B --verify-result "$stubres/2026-11-20-$n7-host-quick.json"
+expect "F01: a quick file given together with full files still rejects the set" 1 'not a full run'
+
+# ---- F02: --require-env implies the -ci stages --------------------------------------------------------
+ci --verify-result "$stubres/2026-11-20-$n7-host.json" --pre-commit --require-env host
+expect "F02: --require-env host without the -ci file is rejected" 1 'lacks the stage case.*STAGE-HOST-TSAN, STAGE-HOST-STATIC-ANALYSIS'
+ci --verify-result "$stubres/2026-11-20-$n7-A.json" --pre-commit --require-env A
+expect "F02: --require-env A without the -ci file is rejected" 1 'lacks the stage case.*STAGE-A-LINUX-BUILD-TEST, STAGE-A-FUZZ-SHORT'
+ci --verify-result "$stubres/2026-11-20-$n7-B.json" --pre-commit --require-env B
+expect "F02: --require-env B without the -ci file is rejected" 1 'lacks the stage case.*STAGE-B-PACKAGE'
+mk "$pc" "$head" false host -ci STAGE-HOST-TSAN:pass
+ci --verify-result "$stubres/2026-11-20-$n7-host.json" --verify-result "$mkf" --pre-commit --require-env host
+expect "F02: an -ci file with only STAGE-HOST-TSAN is rejected (STATIC-ANALYSIS missing)" 1 'lacks the stage case.*STAGE-HOST-STATIC-ANALYSIS'
+mk "$pc" "$head" false host -ci2 STAGE-HOST-TSAN:pass STAGE-HOST-STATIC-ANALYSIS:skip
+ci --verify-result "$stubres/2026-11-20-$n7-host.json" --verify-result "$mkf" --pre-commit --require-env host
+expect "F02: a skipped -ci stage is rejected" 1 'STAGE-HOST-STATIC-ANALYSIS=skip'
+ci --help
+expect "F02: the usage text documents --require-case" 0 'require-case'
+if grep -q -- '--milestone NAME' "$work/out" && grep -q -- '--require-env host,A,B --milestone M5' "$work/out"; then r=0; else r=1; fi
+check "F02: ... and --milestone, with the gate command" "$r"
+python3 -B "$work/r/tests/harness/report.py" own-stages >"$work/own.txt" 2>/dev/null || true
+if [ "$(tr '\n' ' ' <"$work/own.txt")" = "host tsan host static-analysis A linux-build-test A fuzz-short B package " ]; then r=0; else r=1; fi
+check "F02: report.py own-stages is the one table of the -ci stages" "$r"
+
+# ---- F02: --require-case and --milestone -------------------------------------------------------------
+mkdir -p "$work/r/tests/gate"
+printf 'tests/gate/\n' >>"$work/r/.git/info/exclude" # milestone lists used here must not make the tree dirty
+cp "$repo/tests/gate/M5.cases" "$work/r/tests/gate/M5.cases"
+# the criterion cases, read from the committed list (comments and blank lines dropped)
+m5=$(sed 's/#.*//' "$work/r/tests/gate/M5.cases" | tr -s ' \t\r' '\n\n\n' | grep -v '^$')
+allpass=
+for c in $m5; do allpass="$allpass $c:pass"; done
+stubone B crit STUB_EXTRA="$allpass"
+gateB=$mkf
+mile() { gate --require-env host,A,B "$@"; }
+mile --milestone M5
+expect "F02: --milestone M5 with every listed case passing in the B result is accepted" 0 'verify-result: PASSED'
+gateB=
+gate --require-env host,A,B --milestone M5
+expect "F02: --milestone M5 without a result that holds the cases is rejected (all absent)" 1 'required case S-SOAK-01 is absent'
+somepass=
+for c in $m5; do if [ "$c" = S-KILL-03 ]; then somepass="$somepass $c:skip"; else somepass="$somepass $c:pass"; fi; done
+stubone B critskip STUB_EXTRA="$somepass"
+gateB=$mkf
+mile --milestone M5
+expect "F02: a listed case that is a skip rejects the gate" 1 'required case S-KILL-03 did not pass: skip'
+somepass=
+for c in $m5; do if [ "$c" != S-NOSPC-01 ]; then somepass="$somepass $c:pass"; fi; done
+stubone B critmiss STUB_EXTRA="$somepass"
+gateB=$mkf
+mile --milestone M5
+expect "F02: a listed case that is absent rejects the gate" 1 'required case S-NOSPC-01 is absent'
+stubone B crit STUB_EXTRA="$allpass"
+gateB=$mkf
+ci --verify-result "$gateB" --pre-commit --require-env B --milestone M5
+expect "S1: --milestone without --require-env covering host,A,B exits 2" 2 'needs --require-env host,A,B'
+ci --verify-result "$gateB" --pre-commit --milestone M5
+expect "S1: --milestone without any --require-env exits 2" 2 'needs --require-env host,A,B'
+ci --verify-result "$gateB" --pre-commit --require-case S-SOAK-01 --require-case S-KILL-03
+expect "S1: --require-case alone still applies the mode and stage rules (quick file present)" 0 'verify-result: PASSED'
+stubone B quickcrit STUB_MODE=quick STUB_EXTRA="$allpass"
+ci --verify-result "$mkf" --pre-commit --require-case S-SOAK-01
+expect "S1: --require-case without --require-env rejects a quick-mode file" 1 'not a full run'
+stubone B skipcrit STUB_SKIP=STAGE-B-INTEGRATION STUB_SKIPNOTE="skipped by --quick" STUB_EXTRA="$allpass"
+ci --verify-result "$mkf" --pre-commit --require-case S-SOAK-01
+expect "S1: --require-case without --require-env rejects a skipped stage" 1 'STAGE-B-INTEGRATION=skip'
+mk "$pc" "$head" false B -standalone S-SOAK-01:pass S-KILL-03:pass
+ci --verify-result "$mkf" --pre-commit --require-case S-SOAK-01
+expect "S2: a standalone criterion-run result (no mode record, not a -ci file) is rejected" 1 'no run-mode record .* not a -ci file'
+mk "$pc" "$head" false B -ciextra STAGE-B-PACKAGE:pass S-SOAK-01:pass
+ci --verify-result "$mkf" --pre-commit --require-case S-SOAK-01
+expect "S2: a -ci file that holds anything but own stages is rejected" 1 'not a -ci file'
+ci --require-case ""  --verify-result "$mkf" --pre-commit
+expect "N3: an empty --require-case id exits 2" 2 'empty case id'
+ci --require-case "A,,B" --verify-result "$mkf" --pre-commit
+expect "N3: --require-case with an empty list element exits 2" 2 'empty case id'
+ci --require-case , --verify-result "$mkf" --pre-commit
+expect "N3: --require-case with a lone comma exits 2" 2 'empty case id'
+gateB=
+python3 -B -I "$repo/tests/unit/ci/gate_cases_check.py" "$repo" M5 >"$work/out" 2>&1 && rc=0 || rc=$?
+expect "B2: every id of tests/gate/M5.cases has a builder that can write it as pass" 0 '0 bad'
+mkdir -p "$work/gr/tests/gate"
+cp -R "$repo/tests/stress" "$work/gr/tests/stress"
+cp -R "$repo/tests/harness" "$work/gr/tests/harness"
+printf 'S-SOAK-01\nS-SOAK-RUN\n' >"$work/gr/tests/gate/RUNONLY.cases"
+python3 -B -I "$repo/tests/unit/ci/gate_cases_check.py" "$work/gr" RUNONLY >"$work/out" 2>&1 && rc=0 || rc=$?
+expect "B2: the checker rejects a fail-only id such as S-SOAK-RUN" 1 'S-SOAK-RUN is written only as fail'
+printf 'S-NO-SUCH-01\n' >"$work/gr/tests/gate/NOEMIT.cases"
+python3 -B -I "$repo/tests/unit/ci/gate_cases_check.py" "$work/gr" NOEMIT >"$work/out" 2>&1 && rc=0 || rc=$?
+expect "B2: the checker rejects an id no builder emits" 1 'S-NO-SUCH-01 has no emitter'
+rm -rf "$work/gr"
+ci --verify-result "$mkf" --pre-commit --require-case S-SOAK-01 --fixtures x
+expect "S3: --fixtures does not apply to --verify-result" 2 'do not apply to --verify-result'
+mile --milestone NOSUCH
+expect "F02: an unknown milestone exits 2" 2 "unknown milestone 'NOSUCH'"
+mile --milestone ../M5
+expect "F02: a milestone name with a path exits 2" 2 'bad name'
+: >"$work/r/tests/gate/EMPTY.cases"
+mile --milestone EMPTY
+expect "F02: an empty milestone list exits 2" 2 'lists no case'
+printf 'S-OK-1\nnot a case id\n' >"$work/r/tests/gate/BAD.cases"
+mile --milestone BAD
+expect "F02: a malformed milestone list exits 2" 2 'malformed case id'
+mkdir "$work/r/tests/gate/DIR.cases"
+mile --milestone DIR
+expect "F02: an unreadable milestone list (a directory) exits 2" 2 'unknown milestone'
+stubone B crit STUB_EXTRA="$allpass"
+gateB=$mkf
+mile --require-case S-SOAK-01
+expect "F02: --require-case of a passing case is accepted" 0 'verify-result: PASSED'
+mile --require-case S-NOPE-01
+expect "F02: --require-case of an absent case is rejected" 1 'required case S-NOPE-01 is absent'
+ci --milestone M5
+expect "F02: --milestone without --verify-result exits 2" 2 'need --verify-result'
+rm -rf "$work/r/tests/gate" # the full-mode tests below need a clean tree
+
 # ---- full mode with the stubs ---------------------------------------------------------------------
 full() { : >"$STUB_LOG"; rc=0; CI_LOCAL_TEST_OWN=1 "$work/r/scripts/ci-local.sh" "$@" >"$work/out" 2>&1 || rc=$?; unset STUB_FAIL STUB_NOFILE STUB_MISSING CI_LOCAL_TEST_OWN_FAIL; }
+full --dry-run --fixtures "$work/fx"
+expect "S3: full mode with --fixtures warns that the run cannot pass the gate" 0 'WARNING: --fixtures .*cannot pass the gate'
 order() { tr '\n' ' ' <"$STUB_LOG"; }
 # count_files DIR PATTERN-SUFFIX
 nfiles() { set -- "$1"/*"$2"; if [ -e "$1" ]; then echo $#; else echo 0; fi; }

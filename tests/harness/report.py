@@ -270,8 +270,19 @@ def _copy_scrubbed(src, dst, repo):
     return True
 
 
+# Stages that scripts/ci-local.sh runs itself, per environment (recorded in <date>-<sha>-<env>-ci.json). The one
+# list for full mode and for `ci-local.sh --verify-result --require-env`.
+OWN_STAGES = (("host", "tsan"), ("host", "static-analysis"), ("A", "linux-build-test"), ("A", "fuzz-short"),
+              ("B", "package"))
+
+
 def stage_case_id(env, name):
     return re.sub(r"[^A-Z0-9]+", "-", ("STAGE-%s-%s" % (env, name)).upper()).strip("-")
+
+
+def is_mode_case(cid):
+    """The run-mode record of test-all.sh: STAGE-<ENV>-MODE (a bookkeeping case, not a verification)."""
+    return re.match(r"^STAGE-(HOST|A|B)-MODE$", cid) is not None
 
 
 def read_stages(work):
@@ -466,7 +477,9 @@ def summarize(doc):
     lines.append("cases: %d pass, %d fail, %d error, %d skip" % (counts["pass"], counts["fail"], counts["error"],
                                                                  counts["skip"]))
     ok = counts["fail"] == 0 and counts["error"] == 0
-    if counts["pass"] == 0:
+    # the run-mode record (STAGE-<ENV>-MODE, written by test-all.sh) verifies nothing
+    verified = sum(1 for c in doc["cases"] if c["status"] == "pass" and not is_mode_case(c["id"]))
+    if verified == 0:
         lines.append("nothing verified: no case and no stage passed")
         ok = False
     return "\n".join(lines), ok
@@ -664,7 +677,7 @@ def main(argv=None):
     import argparse
 
     argv = sys.argv[1:] if argv is None else list(argv)
-    subs = ("validate", "aggregate", "readme", "git-info")
+    subs = ("validate", "aggregate", "readme", "git-info", "own-stages")
     if argv and argv[0] not in subs and not argv[0].startswith("-"):
         argv = ["validate"] + argv  # python3 -m harness.report FILE... (the original interface)
     here = os.path.dirname(os.path.abspath(__file__))
@@ -674,6 +687,7 @@ def main(argv=None):
     sp = p.add_subparsers(dest="cmd", required=True)
     v = sp.add_parser("validate", help="validate result files")
     v.add_argument("files", nargs="+")
+    sp.add_parser("own-stages", help="print '<env> <stage>' for each stage ci-local.sh runs itself")
     sp.add_parser("git-info", help="print '<sha> <true|false>' for the tree under test")
     a = sp.add_parser("aggregate", help="merge work directories into one result file")
     a.add_argument("--env", required=True, choices=ENV_VALUES)
@@ -696,6 +710,10 @@ def main(argv=None):
         if args.cmd == "git-info":
             sha, dirty = git_info(args.repo)
             print("%s %s" % (sha, "true" if dirty else "false"))
+            return 0
+        if args.cmd == "own-stages":
+            for e, n in OWN_STAGES:
+                print("%s %s" % (e, n))
             return 0
         if args.cmd == "aggregate":
             return cmd_aggregate(args)

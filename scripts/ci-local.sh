@@ -7,7 +7,7 @@
 #        scripts/ci-local.sh [--only LIST] [--fuzz-seconds N] [--results-dir DIR] [--slot-dir DIR]
 #                            [--fixtures DIR] [--allow-dirty] [--dry-run]
 #        scripts/ci-local.sh --verify-result FILE [--verify-result FILE]... [--commit REV]
-#                            [--require-env LIST]
+#                            [--require-env LIST] [--require-case ID]... [--milestone NAME]
 #
 #   --quick          bootstrap check, configure, build, product build, ctest (T-M1-07). Before every push.
 #   (no --quick)     FULL mode (T-M5-08), before each milestone gate and release. Takes hours. Stages, in
@@ -42,10 +42,31 @@
 #                    table changed in between (renames count as the change of both paths; the table must be
 #                    what `report.py readme` renders from the results of the commit). --require-env
 #                    host,A,B also demands, per environment, STAGE-<ENV>-* cases for every stage of that
-#                    environment's `test-all.sh --env <ENV> --dry-run` plan (pass, or skip with a note)
-#                    (criterion 5.7). --pre-commit checks a freshly written result before it is committed
-#                    (skips the path and committed-content checks; never use it for a gate).
-#                    Every rejection prints its reason.
+#                    environment's `test-all.sh --env <ENV> --dry-run` plan and for the stages ci-local
+#                    runs itself in that environment (host: tsan, static-analysis; A: linux-build-test,
+#                    fuzz-short; B: package; the table is OWN_STAGES in tests/harness/report.py), every
+#                    one with status pass (criterion 5.7). In gate mode (--require-env, --require-case or
+#                    --milestone) every STAGE-* case of every environment in the files must pass. The only
+#                    skips accepted are the ones the host plan itself declares as skipped by design: host
+#                    `harness` and host `stress` (`test-all.sh --env host --dry-run` prints them with a
+#                    [note]; the note must match exactly, and no other environment may skip). Every file
+#                    must be either a test-all.sh result whose STAGE-<ENV>-MODE case has status pass and
+#                    note `full` (any other mode, quick or cases=..., or no record rejects), or a `-ci`
+#                    file that holds only the own-stage cases. A standalone criterion-run result
+#                    (stress, perf; audit M5-F05, open) is not accepted. --pre-commit checks a freshly
+#                    written result before it is committed (skips the path and committed-content checks;
+#                    never use it for a gate). Every rejection prints its reason.
+#   --require-case   CASE-ID that must be present and pass in the accepted files (repeatable; a skip,
+#                    an absent case or a failed one rejects). Any case id, not only STAGE-* ones.
+#   --milestone NAME the cases listed in tests/gate/NAME.cases (one id per line, # comments) are
+#                    required like --require-case. Needs --require-env host,A,B. Unknown name,
+#                    unreadable or empty list: exit 2. The list checks presence and status only, not
+#                    the parameters of the run (a short soak passes under S-SOAK-01: M5-F04 is open).
+#   --fixtures DIR   (full mode) reuse fixture images. The run records the skip "reusing DIR", which the
+#                    gate rejects (the images are not tied to the commit, M5-F07): such a run cannot
+#                    pass the gate, and ci-local prints a warning at the start.
+#   gate command:    scripts/ci-local.sh --verify-result tests/results/<file>.json ... \
+#                        --require-env host,A,B --milestone M5
 #
 # Exit:  0 all stages passed / result accepted, 1 a stage failed / result rejected,
 #        2 usage error, an option that does not apply to the mode, or unreadable input.
@@ -68,7 +89,7 @@ die() { # message [exit-code]
 }
 
 usage() {
-	sed -n '4,56p' "$0" | sed 's/^# \{0,1\}//' >&2
+	sed -n '4,72p' "$0" | sed 's/^# \{0,1\}//' >&2
 }
 
 quick=0
@@ -78,6 +99,8 @@ verify_files=
 commit=
 require_env=
 require_cases=
+milestone=
+own_implied=1
 pre_commit=0
 only=
 fuzz_seconds=300
@@ -110,7 +133,12 @@ while [ $# -gt 0 ]; do
 		;;
 	--require-case)
 		[ $# -ge 2 ] || { usage; die "--require-case needs a case id"; }
+		case ",$2," in *,,*) die "--require-case: empty case id" ;; esac
 		require_cases="${require_cases:+$require_cases,}$2"; verify_opts="$verify_opts $1"; shift
+		;;
+	--milestone)
+		[ $# -ge 2 ] || { usage; die "--milestone needs a name"; }
+		milestone=$2; verify_opts="$verify_opts $1"; shift
 		;;
 	--pre-commit) pre_commit=1; verify_opts="$verify_opts $1" ;;
 	--only)
@@ -164,26 +192,47 @@ fi
 
 # ---- --verify-result (TEST_STRATEGY.md section 10) --------------------------------------------
 
+# --milestone NAME: add the cases of tests/gate/NAME.cases to require_cases (fail closed: exit 2)
+if [ -n "$milestone" ]; then
+	case $milestone in '' | *[!A-Za-z0-9_-]*) die "--milestone: bad name '$milestone'" ;; esac
+	_mf=$root/tests/gate/$milestone.cases
+	{ [ -f "$_mf" ] && [ -r "$_mf" ]; } || die "--milestone: unknown milestone '$milestone' (no readable $_mf)"
+	_ml=$(LC_ALL=C; export LC_ALL; sed 's/#.*//' "$_mf" | tr -s ' \t\r' '\n\n\n' | grep -v '^$' || true)
+	[ -n "$_ml" ] || die "--milestone: $_mf lists no case"
+	if (LC_ALL=C; export LC_ALL; printf '%s\n' "$_ml" | grep -qv '^[A-Z][A-Z0-9-]*$'); then die "--milestone: $_mf holds a malformed case id"; fi
+	for _need in host A B; do
+		case ",$require_env," in *",$_need,"*) ;; *) die "--milestone needs --require-env host,A,B (environment $_need is not required)" ;; esac
+	done
+	require_cases="${require_cases:+$require_cases,}$(printf '%s\n' "$_ml" | tr '\n' ',' | sed 's/,$//')"
+fi
+
 test_all=${CI_LOCAL_TEST_ALL:-$here/test-all.sh}
 
 # verify_results FILE...: check the files together; prints one line per file and the reason of every
 # rejection. Uses the globals commit, require_env, require_cases, pre_commit and test_all.
 verify_results() {
-	"$py" -B -I - "$root" "$commit" "$require_env" "$pre_commit" "$require_cases" "$test_all" "$@" <<'PYEOF'
+	"$py" -B -I - "$root" "$commit" "$require_env" "$pre_commit" "$require_cases" "$test_all" "$own_implied" "$@" <<'PYEOF'
 import json
 import os
 import re
 import subprocess
 import sys
 
-root, rev, require, pre_commit, req_cases, test_all = sys.argv[1:7]
+root, rev, require, pre_commit, req_cases, test_all, own_implied = sys.argv[1:8]
 pre_commit = pre_commit == "1"
-files = sys.argv[7:]
+own_implied = own_implied == "1"
+files = sys.argv[8:]
 sys.path.insert(0, os.path.join(root, "tests", "harness"))
 import report  # noqa: E402
 
 ALLOWED_PREFIX = ("tests/results/", "docs/audits/")
 ALLOWED_FILES = ("CHECKPOINT.md", "NEXT_ACTIONS.md")
+# Only the host plan has skips by design (test-all.sh plan_host: harness, stress). They are read from the plan
+# itself (`test-all.sh --env host --dry-run` prints a skipped stage as `... [note]`), so the note is never
+# copied into this script. The stage names are pinned: a new skip in the host plan is not by design until it is
+# added here after review.
+SKIP_BY_DESIGN_ENV = "host"
+SKIP_BY_DESIGN_STAGES = ("harness", "stress")
 NAME_RE = re.compile(r"^\d{4}-\d{2}-\d{2}-([0-9a-f]{7})-(host|A|B)(-[A-Za-z0-9._-]+)?\.json$")
 
 
@@ -309,7 +358,7 @@ for f in files:
     if failed:
         reject(f, "%d case(s) failed or errored: %s" % (len(failed), listed(failed)))
         continue
-    if not any(c["status"] == "pass" for c in cases):
+    if not any(c["status"] == "pass" and not report.is_mode_case(c["id"]) for c in cases):
         reject(f, "no case passed: nothing was verified")
         continue
     own = "STAGE-%s-" % doc["env"].upper()
@@ -357,6 +406,7 @@ for f in files:
             reject(f, "%d path(s) changed since the tested commit %s outside the allowed set: %s"
                    % (len(paths), tested[:12], listed(paths)))
             continue
+    doc["_file"] = f
     accepted.append(doc)
     n_pass = sum(1 for c in cases if c["status"] == "pass")
     n_skip = sum(1 for c in cases if c["status"] == "skip")
@@ -373,12 +423,69 @@ def plan_stages(env):
         return None
     if r.returncode != 0:
         return None
-    names = re.findall(r"^\s*\d+ {2}(\S+)", r.stdout.decode("utf-8", "replace"), re.M)
-    return names or None
+    text = r.stdout.decode("utf-8", "replace")
+    names = re.findall(r"^\s*\d+ {2}(\S+)", text, re.M)
+    skips = {}
+    if env == SKIP_BY_DESIGN_ENV:
+        for n, note in re.findall(r"^\s*\d+ {2}(\S+) .*? {2}\[([^\]]+)\]\s*$", text, re.M):
+            if n in SKIP_BY_DESIGN_STAGES:
+                skips[report.stage_case_id(env, n)] = note
+    return (names, skips) if names else None
 
 
-if not bad and require:
-    extra = [c for c in req_cases.split(",") if c]
+if not bad and (require or req_cases):
+    required = [c for c in req_cases.split(",") if c]
+    occ = {}  # case id -> every case of that id in the accepted files (all must be ok)
+    for d in accepted:
+        for c in d["cases"]:
+            occ.setdefault(c["id"], []).append(c)
+    own_ids = {}  # env -> case ids of the stages ci-local runs itself
+    for e, n in report.OWN_STAGES:
+        own_ids.setdefault(e, set()).add(report.stage_case_id(e, n))
+
+    def describe(cs):
+        return ", ".join("%s%s" % (c["status"], " (%s)" % c["note"] if c.get("note") else "") for c in cs)
+
+    # every file is a full test-all result (with its mode record) or a -ci file of own stages only
+    for f, d in [(x["_file"], x) for x in accepted]:
+        env = d["env"]
+        mode_id = report.stage_case_id(env, "mode")
+        modes = [c for c in d["cases"] if c["id"] == mode_id]
+        if modes:
+            if modes[0]["status"] != "pass" or (modes[0].get("note") or "") != "full":
+                bad += 1
+                print("verify-result: REJECTED %s: not a full run (%s: %s)" % (f, mode_id, describe(modes)))
+        elif not all(c["id"] in own_ids.get(env, ()) for c in d["cases"]):
+            bad += 1
+            print("verify-result: REJECTED %s: no run-mode record (%s) and not a -ci file of own stages: "
+                  "a standalone result cannot show that the run was a full one (M5-F05)" % (f, mode_id))
+    present = sorted({d["env"] for d in accepted})
+    plans = {}
+    for env in dict.fromkeys([e for e in require.split(",") if e] + present):
+        plans[env] = plan_stages(env)
+        if plans[env] is None:
+            bad += 1
+            print("verify-result: REJECTED: cannot read the stage plan of `test-all.sh --env %s --dry-run`" % env)
+    # every STAGE case of every environment present must pass; a skip only where the plan declares it by design
+    for env in present:
+        if plans.get(env) is None:
+            continue
+        by_design = plans[env][1]
+        notpass = []
+        for d in accepted:
+            if d["env"] != env:
+                continue
+            for c in d["cases"]:
+                if not c["id"].startswith("STAGE-") or c["status"] == "pass":
+                    continue
+                if c["status"] == "skip" and by_design.get(c["id"]) == (c.get("note") or ""):
+                    continue
+                notpass.append("%s=%s" % (c["id"], describe([c])))
+        if notpass:
+            bad += 1
+            print("verify-result: REJECTED: environment %s: stage case(s) not passed (a skip is accepted only "
+                  "where the plan declares it by design): %s" % (env, listed(notpass)))
+
     for env in [e for e in require.split(",") if e]:
         docs = [d for d in accepted if d["env"] == env]
         if not docs:
@@ -386,21 +493,30 @@ if not bad and require:
             print("verify-result: REJECTED: no accepted result for environment %s (accepted: %s)"
                   % (env, ", ".join(sorted({d["env"] for d in accepted})) or "none"))
             continue
-        status = {}
-        for d in docs:
-            for c in d["cases"]:
-                status[c["id"]] = c["status"]
-        plan = plan_stages(env)
-        if plan is None:
-            bad += 1
-            print("verify-result: REJECTED: cannot read the stage plan of `test-all.sh --env %s --dry-run`" % env)
+        if plans.get(env) is None:
             continue
-        need = [report.stage_case_id(env, n) for n in plan]
-        need += [c for c in extra if c.startswith("STAGE-%s-" % env.upper()) and c not in need]
-        missing = [c for c in need if status.get(c) not in ("pass", "skip")]
+        mode_id = report.stage_case_id(env, "mode")
+        if mode_id not in occ:
+            bad += 1
+            print("verify-result: REJECTED: environment %s has no run-mode record (%s): "
+                  "a result without it cannot show that the run was a full one" % (env, mode_id))
+        need = [report.stage_case_id(env, n) for n in plans[env][0]]
+        if own_implied:
+            need += [report.stage_case_id(e, n) for e, n in report.OWN_STAGES if e == env]
+        need = list(dict.fromkeys(need))
+        missing = [c for c in need if c not in occ]
         if missing:
             bad += 1
             print("verify-result: REJECTED: environment %s lacks the stage case(s): %s" % (env, listed(missing)))
+    for c in dict.fromkeys(required):
+        cs = occ.get(c)
+        if not cs:
+            bad += 1
+            print("verify-result: REJECTED: required case %s is absent from the accepted files" % c)
+        elif not all(x["status"] == "pass" for x in cs):
+            bad += 1
+            print("verify-result: REJECTED: required case %s did not pass: %s"
+                  % (c, describe([x for x in cs if x["status"] != "pass"])))
 print("verify-result: %s" % ("FAILED" if bad else "PASSED"))
 sys.exit(1 if bad else 0)
 PYEOF
@@ -423,10 +539,8 @@ all_stages="bootstrap host tsan static-analysis A linux-build-test fuzz-short pa
 # environment each stage's result is recorded under
 stage_env() {
 	case $1 in
-	host | tsan | static-analysis) echo host ;;
-	A | linux-build-test | fuzz-short) echo A ;;
-	B | package) echo B ;;
-	*) echo "" ;;
+	host | A | B) echo "$1" ;;
+	*) printf '%s\n' "$own_table" | awk -v n="$1" '$2 == n { print $1; exit }' ;;
 	esac
 }
 if [ "$quick" -eq 0 ]; then
@@ -444,9 +558,17 @@ if [ "$quick" -eq 0 ]; then
 	case $results_dir in /*) ;; *) results_dir=$(pwd)/$results_dir ;; esac
 	case $slot_dir in '' | /*) ;; *) slot_dir=$(pwd)/$slot_dir ;; esac
 	case $fixtures in '' | /*) ;; *) fixtures=$(pwd)/$fixtures ;; esac
+	if [ -n "$fixtures" ]; then
+		printf 'ci-local: WARNING: --fixtures %s: the B result records the skip "reusing ..." for the fixtures, which the gate rejects (the images are not tied to the commit, M5-F07). This run cannot pass the gate.\n' "$fixtures" >&2
+	fi
 	[ -n "$slot_dir" ] || slot_dir=${NTFSMAC_VM_SLOT_DIR:-${TMPDIR:-/tmp}/ntfsmac-vm-slots}
 
-	# the environments (and the stages ci-local runs itself) the final verification demands
+	# the environments (and the stages ci-local runs itself) the final verification demands; the table of
+	# own stages is report.OWN_STAGES, the same one --require-env uses
+	own_table=$("$py" -B "$root/tests/harness/report.py" own-stages) || die "cannot read the table of own stages"
+	for _n in $(printf '%s\n' "$own_table" | awk '{print $2}'); do
+		case " $all_stages " in *" $_n "*) ;; *) die "own stage '$_n' of report.py is not a stage of ci-local" ;; esac
+	done
 	need_envs=
 	need_cases=
 	for _s in $all_stages; do
@@ -763,6 +885,7 @@ if [ "$quick" -eq 0 ]; then
 		printf '\n== verify-result (HEAD %s) ==\n' "$short"
 		require_env=$need_envs
 		require_cases=$need_cases
+		own_implied=0 # only the own stages that were selected (need_cases), not all of them
 		pre_commit=1
 		set --
 		while IFS= read -r _f; do [ -z "$_f" ] || set -- "$@" "$_f"; done <<VEOF2

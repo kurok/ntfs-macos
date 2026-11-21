@@ -79,7 +79,8 @@ cd "$d"
 ntfs="$(pkg-config --cflags libntfs-3g)"
 nlibs="$(pkg-config --libs --static libntfs-3g)"
 cc -std=c17 -Wall -Wextra -Werror -O2 -DNTFSMAC_TEST_SEAMS -I include -I src/daemon -I src/sanitize -I src/journal \
-	-o "$work/journal_vm" tests/integration/daemon/journal_vm.c src/daemon/spawn.c src/daemon/status.c \
+	-o "$work/journal_vm" tests/integration/daemon/journal_vm.c src/daemon/spawn.c \
+	src/daemon/spawn_holder.c src/daemon/usermap.c src/daemon/usermap_file.c src/daemon/status.c \
 	src/daemon/errwatch.c src/daemon/errwatch_io.c src/daemon/session.c src/daemon/ctl_journal.c src/daemon/ctl_repair_mirror.c \
 	src/daemon/ctl_parse.c src/daemon/da.c src/daemon/da_filter.c src/journal/journal.c src/common/log.c \
 	src/options/options.c src/options/argv_check.c src/sanitize/label.c src/sanitize/display.c \

@@ -1,0 +1,15 @@
+# Known-bad input of check_guest_sources.py (its self-test): shaped like a VM script, but wrong on purpose.
+# Not a script, never run. The first tar lacks spawn_holder.h and the other new files of spawn.c; its list
+# holds a `)` inside a token (the parser must not cut the list there: internal.h and spawn_config.h come after
+# it); the second tar copies all of src/daemon but into another directory, so it must not count; the cc line
+# has no spawn_holder.c and uses a variable that is not a flag variable.
+echo "bad: copying" >&2
+(cd "$root" && tar -cf - include docs/a)b src/daemon/spawn.c src/daemon/spawn_config.h src/daemon/internal.h) |
+	tart exec -i "$name" /bin/sh -c 'rm -rf ~/ntfsmac/bad && mkdir -p ~/ntfsmac/bad && tar -xf - -C ~/ntfsmac/bad'
+(cd "$root" && tar -cf - include src/daemon) |
+	tart exec -i "$name" /bin/sh -c 'rm -rf ~/ntfsmac/other && mkdir -p ~/ntfsmac/other && tar -xf - -C ~/ntfsmac/other'
+guest='set -eu
+d=$HOME/ntfsmac/bad
+cd "$d"
+cc -std=c17 -DNTFSMAC_TEST_SEAMS -I include -I src/daemon -o "$work/x" src/daemon/spawn.c $mystery/y.c
+'

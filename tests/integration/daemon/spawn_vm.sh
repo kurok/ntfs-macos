@@ -60,7 +60,9 @@ echo "spawn_vm: building NTFS-3G in the guest" >&2
 
 echo "spawn_vm: copying the sources of the module and the driver" >&2
 (cd "$root" && tar -cf - include src/daemon/spawn.c src/daemon/spawn_config.h src/daemon/internal.h \
-	src/daemon/status.c src/options src/sanitize src/common/label_cp.c src/common/label_cp_data.h \
+	src/daemon/spawn_holder.c src/daemon/spawn_holder.h src/daemon/usermap.c src/daemon/usermap.h \
+	src/daemon/usermap_file.c src/daemon/usermap_file.h src/daemon/status.c \
+	src/options src/sanitize src/common/label_cp.c src/common/label_cp_data.h src/common/log.c \
 	src/policy integration/sandbox tests/integration/daemon/spawn_vm.c tests/unit/spawn/spawn_stub.c) |
 	tart exec -i "$name" /bin/sh -c 'rm -rf ~/ntfsmac/spawn && mkdir -p ~/ntfsmac/spawn && tar -xf - -C ~/ntfsmac/spawn'
 
@@ -71,9 +73,10 @@ work=$(cd -P "$(mktemp -d /tmp/spawnvm.XXXXXX)" && pwd) # the real path: a profi
 chmod 755 "$work" # `nobody` must be able to run the stand-ins; the image stays mode 000
 cd "$d"
 cc -std=c17 -Wall -Wextra -Werror -O2 -DNTFSMAC_TEST_SEAMS -I include -I src/daemon -I src/sanitize \
-	-o "$work/spawn_vm" tests/integration/daemon/spawn_vm.c src/daemon/spawn.c src/daemon/status.c \
+	-o "$work/spawn_vm" tests/integration/daemon/spawn_vm.c src/daemon/spawn.c \
+	src/daemon/spawn_holder.c src/daemon/usermap.c src/daemon/usermap_file.c src/daemon/status.c \
 	src/options/options.c src/options/argv_check.c src/sanitize/label.c src/sanitize/display.c \
-	src/sanitize/leaf.c src/sanitize/verdict.c src/common/label_cp.c src/policy/policy.c
+	src/sanitize/leaf.c src/sanitize/verdict.c src/common/label_cp.c src/common/log.c src/policy/policy.c
 cc -std=c17 -Wall -Wextra -Werror -O2 -o "$work/spawn_stub" tests/unit/spawn/spawn_stub.c
 cp "$HOME/ntfsmac/deps/bin/ntfs-3g" "$work/ntfsmac-worker"
 img=$work/ntfs.img

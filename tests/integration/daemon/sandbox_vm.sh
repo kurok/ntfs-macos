@@ -71,7 +71,9 @@ echo "sandbox_vm: building NTFS-3G in the guest" >&2
 
 echo "sandbox_vm: copying the sources" >&2
 (cd "$root" && tar -cf - include integration/sandbox src/daemon/spawn.c src/daemon/spawn_config.h \
-	src/daemon/internal.h src/daemon/status.c src/options src/sanitize src/common src/policy \
+	src/daemon/spawn_holder.c src/daemon/spawn_holder.h src/daemon/usermap.c src/daemon/usermap.h \
+	src/daemon/usermap_file.c src/daemon/usermap_file.h src/daemon/internal.h src/daemon/status.c \
+	src/options src/sanitize src/common src/policy \
 	src/probe src/volmark tests/integration/daemon tests/unit/spawn/spawn_stub.c) |
 	tart exec -i "$name" /bin/sh -c 'rm -rf ~/ntfsmac/sbx && mkdir -p ~/ntfsmac/sbx && tar -xf - -C ~/ntfsmac/sbx'
 
@@ -91,12 +93,14 @@ cleanup() {
 trap cleanup EXIT
 cd "$d"
 cflags="-std=c17 -Wall -Wextra -Werror -O2 -DNTFSMAC_TEST_SEAMS -I include -I src/daemon -I src/sanitize -I tests/integration/daemon"
-cc $cflags -o "$work/spawn_vm" tests/integration/daemon/spawn_vm.c src/daemon/spawn.c src/daemon/status.c \
+cc $cflags -o "$work/spawn_vm" tests/integration/daemon/spawn_vm.c src/daemon/spawn.c \
+	src/daemon/spawn_holder.c src/daemon/usermap.c src/daemon/usermap_file.c src/daemon/status.c \
 	src/options/options.c src/options/argv_check.c src/sanitize/label.c src/sanitize/display.c \
-	src/sanitize/leaf.c src/sanitize/verdict.c src/common/label_cp.c src/policy/policy.c
-cc $cflags -o "$work/sandbox_vm" tests/integration/daemon/sandbox_vm.c src/daemon/spawn.c src/daemon/status.c \
+	src/sanitize/leaf.c src/sanitize/verdict.c src/common/label_cp.c src/common/log.c src/policy/policy.c
+cc $cflags -o "$work/sandbox_vm" tests/integration/daemon/sandbox_vm.c src/daemon/spawn.c \
+	src/daemon/spawn_holder.c src/daemon/usermap.c src/daemon/usermap_file.c src/daemon/status.c \
 	src/options/options.c src/options/argv_check.c src/sanitize/label.c src/sanitize/display.c \
-	src/sanitize/leaf.c src/sanitize/verdict.c src/common/label_cp.c src/policy/policy.c src/probe/state.c \
+	src/sanitize/leaf.c src/sanitize/verdict.c src/common/label_cp.c src/common/log.c src/policy/policy.c src/probe/state.c \
 	src/common/state_rank.c
 cc $cflags -o "$work/sandbox_stub" tests/integration/daemon/sandbox_stub.c
 cc -std=c17 -Wall -Wextra -Werror -O2 $(pkg-config --cflags fuse) -o "$work/sandbox_fuse" tests/integration/daemon/sandbox_fuse.c $(pkg-config --libs fuse)

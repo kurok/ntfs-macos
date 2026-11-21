@@ -58,8 +58,10 @@ fi
 
 echo "errwatch_vm: copying the sources of the modules and the driver" >&2
 (cd "$root" && tar -cf - include src/daemon/spawn.c src/daemon/spawn_config.h src/daemon/internal.h \
-	src/daemon/status.c src/daemon/errwatch.c src/daemon/errwatch_io.c src/options src/sanitize \
-	src/common/label_cp.c src/common/label_cp_data.h src/policy tests/integration/daemon/errwatch_vm.c) |
+	src/daemon/spawn_holder.c src/daemon/spawn_holder.h src/daemon/usermap.c src/daemon/usermap.h \
+	src/daemon/usermap_file.c src/daemon/usermap_file.h src/daemon/status.c src/daemon/errwatch.c src/daemon/errwatch_io.c \
+	src/options src/sanitize \
+	src/common/label_cp.c src/common/label_cp_data.h src/common/log.c src/policy tests/integration/daemon/errwatch_vm.c) |
 	tart exec -i "$name" /bin/sh -c 'rm -rf ~/ntfsmac/errwatch && mkdir -p ~/ntfsmac/errwatch && tar -xf - -C ~/ntfsmac/errwatch'
 
 # The guest script: build, make the image, run. Quoted so that nothing expands on the host.
@@ -69,10 +71,11 @@ work=$(mktemp -d /tmp/errwatchvm.XXXXXX)
 chmod 755 "$work" # the console user must be able to run the wrapper; the image stays mode 000
 cd "$d"
 cc -std=c17 -Wall -Wextra -Werror -O2 -DNTFSMAC_TEST_SEAMS -I include -I src/daemon -I src/sanitize \
-	-o "$work/errwatch_vm" tests/integration/daemon/errwatch_vm.c src/daemon/spawn.c src/daemon/status.c \
+	-o "$work/errwatch_vm" tests/integration/daemon/errwatch_vm.c src/daemon/spawn.c \
+	src/daemon/spawn_holder.c src/daemon/usermap.c src/daemon/usermap_file.c src/daemon/status.c \
 	src/daemon/errwatch.c src/daemon/errwatch_io.c \
 	src/options/options.c src/options/argv_check.c src/sanitize/label.c src/sanitize/display.c \
-	src/sanitize/leaf.c src/sanitize/verdict.c src/common/label_cp.c src/policy/policy.c
+	src/sanitize/leaf.c src/sanitize/verdict.c src/common/label_cp.c src/common/log.c src/policy/policy.c
 cp "$HOME/ntfsmac/deps/bin/ntfs-3g" "$work/ntfsmac-worker"
 if [ -x "$HOME/ntfsmac/deps-fio/bin/ntfs-3g" ]; then
 	cp "$HOME/ntfsmac/deps-fio/bin/ntfs-3g" "$work/ntfsmac-worker-fio"

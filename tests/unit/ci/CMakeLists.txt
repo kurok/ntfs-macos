@@ -8,6 +8,9 @@
 #     .git included, at /work); ci.local_full only runs git in a throw-away repository of its own, ci.local
 #     only through ci-local.sh, which passes `-c safe.directory=*` (no "dubious ownership" for root on a
 #     uid-501 mount); the real-build part of test_ci_local.sh (ci.local_build) also needs the .git of the source;
+#   - ci.guest_sources checks the copy and cc lists of the VM scripts against the includes of the sources they build
+#     (and runs a self-test on a known-bad fixture); ci.guest_link (macOS hosts only) builds those cc lines on the host
+#     from the copied lists, skipping the lines that need libntfs-3g or macFUSE;
 #   - ci.local_build runs ci-local.sh --quick inside real copies, whose ctest would run these tests again:
 #     NTFSMAC_CI_NESTED=1 makes them skip there.
 find_program(NTFSMAC_PYTHON3 python3)
@@ -35,6 +38,17 @@ if(NTFSMAC_PYTHON3 AND NTFSMAC_SH)
     COMMAND ${NTFSMAC_PYTHON3} -I -B ${_ci_dir}/gate_cases_check.py ${PROJECT_SOURCE_DIR} M5)
   set_tests_properties(ci.local ci.local_full PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 120 LABELS ci)
   set_tests_properties(ci.gate_cases PROPERTIES TIMEOUT 60 LABELS ci)
+  # the guest build lists of the VM scripts (tar list and cc lines) against the includes of the sources they build
+  add_test(NAME ci.guest_sources
+    COMMAND ${NTFSMAC_PYTHON3} -I -B ${_ci_dir}/check_guest_sources.py ${PROJECT_SOURCE_DIR})
+  set_tests_properties(ci.guest_sources PROPERTIES TIMEOUT 60 LABELS ci)
+  # the same guest cc lines built on the host, from the copied lists (macOS only: they link its frameworks; the
+  # lines that need libntfs-3g or macFUSE are skipped); the script itself exits 77 on any other host
+  if(APPLE)
+    add_test(NAME ci.guest_link
+      COMMAND ${NTFSMAC_PYTHON3} -I -B ${_ci_dir}/check_guest_link.py ${PROJECT_SOURCE_DIR})
+    set_tests_properties(ci.guest_link PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 120 LABELS ci)
+  endif()
 
   option(NTFSMAC_CI_BUILD_TESTS "Also register ci.local_build: ci-local.sh --quick on copies (about 2 minutes)" OFF)
   if(NTFSMAC_CI_BUILD_TESTS)

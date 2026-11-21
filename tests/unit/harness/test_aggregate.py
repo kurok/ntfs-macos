@@ -143,6 +143,20 @@ class ProvenanceTest(AggregateBase):
         note = [c for c in doc["cases"] if c["id"] == "STAGE-B-PROVENANCE"][0]["note"]
         self.assertIn(SHA2[:7], note)
 
+    def cli_aggregate(self, dirty, tag):
+        out = os.path.join(os.path.dirname(self.out), "2026-11-20-0123456-B-%s.json" % tag)
+        cli = [sys.executable, "-B", os.path.join(TESTS, "harness", "report.py"), "aggregate", "--env", "B", "--work",
+               self.work, "--out", out, "--git-sha", SHA, "--dirty", dirty]
+        return subprocess.run(cli, stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode
+
+    def test_aggregate_exit_status_for_a_dirty_or_foreign_result(self):
+        """M5-F12: all stages passed, but the result is dirty or holds a sub-result of another commit: exit 3, not 0."""
+        self.assertEqual(self.cli_aggregate("false", "clean"), 0)  # clean, no sub-result
+        self.assertEqual(self.cli_aggregate("true", "dirty"), report.EXIT_DIRTY)
+        write_doc(os.path.join(self.work, "results"), "sub.json", "B", [mkcase("I-X-01")], sha=SHA2)
+        self.assertEqual(self.cli_aggregate("false", "foreign"), report.EXIT_DIRTY)  # sub-result from another commit
+        self.assertEqual(report.EXIT_DIRTY, 3)
+
     def test_clean_same_commit_stays_clean(self):
         write_doc(os.path.join(self.work, "results"), "sub.json", "B", [mkcase("I-X-01")])
         doc = self.agg(dirty=False)
@@ -531,7 +545,9 @@ class TestAllStubbedTest(unittest.TestCase):
         res = os.path.join(self.d, "2026-11-20-%s-host.json" % git_sha[:7])
         with open(res, "w") as f:
             json.dump(doc, f)
-        ci_doc = dict(doc, cases=[{"id": "STAGE-HOST-TSAN", "status": "pass", "duration_s": 1, "evidence": [], "note": None},
+        ci_doc = dict(doc, cases=[{"id": "STAGE-HOST-BOOTSTRAP", "status": "pass", "duration_s": 1, "evidence": [],
+                                   "note": None},
+                                  {"id": "STAGE-HOST-TSAN", "status": "pass", "duration_s": 1, "evidence": [], "note": None},
                                   {"id": "STAGE-HOST-STATIC-ANALYSIS", "status": "pass", "duration_s": 1, "evidence": [],
                                    "note": None}])
         ci_res = os.path.join(self.d, "2026-11-20-%s-host-ci.json" % git_sha[:7])
@@ -549,9 +565,25 @@ class TestAllStubbedTest(unittest.TestCase):
         g = subprocess.run(cmd, cwd=REPO, env=e, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         txt = g.stdout.decode()
         self.assertEqual(g.returncode, 1, txt)
-        self.assertIn("lacks the stage case(s): STAGE-HOST-TSAN, STAGE-HOST-STATIC-ANALYSIS", txt)
+        self.assertIn("lacks the stage case(s): STAGE-HOST-BOOTSTRAP, STAGE-HOST-TSAN, STAGE-HOST-STATIC-ANALYSIS", txt)
         for bad in ("not passed", "not a full run", "run-mode"):
             self.assertNotIn(bad, txt)
+
+    def test_dirty_result_exits_3_with_a_distinct_message(self):
+        """M5-F12: every stage passed on a dirty tree: the result is marked dirty and the exit status is 3 (not 0)."""
+        dirty_git = 'case "$*" in *rev-parse*) echo 1111111111111111111111111111111111111111 ;; *status*) echo " M src/x.c" ;; esac; exit 0'
+        out = os.path.join(self.d, "r.json")
+        r = self.run_all(dict(HOST_STUBS, git=dirty_git), "--env", "host", "--quick", "--out", out)
+        self.assertEqual(r.returncode, 3, r.stderr.decode())
+        self.assertIn("PASSED (dirty, not usable for a gate)", r.stderr.decode())
+        doc, _by = self.result()
+        self.assertTrue(doc["dirty_tree"])
+        # a failure on a dirty tree stays a failure (1), and a clean pass stays 0
+        r = self.run_all(dict(HOST_STUBS, git=dirty_git), "--env", "host", "--quick", "--out", out + "2",
+                         STUB_CTEST_RC="1")
+        self.assertEqual(r.returncode, 1, r.stderr.decode())
+        r = self.run_all(HOST_STUBS, "--env", "host", "--quick", "--out", out + "3")
+        self.assertEqual(r.returncode, 0, r.stderr.decode())
 
     def test_failure_does_not_stop_the_run(self):
         out = os.path.join(self.d, "r.json")

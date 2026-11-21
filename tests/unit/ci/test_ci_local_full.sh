@@ -4,12 +4,17 @@
 # container or mount is used: the tests run in a throw-away git repository that holds a copy of
 # scripts/ci-local.sh and tests/harness, full mode runs against a stub of test-all.sh
 # (CI_LOCAL_TEST_ALL) and the stages ci-local runs itself are replaced by stubs (CI_LOCAL_TEST_OWN).
-# Not registered with CTest (like test_ci_local.sh).
-# Usage: tests/unit/ci/test_ci_local_full.sh   (exit 0 = all pass)
+# Registered with CTest as ci.local_full (tests/unit/ci/CMakeLists.txt). It needs a git binary, not a .git of
+# the source tree.
+# Usage: tests/unit/ci/test_ci_local_full.sh   (exit 0 = all pass, 77 = skipped with the reason printed)
 set -eu
 
 here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 repo=$(CDPATH='' cd -- "$here/../../.." && pwd)
+skip() { echo "SKIP: $1"; exit 77; }
+[ -z "${NTFSMAC_CI_NESTED:-}" ] || skip "inside a ci-local test run"
+command -v git >/dev/null 2>&1 || skip "git is not installed"
+command -v python3 >/dev/null 2>&1 || skip "python3 is not installed"
 work=$(mktemp -d "${TMPDIR:-/tmp}/ci-local-full-test.XXXXXX")
 trap 'rm -rf "$work"' EXIT INT TERM
 
@@ -186,6 +191,48 @@ ci --verify-result "$work/r/tests/results/$name"
 expect "a file that differs from its committed copy is rejected" 1 'differs from the copy committed'
 g checkout -q -- tests/results
 
+# ---- evidence paths are committed with the result (M5-F12) ---------------------------------------
+hd=$(g rev-parse HEAD)
+mk "$pc" "$hd" false host -evid pass pass
+python3 -B - "$mkf" <<'PY'
+import json, sys
+d = json.load(open(sys.argv[1]))
+d["cases"][0]["evidence"] = ["evidence/ev1/a.log", "evidence/ev1/b.log"]
+json.dump(d, open(sys.argv[1], "w"))
+PY
+evname=$(basename "$mkf")
+ci --verify-result "$mkf" --pre-commit
+expect "--pre-commit does not check the evidence paths (the files are not committed yet)" 0 'ok .*covers'
+cp "$mkf" "$work/r/tests/results/"
+g add tests/results
+g commit -q -m "result whose evidence is missing"
+ci --verify-result "$work/r/tests/results/$evname"
+expect "a result whose evidence is not committed with it is rejected" 1 '2 evidence path(s) named by the result are not committed.*evidence/ev1/a.log, evidence/ev1/b.log'
+mkdir -p "$work/r/tests/results/evidence/ev1"
+printf 'log\n' >"$work/r/tests/results/evidence/ev1/a.log"
+mk "$pc" "$(g rev-parse HEAD)" false host -evdir pass pass
+python3 -B - "$mkf" <<'PY'
+import json, sys
+d = json.load(open(sys.argv[1]))
+d["cases"][0]["evidence"] = ["evidence/ev1"]
+json.dump(d, open(sys.argv[1], "w"))
+PY
+evdir=$(basename "$mkf")
+cp "$mkf" "$work/r/tests/results/"
+g add "tests/results/$evdir"
+g commit -q -m "result whose evidence is a directory"
+ci --verify-result "$work/r/tests/results/$evdir"
+expect "a directory named as evidence is rejected (only committed files count)" 1 '1 evidence path(s) named by the result are not committed.*evidence/ev1'
+g add tests/results
+g commit -q -m "evidence a"
+ci --verify-result "$work/r/tests/results/$evname"
+expect "... one missing path of two is still rejected" 1 '1 evidence path(s) named by the result are not committed.*evidence/ev1/b.log'
+printf 'log\n' >"$work/r/tests/results/evidence/ev1/b.log"
+g add tests/results
+g commit -q -m "evidence b"
+ci --verify-result "$work/r/tests/results/$evname"
+expect "a result with all its evidence committed is accepted" 0 'ok .*covers'
+
 # ---- exact commit rule: renames, allowed and disallowed changes -------------------------------------
 mk "$pc" "$base" false host -anc pass
 ci --verify-result "$mkf" --pre-commit
@@ -304,6 +351,7 @@ doc = {"schema": "ntfsmac-test-result/1", "git_sha": sha, "dirty_tree": dirty, "
        "finished": "2026-11-20T10:00:01Z", "cases": cases}
 json.dump(doc, open(out, "w"))
 PY
+[ "${STUB_RC3:-}" != "$env" ] || exit 3 # every stage passed, the result is marked dirty (test-all.sh exit 3)
 [ "${STUB_FAIL:-}" != "$env" ]
 STUB
 chmod +x "$work/stub.sh"
@@ -318,7 +366,7 @@ for e in host A B; do
 	"$work/stub.sh" --env "$e" --out "$stubres/2026-11-20-$n7-$e.json"
 done
 # the -ci files (stages ci-local runs itself), as full mode writes them
-mk "$stubres" "$head" false host -ci STAGE-HOST-TSAN:pass STAGE-HOST-STATIC-ANALYSIS:pass
+mk "$stubres" "$head" false host -ci STAGE-HOST-BOOTSTRAP:pass STAGE-HOST-TSAN:pass STAGE-HOST-STATIC-ANALYSIS:pass
 mk "$stubres" "$head" false A -ci STAGE-A-LINUX-BUILD-TEST:pass STAGE-A-FUZZ-SHORT:pass
 mk "$stubres" "$head" false B -ci STAGE-B-PACKAGE:pass
 gate() { # [extra args...]: the gate check over the stub results, files host A B and the three -ci files
@@ -388,7 +436,7 @@ expect "F01: a quick file given together with full files still rejects the set" 
 
 # ---- F02: --require-env implies the -ci stages --------------------------------------------------------
 ci --verify-result "$stubres/2026-11-20-$n7-host.json" --pre-commit --require-env host
-expect "F02: --require-env host without the -ci file is rejected" 1 'lacks the stage case.*STAGE-HOST-TSAN, STAGE-HOST-STATIC-ANALYSIS'
+expect "F02: --require-env host without the -ci file is rejected" 1 'lacks the stage case.*STAGE-HOST-BOOTSTRAP, STAGE-HOST-TSAN, STAGE-HOST-STATIC-ANALYSIS'
 ci --verify-result "$stubres/2026-11-20-$n7-A.json" --pre-commit --require-env A
 expect "F02: --require-env A without the -ci file is rejected" 1 'lacks the stage case.*STAGE-A-LINUX-BUILD-TEST, STAGE-A-FUZZ-SHORT'
 ci --verify-result "$stubres/2026-11-20-$n7-B.json" --pre-commit --require-env B
@@ -399,12 +447,15 @@ expect "F02: an -ci file with only STAGE-HOST-TSAN is rejected (STATIC-ANALYSIS 
 mk "$pc" "$head" false host -ci2 STAGE-HOST-TSAN:pass STAGE-HOST-STATIC-ANALYSIS:skip
 ci --verify-result "$stubres/2026-11-20-$n7-host.json" --verify-result "$mkf" --pre-commit --require-env host
 expect "F02: a skipped -ci stage is rejected" 1 'STAGE-HOST-STATIC-ANALYSIS=skip'
+mk "$pc" "$head" false host -ci3 STAGE-HOST-TSAN:pass STAGE-HOST-STATIC-ANALYSIS:pass
+ci --verify-result "$stubres/2026-11-20-$n7-host.json" --verify-result "$mkf" --pre-commit --require-env host
+expect "M5-F12: a host -ci file without STAGE-HOST-BOOTSTRAP is rejected" 1 'lacks the stage case.*STAGE-HOST-BOOTSTRAP'
 ci --help
 expect "F02: the usage text documents --require-case" 0 'require-case'
 if grep -q -- '--milestone NAME' "$work/out" && grep -q -- '--require-env host,A,B --milestone M5' "$work/out"; then r=0; else r=1; fi
 check "F02: ... and --milestone, with the gate command" "$r"
 python3 -B "$work/r/tests/harness/report.py" own-stages >"$work/own.txt" 2>/dev/null || true
-if [ "$(tr '\n' ' ' <"$work/own.txt")" = "host tsan host static-analysis A linux-build-test A fuzz-short B package " ]; then r=0; else r=1; fi
+if [ "$(tr '\n' ' ' <"$work/own.txt")" = "host bootstrap host tsan host static-analysis A linux-build-test A fuzz-short B package " ]; then r=0; else r=1; fi
 check "F02: report.py own-stages is the one table of the -ci stages" "$r"
 
 # ---- F02: --require-case and --milestone -------------------------------------------------------------
@@ -602,7 +653,7 @@ expect "F05: an adopted file outside tests/results/ is rejected without --pre-co
 rm -rf "$work/r/tests/gate"
 
 # ---- full mode with the stubs ---------------------------------------------------------------------
-full() { : >"$STUB_LOG"; rc=0; CI_LOCAL_TEST_OWN=1 "$work/r/scripts/ci-local.sh" "$@" >"$work/out" 2>&1 || rc=$?; unset STUB_FAIL STUB_NOFILE STUB_MISSING CI_LOCAL_TEST_OWN_FAIL; }
+full() { : >"$STUB_LOG"; rc=0; CI_LOCAL_TEST_OWN=1 "$work/r/scripts/ci-local.sh" "$@" >"$work/out" 2>&1 || rc=$?; unset STUB_FAIL STUB_NOFILE STUB_MISSING STUB_RC3 CI_LOCAL_TEST_OWN_FAIL; }
 full --dry-run --fixtures "$work/fx"
 expect "S3: full mode with --fixtures warns that the run cannot pass the gate" 0 'WARNING: --fixtures .*cannot pass the gate'
 order() { tr '\n' ' ' <"$STUB_LOG"; }
@@ -629,7 +680,7 @@ ids = {}
 for f in glob.glob(sys.argv[1] + "/*-ci.json"):
     d = json.load(open(f))
     ids[d["env"]] = {c["id"]: c for c in d["cases"]}
-want = {"host": ["STAGE-HOST-TSAN", "STAGE-HOST-STATIC-ANALYSIS"], "A": ["STAGE-A-LINUX-BUILD-TEST", "STAGE-A-FUZZ-SHORT"],
+want = {"host": ["STAGE-HOST-BOOTSTRAP", "STAGE-HOST-TSAN", "STAGE-HOST-STATIC-ANALYSIS"], "A": ["STAGE-A-LINUX-BUILD-TEST", "STAGE-A-FUZZ-SHORT"],
         "B": ["STAGE-B-PACKAGE"]}
 for e, cs in want.items():
     for c in cs:
@@ -640,6 +691,9 @@ check "the -ci files hold the right STAGE cases per environment, with the stage 
 
 CI_LOCAL_TEST_OWN_FAIL=fuzz-short full --results-dir "$work/resfz"
 expect "a failing own stage fails the run and verify-result rejects its -ci file" 1 'REJECTED .*A-ci.json: .*failed or errored: STAGE-A-FUZZ-SHORT'
+
+CI_LOCAL_TEST_OWN_FAIL=bootstrap full --only bootstrap,host --results-dir "$work/resbs"
+expect "M5-F12: a failing bootstrap fails the run and the host -ci file records STAGE-HOST-BOOTSTRAP as failed" 1 'REJECTED .*host-ci.json: .*failed or errored: STAGE-HOST-BOOTSTRAP'
 
 STUB_NOFILE=A full --results-dir "$work/resnf"
 expect "a stage that exits 0 but writes no file fails" 1 'exited 0 but wrote no result file'
@@ -662,7 +716,13 @@ expect "full mode refuses a dirty tree" 2 'working tree is dirty'
 full --only host --results-dir "$work/resd6" --allow-dirty
 if [ "$rc" -eq 1 ] && grep -q 'dirty_tree is true' "$work/out" && grep -l '"dirty_tree": true' "$work"/resd6/*.json >/dev/null; then r=0; else r=1; sed 's/^/    | /' "$work/out" | tail -8; fi
 check "--allow-dirty runs, marks the results dirty and the final verification rejects them (exit 1)" "$r"
+STUB_RC3=host full --only host --results-dir "$work/resd7" --allow-dirty
+if [ "$rc" -eq 1 ] && grep -q '^host  *ok ' "$work/out"; then r=0; else r=1; sed 's/^/    | /' "$work/out" | tail -8; fi
+check "M5-F12: test-all exit 3 (passed, dirty) is accepted for a tree that was dirty at the start; the gate still rejects" "$r"
 g checkout -q -- src/a.c
+STUB_RC3=host full --only host --results-dir "$work/resd8"
+if [ "$rc" -eq 1 ] && grep -q '^host  *FAIL ' "$work/out"; then r=0; else r=1; sed 's/^/    | /' "$work/out" | tail -8; fi
+check "M5-F12: test-all exit 3 for a tree that was clean at the start (it became dirty during the run) fails the stage" "$r"
 
 if [ "$fails" -eq 0 ]; then echo "ALL PASSED"; exit 0; fi
 echo "$fails FAILED"; exit 1

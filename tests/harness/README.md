@@ -66,7 +66,7 @@ Every stage runs, a failing stage does not stop the run, and one result file is 
 (`tests/results/<date>-<sha>-<env>.json` or `--out FILE`, evidence in `evidence/<name>/`). Each stage
 is a case `STAGE-<ENV>-<NAME>` (`pass`, `fail`, or `skip` with the reason); the cases of the harness
 runs are merged in unchanged, so the schema does not change. Exit 0 only if no stage and no case
-failed and something passed (a run in which every stage skipped is not a success). `--quick` leaves out the
+failed and something passed (a run in which every stage skipped is not a success). Exit 3: everything passed but the result is marked dirty (not usable for a gate); `report.py aggregate` uses the same status. `--quick` leaves out the
 long stages and runs only `I-INT-*`; `--cases` runs only the harness stages. The whole suite is three
 commands: `--env host` (macOS build and unit tests), `--env A` and `--env B`. A failed preflight (docker,
 tart, golden VM, image, pinned tarball) fails the stage `preflight` and skips the rest; nothing is built or

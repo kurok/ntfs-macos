@@ -43,7 +43,11 @@
 #
 # Exit: 0 every stage passed and something was verified (skipped stages do not fail, but a run in
 #       which nothing passed is not a success), 1 a stage or a case failed or errored or nothing
-#       was verified, 2 usage error or the result could not be written (the work directory is kept).
+#       was verified, 2 usage error or the result could not be written (the work directory is kept),
+#       3 every stage passed but the result is marked dirty (the tree was dirty at the start or
+#       changed during the run, or a sub-result came from another commit): it prints
+#       "PASSED (dirty, not usable for a gate)" and no gate accepts the file (M5-F12). A caller that
+#       runs a dirty tree on purpose (ci-local.sh --allow-dirty) must accept 3 itself.
 set -eu
 
 here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
@@ -279,15 +283,22 @@ finish() {
 	[ -z "$out" ] || set -- "$@" --out "$out"
 	printf '\n== result ==\n' >&2
 	_path=$(report "$@") || _rc=$?
-	if [ "$_rc" -ge 2 ]; then
+	case $_rc in
+	0 | 1 | 3) ;;
+	*)
 		keep=1
 		printf 'test-all: could not write the result file\n' >&2
 		cleanup_work
 		exit 2
-	fi
+		;;
+	esac
 	if [ "$update_readme" -eq 1 ]; then report readme >&2 || true; fi
 	printf '%s\n' "$_path"
-	if [ "$_rc" -eq 0 ]; then printf 'test-all --env %s: PASSED\n' "$env_name" >&2; else printf 'test-all --env %s: FAILED\n' "$env_name" >&2; fi
+	case $_rc in
+	0) printf 'test-all --env %s: PASSED\n' "$env_name" >&2 ;;
+	3) printf 'test-all --env %s: PASSED (dirty, not usable for a gate)\n' "$env_name" >&2 ;;
+	*) printf 'test-all --env %s: FAILED\n' "$env_name" >&2 ;;
+	esac
 	cleanup_work
 	exit "$_rc"
 }

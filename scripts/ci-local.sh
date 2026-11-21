@@ -25,7 +25,7 @@
 #                      B                 scripts/test-all.sh --env B    (macOS VM; takes a VM slot lock)
 #                    Result files go to --results-dir (default tests/results): one per test-all run
 #                    (<date>-<sha>-<env>.json) and <date>-<sha>-<env>-ci.json for the stages that ci-local
-#                    itself runs (env host: tsan, static-analysis; env A: linux-build-test, fuzz-short;
+#                    itself runs (env host: bootstrap, tsan, static-analysis; env A: linux-build-test, fuzz-short;
 #                    env B: package). Afterwards every file is checked with --verify-result --pre-commit
 #                    against HEAD, requiring the environments of the selected stages. A dirty tree is
 #                    refused (--allow-dirty: the results are then marked dirty and cannot satisfy a gate).
@@ -37,13 +37,14 @@
 #                    or errored, at least one case passed, STAGE-<ENV>-* cases carry its own env, it is
 #                    named <date>-<sha7>-<env>[-...].json for its own git_sha and env, it lies under
 #                    tests/results/ and its content is committed unchanged in the commit under
-#                    verification, and git_sha is that commit (HEAD, or --commit REV) or an ancestor with
+#                    verification, every evidence path it names (relative to its own directory) is committed there too,
+#                    and git_sha is that commit (HEAD, or --commit REV) or an ancestor with
 #                    only tests/results/, docs/audits/, CHECKPOINT.md, NEXT_ACTIONS.md and the README status
 #                    table changed in between (renames count as the change of both paths; the table must be
 #                    what `report.py readme` renders from the results of the commit). --require-env
 #                    host,A,B also demands, per environment, STAGE-<ENV>-* cases for every stage of that
 #                    environment's `test-all.sh --env <ENV> --dry-run` plan and for the stages ci-local
-#                    runs itself in that environment (host: tsan, static-analysis; A: linux-build-test,
+#                    runs itself in that environment (host: bootstrap, tsan, static-analysis; A: linux-build-test,
 #                    fuzz-short; B: package; the table is OWN_STAGES in tests/harness/report.py), every
 #                    one with status pass (criterion 5.7). In gate mode (--require-env, --require-case or
 #                    --milestone) every STAGE-* case of every environment in the files must pass. The only
@@ -282,6 +283,15 @@ def table_is_current(commit):
         return False
 
 
+# every file must be readable before the commit is resolved (a missing file is a usage error whatever the repository)
+for f in files:
+    try:
+        with open(f, "rb"):
+            pass
+    except OSError as e:
+        sys.stderr.write("ci-local: cannot read %s: %s\n" % (f, e.strerror))
+        sys.exit(2)
+
 rc, out = git("rev-parse", "--verify", "--quiet", (rev or "HEAD") + "^{commit}")
 if rc != 0:
     sys.stderr.write("ci-local: cannot resolve the commit to verify: %s\n" % (rev or "HEAD"))
@@ -396,6 +406,23 @@ for f in files:
             if fh.read() != blob:
                 reject(f, "%s differs from the copy committed in %s" % (rel, target[:12]))
                 continue
+        # the evidence paths are relative to the directory of the result file; each must be committed with it
+        # (one `git ls-tree` of the result directory per file; a directory path is not a committed file)
+        missing_ev = []
+        if any(c["evidence"] for c in cases):
+            lrc, lout = git("ls-tree", "-r", "--name-only", "-z", target, "--", os.path.dirname(rel), raw=True)
+            if lrc != 0:
+                reject(f, "cannot list the tree of %s" % target[:12])
+                continue
+            committed = set(x.decode("utf-8", "surrogateescape") for x in lout.split(b"\0") if x)
+            for c in cases:
+                for p in c["evidence"]:
+                    if os.path.normpath(os.path.join(os.path.dirname(rel), p)) not in committed and p not in missing_ev:
+                        missing_ev.append(p)
+        if missing_ev:
+            reject(f, "%d evidence path(s) named by the result are not committed in %s: %s"
+                   % (len(missing_ev), target[:12], listed(missing_ev)))
+            continue
     if tested != target:
         rc, _ = git("cat-file", "-e", tested + "^{commit}")
         if rc != 0:
@@ -603,7 +630,7 @@ if [ "$quick" -eq 0 ]; then
 		[ -n "$_e" ] || continue
 		case ",$need_envs," in *",$_e,"*) ;; *) need_envs="${need_envs:+$need_envs,}$_e" ;; esac
 		case $_s in
-		host | A | B | bootstrap) ;;
+		host | A | B) ;;
 		*) need_cases="${need_cases:+$need_cases,}$("$py" -B -c 'import sys; sys.path.insert(0, sys.argv[1]); import report; print(report.stage_case_id(sys.argv[2], sys.argv[3]))' "$root/tests/harness" "$_e" "$_s")" ;;
 		esac
 	done
@@ -615,7 +642,7 @@ if [ "$quick" -eq 0 ]; then
 			want "$_s" || continue
 			n=$((n + 1))
 			case $_s in
-			bootstrap) _d="scripts/bootstrap.sh" ;;
+			bootstrap) _d="scripts/bootstrap.sh, recorded in env host" ;;
 			host | A | B) _d="scripts/test-all.sh --env $_s" ;;
 			tsan) _d="tsan preset: cmake --preset tsan, build, ctest -R ^tsan. (U-TSAN-*), recorded in env host" ;;
 			static-analysis) _d="shellcheck (-S error), clang-tidy, cppcheck on project code, on the host, recorded in env host" ;;
@@ -692,6 +719,9 @@ if [ "$quick" -eq 0 ]; then
 		_rc=0
 		"$test_all" "$@" || _rc=$?
 		_t1=$(date +%s)
+		# 3 = every stage passed but the result is marked dirty: expected only under --allow-dirty with a tree
+		# that was dirty at the start; the final verification rejects such a result for a gate anyway
+		if [ "$_rc" -eq 3 ] && [ "$git_dirty" = true ]; then _rc=0; fi
 		if [ -f "$_out" ]; then
 			result_files="${result_files}$_out
 "
@@ -886,14 +916,7 @@ if [ "$quick" -eq 0 ]; then
 		fi
 	}
 
-	if want bootstrap; then
-		_t0=$(date +%s)
-		_rc=0
-		printf '\n== ci-local stage bootstrap ==\n'
-		"$here/bootstrap.sh" || _rc=1
-		if [ "$_rc" -eq 0 ]; then _res=ok; else _res=FAIL; fi
-		note_result bootstrap "$_res" "$(($(date +%s) - _t0))"
-	fi
+	if want bootstrap; then own_stage host bootstrap "$here/bootstrap.sh"; fi
 	if want host; then run_test_all host; fi
 	if want tsan; then own_stage host tsan tsan_stage; fi
 	if want static-analysis; then own_stage host static-analysis static_analysis; fi

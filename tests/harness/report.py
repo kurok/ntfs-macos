@@ -330,9 +330,16 @@ def _copy_scrubbed(src, dst, repo):
 
 
 # Stages that scripts/ci-local.sh runs itself, per environment (recorded in <date>-<sha>-<env>-ci.json). The one
-# list for full mode and for `ci-local.sh --verify-result --require-env`.
-OWN_STAGES = (("host", "tsan"), ("host", "static-analysis"), ("A", "linux-build-test"), ("A", "fuzz-short"),
+# list for full mode and for `ci-local.sh --verify-result --require-env`. `bootstrap` is in it: full mode always
+# runs it first, so a gate result without STAGE-HOST-BOOTSTRAP (M5-F12) is one from a run that skipped it.
+OWN_STAGES = (("host", "bootstrap"), ("host", "tsan"), ("host", "static-analysis"), ("A", "linux-build-test"), ("A", "fuzz-short"),
               ("B", "package"))
+
+
+# `report.py aggregate` exit status: 0 everything passed on a clean tree, 1 a case or stage failed or nothing passed,
+# 2 usage error or the result could not be written, EXIT_DIRTY everything passed but the result is marked dirty
+# (dirty tree, HEAD moved, or a sub-result from another commit): not usable for a gate (M5-F12).
+EXIT_DIRTY = 3
 
 
 def stage_case_id(env, name):
@@ -895,7 +902,10 @@ def cmd_aggregate(args):
     sys.stderr.write(text + "\n")
     sys.stderr.write("result: %s%s\n" % (out, " (dirty tree: cannot satisfy a gate)" if doc["dirty_tree"] else ""))
     print(out)
-    return 0 if ok else 1
+    if not ok:
+        return 1
+    # every stage passed but the tree is dirty (or a sub-result came from another commit): not a success a gate can use
+    return EXIT_DIRTY if doc["dirty_tree"] else 0
 
 
 def cmd_adopt(args):

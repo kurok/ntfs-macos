@@ -87,14 +87,18 @@ def kinds(summary):
 
 
 CRITERION = {"soak": ("5.2", 21600, 1, 3600), "par": ("5.3", 1800, 16, None)}
+CONTROLS = {"soak": {"corrupt"}, "par": {"corrupt", "stall"}}
 
 
 def is_criterion(kind, plan):
-    """does the planned run have the parameters of the criterion (5.2: 6 h, baseline 1 h; 5.3: 30 min, 16 writers; hang 60 s)"""
+    """does the planned run have the parameters of the criterion (5.2: 6 h, baseline 1 h; 5.3: 30 min, 16 writers; hang 60 s),
+    run ALL of its negative controls and no injected fault (M5-F04, M5-F10). Only such a run writes the plain case ids;
+    every other run writes the ids with the suffix -SHORT"""
     _, dur, workers, base = CRITERION[kind]
     try:
         return (float(plan["duration"]) >= dur and int(plan["workers"]) == workers and float(plan["hang"]) <= 60
-                and (base is None or float(plan["baseline"]) == base))
+                and (base is None or float(plan["baseline"]) == base)
+                and CONTROLS[kind] <= set(plan.get("controls", "").split()) and not plan.get("fault"))
     except (KeyError, ValueError):
         return False
 
@@ -212,12 +216,14 @@ def pack_state(d):
 
 
 def build_cases(kind, plan, runs, meta, d, have):
+    crit = is_criterion(kind, plan)
+    sfx = "" if crit else "-SHORT"
     cid = IDS[kind] + "-01"
     cases = []
     real = runs.get("%s-real" % kind)
     pr = real_problems(kind, plan, real, d)
     s = read_json(os.path.join(d, "%s-real" % kind, "summary.json")) or {}
-    ev = [e for e in ("plan.txt", "meta.txt", "runs.tsv", "guest.log") if e in have]
+    ev = [e for e in ("plan.txt", "meta.txt", "runs.tsv", "guest.log", "provenance.txt") if e in have]
     for n in ("summary.json", "run.log", "rss.tsv", "workers.json", "remount.json", "verify.log", "state.tar.gz"):
         if os.path.isfile(os.path.join(d, "%s-real" % kind, n)):
             ev.append("%s-real/%s" % (kind, n))
@@ -233,8 +239,10 @@ def build_cases(kind, plan, runs, meta, d, have):
                     r["baseline_kb"], r["baseline_t"], r["peak_kb"], r["final_kb"], r["growth_pct"], r["limit_pct"], r["samples_after"])
     else:
         note = TITLES[kind]
-    if not is_criterion(kind, plan):
-        note = "shortened run, not criterion %s: %s" % (CRITERION[kind][0], note)
+    if not crit:
+        note = "shortened run, not criterion %s (the case id has the suffix -SHORT): %s" % (CRITERION[kind][0], note)
+    note += "; parameters: duration %s s, baseline %s s, workers %s, hang limit %s s, controls '%s', fault '%s'" % (
+        plan["duration"], plan["baseline"], plan["workers"], plan["hang"], plan.get("controls", ""), plan.get("fault", ""))
     if plan.get("fault"):
         note += "; a fault was injected into this run on purpose (%s), so it cannot pass" % plan["fault"]
         pr.append("injected fault")
@@ -242,7 +250,7 @@ def build_cases(kind, plan, runs, meta, d, have):
         pr.append("%s guest check(s) failed (mount mode, one worker holds the device, clean unmount, ntfsfix; see guest.log)" % meta["checks_failed"])
     for p in pr:
         note += "; " + p
-    cases.append({"id": cid, "status": "fail" if pr else "pass", "duration_s": round(float(s.get("duration_actual_s", 0)), 3), "evidence": ev, "note": note})
+    cases.append({"id": cid + sfx, "status": "fail" if pr else "pass", "duration_s": round(float(s.get("duration_actual_s", 0)), 3), "evidence": ev, "note": note})
     if plan.get("controls", "").split():
         cks = control_checks(kind, plan, runs, d)
         bad = [c for c in cks if not c[1]]
@@ -253,7 +261,7 @@ def build_cases(kind, plan, runs, meta, d, have):
                     if os.path.isfile(os.path.join(d, r["name"], n)):
                         cev.append("%s/%s" % (r["name"], n))
         note = "negative controls (%s): %s" % (" ".join(plan["controls"].split()), "; ".join("%s %s: %s" % (c[0], "caught" if c[1] else "NOT CAUGHT", c[2]) for c in cks))
-        cases.append({"id": cid + "-CONTROL", "status": "fail" if bad or not cks else "pass", "duration_s": 0.0, "evidence": cev, "note": note})
+        cases.append({"id": cid + "-CONTROL" + sfx, "status": "fail" if bad or not cks else "pass", "duration_s": 0.0, "evidence": cev, "note": note})
     run_problems = []
     if meta.get("guest_rc") not in ("0", "1"):
         run_problems.append("the guest script ended abnormally (exit %s; 0 or 1 expected)" % meta.get("guest_rc", "unknown"))
@@ -262,7 +270,7 @@ def build_cases(kind, plan, runs, meta, d, have):
     if meta.get("setup_failed") not in (None, "", "0"):
         run_problems.append("%s setup step(s) failed before the first run" % meta["setup_failed"])
     if run_problems:
-        cases.append({"id": IDS[kind] + "-RUN", "status": "fail", "duration_s": 0.0,
+        cases.append({"id": IDS[kind] + "-RUN" + sfx, "status": "fail", "duration_s": 0.0,
                       "evidence": [e for e in ("guest.log", "meta.txt") if e in have], "note": "; ".join(run_problems)})
     return cases
 
@@ -276,7 +284,9 @@ def finalize(d, repo, started):
     pack_state(d)
     runs = read_runs(d)
     cases = build_cases(plan["kind"], plan, runs, meta, d, set(os.listdir(d)))
-    sha, dirty = report.git_info(repo)
+    sha, dirty, pnotes = report.run_state(d, repo)
+    if pnotes and cases:
+        cases[0]["note"] = (cases[0]["note"] or "") + "; provenance: " + "; ".join(pnotes)
     now = report.utc_now()
     doc = report.build_result(sha, dirty, "B", meta.get("host_os") or "macOS (host)", meta.get("guest_os"),
                               meta.get("macfuse") or None, meta.get("ntfs3g") or None, started or now, now, cases)
@@ -345,16 +355,29 @@ def selftest():
         meta = {"guest_rc": "0", "setup_failed": "0", "checks_failed": "0"}
         c = build_cases("soak", plan, runs, meta, d, set())
         assert c[0]["status"] == "pass" and c[0]["note"].startswith("shortened run, not criterion 5.2"), c
+        assert c[0]["id"] == "S-SOAK-01-SHORT" and "parameters: duration 100 s" in c[0]["note"], c
         c = build_cases("soak", plan, runs, dict(meta, checks_failed="2"), d, set())
-        assert c[0]["status"] == "fail" and "guest check" in c[0]["note"] and c[-1]["id"] == "S-SOAK-RUN", c
+        assert c[0]["status"] == "fail" and "guest check" in c[0]["note"] and c[-1]["id"] == "S-SOAK-RUN-SHORT", c
         c = build_cases("soak", dict(plan, fault="corrupt"), runs, meta, d, set())
         assert c[0]["status"] == "fail" and "injected fault" in c[0]["note"], c
         assert not is_criterion("soak", plan)
-        assert is_criterion("soak", dict(plan, duration="21600", baseline="3600"))
+        crit = dict(plan, duration="21600", baseline="3600", controls="corrupt", fault="")
+        assert is_criterion("soak", crit)
+        # a criterion run writes the plain ids; the same run without its control or with a fault never does (M5-F04, M5-F10)
+        cd0, cruns = mk("soak", dict(good, duration_actual_s=21601.0, verifies_min_per_worker=36), good_run, [(float(t), 1000) for t in range(0, 21601, 30)])
+        cids = [x["id"] for x in build_cases("soak", crit, cruns, meta, cd0, set())]
+        assert cids == ["S-SOAK-01", "S-SOAK-01-CONTROL"], cids
+        for bad_plan in (dict(crit, controls=""), dict(crit, fault="corrupt"), dict(crit, duration="21599")):
+            ids = [x["id"] for x in build_cases("soak", bad_plan, cruns, meta, cd0, set())]
+            assert ids[0] == "S-SOAK-01-SHORT" and all(i.endswith("-SHORT") for i in ids), (bad_plan, ids)
+            assert not is_criterion("soak", bad_plan)
+        assert not is_criterion("soak", dict(crit, controls=" "))
+        assert not is_criterion("par", {"duration": "1800", "workers": "16", "hang": "60", "baseline": "0", "controls": "corrupt"})
+        assert is_criterion("par", {"duration": "1800", "workers": "16", "hang": "60", "baseline": "0", "controls": "stall corrupt"})
         assert not is_criterion("soak", dict(plan, duration="21600", baseline="3000"))
         assert not is_criterion("par", {"duration": "1800", "workers": "8", "hang": "60"})
         assert not is_criterion("par", {"duration": "1800", "workers": "16", "hang": "120"})
-        assert is_criterion("par", {"duration": "1800", "workers": "16", "hang": "60", "baseline": "0"})
+        assert not is_criterion("par", {"duration": "1800", "workers": "16", "hang": "60", "baseline": "0"})
         # the controls: caught only when the right and only the right failure shows
         cd = os.path.join(tmp, "c")
         os.makedirs(os.path.join(cd, "par-ctl-corrupt"))

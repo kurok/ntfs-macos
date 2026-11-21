@@ -104,6 +104,16 @@ Full campaign (Environment A, ASan + UBSan, clang 19.1.7, aarch64 container; no 
 sh tests/fuzz/campaign/run.sh --budget-hours 8 --jobs 5 --out build/fuzz/campaign/m5-full
 ```
 
+Run it on a clean tree (a dirty tree is refused unless `--allow-dirty`). It writes `build/fuzz/campaign/m5-full/result.json`
+(`F-CAMPAIGN-01`, with the commit that was fuzzed and the tree state at the start and the end; any budget below 8 CPU-hours,
+a missing target or `--no-patches` gives `F-CAMPAIGN-01-SHORT`). After classifying every `NEW` row (add the row to `known.tsv`), commit the classification, then re-run only the triage on the same directory:
+`python3 -I -B tests/fuzz/campaign/triage.py --results build/fuzz/campaign/m5-full --known tests/fuzz/campaign/known.tsv --plan "<units from run.sh>" --budget 28800 --result-out build/fuzz/campaign/m5-full/result.json`.
+The result is written for the CURRENT commit only when the tree is clean now and every path changed since the fuzzed commit
+(`provenance.txt`) is exactly `tests/fuzz/campaign/known.tsv`, `docs/SECURITY_FINDINGS.md`, `docs/UPSTREAM_REPORTS.md`, `CHECKPOINT.md` or `NEXT_ACTIONS.md`, or under `docs/audits/`, `tests/results/` or `tests/fuzz/findings/` (the minimised inputs),
+so that the fuzzed code is unchanged: `git_sha` is then HEAD and the case note names the fuzzed commit. Any other change since
+(code), or an uncommitted `known.tsv`, marks the result dirty and fails it with the reason. Then `python3 tests/harness/report.py adopt --env A --dir build/fuzz/campaign/m5-full`
+puts it into `tests/results/` (docs/TEST_STRATEGY.md section 10).
+
 Plan: 10 units, one process each, 2880 s of fuzzing each = 8.0 CPU-hours: F-MOUNT-WALK 4 shards, F-PROBE 2
 shards, F-SANITIZE-01, -02, -03 and F-CTL-01 one each; shards use different seeds and their own corpus copy.
 Five containers at a time on the 18 CPUs of the Docker VM, so two waves: expected wall time 1 h 45 min (2 x (48 min

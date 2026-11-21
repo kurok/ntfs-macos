@@ -57,3 +57,20 @@ scans of the idle worker can also show libfuse request buffers from `fuse_sessio
 * Control: `leakctl` leaks 8 blocks; `leaks` must find them with `ctl_leak_site` in the stack, and
   the same output must classify as project under a rule naming that function.
 * `--project-image libfuse.2.dylib` turns the real engine leak into a project leak and the run exits 1.
+
+## Criterion run and its result (M5-F04, M5-F05)
+
+The criterion run is `sh tests/stress/leaks/run.sh --out DIR --iterations 50`. Case ids: the plain ids (`S-LEAK-01`, `S-LEAK-01-CONTROL`) are written only by a run at the criterion parameters (at least 50 workload iterations; the control always runs and must pass).
+Every other run, among them the registered default of `test-all.sh --env B`, writes the same ids with the suffix
+`-SHORT` and the parameters in the case note, and cannot satisfy the milestone list (`tests/gate/M5.cases`).
+To put the criterion run into the record (clean tree; replace DIR):
+
+```sh
+sh tests/stress/leaks/run.sh --out DIR --iterations 50
+python3 tests/harness/report.py adopt --env B --dir DIR    # writes tests/results/<date>-<sha7>-B-leaks.json + evidence/
+# commit tests/results/ (the file and its evidence directory), then the gate:
+sh scripts/ci-local.sh --verify-result tests/results/<file>.json ... --require-env host,A,B --milestone M5
+```
+
+`adopt` refuses a dirty, sha-less, invalid, failed or `-SHORT` result, and evidence that is a symlink or lies outside DIR. `run.sh` records the commit and tree state at the START in `provenance.txt`; a commit made during the run, or a tree dirty at the start or the end, marks the result dirty. One result per commit, day and suite can be adopted: a second one is refused. Unit test of the id rule: `python3 -B tests/stress/leaks/classify.py selftest`;
+of `adopt`: `python3 -B tests/unit/harness/test_adopt.py`.

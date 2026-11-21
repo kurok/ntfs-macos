@@ -56,6 +56,8 @@ case $iter in '' | *[!0-9]* | 0) echo "leaks: --iterations must be a positive nu
 case $out in /*) ;; *) out=$(pwd)/$out ;; esac
 case $deps_tar in '' | /*) ;; *) deps_tar=$(pwd)/$deps_tar ;; esac
 mkdir -p "$out"
+# the commit and tree state at the START of the run (a result is tied to it, not to the state at the end)
+"$py" -B "$root/tests/harness/report.py" provenance --out "$out/provenance.txt" >/dev/null || { echo "leaks: cannot record the start state (is this a repository checkout?)" >&2; exit 2; }
 
 tmp=$(mktemp -d "${TMPDIR:-/tmp}/leaks.XXXXXX")
 name=ntfsmac-leaks-$$
@@ -129,8 +131,10 @@ echo "leaks: running in the guest" >&2
 grc=0
 "$tart_sh" exec "$name" -- "LEAK_ITER=$iter sh ~/leakd/tests/stress/leaks/leaks_guest.sh ~/leakd ~/leakout 2>&1" >"$out/guest.log" || grc=$?
 cat "$out/guest.log" >&2
-tart exec "$name" /bin/sh -c 'cd ~/leakout 2>/dev/null && tar -cf - .' | tar -xf - -C "$out" ||
+cp "$out/provenance.txt" "$tmp/provenance.keep"
+tart exec "$name" /bin/sh -c 'cd ~/leakout 2>/dev/null && tar -cf - .' | tar -xf - --exclude ./provenance.txt --exclude provenance.txt -C "$out" ||
 	{ echo "leaks: could not fetch the evidence from the guest" >&2; exit 2; }
+cmp -s "$out/provenance.txt" "$tmp/provenance.keep" || { echo "leaks: the start record provenance.txt was changed by the guest output" >&2; exit 2; }
 [ "$grc" -eq 0 ] || { echo "leaks: the guest script failed (rc $grc), see $out/guest.log" >&2; exit 2; }
 echo "host_os=macOS $(sw_vers -productVersion 2>/dev/null || echo host)" >>"$out/meta.txt"
 

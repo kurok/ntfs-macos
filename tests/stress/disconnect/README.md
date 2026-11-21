@@ -41,3 +41,20 @@ Controls: `hash` flips one byte of a synced file in the image after the yank, `d
 the hash check (`BAD base/sentinel.bin: sha256`) and the dirty-flag check (`flags_after=0x0000`) must report FAIL
 and be the only FAIL of that repetition, or the control fails. The expected
 FAIL lines of a control do not count as failures of the run.
+
+## Criterion run and its result (M5-F04, M5-F05)
+
+The criterion run is `sh tests/stress/disconnect/run.sh --out DIR --full` (80 yanks, about 35 min). Case ids: the plain ids (`S-DISC-01` to `S-DISC-05`) are written only by a run at the criterion parameters (at least 20 yanks per workload (`--full`), all four workloads, both controls `hash dirty`, no `--fault`; `plan.txt` records `fault=` and a `--fault` run fails the workload cases).
+Every other run, among them the registered default of `test-all.sh --env B`, writes the same ids with the suffix
+`-SHORT` and the parameters in the case note, and cannot satisfy the milestone list (`tests/gate/M5.cases`).
+To put the criterion run into the record (clean tree; replace DIR):
+
+```sh
+sh tests/stress/disconnect/run.sh --out DIR --full
+python3 tests/harness/report.py adopt --env B --dir DIR    # writes tests/results/<date>-<sha7>-B-disconnect.json + evidence/
+# commit tests/results/ (the file and its evidence directory), then the gate:
+sh scripts/ci-local.sh --verify-result tests/results/<file>.json ... --require-env host,A,B --milestone M5
+```
+
+`adopt` refuses a dirty, sha-less, invalid, failed or `-SHORT` result, and evidence that is a symlink or lies outside DIR. `run.sh` records the commit and tree state at the START in `provenance.txt`; a commit made during the run, or a tree dirty at the start or the end, marks the result dirty. One result per commit, day and suite can be adopted: a second one is refused. Unit test of the id rule: `python3 -B tests/stress/disconnect/disc_result.py selftest`;
+of `adopt`: `python3 -B tests/unit/harness/test_adopt.py`.

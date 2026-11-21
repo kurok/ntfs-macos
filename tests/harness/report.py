@@ -4,6 +4,7 @@ results of one scripts/test-all.sh run into one file (T-M5-01); generate the REA
 
   python3 tests/harness/report.py validate FILE...
   python3 tests/harness/report.py aggregate --env A|B|host --work DIR... [--out FILE] [--started TS]
+  python3 tests/harness/report.py adopt --env A|B --dir DIR [--out tests/results/] [--suite NAME]
   python3 tests/harness/report.py readme [--check] [--print]
   python3 tests/harness/report.py git-info
 
@@ -138,6 +139,64 @@ def git_info(repo, sha=None, dirty=None):
             raise RuntimeError("cannot read git status; pass --git-sha and --dirty")
         dirty = out.strip() != ""
     return sha, bool(dirty)
+
+
+def write_provenance(path, repo):
+    """Record the commit and the tree state at the START of a run: DIR/provenance.txt (git_sha=, dirty=). The suite's
+    run.sh calls it (`report.py provenance --out FILE`) first, then checks that the build tree belongs to this
+    checkout (`report.py build-check`) and rebuilds it with `cmake --build`, so that the prebuilt host binaries the
+    suite tests (ntfsmacd, ntfsmac) come from the recorded commit. The guest copy and the guest build follow."""
+    sha, dirty = git_info(repo)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write("git_sha=%s\ndirty=%s\n" % (sha, "true" if dirty else "false"))
+    return sha, dirty
+
+
+def run_state(run_dir, repo):
+    """(git_sha, dirty, notes) of a run that wrote DIR/provenance.txt at its start (M5-F04 review). The sha is the one
+    at the START. The result is dirty when the start record is missing or unusable, the tree was dirty at the start,
+    HEAD at the end differs from the start, or the tree is dirty at the end. A missing record gives the end sha, dirty."""
+    end_sha, end_dirty = git_info(repo)
+    kv = {}
+    try:
+        with open(os.path.join(run_dir, "provenance.txt"), "r", encoding="utf-8") as f:
+            for line in f.read().splitlines():
+                if "=" in line:
+                    k, v = line.split("=", 1)
+                    kv[k.strip()] = v.strip()
+    except OSError:
+        pass
+    start = kv.get("git_sha", "")
+    if not SHA_RE.match(start):
+        return end_sha, True, ["no usable start record (provenance.txt): the commit that was tested is not known"]
+    notes, dirty = [], False
+    if kv.get("dirty") != "false":
+        dirty = True
+        notes.append("the tree was dirty (or its state unknown) when the run started")
+    if start != end_sha:
+        dirty = True
+        notes.append("HEAD moved during the run: started at %s, ended at %s" % (start[:12], end_sha[:12]))
+    if end_dirty:
+        dirty = True
+        notes.append("the tree was dirty at the end of the run")
+    return start, dirty, notes
+
+
+def build_check(build, repo):
+    """None when BUILD is a CMake build tree of REPO (CMAKE_HOME_DIRECTORY of its cache is the repository root),
+    else the reason. A stale or foreign tree would make the suite test binaries of another source tree."""
+    cache = os.path.join(build, "CMakeCache.txt")
+    try:
+        with open(cache, "r", encoding="utf-8", errors="replace") as f:
+            for line in f:
+                if line.startswith("CMAKE_HOME_DIRECTORY:"):
+                    home = line.split("=", 1)[1].strip()
+                    if os.path.realpath(home) == os.path.realpath(repo):
+                        return None
+                    return "%s was configured for %s, not for this checkout %s" % (build, home, repo)
+    except OSError:
+        return "%s has no CMakeCache.txt: it is not a CMake build tree (cmake --preset release)" % build
+    return "%s/CMakeCache.txt has no CMAKE_HOME_DIRECTORY" % build
 
 
 def short_sha(sha):
@@ -283,6 +342,172 @@ def stage_case_id(env, name):
 def is_mode_case(cid):
     """The run-mode record of test-all.sh: STAGE-<ENV>-MODE (a bookkeeping case, not a verification)."""
     return re.match(r"^STAGE-(HOST|A|B)-MODE$", cid) is not None
+
+
+# Criterion runs (stress suites at the criterion parameters, the fuzz campaign): a standalone DIR/result.json is
+# adopted into tests/results/ by `report.py adopt` (M5-F05). The adopted file carries the one marker that only `adopt`
+# writes: the case STAGE-<ENV>-MODE with status pass and the note `criterion:<suite>`. `ci-local.sh --verify-result`
+# accepts such a file when its cases are exactly the plain criterion ids of the suite (and its run case): a run that
+# was shortened or weaker has the ids with the suffix -SHORT and is refused (M5-F04).
+CRITERION_NOTE = "criterion:"
+CRITERION_SUITES = {
+    "soak": {"env": "B", "cases": ("S-SOAK-01", "S-SOAK-01-CONTROL"), "also": ("S-SOAK-RUN",)},
+    "parallel": {"env": "B", "cases": ("S-PAR-01", "S-PAR-01-CONTROL"), "also": ("S-PAR-RUN",)},
+    "leaks": {"env": "B", "cases": ("S-LEAK-01", "S-LEAK-01-CONTROL"), "also": ()},
+    "kill": {"env": "B", "cases": ("S-KILL-01", "S-KILL-02", "S-KILL-03", "S-KILL-04", "S-KILL-05", "S-KILL-RUN"), "also": ()},
+    "disconnect": {"env": "B", "cases": ("S-DISC-01", "S-DISC-02", "S-DISC-03", "S-DISC-04", "S-DISC-05"),
+                   "also": ("S-DISC-RUN",)},
+    "fuzz": {"env": "A", "cases": ("F-CAMPAIGN-01",), "also": ()},
+}
+
+
+def criterion_suite_of(doc):
+    """The suite whose first case is in doc, or None (also None when the cases belong to more than one suite)."""
+    ids = {c["id"] for c in doc["cases"]}
+    found = [n for n, v in CRITERION_SUITES.items() if v["cases"][0] in ids]
+    return found[0] if len(found) == 1 else None
+
+
+def criterion_problems(doc, suite):
+    """Why doc is not the result of a criterion run of SUITE (empty list: it is). The mode record is not looked at.
+    Every non-bookkeeping case must be one of the suite's plain ids and pass, and every id of the suite must be there."""
+    spec = CRITERION_SUITES.get(suite)
+    if spec is None:
+        return ["unknown criterion suite %r" % (suite,)]
+    pr = []
+    if doc["env"] != spec["env"]:
+        pr.append("suite %s runs in environment %s, the result is for %s" % (suite, spec["env"], doc["env"]))
+    cases = [c for c in doc["cases"] if not is_mode_case(c["id"])]
+    allowed = set(spec["cases"]) | set(spec["also"])
+    foreign = [c["id"] for c in cases if c["id"] not in allowed]
+    if foreign:
+        pr.append("case(s) that are not plain criterion cases of %s (a shortened or weaker run has the suffix -SHORT): %s"
+                  % (suite, ", ".join(foreign[:8])))
+    have = {c["id"] for c in cases}
+    missing = [i for i in spec["cases"] if i not in have]
+    if missing:
+        pr.append("criterion case(s) missing: %s" % ", ".join(missing))
+    notpass = ["%s=%s" % (c["id"], c["status"]) for c in cases if c["status"] != "pass"]
+    if notpass:
+        pr.append("case(s) not passed: %s" % ", ".join(notpass[:8]))
+    return pr
+
+
+def _retriage_matches(src_dir, result_sha, fuzzed_sha):
+    """A fuzz result that a re-triage wrote at another commit: DIR/retriage.txt names that commit (git_sha=) and the
+    fuzzed one (fuzzed=); both must equal the result's sha and the start record's sha."""
+    kv = {}
+    try:
+        with open(os.path.join(src_dir, "retriage.txt"), "r", encoding="utf-8") as f:
+            for line in f.read().splitlines():
+                if "=" in line:
+                    k, v = line.split("=", 1)
+                    kv[k.strip()] = v.strip()
+    except OSError:
+        return False
+    return bool(fuzzed_sha) and kv.get("git_sha") == result_sha and kv.get("fuzzed") == fuzzed_sha
+
+
+def _inside(base, path):
+    """True when realpath(path) is below realpath(base) (no symlink in the chain leads out of it)."""
+    b = os.path.realpath(base)
+    r = os.path.realpath(path)
+    return r == b or r.startswith(b + os.sep)
+
+
+def adopt(src_dir, env, out_dir, repo, suite=None):
+    """Turn the standalone result DIR/result.json of a criterion run into a result file under out_dir that
+    `ci-local.sh --verify-result` can accept (M5-F05): <date>-<sha7>-<env>-<suite>.json plus the evidence copied to
+    <out_dir>/evidence/<same name>/ (paths rewritten, host paths scrubbed). Refuses (ValueError) an invalid, dirty
+    or sha-less source, a source that is not a plain criterion run of one suite, and an existing target.
+    Returns the path of the result file."""
+    import shutil
+    import tempfile
+
+    src = os.path.join(src_dir, "result.json")
+    prov = os.path.join(src_dir, "provenance.txt")
+    if os.path.isfile(prov):
+        pkv = {}
+        with open(prov, "r", encoding="utf-8") as f:
+            for line in f.read().splitlines():
+                if "=" in line:
+                    k, v = line.split("=", 1)
+                    pkv[k.strip()] = v.strip()
+        try:
+            with open(src, "r", encoding="utf-8") as f:
+                rsha = json.load(f).get("git_sha")
+        except (OSError, ValueError, AttributeError):
+            rsha = None
+        if rsha is not None and pkv.get("git_sha") != rsha and not _retriage_matches(src_dir, rsha, pkv.get("git_sha")):
+            raise ValueError("%s: git_sha %s differs from the start record in provenance.txt (%s): a reused or mixed "
+                             "directory" % (src, str(rsha)[:12], pkv.get("git_sha", "none")[:12]))
+        if os.path.isfile(src) and os.path.getmtime(src) < os.path.getmtime(prov):
+            raise ValueError("%s is older than provenance.txt: a reused or interrupted directory (run again into a "
+                             "fresh --out)" % src)
+    try:
+        with open(src, "r", encoding="utf-8") as f:
+            doc = json.load(f)
+    except (OSError, ValueError) as e:
+        raise ValueError("cannot read %s: %s" % (src, e))
+    errs = validate(doc)
+    if errs:
+        raise ValueError("%s is invalid: %s" % (src, "; ".join(errs[:5])))
+    if doc["dirty_tree"]:
+        raise ValueError("%s was made on a dirty tree: a criterion run must be repeated on a clean tree" % src)
+    if doc["env"] != env:
+        raise ValueError("%s is for environment %s, not %s" % (src, doc["env"], env))
+    if any(c["id"].startswith("STAGE-") for c in doc["cases"]):
+        raise ValueError("%s has STAGE-* cases: it is not the standalone result of one criterion run" % src)
+    found = criterion_suite_of(doc)
+    if suite is None:
+        suite = found
+    if suite is None or found != suite:
+        raise ValueError("%s: cannot tell the criterion suite (%s)" % (src, "found %s, asked %s" % (found, suite) if found or suite else "no criterion case"))
+    pr = criterion_problems(doc, suite)
+    if pr:
+        raise ValueError("%s is not a passing criterion run of %s: %s" % (src, suite, "; ".join(pr)))
+    rid = "%s-%s-%s-%s" % (doc["started"][:10], short_sha(doc["git_sha"]), env, suite)
+    out_dir = os.path.abspath(out_dir)
+    out_path = os.path.join(out_dir, rid + ".json")
+    if os.path.exists(out_path) or os.path.exists(os.path.join(out_dir, "evidence", rid)):
+        raise ValueError("%s exists already (a criterion run of this commit, day and suite is adopted once)" % rid)
+    os.makedirs(out_dir, exist_ok=True)
+    stage_dir = tempfile.mkdtemp(prefix=".evidence-", dir=out_dir)
+    try:
+        cases = []
+        for c in doc["cases"]:
+            c = dict(c)
+            new_ev, missing = [], []
+            for p in c["evidence"]:
+                sp = os.path.join(src_dir, p)
+                if os.path.islink(sp) or not _inside(src_dir, sp):
+                    raise ValueError("evidence %r of %s is a symlink or lies outside %s: refused" % (p, c["id"], src_dir))
+                if os.path.isfile(sp) and _copy_scrubbed(sp, os.path.join(stage_dir, p), repo):
+                    new_ev.append("evidence/%s/%s" % (rid, p))
+                else:
+                    missing.append(p)
+            c["evidence"] = new_ev
+            note = c["note"] or ""
+            if missing:
+                note = (note + "; " if note else "") + "evidence not stored: " + ", ".join(missing)
+            c["note"] = scrub_text(note, repo) or None
+            cases.append(c)
+        cases.append({"id": stage_case_id(env, "mode"), "status": "pass", "duration_s": 0.0, "evidence": [],
+                      "note": CRITERION_NOTE + suite})
+        new = dict(doc)
+        new["cases"] = cases
+        new["host_os"] = scrub_text(doc["host_os"], repo)
+        write_result(new, out_dir, rid)
+        try:
+            if os.listdir(stage_dir):
+                os.makedirs(os.path.join(out_dir, "evidence"), exist_ok=True)
+                os.rename(stage_dir, os.path.join(out_dir, "evidence", rid))
+        except OSError:
+            os.unlink(out_path)
+            raise
+    finally:
+        shutil.rmtree(stage_dir, ignore_errors=True)
+    return out_path
 
 
 def read_stages(work):
@@ -673,11 +898,24 @@ def cmd_aggregate(args):
     return 0 if ok else 1
 
 
+def cmd_adopt(args):
+    out = args.out or os.path.join(args.repo, "tests", "results")
+    try:
+        path = adopt(args.dir, args.env, out, args.repo, args.suite)
+    except ValueError as e:
+        sys.stderr.write("report.py adopt: refused: %s\n" % e)
+        return 1
+    sys.stderr.write("adopted: %s (commit it with its evidence directory, then run the gate: "
+                     "scripts/ci-local.sh --verify-result ... --milestone M5)\n" % path)
+    print(path)
+    return 0
+
+
 def main(argv=None):
     import argparse
 
     argv = sys.argv[1:] if argv is None else list(argv)
-    subs = ("validate", "aggregate", "readme", "git-info", "own-stages")
+    subs = ("validate", "aggregate", "adopt", "readme", "git-info", "provenance", "build-check", "own-stages")
     if argv and argv[0] not in subs and not argv[0].startswith("-"):
         argv = ["validate"] + argv  # python3 -m harness.report FILE... (the original interface)
     here = os.path.dirname(os.path.abspath(__file__))
@@ -689,6 +927,10 @@ def main(argv=None):
     v.add_argument("files", nargs="+")
     sp.add_parser("own-stages", help="print '<env> <stage>' for each stage ci-local.sh runs itself")
     sp.add_parser("git-info", help="print '<sha> <true|false>' for the tree under test")
+    bc = sp.add_parser("build-check", help="exit 1 unless --build is a CMake build tree of this checkout")
+    bc.add_argument("--build", required=True)
+    pv = sp.add_parser("provenance", help="write the start state of a run (git_sha=, dirty=) to FILE")
+    pv.add_argument("--out", required=True)
     a = sp.add_parser("aggregate", help="merge work directories into one result file")
     a.add_argument("--env", required=True, choices=ENV_VALUES)
     a.add_argument("--work", action="append", required=True, help="work directory (repeatable, in stage order)")
@@ -696,6 +938,12 @@ def main(argv=None):
     a.add_argument("--started", default=None, help="UTC start of the run, YYYY-MM-DDTHH:MM:SSZ")
     a.add_argument("--git-sha", default=None)
     a.add_argument("--dirty", choices=("true", "false"), default=None)
+    ad = sp.add_parser("adopt", help="adopt the result.json of a criterion run into tests/results/ (refuses a dirty, "
+                       "sha-less, invalid, shortened or failed run)")
+    ad.add_argument("--env", required=True, choices=("A", "B"), help="B for the stress suites, A for the fuzz campaign")
+    ad.add_argument("--dir", required=True, help="directory with result.json and its evidence (the run's --out)")
+    ad.add_argument("--out", default=None, help="results directory (default tests/results)")
+    ad.add_argument("--suite", default=None, choices=sorted(CRITERION_SUITES), help="default: found from the cases")
     r = sp.add_parser("readme", help="regenerate the README status table")
     r.add_argument("--check", action="store_true", help="exit 1 if the README table is stale; change nothing")
     r.add_argument("--print", action="store_true", help="print the table, change nothing")
@@ -711,12 +959,24 @@ def main(argv=None):
             sha, dirty = git_info(args.repo)
             print("%s %s" % (sha, "true" if dirty else "false"))
             return 0
+        if args.cmd == "build-check":
+            why = build_check(os.path.abspath(args.build), args.repo)
+            if why:
+                sys.stderr.write("report.py build-check: %s\n" % why)
+                return 1
+            return 0
+        if args.cmd == "provenance":
+            sha, dirty = write_provenance(args.out, args.repo)
+            print("%s %s" % (sha, "true" if dirty else "false"))
+            return 0
         if args.cmd == "own-stages":
             for e, n in OWN_STAGES:
                 print("%s %s" % (e, n))
             return 0
         if args.cmd == "aggregate":
             return cmd_aggregate(args)
+        if args.cmd == "adopt":
+            return cmd_adopt(args)
         return cmd_readme(args)
     except (ValueError, RuntimeError, OSError) as e:
         sys.stderr.write("report.py: %s\n" % e)

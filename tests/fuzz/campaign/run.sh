@@ -7,7 +7,7 @@
 # downloads could be written into the repository, and the build needs no download (the tarball is cached).
 #
 # Usage: tests/fuzz/campaign/run.sh [--budget-hours H | --budget-seconds S] [--jobs N] [--targets LIST]
-#                                   [--shards LIST] [--no-patches] [--adopt] [--out DIR] [--dry-run]
+#                                   [--shards LIST] [--no-patches] [--adopt] [--allow-dirty] [--out DIR] [--dry-run]
 #   --budget-hours H     total CPU budget over all units (default 8; fractions allowed)
 #   --budget-seconds S   the same in seconds (smoke runs); overrides --budget-hours
 #   --jobs N             containers at the same time (default min(5, Docker CPUs / 2): one libFuzzer process each;
@@ -19,6 +19,8 @@
 #                        F4 must then be recognised (self-test of the triage), not reported as regressions
 #   --adopt              copy the minimised input of every NEW finding to tests/fuzz/findings/ (this edits the
 #                        working tree; commit it deliberately)
+#   --allow-dirty        run on a tree with uncommitted changes; the result file is then marked dirty and cannot
+#                        satisfy a gate (default: a dirty tree is refused before anything starts)
 #   --out DIR            result directory (default build/fuzz/campaign/<UTC stamp>)
 #   --dry-run            print the plan and exit
 #
@@ -30,8 +32,17 @@
 # minimise. Then triage.py merges all units into DIR/triage.md and DIR/triage.tsv: every signature is matched
 # against tests/fuzz/campaign/known.tsv and classified (component, class; docs/SECURITY_FINDINGS.md section 2).
 #
+# Result file (M5-F05): DIR/result.json, ntfsmac-test-result/1 with the case F-CAMPAIGN-01, git_sha and dirty_tree
+# (tests/fuzz/campaign/campaign_result.py). The commit and the tree state are recorded at the start
+# (DIR/provenance.txt) and after the units (DIR/provenance-end.txt); a tree that was dirty or a HEAD that moved
+# marks the result dirty. F-CAMPAIGN-01 passes only for the criterion campaign: a budget of 8 CPU-hours (28800 s),
+# all six targets, the patched engine, no unit missing, every signature classified. Any other run writes
+# F-CAMPAIGN-01-SHORT. A criterion campaign goes into tests/results/ with
+#   python3 tests/harness/report.py adopt --env A --dir DIR
+# (then commit the file and its evidence, and run the gate: docs/TEST_STRATEGY.md section 10).
+#
 # Exit: 0 every signature is known and no known fixed finding came back, 1 a new finding or a regression, 2
-# usage or setup error, 3 a unit failed to build or run.
+# usage or setup error (also a dirty tree without --allow-dirty), 3 a unit failed to build or run.
 set -eu
 
 here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
@@ -43,6 +54,7 @@ targets="probe,mountwalk,verdict,label,display,ctl"
 shards="mountwalk=4,probe=2"
 nopatch=
 adopt=
+allow_dirty=
 out=
 dry=0
 while [ $# -gt 0 ]; do
@@ -56,9 +68,10 @@ while [ $# -gt 0 ]; do
 	--shards) [ $# -ge 2 ] || { echo "run.sh: --shards needs a value" >&2; exit 2; }; shards=$2; shift ;;
 	--no-patches) nopatch=--no-patches ;;
 	--adopt) adopt=--adopt ;;
+	--allow-dirty) allow_dirty=--allow-dirty ;;
 	--out) [ $# -ge 2 ] || { echo "run.sh: --out needs a value" >&2; exit 2; }; out=$2; shift ;;
 	--dry-run) dry=1 ;;
-	-h | --help) sed -n '4,38p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+	-h | --help) sed -n '4,50p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
 	*) echo "run.sh: unknown option: $1" >&2; exit 2 ;;
 	esac
 	shift
@@ -110,7 +123,16 @@ echo "run.sh: $units units x $per s = $((units * per)) CPU-seconds, $jobs at a t
 echo "run.sh: units:$plan" >&2
 if [ "$dry" -eq 1 ]; then exit 0; fi
 command -v docker >/dev/null 2>&1 || { echo "run.sh: docker not found" >&2; exit 2; }
+# the commit and the tree state that are fuzzed (M5-F05): refuse a dirty tree now, not after eight hours
+gi=$(python3 -I -B "$repo/tests/harness/report.py" git-info) || { echo "run.sh: cannot read the git state of $repo" >&2; exit 2; }
+gsha=${gi% *}
+gdirty=${gi#* }
+if [ "$gdirty" != false ] && [ -z "$allow_dirty" ]; then
+	echo "run.sh: the working tree is dirty: commit first (the result must name the commit that was fuzzed), or pass --allow-dirty (the result is then marked dirty)" >&2
+	exit 2
+fi
 mkdir -p "$out/units"
+printf 'git_sha=%s\ndirty=%s\nstarted=%s\nbudget=%s\n' "$gsha" "$gdirty" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$budget" >"$out/provenance.txt"
 
 unit_run() {
 	t=${1%:*}
@@ -159,9 +181,19 @@ for u in $plan; do
 	fi
 done
 [ "$bad" -eq 0 ] || echo "run.sh: a unit failed to build or run (see $out/units/*.log)" >&2
+# the state after the units, before --adopt can touch the tree: an edit or a checkout during the run marks the result dirty
+if gi=$(python3 -I -B "$repo/tests/harness/report.py" git-info); then
+	printf 'git_sha=%s\ndirty=%s\n' "${gi% *}" "${gi#* }" >"$out/provenance-end.txt"
+else
+	printf 'git_sha=unknown\ndirty=unknown\n' >"$out/provenance-end.txt"
+fi
 
 res=0
-python3 -I -B "$here/triage.py" --results "$out" --known "$here/known.tsv" --findings-dir "$repo/tests/fuzz/findings" \
-	--plan "$(echo $plan)" --budget "$budget" $adopt || res=$?
+set -- --plan "$(echo $plan)" --budget "$budget" --result-out "$out/result.json"
+[ -z "$allow_dirty" ] || set -- "$@" "$allow_dirty"
+[ -z "$adopt" ] || set -- "$@" "$adopt"
+# a unit that failed makes the campaign no criterion run, whatever its summary says
+[ "$bad" -eq 0 ] || set -- "$@" --problem "a unit failed to build or run (exit status other than 0, or 1 without a finding)"
+python3 -I -B "$here/triage.py" --results "$out" --known "$here/known.tsv" --findings-dir "$repo/tests/fuzz/findings" "$@" || res=$?
 if [ "$bad" -ne 0 ]; then exit 3; fi
 exit "$res"

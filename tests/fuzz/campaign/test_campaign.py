@@ -217,6 +217,232 @@ class Triage(unittest.TestCase):
             self.assertEqual(open(name, "rb").read(), b"edited")
 
 
+class Result(unittest.TestCase):
+    """M5-F05: the campaign writes an ntfsmac-test-result/1 file with F-CAMPAIGN-01 (fake triage inputs, no run)."""
+
+    TARGETS = ["probe", "mountwalk", "verdict", "label", "display", "ctl"]
+
+    def setUp(self):
+        import shutil
+        if shutil.which("git") is None:
+            self.skipTest("git is not installed")
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.repo = os.path.join(self._tmp.name, "repo")
+        os.makedirs(os.path.join(self.repo, "tests", "fuzz", "campaign"))
+        for rel, text in (("src.c", "x\n"), ("tests/fuzz/campaign/known.tsv", "a\n")):
+            with open(os.path.join(self.repo, rel), "w") as f:
+                f.write(text)
+        self.git("init", "-q")
+        self.git("add", "-A")
+        self.git("commit", "-q", "-m", "fuzzed")
+        self.SHA = self.git("rev-parse", "HEAD")
+
+    def git(self, *a):
+        return subprocess.run(("git", "-C", self.repo, "-c", "user.name=t", "-c", "user.email=t@example.invalid") + a, check=True,
+                              capture_output=True, text=True).stdout.strip()
+
+    def edit(self, rel, text, commit=None):
+        with open(os.path.join(self.repo, rel), "w") as f:
+            f.write(text)
+        if commit:
+            self.git("commit", "-q", "-am", commit)
+
+    def tree(self, t, dirty="false", end_sha=None, end_dirty="false", budget=28800, patches="series", targets=None):
+        for tg in targets or self.TARGETS:
+            write_unit(t, "%s-s0" % tg, summary(patches=patches, cpu=budget // len(targets or self.TARGETS)))
+        with open(os.path.join(t, "provenance.txt"), "w") as f:
+            f.write("git_sha=%s\ndirty=%s\nstarted=2026-11-21T10:00:00Z\nbudget=%d\n" % (self.SHA, dirty, budget))
+        if end_sha != "none":
+            with open(os.path.join(t, "provenance-end.txt"), "w") as f:
+                f.write("git_sha=%s\ndirty=%s\n" % (end_sha or self.SHA, end_dirty))
+
+    def run_triage(self, t, budget=28800, targets=None, extra=(), findings=()):
+        plan = " ".join("%s:0" % x for x in (targets or self.TARGETS))
+        rc, out = triage(t, "--plan", plan, "--budget", str(budget), "--result-out", os.path.join(t, "result.json"),
+                         "--repo", self.repo, *extra)
+        doc = None
+        if os.path.exists(os.path.join(t, "result.json")):
+            import json
+            doc = json.load(open(os.path.join(t, "result.json")))
+        return rc, out, doc
+
+    def test_all_classified_criterion_passes(self):
+        with tempfile.TemporaryDirectory() as t:
+            self.tree(t)
+            rc, out, doc = self.run_triage(t)
+            self.assertEqual(rc, 0, out)
+            self.assertEqual([c["id"] for c in doc["cases"]], ["F-CAMPAIGN-01"])
+            self.assertEqual(doc["cases"][0]["status"], "pass")
+            self.assertEqual((doc["git_sha"], doc["dirty_tree"], doc["env"]), (self.SHA, False, "A"))
+            sys.path.insert(0, os.path.join(HERE, "..", "..", "harness"))
+            import report
+            self.assertEqual(report.validate(doc), [])
+
+    def test_unclassified_crash_fails(self):
+        with tempfile.TemporaryDirectory() as t:
+            self.tree(t)
+            with open(os.path.join(t, "units", "ctl-s0", "findings.tsv"), "w") as f:
+                f.write("\t".join(frow("a", "asan:heap-buffer-overflow WRITE zzz @dir.c:1", "asan:heap-buffer-overflow", "WRITE",
+                                       "engine", "zzz@dir.c:1")) + "\n")
+            rc, out, doc = self.run_triage(t)
+            self.assertEqual(rc, 1)
+            c = doc["cases"][0]
+            self.assertEqual((c["id"], c["status"]), ("F-CAMPAIGN-01", "fail"))
+            self.assertIn("not every crash is classified", c["note"])
+
+    def test_short_budget_is_not_the_criterion_id(self):
+        with tempfile.TemporaryDirectory() as t:
+            self.tree(t, budget=600)
+            rc, out, doc = self.run_triage(t, budget=600)
+            self.assertEqual(rc, 0, out)
+            self.assertEqual([c["id"] for c in doc["cases"]], ["F-CAMPAIGN-01-SHORT"])
+            self.assertIn("shortened or weaker run", doc["cases"][0]["note"])
+
+    def test_missing_target_or_pristine_engine_is_not_the_criterion_id(self):
+        with tempfile.TemporaryDirectory() as t:
+            self.tree(t, targets=self.TARGETS[:5])
+            self.assertEqual(self.run_triage(t, targets=self.TARGETS[:5])[2]["cases"][0]["id"], "F-CAMPAIGN-01-SHORT")
+        with tempfile.TemporaryDirectory() as t:
+            self.tree(t, patches="none")
+            self.assertEqual(self.run_triage(t)[2]["cases"][0]["id"], "F-CAMPAIGN-01-SHORT")
+
+    def test_unit_missing_or_failed_unit_fails_the_case(self):
+        with tempfile.TemporaryDirectory() as t:
+            self.tree(t, targets=self.TARGETS[:5])
+            c = self.run_triage(t, targets=self.TARGETS, budget=28800)[2]["cases"][0]
+            self.assertEqual(c["status"], "fail")
+        with tempfile.TemporaryDirectory() as t:
+            self.tree(t)
+            c = self.run_triage(t, extra=("--problem", "a unit failed"))[2]["cases"][0]
+            self.assertEqual((c["id"], c["status"]), ("F-CAMPAIGN-01", "fail"))
+
+    def test_dirty_tree_refused_unless_allowed(self):
+        with tempfile.TemporaryDirectory() as t:
+            self.tree(t, dirty="true")
+            rc, out, doc = self.run_triage(t)
+            self.assertEqual(rc, 2)
+            self.assertIsNone(doc)
+        with tempfile.TemporaryDirectory() as t:
+            self.tree(t, dirty="true")
+            rc, out, doc = self.run_triage(t, extra=("--allow-dirty",))
+            self.assertTrue(doc["dirty_tree"])
+
+    def test_head_moved_or_end_state_missing_marks_dirty(self):
+        for kw in ({"end_sha": "f" * 40}, {"end_dirty": "true"}, {"end_sha": "none"}):
+            with tempfile.TemporaryDirectory() as t:
+                self.tree(t, **kw)
+                doc = self.run_triage(t)[2]
+                self.assertTrue(doc["dirty_tree"], kw)
+                self.assertEqual(doc["cases"][0]["status"], "fail", kw)
+
+    def test_no_provenance_no_result(self):
+        with tempfile.TemporaryDirectory() as t:
+            self.tree(t)
+            os.unlink(os.path.join(t, "provenance.txt"))
+            rc, out, doc = self.run_triage(t)
+            self.assertEqual(rc, 2)
+            self.assertIsNone(doc)
+
+    def test_retriage_after_classification_commit_passes_at_head(self):
+        with tempfile.TemporaryDirectory() as t:
+            self.tree(t)
+            self.edit("tests/fuzz/campaign/known.tsv", "a\nb\n", "classify")
+            head = self.git("rev-parse", "HEAD")
+            rc, out, doc = self.run_triage(t)
+            self.assertEqual(rc, 0, out)
+            self.assertEqual((doc["git_sha"], doc["dirty_tree"]), (head, False))
+            c = doc["cases"][0]
+            self.assertEqual((c["id"], c["status"]), ("F-CAMPAIGN-01", "pass"))
+            self.assertIn("fuzzed at " + self.SHA, c["note"])
+
+    def test_retriage_after_a_code_change_is_dirty(self):
+        with tempfile.TemporaryDirectory() as t:
+            self.tree(t)
+            self.edit("src.c", "changed\n", "code")
+            doc = self.run_triage(t)[2]
+            self.assertTrue(doc["dirty_tree"])
+            self.assertEqual(doc["git_sha"], self.SHA)
+            self.assertEqual(doc["cases"][0]["status"], "fail")
+            self.assertIn("differs from the fuzzed commit", doc["cases"][0]["note"])
+            self.assertIn("src.c", doc["cases"][0]["note"])
+
+    def test_retriage_with_uncommitted_known_tsv_is_dirty(self):
+        with tempfile.TemporaryDirectory() as t:
+            self.tree(t)
+            self.edit("tests/fuzz/campaign/known.tsv", "a\nb\n")  # not committed
+            doc = self.run_triage(t)[2]
+            self.assertTrue(doc["dirty_tree"])
+            self.assertEqual(doc["cases"][0]["status"], "fail")
+            self.assertIn("dirty now", doc["cases"][0]["note"])
+
+    def retriage_with(self, files):
+        """commit the given {path: text} after the fuzzed commit, then re-triage"""
+        with tempfile.TemporaryDirectory() as t:
+            self.tree(t)
+            for rel, text in files.items():
+                os.makedirs(os.path.dirname(os.path.join(self.repo, rel)), exist_ok=True)
+                with open(os.path.join(self.repo, rel), "w") as f:
+                    f.write(text)
+            self.git("add", "-A")
+            self.git("commit", "-q", "-m", "classification")
+            return self.run_triage(t)[2]
+
+    def test_retriage_allows_findings_with_known_tsv(self):
+        doc = self.retriage_with({"tests/fuzz/campaign/known.tsv": "a\nb\n", "tests/fuzz/findings/N-abc123-ctl.bin": "x",
+                                  "docs/SECURITY_FINDINGS.md": "t\n", "docs/audits/M5.md": "t\n"})
+        self.assertFalse(doc["dirty_tree"])
+        self.assertEqual(doc["cases"][0]["status"], "pass")
+
+    def test_retriage_rejects_lookalike_and_other_paths(self):
+        for rel in ("tests/fuzz/campaign/known.tsv.bak", "docs/TEST_STRATEGY.md", "CHECKPOINT.md.old", "tests/fuzz/campaign/triage.py"):
+            doc = self.retriage_with({rel: "x\n"})
+            self.assertTrue(doc["dirty_tree"], rel)
+            self.assertEqual(doc["cases"][0]["status"], "fail", rel)
+            self.assertIn(os.path.basename(rel), doc["cases"][0]["note"], rel)
+
+    def test_retriage_result_can_be_adopted_and_a_forged_record_cannot(self):
+        sys.path.insert(0, os.path.join(HERE, "..", "..", "harness"))
+        import report
+        with tempfile.TemporaryDirectory() as t, tempfile.TemporaryDirectory() as res:
+            self.tree(t)
+            self.edit("tests/fuzz/campaign/known.tsv", "a\nb\n", "classify")
+            head = self.git("rev-parse", "HEAD")
+            rc, out, doc = self.run_triage(t)
+            self.assertEqual((rc, doc["git_sha"]), (0, head), out)
+            rt = open(os.path.join(t, "retriage.txt")).read()
+            self.assertEqual(rt, "git_sha=%s\nfuzzed=%s\n" % (head, self.SHA))
+            # a forged record: the right commit, a wrong fuzzed commit
+            with open(os.path.join(t, "retriage.txt"), "w") as f:
+                f.write("git_sha=%s\nfuzzed=%s\n" % (head, "e" * 40))
+            with self.assertRaises(ValueError) as cm:
+                report.adopt(t, "A", res, self.repo)
+            self.assertIn("differs from the start record", str(cm.exception))
+            os.unlink(os.path.join(t, "retriage.txt"))  # no record at all: refused as well
+            with self.assertRaises(ValueError):
+                report.adopt(t, "A", res, self.repo)
+            with open(os.path.join(t, "retriage.txt"), "w") as f:
+                f.write(rt)
+            os.utime(os.path.join(t, "retriage.txt"))
+            path = report.adopt(t, "A", res, self.repo)
+            adopted = __import__("json").load(open(path))
+            self.assertEqual(adopted["git_sha"], head)
+            self.assertEqual([c["id"] for c in adopted["cases"]], ["F-CAMPAIGN-01", "STAGE-A-MODE"])
+
+    def test_plain_run_has_no_retriage_record_and_drops_a_stale_one(self):
+        with tempfile.TemporaryDirectory() as t:
+            self.tree(t)
+            with open(os.path.join(t, "retriage.txt"), "w") as f:
+                f.write("stale\n")
+            self.run_triage(t)
+            self.assertFalse(os.path.exists(os.path.join(t, "retriage.txt")))
+
+    def test_run_sh_wires_it(self):
+        run = open(os.path.join(HERE, "run.sh")).read()
+        for word in ("provenance.txt", "provenance-end.txt", "--result-out", "--allow-dirty", "report.py"):
+            self.assertIn(word, run)
+
+
 class Scripts(unittest.TestCase):
     """The shell parts need Docker; their fixes are checked by what the scripts say."""
 

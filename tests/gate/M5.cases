@@ -1,8 +1,10 @@
 # Cases that must be present and `pass` in the result files of the M5 gate
 # (scripts/ci-local.sh --verify-result ... --require-env host,A,B --milestone M5; TEST_STRATEGY.md section 10).
 # One case id per line; # starts a comment. A skip, an absent case or a failure rejects the gate.
-# This list checks presence and status only. It does not check the parameters of the run
-# (6 h soak, 20 kill repetitions, 50 leak iterations, ...): that is finding M5-F04 and is open.
+# The ids are the plain criterion ids. A builder writes a plain id only for a run at the criterion parameters
+# (6 h soak, 30 min / 16 writers parallel, 50 leak iterations, 20 kill repetitions, disconnect --full, the 8 CPU-hour
+# fuzz campaign, each with its negative control); every other run writes the id with the suffix -SHORT (M5-F04).
+# The criterion runs reach tests/results/ with `report.py adopt` (M5-F05); ci-local.sh accepts such a file.
 # It does not cover the performance criterion 5.6 (the P-* cases, tests/perf).
 # Every id here must be one that a real result builder writes as `pass`
 # (tests/unit/ci/gate_cases_check.py checks this; S-*-RUN cases exist only on failure and are not listed).
@@ -37,3 +39,6 @@ S-DISC-02
 S-DISC-03
 S-DISC-04
 S-DISC-05
+
+# fuzz campaign (T-M5-09): 8 CPU-hours, every crash classified (tests/fuzz/campaign/campaign_result.py, adopted with --env A)
+F-CAMPAIGN-01

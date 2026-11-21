@@ -50,10 +50,16 @@
 #                    skips accepted are the ones the host plan itself declares as skipped by design: host
 #                    `harness` and host `stress` (`test-all.sh --env host --dry-run` prints them with a
 #                    [note]; the note must match exactly, and no other environment may skip). Every file
-#                    must be either a test-all.sh result whose STAGE-<ENV>-MODE case has status pass and
-#                    note `full` (any other mode, quick or cases=..., or no record rejects), or a `-ci`
-#                    file that holds only the own-stage cases. A standalone criterion-run result
-#                    (stress, perf; audit M5-F05, open) is not accepted. --pre-commit checks a freshly
+#                    must be one of three kinds: a test-all.sh result whose STAGE-<ENV>-MODE case has status
+#                    pass and note `full` (any other mode, quick or cases=..., or no record rejects); a `-ci`
+#                    file that holds only the own-stage cases; or an adopted criterion run (`report.py adopt`,
+#                    M5-F05): <date>-<sha7>-<env>-<suite>.json whose STAGE-<ENV>-MODE case has the note
+#                    `criterion:<suite>` and whose other cases are exactly the plain criterion ids of that
+#                    suite (soak, parallel, leaks, kill, disconnect, fuzz; the table is CRITERION_SUITES in
+#                    tests/harness/report.py), every one passing. A shortened or weaker run has ids with the
+#                    suffix -SHORT and is rejected there (M5-F04). An adopted file is no substitute for the
+#                    full run: each required environment still needs its full test-all result. A standalone
+#                    result that is not adopted is not accepted. --pre-commit checks a freshly
 #                    written result before it is committed (skips the path and committed-content checks;
 #                    never use it for a gate). Every rejection prints its reason.
 #   --require-case   CASE-ID that must be present and pass in the accepted files (repeatable; a skip,
@@ -61,7 +67,9 @@
 #   --milestone NAME the cases listed in tests/gate/NAME.cases (one id per line, # comments) are
 #                    required like --require-case. Needs --require-env host,A,B. Unknown name,
 #                    unreadable or empty list: exit 2. The list checks presence and status only, not
-#                    the parameters of the run (a short soak passes under S-SOAK-01: M5-F04 is open).
+#                    the parameters of the run: the parameters are in the case ids. A criterion case has
+#                    its plain id only when the run had the criterion parameters (6 h soak, 20 kill
+#                    repetitions, ...); every other run writes it with the suffix -SHORT (M5-F04).
 #   --fixtures DIR   (full mode) reuse fixture images. The run records the skip "reusing DIR", which the
 #                    gate rejects (the images are not tied to the commit, M5-F07): such a run cannot
 #                    pass the gate, and ci-local prints a warning at the start.
@@ -89,7 +97,7 @@ die() { # message [exit-code]
 }
 
 usage() {
-	sed -n '4,72p' "$0" | sed 's/^# \{0,1\}//' >&2
+	sed -n '4,80p' "$0" | sed 's/^# \{0,1\}//' >&2
 }
 
 quick=0
@@ -446,19 +454,33 @@ if not bad and (require or req_cases):
     def describe(cs):
         return ", ".join("%s%s" % (c["status"], " (%s)" % c["note"] if c.get("note") else "") for c in cs)
 
-    # every file is a full test-all result (with its mode record) or a -ci file of own stages only
+    # every file is a full test-all result (with its mode record), a -ci file of own stages only, or an adopted
+    # criterion run (`report.py adopt`: the mode record has the note criterion:<suite>, the cases are exactly the
+    # plain criterion ids of that suite, M5-F04 and M5-F05)
     for f, d in [(x["_file"], x) for x in accepted]:
         env = d["env"]
         mode_id = report.stage_case_id(env, "mode")
         modes = [c for c in d["cases"] if c["id"] == mode_id]
-        if modes:
-            if modes[0]["status"] != "pass" or (modes[0].get("note") or "") != "full":
+        mnote = (modes[0].get("note") or "") if modes else ""
+        if modes and modes[0]["status"] == "pass" and mnote.startswith(report.CRITERION_NOTE):
+            suite = mnote[len(report.CRITERION_NOTE):]
+            why = report.criterion_problems(d, suite)
+            if report.criterion_suite_of(d) != suite:
+                why.append("the cases do not belong to suite %s" % suite)
+            nm = NAME_RE.match(os.path.basename(f))
+            if not nm or nm.group(3) != "-" + suite:
+                why.append("the file name must be <date>-<sha7>-<env>-%s.json" % suite)
+            if why:
+                bad += 1
+                print("verify-result: REJECTED %s: not a criterion run of %s: %s" % (f, suite, "; ".join(why)))
+        elif modes:
+            if modes[0]["status"] != "pass" or mnote != "full":
                 bad += 1
                 print("verify-result: REJECTED %s: not a full run (%s: %s)" % (f, mode_id, describe(modes)))
         elif not all(c["id"] in own_ids.get(env, ()) for c in d["cases"]):
             bad += 1
-            print("verify-result: REJECTED %s: no run-mode record (%s) and not a -ci file of own stages: "
-                  "a standalone result cannot show that the run was a full one (M5-F05)" % (f, mode_id))
+            print("verify-result: REJECTED %s: no run-mode record (%s) and not a -ci file of own stages or an adopted "
+                  "criterion run: a standalone result cannot show that the run was a full one (M5-F05)" % (f, mode_id))
     present = sorted({d["env"] for d in accepted})
     plans = {}
     for env in dict.fromkeys([e for e in require.split(",") if e] + present):
@@ -500,6 +522,10 @@ if not bad and (require or req_cases):
             bad += 1
             print("verify-result: REJECTED: environment %s has no run-mode record (%s): "
                   "a result without it cannot show that the run was a full one" % (env, mode_id))
+        elif not any(c["status"] == "pass" and (c.get("note") or "") == "full" for c in occ[mode_id]):
+            bad += 1
+            print("verify-result: REJECTED: environment %s has no full test-all run (%s with the note full; an "
+                  "adopted criterion run is not one)" % (env, mode_id))
         need = [report.stage_case_id(env, n) for n in plans[env][0]]
         if own_implied:
             need += [report.stage_case_id(e, n) for e, n in report.OWN_STAGES if e == env]

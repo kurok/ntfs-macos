@@ -72,6 +72,13 @@ case $fx in '' | /*) ;; *) fx=$(pwd)/$fx ;; esac
 case $deps_tar in '' | /*) ;; *) deps_tar=$(pwd)/$deps_tar ;; esac
 case $build in /*) ;; *) build=$(pwd)/$build ;; esac
 mkdir -p "$out"
+# the commit and tree state at the START of the run (a result is tied to it, not to the state at the end)
+"$py" -B "$root/tests/harness/report.py" provenance --out "$out/provenance.txt" >/dev/null || { echo "kill: cannot record the start state (is this a repository checkout?)" >&2; exit 2; }
+# the host binaries under test must come from the recorded commit: the build tree must belong to this checkout,
+# and an incremental build (a no-op when current) brings it up to date before anything is copied
+"$py" -B "$root/tests/harness/report.py" build-check --build "$build" >&2 || exit 2
+cmake --build "$build" >&2 || { echo "kill: cmake --build $build failed" >&2; exit 2; }
+echo "binaries=ntfsmacd and ntfsmac rebuilt with cmake --build at the recorded commit before the run" >>"$out/provenance.txt"
 
 "$py" -B "$here/result.py" selftest >&2 || { echo "kill: result.py selftest failed" >&2; exit 2; }
 for f in "$build/src/daemon/ntfsmacd" "$build/src/cli/ntfsmac"; do

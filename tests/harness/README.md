@@ -6,7 +6,7 @@ Python 3.9, standard library only (it also runs under the macOS guest's `/usr/bi
 |---|---|
 | `core.py` | `@case("ID", envs=("A","B"))` decorator, discovery, `Skip`/`Fail`, per-case `Ctx` |
 | `runner.py` | runs cases, maps outcomes to `pass`/`fail`/`skip`/`error`, collects evidence |
-| `report.py` | result file build, name, write, hand-written validator; `aggregate` (merge the stages of one `scripts/test-all.sh` run into one file); `readme` (README status table); `git-info` |
+| `report.py` | result file build, name, write, hand-written validator; `aggregate` (merge the stages of one `scripts/test-all.sh` run into one file); `adopt` (a criterion run's standalone `result.json` into `tests/results/`, M5-F05); `readme` (README status table); `git-info` |
 | `features.json` | feature name to case-id patterns, the input of the README status table |
 | `transport.py` | `LocalTransport`, `ContainerTransport` (Env A), `VmTransport` (Env B, `tart.sh exec` / `tart exec -i`); file copy as tar streams |
 | `volume.py` | pluggable mount/unmount per environment, macFUSE detection |

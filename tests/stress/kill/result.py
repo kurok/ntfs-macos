@@ -10,6 +10,9 @@ Cases: S-KILL-01 worker, S-KILL-02 daemon, S-KILL-03 macFUSE module process, S-K
 (each: N repetitions, every one must pass, none may hang), S-KILL-05 the controls (injected damage must be
 reported by the checks, a never-ending step must fail after its deadline). A target that did not finish (the guest
 died, a host deadline) is a fail, never a missing case.
+Only a run at the criterion parameters writes these ids: at least CRITERION_REPS repetitions of all four targets,
+with the controls, and a driver that ended with status 0 or 1. Every other run writes the same ids with the suffix
+-SHORT (S-KILL-01-SHORT ... S-KILL-05-SHORT, S-KILL-RUN-SHORT), so that it cannot satisfy a criterion case (M5-F04).
 Exit: 0 every case passed, 1 a case failed, 2 usage or setup error.
 """
 import argparse
@@ -27,6 +30,14 @@ ORDER = [("worker", "S-KILL-01", "SIGKILL of the worker"),
          ("module", "S-KILL-03", "SIGKILL of the macFUSE module process that serves the mount"),
          ("detach", "S-KILL-04", "force-detach (yank) of the image during a write")]
 CONTROLS = ("inject-journal", "inject-image", "inject-flags", "hang")
+CRITERION_REPS = 20  # T-M5-05: criterion 4.4 repeated 20 times
+
+
+def is_criterion(reps, targets, control, driver_rc=0):
+    """20 or more repetitions of every target, with the negative controls, and a driver that ended with 0 or 1.
+    Only such a run writes the plain case ids (M5-F04, M5-F10)"""
+    return (reps >= CRITERION_REPS and set(targets) >= {t for t, _, _ in ORDER} and bool(control)
+            and driver_rc in (0, 1))
 
 
 def parse(text):
@@ -69,6 +80,11 @@ def parse(text):
 
 def build_cases(d, reps, targets, control, log_name, section_files, driver_rc=0):
     cases = []
+    sfx = "" if is_criterion(reps, targets, control, driver_rc) else "-SHORT"
+    params = "parameters: %d repetition(s) (criterion: %d), targets '%s', controls %s, driver status %d" % (
+        reps, CRITERION_REPS, " ".join(targets), "on" if control else "OFF", driver_rc)
+    if sfx:
+        params = "shortened or weaker run, not the criterion run (the case id has the suffix -SHORT); " + params
     for tgt, cid, what in ORDER:
         if tgt not in targets:
             continue
@@ -100,20 +116,22 @@ def build_cases(d, reps, targets, control, log_name, section_files, driver_rc=0)
                 note += ("; MEASUREMENT (not a check): " + "; ".join("%s x%d" % kv for kv in sorted(agg.items())))
             else:
                 note += "; MEASUREMENT: no result"
-        cases.append({"id": cid, "status": status, "duration_s": float(secs), "evidence": ev, "note": note})
+        cases.append({"id": cid + sfx, "status": status, "duration_s": float(secs), "evidence": ev,
+                      "note": note + "; " + params})
     run = d.get("run")
     problems = []
     if not d["finished"]:
         problems.append("the guest output has no final 'result:' line (the guest run did not finish)")
-    if driver_rc in (124, 130, 2, 127):
+    if driver_rc not in (0, 1):
         problems.append("the driver ended with status %d (%s)" % (driver_rc, {124: "host deadline", 130: "interrupted",
-                                                                          2: "setup error", 127: "not started"}[driver_rc]))
+                                                                          2: "setup error", 127: "not started"}.get(driver_rc, "unexpected, 0 or 1 expected")))
     if run is None:
         problems.append("the guest printed no RUN line")
     elif run[0] != "PASS":
         problems.append(run[1])
-    cases.append({"id": "S-KILL-RUN", "status": "fail" if problems else "pass", "duration_s": 0.0, "evidence": [log_name],
-                  "note": ("; ".join(problems)) if problems else "no failure outside the repetitions; the guest run finished"})
+    cases.append({"id": "S-KILL-RUN" + sfx, "status": "fail" if problems else "pass", "duration_s": 0.0, "evidence": [log_name],
+                  "note": (("; ".join(problems)) if problems else "no failure outside the repetitions; the guest run finished")
+                  + "; " + params})
     if control:
         got = d["controls"]
         parts, ok = [], True
@@ -125,9 +143,16 @@ def build_cases(d, reps, targets, control, log_name, section_files, driver_rc=0)
             else:
                 ok = ok and st[0] == "PASS"
                 parts.append("%s: %s %s" % (c, st[0], st[1]))
-        cases.append({"id": "S-KILL-05", "status": "pass" if ok else "fail", "duration_s": 0.0, "evidence": [log_name],
+        cases.append({"id": "S-KILL-05" + sfx, "status": "pass" if ok else "fail", "duration_s": 0.0, "evidence": [log_name],
                       "note": "injected damage is reported by the checks; a never-ending step fails after its deadline. "
-                              + "; ".join(parts)})
+                              + "; ".join(parts) + "; " + params})
+    return cases
+
+
+def attach_measure(cases):
+    for c in cases:
+        if c["id"] in ("S-KILL-03", "S-KILL-03-SHORT"):
+            c["evidence"].append("kill-module-measure.json")
     return cases
 
 
@@ -165,10 +190,13 @@ def main(argv):
     with open(os.path.join(a.out, "kill-module-measure.json"), "w", encoding="utf-8") as f:
         json.dump({"unsynced_data_after_module_kill": ms}, f, indent=1)
         f.write("\n")
-    for c in cases:
-        if c["id"] == "S-KILL-03":
-            c["evidence"].append("kill-module-measure.json")
-    sha, dirty = report.git_info(a.repo)
+    attach_measure(cases)
+    if os.path.isfile(os.path.join(a.out, "provenance.txt")):
+        for c in cases:
+            c["evidence"].append("provenance.txt")
+    sha, dirty, pnotes = report.run_state(a.out, a.repo)
+    if pnotes and cases:
+        cases[0]["note"] = (cases[0]["note"] or "") + "; provenance: " + "; ".join(pnotes)
     now = report.utc_now()
     doc = report.build_result(sha, dirty, "B", d["meta"].get("host_os") or "macOS (host)", d["meta"].get("guest_os"),
                               d["meta"].get("macfuse") or None, d["meta"].get("ntfs3g") or None, a.started or now, now, cases)
@@ -195,24 +223,42 @@ def selftest():
             "CONTROL hang PASS two\nresult: 1 check(s) failed\n")
     d = parse(good)
     cs = {c["id"]: c for c in build_cases(d, 2, ["worker", "daemon", "module"], True, "kill.log", {})}
-    assert cs["S-KILL-01"]["status"] == "pass", cs["S-KILL-01"]
-    assert cs["S-KILL-02"]["status"] == "fail" and "daemon#2" in cs["S-KILL-02"]["note"], cs["S-KILL-02"]
-    assert cs["S-KILL-03"]["status"] == "fail" and "only 1 of 2" in cs["S-KILL-03"]["note"], cs["S-KILL-03"]
-    assert "mmap page lost" in cs["S-KILL-03"]["note"], cs["S-KILL-03"]
-    assert cs["S-KILL-05"]["status"] == "pass", cs["S-KILL-05"]
-    assert cs["S-KILL-RUN"]["status"] == "pass", cs["S-KILL-RUN"]
+    assert cs["S-KILL-01-SHORT"]["status"] == "pass", cs["S-KILL-01-SHORT"]
+    assert cs["S-KILL-02-SHORT"]["status"] == "fail" and "daemon#2" in cs["S-KILL-02-SHORT"]["note"], cs["S-KILL-02-SHORT"]
+    assert cs["S-KILL-03-SHORT"]["status"] == "fail" and "only 1 of 2" in cs["S-KILL-03-SHORT"]["note"], cs["S-KILL-03-SHORT"]
+    assert "mmap page lost" in cs["S-KILL-03-SHORT"]["note"], cs["S-KILL-03-SHORT"]
+    assert cs["S-KILL-05-SHORT"]["status"] == "pass", cs["S-KILL-05-SHORT"]
+    assert cs["S-KILL-RUN-SHORT"]["status"] == "pass" and "parameters: 2 repetition(s) (criterion: 20)" in cs["S-KILL-RUN-SHORT"]["note"], cs["S-KILL-RUN-SHORT"]
+
+    def bc(dd, reps, targets, control, rc=0):
+        return {c["id"].replace("-SHORT", ""): c for c in build_cases(dd, reps, targets, control, "kill.log", {}, rc)}
     d2 = parse(good.replace("CONTROL inject-image PASS 1\n", "CONTROL inject-image FAIL none\n"))
-    assert {c["id"]: c for c in build_cases(d2, 2, ["worker"], True, "kill.log", {})}["S-KILL-05"]["status"] == "fail"
+    assert bc(d2, 2, ["worker"], True)["S-KILL-05"]["status"] == "fail"
     d3 = parse(good.replace("CONTROL hang PASS two\n", ""))
-    assert {c["id"]: c for c in build_cases(d3, 2, ["worker"], True, "kill.log", {})}["S-KILL-05"]["status"] == "fail"
+    assert bc(d3, 2, ["worker"], True)["S-KILL-05"]["status"] == "fail"
     # a repetition count different from the requested one is a fail, not a pass of fewer repetitions
-    assert {c["id"]: c for c in build_cases(d, 3, ["worker"], False, "kill.log", {})}["S-KILL-01"]["status"] == "fail"
-    # failures outside the repetitions, an unfinished guest and a host deadline fail the run case
+    assert bc(d, 3, ["worker"], False)["S-KILL-01"]["status"] == "fail"
+    # failures outside the repetitions, an unfinished guest, a host deadline and any other driver status fail the run case
     d4 = parse(good.replace("RUN PASS none", "RUN FAIL 2 failure(s) outside the repetitions"))
-    assert {c["id"]: c for c in build_cases(d4, 2, ["worker"], False, "kill.log", {})}["S-KILL-RUN"]["status"] == "fail"
+    assert bc(d4, 2, ["worker"], False)["S-KILL-RUN"]["status"] == "fail"
     d5 = parse(good.replace("result: 1 check(s) failed\n", ""))
-    assert {c["id"]: c for c in build_cases(d5, 2, ["worker"], False, "kill.log", {})}["S-KILL-RUN"]["status"] == "fail"
-    assert {c["id"]: c for c in build_cases(d, 2, ["worker"], False, "kill.log", {}, 124)}["S-KILL-RUN"]["status"] == "fail"
+    assert bc(d5, 2, ["worker"], False)["S-KILL-RUN"]["status"] == "fail"
+    assert bc(d, 2, ["worker"], False, 124)["S-KILL-RUN"]["status"] == "fail"
+    assert bc(d, 2, ["worker"], False, 255)["S-KILL-RUN"]["status"] == "fail"
+    assert bc(d, 2, ["worker"], False, 1)["S-KILL-RUN"]["status"] == "pass"
+    # M5-F04/F10: plain ids only for 20 or more repetitions of all four targets, with the controls and a driver status of 0 or 1
+    allt = ["worker", "daemon", "module", "detach"]
+    for reps, targets, control, rc, plain in ((20, allt, True, 0, True), (25, allt, True, 1, True), (19, allt, True, 0, False),
+                                              (2, allt, True, 0, False), (20, allt[:3], True, 0, False), (20, allt, False, 0, False),
+                                              (20, allt, True, 255, False), (20, allt, True, 124, False)):
+        ids = [c["id"] for c in build_cases(d, reps, targets, control, "kill.log", {}, rc)]
+        assert all(i.endswith("-SHORT") != plain for i in ids), (reps, targets, control, rc, ids)
+        assert is_criterion(reps, targets, control, rc) == plain
+    # the module measurement file is attached to S-KILL-03 and to S-KILL-03-SHORT (the registered default is a short run)
+    for cid in ("S-KILL-03", "S-KILL-03-SHORT"):
+        assert attach_measure([{"id": cid, "evidence": []}])[0]["evidence"] == ["kill-module-measure.json"], cid
+    ids = [c["id"] for c in build_cases(d, 20, allt, True, "kill.log", {})]
+    assert ids == ["S-KILL-01", "S-KILL-02", "S-KILL-03", "S-KILL-04", "S-KILL-RUN", "S-KILL-05"], ids
     print("result.py selftest ok")
     return 0
 

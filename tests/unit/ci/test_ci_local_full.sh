@@ -499,6 +499,108 @@ ci --milestone M5
 expect "F02: --milestone without --verify-result exits 2" 2 'need --verify-result'
 rm -rf "$work/r/tests/gate" # the full-mode tests below need a clean tree
 
+# ---- M5-F04 / M5-F05: adopted criterion runs ------------------------------------------------------------
+# `report.py adopt` writes <date>-<sha7>-<env>-<suite>.json; the gate accepts it as the third kind of file, only with
+# the plain criterion ids of its suite, and never as a substitute for the full test-all result of an environment.
+cat >"$work/adoptmk.py" <<'PY'
+import json, os, sys
+repo, sha, outdir, tmp = sys.argv[1:5]
+sys.path.insert(0, os.path.join(repo, "tests", "harness"))
+import report
+for suite, spec in report.CRITERION_SUITES.items():
+    src = os.path.join(tmp, "src-" + suite)
+    os.makedirs(src, exist_ok=True)
+    cases = [{"id": i, "status": "pass", "duration_s": 1, "evidence": [], "note": None} for i in spec["cases"]]
+    doc = report.build_result(sha, False, spec["env"], "macOS", None, None, None, "2026-11-20T10:00:00Z", "2026-11-20T10:00:01Z", cases)
+    json.dump(doc, open(os.path.join(src, "result.json"), "w"))
+    print(report.adopt(src, spec["env"], outdir, repo))
+PY
+adopted="$work/adopted dir" # with a space: every path below is quoted
+python3 -B "$work/adoptmk.py" "$work/r" "$head" "$adopted" "$work/adsrc" >"$work/adopted.list"
+check "adopt writes one file per suite" "$([ "$(wc -l <"$work/adopted.list" | tr -d ' ')" -eq 6 ] && echo 0 || echo 1)"
+noad=
+stubone B nospc STUB_EXTRA="S-NOSPC-01:pass S-NOSPC-02:pass"
+nospcB=$mkf
+adgate() { # [extra args]: full host/A/B results (B with the S-NOSPC cases) + -ci files + the adopted files, M5
+	set --
+	if [ -z "$noad" ]; then
+		while IFS= read -r _f; do set -- "$@" --verify-result "$_f"; done <"$work/adopted.list"
+	fi
+	ci --verify-result "$stubres/2026-11-20-$n7-host.json" --verify-result "$stubres/2026-11-20-$n7-A.json" \
+		--verify-result "${adB:-$nospcB}" --verify-result "$stubres/2026-11-20-$n7-host-ci.json" \
+		--verify-result "$stubres/2026-11-20-$n7-A-ci.json" --verify-result "$stubres/2026-11-20-$n7-B-ci.json" \
+		"$@" --pre-commit --require-env host,A,B --milestone M5
+}
+mkdir -p "$work/r/tests/gate"
+cp "$repo/tests/gate/M5.cases" "$work/r/tests/gate/M5.cases"
+m5=$(sed 's/#.*//' "$work/r/tests/gate/M5.cases" | tr -s ' \t\r' '\n\n\n' | grep -v '^$')
+adgate
+expect "F05: an adopted file for each suite plus the full host/A/B results passes --milestone M5" 0 'verify-result: PASSED'
+noad=1
+adgate
+noad=
+expect "F05: without the adopted files the milestone is rejected" 1 'required case S-SOAK-01 is absent'
+# the registered short runs (-SHORT ids in a full B result) cannot satisfy the list
+short=
+for c in $m5; do case $c in S-NOSPC-*) ;; *) short="$short $c-SHORT:pass" ;; esac; done
+stubone B shortids STUB_EXTRA="S-NOSPC-01:pass S-NOSPC-02:pass$short"
+noad=1
+adB=$mkf
+adgate
+noad=
+adB=
+expect "F04: -SHORT cases in a full run cannot satisfy the criterion list" 1 'required case S-SOAK-01 is absent'
+# an adopted file is no substitute for the full result of its environment
+adsoak=$(ls "$adopted"/*-B-soak.json)
+ci --verify-result "$adsoak" --pre-commit --require-env B
+expect "F05: an adopted file alone does not make environment B (no full run)" 1 'no full test-all run'
+ci --verify-result "$adsoak" --pre-commit --require-case S-SOAK-01
+expect "F05: an adopted file alone satisfies --require-case of its case" 0 'verify-result: PASSED'
+# an adopted file edited to hold a -SHORT case, a foreign case, or a failed one
+cat >"$work/hand.py" <<'PY'
+import json, sys
+doc = json.load(open(sys.argv[1]))
+exec(sys.argv[3])
+json.dump(doc, open(sys.argv[2], "w"))
+PY
+hand() { # NAME PYTHON-STATEMENTS-ON-doc: a copy of the adopted soak file, edited, written as <date>-<sha7>-B-NAME.json
+	python3 -B "$work/hand.py" "$adsoak" "$pc/2026-11-20-${n7}-B-$1.json" "$2"
+}
+hsoak=$pc/2026-11-20-${n7}-B-soak.json
+hand soak 'doc["cases"][0]["id"] = "S-SOAK-01-SHORT"'
+ci --verify-result "$hsoak" --pre-commit --require-case S-SOAK-01
+expect "F04: an adopted file with a -SHORT case is rejected" 1 'not plain criterion cases of soak'
+hand soak 'doc["cases"].append({"id": "S-KILL-01", "status": "pass", "duration_s": 1, "evidence": [], "note": None})'
+ci --verify-result "$hsoak" --pre-commit --require-case S-SOAK-01
+expect "F05: an adopted file with a foreign case is rejected" 1 'not a criterion run of soak'
+hand soak 'doc["cases"].append({"id": "STAGE-B-DAEMON", "status": "pass", "duration_s": 1, "evidence": [], "note": None})'
+ci --verify-result "$hsoak" --pre-commit --require-case S-SOAK-01
+expect "F05: an adopted file with a STAGE case other than the marker is rejected" 1 'not a criterion run of soak'
+hand soak 'doc["cases"] = [c for c in doc["cases"] if c["id"] != "S-SOAK-01-CONTROL"]'
+ci --verify-result "$hsoak" --pre-commit --require-case S-SOAK-01
+expect "F05: an adopted file without the control case is rejected" 1 'criterion case(s) missing: S-SOAK-01-CONTROL'
+hand soak 'doc["cases"][0]["status"] = "skip"; doc["cases"][0]["note"] = "x"'
+ci --verify-result "$hsoak" --pre-commit --require-case S-SOAK-01
+expect "F05: an adopted file with a skipped criterion case is rejected" 1 'not passed'
+hand soak 'doc["cases"][-1]["note"] = "criterion:kill"'
+ci --verify-result "$hsoak" --pre-commit --require-case S-SOAK-01
+expect "F05: a marker that names another suite is rejected" 1 'not a criterion run of kill'
+hand parallel 'pass'
+ci --verify-result "$pc/2026-11-20-${n7}-B-parallel.json" --pre-commit --require-case S-PAR-01
+expect "F05: the file name must carry the suite of the marker" 1 'file name must be'
+# a hand-made file that only claims the marker but has extra (non-criterion) cases
+hand soak 'doc["cases"].append({"id": "T-EXTRA-1", "status": "pass", "duration_s": 1, "evidence": [], "note": None})'
+ci --verify-result "$hsoak" --pre-commit --require-case S-SOAK-01
+expect "F05: a file that claims the marker but has extra cases is rejected" 1 'not plain criterion cases of soak'
+# a mode record without the full or criterion note is neither
+hand soak 'doc["cases"][-1]["note"] = "criterion"'
+ci --verify-result "$hsoak" --pre-commit --require-case S-SOAK-01
+expect "F05: a mode record without the full or criterion note is rejected" 1 'not a full run'
+# the committed-mode rules still apply: outside tests/results/ is rejected
+ci --verify-result "$adsoak"
+expect "F05: an adopted file outside tests/results/ is rejected without --pre-commit" 1 'must lie under tests/results'
+rm -rf "$work/r/tests/gate"
+
 # ---- full mode with the stubs ---------------------------------------------------------------------
 full() { : >"$STUB_LOG"; rc=0; CI_LOCAL_TEST_OWN=1 "$work/r/scripts/ci-local.sh" "$@" >"$work/out" 2>&1 || rc=$?; unset STUB_FAIL STUB_NOFILE STUB_MISSING CI_LOCAL_TEST_OWN_FAIL; }
 full --dry-run --fixtures "$work/fx"

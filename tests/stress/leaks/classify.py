@@ -279,6 +279,32 @@ def _read(path):
         return f.read()
 
 
+CRITERION_ITERATIONS = 50  # T-M5-03, criterion 5.4
+
+
+def is_criterion(meta):
+    """a run of at least 50 workload iterations (the control always runs and is required for the pass, see finalize);
+    only such a run writes the plain case ids, every other run the ids with the suffix -SHORT (M5-F04)"""
+    try:
+        return int(meta.get("iterations", "")) >= CRITERION_ITERATIONS
+    except ValueError:
+        return False
+
+
+def make_cases(meta, status_main, control, notes, ev):
+    sfx = "" if is_criterion(meta) else "-SHORT"
+    note = "; ".join(notes)
+    if sfx:
+        note = "shortened run, not criterion 5.4 (the case id has the suffix -SHORT; %d iterations are required): %s" % (CRITERION_ITERATIONS, note)
+    note += "; parameters: %s workload iteration(s), criterion %d" % (meta.get("iterations", "?"), CRITERION_ITERATIONS)
+    return [
+        {"id": "S-LEAK-01" + sfx, "status": status_main, "duration_s": float(meta.get("seconds", 0) or 0),
+         "evidence": ev, "note": note},
+        {"id": "S-LEAK-01-CONTROL" + sfx, "status": "pass" if control["ok"] else "fail", "duration_s": 0.0,
+         "evidence": [n for n in ("leaks-control.txt",) if n in ev], "note": control["detail"]},
+    ]
+
+
 def finalize(d, repo, started=None, project_images=()):
     import report  # tests/harness/report.py
 
@@ -369,17 +395,14 @@ def finalize(d, repo, started=None, project_images=()):
                 lines.append("      at %s" % site)
     with open(os.path.join(d, "summary.txt"), "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
-    sha, dirty = report.git_info(repo)
+    sha, dirty, pnotes = report.run_state(d, repo)
+    if pnotes and cases:
+        cases[0]["note"] = (cases[0]["note"] or "") + "; provenance: " + "; ".join(pnotes)
     now = report.utc_now()
     ev = [n for n in ("summary.txt", "classification.json", "patched-map.json", "meta.txt", "leaks-control.txt",
-                      "workload.log", "worker.log") if os.path.isfile(os.path.join(d, n))]
+                      "workload.log", "worker.log", "provenance.txt") if os.path.isfile(os.path.join(d, n))]
     ev += sorted(n for n in os.listdir(d) if re.match(r"^leaks-worker-scan\d+\.txt$", n))
-    cases = [
-        {"id": "S-LEAK-01", "status": status_main, "duration_s": float(meta.get("seconds", 0) or 0),
-         "evidence": ev, "note": "; ".join(notes)},
-        {"id": "S-LEAK-01-CONTROL", "status": "pass" if control["ok"] else "fail", "duration_s": 0.0,
-         "evidence": [n for n in ("leaks-control.txt",) if n in ev], "note": control["detail"]},
-    ]
+    cases = make_cases(meta, status_main, control, notes, ev)
     doc = report.build_result(sha, dirty, "B", meta.get("host_os") or "macOS (host)", meta.get("guest_os"),
                               meta.get("macfuse"), meta.get("ntfs3g"), started or now, now, cases)
     errs = report.validate(doc)
@@ -496,6 +519,13 @@ def selftest():
     src = ["#include <x.h>", "static int foo(int a,", "\t\tint b)", "{", "\treturn a;", "}", "", "int bar(void)", "{", "}"]
     fn = _functions(src)
     ok([f[0] for f in fn] == ["foo", "bar"] and fn[0][2] == 6, "function scanner")
+    # M5-F04: the plain ids only for a run of at least 50 iterations
+    okc = {"ok": True, "detail": "control ok"}
+    for it, plain in (("3", False), ("49", False), ("50", True), ("200", True), ("", False), ("x", False)):
+        cs = make_cases({"iterations": it, "seconds": "9"}, "pass", okc, ["n"], ["leaks-control.txt"])
+        want = ["S-LEAK-01", "S-LEAK-01-CONTROL"] if plain else ["S-LEAK-01-SHORT", "S-LEAK-01-CONTROL-SHORT"]
+        ok([c["id"] for c in cs] == want, "case ids for %r iterations: %s" % (it, [c["id"] for c in cs]))
+        ok(("shortened run" in cs[0]["note"]) != plain and ("parameters: %s workload" % it) in cs[0]["note"], "note says short and gives the parameters")
     print("classify selftest: %d checks passed" % n)
     return 0
 

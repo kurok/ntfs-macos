@@ -2,6 +2,7 @@
 """Merge the units of a fuzz campaign into one triage table (T-M5-09). Python standard library only.
 
 Usage: python3 -I -B triage.py --results DIR --known known.tsv [--findings-dir DIR] [--adopt]
+                               [--plan "t:s ..."] [--budget S] [--result-out FILE [--allow-dirty]]
 
 Reads DIR/units/*/{summary.txt,findings.tsv,ubsan.tsv,inputs/} (written by inner.sh), merges the findings of
 all units by signature, matches each against known.tsv and classifies it. Writes DIR/triage.tsv and
@@ -85,6 +86,12 @@ def main():
     ap.add_argument("--adopt", action="store_true")
     ap.add_argument("--plan", default="", help="planned units, 'target:shard' separated by spaces; each needs a summary")
     ap.add_argument("--budget", type=int, default=0, help="CPU seconds planned; the fuzz CPU time must reach 95 percent")
+    ap.add_argument("--problem", action="append", default=[], help="a problem found by the caller (repeatable): fails the run and the case")
+    ap.add_argument("--result-out", help="write an ntfsmac-test-result/1 file (case F-CAMPAIGN-01, campaign_result.py); needs "
+                    "DIR/provenance.txt (written by run.sh); refuses a dirty tree unless --allow-dirty")
+    ap.add_argument("--repo", default=os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))),
+                    help="repository whose state is checked for --result-out (default: this one)")
+    ap.add_argument("--allow-dirty", action="store_true", help="with --result-out: accept a campaign started on a dirty tree (the result is dirty)")
     a = ap.parse_args()
     known = fuzzsig.load_known(a.known)
     units = sorted(glob.glob(os.path.join(a.results, "units", "*", "summary.txt")))
@@ -92,7 +99,7 @@ def main():
         print("triage.py: no units under %s" % a.results, file=sys.stderr)
         return 2
 
-    problems = []
+    problems = list(a.problem)
     for u in a.plan.split():
         t, _, sh = u.partition(":")
         sp = os.path.join(a.results, "units", "%s-s%s" % (t, sh), "summary.txt")
@@ -257,6 +264,22 @@ def main():
     print("triage: %d signature(s), %d new or to review, %d regression(s), %d new UBSan location(s)" % (
         len(rows), sum(1 for r in rows if r["status"] in ("NEW", "REVIEW")), sum(1 for r in rows if r["status"] == "REGRESSION"),
         len(new_ub)))
+    if a.result_out:
+        import campaign_result
+        planned = [u.partition(":")[0] for u in a.plan.split()]
+        summary = {
+            "budget": a.budget, "cpu": tot, "units": len(stats), "targets": sorted(set(planned) | {x["target"] for x in stats}),
+            "patched": all(x["patched"] == "yes" for x in stats),
+            "new": sum(1 for r in rows if r["status"] == "NEW"), "review": sum(1 for r in rows if r["status"] == "REVIEW"),
+            "regression": sum(1 for r in rows if r["status"] == "REGRESSION"), "new_ubsan": len(new_ub),
+            "known": sorted({r["id"] for r in rows if r["status"] == "known" and r["id"] != "-"}), "problems": problems,
+        }
+        try:
+            case = campaign_result.write_result(a.results, summary, a.result_out, a.allow_dirty, a.repo)
+        except ValueError as e:
+            print("triage.py: no result file: %s" % e, file=sys.stderr)
+            return 2
+        print("result: %s %s -> %s" % (case["id"], case["status"].upper(), a.result_out))
     return 1 if (bad or new_ub or problems) else 0
 
 

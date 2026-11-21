@@ -206,7 +206,10 @@ static int setup_guest(void)
 		fprintf(stderr, "sandbox_vm: mkdir %s: %s\n", SBX_USERMAPPING_DIR, strerror(errno));
 		return -1;
 	}
-	if (make_file(NTFSMAC_USERMAPPING_PATH, 0644, "# test mapping\n") != 0)
+	/* a mapping the daemon accepts (src/daemon/usermap.c): since 58777e6 a file without a user and a
+	 * group mapping is refused and usermapping= is dropped, so the worker could not be granted the file */
+	if (make_file(NTFSMAC_USERMAPPING_PATH, 0644,
+		      "# test mapping\n501:20:S-1-5-21-1111111111-2222222222-3333333333-1001\n") != 0)
 		return -1;
 	g_made_um = true;
 	if (make_file(SBX_OTHER_FILE, 0644, "other\n") != 0)

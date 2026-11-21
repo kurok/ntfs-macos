@@ -123,7 +123,15 @@ bsd=$(rw_mount "$img")
 eq "I-DMN-16: the volume mounts rw" "$(state_of "$bsd") $(mount_of "$bsd")" "Mounted rw"
 mp=$(mpoint_of "$bsd")
 durable_write "$mp/keep.txt" synced-before-the-detach
-( dd if=/dev/zero of="$mp/big.bin" bs=64k count=600 2>/dev/null ) &
+# One process rewrites a 10 MiB file from offset 0 until a write fails (the yank), so it is still
+# writing however long the refused detach below takes (up to 60 s; a writer of fixed size, one dd of
+# 37.5 MiB, ended first). As in tests/stress/kill/kill_guest.sh: the file is made first and opened once
+# without O_CREAT, so nothing is created on the system volume under /Volumes after the mount is gone.
+: >"$mp/big.bin" || failf "I-DMN-16: cannot create the writer's file"
+perl -MFcntl -e 'sysopen(my $h, $ARGV[0], O_WRONLY) or exit 200; my $b = "\0" x 65536;
+	for (;;) { defined sysseek($h, 0, 0) or exit(($! + 0) || 201);
+		for (1 .. 160) { my $n = syswrite($h, $b); defined $n or exit(($! + 0) || 202);
+			$n == 65536 or exit 203; } }' "$mp/big.bin" &
 wpid=$!
 sleep 1
 note "writer pid $wpid is running; force-detach of /dev/$bsd now"

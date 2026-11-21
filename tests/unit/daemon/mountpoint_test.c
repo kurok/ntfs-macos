@@ -362,8 +362,10 @@ static void test_production_entry(void)
 		CHECK(s != NTFSMAC_DMN_OK);
 		CHECK(mp.dirfd == -1);
 		CHECK(!exists("/Volumes/Zz-ntfsmac-test"));
-	} else if (s == NTFSMAC_DMN_OK) {
-		ntfsmac_mountpoint_remove(&mp);
+	} else {
+		printf("SKIP: mountpoint production entry refusal: runs only when not root\n");
+		if (s == NTFSMAC_DMN_OK)
+			ntfsmac_mountpoint_remove(&mp);
 	}
 }
 

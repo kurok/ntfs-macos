@@ -3,7 +3,7 @@
 Copy this file to `tests/results/hardware/<UTC date>-<sha7>.md` and fill it in while you work. Protocol:
 `docs/HARDWARE_TEST_PROTOCOL.md` (every case id below is a section there). Do NOT type a line that starts with
 `Hardware-verified:` anywhere in this file until you sign it in section 4: `tests/harness/report.py` counts every such
-line at the start of a line, in any `*.md` directly in `tests/results/hardware/`, as a verified feature.
+line at the start of a line, in a file named `<UTC date>-<sha7>.md` directly in `tests/results/hardware/`, as a verified feature. Files with another name, and files whose commit is not an ancestor of `HEAD`, are ignored.
 
 ## 1. Run
 

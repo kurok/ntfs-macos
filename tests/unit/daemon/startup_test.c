@@ -59,6 +59,8 @@ static void test_exec_as(void)
 	CHECK_EQ_INT(ntfsmac_spawn_exec_as(5, gid0), 2);
 	if (geteuid() != 0)
 		CHECK_EQ_INT(ntfsmac_spawn_exec_as(5, ok), 126); /* not root: refused before any exec */
+	else
+		printf("SKIP: startup exec_as refusal before exec: runs only when not root\n");
 }
 
 int main(void)

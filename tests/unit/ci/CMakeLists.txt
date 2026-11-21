@@ -23,6 +23,10 @@ if(NTFSMAC_PYTHON3 AND NTFSMAC_SH)
     COMMAND ${_ci_env} ${NTFSMAC_SH} ${_ci_dir}/test_ci_local.sh --usage)
   add_test(NAME ci.local_full
     COMMAND ${_ci_env} ${NTFSMAC_SH} ${_ci_dir}/test_ci_local_full.sh)
+  # the clang-tidy lookup of the static-analysis stage, on a fake PATH (seconds)
+  add_test(NAME ci.local_tools
+    COMMAND ${_ci_env} ${NTFSMAC_SH} ${_ci_dir}/test_ci_local_tools.sh)
+  set_tests_properties(ci.local_tools PROPERTIES TIMEOUT 60 LABELS ci)
   add_test(NAME ci.gate_cases
     COMMAND ${NTFSMAC_PYTHON3} -I -B ${_ci_dir}/gate_cases_check.py ${PROJECT_SOURCE_DIR} M5)
   set_tests_properties(ci.local ci.local_full PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 120 LABELS ci)

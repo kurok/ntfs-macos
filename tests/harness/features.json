@@ -24,5 +24,19 @@
   {"id": "linux-parity", "name": "Same on-disk result as NTFS-3G on Linux",
    "cases": ["C-REF-*", "I-BIG-COMP-01", "I-NAME-U22", "I-XATTR-09"]},
   {"id": "daemon", "name": "Daemon: automount decision, read-only fallback, unmount, crash recovery",
-   "cases": ["STAGE-B-DAEMON"]}
+   "cases": ["STAGE-B-DAEMON"]},
+  {"id": "soak", "name": "Six-hour mixed workload with RSS growth under 10 percent (S-SOAK)",
+   "cases": ["S-SOAK-01", "S-SOAK-01-CONTROL", "S-SOAK-RUN"]},
+  {"id": "parallel", "name": "Sixteen parallel processes, no hang, no mismatch (S-PAR)",
+   "cases": ["S-PAR-01", "S-PAR-01-CONTROL", "S-PAR-RUN"]},
+  {"id": "leaks", "name": "No project memory leak in the worker (S-LEAK)",
+   "cases": ["S-LEAK-01", "S-LEAK-01-CONTROL"]},
+  {"id": "low-space", "name": "Full volume: ENOSPC reported, earlier files intact (S-NOSPC)",
+   "cases": ["S-NOSPC-01", "S-NOSPC-02"]},
+  {"id": "kill", "name": "Worker, daemon, module process and image killed during writes (S-KILL)",
+   "cases": ["S-KILL-01", "S-KILL-02", "S-KILL-03", "S-KILL-04", "S-KILL-05", "S-KILL-RUN"]},
+  {"id": "disconnect", "name": "Image force-detached during writes, next mount read-only (S-DISC)",
+   "cases": ["S-DISC-01", "S-DISC-02", "S-DISC-03", "S-DISC-04", "S-DISC-05", "S-DISC-RUN"]},
+  {"id": "performance", "name": "Performance benchmarks ran (P-*; recorded, no threshold in this table)",
+   "cases": ["P-SEQ-*", "P-RND-*", "P-SMALL-*", "P-DIR-*", "P-RES-*", "P-RAW-*", "P-RUN-01"]}
 ]

@@ -117,6 +117,15 @@ def run_probe(img, tool=None, extra=(), rc=0):
     return v
 
 
+def missing_fixture(case, what):
+    """A fixture the run needs is absent. With a configured fixture directory (--images) that is a
+    failure; only a run without any (or with NTFSMAC_PROBE_ALLOW_MISSING_FIXTURES=1, the
+    --quick-fixtures development mode of inner.sh) skips, and it says so."""
+    if ARGS.images and os.environ.get("NTFSMAC_PROBE_ALLOW_MISSING_FIXTURES") != "1":
+        case.fail("%s (fixture directory configured: %s)" % (what, ", ".join(ARGS.images)))
+    case.skipTest(what)
+
+
 def fx(name):
     if name not in FIX:  # a missing fixture is a failure: nothing is skipped silently
         raise AssertionError("fixture %s not present (tests/unit/probe/run.sh makes them)" % name)
@@ -161,7 +170,7 @@ class Probe(unittest.TestCase):
     def test_clean_fixtures(self):
         names = [e["name"] for e in MANIFEST["fixtures"] if e["generator"] == "clean" and e["name"] in FIX]
         if not names:
-            self.skipTest("no clean fixture")
+            missing_fixture(self, "no clean fixture")
         for name in names:
             with self.subTest(fixture=name):
                 v = run_probe(FIX[name])
@@ -479,7 +488,7 @@ class Probe(unittest.TestCase):
                     self.assertVerdict(v, "corrupt", ["MOUNT_FAILED"], logfile="unreadable")
                 os.unlink(img)
         if not any(n in FIX for n in ("clean-64m-64k", "clean-64m-64k-ss4096")):
-            self.skipTest("no 64k fixture")
+            missing_fixture(self, "no 64k fixture")
 
     def test_mirror_05_sweep_images(self):
         sweep = sorted(n for n in FIX if n.startswith("sweep-"))
@@ -723,7 +732,7 @@ class Probe(unittest.TestCase):
         sources = [n for n in ("log-init", "names-nfd", "names-wide", "mirror-split", "hiber-lower", "dirty-flag")
                    if n in FIX]
         if not sources:
-            self.skipTest("no source image")
+            missing_fixture(self, "no source image")
         count = int(os.environ.get("NTFSMAC_PROBE_MUTATIONS", "150"))
         img = os.path.join(TMP, "mut.img")
         stats = {}

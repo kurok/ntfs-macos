@@ -68,7 +68,11 @@ finish() {
 	} >"$out/environment.txt"
 	if [ "$tar_out" -eq 1 ]; then tar -czf - -C "$out" . >&3; fi
 	if [ "$failed" -ne 0 ]; then echo "probe tests: FAILED"; exit 1; fi
-	echo "probe tests: PASSED"
+	_left=
+	if [ "$do_asan" -eq 1 ]; then _left="ASan stage runs without the journal.* tests"; else _left="ASan stage not run (--no-asan)"; fi
+	[ "$do_big" -eq 1 ] || _left="$_left; no 1,000,000-entry stage"
+	[ "$quick" -eq 0 ] || _left="$_left; clean fixtures other than clean-64m-4k (--quick-fixtures)"
+	echo "probe tests: PASSED (left out: $_left)"
 	exit 0
 }
 
@@ -93,6 +97,7 @@ stage fixtures-unsafe gen unsafe
 stage fixtures-names gen names
 stage fixtures-mirror gen mirror
 if [ "$quick" -eq 1 ]; then
+	export NTFSMAC_PROBE_ALLOW_MISSING_FIXTURES=1 # the development mode: missing clean fixtures skip (test_probe.py)
 	stage fixtures-clean sh "$work/tests/fixtures/gen/clean.sh" --inner --only clean-64m-4k
 else
 	stage fixtures-clean gen clean

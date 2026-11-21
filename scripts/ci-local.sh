@@ -16,6 +16,9 @@
 #                      host              scripts/test-all.sh --env host (macOS build and unit tests, no mount)
 #                      tsan              ThreadSanitizer unit tests (tsan preset, ctest -R ^tsan., U-TSAN-*)
 #                      static-analysis   shellcheck, clang-tidy, cppcheck on project code, on the host
+#                                        (clang-tidy: PATH first, then /opt/homebrew/opt/llvm/bin and
+#                                        /usr/local/opt/llvm/bin; the stage note names the one used and the
+#                                        directories searched; CI_LOCAL_LLVM_DIRS overrides them for tests only)
 #                                        (-Wall -Wextra -Werror is part of every build, cmake/NtfsmacFlags.cmake)
 #                      A                 scripts/test-all.sh --env A    (container: Linux suites, crash sweep)
 #                      linux-build-test  project build and ctest in the container (presets linux and asan)
@@ -82,7 +85,9 @@
 #
 # Test seams (tests/unit/ci only): CI_LOCAL_TEST_ALL names a replacement for scripts/test-all.sh;
 # CI_LOCAL_TEST_OWN=1 replaces the commands of the stages ci-local runs itself (they succeed, except the
-# stages named in CI_LOCAL_TEST_OWN_FAIL).
+# stages named in CI_LOCAL_TEST_OWN_FAIL); CI_LOCAL_LLVM_DIRS replaces the directories searched for
+# clang-tidy (tests/unit/ci/test_ci_local_tools.sh only). It is refused in full mode (exit 2) unless
+# CI_LOCAL_TEST_OWN is set: a gate run must look where the documentation says.
 #
 # ThreadSanitizer: `scripts/ci-local.sh --quick --preset tsan` builds and runs every test with
 # -fsanitize=thread (in build/tsan); the full-mode stage `tsan` runs only the U-TSAN-* drivers.
@@ -98,7 +103,8 @@ die() { # message [exit-code]
 }
 
 usage() {
-	sed -n '4,80p' "$0" | sed 's/^# \{0,1\}//' >&2
+	# the whole comment header from line 4 (no fixed end line: it drifted as the header grew)
+	awk 'NR >= 4 { if ($0 !~ /^#/) exit; print }' "$0" | sed 's/^# \{0,1\}//' >&2
 }
 
 quick=0
@@ -217,6 +223,11 @@ fi
 
 test_all=${CI_LOCAL_TEST_ALL:-$here/test-all.sh}
 
+# the clang-tidy search path override is a test seam: refuse it when full mode would run the gate stages
+if [ -n "${CI_LOCAL_LLVM_DIRS:-}" ] && [ "$quick" -eq 0 ] && [ -z "$verify_files" ] && [ -z "${CI_LOCAL_TEST_OWN:-}" ]; then
+	die "CI_LOCAL_LLVM_DIRS is a test seam and is refused in full mode (unset it)"
+fi
+
 # verify_results FILE...: check the files together; prints one line per file and the reason of every
 # rejection. Uses the globals commit, require_env, require_cases, pre_commit and test_all.
 verify_results() {
@@ -275,8 +286,11 @@ def table_is_current(commit):
     with tempfile.TemporaryDirectory() as d:
         with tarfile.open(fileobj=io.BytesIO(r.stdout)) as t:
             t.extractall(d)
-        block = report.render_table(os.path.join(d, "tests", "results"),
-                                    os.path.join(d, "tests", "harness", "features.json"))
+        try:
+            block = report.render_table(os.path.join(d, "tests", "results"),
+                                        os.path.join(d, "tests", "harness", "features.json"), root, commit)
+        except RuntimeError:
+            return False
     try:
         return report.render_readme(readme, block) == readme
     except ValueError:
@@ -782,7 +796,19 @@ if [ "$quick" -eq 0 ]; then
 		else
 			echo "static-analysis: shellcheck is not installed (brew install shellcheck)"; _rc=1
 		fi
+		# clang-tidy: on PATH, else in the keg-only Homebrew llvm (neither prefix is required to exist)
+		_tidy=
 		if command -v clang-tidy >/dev/null 2>&1; then
+			_tidy=$(command -v clang-tidy)
+		else
+			_dirs=${CI_LOCAL_LLVM_DIRS:-/opt/homebrew/opt/llvm/bin /usr/local/opt/llvm/bin}
+			_dirs_note="PATH, $_dirs${CI_LOCAL_LLVM_DIRS:+ (CI_LOCAL_LLVM_DIRS override)}"
+			for _d in $_dirs; do
+				if [ -x "$_d/clang-tidy" ]; then _tidy=$_d/clang-tidy; break; fi
+			done
+		fi
+		if [ -n "$_tidy" ]; then
+			echo "clang-tidy: using $_tidy (searched: ${_dirs_note:-PATH})"
 			echo "clang-tidy (clang-diagnostic-*, clang-analyzer-*; files of the compile database under src/)"
 			_cdb=$root/build/static
 			cmake --preset release -B "$_cdb" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON >/dev/null || _rc=1
@@ -799,10 +825,10 @@ if [ "$quick" -eq 0 ]; then
 				_checks='-*,clang-diagnostic-*,clang-analyzer-*'
 				_checks="$_checks,-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling"
 				_checks="$_checks,-clang-analyzer-optin.performance.Padding"
-				clang-tidy -p "$_cdb" --checks="$_checks" --warnings-as-errors='*' $_srcs || _rc=1
+				"$_tidy" -p "$_cdb" --checks="$_checks" --warnings-as-errors='*' $_srcs || _rc=1
 			fi
 		else
-			echo "static-analysis: clang-tidy is not installed (brew install llvm)"; _rc=1
+			echo "static-analysis: clang-tidy is not installed (brew install llvm; searched: ${_dirs_note:-PATH, ${CI_LOCAL_LLVM_DIRS:-/opt/homebrew/opt/llvm/bin /usr/local/opt/llvm/bin}})"; _rc=1
 		fi
 		if command -v cppcheck >/dev/null 2>&1; then
 			echo "cppcheck"
@@ -814,6 +840,7 @@ if [ "$quick" -eq 0 ]; then
 			echo "static-analysis: cppcheck is not installed (brew install cppcheck)"; _rc=1
 		fi
 		[ "$_rc" -eq 0 ] || echo "static-analysis: FAILED"
+		[ "$_rc" -ne 0 ] || echo "NOTE: clang-tidy used: $_tidy (searched: ${_dirs_note:-PATH})"
 		return "$_rc"
 	}
 
@@ -827,21 +854,26 @@ if [ "$quick" -eq 0 ]; then
 	linux_build_test() {
 		container_ready linux-build-test || return 1
 		_rc=0
+		_skipped=
 		for _p in linux asan; do
 			echo "== linux-build-test: preset $_p"
 			echo "NOTE: fuzz.findings.F1/F3/F4 are not run here: the image of Environment A links pristine NTFS-3G, where these replays fail by design (they pass against the patched library in the A-unit asan stage, tests/unit/probe/inner.sh)"
 			_o=$work/A/linux-$_p.out
 			_prc=0
 			sh "$root/vm/linux/run.sh" run -- bash -c \
-				"set -e; cmake --preset $_p -S /work -B /tmp/b-$_p -DNTFSMAC_NTFS3G_PATCHED=OFF >/dev/null && cmake --build /tmp/b-$_p && ctest --test-dir /tmp/b-$_p --output-on-failure" \
+				"set -e; cmake --preset $_p -S /work -B /tmp/b-$_p -DNTFSMAC_NTFS3G_PATCHED=OFF >/dev/null && cmake --build /tmp/b-$_p && ctest --test-dir /tmp/b-$_p --output-on-failure -V" \
 				>"$_o" 2>&1 || _prc=$?
 			cat "$_o"
+			# a test that skips a branch prints "SKIP: <reason>" (ctest -V shows it); count them (M5-F09)
+			_sk=$(grep -c 'SKIP: ' "$_o" || true)
+			_skipped="${_skipped:+$_skipped; }preset $_p: ${_sk:-0} SKIP line(s)"
 			if [ "$_prc" -ne 0 ]; then
 				_rc=1
 				_err=$(grep -m1 'error:' "$_o" | cut -c1-240 || true); [ -n "$_err" ] || _err=$(grep -m1 -E 'FAILED|Failed' "$_o" | cut -c1-240 || true)
 				echo "NOTE: linux build or test FAILED with preset $_p: ${_err:-exit $_prc (see the log)}"
 			fi
 		done
+		[ "$_rc" -ne 0 ] || echo "NOTE: skipped tests, counted from SKIP: lines ($_skipped); fuzz.findings.F1/F3/F4 not run here (pristine NTFS-3G, run in A-unit asan)"
 		return "$_rc"
 	}
 
@@ -855,7 +887,7 @@ if [ "$quick" -eq 0 ]; then
 		# tests/fuzz/TRIAGE.md); the stage blocks on a finding anywhere else
 		sh "$root/tests/fuzz/image/run.sh" --skip-security --seconds "$fuzz_seconds" --out "$_fo/image" || _rc=1
 		sh "$root/tests/fuzz/sanitize/run.sh" --seconds "$fuzz_seconds" --out "$_fo/sanitize" || _rc=1
-		echo "NOTE: fuzz output (corpus, logs, artifacts) in build/fuzz/ci/$_stamp"
+		echo "NOTE: left out: image run --skip-security (security descriptor reads, F1/F3, covered by the replays); fuzz output in build/fuzz/ci/$_stamp"
 		return "$_rc"
 	}
 

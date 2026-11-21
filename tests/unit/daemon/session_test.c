@@ -1326,19 +1326,27 @@ static void test_end_failures(void)
 	ntfsmac_session_free(b.s);
 	fake_done(&f);
 
-	/* force_unclean and the journal update itself fails (directory closed to writes): the state
-	 * stays `open`, which alone would let the proof pass, but the report is still UNCLEAN and
-	 * the entry and the marker stay */
-	if (geteuid() != 0) {
+	/* force_unclean and the journal update itself fails: the state stays `open`, which alone
+	 * would let the proof pass, but the report is still UNCLEAN and the entry and the marker
+	 * stay. The failure comes from a seam that also works as root (the Linux container): a
+	 * non-empty directory sits on the temporary name the journal writes to, so the open and
+	 * the retry after unlinkat both fail. No permission is involved (M5-F09). */
+	{
+		char tmpdir[320], inner[340];
+
 		fake_init(&f);
 		b = rw_session(&f, &c);
-		CHECK_EQ_INT(chmod(g_jdir, 0500), 0);
+		snprintf(tmpdir, sizeof tmpdir, "%s/.%016llX.tmp", g_jdir, (unsigned long long)SERIAL);
+		snprintf(inner, sizeof inner, "%s/x", tmpdir);
+		CHECK_EQ_INT(mkdir(tmpdir, 0700), 0);
+		CHECK_EQ_INT(mkdir(inner, 0700), 0);
 		CHECK_EQ_INT(ntfsmac_session_note_write_error(b.s), NTFSMAC_DMN_E_IO); /* the premise */
 		CHECK_EQ_INT(ntfsmac_session_end(b.s, &w, true, 0, true, &r), NTFSMAC_DMN_OK);
 		CHECK_EQ_INT(r.report, NTFSMAC_SREPORT_UNCLEAN);
 		CHECK(!r.entry_removed);
 		CHECK_EQ_INT(f.vm_calls, 1);
-		CHECK_EQ_INT(chmod(g_jdir, 0700), 0);
+		CHECK_EQ_INT(rmdir(inner), 0);
+		CHECK_EQ_INT(rmdir(tmpdir), 0);
 		CHECK(entry_is(&f, NTFSMAC_JOURNAL_MARKER_SET, NTFSMAC_JOURNAL_STATE_OPEN));
 		ntfsmac_session_free(b.s);
 		fake_done(&f);

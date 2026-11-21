@@ -369,6 +369,7 @@ plan_a() {
 		blocked="preflight failed"
 	light selftest "vm/linux/run.sh selftest: mkntfs, mount, write, unmount, remount" \
 		sh "$root/vm/linux/run.sh" selftest
+	note_re='probe tests: (PASSED|FAILED)'
 	heavy unit-probe "tests/unit/probe/run.sh (probe tests, ASan)" \
 		sh "$root/tests/unit/probe/run.sh" --out "$work/artifacts/unit-probe"
 	heavy unit-volmark "tests/unit/volmark/run.sh (volmark tests, ASan)" \

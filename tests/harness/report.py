@@ -728,8 +728,25 @@ HW_RE = re.compile(r"^Hardware-verified:\s*(.+)$", re.M)
 VM_ENVS = ("B", "host")
 
 
-def load_results(results_dir):
-    """[(filename, doc)] of the valid, clean-tree result files, oldest first."""
+def ancestor_check(repo, head):
+    """A predicate sha -> bool: is the commit an ancestor of HEAD (or equal), in the git repository REPO.
+    RuntimeError when git cannot resolve HEAD (fail closed: no result is then silently trusted)."""
+    if _git(repo, "rev-parse", "--verify", "--quiet", head + "^{commit}") is None:
+        raise RuntimeError("cannot resolve %s in %s: the table needs git to tell which results belong to this tree" % (head, repo))
+    cache = {}
+
+    def check(sha):
+        if sha not in cache:
+            r = subprocess.run(("git", "-c", "safe.directory=*", "-C", repo, "merge-base", "--is-ancestor", sha, head),
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+            cache[sha] = r.returncode == 0  # 1: not an ancestor; 128: unknown commit or not an ancestor
+        return cache[sha]
+    return check
+
+
+def load_results(results_dir, is_ancestor=None):
+    """[(filename, doc)] of the valid, clean-tree result files, oldest first. With IS_ANCESTOR (a predicate on
+    a commit id), results of a commit that is not an ancestor of HEAD are left out (M5-F11)."""
     docs = []
     if os.path.isdir(results_dir):
         for fn in sorted(os.listdir(results_dir)):
@@ -746,22 +763,38 @@ def load_results(results_dir):
                 continue
             if doc["dirty_tree"]:
                 continue
+            if is_ancestor is not None and not is_ancestor(doc["git_sha"]):
+                sys.stderr.write("report: ignoring %s: commit %s is not an ancestor of HEAD\n" % (fn, short_sha(doc["git_sha"])))
+                continue
             docs.append((fn, doc))
     docs.sort(key=lambda t: (t[1]["started"], t[0]))
     return docs
 
 
-def case_status(docs, envs):
-    """id -> status over results of the given envs: the newest status that is not a skip (a skip-only
-    result never hides an earlier outcome); a case that only ever skipped is 'skip'."""
+def is_short_case(cid):
+    """A shortened stress or perf run writes `<criterion id>-SHORT` (M5-F04): not a criterion result."""
+    return cid.endswith("-SHORT")
+
+
+def case_status_ex(docs, envs):
+    """id -> (status, git_sha, started) over results of the given envs: the newest status that is not a skip (a
+    skip-only result never hides an earlier outcome); a case that only ever skipped is 'skip'. A `-SHORT` case
+    is never taken: a shortened run must not decide a row."""
     out = {}
     for _fn, doc in docs:
         if doc["env"] not in envs:
             continue
         for c in doc["cases"]:
+            if is_short_case(c["id"]):
+                continue
             if c["status"] != "skip" or c["id"] not in out:
-                out[c["id"]] = c["status"]
+                out[c["id"]] = (c["status"], doc["git_sha"], doc["started"])
     return out
+
+
+def case_status(docs, envs):
+    """id -> status (see case_status_ex)."""
+    return {i: v[0] for i, v in case_status_ex(docs, envs).items()}
 
 
 def load_features(path):
@@ -778,20 +811,59 @@ def load_features(path):
     return feats
 
 
-def hardware_verified(results_dir):
-    out = set()
+HW_NAME_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})-([0-9a-f]{7})\.md$")
+
+
+def hardware_verified(results_dir, is_ancestor=None):
+    """feature id -> the 7-digit commit of the newest hardware result file that signs it off. Only files named
+    `<UTC date>-<sha7>.md` count (docs/HARDWARE_TEST_PROTOCOL.md section 11); a file with another name, or with
+    IS_ANCESTOR given and a commit that is not an ancestor of HEAD, is ignored."""
+    out = {}
     hw = os.path.join(results_dir, "hardware")
     if os.path.isdir(hw):
         for fn in sorted(os.listdir(hw)):
-            if fn.endswith(".md"):
-                with open(os.path.join(hw, fn), "r", encoding="utf-8") as f:
-                    for m in HW_RE.finditer(f.read()):
-                        out.update(x.strip() for x in m.group(1).split(",") if x.strip())
+            if not fn.endswith(".md"):
+                continue
+            m = HW_NAME_RE.match(fn)
+            if not m:
+                sys.stderr.write("report: ignoring hardware result %s: the name is not <UTC date>-<sha7>.md\n" % fn)
+                continue
+            if is_ancestor is not None and not is_ancestor(m.group(2)):
+                sys.stderr.write("report: ignoring hardware result %s: commit %s is not an ancestor of HEAD\n" % (fn, m.group(2)))
+                continue
+            with open(os.path.join(hw, fn), "r", encoding="utf-8") as f:
+                for m2 in HW_RE.finditer(f.read()):
+                    for x in m2.group(1).split(","):
+                        if x.strip():
+                            out[x.strip()] = m.group(2)  # sorted by name: the newest file wins
     return out
 
 
 def _match(statuses, patterns):
-    return {i: s for i, s in statuses.items() if any(fnmatch.fnmatchcase(i, p) for p in patterns)}
+    return {i: s for i, s in statuses.items() if not is_short_case(i) and any(fnmatch.fnmatchcase(i, p) for p in patterns)}
+
+
+def feature_commit(ft, vmx, linuxx, hw):
+    """The commit shown for a row: the commit of the side that decided its state, in the order of
+    feature_state. A failing case decides (the newest failing result, VM before Linux); then the hardware
+    file's commit; then the newest result of the VM cases, else of the Linux cases. '-' when there is none."""
+    def matched(side):
+        return [v for i, v in side.items() if not is_short_case(i)
+                and any(fnmatch.fnmatchcase(i, p) for p in ft["cases"])]
+
+    def newest(hits):
+        return short_sha(max(hits, key=lambda v: v[2])[1])
+    mv, ml = matched(vmx), matched(linuxx)
+    for hits in (mv, ml):
+        bad = [v for v in hits if v[0] in ("fail", "error")]
+        if bad:
+            return newest(bad)
+    if ft["id"] in hw:
+        return hw[ft["id"]]
+    for hits in (mv, ml):
+        if hits:
+            return newest(hits)
+    return "-"
 
 
 def feature_state(ft, vm, linux, hw):
@@ -824,16 +896,23 @@ def feature_state(ft, vm, linux, hw):
     return "Untested", "-"
 
 
-def render_table(results_dir, features_path):
-    docs = load_results(results_dir)
+def render_table(results_dir, features_path, repo=None, head="HEAD"):
+    """The status table. With REPO, results and hardware files whose commit is not an ancestor of HEAD are left
+    out (M5-F11); without it nothing is filtered (unit tests of the rendering only)."""
+    anc = ancestor_check(repo, head) if repo else None
+    docs = load_results(results_dir, anc)
+    vmx, linuxx = case_status_ex(docs, VM_ENVS), case_status_ex(docs, ("A",))
     vm, linux = case_status(docs, VM_ENVS), case_status(docs, ("A",))
-    hw = hardware_verified(results_dir)
-    rows = ["| Feature | State | Cases passing |", "|---|---|---|"]
+    hw = hardware_verified(results_dir, anc)
+    rows = ["| Feature | State | Cases passing | Commit |", "|---|---|---|---|"]
     for ft in load_features(features_path):
         state, n = feature_state(ft, vm, linux, hw)
-        rows.append("| %s | %s | %s |" % (ft["name"], state, n))
+        rows.append("| %s | %s | %s | %s |" % (ft["name"], state, n, feature_commit(ft, vmx, linuxx, hw)))
     src = ("Built by `python3 tests/harness/report.py readme` from the newest clean-tree result of each case in "
-           "`tests/results/`.")
+           "`tests/results/`. The last column is the commit of the newest result behind the row (for "
+           "`Verified (hardware)`: the commit in the hardware result file name); results of a commit that is not "
+           "an ancestor of `HEAD`, and shortened `-SHORT` runs, are left out, so a row older than the code it "
+           "describes shows an old commit.")
     return "\n".join(rows) + "\n\n" + src
 
 
@@ -851,7 +930,11 @@ def cmd_readme(args):
     results_dir = args.results_dir or os.path.join(repo, "tests", "results")
     features = args.features or os.path.join(repo, "tests", "harness", "features.json")
     readme = args.readme or os.path.join(repo, "README.md")
-    block = render_table(results_dir, features)
+    try:
+        block = render_table(results_dir, features, repo)
+    except RuntimeError as e:
+        sys.stderr.write("report.py: %s\n" % e)
+        return 2
     if args.print:
         print(block)
         return 0

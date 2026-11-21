@@ -314,23 +314,58 @@ class FeatureStateTest(unittest.TestCase):
         self.assertEqual(self.st({}), "Untested")
 
 
+def make_git_repo(d):
+    """A throwaway repository: main has commits C1 <- C2 (HEAD); side has C3 off C1 (not an ancestor of
+    HEAD). Returns (repo, C1, C2, C3), or None when the git binary is absent (any other git error is a failure)."""
+    if shutil.which("git") is None:
+        return None
+    repo = os.path.join(d, "repo")
+    os.makedirs(repo)
+
+    def g(*a):
+        r = subprocess.run(("git", "-c", "user.name=t", "-c", "user.email=t@example.invalid", "-c", "commit.gpgsign=false",
+                            "-C", repo) + a, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if r.returncode != 0:
+            raise AssertionError("git %s failed: %s" % (" ".join(a), r.stderr.decode()[:200]))
+        return r.stdout.decode().strip()
+    g("init", "-q", "-b", "main")
+    out = []
+    for name in ("one", "two"):
+        with open(os.path.join(repo, name), "w") as f:
+            f.write(name)
+        g("add", name)
+        g("commit", "-q", "-m", name)
+        out.append(g("rev-parse", "HEAD"))
+    g("checkout", "-q", "-b", "side", out[0])
+    with open(os.path.join(repo, "three"), "w") as f:
+        f.write("three")
+    g("add", "three")
+    g("commit", "-q", "-m", "three")
+    c3 = g("rev-parse", "HEAD")
+    g("checkout", "-q", "main")
+    return repo, out[0], out[1], c3
+
+
 class ReadmeTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         d = self.tmp.name
+        self.git = make_git_repo(d)  # None: no git binary; the tests that need it skip with that reason
+        self.sha = self.git[2] if self.git else SHA
         self.res = os.path.join(d, "results")
         os.makedirs(os.path.join(self.res, "hardware"))
         self.feat = os.path.join(d, "features.json")
         with open(self.feat, "w") as f:
             json.dump(FEATURES, f)
         write_doc(self.res, "a.json", "B", [mkcase("I-A-01"), mkcase("I-A-02"), mkcase("I-B-01", "fail")],
-                  "2026-11-14T10:00:00Z")
+                  "2026-11-14T10:00:00Z", sha=self.sha)
         # a newer B run re-runs I-B-01 (now passes) and only skips I-A-01: a skip never hides a pass
-        write_doc(self.res, "b.json", "B", [mkcase("I-B-01"), mkcase("I-A-01", "skip", "n")], "2026-11-15T10:00:00Z")
-        write_doc(self.res, "lin.json", "A", [mkcase("I-C-01")], "2026-11-15T10:00:00Z")
-        write_doc(self.res, "dirty.json", "B", [mkcase("I-D-01")], "2026-11-16T10:00:00Z", dirty=True)
-        with open(os.path.join(self.res, "hardware", "2026-11-17.md"), "w") as f:
+        write_doc(self.res, "b.json", "B", [mkcase("I-B-01"), mkcase("I-A-01", "skip", "n")], "2026-11-15T10:00:00Z",
+                  sha=self.sha)
+        write_doc(self.res, "lin.json", "A", [mkcase("I-C-01")], "2026-11-15T10:00:00Z", sha=self.sha)
+        write_doc(self.res, "dirty.json", "B", [mkcase("I-D-01")], "2026-11-16T10:00:00Z", dirty=True, sha=self.sha)
+        with open(os.path.join(self.res, "hardware", "2026-11-17-%s.md" % self.sha[:7]), "w") as f:
             f.write("Hardware-verified: f5\n")
         self.readme = os.path.join(d, "README.md")
         with open(self.readme, "w") as f:
@@ -355,10 +390,82 @@ class ReadmeTest(unittest.TestCase):
     def test_table_names_no_result_files(self):
         self.assertNotIn(".json", report.render_table(self.res, self.feat))
 
+    def need_git(self):
+        if self.git is None:
+            self.skipTest("the git binary is not installed")
+
     def run_cli(self, *extra):
-        cli = [sys.executable, "-B", os.path.join(TESTS, "harness", "report.py"), "readme", "--readme", self.readme,
-               "--results-dir", self.res, "--features", self.feat]
+        self.need_git()
+        cli = [sys.executable, "-B", os.path.join(TESTS, "harness", "report.py"), "--repo", self.git[0], "readme",
+               "--readme", self.readme, "--results-dir", self.res, "--features", self.feat]
         return subprocess.run(cli + list(extra), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    def rows(self, **kw):
+        out = {}
+        for line in report.render_table(self.res, self.feat, **kw).splitlines():
+            parts = [p.strip() for p in line.strip("|").split("|")]
+            if len(parts) > 1 and parts[0] != "Feature" and not parts[0].startswith("---"):
+                out[parts[0]] = parts[1:]
+        return out
+
+    def test_row_shows_the_commit_of_the_newest_result(self):
+        self.need_git()
+        _repo, c1, c2, _c3 = self.git
+        # f1: I-A-01, I-A-02 come from a.json (c2); a newer run on c2 re-runs I-B-01 only
+        r = self.rows(repo=self.git[0])
+        self.assertEqual(r["Feature one"][-1], c2[:7])
+        self.assertEqual(r["Feature four"][-1], "-")  # no clean result
+        self.assertEqual(r["Feature five"][-1], c2[:7])  # the commit in the hardware file name
+        # a newer result on an older commit still counts as the newest result of the row
+        write_doc(self.res, "c.json", "B", [mkcase("I-A-01")], "2026-11-18T10:00:00Z", sha=c1)
+        self.assertEqual(self.rows(repo=self.git[0])["Feature one"][-1], c1[:7])
+
+    def test_commit_is_that_of_the_side_that_decided_the_state(self):
+        self.need_git()
+        _repo, c1, c2, _c3 = self.git
+        # (a) a hardware sign-off (c2) and a newer VM failure (c1): Failing (VM), the failure's commit
+        write_doc(self.res, "f.json", "B", [mkcase("I-E-01", "fail")], "2026-11-19T10:00:00Z", sha=c1)
+        r = self.rows(repo=self.git[0])["Feature five"]
+        self.assertEqual((r[0], r[-1]), ("Failing (VM)", c1[:7]))
+        # (b) the Linux case fails (c1, newest) while a VM pass exists (c2): Failing (Linux), the Linux commit
+        write_doc(self.res, "vm.json", "B", [mkcase("I-C-01")], "2026-11-19T11:00:00Z", sha=c2)
+        write_doc(self.res, "lf.json", "A", [mkcase("I-C-01", "fail")], "2026-11-19T12:00:00Z", sha=c1)
+        r = self.rows(repo=self.git[0])["Feature three"]
+        self.assertEqual((r[0], r[-1]), ("Failing (Linux)", c1[:7]))
+
+    def test_result_of_a_commit_that_is_not_an_ancestor_is_ignored(self):
+        self.need_git()
+        _repo, _c1, _c2, c3 = self.git
+        write_doc(self.res, "side.json", "B", [mkcase("I-D-01")], "2026-11-19T10:00:00Z", sha=c3)
+        write_doc(self.res, "gone.json", "B", [mkcase("I-A-01", "fail")], "2026-11-19T11:00:00Z", sha="0" * 40)
+        self.assertEqual(self.rows()["Feature four"][0], "Verified (VM)")  # unfiltered: counted
+        self.assertEqual(self.rows()["Feature one"][0], "Failing (VM)")
+        r = self.rows(repo=self.git[0])
+        self.assertEqual(r["Feature four"][0], "Untested")  # filtered: the side branch and the unknown commit do not count
+        self.assertEqual(r["Feature one"][0], "Verified (VM)")
+
+    def test_hardware_line_is_bound_to_the_commit_in_the_file_name(self):
+        self.need_git()
+        _repo, _c1, _c2, c3 = self.git
+        hw = os.path.join(self.res, "hardware")
+        os.unlink(os.path.join(hw, "2026-11-17-%s.md" % self.sha[:7]))
+        for name in ("2026-11-17.md", "notes.md", "2026-11-17-%s.md" % c3[:7]):  # no commit, no date, not an ancestor
+            with open(os.path.join(hw, name), "w") as f:
+                f.write("Hardware-verified: f5\n")
+        self.assertEqual(self.rows(repo=self.git[0])["Feature five"][0], "Untested")
+        with open(os.path.join(hw, "2026-11-18-%s.md" % self.git[1][:7]), "w") as f:
+            f.write("Hardware-verified: f5\n")
+        self.assertEqual(self.rows(repo=self.git[0])["Feature five"], ["Verified (hardware)", "hardware run", self.git[1][:7]])
+
+    def test_short_results_never_decide_a_row(self):
+        write_doc(self.res, "s.json", "B", [mkcase("I-D-01-SHORT")], "2026-11-19T10:00:00Z", sha=self.sha)
+        f = [{"id": "x", "name": "X", "cases": ["I-D-*", "I-D-01"]}]
+        with open(self.feat, "w") as fh:
+            json.dump(f, fh)
+        self.assertEqual(self.rows()["X"][0], "Untested")  # a -SHORT pass is not a pass of the row
+        write_doc(self.res, "t.json", "B", [mkcase("I-D-01"), mkcase("I-D-01-SHORT", "fail")], "2026-11-20T10:00:00Z",
+                  sha=self.sha)
+        self.assertEqual(self.rows()["X"][0], "Verified (VM)")  # and a -SHORT failure is not a failure of it
 
     def test_idempotent_and_check(self):
         self.assertEqual(self.run_cli("--check").returncode, 1)  # stale
@@ -372,10 +479,21 @@ class ReadmeTest(unittest.TestCase):
             self.assertEqual(f.read(), first)
         self.assertEqual(self.run_cli("--check").returncode, 0)
         # a new result that changes no status leaves the table current (it names no files)
-        write_doc(self.res, "same.json", "B", [mkcase("I-B-01")], "2026-11-18T10:00:00Z")
+        write_doc(self.res, "same.json", "B", [mkcase("I-B-01")], "2026-11-18T10:00:00Z", sha=self.sha)
         self.assertEqual(self.run_cli("--check").returncode, 0)
-        write_doc(self.res, "d.json", "B", [mkcase("I-B-01", "fail")], "2026-11-18T11:00:00Z")
+        write_doc(self.res, "d.json", "B", [mkcase("I-B-01", "fail")], "2026-11-18T11:00:00Z", sha=self.sha)
         self.assertEqual(self.run_cli("--check").returncode, 1)
+
+    def test_readme_without_resolvable_head_exits_2(self):
+        self.need_git()
+        empty = os.path.join(self.tmp.name, "empty")
+        os.makedirs(empty)
+        env = dict(os.environ, GIT_CEILING_DIRECTORIES=self.tmp.name)  # git must not find a repository above
+        r = subprocess.run([sys.executable, "-B", os.path.join(TESTS, "harness", "report.py"), "--repo", empty,
+                            "readme", "--print", "--results-dir", self.res, "--features", self.feat],
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)
+        self.assertEqual(r.returncode, 2)
+        self.assertIn(b"cannot resolve", r.stderr)
 
     def test_missing_markers(self):
         with open(self.readme, "w") as f:

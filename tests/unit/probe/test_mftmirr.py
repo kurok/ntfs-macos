@@ -99,13 +99,15 @@ class Rule(unittest.TestCase):
         cls.have64k = bool(ARGS.image64) and os.path.exists(ARGS.image64)
 
     def vol(self):
-        if not self.have4k:
-            self.skipTest("no mirror-split image")
+        if not self.have4k:  # --split-image is a required argument: its absence is a failure
+            self.fail("mirror-split image %s does not exist" % ARGS.split_image)
         return Vol(ARGS.split_image)
 
     def vol64(self):
+        if ARGS.image64 and not self.have64k:  # configured but missing: a failure
+            self.fail("64k image %s does not exist" % ARGS.image64)
         if not self.have64k:
-            self.skipTest("no 64k image")
+            self.skipTest("no 64k image configured (--image64)")
         return Vol(ARGS.image64, split=True)
 
     def not_split(self, res, rule):
@@ -512,7 +514,7 @@ class Rule(unittest.TestCase):
 
     def test_parse_boot(self):
         if not self.have4k:
-            self.skipTest("no image")
+            self.fail("mirror-split image %s does not exist" % ARGS.split_image)
         with open(ARGS.split_image, "rb") as f:
             bs = f.read(512)
         p = os.path.join(TMP, "boot.bin")

@@ -33,6 +33,9 @@ UMOUNT = "/sbin/umount"
 MOUNT = "/sbin/mount"
 DISKUTIL = "/usr/sbin/diskutil"
 MOUNT_WAIT = 30
+UNMOUNT_WAIT = 30  # deadline of the wait for the mount table to be clear before a mount
+SETTLE = 1.0  # fixed pause after the table is clear; FSKit needs a moment after a clean unmount
+REFUSED = "Failed to initialize volume"  # macFUSE FSKit refusing the volume (MFMount)
 PAGE = os.sysconf("SC_PAGESIZE")
 
 FUSE_RE = re.compile(r"opcode: ([A-Z_]+) \((\d+)\), nodeid: (\d+)")
@@ -42,6 +45,29 @@ SPY_RE = re.compile(r"^(\d+\.\d+) (\S+) pid=(\d+) fd=(-?\d+) path=(.*?)(?: rc=(-
                     r"(?: us=(\d+))?(?: writes=(\d+) bytes=(\d+))?$")
 # Requests macOS adds around most calls; they are not part of the answer.
 NOISE = ("STATFS", "GETATTR", "GETXATTR", "LISTXATTR", "LOOKUP", "FORGET", "ACCESS", "SETXATTR", "REMOVEXATTR")
+
+
+# Devices (first field of the mount table line) seen mounted on a mount point; a new mount waits for them to go too.
+_SEEN_DEVICES = {}
+
+
+def mount_table():
+    """Lines of /sbin/mount."""
+    r = subprocess.run([MOUNT], stdout=subprocess.PIPE, timeout=30)
+    return r.stdout.decode("utf-8", "replace").splitlines()
+
+
+class WaitTimeout(RuntimeError):
+    """The mount table still listed the mount point (or a device of an earlier worker) at the deadline."""
+
+
+class MountFailed(RuntimeError):
+    """The worker did not mount. refused: its output has REFUSED; first_line: the first such line; was_alive: the
+    worker was still running when it was killed (it hung instead of exiting); rc: its exit status."""
+
+    def __init__(self, msg, refused=False, first_line="", was_alive=False, rc=None):
+        RuntimeError.__init__(self, msg)
+        self.refused, self.first_line, self.was_alive, self.rc = refused, first_line, was_alive, rc
 
 
 def sha(data):
@@ -82,12 +108,15 @@ class Worker(object):
         self.mnt = os.path.realpath(vol.mnt)
         self.lines = []
         self.fuse = []  # dicts: t, op, node, size, off
+        self.refusals = []  # one dict per FSKit refusal that was retried
+        self.wait_s = None  # seconds the last wait before a mount took
         self.spy_log = os.path.join(ctx.work, "spy-%s.log" % tag)
         self.proc = None
         self.umount_rc = None
         self.umount_out = ""
         self._reader = None
         self._watchdog = None
+        self._cleanup_added = False
         o = "backend=fskit,local,norecover,uid=%d,gid=%d,no_detach,debug" % (os.getuid(), os.getgid())
         if ro:
             o += ",ro"
@@ -101,16 +130,16 @@ class Worker(object):
             env["NTFSMAC_SYNCSPY_WRITES"] = "1"
         self.env = env
 
-    def _read(self):
+    def _read(self, proc, lines, fuse):
         last = None
-        for raw in self.proc.stdout:
+        for raw in proc.stdout:
             t = time.time()
             text = raw.decode("utf-8", "replace").rstrip("\n")
-            self.lines.append((t, text))
+            lines.append((t, text))
             m = FUSE_RE.search(text)
             if m:
                 last = {"t": t, "op": m.group(1), "node": int(m.group(3)), "size": None, "off": None}
-                self.fuse.append(last)
+                fuse.append(last)
                 continue
             if last is not None and last["size"] is None:
                 m = WRITE_RE.match(text) if last["op"] == "WRITE" else READ_RE.match(text) if last["op"] == "READ" else None
@@ -118,26 +147,92 @@ class Worker(object):
                     last["size"], last["off"] = int(m.group(1)), int(m.group(2))
 
     def mounted(self):
-        r = subprocess.run([MOUNT], stdout=subprocess.PIPE, timeout=30)
-        for line in r.stdout.decode("utf-8", "replace").splitlines():
+        for line in mount_table():
             if (" on %s (" % self.mnt) in line:
                 return line
         return None
 
+    def _listed(self):
+        """Mount table lines for this mount point or for a device that was mounted on it before."""
+        devs = _SEEN_DEVICES.get(self.mnt, set())
+        return [line for line in mount_table()
+                if (" on %s (" % self.mnt) in line or line.split(" on ", 1)[0] in devs]
+
+    def wait_clear(self, deadline=UNMOUNT_WAIT, poll=0.2, settle=SETTLE):
+        """Wait until the mount table has no line for this mount point and none for the devices earlier workers
+        had on it, then settle. The wait catches leftover or forced mounts; the settle and the single retry in
+        start() handle the FSKit timing race after a clean unmount. Raises WaitTimeout at the deadline."""
+        t0 = time.time()
+        while True:
+            left = self._listed()
+            if not left:
+                break
+            if time.time() - t0 >= deadline:
+                raise WaitTimeout("mount table still lists %s after %d s: %s" % (self.mnt, deadline, "; ".join(left)))
+            time.sleep(poll)
+        waited = time.time() - t0
+        time.sleep(settle)
+        self.wait_s = waited
+        self.ctx.log("mount table clear for %s after %.2f s, settled %.1f s" % (self.mnt, waited, settle))
+
     def start(self, deadline=1500):
+        """Wait for a clear mount table, mount. When macFUSE FSKit refuses the volume, make sure the worker is
+        dead, keep its output as evidence and mount once more after the same wait; a second failure, and any
+        other failure, raises."""
         os.makedirs(self.mnt, exist_ok=True)
+        self.wait_clear()
+        try:
+            self._launch(deadline)
+            return
+        except MountFailed as e:
+            if not e.refused:
+                raise
+            first = e
+        self._ensure_dead()
+        name = "worker-refused-%s.log" % self.tag
+        with open(self.ctx.evidence_file(name), "a", encoding="utf-8", errors="replace") as f:
+            for t, text in self.lines[-2000:]:
+                f.write("%.3f %s\n" % (t, text))
+        self.ctx.log("FSKit refused the volume (%s); worker %s when killed; retrying once" % (
+            first.first_line, "still running" if first.was_alive else "had exited"))
+        self.wait_clear()
+        try:
+            self._launch(deadline)
+        except MountFailed as e:
+            raise MountFailed("%s (second failure, after one retry; first: %s)" % (e, first.first_line),
+                              e.refused, e.first_line, e.was_alive, e.rc)
+        rec = {"error": first.first_line, "worker_alive_when_killed": first.was_alive, "rc": first.rc,
+               "retry_wait_s": round(self.wait_s, 2), "evidence": name}
+        self.refusals.append(rec)
+        self.ctx.add_result_note("mount retried once after FSKit refusal (%s); worker %s when killed (rc %s); "
+                                 "retry mounted" % (first.first_line, "still running" if first.was_alive
+                                                    else "had already exited", first.rc))
+
+    def _ensure_dead(self):
+        self.kill()
+        if self._reader is not None:
+            self._reader.join(5)
+        if self.proc is not None and self.proc.poll() is None:
+            raise RuntimeError("worker pid %d is still running after SIGKILL" % self.proc.pid)
+
+    def _launch(self, deadline):
         if os.path.exists(self.spy_log):
             os.unlink(self.spy_log)
         argv = [guest_tool("ntfs-3g"), "-o", self.opts, self.vol.img, self.mnt]
         self.ctx.log("worker: %s" % " ".join(shlex.quote(a) for a in argv))
+        if self._watchdog is not None:
+            self._watchdog.cancel()
+        self.lines, self.fuse = [], []
         self.proc = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                                      stderr=subprocess.STDOUT, env=self.env, close_fds=True)
-        self._reader = threading.Thread(target=self._read, daemon=True)
+        self._reader = threading.Thread(target=self._read, args=(self.proc, self.lines, self.fuse), daemon=True)
         self._reader.start()
         self._watchdog = threading.Timer(deadline, self.kill)
         self._watchdog.daemon = True
         self._watchdog.start()
-        self.ctx.add_cleanup(self.cleanup)
+        if not self._cleanup_added:
+            self._cleanup_added = True
+            self.ctx.add_cleanup(self.cleanup)
         end = time.time() + MOUNT_WAIT
         while time.time() < end:
             if self.proc.poll() is not None:
@@ -145,13 +240,17 @@ class Worker(object):
             line = self.mounted()
             if line:
                 self.ctx.log("mount: %s" % line)
+                _SEEN_DEVICES.setdefault(self.mnt, set()).add(line.split(" on ", 1)[0])
                 time.sleep(3.0)  # macOS opens and fsyncs .fseventsd right after the mount
                 return
             time.sleep(0.2)
+        was_alive = self.proc.poll() is None
         self.kill()
         self._reader.join(5)
         tail = "\n".join(t for _t, t in self.lines[-8:])
-        raise RuntimeError("no mount on %s (worker rc=%s); tail:\n%s" % (self.mnt, self.proc.returncode, tail))
+        first = next((t for _t, t in self.lines if REFUSED in t), "")
+        raise MountFailed("no mount on %s (worker rc=%s); tail:\n%s" % (self.mnt, self.proc.returncode, tail),
+                          bool(first), first, was_alive, self.proc.returncode)
 
     def alive(self):
         return self.proc is not None and self.proc.poll() is None
@@ -374,7 +473,8 @@ def verify_image(ctx, vol, expected, tag, alts=None, pages=None):
     """Check an unmounted image: ntfsfix -n (exit code and last lines), read-only mount, size and
     SHA-256 of each file in expected {name: bytes}; pages {name: {label: bytes}} also names, for each page-size piece
     of that file, which of the labelled contents it equals (for example "old", "p1"); alts {name: {label: bytes}} names other known contents. Returns {"fsck_rc", "fsck_tail", "mount", "files": {name: state}}
-    where state is "ok", "size N", "sha differs" or an errno text. Nothing raises: the caller judges."""
+    where state is "ok", "size N", "sha differs" or an errno text. An ordinary mount failure is recorded, not raised; a second FSKit refusal (MountFailed.refused) and a
+    WaitTimeout are raised: the caller judges the rest."""
     out = {"tag": tag}
     r = ctx.sh("%s -n %s" % (shlex.quote(guest_tool("ntfsfix")), shlex.quote(vol.img)), check=False, timeout=180)
     out["fsck_rc"] = r.rc
@@ -383,6 +483,9 @@ def verify_image(ctx, vol, expected, tag, alts=None, pages=None):
     try:
         w.start()
     except Exception as e:  # a dirty volume may refuse; that is an observation
+        if isinstance(e, WaitTimeout) or getattr(e, "refused", False):
+            w.cleanup()
+            raise  # FSKit refused twice, or the mount table never cleared: not an observation about the image
         out["mount"] = "failed: %s" % str(e).splitlines()[0]
         out["mount_tail"] = [t for _t, t in w.lines[-6:]]
         out["files"] = {}

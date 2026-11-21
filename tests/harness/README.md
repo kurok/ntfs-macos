@@ -28,6 +28,10 @@ def run(ctx):
 
 Return normally for `pass`. `Fail` or `AssertionError` is `fail`, any other exception is `error`,
 `Skip` is `skip` and must carry a note (an empty note becomes `error`; the validator rejects it too).
+
+`ctx.add_result_note(text)` puts a short text in the note of the case's record, also on pass (for example a mount that
+was retried once); the runner joins the notes with `; ` after any failure message, except for a skip.
+
 `ctx.log()` writes `tests/results/evidence/<run>/<ID>.log`; `ctx.evidence_file("x.txt")` gives a path
 for more small evidence files.
 

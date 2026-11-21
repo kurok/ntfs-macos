@@ -120,6 +120,8 @@ class Ctx(object):
         # A case may fill in guest_os, macfuse_version, ntfs3g_version for the result file when it
         # drives another environment itself (env "host" cases); run.py then uses them.
         self.meta = {}
+        # Short texts a case wants in its result note even when it passes (a retry, a workaround that was used).
+        self.result_notes = []
         os.makedirs(evidence_dir, exist_ok=True)
         self.log_path = os.path.join(evidence_dir, case_obj.id + ".log")
         self._log = open(self.log_path, "a", encoding="utf-8")
@@ -142,6 +144,11 @@ class Ctx(object):
 
     def fail(self, msg):
         raise Fail(msg)
+
+    def add_result_note(self, text):
+        """Put `text` in the note of this case's result record (also on pass); the runner joins them with "; "."""
+        self.result_notes.append(text)
+        self.log("result note: " + text)
 
     def sh(self, cmd, check=True, timeout=None):
         r = self.transport.run(cmd, timeout=timeout)

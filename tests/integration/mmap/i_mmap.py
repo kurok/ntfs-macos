@@ -50,6 +50,10 @@ class Run(object):
     def mount(self, tag="main"):
         self.w = Worker(self.ctx, self.vol, tag, spy=self.spylib if self.use_spy else None)
         self.w.start()
+        for rec in self.w.refusals:
+            self.note("mount %s retried once after FSKit refusal: %s; worker %s when killed (rc %s); output in %s" % (
+                tag, rec["error"], "STILL RUNNING (hung after the refusal)" if rec["worker_alive_when_killed"]
+                else "had exited", rec["rc"], rec["evidence"]))
         return self.w
 
     def path(self, name):

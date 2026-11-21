@@ -43,6 +43,8 @@ def run_cases(cases, env, run_id, results_dir, transport, tmp_root=None, quiet=F
             meta.update(ctx.meta)
         if ctx.close() and status == "pass":
             status, note = "error", "cleanup failed (see log)"
+        if ctx.result_notes and status != "skip":
+            note = "; ".join(x for x in [note] + ctx.result_notes if x)
         ctx.log_final("end %s: %s%s" % (c.id, status, (" - " + note) if note else ""))
         shutil.rmtree(work, ignore_errors=True)
         evidence = sorted("%s/%s" % (ev_rel, fn) for fn in os.listdir(ev_dir) if fn.startswith(c.id + "."))

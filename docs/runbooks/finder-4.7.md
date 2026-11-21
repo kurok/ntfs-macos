@@ -37,7 +37,9 @@ Rebuild it whenever `ntfsmac-golden` is rebuilt.
 - A fixture directory with the clean image (Docker must run):
   `sh tests/fixtures/gen/clean.sh --only clean-64m-4k --export /tmp/fx`
 - The NTFS-3G source is in `third_party/cache` (`scripts/fetch-deps.sh ntfs-3g`), or you pass a
-  `--deps-tar` file from an earlier run to skip the build in the guest.
+  `--deps-tar` file from an earlier run to skip the build in the guest. The tar must have been saved by a
+  current `dmn_vm.sh` for this checkout (it holds a key); an older or foreign tar is refused, delete it to build
+  a new one. The fixture directory must have been made by the generators of this checkout (every image is listed in `.fixtures-key` with this checkout's key and is unchanged).
 
 ## The command (run it in a host terminal, from the repository root)
 

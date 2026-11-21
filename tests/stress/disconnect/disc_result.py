@@ -24,6 +24,7 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "harness"))
 import report  # noqa: E402  (tests/harness/report.py)
+import inputs  # noqa: E402  (tests/harness/inputs.py)
 
 TITLES = {
     "S-DISC-01": "force-detach during a large sequential write",
@@ -158,6 +159,7 @@ def finalize(d, repo, started):
     reps = read_reps(d)
     have = set(os.listdir(d))
     cases = build_cases(reps, float(meta.get("seconds", 0) or 0), have, plan, meta)
+    inputs.annotate(cases, d)
     sha, dirty, pnotes = report.run_state(d, repo)
     if pnotes and cases:
         cases[0]["note"] = (cases[0]["note"] or "") + "; provenance: " + "; ".join(pnotes)

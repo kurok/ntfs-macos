@@ -112,6 +112,7 @@ def main(argv):
     if not (a.bench and a.env and a.out) or a.env not in ("A", "B"):
         ap.error("--bench, --env A|B and --out are required")
     import report
+    import inputs
     with open(a.bench, "r", encoding="utf-8") as f:
         doc = json.load(f)
     os.makedirs(a.out, exist_ok=True)
@@ -122,6 +123,7 @@ def main(argv):
             f.write("\n")
     doc.setdefault("meta", {}).update(dict(m.split("=", 1) for m in a.meta if "=" in m))
     cases = build_cases(doc, a.bench_rc)
+    inputs.annotate(cases, a.out)
     meta = doc["meta"]
     sha, dirty = report.git_info(a.repo)
     now = report.utc_now()

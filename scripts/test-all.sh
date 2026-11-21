@@ -25,6 +25,8 @@
 #                stage is then reported as skipped ("not selected by --cases")
 #   --dry-run    print the stage plan and exit; nothing runs, nothing is written
 #   --fixtures DIR  env B: reuse the image files in DIR instead of generating them (in Docker)
+#                (refused unless every image in DIR is stamped by the generators of this checkout and unchanged since,
+#                .fixtures-key; the key and a manifest of the images go into the fixtures stage note and evidence)
 #   --slot-dir DIR  env B: directory of the VM slot locks, taken with mkdir around the VMs
 #                (default: ${NTFSMAC_VM_SLOT_DIR:-${TMPDIR:-/tmp}/ntfsmac-vm-slots})
 #   --keep-work  keep the temporary work directory (stage logs, partial results)
@@ -388,8 +390,24 @@ plan_b() {
 		if [ -n "$blocked" ]; then
 			skip fixtures "image files for the daemon suites" "$blocked"
 		elif [ -n "$fixtures" ] && [ -d "$fixtures" ]; then
-			skip fixtures "image files for the daemon suites" "reusing $fixtures"
-			fx_ok=1
+			if [ "$dry" -eq 1 ]; then
+				skip fixtures "image files for the daemon suites" "reusing $fixtures"
+				fx_ok=1
+			else
+				# The images must be stamped by the generators of this checkout and unchanged since (fail closed) and the run records a
+				# manifest of them as evidence of the stage. The stage stays a skip, which the gate rejects (audit M5-F07).
+				mkdir -p "$work/artifacts/fixtures"
+				_fxi=$work/artifacts/fixtures/inputs.txt
+				if sh "$root/scripts/run-inputs.sh" record "$_fxi" --fixtures "$fixtures" >"$work/logs/fixtures-check.log" 2>&1; then
+					skip fixtures "image files for the daemon suites" "reusing $fixtures; fixtures key $(sed -n 's/^fixtures_key=//p' "$_fxi" | cut -c1-12), manifest sha256 $(sed -n 's/^fixtures_manifest_sha256=//p' "$_fxi" | cut -c1-12)"
+					fx_ok=1
+				else
+					printf '\n== stage fixtures: refused ==\n' >&2
+					cat "$work/logs/fixtures-check.log" >&2
+					failed=1
+					record fixtures fail 0 "--fixtures refused: $(grep . "$work/logs/fixtures-check.log" | tail -n 1 | cut -c1-240)" "logs/fixtures-check.log"
+				fi
+			fi
 		elif [ "$quick" -eq 1 ]; then
 			skip fixtures "image files for the daemon suites (tests/fixtures/gen/*.sh --export, in Docker)" "skipped by --quick"
 		else

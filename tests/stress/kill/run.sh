@@ -74,6 +74,9 @@ case $build in /*) ;; *) build=$(pwd)/$build ;; esac
 mkdir -p "$out"
 # the commit and tree state at the START of the run (a result is tied to it, not to the state at the end)
 "$py" -B "$root/tests/harness/report.py" provenance --out "$out/provenance.txt" >/dev/null || { echo "kill: cannot record the start state (is this a repository checkout?)" >&2; exit 2; }
+# the keys of the inputs (deps, fixtures) are read once, now, and appended to the start record; the record at the end uses these
+sh "$root/scripts/run-inputs.sh" snapshot "$out/provenance.txt" --deps --fixtures >&2 ||
+	{ echo "kill: the inputs keys are unavailable" >&2; exit 2; }
 # the host binaries under test must come from the recorded commit: the build tree must belong to this checkout,
 # and an incremental build (a no-op when current) brings it up to date before anything is copied
 "$py" -B "$root/tests/harness/report.py" build-check --build "$build" >&2 || exit 2
@@ -85,6 +88,9 @@ for f in "$build/src/daemon/ntfsmacd" "$build/src/cli/ntfsmac"; do
 	[ -f "$f" ] || { echo "kill: $f is missing; build first (cmake --build --preset release)" >&2; exit 2; }
 done
 
+# a prebuilt NTFS-3G must be the one this checkout builds (scripts/run-inputs.sh, audit M5-F07): refused before anything starts
+[ -z "$deps_tar" ] || [ ! -f "$deps_tar" ] || sh "$root/scripts/run-inputs.sh" deps-check "$deps_tar" --key "$(sed -n 's/^deps_key=//p' "$out/provenance.txt" | tail -n 1)" ||
+	{ echo "kill: --deps-tar refused" >&2; exit 2; }
 name=ntfsmac-kill-$$
 tmp=$(mktemp -d "${TMPDIR:-/tmp}/kill.XXXXXX")
 cleanup() {
@@ -146,6 +152,9 @@ tail -n 3 "$out/driver.log" >&2 || true
 if [ "$rc" -eq 124 ]; then
 	echo "kill: the host deadline of ${deadline} s expired: a step hung; the unfinished cases are FAIL" >&2
 fi
+# what the run used (deps tar hash and key, fixtures key and manifest): inputs.txt and every case note
+sh "$root/scripts/run-inputs.sh" record "$out/inputs.txt" --snapshot "$out/provenance.txt" --deps-tar "$deps_tar" --fixtures "$fx" --names clean-64m-4k >&2 ||
+	{ echo "kill: the inputs check failed" >&2; exit 2; }
 [ -f "$out/kill.log" ] || : >"$out/kill.log"
 noctl=
 [ "$control" -eq 1 ] || noctl=--no-control

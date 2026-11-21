@@ -107,6 +107,12 @@ fi
 maxwall=$((deadline - 600))
 [ "$maxwall" -gt 0 ] || maxwall=0
 bench_args="--reps $reps --seq-mib $seq --rnd-ops $ops --small-files $small --dir-entries $dirs --max-wall $maxwall $extra"
+# a prebuilt NTFS-3G (B) must be the one this checkout builds (scripts/run-inputs.sh, audit M5-F07)
+rm -f "$out/inputs.key" # snapshot appends: a reused --out must not keep an older key
+[ "$env_name" != B ] || sh "$root/scripts/run-inputs.sh" snapshot "$out/inputs.key" --deps >&2 ||
+	{ echo "perf: the deps key is unavailable" >&2; exit 2; }
+[ "$env_name" != B ] || [ -z "$deps_tar" ] || [ ! -f "$deps_tar" ] || sh "$root/scripts/run-inputs.sh" deps-check "$deps_tar" --key "$(sed -n 's/^deps_key=//p' "$out/inputs.key" | tail -n 1)" ||
+	{ echo "perf: --deps-tar refused" >&2; exit 2; }
 started=$("$py" -B -c 'import time; print(time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))')
 tmp=$(mktemp -d "${TMPDIR:-/tmp}/perf.XXXXXX")
 name=ntfsmac-perf-$$
@@ -167,7 +173,7 @@ exit($why) if $why;
 exit($? >> 8) if ($? & 127) == 0;
 exit(128 + ($? & 127));
 ' "$deadline" \
-		sh "$root/tests/integration/daemon/dmn_vm.sh" --name "$name" --build-dir "$build" --fixtures "$tmp/fx" ${deps_tar:+--deps-tar "$deps_tar"} \
+		sh "$root/tests/integration/daemon/dmn_vm.sh" --name "$name" --build-dir "$build" --fixtures "$tmp/fx" --fixtures-unkeyed ${deps_tar:+--deps-tar "$deps_tar"} \
 		--out "$out/guest.log" perf >"$out/driver.log" 2>&1 || rc=$?
 	tail -n 3 "$out/driver.log" >&2 || true
 	[ "$rc" -ne 124 ] || echo "perf: the host deadline of ${deadline} s expired" >&2
@@ -178,6 +184,12 @@ fi
 "$py" -B -c 'import json, sys; json.dump(json.load(open(sys.argv[1])), open(sys.argv[2], "w"), indent=1)' "$out/bench.in.json" "$out/bench.json" ||
 	{ echo "perf: the benchmark result is not JSON" >&2; exit 2; }
 rm -f "$out/bench.in.json"
+# what the run used (B: deps tar hash and key; the image is in the run metadata): inputs.txt and every case note
+rec=
+[ "$env_name" = B ] || rec=--deps-none
+[ "$env_name" != B ] || [ -z "$deps_tar" ] || rec="--snapshot $out/inputs.key --deps-tar $deps_tar"
+# shellcheck disable=SC2086
+sh "$root/scripts/run-inputs.sh" record "$out/inputs.txt" $rec >&2 || { echo "perf: the inputs check failed" >&2; exit 2; }
 host_os="macOS $(sw_vers -productVersion 2>/dev/null || echo ?) $(uname -m)"
 "$py" -B "$here/result.py" --bench "$out/bench.json" --env "$env_name" --out "$out" --repo "$root" --started "$started" \
 	--bench-rc "$rc" --meta "host_os=$host_os"

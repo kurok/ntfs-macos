@@ -75,8 +75,10 @@
 #                    its plain id only when the run had the criterion parameters (6 h soak, 20 kill
 #                    repetitions, ...); every other run writes it with the suffix -SHORT (M5-F04).
 #   --fixtures DIR   (full mode) reuse fixture images. The run records the skip "reusing DIR", which the
-#                    gate rejects (the images are not tied to the commit, M5-F07): such a run cannot
-#                    pass the gate, and ci-local prints a warning at the start.
+#                    gate rejects: such a run cannot pass the gate, and ci-local prints a warning at the
+#                    start. test-all.sh refuses a DIR whose images are not stamped (.fixtures-key, written by
+#                    tests/fixtures/gen --export) with this checkout's key, and records the key and a
+#                    manifest of the images in the stage note and evidence (M5-F07).
 #   gate command:    scripts/ci-local.sh --verify-result tests/results/<file>.json ... \
 #                        --require-env host,A,B --milestone M5
 #
@@ -626,7 +628,7 @@ if [ "$quick" -eq 0 ]; then
 	case $slot_dir in '' | /*) ;; *) slot_dir=$(pwd)/$slot_dir ;; esac
 	case $fixtures in '' | /*) ;; *) fixtures=$(pwd)/$fixtures ;; esac
 	if [ -n "$fixtures" ]; then
-		printf 'ci-local: WARNING: --fixtures %s: the B result records the skip "reusing ..." for the fixtures, which the gate rejects (the images are not tied to the commit, M5-F07). This run cannot pass the gate.\n' "$fixtures" >&2
+		printf 'ci-local: WARNING: --fixtures %s: the B result records the skip "reusing ..." for the fixtures, which the gate rejects. test-all.sh also refuses a directory whose images are not stamped for this checkout (M5-F07). This run cannot pass the gate.\n' "$fixtures" >&2
 	fi
 	[ -n "$slot_dir" ] || slot_dir=${NTFSMAC_VM_SLOT_DIR:-${TMPDIR:-/tmp}/ntfsmac-vm-slots}
 

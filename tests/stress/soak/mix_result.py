@@ -31,6 +31,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "..", "harness"))
 sys.path.insert(0, HERE)
 import mixlib  # noqa: E402
 import report  # noqa: E402
+import inputs  # noqa: E402
 
 IDS = {"soak": "S-SOAK", "par": "S-PAR"}
 TITLES = {"soak": "soak: mixed workload with a model, full verification, worker RSS",
@@ -284,6 +285,7 @@ def finalize(d, repo, started):
     pack_state(d)
     runs = read_runs(d)
     cases = build_cases(plan["kind"], plan, runs, meta, d, set(os.listdir(d)))
+    inputs.annotate(cases, d)
     sha, dirty, pnotes = report.run_state(d, repo)
     if pnotes and cases:
         cases[0]["note"] = (cases[0]["note"] or "") + "; provenance: " + "; ".join(pnotes)

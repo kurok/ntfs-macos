@@ -27,6 +27,10 @@ if(NTFSMAC_PYTHON3 AND NTFSMAC_SH)
   add_test(NAME ci.local_tools
     COMMAND ${_ci_env} ${NTFSMAC_SH} ${_ci_dir}/test_ci_local_tools.sh)
   set_tests_properties(ci.local_tools PROPERTIES TIMEOUT 60 LABELS ci)
+  # deps-tar and fixtures keys, seals and stamps, with fake tars and a temp git repository (M5-F07)
+  add_test(NAME ci.run_inputs
+    COMMAND ${_ci_env} ${NTFSMAC_SH} ${_ci_dir}/test_run_inputs.sh)
+  set_tests_properties(ci.run_inputs PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 120 LABELS ci)
   add_test(NAME ci.gate_cases
     COMMAND ${NTFSMAC_PYTHON3} -I -B ${_ci_dir}/gate_cases_check.py ${PROJECT_SOURCE_DIR} M5)
   set_tests_properties(ci.local ci.local_full PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 120 LABELS ci)
@@ -47,7 +51,8 @@ if(NTFSMAC_PYTHON3 AND NTFSMAC_SH)
     stress.disconnect_result=tests/stress/disconnect/disc_result.py
     stress.leaks_classify=tests/stress/leaks/classify.py
     perf.result=tests/perf/result.py
-    perf.report=tests/perf/report.py)
+    perf.report=tests/perf/report.py
+    harness.inputs=tests/harness/inputs.py)
   foreach(_t IN LISTS _selftests)
     string(REPLACE "=" ";" _pair "${_t}")
     list(GET _pair 0 _name)

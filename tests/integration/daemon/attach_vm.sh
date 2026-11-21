@@ -61,6 +61,18 @@ tarball=$(awk '$1 == "ntfs-3g" { n = split($3, a, "/"); print a[n] }' "$root/thi
 [ -n "$tarball" ] || { echo "attach_vm: no ntfs-3g entry in third_party/deps.lock" >&2; exit 2; }
 [ -f "$root/third_party/cache/$tarball" ] || { [ -n "$deps_tar" ] && [ -f "$deps_tar" ]; } || { echo "attach_vm: $root/third_party/cache/$tarball is missing; run scripts/fetch-deps.sh ntfs-3g" >&2; exit 2; }
 
+# Pre-built inputs must come from this checkout (scripts/run-inputs.sh, audit M5-F07): refused here, before a guest is cloned.
+# A missing, unreadable or different key refuses; there is no fallback to building and no override.
+# The deps key is read once, now, before anything is copied to the guest; a tar saved by this run is sealed with it.
+dkey=
+if [ -n "$deps_tar" ]; then
+	dkey=$(sh "$root/scripts/run-inputs.sh" deps-key) || { echo "attach_vm: the deps key could not be computed" >&2; exit 2; }
+	[ ! -f "$deps_tar" ] || sh "$root/scripts/run-inputs.sh" deps-check "$deps_tar" --key "$dkey" --layout dmn ||
+		{ echo "attach_vm: --deps-tar refused" >&2; exit 2; }
+fi
+sh "$root/scripts/run-inputs.sh" fixtures-check "$fx" clean-64m-4k dirty-flag ||
+	{ echo "attach_vm: --fixtures refused" >&2; exit 2; }
+
 # The guest gets its own copies of the images: the originals stay as they were generated.
 cp "$fx/clean-64m-4k.img" "$tmp/clean-64m-4k.img"
 cp "$fx/dirty-flag.img" "$tmp/dirty-flag.img"
@@ -76,10 +88,12 @@ else
 	(cd "$root" && tar -cf - scripts/build-ntfs3g.sh scripts/fetch-deps.sh third_party/deps.lock \
 		third_party/patches "third_party/cache/$tarball") |
 		tart exec -i "$name" /bin/sh -c 'rm -rf ~/ntfsmac/tree && mkdir -p ~/ntfsmac/tree && tar -xf - -C ~/ntfsmac/tree'
-	"$tart_sh" exec "$name" -- 'cd ~/ntfsmac/tree && sh scripts/build-ntfs3g.sh --fuse external --jobs 4 --prefix ~/ntfsmac/deps --build-dir ~/ntfsmac/build 2>&1' >&2 ||
+	"$tart_sh" exec "$name" -- 'cd ~/ntfsmac/tree && env -u CFLAGS -u LDFLAGS sh scripts/build-ntfs3g.sh --fuse external --jobs 4 --prefix ~/ntfsmac/deps --build-dir ~/ntfsmac/build 2>&1' >&2 ||
 		{ echo "attach_vm: guest build failed" >&2; exit 2; }
 	if [ -n "$deps_tar" ]; then
-		tart exec "$name" /bin/sh -c 'cd ~/ntfsmac && tar -cf - deps' >"$deps_tar" ||
+		# the key of this checkout goes into the tar, so that a later run can tell whether it is current (M5-F07)
+		{ tart exec "$name" /bin/sh -c 'cd ~/ntfsmac && tar -cf - deps' >"$deps_tar" &&
+			sh "$root/scripts/run-inputs.sh" deps-seal "$deps_tar" "$dkey" dmn; } ||
 			{ rm -f "$deps_tar"; echo "attach_vm: WARNING: could not save $deps_tar" >&2; }
 	fi
 fi

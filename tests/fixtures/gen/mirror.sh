@@ -63,6 +63,9 @@ if [ "$inner" -eq 0 ]; then
 			printf 'mirror.sh: error: the run in Environment A or the unpacking failed\n' >&2
 			exit 1
 		fi
+		# stamp every image this export extracted (name, sha256, fixtures key of this checkout): a later run reusing
+		# DIR refuses images from another version or edited since (M5-F07)
+		sh "$repo/scripts/run-inputs.sh" fixtures-stamp "$export_dir" "$tgz" || { rm -f "$tgz"; exit 1; }
 		rm -f "$tgz"
 		exit 0
 	fi

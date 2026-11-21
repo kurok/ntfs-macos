@@ -19,8 +19,14 @@
 # --exec-prefix equals --prefix so nothing lands in /bin or /lib (upstream default).
 #
 # Usage: scripts/build-ntfs3g.sh [--prefix DIR] [--build-dir DIR] [--fuse internal|external]
-#                                [--jobs N] [--force] [--print-configure] [--no-patches]
+#                                [--jobs N] [--force] [--print-configure] [--print-key] [--no-patches]
 #                                [--configure-arg ARG]...
+# --print-key prints the inputs key and exits: the SHA-256 of the pinned tarball digest (deps.lock), the
+# patch series hash, the fuse mode and the configure flags without the paths. It is computed as for unset
+# CFLAGS and LDFLAGS whatever the environment holds (the VM builds run with them unset), does not depend on
+# --prefix or --build-dir, needs no tarball, no macFUSE and no build tools, so the host and the guest get the
+# same value. It does not cover the SDK or macFUSE headers of the machine that builds. scripts/run-inputs.sh
+# stores it in a deps tar and refuses a tar whose key differs (audit M5-F07).
 # --configure-arg appends ARG to the configure line. The only value accepted is --enable-faultio,
 # the test-only fault layer (patch 0004, tests/stress/crashsweep); anything else is refused. With it
 # both --prefix and --build-dir must be given and differ from the defaults, so the fault library can
@@ -40,7 +46,7 @@ cache=${DEPS_CACHE_DIR:-$repo/third_party/cache}
 patch_dir=$repo/third_party/patches/ntfs-3g
 
 die() { echo "build-ntfs3g: error: $*" >&2; exit 1; }
-usage_err() { echo "build-ntfs3g: $*" >&2; echo "usage: build-ntfs3g.sh [--prefix DIR] [--build-dir DIR] [--fuse internal|external] [--jobs N] [--force] [--print-configure] [--no-patches] [--configure-arg ARG]" >&2; exit 2; }
+usage_err() { echo "build-ntfs3g: $*" >&2; echo "usage: build-ntfs3g.sh [--prefix DIR] [--build-dir DIR] [--fuse internal|external] [--jobs N] [--force] [--print-configure] [--print-key] [--no-patches] [--configure-arg ARG]" >&2; exit 2; }
 log() { printf 'build-ntfs3g: %s\n' "$*"; }
 
 prefix=
@@ -50,6 +56,7 @@ jobs=
 force=0
 no_patches=0
 print_only=0
+print_key=0
 extra_args=
 prefix_given=0
 build_given=0
@@ -62,6 +69,7 @@ while [ $# -gt 0 ]; do
 	--jobs) [ $# -ge 2 ] || usage_err "--jobs needs a value"; jobs=$2; shift 2 ;;
 	--force) force=1; shift ;;
 	--print-configure) print_only=1; shift ;;
+	--print-key) print_key=1; shift ;;
 	--no-patches) no_patches=1; shift ;;
 	--configure-arg)
 		[ $# -ge 2 ] || usage_err "--configure-arg needs a value"
@@ -70,7 +78,7 @@ while [ $# -gt 0 ]; do
 		*) usage_err "--configure-arg accepts only --enable-faultio, got: $2" ;;
 		esac
 		shift 2 ;;
-	-h | --help) sed -n '2,33p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+	-h | --help) sed -n '2,39p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
 	*) usage_err "unknown option: $1" ;;
 	esac
 done
@@ -127,7 +135,7 @@ else
 fi
 
 # --- preflight: external FUSE needs macFUSE (never installed by this script) ---
-if [ "$fuse" = external ]; then
+if [ "$fuse" = external ] && [ "$print_key" = 0 ]; then
 	pc_path=$macfuse_prefix/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}
 	if ! command -v pkg-config >/dev/null 2>&1 \
 		|| ! PKG_CONFIG_PATH=$pc_path pkg-config --exists fuse; then
@@ -142,9 +150,11 @@ MSG
 	fi
 fi
 
-for t in tar patch make awk; do
-	command -v "$t" >/dev/null 2>&1 || die "missing tool: $t"
-done
+if [ "$print_key" = 0 ]; then
+	for t in tar patch make awk; do
+		command -v "$t" >/dev/null 2>&1 || die "missing tool: $t"
+	done
+fi
 
 # --- tarball from deps.lock, verified by fetch-deps.sh ---
 [ -r "$lock" ] || die "lock file not readable: $lock"
@@ -154,13 +164,13 @@ want=$(awk '$1 == "ntfs-3g" { print $4 }' "$lock")
 tarball=$cache/${url##*/}
 got=
 [ ! -f "$tarball" ] || got=$(sha256_stdin <"$tarball")
-if [ "$got" != "$want" ]; then
+if [ "$print_key" = 0 ] && [ "$got" != "$want" ]; then
 	# Missing or wrong digest: let fetch-deps.sh download and verify (needs curl, network).
 	DEPS_CACHE_DIR=$cache sh "$here/fetch-deps.sh" ntfs-3g >/dev/null || die "fetch-deps.sh failed for ntfs-3g"
 	[ -f "$tarball" ] || die "missing $tarball after fetch"
 	got=$(sha256_stdin <"$tarball")
 fi
-[ "$got" = "$want" ] || die "tarball sha256 mismatch: $tarball"
+[ "$print_key" = 1 ] || [ "$got" = "$want" ] || die "tarball sha256 mismatch: $tarball"
 
 # --- patch series: NNNN-*.patch in order; hash covers names and contents ---
 series=
@@ -181,6 +191,16 @@ series_hash=$(
 
 stamp_key=$(printf 'tarball=%s\nseries=%s\nconfigure=%s\nCFLAGS=%s\nLDFLAGS=%s\n' \
 	"$want" "$series_hash" "$configure_line" "${CFLAGS:-}" "${LDFLAGS:-}")
+if [ "$print_key" = 1 ]; then
+	key_flags=
+	for _a in $configure_args; do
+		case $_a in --prefix=* | --exec-prefix=*) ;; *) key_flags="$key_flags $_a" ;; esac
+	done
+	printf 'tarball=%s\nseries=%s\nfuse=%s\nflags=%s\nCFLAGS=%s\nLDFLAGS=%s\n' \
+		"$want" "$series_hash" "$fuse" "$key_flags" "" "" | sha256_stdin
+	exit 0
+fi
+
 stamp=$build_dir/.build-ntfs3g.stamp
 lib=$prefix/lib/libntfs-3g.a
 

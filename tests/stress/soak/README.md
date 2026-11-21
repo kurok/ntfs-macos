@@ -72,3 +72,17 @@ sh scripts/ci-local.sh --verify-result tests/results/<file>.json ... --require-e
 
 `adopt` refuses a dirty, sha-less, invalid, failed or `-SHORT` result, and evidence that is a symlink or lies outside DIR. `run.sh` records the commit and tree state at the START in `provenance.txt`; a commit made during the run, or a tree dirty at the start or the end, marks the result dirty. One result per commit, day and suite can be adopted: a second one is refused. Unit test of the id rule: `python3 -B tests/stress/soak/mix_result.py selftest`;
 of `adopt`: `python3 -B tests/unit/harness/test_adopt.py`.
+
+## Pre-built inputs (M5-F07)
+
+`--deps-tar FILE` is checked before anything starts (`scripts/run-inputs.sh deps-check`): the tar must hold
+`deps/.ntfsmac-deps-key`, written when `dmn_vm.sh` saved it, with the `scripts/build-ntfs3g.sh --print-key` value of the
+checkout (pinned tarball digest, patch series, configure flags; computed for unset CFLAGS and LDFLAGS, which the guest
+builds run without; the install prefix is not part of it, so the seal also names the layout, `dmn`) and every member must
+be under `deps/`. A tar with another key or layout, no key, an unreadable one or a stray member is refused (exit 2), with
+no fallback to building; delete it, or name a new file, to build and save a current one. NOT covered: the golden image
+(macOS SDK, macFUSE headers, clang): a tar made on another golden image still passes. `--fixtures DIR`: each image the
+suite uses must be listed in `DIR/.fixtures-key` (one line per image: name, sha256, key, written by
+`tests/fixtures/gen/*.sh --export` for the images it extracted) with the fixtures key of this checkout and with the sha256
+of the file as it is now. The fixtures key is the git tree hash of HEAD for the paths the generators read or run (`tests/fixtures`, `tests/tools`, `tests/stress/crashsweep`, `src`, `include`, `third_party/patches`, `third_party/deps.lock`, `vm/linux`, `scripts/build-ntfs3g.sh`, `CMakeLists.txt`, `cmake`; full list in `scripts/run-inputs.sh`). On an unclean tree it is a hash of the contents of those files (`git ls-files -c -o --exclude-standard`) and `fixtures_dirty=1` is recorded; the run goes on and its result is marked dirty by the provenance of the suite, which the gate rejects. A dirty key never equals a clean one. It is unavailable outside a git checkout. The keys are read once at the start of the run and appended to the start record `provenance.txt`. The run writes `inputs.txt` into `--out` (deps tar sha256 and
+key or `deps_tar=none`, fixtures key, a manifest of the image used), copies those lines into `meta.txt` and adds a sentence to every case note.

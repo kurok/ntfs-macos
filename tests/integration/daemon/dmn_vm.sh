@@ -31,9 +31,16 @@
 #                                          [--out FILE] [SUITE...]      (default: every suite)
 #   --build-dir  a CMake build tree with src/daemon/ntfsmacd and src/cli/ntfsmac (default
 #                build/release; it needs the test seams, which the release preset has)
-#   --fixtures   a directory with the image files (tests/fixtures/gen/*.sh --export DIR)
+#   --fixtures   a directory with the image files (tests/fixtures/gen/*.sh --export DIR); every image the suites
+#                use must be listed in DIR/.fixtures-key (written by the generators) with the fixtures key of this
+#                checkout and its current sha256, else the directory is refused (scripts/run-inputs.sh)
+#   --fixtures-unkeyed   only for the single suite `perf` (tests/perf/run.sh): its fixture directory holds
+#                one image made by the perf run itself, which is no generator output and cannot be stamped; the image
+#                hash is recorded by perf and A and B must use the same bytes. Refused with any other suite.
 #   --deps-tar   a tar of the guest's ~/ntfsmac/deps, used instead of building NTFS-3G when the file
-#                exists; when it does not, the build is made and its result saved there
+#                exists; when it does not, the build is made and its result saved there, with the key of
+#                this checkout inside (deps/.ntfsmac-deps-key). A tar whose key differs, is missing or is
+#                unreadable is refused (exit 2), never used and never silently replaced: scripts/run-inputs.sh
 #   --name NAME  the guest's name (default ntfsmac-dmn-PID): the clone is named NAME exactly, so a caller knows it
 #                before the clone and can delete it on every exit path
 #   --only       a space-separated list of fixture names; the classes suite runs only those
@@ -62,6 +69,7 @@ build=$root/build/release
 fx=
 out=
 deps_tar=
+fx_unkeyed=0
 suites=
 only=
 keep=0
@@ -76,6 +84,7 @@ while [ $# -gt 0 ]; do
 	--build-dir) [ $# -ge 2 ] || { echo "dmn_vm: --build-dir needs a directory" >&2; exit 2; }; build=$2; shift 2 ;;
 	--fixtures) [ $# -ge 2 ] || { echo "dmn_vm: --fixtures needs a directory" >&2; exit 2; }; fx=$2; shift 2 ;;
 	--deps-tar) [ $# -ge 2 ] || { echo "dmn_vm: --deps-tar needs a file" >&2; exit 2; }; deps_tar=$2; shift 2 ;;
+	--fixtures-unkeyed) fx_unkeyed=1; shift ;;
 	--keep) keep=1; shift ;;
 	--graphics) graphics=1; shift ;;
 	--attended) attended=1; require_finder=1; graphics=1; shift ;;
@@ -93,6 +102,20 @@ done
 for f in "$build/src/daemon/ntfsmacd" "$build/src/cli/ntfsmac"; do
 	[ -f "$f" ] || { echo "dmn_vm: $f is missing" >&2; exit 2; }
 done
+
+# Pre-built inputs must come from this checkout (scripts/run-inputs.sh, audit M5-F07): refused here, before a guest is cloned.
+# A missing, unreadable or different key refuses; there is no fallback to building and no override.
+# The deps key is read once, now, before anything is copied to the guest; it is what a tar saved by this run is sealed with.
+dkey=
+if [ -n "$deps_tar" ]; then
+	dkey=$(sh "$root/scripts/run-inputs.sh" deps-key) || { echo "dmn_vm: the deps key could not be computed" >&2; exit 2; }
+	[ ! -f "$deps_tar" ] || sh "$root/scripts/run-inputs.sh" deps-check "$deps_tar" --key "$dkey" --layout dmn ||
+		{ echo "dmn_vm: --deps-tar refused" >&2; exit 2; }
+fi
+if [ "$fx_unkeyed" -eq 1 ] && [ "$(echo $suites)" != perf ]; then
+	echo "dmn_vm: --fixtures-unkeyed is only for the suite perf (got: $(echo $suites))" >&2
+	exit 2
+fi
 
 # The fixtures a suite needs (names without .img)
 fixtures_for() {
@@ -118,6 +141,12 @@ for s in $suites; do
 		[ -f "$fx/$f.img" ] || { echo "dmn_vm: $fx/$f.img is missing" >&2; exit 2; }
 	done
 done
+# every image a suite uses must be stamped with this checkout's key and be unchanged since (perf alone may skip this)
+if [ "$fx_unkeyed" -eq 0 ]; then
+	# shellcheck disable=SC2086
+	sh "$root/scripts/run-inputs.sh" fixtures-check "$fx" $need ||
+		{ echo "dmn_vm: --fixtures refused" >&2; exit 2; }
+fi
 
 tmp=$(mktemp -d "${TMPDIR:-/tmp}/dmn_vm.XXXXXX")
 cleanup() {
@@ -146,10 +175,12 @@ else
 	(cd "$root" && tar -cf - scripts/build-ntfs3g.sh scripts/fetch-deps.sh third_party/deps.lock \
 		third_party/patches "third_party/cache/$tarball") |
 		tart exec -i "$name" /bin/sh -c 'rm -rf ~/ntfsmac/tree && mkdir -p ~/ntfsmac/tree && tar -xf - -C ~/ntfsmac/tree'
-	"$tart_sh" exec "$name" -- 'cd ~/ntfsmac/tree && sh scripts/build-ntfs3g.sh --fuse external --jobs 4 --prefix ~/ntfsmac/deps --build-dir ~/ntfsmac/build 2>&1' >&2 ||
+	"$tart_sh" exec "$name" -- 'cd ~/ntfsmac/tree && env -u CFLAGS -u LDFLAGS sh scripts/build-ntfs3g.sh --fuse external --jobs 4 --prefix ~/ntfsmac/deps --build-dir ~/ntfsmac/build 2>&1' >&2 ||
 		{ echo "dmn_vm: guest build failed" >&2; exit 2; }
 	if [ -n "$deps_tar" ]; then
-		tart exec "$name" /bin/sh -c 'cd ~/ntfsmac && tar -cf - deps' >"$deps_tar" ||
+		# the key of this checkout goes into the tar, so that a later run can tell whether it is current (M5-F07)
+		{ tart exec "$name" /bin/sh -c 'cd ~/ntfsmac && tar -cf - deps' >"$deps_tar" &&
+			sh "$root/scripts/run-inputs.sh" deps-seal "$deps_tar" "$dkey" dmn; } ||
 			{ rm -f "$deps_tar"; echo "dmn_vm: WARNING: could not save $deps_tar" >&2; }
 	fi
 fi

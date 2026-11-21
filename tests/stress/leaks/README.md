@@ -74,3 +74,14 @@ sh scripts/ci-local.sh --verify-result tests/results/<file>.json ... --require-e
 
 `adopt` refuses a dirty, sha-less, invalid, failed or `-SHORT` result, and evidence that is a symlink or lies outside DIR. `run.sh` records the commit and tree state at the START in `provenance.txt`; a commit made during the run, or a tree dirty at the start or the end, marks the result dirty. One result per commit, day and suite can be adopted: a second one is refused. Unit test of the id rule: `python3 -B tests/stress/leaks/classify.py selftest`;
 of `adopt`: `python3 -B tests/unit/harness/test_adopt.py`.
+
+## Pre-built inputs (M5-F07)
+
+This suite takes the other route: a `--deps-tar` only seeds the guest build, and `build-ntfs3g.sh` always runs after it (its
+stamp compares the patch series, the tarball and the flags, so it does nothing when the seed is current and rebuilds when it
+is not; the tar holds the build tree, so that is cheap here). A stale seed is therefore harmless, and the suite records its
+hash and key (`deps_tar=NAME (seed only: the build re-runs)`). `--fixtures DIR`: the image must be listed in
+`DIR/.fixtures-key` with the fixtures key of this checkout and its current sha256 (`scripts/run-inputs.sh`: the git tree hash of HEAD for the paths the generators read or run (`tests/fixtures`, `tests/tools`, `tests/stress/crashsweep`, `src`, `include`, `third_party/patches`, `third_party/deps.lock`, `vm/linux`, `scripts/build-ntfs3g.sh`, `CMakeLists.txt`, `cmake`; full list in `scripts/run-inputs.sh`). On an unclean tree it is a hash of the contents of those files (`git ls-files -c -o --exclude-standard`) and `fixtures_dirty=1` is recorded; the run goes on and its result is marked dirty by the provenance of the suite, which the gate rejects. A dirty key never equals a clean one. It is unavailable outside a git checkout), otherwise it is refused (exit 2). The
+run writes `inputs.txt` into `--out` (seed hash and key, fixtures key, manifest of the image used), copies those lines into
+`meta.txt` and adds a sentence to every case note. The keys are appended to `provenance.txt` at the start, and the guest output
+is extracted without `provenance.txt` and `inputs.txt` and both are compared with their copies afterwards, so the guest cannot replace them.

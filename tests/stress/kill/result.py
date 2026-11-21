@@ -170,6 +170,7 @@ def main(argv):
     if not a.log or not a.out:
         ap.error("--log and --out are required")
     import report
+    import inputs
     with open(a.log, "r", encoding="utf-8", errors="replace") as f:
         text = f.read()
     d = parse(text)
@@ -194,6 +195,7 @@ def main(argv):
     if os.path.isfile(os.path.join(a.out, "provenance.txt")):
         for c in cases:
             c["evidence"].append("provenance.txt")
+    inputs.annotate(cases, a.out)
     sha, dirty, pnotes = report.run_state(a.out, a.repo)
     if pnotes and cases:
         cases[0]["note"] = (cases[0]["note"] or "") + "; provenance: " + "; ".join(pnotes)

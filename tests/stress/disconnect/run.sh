@@ -85,6 +85,9 @@ case $deps_tar in '' | /*) ;; *) deps_tar=$(pwd)/$deps_tar ;; esac
 mkdir -p "$out"
 # the commit and tree state at the START of the run (a result is tied to it, not to the state at the end)
 "$py" -B "$root/tests/harness/report.py" provenance --out "$out/provenance.txt" >/dev/null || { echo "disconnect: cannot record the start state (is this a repository checkout?)" >&2; exit 2; }
+# the keys of the inputs (deps, fixtures) are read once, now, and appended to the start record; the record at the end uses these
+sh "$root/scripts/run-inputs.sh" snapshot "$out/provenance.txt" --deps --fixtures >&2 ||
+	{ echo "disconnect: the inputs keys are unavailable" >&2; exit 2; }
 # the host binaries under test must come from the recorded commit: the build tree must belong to this checkout,
 # and an incremental build (a no-op when current) brings it up to date before anything is copied
 "$py" -B "$root/tests/harness/report.py" build-check --build "$build" >&2 || exit 2
@@ -96,6 +99,9 @@ for f in "$build/src/daemon/ntfsmacd" "$build/src/cli/ntfsmac"; do
 	[ -f "$f" ] || { echo "disconnect: $f is missing (cmake --build --preset release, or --build-dir)" >&2; exit 2; }
 done
 
+# a prebuilt NTFS-3G must be the one this checkout builds (scripts/run-inputs.sh, audit M5-F07): refused before anything starts
+[ -z "$deps_tar" ] || [ ! -f "$deps_tar" ] || sh "$root/scripts/run-inputs.sh" deps-check "$deps_tar" --key "$(sed -n 's/^deps_key=//p' "$out/provenance.txt" | tail -n 1)" ||
+	{ echo "disconnect: --deps-tar refused" >&2; exit 2; }
 tmp=$(mktemp -d "${TMPDIR:-/tmp}/disconnect.XXXXXX")
 # the guest's name is chosen here, before the clone, so that the trap deletes it on every exit path
 name=ntfsmac-disc-$$
@@ -141,6 +147,9 @@ if ! grep -q 'is up with everything copied in' "$tmp/dmn_vm.log"; then
 	exit 2
 fi
 
+# what the run used (deps tar hash and key, fixtures key and manifest): inputs.txt, meta.txt, and every case note
+sh "$root/scripts/run-inputs.sh" record "$out/inputs.txt" --snapshot "$out/provenance.txt" --deps-tar "$deps_tar" --fixtures "$fx" --names clean-64m-4k >&2 ||
+	{ echo "disconnect: the inputs check failed" >&2; exit 2; }
 # the plan: what disc_result.py holds the run to (a partial run must not pass)
 { echo "reps=$reps"; echo "workloads=$workloads"; echo "controls=$controls"; echo "fault=$fault"; } >"$out/plan.txt"
 nrep=0
@@ -162,5 +171,6 @@ perl -e 'alarm shift; exec @ARGV or exit 127' 180 tart exec "$name" /bin/sh -c '
 echo "disconnect: guest script exit $grc" >&2
 echo "guest_rc=$grc" >>"$out/meta.txt"
 echo "host_os=macOS $(sw_vers -productVersion 2>/dev/null || echo host)" >>"$out/meta.txt"
+grep -E '^(deps_tar|fixtures?[_.])' "$out/inputs.txt" >>"$out/meta.txt" || true
 
 "$py" -B "$here/disc_result.py" finalize --dir "$out" --repo "$root" --started "$started"

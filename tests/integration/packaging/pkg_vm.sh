@@ -45,6 +45,17 @@ tarball=$(awk '$1 == "ntfs-3g" { n = split($3, a, "/"); print a[n] }' "$root/thi
 [ -f "$root/third_party/cache/$tarball" ] || { [ -n "$deps_tar" ] && [ -f "$deps_tar" ]; } ||
 	{ echo "pkg_vm: $root/third_party/cache/$tarball is missing; run scripts/fetch-deps.sh ntfs-3g" >&2; exit 2; }
 
+# Pre-built inputs must come from this checkout (scripts/run-inputs.sh, audit M5-F07): refused here, before a guest is cloned.
+# A missing, unreadable or different key refuses; there is no fallback to building and no override.
+# The deps key is read once, now, before the tree is copied to the guest; a tar saved by this run is sealed with it.
+# The layout is pkg (~/ntfsmac/pkg/build/deps): a tar made by dmn_vm.sh (layout dmn) is refused here and the other way round.
+dkey=
+if [ -n "$deps_tar" ]; then
+	dkey=$(sh "$root/scripts/run-inputs.sh" deps-key) || { echo "pkg_vm: the deps key could not be computed" >&2; exit 2; }
+	[ ! -f "$deps_tar" ] || sh "$root/scripts/run-inputs.sh" deps-check "$deps_tar" --key "$dkey" --layout pkg ||
+		{ echo "pkg_vm: --deps-tar refused" >&2; exit 2; }
+fi
+
 "$tart_sh" clone "$name" --from golden >&2
 "$tart_sh" run "$name" >&2
 
@@ -62,7 +73,7 @@ if [ -n "$deps_tar" ] && [ -f "$deps_tar" ]; then
 fi
 
 rc=0
-run='sh ~/ntfsmac/pkg/tests/integration/packaging/pkg_vm_guest.sh ~/ntfsmac/pkg 2>&1'
+run='env -u CFLAGS -u LDFLAGS sh ~/ntfsmac/pkg/tests/integration/packaging/pkg_vm_guest.sh ~/ntfsmac/pkg 2>&1'
 if [ -n "$out" ]; then
 	"$tart_sh" exec "$name" -- "$run" >"$out" 2>&1 || rc=$?
 	cat "$out"
@@ -71,7 +82,9 @@ else
 fi
 
 if [ -n "$deps_tar" ] && [ ! -f "$deps_tar" ]; then
-	tart exec "$name" /bin/sh -c 'cd ~/ntfsmac/pkg/build && tar -cf - deps' >"$deps_tar" ||
+	# the key of this checkout goes into the tar, so that a later run can tell whether it is current (M5-F07)
+	{ tart exec "$name" /bin/sh -c 'cd ~/ntfsmac/pkg/build && tar -cf - deps' >"$deps_tar" &&
+		sh "$root/scripts/run-inputs.sh" deps-seal "$deps_tar" "$dkey" pkg; } ||
 		{ rm -f "$deps_tar"; echo "pkg_vm: WARNING: could not save $deps_tar" >&2; }
 fi
 exit "$rc"

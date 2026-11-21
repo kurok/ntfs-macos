@@ -403,6 +403,8 @@ def finalize(d, repo, started=None, project_images=()):
                       "workload.log", "worker.log", "provenance.txt") if os.path.isfile(os.path.join(d, n))]
     ev += sorted(n for n in os.listdir(d) if re.match(r"^leaks-worker-scan\d+\.txt$", n))
     cases = make_cases(meta, status_main, control, notes, ev)
+    import inputs  # tests/harness/inputs.py
+    inputs.annotate(cases, d)
     doc = report.build_result(sha, dirty, "B", meta.get("host_os") or "macOS (host)", meta.get("guest_os"),
                               meta.get("macfuse"), meta.get("ntfs3g"), started or now, now, cases)
     errs = report.validate(doc)

@@ -58,7 +58,12 @@ case $deps_tar in '' | /*) ;; *) deps_tar=$(pwd)/$deps_tar ;; esac
 mkdir -p "$out"
 # the commit and tree state at the START of the run (a result is tied to it, not to the state at the end)
 "$py" -B "$root/tests/harness/report.py" provenance --out "$out/provenance.txt" >/dev/null || { echo "leaks: cannot record the start state (is this a repository checkout?)" >&2; exit 2; }
+# the keys of the inputs (deps, fixtures) are read once, now, and appended to the start record; the record at the end uses these
+sh "$root/scripts/run-inputs.sh" snapshot "$out/provenance.txt" --fixtures >&2 ||
+	{ echo "leaks: the inputs keys are unavailable" >&2; exit 2; }
 
+# This suite rebuilds after seeding (see below), so a stale tar is harmless; the tar is only recorded. The fixtures
+# are checked against the generators of this checkout (scripts/run-inputs.sh, audit M5-F07).
 tmp=$(mktemp -d "${TMPDIR:-/tmp}/leaks.XXXXXX")
 name=ntfsmac-leaks-$$
 started=$($py -B -c 'import time; print(time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))')
@@ -96,6 +101,8 @@ if [ -z "$fx" ]; then
 fi
 [ -f "$fx/clean-64m-4k.img" ] || { echo "leaks: $fx/clean-64m-4k.img is missing" >&2; exit 2; }
 
+sh "$root/scripts/run-inputs.sh" record "$out/inputs.txt" --snapshot "$out/provenance.txt" --deps-tar-seed "$deps_tar" --fixtures "$fx" --names clean-64m-4k >&2 ||
+	{ echo "leaks: the inputs check failed" >&2; exit 2; }
 vm_up=1
 "$tart_sh" clone "$name" --from golden >&2
 "$tart_sh" run "$name" >&2
@@ -131,12 +138,16 @@ echo "leaks: running in the guest" >&2
 grc=0
 "$tart_sh" exec "$name" -- "LEAK_ITER=$iter sh ~/leakd/tests/stress/leaks/leaks_guest.sh ~/leakd ~/leakout 2>&1" >"$out/guest.log" || grc=$?
 cat "$out/guest.log" >&2
+# the start records (provenance.txt with the input keys, inputs.txt) are the host's: the guest output must not replace them
 cp "$out/provenance.txt" "$tmp/provenance.keep"
-tart exec "$name" /bin/sh -c 'cd ~/leakout 2>/dev/null && tar -cf - .' | tar -xf - --exclude ./provenance.txt --exclude provenance.txt -C "$out" ||
+cp "$out/inputs.txt" "$tmp/inputs.keep"
+tart exec "$name" /bin/sh -c 'cd ~/leakout 2>/dev/null && tar -cf - .' | tar -xf - --exclude ./provenance.txt --exclude provenance.txt --exclude ./inputs.txt --exclude inputs.txt -C "$out" ||
 	{ echo "leaks: could not fetch the evidence from the guest" >&2; exit 2; }
 cmp -s "$out/provenance.txt" "$tmp/provenance.keep" || { echo "leaks: the start record provenance.txt was changed by the guest output" >&2; exit 2; }
+cmp -s "$out/inputs.txt" "$tmp/inputs.keep" || { echo "leaks: the record inputs.txt was changed by the guest output" >&2; exit 2; }
 [ "$grc" -eq 0 ] || { echo "leaks: the guest script failed (rc $grc), see $out/guest.log" >&2; exit 2; }
 echo "host_os=macOS $(sw_vers -productVersion 2>/dev/null || echo host)" >>"$out/meta.txt"
+grep -E '^(deps_tar|fixtures?[_.])' "$out/inputs.txt" >>"$out/meta.txt" || true
 
 # shellcheck disable=SC2086
 "$py" -B "$here/classify.py" finalize --dir "$out" --repo "$root" --started "$started" $proj

@@ -39,6 +39,7 @@ import struct
 import subprocess
 import sys
 import time
+import traceback
 
 OPS = ["create", "seqwrite", "randwrite", "truncate", "rename", "mmap", "delete", "mkdir", "rmdir", "dirrename",
        "readdir", "readback", "verify", "sh_create", "sh_rename", "sh_delete", "sh_read", "sh_list", "setup", "stall"]
@@ -98,6 +99,32 @@ def shared_size(name):
 
 def sha_hex(b):
     return hashlib.sha256(b).hexdigest()
+
+
+def describe_error(e, op):
+    """One line for an unexpected error of a worker: the operation, the exception with its errno name and
+    paths, and the innermost frames of this module, so that a rare error can be traced from the result.
+    It never raises: on any failure it falls back to the exception's type name."""
+    try:
+        return _describe_error(e, op)
+    except Exception:  # noqa: BLE001 - the error record must not kill the worker
+        return "%s%s" % ("op %s; " % op if op else "", type(e).__name__)
+
+
+def _describe_error(e, op):
+    parts = ["%s: %r" % (type(e).__name__, e)]
+    if op:
+        parts.insert(0, "op %s" % op)
+    if isinstance(e, OSError):
+        if e.errno in errno.errorcode:
+            parts.append("errno %s" % errno.errorcode[e.errno])
+        for p in (e.filename, getattr(e, "filename2", None)):
+            if p:
+                parts.append("path %s" % p)
+    frames = [f for f in traceback.extract_tb(e.__traceback__) if f.filename.endswith("mixlib.py")][-3:]
+    if frames:
+        parts.append("at " + " <- ".join("%s:%d %s" % (f.name, f.lineno, (f.line or "").strip()[:60]) for f in reversed(frames)))
+    return "; ".join(parts)
 
 
 def bucket(lat):
@@ -170,6 +197,7 @@ class Worker:
 
     # ---- timing ----
     def timed(self, op, fn, *a):
+        self.err_op = None  # an error raised outside an operation is not blamed on an earlier one
         t = time.time()
         c = self.cur
         c[0] = t
@@ -181,6 +209,9 @@ class Worker:
                 self.stall_done = True
                 time.sleep(st[2])  # a simulated stall inside the timed window (control)
             return fn(*a)
+        except BaseException:
+            self.err_op = op  # the operation an error came from, for the error record
+            raise
         finally:
             t2 = time.time()
             d = t2 - t
@@ -603,7 +634,7 @@ class Worker:
         except Mismatch as e:
             self.mism.append(str(e))
         except Exception as e:  # noqa: BLE001 - every unexpected error is a failure, with its errno
-            self.errs.append("%s: %r" % (type(e).__name__, e))
+            self.errs.append(describe_error(e, getattr(self, "err_op", None)))
         ok = not self.mism and not self.errs
         if not self.errs:  # after a mismatch the model is still the truth: the remount check must see the disk differ from it
             self.manifest(os.path.join(c["state"], "man-%02d.tsv" % self.wid))

@@ -189,6 +189,22 @@ static int unmount_bounded(const char *mp, int flags, unsigned limit_s)
 	}
 }
 
+/* A plain unmount right after a mount can meet EBUSY for a moment while macOS services
+ * (Spotlight, fseventsd) look at the new volume; seen once in the full local CI on a read-only
+ * mount that was unmounted at once, and not in 4 reruns. The check is that a plain unmount
+ * works, so retry it on EBUSY for up to 10 s, noting each retry, before calling it a failure. */
+static int unmount_plain(const char *mp, const char *tag)
+{
+	int rc = unmount_bounded(mp, 0, 30), tries;
+
+	for (tries = 1; rc == EBUSY && tries < 10; tries++) {
+		NOTE("%s: unmount(2) busy (EBUSY), retry %d after 1 s", tag, tries);
+		sleep_ms(1000);
+		rc = unmount_bounded(mp, 0, 30);
+	}
+	return rc;
+}
+
 /* In a child as the console user: write and read back a file in `mp`; 0 if it worked. */
 static int user_file_test(const char *mp, bool write_it)
 {
@@ -435,7 +451,7 @@ static void case_mount(bool read_only)
 	printf("  channel so far: %s\n", rec);
 	CHECK(strncmp(rec, read_only ? "S ro|" : "S rw|", 5) == 0, "%s: the first record is S %s", name, name);
 
-	rc = unmount_bounded(mp, 0, 30);
+	rc = unmount_plain(mp, name);
 	CHECK(rc == 0, "%s: unmount(2) (code %d)", name, rc);
 	if (rc != 0) {
 		rc = unmount_bounded(mp, MNT_FORCE, 30);

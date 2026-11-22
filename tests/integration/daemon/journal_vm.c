@@ -374,6 +374,22 @@ static int unmount_bounded(const char *mp, int flags, unsigned limit_s)
 	}
 }
 
+/* A plain unmount right after a mount can meet EBUSY for a moment while macOS services
+ * (Spotlight, fseventsd) look at the new volume; seen once in the full local CI on a read-only
+ * mount that was unmounted at once, and not in 4 reruns. The check is that a plain unmount
+ * works, so retry it on EBUSY for up to 10 s, noting each retry, before calling it a failure. */
+static int unmount_plain(const char *mp, const char *tag)
+{
+	int rc = unmount_bounded(mp, 0, 30), tries;
+
+	for (tries = 1; rc == EBUSY && tries < 10; tries++) {
+		NOTE("%s: unmount(2) busy (EBUSY), retry %d after 1 s", tag, tries);
+		sleep_ms(1000);
+		rc = unmount_bounded(mp, 0, 30);
+	}
+	return rc;
+}
+
 static int user_write_test(const char *mp)
 {
 	pid_t p = fork();
@@ -492,7 +508,7 @@ static void settle(mnt *m, ntfsmac_session *s, const char *tag, bool kill_it, bo
 		rc = unmount_bounded(m->mp, MNT_FORCE, 30);
 		NOTE("%s: forced unmount after the kill gave %d", tag, rc);
 	} else {
-		rc = unmount_bounded(m->mp, 0, 30);
+		rc = unmount_plain(m->mp, tag);
 		CHECK(rc == 0, "%s: unmount(2) (code %d)", tag, rc);
 		*unmount_first = rc == 0;
 		if (rc != 0)

@@ -29,6 +29,19 @@ at the first frame, and UBSan lines at `file:line` exactly). Two crashes with th
 signature are one finding; the smallest input is kept and minimised (`libFuzzer -minimize_crash`, kept only if
 the signature does not change).
 
+The short fuzz stage of `ci-local.sh` (`fuzz-short`, `tests/fuzz/{image,sanitize}/run.sh --known-ok --seconds 300`)
+forgives only the leaks of the corpus replay that match a row of `known.tsv` with status `open` or `benign`
+(`tests/fuzz/campaign/shortcheck.py`, which uses the signatures of `fuzzsig.py` and `triage.classify`, the function
+of the campaign triage); the stage note lists the ids, for example `known findings seen: F2, F5`. The stage always
+builds the patched engine, so a `fixed` row seen there is a `REGRESSION`, and an unmatched leak is `NEW`; both fail.
+The image targets replay every corpus input one process per input (in chunks of 64 that are split on a leak; a
+single libFuzzer process over the corpus stops at the first leak, so a known leak would hide a new one) and write
+`replay complete` to the summary only when all inputs were replayed within the time bound. Every artifact (crash,
+timeout, out of memory, slow unit), every libFuzzer run with a non-zero exit, a missing `replay complete`, an
+AddressSanitizer or libFuzzer error in the leak log and any mismatch between the leaks counted and the leaks
+parsed fail the stage whatever their signature. The flag does
+nothing for the sanitize targets (project code, no leak replay).
+
 Not covered: the "read/write operation sequences on a valid image" target of `TEST_STRATEGY.md` section 8
 does not exist (T-M3-16 built the other four rows). The write paths of libntfs-3g (`mft.c`, `inode.c`
 creation, `attrib.c` resizing) are therefore fuzzed only through the read-only mount and walk; this is a gap

@@ -38,6 +38,11 @@ if(NTFSMAC_PYTHON3 AND NTFSMAC_SH)
     COMMAND ${NTFSMAC_PYTHON3} -I -B ${_ci_dir}/gate_cases_check.py ${PROJECT_SOURCE_DIR} M5)
   set_tests_properties(ci.local ci.local_full PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 120 LABELS ci)
   set_tests_properties(ci.gate_cases PROPERTIES TIMEOUT 60 LABELS ci)
+  # the short fuzz stage (ci-local.sh fuzz-short): findings classified with the campaign's matcher and known.tsv
+  # (tests/fuzz/campaign/shortcheck.py), and run.sh --known-ok, on fake logs and a fake container (no Docker)
+  add_test(NAME ci.fuzz_short
+    COMMAND ${_ci_env} ${NTFSMAC_PYTHON3} -I -B ${PROJECT_SOURCE_DIR}/tests/fuzz/campaign/test_shortcheck.py)
+  set_tests_properties(ci.fuzz_short PROPERTIES TIMEOUT 60 LABELS ci)
   # the guest build lists of the VM scripts (tar list and cc lines) against the includes of the sources they build
   add_test(NAME ci.guest_sources
     COMMAND ${NTFSMAC_PYTHON3} -I -B ${_ci_dir}/check_guest_sources.py ${PROJECT_SOURCE_DIR})

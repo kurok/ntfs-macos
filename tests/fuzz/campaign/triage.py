@@ -68,6 +68,19 @@ def auto_class(kind, access):
     return {"leak": "L", "ubsan": "U", "oracle": "O", "timeout": "R2", "oom": "R2", "crash": "C", "slow": "S"}.get(kind, "X")
 
 
+def classify(known, key, kind, frames, patched):
+    """(status, known row or None) of one signature: known, REGRESSION or NEW. Shared with shortcheck.py (the short
+    fuzz stage of ci-local.sh), so that the campaign and the short stage never disagree."""
+    r = fuzzsig.match_known(known, key, kind, frames)
+    if not r:
+        return "NEW", None
+    if r["status"] == "fixed":
+        # a fix that does not hold: project fixes always, engine patches on a patched engine;
+        # on a pristine engine the finding is the expected result
+        return ("REGRESSION" if (r["component"] == "project" or patched) else "known"), r
+    return "known", r
+
+
 def read_kv(path):
     d = {}
     if os.path.exists(path):
@@ -170,20 +183,12 @@ def main():
             else:
                 status, cls = "REVIEW", "X"
         else:
-            r = fuzzsig.match_known(known, key, kind, e["frames"])
+            status, r = classify(known, key, kind, e["frames"], e["patched"])
             if r:
                 kid = r["id"]
                 fixed_by = r["fixed_by"]
                 ref = r["ref"]
                 cls = r["klass"]
-                if r["status"] == "fixed":
-                    # a fix that does not hold: project fixes always, engine patches on a patched engine;
-                    # on a pristine engine the finding is the expected result
-                    status = "REGRESSION" if (r["component"] == "project" or e["patched"]) else "known"
-                else:
-                    status = "known"
-            else:
-                status = "NEW"
         rows.append({"e": e, "status": status, "id": kid, "cls": cls, "fixed_by": fixed_by, "ref": ref})
     # ids for new findings: stable, from the signature (rename to M5-NN when the row goes into known.tsv)
     for r in rows:

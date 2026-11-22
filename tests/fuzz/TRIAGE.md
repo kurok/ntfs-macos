@@ -191,6 +191,16 @@ was linked to a wrong result in a harness oracle. They are listed, not proposed 
 report: upstream already carries the shifts of `runlist.c` (T-M3-02 recorded them). If
 reported, one issue per file with the unsigned-arithmetic fix is the usual form.
 
+## Short stage of ci-local.sh
+
+`scripts/ci-local.sh` stage `fuzz-short` runs `image/run.sh` and `sanitize/run.sh` with `--known-ok` and 300 s per
+target. `--known-ok` forgives only the leaks of the corpus replay that match an `open` or `benign` row of
+`tests/fuzz/campaign/known.tsv` (F2, F5, F7); the ids are printed per target and in the stage note. The image targets leak-check every corpus input (chunks of 64 per process, a failing chunk replayed one input per process, 1500 s bound), because one process over the corpus stops at the first leak and a known one would hide a new one; `summary.txt` has `leak replay: inputs N, leaking M` and `replay complete`, and the stage fails without them. The stage builds
+the patched engine, so a `fixed` row is a regression. Any artifact, any non-zero libFuzzer run exit, an unknown leak
+or a leak count mismatch still fails; for the sanitize targets the flag is a no-op. The classifier is
+`tests/fuzz/campaign/shortcheck.py` (the matcher of the campaign); without `--known-ok` the scripts fail on every
+finding, as the acceptance runs of one CPU-hour need.
+
 ## Open
 
 - F4 ended every libFuzzer process of run B of F-MOUNT-WALK within minutes, so run B covered the paths

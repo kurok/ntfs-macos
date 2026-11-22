@@ -182,10 +182,10 @@ def events(text):
         i += 1
 
 
-def cmd_sig(path):
-    """Signature of the replay: the first fatal event. Recoverable UBSan lines (the engine is built with
+def signature(path):
+    """Signature line (TSV text) of the replay: the first fatal event. Recoverable UBSan lines (the engine is built with
     -fsanitize-recover=undefined, so they are printed before whatever happens next) count only when no
-    fatal event follows; a benign UBSan line must never hide a crash."""
+    fatal event follows; a benign UBSan line must never hide a crash. None if the log has no event."""
     text = open(path, errors="replace").read()
     ub = None
     for kind, access, frames, oracle in events(text):
@@ -193,15 +193,24 @@ def cmd_sig(path):
             if ub is None:
                 ub = (frames, oracle)
             continue
-        print(build(kind, access, frames, oracle))
-        return
+        return build(kind, access, frames, oracle)
     if ub is not None:
         file, line = ub[0][0][1].rsplit(":", 1)
         loc = short(file + ":" + line)
-        print("\t".join(["ubsan %s %s" % (loc, ub[1]), "ubsan", "-", component(file), "-", loc]))
+        return "\t".join(["ubsan %s %s" % (loc, ub[1]), "ubsan", "-", component(file), "-", loc])
+    return None
 
 
-def cmd_leaks(path):
+def cmd_sig(path):
+    s = signature(path)
+    if s is not None:
+        print(s)
+
+
+def leak_signatures(path):
+    """Yield (signature line, leaked bytes) for each distinct direct leak of the log. Indirect leaks are skipped on
+    purpose: LeakSanitizer reports an indirect leak only together with the direct leak that holds it, and the
+    direct leak's allocation stack is the signature (the root cause)."""
     lines = open(path, errors="replace").read().splitlines()
     seen = set()
     for i, ln in enumerate(lines):
@@ -213,7 +222,12 @@ def cmd_leaks(path):
             sig = build("leak", "-", frames)
             if sig not in seen:
                 seen.add(sig)
-                print(sig + "\t" + (size.group(1) if size else "0"))
+                yield sig, (size.group(1) if size else "0")
+
+
+def cmd_leaks(path):
+    for sig, size in leak_signatures(path):
+        print(sig + "\t" + size)
 
 
 def cmd_ubsan(path):

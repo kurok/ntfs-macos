@@ -19,9 +19,13 @@
 #              crash, timeout or out-of-memory input is saved under artifacts/ and the run
 #              continues from the grown corpus with a new seed until the time is used up, so one
 #              known finding does not end the hour
-#   leaks      the grown corpus replayed once with LeakSanitizer on: every distinct leak of the
-#              whole corpus is listed (libFuzzer would stop at the first). A leak ends a libFuzzer
-#              run, so a known leak in the engine's error paths would hide every later finding
+#   leaks      every input of the grown corpus replayed with LeakSanitizer on, so that every distinct leak of
+#              the corpus is listed. One libFuzzer process over the whole corpus stops at the first leak
+#              ("a leak has been found in the initial corpus"), and a known leak on the mount path would hide
+#              every later one. So: the inputs go through in chunks of 64 files per process; a chunk that
+#              fails is replayed one input per process. All reports go to leaks.log (leaks.log.sym), the
+#              summary gets "leak replay: inputs N, leaking M" and, only if every input was replayed within
+#              the time bound, "replay complete"
 #   coverage   the grown corpus replayed through a gcc --coverage build of the harness, the
 #              project code and libntfs-3g, then gcov
 # Everything lands in /tmp/fuzz-out (summary.txt, libFuzzer logs, artifacts, gcov reports, the
@@ -147,13 +151,49 @@ cp "$corpus"/* "$out/corpus/" 2>/dev/null || true
 
 # ---- leaks ------------------------------------------------------------------------------------------
 leaklog=$out/leaks.log
-ASAN_OPTIONS=abort_on_error=0:detect_leaks=1:allocator_may_return_null=0 \
-	"$bin" "$corpus" -runs=0 -rss_limit_mb=4400 -malloc_limit_mb=4200 >"$leaklog" 2>&1 || true
+: >"$leaklog"
+lopts="-timeout=20 -rss_limit_mb=4400 -malloc_limit_mb=4200"
+lasan=abort_on_error=0:detect_leaks=1:allocator_may_return_null=0
+ls "$corpus" >"$out/replay-all.txt"
+nin=$(wc -l <"$out/replay-all.txt" | tr -d ' ')
+rm -f "$out"/replay-chunk.*
+split -l 64 "$out/replay-all.txt" "$out/replay-chunk."
+nleaking=0
+nbad=0
+complete=1
+lt0=$(now)
+for c in "$out"/replay-chunk.*; do
+	if [ "$(($(now) - lt0))" -ge 1500 ]; then complete=0; break; fi
+	# the file names of a chunk, one per line (hash names): split on newlines only, no globbing
+	crc=0
+	( cd "$corpus" && IFS='
+' && set -f && set -- $(cat "$c") && IFS=' ' && ASAN_OPTIONS=$lasan "$bin" $lopts "$@" ) </dev/null >"$out/replay.tmp" 2>&1 || crc=$?
+	[ "$crc" -ne 0 ] || continue
+	nsingle=$nleaking
+	while read -r f; do
+		if [ "$(($(now) - lt0))" -ge 1500 ]; then complete=0; break; fi
+		rc=0
+		# shellcheck disable=SC2086
+		ASAN_OPTIONS=$lasan "$bin" $lopts "$corpus/$f" </dev/null >"$out/replay.tmp" 2>&1 || rc=$?
+		[ "$rc" -ne 0 ] || continue
+		nleaking=$((nleaking + 1))
+		{ echo "=== replay input $f (exit $rc)"; cat "$out/replay.tmp"; } >>"$leaklog"
+		grep -q '^Direct leak of' "$out/replay.tmp" || nbad=$((nbad + 1))
+	done <"$c"
+	# the chunk failed but none of its inputs fails alone: not explained by a leak report, counts as failed
+	if [ "$complete" -eq 1 ] && [ "$nleaking" -eq "$nsingle" ]; then nbad=$((nbad + 1)); fi
+	[ "$complete" -eq 1 ] || break
+done
+rm -f "$out"/replay-chunk.* "$out/replay.tmp"
 python3 -I -B "$work/tests/fuzz/image/symbolize.py" "$leaklog" >"$leaklog.sym" 2>/dev/null || true
 nleaks=$(grep -c '^Direct leak\|^Indirect leak' "$leaklog" || true)
+nleaks_sym=$(grep -c '^Direct leak\|^Indirect leak' "$leaklog.sym" || true)
+say "leak replay: inputs $nin, leaking $nleaking, failed without a leak report $nbad"
+if [ "$complete" -eq 1 ]; then say "replay complete"; else say "replay INCOMPLETE (time bound)"; fi
 say "leaks in the corpus replay: $nleaks (leaks.log.sym)"
 grep -A4 '^Direct leak' "$leaklog.sym" | grep -v '^--' | sed 's/^/  /' | head -60 | tee -a "$summary"
-if [ "${nleaks:-0}" -ne 0 ]; then leak_found=1; else leak_found=0; fi
+if [ "${nleaks_sym:-0}" -ne "${nleaks:-0}" ]; then say "symbolized leak report differs from the raw one: $nleaks_sym of $nleaks leak lines"; fi
+if [ "${nleaks:-0}" -ne 0 ] || [ "$nleaking" -ne 0 ] || [ "${nleaks_sym:-0}" -ne "${nleaks:-0}" ] || [ "$complete" -ne 1 ] || [ "$nbad" -ne 0 ]; then leak_found=1; else leak_found=0; fi
 
 # ---- coverage ---------------------------------------------------------------------------------------
 cov=/tmp/fuzz-cov

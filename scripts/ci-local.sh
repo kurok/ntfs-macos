@@ -22,7 +22,7 @@
 #                                        (-Wall -Wextra -Werror is part of every build, cmake/NtfsmacFlags.cmake)
 #                      A                 scripts/test-all.sh --env A    (container: Linux suites, crash sweep)
 #                      linux-build-test  project build and ctest in the container (presets linux and asan)
-#                      fuzz-short        tests/fuzz/{image,sanitize}/run.sh, --fuzz-seconds each (default 300)
+#                      fuzz-short        tests/fuzz/{image,sanitize}/run.sh --known-ok, --fuzz-seconds each (default 300)
 #                      package           scripts/release-local.sh --no-ci: unsigned package built in a golden-VM
 #                                        clone and installed in a second clone (takes a VM slot)
 #                      B                 scripts/test-all.sh --env B    (macOS VM; takes a VM slot lock)
@@ -663,7 +663,7 @@ if [ "$quick" -eq 0 ]; then
 			tsan) _d="tsan preset: cmake --preset tsan, build, ctest -R ^tsan. (U-TSAN-*), recorded in env host" ;;
 			static-analysis) _d="shellcheck (-S error), clang-tidy, cppcheck on project code, on the host, recorded in env host" ;;
 			linux-build-test) _d="project build and ctest in the container (presets linux, asan), recorded in env A" ;;
-			fuzz-short) _d="tests/fuzz/{image,sanitize}/run.sh --skip-security --seconds $fuzz_seconds (container), recorded in env A" ;;
+			fuzz-short) _d="tests/fuzz/{image,sanitize}/run.sh --known-ok --skip-security --seconds $fuzz_seconds (container), recorded in env A" ;;
 			package) _d="scripts/release-local.sh --no-ci in golden-VM clones (VM slot), recorded in env B" ;;
 			esac
 			printf '%2d  %-16s %s\n' "$n" "$_s" "$_d"
@@ -886,10 +886,13 @@ if [ "$quick" -eq 0 ]; then
 		mkdir -p "$_fo"
 		_rc=0
 		# --skip-security leaves out the security descriptor reads (NTFS-3G engine faults F1, F3 in
-		# tests/fuzz/TRIAGE.md); the stage blocks on a finding anywhere else
-		sh "$root/tests/fuzz/image/run.sh" --skip-security --seconds "$fuzz_seconds" --out "$_fo/image" || _rc=1
-		sh "$root/tests/fuzz/sanitize/run.sh" --seconds "$fuzz_seconds" --out "$_fo/sanitize" || _rc=1
-		echo "NOTE: left out: image run --skip-security (security descriptor reads, F1/F3, covered by the replays); fuzz output in build/fuzz/ci/$_stamp"
+		# tests/fuzz/TRIAGE.md). --known-ok: a target that fails only on findings of tests/fuzz/campaign/known.tsv
+		# (open engine leaks such as F2, F5 in the corpus replay; matched by shortcheck.py, the matcher of the campaign)
+		# passes and its ids are named in the note; any artifact, bad run exit, unknown leak or regression blocks the stage
+		sh "$root/tests/fuzz/image/run.sh" --known-ok --skip-security --seconds "$fuzz_seconds" --out "$_fo/image" || _rc=1
+		sh "$root/tests/fuzz/sanitize/run.sh" --known-ok --seconds "$fuzz_seconds" --out "$_fo/sanitize" || _rc=1
+		_known=$(cat "$_fo"/image/*.known "$_fo"/sanitize/*.known 2>/dev/null | tr ',' '\n' | sort -u | sort -V | tr '\n' ',' | sed 's/,$//;s/,/, /g')
+		echo "NOTE: known findings seen: ${_known:-none}; left out: image run --skip-security (F1/F3, covered by the replays); fuzz output in build/fuzz/ci/$_stamp"
 		return "$_rc"
 	}
 

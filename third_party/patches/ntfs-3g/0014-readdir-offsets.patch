@@ -1,0 +1,446 @@
+ntfs-3g (ntfs-macos) patch 0014: per-handle readdir snapshot with offsets in the FUSE glue (all platforms)
+
+Rationale (S-PAR-01 EINVAL from os.listdir, investigation 2026-11-22, ADR-027): upstream
+ntfs_fuse_readdir in src/ntfs-3g.c ignores the offset, lists the whole directory from position 0
+and passes offset 0 to the filler for every entry. libfuse's high-level API then keeps the whole
+listing in a buffer per directory handle and answers each FUSE_READDIR with contents + off, clipped
+only to the buffer length, so a reply can end inside a fuse_dirent; a READDIR with offset 0 refills
+that buffer. The Linux kernel and the macFUSE kext ignore a cut trailing record. The macFUSE 5.5.0
+FSKit module does not:
+  - it asks for 10240 bytes per FUSE_READDIR and fails the whole enumeration with EINVAL when the
+    reply ends in a record cut after its 24-byte header. getdirentries64 with a buffer of 16 KiB or
+    more, ls (fts_read: Invalid argument) and getattrlistbulk (Finder) fail on every directory whose
+    listing is longer than 10240 bytes and whose cut falls inside a name (116 names of 58 bytes fail,
+    115 pass);
+  - it reuses one FUSE directory handle for several enumerations, so the offset-0 READDIR of one
+    reader refills the buffer under another reader whose cookie (a byte offset into the old buffer)
+    then points into a record: intermittent EINVAL and EIO with two or more readers and a writer in
+    the same directory, and twice a crash of the module (Swift assertion in
+    Request.BodySegment.managed(copy:) under Volume.enumerateDirectory), which unmounts the volume.
+A minimal libfuse2 file system with the same offset-ignoring readdir shows all of this and one that
+passes offsets shows none of it, so the trigger is the readdir mode, not NTFS (report to macFUSE
+drafted, docs/UPSTREAM_REPORTS.md). The macFUSE kernel (kext) backend was not available and is not
+covered.
+Design: each open directory handle keeps a snapshot of its listing, and READDIR passes offsets.
+  - opendir allocates an empty snapshot and stores it in fi->fh; releasedir frees it. Upstream
+    registers opendir and releasedir only for the permission-checking builds
+    (!KERNELPERMS | (POSIXACLS & !KERNELACLS)); 0014 registers them always. In those builds the
+    upstream opendir runs first (access checks; a reparse plugin's opendir may set fi->fh), and a
+    handle whose fi->fh a plugin set gets no snapshot and is released by the upstream release path.
+    Snapshots are kept in a list so that releasedir and readdir only ever take an fi->fh that 0014
+    allocated (ntfs-3g runs fuse_loop, one thread).
+  - The first READDIR of a handle, and every READDIR at offset 0 (rewinddir), reads the whole
+    directory once with ntfs_readdir() from position 0, through the same ntfs_fuse_filler as before
+    (same entries, same filters: root self reference, metadata and hidden files under
+    show_sys_files/hide_hid_files, DOS names, named-stream names; hide_dot_files and windows_names
+    act only at create and rename), into the snapshot: name, inode number, mode and the entry's
+    ntfs_readdir() position.
+  - READDIR is then served from the snapshot. The offset of an entry is its position + 1: "." 1,
+    ".." 2, then INDEX_ROOT entries (byte offset of the entry, at least 16) and INDEX_ALLOCATION
+    entries (MFT record size + block offset + entry offset), so offsets increase along the snapshot
+    and are never 0, which libfuse reserves for the offset-less mode. A READDIR at offset k serves
+    from the first entry whose offset is above k (binary search) until the filler refuses one
+    (buffer full); libfuse has not stored that entry, and the next READDIR comes with the offset of
+    the last entry it took, so the refused one comes again: no loss, no duplicate.
+  - A handle that only one listing uses reads an unchanged snapshot, so unlink during the
+    iteration (readdir; unlink; ...; rmdir, as git and busybox rm -r do) removes every entry: the
+    index compaction of ntfs_ie_delete does not move the rest (tested: Linux, and macOS without a
+    concurrent lister). Entries made after the snapshot are not seen by that handle until it rewinds
+    (POSIX leaves them unspecified).
+  - Not guaranteed on the FSKit backend while another process lists the same directory: the module
+    serves all enumerations of a directory from one FUSE handle and continues an enumeration from
+    the handle's own position, not from the caller's cookie (a FUSE trace shows no READDIR carrying
+    the first enumeration's offsets once the second has started). A readdir + unlink loop over 1000
+    files with an ls -f or getattrlistbulk loop running beside it left 26 to 52 files in
+    every run (unpatched: about 460, from EINVAL and the shared buffer). Keeping the snapshots of
+    earlier listings per handle (tagging offsets with a generation) was tried and changed nothing,
+    because those offsets never come back; this is a macFUSE defect (docs/UPSTREAM_REPORTS.md).
+  - When a READDIR with a nonzero offset reaches a handle without a valid snapshot, a new snapshot is
+    taken and served from the first entry whose position is above the offset; entries of the same
+    index block can then be listed twice or not at all if the directory changed in between. Such a
+    continuation reads the whole directory again, so a listing continued on k new handles costs k
+    full reads (n entries each).
+  - Memory: the two arrays of a snapshot (entries and names) grow by doubling and are each limited
+    to 1 GiB (NTFS_FUSE_SNAP_MAX), so one open directory handle holds at most 2 GiB (about ten million
+    entries); a mount holds one snapshot per open directory handle. Beyond the limit, or when
+    realloc fails, READDIR answers ENOMEM. Upstream kept the same listing in libfuse's buffer,
+    without a limit. The snapshot keeps its capacity until releasedir.
+  - The reparse-point plugin path keeps the upstream mode (start at 0, offset 0 for every entry, the
+    plugin sees the fi->fh it saw before), and a handle without a snapshot (no opendir) uses the
+    upstream mode too.
+Hunks:
+  - src/ntfs-3g.c: the snapshot types, ntfs_fuse_snap_find/_add/_serve, ntfs_fuse_filler fills the
+    snapshot when there is one, ntfs_fuse_readdir as above, ntfs_fuse_opendir_snap and
+    ntfs_fuse_releasedir_snap, the two table entries, <stdint.h>.
+  - libfuse-lite/fuse.c (Linux internal FUSE only; macOS uses macFUSE's libfuse): readdir_fill set
+    dh->filled before the fill, and only an entry with a nonzero offset cleared it, so after the
+    empty READDIR at the end of a listing every later READDIR at a nonzero offset on that handle
+    got 0 bytes without asking the file system (seekdir to a telldir cookie after the end). An empty
+    fill now leaves the handle unfilled. macFUSE's libfuse has the same code; see Test.
+Not changed: libntfs-3g. Every listing starts at position 0, so ntfs_readdir()'s resume path is not
+used; its bitmap bug when resuming inside the index allocation (it tests bit 0 of the bitmap byte
+instead of bit bmp_pos & 7, for every block until the next 4 KiB chunk of the bitmap) stays
+upstream and is recorded in docs/UPSTREAM_REPORTS.md. src/lowntfs-3g.c is not patched and not
+shipped (patch 0003).
+Cost: one ntfs_readdir() per snapshot (per listing, as before) and one binary search per READDIR;
+one inode lookup per snapshot instead of per READDIR; a walk of the open directory handles of the
+mount per READDIR to recognise fi->fh.
+Upstream status: to report upstream as a suggestion (offset-based readdir helps every FUSE client
+that does not tolerate a cut record) together with the fuse-lite fix; texts to be drafted; sending
+is a human decision. The FSKit module defects are reported to macFUSE separately (draft).
+Test: tests/integration/readdir (I-RDIR-01..05, Environment B; the regression check for macFUSE and
+NTFS-3G updates) and S-PAR-01 (pass: 115887 operations, 0 errors, 0 mismatches). Checked on 2026-11-22, patched against unpatched:
+  - Environment B: 149 unchanged directories (100 to 10000 entries, names of 8 to 120 bytes), 1937
+    checks by os.listdir, ls -f, getdirentries64 (2 to 128 KiB) and getattrlistbulk (1 to 64 KiB):
+    all complete in the same order (unpatched: 392 listings fail with EINVAL); readdir + unlink +
+    rmdir on 100, 1000 and 10000 entries alone: empty; seekdir after the end; two descriptors
+    handing off (2 and 16 KiB); growth from INDEX_ROOT only during a listing; the root directory;
+    21 concurrent reader and writer cases: 0 EINVAL, 0 EIO, no module crash, no unchanged entry
+    lost or repeated (unpatched: up to 4203 EINVAL per case, two crashes);
+  - Environment B, readdir + unlink with a concurrent ls -f or getattrlistbulk loop: files left in
+    every run (1000 entries: 36 of 36 runs, 26 to 52 left where logged; 10000: 17 of 17, 112 to 397;
+    the unlink failures are ENOENT, names delivered twice;
+    unpatched about 460 of 1000), with or without per-handle generations (above);
+  - Environment A (Linux, fuse-lite): the same listings, unlink loop, seekdir after the end (lists
+    nothing without the fuse-lite hunk), handoff, growth, root, 600 files with DOS names, 8 writers
+    and 4 readers: all correct, as with pristine NTFS-3G; probe tests pass.
+
+--- a/libfuse-lite/fuse.c	2026-11-22 09:27:01.545972771 +0000
++++ b/libfuse-lite/fuse.c	2026-11-22 09:27:01.548139436 +0000
+@@ -2196,6 +2196,14 @@
+             err = dh->error;
+         if (err)
+             dh->filled = 0;
++        /*
++         * ntfs-macos 0014: an empty fill (the end of a listing in offset
++         * mode) must not leave the handle "filled": a later READDIR at a
++         * nonzero offset (seekdir after the end) would get 0 bytes without
++         * asking the file system.
++         */
++        if (dh->filled && !dh->len)
++            dh->filled = 0;
+         free(path);
+     }
+     pthread_rwlock_unlock(&f->tree_lock);
+--- a/src/ntfs-3g.c	2026-11-22 09:27:01.541192901 +0000
++++ b/src/ntfs-3g.c	2026-11-22 09:27:01.543491857 +0000
+@@ -111,6 +111,8 @@
+ 
+ #include "ntfs-3g_common.h"
+ 
++#include <stdint.h>	/* ntfs-macos 0014: uintptr_t */
++
+ /*
+  *	The following permission checking modes are governed by
+  *	the HPERMSCONFIG value in param.h
+@@ -161,9 +163,47 @@
+ 	FSTYPE_FUSEBLK
+ } fuse_fstype;
+ 
++/*
++ * ntfs-macos 0014: a snapshot of one directory listing per open directory
++ * handle. The listing is read once from position 0 (at a READDIR with
++ * offset 0, or at the first READDIR of the handle) and READDIR is served
++ * from it, so a reply never ends inside an entry, entries removed or moved
++ * while the handle is read do not shift the others, and no listing buffer
++ * is shared between handles. The offset of an entry is its ntfs_readdir()
++ * position plus one (never 0); positions increase along the listing.
++ */
++typedef struct {
++	s64 pos;		/* ntfs_readdir() position of the entry */
++	u64 ino;
++	mode_t mode;
++	size_t name;		/* offset of the name in names[] */
++} ntfs_fuse_snap_entry_t;
++
++typedef struct ntfs_fuse_dirsnap {
++	struct ntfs_fuse_dirsnap *next;	/* live snapshots, to recognise fi->fh */
++	struct ntfs_fuse_dirsnap *prev;
++	ntfs_fuse_snap_entry_t *ents;
++	size_t count;
++	size_t cap;
++	char *names;
++	size_t used;
++	size_t size;
++	BOOL valid;
++} ntfs_fuse_dirsnap_t;
++
++	/*
++	 * each of the two arrays of a snapshot (entries, names) is limited to
++	 * this size: at most 2 GiB per open directory handle, about ten
++	 * million entries; a mount holds one snapshot per open handle
++	 */
++#define NTFS_FUSE_SNAP_MAX ((size_t)1 << 30)
++
++static ntfs_fuse_dirsnap_t *ntfs_fuse_dirsnaps;
++
+ typedef struct {
+ 	fuse_fill_dir_t filler;
+ 	void *buf;
++	ntfs_fuse_dirsnap_t *snap;	/* ntfs-macos 0014: fill this instead */
+ } ntfs_fuse_fill_context_t;
+ 
+ enum {
+@@ -1254,9 +1294,97 @@
+ 	return res;
+ }
+ 
++/*
++ * ntfs-macos 0014: the snapshot that fh points to, or NULL if it is not one
++ * of ours. The walk costs one step per open directory handle of the mount,
++ * once per READDIR and releasedir; ntfs-3g runs one thread, so no lock.
++ */
++static ntfs_fuse_dirsnap_t *ntfs_fuse_snap_find(u64 fh)
++{
++	ntfs_fuse_dirsnap_t *snap;
++
++	for (snap = ntfs_fuse_dirsnaps; snap; snap = snap->next)
++		if ((u64)(uintptr_t)snap == fh)
++			return snap;
++	return (ntfs_fuse_dirsnap_t*)NULL;
++}
++
++/* ntfs-macos 0014: append one entry; -1 with errno ENOMEM when it cannot */
++static int ntfs_fuse_snap_add(ntfs_fuse_dirsnap_t *snap, const char *name,
++		const struct stat *st, s64 pos)
++{
++	size_t len = strlen(name) + 1;
++	size_t ncap, nsize;
++	void *p;
++
++	if (snap->count == snap->cap) {
++		ncap = snap->cap ? 2 * snap->cap : 64;
++		if (ncap > NTFS_FUSE_SNAP_MAX / sizeof(*snap->ents))
++			goto nomem;
++		p = realloc(snap->ents, ncap * sizeof(*snap->ents));
++		if (!p)
++			goto nomem;
++		snap->ents = (ntfs_fuse_snap_entry_t*)p;
++		snap->cap = ncap;
++	}
++	if (len > snap->size - snap->used) {
++		nsize = snap->size ? snap->size : 4096;
++		while (nsize - snap->used < len) {
++			if (nsize > NTFS_FUSE_SNAP_MAX / 2)
++				goto nomem;
++			nsize *= 2;
++		}
++		p = realloc(snap->names, nsize);
++		if (!p)
++			goto nomem;
++		snap->names = (char*)p;
++		snap->size = nsize;
++	}
++	memcpy(snap->names + snap->used, name, len);
++	snap->ents[snap->count].pos = pos;
++	snap->ents[snap->count].ino = st->st_ino;
++	snap->ents[snap->count].mode = st->st_mode;
++	snap->ents[snap->count].name = snap->used;
++	snap->used += len;
++	snap->count++;
++	return 0;
++nomem:
++	ntfs_log_error("Directory listing too large for the memory\n");
++	errno = ENOMEM;
++	return -1;
++}
++
++/*
++ * ntfs-macos 0014: give libfuse the entries after the offset until it
++ * refuses one (buffer full); the next READDIR asks again from the offset of
++ * the last entry it took, so the refused one comes again.
++ */
++static void ntfs_fuse_snap_serve(ntfs_fuse_dirsnap_t *snap, void *buf,
++		fuse_fill_dir_t filler, off_t offset)
++{
++	struct stat st;
++	size_t lo = 0, hi = snap->count, mid, i;
++
++	while (lo < hi) {	/* the first entry whose offset is above offset */
++		mid = lo + (hi - lo) / 2;
++		if (snap->ents[mid].pos + 1 <= (s64)offset)
++			lo = mid + 1;
++		else
++			hi = mid;
++	}
++	for (i = lo; i < snap->count; i++) {
++		memset(&st, 0, sizeof(st));
++		st.st_ino = snap->ents[i].ino;
++		st.st_mode = snap->ents[i].mode;
++		if (filler(buf, snap->names + snap->ents[i].name, &st,
++				(off_t)(snap->ents[i].pos + 1)))
++			break;
++	}
++}
++
+ static int ntfs_fuse_filler(ntfs_fuse_fill_context_t *fill_ctx,
+ 		const ntfschar *name, const int name_len, const int name_type,
+-		const s64 pos __attribute__((unused)), const MFT_REF mref,
++		const s64 pos, const MFT_REF mref,
+ 		const unsigned dt_type __attribute__((unused)))
+ {
+ 	char *filename = NULL;
+@@ -1361,7 +1489,12 @@
+ 		}
+ #endif /* defined(__APPLE__) || defined(__DARWIN__), ... */
+ 	
+-		ret = fill_ctx->filler(fill_ctx->buf, filename, &st, 0);
++		if (fill_ctx->snap)
++			ret = ntfs_fuse_snap_add(fill_ctx->snap, filename,
++					&st, pos);
++		else
++			ret = fill_ctx->filler(fill_ctx->buf, filename,
++					&st, 0);
+ 	}
+ 	
+ 	free(filename);
+@@ -1425,16 +1558,26 @@
+ #endif
+ 
+ static int ntfs_fuse_readdir(const char *path, void *buf,
+-		fuse_fill_dir_t filler, off_t offset __attribute__((unused)),
+-		struct fuse_file_info *fi __attribute__((unused)))
++		fuse_fill_dir_t filler, off_t offset,
++		struct fuse_file_info *fi)
+ {
+ 	ntfs_fuse_fill_context_t fill_ctx;
++	ntfs_fuse_dirsnap_t *snap;
+ 	ntfs_inode *ni;
+ 	s64 pos = 0;
+ 	int err = 0;
+ 
++	if (offset < 0)
++		return 0;	/* ntfs-macos 0014: no such offset, the end */
+ 	fill_ctx.filler = filler;
+ 	fill_ctx.buf = buf;
++	fill_ctx.snap = (ntfs_fuse_dirsnap_t*)NULL;
++		/* ntfs-macos 0014: continue from the handle's snapshot */
++	snap = (fi ? ntfs_fuse_snap_find(fi->fh) : (ntfs_fuse_dirsnap_t*)NULL);
++	if (snap && snap->valid && offset) {
++		ntfs_fuse_snap_serve(snap, buf, filler, offset);
++		return 0;
++	}
+ 	ni = ntfs_pathname_to_inode(ctx->vol, NULL, path);
+ 	if (!ni)
+ 		return -errno;
+@@ -1443,20 +1586,45 @@
+ #ifndef DISABLE_PLUGINS
+ 		const plugin_operations_t *ops;
+ 		REPARSE_POINT *reparse;
++		struct fuse_file_info pfi;
+ 
++			/* the plugin sees the handle it saw before 0014 */
++		if (snap) {
++			pfi = *fi;
++			pfi.fh = 0;
++			fi = &pfi;
++		}
+ 		err = CALL_REPARSE_PLUGIN(ni, readdir, &pos, &fill_ctx,
+ 				(ntfs_filldir_t)ntfs_fuse_filler, fi);
+ #else /* DISABLE_PLUGINS */
+ 		err = -EOPNOTSUPP;
+ #endif /* DISABLE_PLUGINS */
++		snap = (ntfs_fuse_dirsnap_t*)NULL;
+ 	} else {
++		if (snap) {
++			/*
++			 * ntfs-macos 0014: (re)take the snapshot from pos 0: at
++			 * offset 0, or at the first READDIR of the handle. A
++			 * continuation that arrives on a new handle reads the
++			 * whole directory again, so a listing continued on k
++			 * new handles costs k full reads.
++			 */
++			snap->count = 0;
++			snap->used = 0;
++			snap->valid = FALSE;
++			fill_ctx.snap = snap;
++		}
+ 		if (ntfs_readdir(ni, &pos, &fill_ctx,
+ 				(ntfs_filldir_t)ntfs_fuse_filler))
+ 			err = -errno;
++		else if (snap)
++			snap->valid = TRUE;
+ 	}
+ 	ntfs_fuse_update_times(ni, NTFS_UPDATE_ATIME);
+ 	if (ntfs_inode_close(ni))
+ 		set_fuse_error(&err);
++	if (!err && snap)
++		ntfs_fuse_snap_serve(snap, buf, filler, offset);
+ 	return err;
+ }
+ 
+@@ -3965,6 +4133,62 @@
+ 	ntfs_close();
+ }
+ 
++/*
++ * ntfs-macos 0014: every directory handle gets a snapshot in fi->fh, except
++ * when a reparse plugin's opendir put its own value there; releasedir frees
++ * it and gives any other handle to the release path used before.
++ */
++static int ntfs_fuse_opendir_snap(const char *path,
++		struct fuse_file_info *fi)
++{
++	ntfs_fuse_dirsnap_t *snap;
++	int res = 0;
++
++#if !KERNELPERMS | (POSIXACLS & !KERNELACLS)
++	res = ntfs_fuse_opendir(path, fi);
++	if (res || fi->fh)
++		return res;
++#else
++	(void)path;
++#endif
++	snap = (ntfs_fuse_dirsnap_t*)ntfs_calloc(sizeof(*snap));
++	if (!snap)
++		return -ENOMEM;
++	snap->next = ntfs_fuse_dirsnaps;
++	if (snap->next)
++		snap->next->prev = snap;
++	ntfs_fuse_dirsnaps = snap;
++	fi->fh = (uintptr_t)snap;
++	return res;
++}
++
++static int ntfs_fuse_releasedir_snap(const char *path,
++		struct fuse_file_info *fi)
++{
++	ntfs_fuse_dirsnap_t *snap;
++
++	snap = ntfs_fuse_snap_find(fi->fh);
++	if (snap) {
++		if (snap->prev)
++			snap->prev->next = snap->next;
++		else
++			ntfs_fuse_dirsnaps = snap->next;
++		if (snap->next)
++			snap->next->prev = snap->prev;
++		free(snap->ents);
++		free(snap->names);
++		free(snap);
++		fi->fh = 0;
++		return 0;
++	}
++#if !KERNELPERMS | (POSIXACLS & !KERNELACLS)
++	return ntfs_fuse_release(path, fi);
++#else
++	(void)path;
++	return 0;
++#endif
++}
++
+ static struct fuse_operations ntfs_3g_ops = {
+ 	.getattr	= ntfs_fuse_getattr,
+ 	.readlink	= ntfs_fuse_readlink,
+@@ -4003,9 +4227,9 @@
+ #endif /* defined(FUSE_INTERNAL) || (FUSE_VERSION >= 28) */
+ #if !KERNELPERMS | (POSIXACLS & !KERNELACLS)
+ 	.access		= ntfs_fuse_access,
+-	.opendir	= ntfs_fuse_opendir,
+-	.releasedir	= ntfs_fuse_release,
+ #endif
++	.opendir	= ntfs_fuse_opendir_snap,	/* ntfs-macos 0014 */
++	.releasedir	= ntfs_fuse_releasedir_snap,
+ #ifdef HAVE_SETXATTR
+ 	.getxattr	= ntfs_fuse_getxattr,
+ 	.setxattr	= ntfs_fuse_setxattr,

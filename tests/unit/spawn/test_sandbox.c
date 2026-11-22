@@ -37,6 +37,12 @@
 #include "ntfsmac/options.h"
 #include "spawn_config.h"
 
+/* Generous limits: they only stop a broken stub from hanging the test, no case waits for them to
+ * expire, and a loaded host (a VM build next to the test) made 5 s too short once. */
+#define SBX_TIMEOUT_S 30
+#define SBX_REAP_TRIES 1500 /* x 20 ms = 30 s; the loop ends as soon as the child is reaped */
+#define SBX_FILE_TRIES 3000 /* x 10 ms = 30 s for the wrapper's output file; ends as soon as it is there */
+
 /* snprintf that aborts instead of truncating a path */
 #define PATHF(buf, ...) \
 	do { \
@@ -128,7 +134,7 @@ static ntfsmac_spawn_config base_config(void)
 	c.unpriv_uid = getuid();
 	c.unpriv_gid = getgid();
 	c.mount_poll_ms = 10;
-	c.volmark_write_wait_s = 1;
+	c.volmark_write_wait_s = SBX_TIMEOUT_S; /* no case here tests the write timeout */
 	c.mount_lookup = fake_lookup;
 	c.child_stderr_fd = -1;
 	return c;
@@ -180,7 +186,7 @@ static void kill_worker(ntfsmac_child *child)
 	int st, i;
 
 	(void)ntfsmac_child_kill_group(child);
-	for (i = 0; i < 200 && !exited; i++) {
+	for (i = 0; i < SBX_REAP_TRIES && !exited; i++) {
 		struct timespec ts = { 0, 20 * 1000000L };
 
 		if (ntfsmac_child_poll(child, &exited, &st) != NTFSMAC_DMN_OK)
@@ -206,7 +212,7 @@ static void test_probe(void)
 	c.probe_path = path_of("probe-ok");
 	ntfsmac_spawn_config_set(&c);
 	run.device_fd = fd;
-	run.timeout_s = 5;
+	run.timeout_s = SBX_TIMEOUT_S;
 	forget();
 	CHECK_EQ_INT(ntfsmac_spawn_probe(&run, &v), NTFSMAC_DMN_OK);
 	CHECK_EQ_INT(v.state, NTFSMAC_PROBE_STATE_CLEAN);
@@ -239,7 +245,7 @@ static void test_volmark(void)
 	run.device_fd = fd;
 	run.serial = 0x12AB;
 	run.total_sectors = 2048;
-	run.timeout_s = 5;
+	run.timeout_s = SBX_TIMEOUT_S;
 	forget();
 	CHECK_EQ_INT(ntfsmac_spawn_volmark(&run, true, &code), NTFSMAC_DMN_OK);
 	CHECK_EQ_INT(code, 0);
@@ -272,11 +278,11 @@ static void test_worker(void)
 	run.mount_point = "/Volumes/SBXTEST";
 	run.console_uid = getuid();
 	run.console_gid = getgid();
-	run.mount_wait_s = 5;
+	run.mount_wait_s = SBX_TIMEOUT_S;
 	forget();
 	CHECK_EQ_INT(ntfsmac_spawn_worker(&run, &child, &ro), NTFSMAC_DMN_OK);
 	/* The call returns once the shell script is running; it writes its file a moment later. */
-	for (i = 0; i < 300 && wrapped()[0] == '\0'; i++) {
+	for (i = 0; i < SBX_FILE_TRIES && wrapped()[0] == '\0'; i++) {
 		struct timespec ts = { 0, 10 * 1000000L };
 
 		nanosleep(&ts, NULL);
@@ -325,10 +331,10 @@ static void um_run(ntfsmac_spawn_config *c, int fd, const char *want_um)
 	run.mount_point = "/Volumes/SBXTEST";
 	run.console_uid = getuid();
 	run.console_gid = getgid();
-	run.mount_wait_s = 5;
+	run.mount_wait_s = SBX_TIMEOUT_S;
 	forget();
 	CHECK_EQ_INT(ntfsmac_spawn_worker(&run, &child, &ro), NTFSMAC_DMN_OK);
-	for (i = 0; i < 300 && wrapped()[0] == '\0'; i++) {
+	for (i = 0; i < SBX_FILE_TRIES && wrapped()[0] == '\0'; i++) {
 		struct timespec ts = { 0, 10 * 1000000L };
 
 		nanosleep(&ts, NULL);
@@ -396,7 +402,7 @@ static void test_bad_profile(void)
 	link_as("probe-ok");
 	c.probe_path = path_of("probe-ok");
 	run.device_fd = fd;
-	run.timeout_s = 5;
+	run.timeout_s = SBX_TIMEOUT_S;
 	PATHF(good, "%s/probe.sb", g_sbx);
 	PATHF(other, "%s/probe-copy.sb", g_sbx);
 
@@ -492,7 +498,7 @@ static void test_wrapper_failure(void)
 	link_as("probe-ok");
 	c.probe_path = path_of("probe-ok");
 	run.device_fd = fd;
-	run.timeout_s = 5;
+	run.timeout_s = SBX_TIMEOUT_S;
 
 	/* sandbox-exec exits non-zero before it starts the program */
 	write_file(g_fail, "x\n", 0600);
@@ -525,7 +531,7 @@ static void test_no_sandbox(void)
 	c.sandbox_dir = NULL;
 	ntfsmac_spawn_config_set(&c);
 	run.device_fd = fd;
-	run.timeout_s = 5;
+	run.timeout_s = SBX_TIMEOUT_S;
 	forget();
 	CHECK_EQ_INT(ntfsmac_spawn_probe(&run, &v), NTFSMAC_DMN_OK);
 	CHECK(!has(wrapped(), "probe"));

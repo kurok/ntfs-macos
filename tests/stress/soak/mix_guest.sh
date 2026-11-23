@@ -54,11 +54,33 @@ rw_mount() { # rw_mount IMG: attach, wait for the daemon, print the BSD name
 	mount_diag "$_bsd" >&2
 	echo "$_bsd"
 }
-# clean_unmount BSD: through the daemon, then detach; true when the volume left Mounted
+# clean_unmount BSD: through the daemon, then detach; true when the volume left Mounted.
+# The daemon refuses an unmount while the volume is busy: after its short EBUSY retries (about 1.5 s) it logs
+# UNMOUNT_BUSY and the volume stays Mounted, as for a user's eject. Right after a heavy workload something can
+# hold the volume for longer (a 30 min run with 16 writers saw it once), so a refused unmount is asked again
+# every 5 s, within the same 150 s bound; each refusal is noted with what holds files on the volume.
 clean_unmount() {
+	_mp=$(mpoint_of "$1")
+	_end=$(($(date +%s) + 150))
+	_n=0
+	_ask=$(date +%s)
 	tmo 180 "$CLI" unmount "$1" >/dev/null 2>&1
-	wait_for 120 has_state "$1" Appeared
+	while ! has_state "$1" Appeared && ! has_state "$1" Failed && ! has_state "$1" Gone && [ "$(date +%s)" -lt "$_end" ]; do
+		if has_state "$1" Mounted && [ $(($(date +%s) - _ask)) -ge 5 ]; then
+			_n=$((_n + 1))
+			note "unmount of $1 refused (still Mounted, busy), asking again ($_n); files open on ${_mp:-the volume}:"
+			[ -n "$_mp" ] && tmo 20 sudo -n lsof -n +f -- "$_mp" 2>/dev/null | head -20 | sed 's/^/NOTE:   /'
+			# holders without a file descriptor (Spotlight indexing, Quick Look, fseventsd) do not show in lsof
+			pgrep -lf 'mds|mdworker|fseventsd|QuickLook|quicklook' 2>/dev/null | head -10 | sed 's/^/NOTE:   pgrep: /'
+			_ask=$(date +%s)
+			tmo 180 "$CLI" unmount "$1" >/dev/null 2>&1
+		fi
+		sleep 1
+	done
+	has_state "$1" Appeared
 	_r=$?
+	# also on success, so the evidence shows when unmounts start needing re-asks routinely
+	[ "$_n" -gt 0 ] && note "unmount of $1 needed $_n re-ask(s)"
 	_detach_raw "$1"
 	return $_r
 }
@@ -105,7 +127,24 @@ cycle() {
 	vrc=NA nf1=NA nf2=NA mode2=NA
 	if [ -f "$st/summary.json" ] && [ -z "$(json_get "$st/summary.json" hang)" ]; then
 		sync
-		check "$nm the volume unmounts cleanly through the daemon" clean_unmount "$bsd"
+		if clean_unmount "$bsd"; then
+			pass "$nm the volume unmounts cleanly through the daemon"
+		else
+			# the disk is still attached and mounted: a "remount" would get the same session back and verify nothing
+			# new, so ntfsfix, the remount and the verification stay NA (runs.tsv), which fails the run on the host
+			failf "$nm the volume unmounts cleanly through the daemon"
+			note "$nm no ntfsfix and no remount verification: the volume did not leave Mounted"
+			# take it down now (the FAIL is recorded, the holders are noted above), so the next cycle does not meet
+			# a second mount of the same serial and label, and the image is detached before it is removed
+			tmo 60 "$CLI" unmount --force "$bsd" >/dev/null 2>&1
+			wait_for 60 has_state "$bsd" Appeared || true
+			_detach_raw "$bsd" || true
+			note "$nm forced unmount after the failed check: state '$(state_of "$bsd")'"
+			printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$nm" "$role" "$drc" "$vrc" "$nf1" "$nf2" "$mode1" "$mode2" >>"$out/runs.tsv"
+			rm -f "$img"
+			reset_journal
+			return 0
+		fi
 		tmo 120 "$HOME/ntfsmac/deps/bin/ntfsfix" -n "$img" >"$st/ntfsfix1.txt" 2>&1
 		nf1=$?
 		eq "$nm ntfsfix -n after the unmount" "$nf1" 0

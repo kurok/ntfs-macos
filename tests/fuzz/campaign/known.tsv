@@ -13,6 +13,6 @@ F4	^asan:heap-buffer-overflow$	^ntfs_possible_symlink@	engine	fixed	0011	R1	GHSA
 F6	^asan:heap-buffer-overflow$	^ntfs_inode_sync_file_name@	engine	fixed	0013	R1	drafted, not filed
 F2	^leak$	^ntfs_mapping_pairs_decompress@\S+ < ntfs_mft_load@	engine	open	-	L	public issue drafted
 F5	^leak$	^(ntfs_attr_readall@\S+ < )?ntfs_make_symlink@	engine	open	-	L	public issue drafted
-F7	^leak$	^ntfs_inode_open@\S+ < ntfs_device_mount@	engine	open	-	L	public issue drafted
+F7	^leak$	^(ntfs_inode_open@\S+ < ntfs_device_mount@volume\.c:1240\b|ntfs_attr_open@\S+ < ntfs_device_mount@volume\.c:1246\b)	engine	open	-	L	public issue drafted
 U	^ubsan$	^(bootsect\.c:(229|231|237|275|290)|volume\.c:(273|624|1094)|runlist\.c:(862|882|897|899|961)|attrib\.c:(385|386|1040|1073)|unistr\.c:(183|188|345|376)|reparse\.c:(156|167|327|333|347|841|848)|dir\.c:399)$	engine	benign	-	U	tests/fuzz/TRIAGE.md row U, tests/results/evidence/m316/*/ubsan-engine.txt
 M5-01	^oracle$	^argv_check accepted a leaf that ADR-016 refuses	project	fixed	label_cp.c	O	docs/SECURITY_FINDINGS.md section 4

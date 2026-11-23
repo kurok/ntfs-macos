@@ -79,6 +79,30 @@ class Sig(unittest.TestCase):
         self.assertEqual(s[3], "engine")
         self.assertEqual(known_id(s), "F7")
 
+    def test_r6_f7_attribute_leak(self):
+        """F7 with the $AttrDef attribute open too (a later step of the $AttrDef load failed): the attribute
+        is the direct leak, opened at volume.c:1246; an ntfs_attr_open leak elsewhere in the mount is not F7."""
+        def leak(line):
+            return sig(["ERROR: LeakSanitizer: detected memory leaks", "Direct leak of 192 byte(s) in 1 object(s) allocated from:",
+                        "    #0 ___interceptor_calloc at ??:?", "    #1 ntfs_calloc at " + NTFS + "misc.c:47",
+                        "    #2 ntfs_attr_open at " + NTFS + "attrib.c:426",
+                        "    #3 ntfs_device_mount at " + NTFS + "volume.c:" + line,
+                        "    #4 mount_view at /work/src/probe/probe.c:98"])
+        self.assertEqual(known_id(leak("1246")), "F7")
+        self.assertIsNone(known_id(leak("1186")))
+        self.assertIsNone(known_id(leak("12460")))
+
+    def test_r6_f7_inode_leak_pinned(self):
+        """The F7 inode leak is the $AttrDef inode (volume.c:1240); an inode leaked elsewhere in the mount is not F7."""
+        def leak(line):
+            return sig(["ERROR: LeakSanitizer: detected memory leaks", "Direct leak of 136 byte(s) in 1 object(s) allocated from:",
+                        "    #0 ___interceptor_calloc at ??:?", "    #1 ntfs_calloc at " + NTFS + "misc.c:60",
+                        "    #2 ntfs_inode_open at " + NTFS + "inode.c:95",
+                        "    #3 ntfs_device_mount at " + NTFS + "volume.c:" + line])
+        self.assertEqual(known_id(leak("1240")), "F7")
+        self.assertIsNone(known_id(leak("1140")))
+        self.assertIsNone(known_id(leak("12401")))
+
     def test_r8_key_has_access_and_location(self):
         r = sig(asan("heap-buffer-overflow", "READ", F3_FRAMES))
         w = sig(asan("heap-buffer-overflow", "WRITE", F3_FRAMES))

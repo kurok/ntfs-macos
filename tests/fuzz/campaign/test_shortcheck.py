@@ -216,7 +216,7 @@ class Classify(unittest.TestCase):
         leak10 = """Direct leak of 8 byte(s) in 1 object(s) allocated from:
     #0 ___interceptor_malloc at ??:?
     #1 ntfs_inode_open at %sinode.c:1
-    #2 ntfs_device_mount at %svolume.c:956
+    #2 ntfs_device_mount at %svolume.c:1240
 """ % (NTFS, NTFS)
         make_run(self.root, leaks=[leak10, F2])
         rc, out = check(self.root, known)

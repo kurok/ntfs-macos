@@ -168,8 +168,11 @@ libFuzzer, which runs with leak detection off. In `ntfs_device_mount()` the inod
 (`volume.c:1240`) stays open when `ntfs_attr_open(ni, AT_DATA, AT_UNNAMED, 0)` returns NULL (a `$AttrDef`
 without an unnamed `$DATA`); the later failure exits of the `$AttrDef` block (size above 24 bits, allocation,
 short read) have the same shape, with `na` open as well. `error_exit` at the end of the function frees `m`,
-`m2` and calls `__ntfs_volume_release()`, none of which closes `ni`. LeakSanitizer reports a direct leak of
-136 bytes (the inode, `inode.c:95`) and an indirect leak of 4096 bytes (its record, `mft.c:361`). Library
+`m2` and calls `__ntfs_volume_release()`, none of which closes `ni` or `na`. In the first case LeakSanitizer
+reports a direct leak of 136 bytes (the inode, `inode.c:95`) and an indirect leak of 4096 bytes (its record,
+`mft.c:361`); in the later exits the direct leak is the attribute (`ntfs_attr_open`, `attrib.c:426`, opened at
+`volume.c:1246`) and the inode is indirect. `known.tsv` matches both forms as F7, each pinned to its
+`volume.c` line, so a leak from another open in `ntfs_device_mount()` is reported as new. Library
 code only: `volume.c` is not touched by the patch series. Reproducer: `tests/fuzz/image/findings/F7-attrdef-inode-leak.bin`
 (replay `ASAN_OPTIONS=detect_leaks=1 fuzz_probe FILE`; the leak is also reported by `fuzz_mountwalk`). Not
 fixed here: a leak in an error path of a short-lived process, like F2 and F5. Drafted 2026-11-16 as a public

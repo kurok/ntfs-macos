@@ -432,6 +432,8 @@ static void test_worker(void)
 
 	link_as("worker-ok");
 	link_as("worker-exit0");
+	link_as("worker-exit21");
+	link_as("worker-exit7");
 	link_as("worker-hang");
 	link_as("worker-stop");
 	link_as("worker-nofskit");
@@ -661,6 +663,59 @@ static void test_worker(void)
 	CHECK_EQ_INT(ntfsmac_spawn_worker(&run, &child, &ro), NTFSMAC_DMN_E_IO);
 	CHECK(now_ms() - t0 < 5000);
 	CHECK_EQ_INT(child.pid, -1);
+
+	/*
+	 * U-SPN-23b: the status of the chain is kept, and only exit 21 before the mount asks for the
+	 * one retry (attach_run itself is in main.c and has no unit seam: it applies this decision
+	 * plus facts of its own, see src/daemon/main.c worker_retry_ok).
+	 */
+	{
+		char how[64];
+
+		c.worker_path = path_of("worker-exit21");
+		ntfsmac_spawn_config_set(&c);
+		g_polls = 0;
+		g_polls_until_mount = -1;
+		CHECK_EQ_INT(ntfsmac_spawn_worker(&run, &child, &ro), NTFSMAC_DMN_E_IO);
+		CHECK_EQ_INT(child.exit_kind, NTFSMAC_CHILD_EXIT_CODE);
+		CHECK_EQ_INT(child.exit_code, NTFSMAC_WORKER_EXIT_FUSE_REFUSED);
+		CHECK(ntfsmac_spawn_retry_wanted(NTFSMAC_DMN_E_IO, &child));
+		CHECK(!ntfsmac_spawn_retry_wanted(NTFSMAC_DMN_E_TIMEOUT, &child));
+		CHECK(!ntfsmac_spawn_retry_wanted(NTFSMAC_DMN_E_DENIED, &child));
+		CHECK(!ntfsmac_spawn_retry_wanted(NTFSMAC_DMN_OK, &child));
+		ntfsmac_child_exit_text(&child, how, sizeof(how));
+		CHECK(strcmp(how, "exited with status 21") == 0);
+
+		/* A second refusal gives the same answer: the caller's own bound stops at one retry. */
+		CHECK_EQ_INT(ntfsmac_spawn_worker(&run, &child, &ro), NTFSMAC_DMN_E_IO);
+		CHECK(ntfsmac_spawn_retry_wanted(NTFSMAC_DMN_E_IO, &child));
+
+		c.worker_path = path_of("worker-exit7");
+		ntfsmac_spawn_config_set(&c);
+		CHECK_EQ_INT(ntfsmac_spawn_worker(&run, &child, &ro), NTFSMAC_DMN_E_IO);
+		CHECK_EQ_INT(child.exit_code, 7);
+		CHECK(!ntfsmac_spawn_retry_wanted(NTFSMAC_DMN_E_IO, &child));
+
+		c.worker_path = path_of("worker-exit0");
+		ntfsmac_spawn_config_set(&c);
+		CHECK_EQ_INT(ntfsmac_spawn_worker(&run, &child, &ro), NTFSMAC_DMN_E_IO);
+		CHECK_EQ_INT(child.exit_code, 0);
+		CHECK(!ntfsmac_spawn_retry_wanted(NTFSMAC_DMN_E_IO, &child));
+
+		/* A timeout never retries, and leaves no status. */
+		new_err_file();
+		c.child_stderr_fd = g_err_fd;
+		c.worker_path = path_of("worker-hang");
+		ntfsmac_spawn_config_set(&c);
+		run = worker_run(dev, ep[1], false, 1);
+		CHECK_EQ_INT(ntfsmac_spawn_worker(&run, &child, &ro), NTFSMAC_DMN_E_TIMEOUT);
+		CHECK_EQ_INT(child.exit_kind, NTFSMAC_CHILD_EXIT_UNKNOWN);
+		CHECK(!ntfsmac_spawn_retry_wanted(NTFSMAC_DMN_E_TIMEOUT, &child));
+		ntfsmac_child_exit_text(&child, how, sizeof(how));
+		CHECK(strcmp(how, "ended with an unknown status") == 0);
+		c.child_stderr_fd = -1;
+		run = worker_run(dev, ep[1], false, 20);
+	}
 
 	/* U-SPN-24 (I-DMN-26 c, unit form): a worker that ignores SIGTERM and never mounts is
 	 * killed with its whole group at the deadline. */

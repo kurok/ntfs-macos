@@ -292,6 +292,10 @@ static int do_worker(int argc, char **argv, const char *mode)
 	}
 	if (!strcmp(mode, "worker-exit0"))
 		return 0;
+	if (!strcmp(mode, "worker-exit21")) /* ntfs-3g when fuse_mount is refused */
+		return 21;
+	if (!strcmp(mode, "worker-exit7"))
+		return 7;
 	if (ef >= 0 && write(ef, "S rw\n", 5) != 5)
 		return 4;
 	if (!strcmp(mode, "worker-tree")) {

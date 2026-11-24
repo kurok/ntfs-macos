@@ -120,6 +120,26 @@ worker_of() {
 	done
 }
 module_all() { ps -axo pid=,comm= | awk '/fsmodule\.macfuse/ { print $1 }' | tr '\n' ' '; }
+# module_ages: the macFUSE module instances with their age (a stale instance of a killed session is old)
+module_ages() { ps -axo pid,etime,args | grep fsmodule.macfuse | grep -v grep | cut -c1-160; }
+# The daemon retries the worker start once when macFUSE refuses it (exit 21, `retrying once` in its log).
+# start_daemon deletes the logs, so the lines are counted just before that (and once at the end).
+retries=0
+harvest_retries() {
+	_n=$(logcat | grep -c 'worker start refused by macFUSE (exit 21); retrying once')
+	[ "${_n:-0}" -eq 0 ] && return 0
+	retries=$((retries + _n))
+	note "the daemon retried the worker start $_n time(s) after a macFUSE refusal (exit 21): $(logcat | grep -E 'retrying once|mounted on the retry|retry did not mount' | cut -c1-160 | tr '\n' '|')"
+}
+kstart_daemon() { harvest_retries; start_daemon "$@"; }
+# rep_diag: what the daemon, the worker and the system show now (a failed repetition, a failed control)
+rep_diag() {
+	echo "-- diagnostics of the failed repetition: daemon log"
+	logcat | tail -30
+	sudo -n tail -n 20 "$CLOG" 2>/dev/null || true
+	mount | grep -v "apfs\|devfs\|^map "
+	ps -axo pid,ppid,etime,stat,args | grep -E "ntfsmac-worker|fsmodule.macfuse|ntfsmacd" | grep -v grep | cut -c1-200
+}
 # module_of MOUNTPOINT: the module processes holding the raw device of the kernel mount at MOUNTPOINT
 module_of() {
 	_dev=$(mount | awk -v m="$1" 'index($0, " on " m " (") { print $1; exit }' | sed 's|^/dev/|/dev/r|')
@@ -175,6 +195,11 @@ attach_ro() {
 	wait_for "$step" settled_row "$bsd2" || true
 	sleep 2
 	echo "-- $id next attach ($bsd2): $(row "$bsd2")"
+	if [ "$(state_of "$bsd2")" != Mounted ]; then
+		mount_diag "$bsd2"
+		echo "-- macFUSE module instances (pid, age, command)"
+		module_ages
+	fi
 	eq "$id next attach: state" "$(state_of "$bsd2")" Mounted
 	eq "$id next attach: mode" "$(mount_of "$bsd2")" ro
 	rs=$(reason_of "$bsd2")
@@ -214,6 +239,11 @@ module_outcome() {
 	wait_for "$step" settled_row "$bsd2" || true
 	sleep 2
 	echo "-- $id next attach ($bsd2): $(row "$bsd2")"
+	if [ "$(state_of "$bsd2")" != Mounted ]; then
+		mount_diag "$bsd2"
+		echo "-- macFUSE module instances (pid, age, command)"
+		module_ages
+	fi
 	have=$(tmo 20 cat "$(mpoint_of "$bsd2")/$f" 2>/dev/null)
 	eq "$id next attach: the file synced before the kill is intact" "$have" "$want"
 	measure_read "$(mpoint_of "$bsd2")"
@@ -231,7 +261,7 @@ rep() {
 	dp0=$(daemon_pid)
 	if [ -z "$dp0" ] || ! answers; then
 		failf "$id: the daemon is not running or does not answer at the start of the repetition"
-		start_daemon
+		kstart_daemon
 		dp0=$(daemon_pid)
 	fi
 	img=$(fresh_image clean-64m-4k) || { failf "$id: no image"; return 1; }
@@ -329,8 +359,8 @@ rep() {
 	if [ "$tgt" = daemon ]; then
 		stop_daemon
 		check "$id: after the stop of the job no macfuse mount is left" wait_for "$step" no_fuse_mounts
-		detach_image "$bsd" || { failf "$id: the image is still attached after the detach (see the NOTE lines above)"; start_daemon; return 1; }
-		start_daemon
+		detach_image "$bsd" || { failf "$id: the image is still attached after the detach (see the NOTE lines above)"; kstart_daemon; return 1; }
+		kstart_daemon
 	else
 		detach_image "$bsd" || { failf "$id: the image is still attached after the detach (see the NOTE lines above)"; return 1; }
 	fi
@@ -351,7 +381,7 @@ rep_cleanup() {
 	check "$id: no module instance serves a volume any more, at most one instance remains (now: $(module_all))" wait_for "$step" modules_idle
 	if ! answers; then
 		failf "$id: the daemon does not answer after the repetition"
-		start_daemon
+		kstart_daemon
 	fi
 }
 do_rep() { rep "$1" "$2"; rep_cleanup; }
@@ -373,11 +403,7 @@ run_target() {
 		else
 			echo "REP $_t $_i FAIL $_secs"
 			_bad=$((_bad + 1))
-			echo "-- diagnostics of the failed repetition: daemon log"
-			logcat | tail -30
-			sudo -n tail -n 20 "$CLOG" 2>/dev/null || true
-			mount | grep -v "apfs\|devfs\|^map "
-			ps -axo pid,ppid,etime,stat,args | grep -E "ntfsmac-worker|fsmodule.macfuse|ntfsmacd" | grep -v grep | cut -c1-200
+			rep_diag
 		fi
 		_i=$((_i + 1))
 	done
@@ -417,9 +443,11 @@ control_rep() {
 	elif [ "$ctl_fail" -eq 0 ]; then
 		echo "CONTROL inject-$kind FAIL the injected damage was not reported by any check"
 		fail=$((fail + 1))
+		rep_diag
 	else
 		echo "CONTROL inject-$kind FAIL other checks failed too: $_other"
 		fail=$((fail + 1))
+		rep_diag
 	fi
 }
 if [ "$control" = 1 ]; then
@@ -448,4 +476,6 @@ fi
 
 echo "-- daemon log"
 logcat | sed -n '1,60p'
+harvest_retries
+echo "NOTE: worker start retries after a macFUSE refusal (exit 21) in this run: $retries"
 finish

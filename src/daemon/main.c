@@ -1132,6 +1132,60 @@ static void settle_failed_spawn(vol *v, int rd, int wr)
 	}
 }
 
+#define WORKER_RETRY_DELAY_MS 1500u
+
+static void log_worker_exit(const vol *v, const ntfsmac_child *child)
+{
+	char how[48];
+
+	ntfsmac_child_exit_text(child, how, sizeof how);
+	NTFSMAC_LOGW("%s: the worker %s before the mount appeared", v->bsd, how);
+}
+
+/*
+ * The one retry of the worker start (section 4.1 step 8). Every fact below must hold, or the
+ * failure is settled as it always was: the start chain exited on its own with the worker's exit
+ * status 21 (ntfsmac_spawn_retry_wanted: never a timeout, never a refused vector), the session
+ * channel carried no S record, nothing is mounted at the mount point, no process of the user
+ * holds the device, and the mount table shows no stray mount of this worker's user.
+ */
+static bool worker_retry_ok(vol *v, ntfsmac_dmn_status st, ntfsmac_child *child, int rd)
+{
+	unsigned killed = 0;
+	stray_arg sa;
+
+	if (!ntfsmac_spawn_retry_wanted(st, child))
+		return false;
+	if (g_stopping)
+		return false;
+	/*
+	 * The retry starts a new record stream, so nothing of the first one may be lost: a rw
+	 * ntfs-3g can emit E or W records while it unwinds a failed fuse_mount. Any flag (S, E, W, U,
+	 * a protocol error; EOF alone is tolerated, it follows every record already parsed) or a
+	 * failed read fails closed.
+	 */
+	if (ntfsmac_errwatch_pump(&v->ew, rd) != NTFSMAC_DMN_OK)
+		return false;
+	if ((v->ew.flags & ~(uint32_t)NTFSMAC_EW_EOF) != 0)
+		return false;
+	if (v->mp_valid && mount_present(v->mp.path))
+		return false;
+	/* A leftover that had to be killed may also hold the write end of the channel. */
+	if (ntfsmac_child_device_check(child, &killed) != NTFSMAC_DMN_OK || killed != 0)
+		return false;
+	memset(&sa, 0, sizeof sa);
+	if (!mw_check(-1, v, &sa))
+		return false;
+	if (sa.found) {
+		size_t i;
+
+		for (i = 0; i < sa.npaths; i++)
+			NTFSMAC_LOGW("%s: no retry: stray mount %s", v->bsd, sa.paths[i]);
+		return false;
+	}
+	return true;
+}
+
 static const char *refuse_reason_for(const ntfsmac_probe_verdict *pv, ntfsmac_policy_note note)
 {
 	(void)pv;
@@ -1370,6 +1424,48 @@ static void attach_run(void *arg)
 	wrun.console_gid = cgid;
 	wrun.mount_wait_s = MOUNT_WAIT_S;
 	st = ntfsmac_spawn_worker(&wrun, &child, &mounted_ro);
+	if (st == NTFSMAC_DMN_E_IO)
+		log_worker_exit(v, &child);
+	if (worker_retry_ok(v, st, &child, rd)) {
+		/*
+		 * macFUSE refused the first start (exit 21) while the module instance of a session that
+		 * was killed is still going away. One more start, after a short wait, with the same
+		 * session, device, mount point and decision: nothing of the first start is left (no
+		 * process, no mount, no S record, the device free), so it cannot double-mount. A second
+		 * refusal, or any other result, is settled exactly as a failure of the first.
+		 */
+		NTFSMAC_LOGW("%s: worker start refused by macFUSE (exit %d); retrying once", v->bsd,
+			     NTFSMAC_WORKER_EXIT_FUSE_REFUSED);
+		close(wr);
+		close(rd);
+		sleep_ms(WORKER_RETRY_DELAY_MS);
+		if (g_stopping || (v->mp_valid && mount_present(v->mp.path))) {
+			NTFSMAC_LOGW("%s: the retry is dropped (daemon stopping or a mount appeared)", v->bsd);
+			(void)sm_apply(v, NTFSMAC_VEV_MOUNT_FAILED, NTFSMAC_VMODE_NONE, NTFSMAC_VREASON_SPAWN, NULL);
+			v->worker = child;
+			settle_failed_spawn(v, -1, -1);
+			notify_token(v, NTFSMAC_NOTIFY_REFUSED, "spawn");
+			goto out;
+		}
+		if (ntfsmac_errwatch_pipe_open(&rd, &wr) != NTFSMAC_DMN_OK) {
+			NTFSMAC_LOGE("%s: no session channel", v->bsd);
+			rd = wr = -1;
+			(void)sm_apply(v, NTFSMAC_VEV_MOUNT_FAILED, NTFSMAC_VMODE_NONE, NTFSMAC_VREASON_SPAWN, NULL);
+			settle_failed_spawn(v, -1, -1);
+			notify_token(v, NTFSMAC_NOTIFY_REFUSED, "spawn");
+			goto out;
+		}
+		ntfsmac_errwatch_init(&v->ew);
+		wrun.errfd_write = wr;
+		st = ntfsmac_spawn_worker(&wrun, &child, &mounted_ro);
+		if (st == NTFSMAC_DMN_OK)
+			NTFSMAC_LOGI("%s: the worker mounted on the retry", v->bsd);
+		else {
+			NTFSMAC_LOGW("%s: the retry did not mount either (%s)", v->bsd, ntfsmac_dmn_status_name(st));
+			if (st == NTFSMAC_DMN_E_IO)
+				log_worker_exit(v, &child);
+		}
+	}
 	if (st != NTFSMAC_DMN_OK) {
 		why = st == NTFSMAC_DMN_E_DENIED    ? NTFSMAC_VREASON_ARGV_REJECTED
 		      : st == NTFSMAC_DMN_E_TIMEOUT ? NTFSMAC_VREASON_MOUNT_TIMEOUT

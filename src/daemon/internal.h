@@ -190,7 +190,35 @@ typedef struct ntfsmac_child {
 	dev_t dev_dev;
 	ino_t dev_ino;
 	bool dev_known;
+	/*
+	 * Worker only. How the start chain ended when ntfsmac_spawn_worker() returned E_IO because
+	 * the worker exited before the mount appeared (it was reaped there). The chain is exec all the
+	 * way (launchctl asuser, --exec-as, sandbox-exec), so the status is the worker's own.
+	 * UNKNOWN for every other result, and when the process could not be reaped.
+	 */
+	int exit_kind; /* ntfsmac_child_exit_kind */
+	int exit_code; /* the exit code, or the signal number */
 } ntfsmac_child;
+
+typedef enum ntfsmac_child_exit_kind {
+	NTFSMAC_CHILD_EXIT_UNKNOWN = 0,
+	NTFSMAC_CHILD_EXIT_CODE,
+	NTFSMAC_CHILD_EXIT_SIGNAL
+} ntfsmac_child_exit_kind;
+
+/* ntfs-3g exits with this when fuse_mount() is refused (NTFS_VOLUME_FUSE_ERROR). */
+#define NTFSMAC_WORKER_EXIT_FUSE_REFUSED 21
+
+/* "exited with status 21", "was killed by signal 9" or "ended with an unknown status". */
+void ntfsmac_child_exit_text(const ntfsmac_child *child, char *buf, size_t cap);
+
+/*
+ * Is this start failure the one macFUSE refusal that is worth one more try? Only when the chain
+ * ended on its own before the mount (E_IO, never E_TIMEOUT or E_DENIED), was reaped (no process
+ * left), and the worker's own exit status is NTFSMAC_WORKER_EXIT_FUSE_REFUSED. The caller adds
+ * the facts only it knows (no S record, nothing mounted, the device free, no stray mount).
+ */
+bool ntfsmac_spawn_retry_wanted(ntfsmac_dmn_status st, const ntfsmac_child *child);
 
 typedef struct ntfsmac_probe_run {
 	int device_fd;            /* descriptor A, O_RDONLY, O_CLOEXEC */

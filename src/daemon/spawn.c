@@ -1676,6 +1676,36 @@ static bool usermapping_accept(const ntfsmac_spawn_config *cfg, ntfsmac_usermap_
 	return false;
 }
 
+static void child_note_exit(ntfsmac_child *child, int wst)
+{
+	if (WIFEXITED(wst)) {
+		child->exit_kind = NTFSMAC_CHILD_EXIT_CODE;
+		child->exit_code = WEXITSTATUS(wst);
+	} else if (WIFSIGNALED(wst)) {
+		child->exit_kind = NTFSMAC_CHILD_EXIT_SIGNAL;
+		child->exit_code = WTERMSIG(wst);
+	}
+}
+
+void ntfsmac_child_exit_text(const ntfsmac_child *child, char *buf, size_t cap)
+{
+	if (buf == NULL || cap == 0)
+		return;
+	if (child != NULL && child->exit_kind == NTFSMAC_CHILD_EXIT_CODE)
+		snprintf(buf, cap, "exited with status %d", child->exit_code);
+	else if (child != NULL && child->exit_kind == NTFSMAC_CHILD_EXIT_SIGNAL)
+		snprintf(buf, cap, "was killed by signal %d", child->exit_code);
+	else
+		snprintf(buf, cap, "ended with an unknown status");
+}
+
+bool ntfsmac_spawn_retry_wanted(ntfsmac_dmn_status st, const ntfsmac_child *child)
+{
+	return st == NTFSMAC_DMN_E_IO && child != NULL && child->pid <= 1
+	       && child->exit_kind == NTFSMAC_CHILD_EXIT_CODE
+	       && child->exit_code == NTFSMAC_WORKER_EXIT_FUSE_REFUSED;
+}
+
 /* The worker is gone: nothing of the user may keep its device (the result is for the later check). */
 static void worker_gone(const ntfsmac_child *child, pid_t worker_pid)
 {
@@ -1720,6 +1750,8 @@ ntfsmac_dmn_status ntfsmac_spawn_worker(const ntfsmac_worker_run *run,
 	child->dev_dev = 0;
 	child->dev_ino = 0;
 	child->dev_known = false;
+	child->exit_kind = NTFSMAC_CHILD_EXIT_UNKNOWN;
+	child->exit_code = 0;
 	*mounted_ro = false;
 	if (run == NULL || run->mount_point == NULL || run->mount_wait_s == 0
 	    || run->device_fd < NTFSMAC_WORKER_FD_MIN || run->device_fd > NTFSMAC_WORKER_FD_MAX
@@ -1861,10 +1893,14 @@ rebuild:
 		/* Has the worker exited? Peek without reaping, so that the group is
 		 * still named by a live (zombie) leader when the kill goes out. */
 		if (child_has_exited(pid)) {
-			int wst;
+			int wst = 0;
+			bool reaped;
 
 			kill_group_of(pid);
-			worker_gone(child, reap_bounded(pid, &wst, REAP_WAIT_MS) ? -1 : pid);
+			reaped = reap_bounded(pid, &wst, REAP_WAIT_MS);
+			worker_gone(child, reaped ? -1 : pid);
+			if (reaped)
+				child_note_exit(child, wst);
 			return NTFSMAC_DMN_E_IO;
 		}
 		if (now_ms() >= deadline) {

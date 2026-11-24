@@ -125,11 +125,12 @@ module_ages() { ps -axo pid,etime,args | grep fsmodule.macfuse | grep -v grep | 
 # The daemon retries the worker start once when macFUSE refuses it (exit 21, `retrying once` in its log).
 # start_daemon deletes the logs, so the lines are counted just before that (and once at the end).
 retries=0
+# (POSIX sh has no local variables: the name _hr_n must not be used by any caller, e.g. run_target's _n)
 harvest_retries() {
-	_n=$(logcat | grep -c 'worker start refused by macFUSE (exit 21); retrying once')
-	[ "${_n:-0}" -eq 0 ] && return 0
-	retries=$((retries + _n))
-	note "the daemon retried the worker start $_n time(s) after a macFUSE refusal (exit 21): $(logcat | grep -E 'retrying once|mounted on the retry|retry did not mount' | cut -c1-160 | tr '\n' '|')"
+	_hr_n=$(logcat | grep -c 'worker start refused by macFUSE (exit 21); retrying once')
+	[ "${_hr_n:-0}" -eq 0 ] && return 0
+	retries=$((retries + _hr_n))
+	note "the daemon retried the worker start $_hr_n time(s) after a macFUSE refusal (exit 21): $(logcat | grep -E 'retrying once|mounted on the retry|retry did not mount' | cut -c1-160 | tr '\n' '|')"
 }
 kstart_daemon() { harvest_retries; start_daemon "$@"; }
 # rep_diag: what the daemon, the worker and the system show now (a failed repetition, a failed control)

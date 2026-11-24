@@ -45,9 +45,29 @@ vmname() {
     esac
 }
 
-vm_exists() { tart list --quiet 2>/dev/null | grep -qx -- "$1"; }
+# The list is read first and searched after (a here-string, no pipe): with pipefail, `tart list | grep -q` can come back false for a
+# listed VM (grep exits at the first match, tart then gets SIGPIPE, the pipeline exits 141).
+vm_exists() {
+    local out
+    out=$(tart list --quiet 2>&1) || { _vm_list_err="tart list failed: ${out}"; return 1; }
+    _vm_list_err=
+    grep -qx -- "$1" <<<"$out"
+}
+# vm_present NAME: vm_exists for a VM that must be there. Right after a clone a single `tart list` can miss it
+# or fail (seen once: "cloned X" then "X does not exist"), so a miss is asked again, up to 5 times one second
+# apart. Where the VM is expected to be absent (clone target, delete), vm_exists stays a single question.
+vm_present() {
+    local i=0
+    while [ "$i" -lt 5 ]; do
+        vm_exists "$1" && return 0
+        i=$((i + 1))
+        [ "$i" -lt 5 ] && sleep 1
+    done
+    [ -z "${_vm_list_err:-}" ] || log "$_vm_list_err"
+    return 1
+}
 not() { ! "$@"; }
-base_present() { tart list | grep -qF -- "$GUEST_IMAGE_REPO"; }
+base_present() { local out; out=$(tart list) && grep -qF -- "$GUEST_IMAGE_REPO" <<<"$out"; }
 now() { perl -MTime::HiRes=time -e 'printf "%.2f\n", time'; }
 free_kb() { df -k "${TART_HOME:-$HOME/.tart}" | awk 'NR==2{print $4}'; }
 
@@ -95,7 +115,7 @@ cmd_clone() { # clone NAME [--from SRC]  (SRC: another ntfsmac- VM, e.g. golden;
     if [ "${1:-}" = --from ]; then
         [ $# -ge 2 ] || die "--from needs a VM name"
         src=$(vmname "$2")
-        vm_exists "$src" || die "source VM $src does not exist"
+        vm_present "$src" || die "source VM $src does not exist"
     fi
     vm_exists "$vm" && die "$vm already exists"
     tart clone "$src" "$vm"
@@ -116,7 +136,7 @@ cmd_run() {
             *) die "unknown option: $1" ;;
         esac
     done
-    vm_exists "$vm" || die "$vm does not exist (clone first)"
+    vm_present "$vm" || die "$vm does not exist (clone first)"
     local pidf=$STATE/$vm.pid logf=$STATE/$vm.log
     if [ -f "$pidf" ] && kill -0 "$(cat "$pidf")" 2>/dev/null; then die "$vm already running"; fi
     nohup tart run "${gfx[@]+"${gfx[@]}"}" --no-audio --no-clipboard "${args[@]+"${args[@]}"}" "$vm" \

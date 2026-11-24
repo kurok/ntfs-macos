@@ -397,13 +397,14 @@ def finalize(d, repo, started=None, project_images=()):
     with open(os.path.join(d, "summary.txt"), "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
     sha, dirty, pnotes = report.run_state(d, repo)
-    if pnotes and cases:
-        cases[0]["note"] = (cases[0]["note"] or "") + "; provenance: " + "; ".join(pnotes)
     now = report.utc_now()
     ev = [n for n in ("summary.txt", "classification.json", "patched-map.json", "meta.txt", "leaks-control.txt",
                       "workload.log", "worker.log", "provenance.txt") if os.path.isfile(os.path.join(d, n))]
     ev += sorted(n for n in os.listdir(d) if re.match(r"^leaks-worker-scan\d+\.txt$", n))
     cases = make_cases(meta, status_main, control, notes, ev)
+    # the provenance notes (dirty tree, HEAD moved) go on the first case; cases exists only from here on
+    if pnotes and cases:
+        cases[0]["note"] = (cases[0]["note"] or "") + "; provenance: " + "; ".join(pnotes)
     import inputs  # tests/harness/inputs.py
     inputs.annotate(cases, d)
     doc = report.build_result(sha, dirty, "B", meta.get("host_os") or "macOS (host)", meta.get("guest_os"),

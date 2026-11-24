@@ -354,7 +354,8 @@ typedef struct um_arg {
 	gid_t gid;
 } um_arg;
 
-enum { UM_OK = 0, UM_STATE = 10, UM_DENIED = 11, UM_BUSY = 12, UM_IO = 13, UM_NODROP = 14 };
+enum { UM_OK = 0, UM_STATE = 10, UM_DENIED = 11, UM_BUSY = 12, UM_IO = 13, UM_NODROP = 14,
+       UM_ERRNO = 128 /* UM_ERRNO + errno: any other failure of unmount(2); errno is below 128 */ };
 
 /* In the child. Only unmount(2), nanosleep and the credential calls: no allocation. */
 static int do_unmount(void *p)
@@ -381,18 +382,8 @@ static int do_unmount(void *p)
 		e = errno;
 		if (e == EINTR && attempt < a->retries)
 			continue;
-		if (e != EBUSY) {
-			switch (e) {
-			case EINVAL:
-			case ENOENT:
-				return UM_STATE;
-			case EPERM:
-			case EACCES:
-				return UM_DENIED;
-			default:
-				return UM_IO;
-			}
-		}
+		if (e != EBUSY)
+			return UM_ERRNO + (e & 0x7f); /* the real errno reaches the log; um_map() classifies it */
 		if (attempt >= a->retries)
 			return UM_BUSY;
 		mw_sleep_ms(NTFSMAC_UNMOUNT_RETRY_DELAY_MS);
@@ -408,6 +399,18 @@ static ntfsmac_dmn_status um_map(ntfsmac_dmn_status st, int code)
 {
 	if (st != NTFSMAC_DMN_OK)
 		return st;
+	if (code >= UM_ERRNO) {
+		switch (code - UM_ERRNO) {
+		case EINVAL:
+		case ENOENT:
+			return NTFSMAC_DMN_E_STATE;
+		case EPERM:
+		case EACCES:
+			return NTFSMAC_DMN_E_DENIED;
+		default:
+			return NTFSMAC_DMN_E_IO;
+		}
+	}
 	switch (code) {
 	case UM_OK:
 		return NTFSMAC_DMN_OK;
@@ -423,25 +426,41 @@ static ntfsmac_dmn_status um_map(ntfsmac_dmn_status st, int code)
 	}
 }
 
-ntfsmac_dmn_status ntfsmac_mw_unmount_bounded(const char *path, bool force, unsigned retries,
-					      unsigned timeout_ms, pid_t *busy_pid)
+ntfsmac_dmn_status ntfsmac_mw_unmount_bounded_ex(const char *path, bool force, unsigned retries,
+						 unsigned timeout_ms, pid_t *busy_pid,
+						 ntfsmac_mw_um_info *info)
 {
 	um_arg a;
-	int code;
-	ntfsmac_dmn_status st;
+	int code = -1;
+	ntfsmac_dmn_status st, rs;
+	uint64_t t0 = mw_now_ms();
 
 	if (busy_pid != NULL)
 		*busy_pid = 0;
+	if (info != NULL)
+		memset(info, 0, sizeof *info);
 	if (path == NULL || path[0] != '/' || strlen(path) >= NTFSMAC_MW_PATH_MAX)
 		return NTFSMAC_DMN_E_INVAL;
 	memset(&a, 0, sizeof a);
 	a.path = path;
 	a.force = force;
 	a.retries = retries > NTFSMAC_UNMOUNT_RETRIES_MAX ? NTFSMAC_UNMOUNT_RETRIES_MAX : retries;
-	st = um_map(run_bounded_code(do_unmount, &a, timeout_ms, &code), code);
+	rs = run_bounded_code(do_unmount, &a, timeout_ms, &code);
+	st = um_map(rs, code);
 	if (st == NTFSMAC_DMN_E_BUSY && busy_pid != NULL && ntfsmac_unmount_system_hooks.find_busy != NULL)
 		*busy_pid = ntfsmac_unmount_system_hooks.find_busy(NULL, path);
+	if (info != NULL) {
+		info->child_code = rs == NTFSMAC_DMN_OK ? code : -1;
+		info->err = rs == NTFSMAC_DMN_OK && code >= UM_ERRNO ? code - UM_ERRNO : 0;
+		info->ms = (unsigned)(mw_now_ms() - t0);
+	}
 	return st;
+}
+
+ntfsmac_dmn_status ntfsmac_mw_unmount_bounded(const char *path, bool force, unsigned retries,
+					      unsigned timeout_ms, pid_t *busy_pid)
+{
+	return ntfsmac_mw_unmount_bounded_ex(path, force, retries, timeout_ms, busy_pid, NULL);
 }
 
 ntfsmac_dmn_status ntfsmac_mw_unmount_as_user(const char *path, uid_t uid, gid_t gid, unsigned timeout_ms)

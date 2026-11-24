@@ -427,6 +427,14 @@ void ntfsmac_uev_reset(ntfsmac_unmount_ev *e);                       /* teardown
 /* After a daemon unmount call: sets `requested` only for OK with no mount left, else clears it. */
 void ntfsmac_uev_note_unmount_call(ntfsmac_unmount_ev *e, ntfsmac_dmn_status st, bool still_mounted);
 void ntfsmac_uev_unmount_failed(ntfsmac_unmount_ev *e); /* the UNMOUNT_BUSY path */
+/*
+ * The verify-after rule: an unmount answer of OK or E_STATE ("not a mount any more") is only
+ * trusted when the mount is gone. With the mount still there the answer becomes E_BUSY (the
+ * volume goes back to Mounted); E_STATE with the mount gone is OK. Other answers are unchanged.
+ */
+ntfsmac_dmn_status ntfsmac_unmount_verify(ntfsmac_dmn_status st, bool still_mounted);
+/* A volume that has been Unmounting for `bound_ms` or longer (monotonic ms; 0 = not tracked). */
+bool ntfsmac_unmount_stuck(uint64_t since_ms, uint64_t now_ms, uint64_t bound_ms);
 /* False (nothing bound) unless `current_session` is the session of `e` and is not 0. */
 bool ntfsmac_uev_bind(ntfsmac_unmount_ev *e, uint64_t current_session, const char *bsd);
 /* True and `da_seen` set only for the bound BSD name while the session is current. */

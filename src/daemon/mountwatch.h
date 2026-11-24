@@ -122,6 +122,18 @@ ntfsmac_dmn_status ntfsmac_mw_force_unmount(const char *path, unsigned timeout_m
 ntfsmac_dmn_status ntfsmac_mw_unmount_bounded(const char *path, bool force, unsigned retries,
 					      unsigned timeout_ms, pid_t *busy_pid);
 
+/* What the bounded child reported, for the daemon log. */
+typedef struct ntfsmac_mw_um_info {
+	int child_code; /* exit code of the child, -1 when it did not exit (timeout, error) */
+	int err;        /* errno of the failing unmount(2) when it was not EBUSY, else 0 */
+	unsigned ms;    /* duration of the whole call */
+} ntfsmac_mw_um_info;
+
+/* As ntfsmac_mw_unmount_bounded(); `info` may be NULL. */
+ntfsmac_dmn_status ntfsmac_mw_unmount_bounded_ex(const char *path, bool force, unsigned retries,
+						 unsigned timeout_ms, pid_t *busy_pid,
+						 ntfsmac_mw_um_info *info);
+
 /*
  * MNT_FORCE unmount of a path that the USER controls (a stray mount of a hijacked worker), made
  * by a child that first becomes `uid`/`gid` (never root). The kernel lets a user unmount only a

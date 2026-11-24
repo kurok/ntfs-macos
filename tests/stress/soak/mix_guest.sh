@@ -54,35 +54,75 @@ rw_mount() { # rw_mount IMG: attach, wait for the daemon, print the BSD name
 	mount_diag "$_bsd" >&2
 	echo "$_bsd"
 }
+# unmount_diag BSD MP: what the evidence needs when a volume stays in Unmounting (called once per volume): samples
+# of the daemon and of the worker, the mount table, the volume list, the daemon's children, the holders of the
+# device and the daemon log. The raw output goes to $out/stuck-BSD/, each file is summarised as NOTE lines.
+# POSIX sh has no local variables: every variable here has the prefix _ud_.
+unmount_diag() {
+	_ud_dir=$out/stuck-$1
+	mkdir -p "$_ud_dir"
+	note "$1 stays Unmounting for over 20 s: capturing the daemon's and the worker's state into $_ud_dir"
+	_ud_dp=$(pgrep -x ntfsmacd 2>/dev/null | head -1)
+	[ -n "$_ud_dp" ] && tmo 30 sudo -n sample "$_ud_dp" 3 >"$_ud_dir/sample-daemon.txt" 2>&1
+	for _ud_wp in $(worker_pids); do
+		tmo 30 sudo -n sample "$_ud_wp" 3 >"$_ud_dir/sample-worker-$_ud_wp.txt" 2>&1
+	done
+	mount >"$_ud_dir/mount.txt" 2>&1
+	tmo 20 "$CLI" list >"$_ud_dir/list.txt" 2>&1
+	ps -axo pid,ppid,stat,etime,wchan,args 2>/dev/null | awk 'NR == 1 || /ntfsmac/' >"$_ud_dir/ps.txt"
+	tmo 20 sudo -n lsof -nP "/dev/$1" "/dev/r$1" >"$_ud_dir/lsof.txt" 2>&1
+	logcat | tail -n 80 >"$_ud_dir/daemon-log-tail.txt"
+	for _ud_f in "$_ud_dir"/*; do
+		note "$1 $(basename "$_ud_f"): $(wc -l <"$_ud_f" | tr -d ' ') lines"
+		case $_ud_f in
+		*/sample-*) sed -n '/Call graph:/,/Total number in stack/p' "$_ud_f" | head -25 | sed 's/^/NOTE:   /' ;;
+		*/mount.txt) grep -i -e macfuse -e ntfs ${2:+-e "$2"} "$_ud_f" | head -5 | sed 's/^/NOTE:   /' ;;
+		*/list.txt | */ps.txt | */lsof.txt) head -10 "$_ud_f" | sed 's/^/NOTE:   /' ;;
+		*/daemon-log-tail.txt) tail -n 12 "$_ud_f" | sed 's/^/NOTE:   /' ;;
+		esac
+	done
+}
 # clean_unmount BSD: through the daemon, then detach; true when the volume left Mounted.
 # The daemon refuses an unmount while the volume is busy: after its short EBUSY retries (about 1.5 s) it logs
 # UNMOUNT_BUSY and the volume stays Mounted, as for a user's eject. Right after a heavy workload something can
 # hold the volume for longer (a 30 min run with 16 writers saw it once), so a refused unmount is asked again
 # every 5 s, within the same 150 s bound; each refusal is noted with what holds files on the volume.
+# A volume in Unmounting for over 20 s is captured once by unmount_diag. Variables: prefix _cu_ (no locals in sh).
 clean_unmount() {
-	_mp=$(mpoint_of "$1")
-	_end=$(($(date +%s) + 150))
-	_n=0
-	_ask=$(date +%s)
+	_cu_mp=$(mpoint_of "$1")
+	_cu_end=$(($(date +%s) + 150))
+	_cu_n=0
+	_cu_ask=$(date +%s)
+	_cu_um=0
+	_cu_diag=0
 	tmo 180 "$CLI" unmount "$1" >/dev/null 2>&1
-	while ! has_state "$1" Appeared && ! has_state "$1" Failed && ! has_state "$1" Gone && [ "$(date +%s)" -lt "$_end" ]; do
-		if has_state "$1" Mounted && [ $(($(date +%s) - _ask)) -ge 5 ]; then
-			_n=$((_n + 1))
-			note "unmount of $1 refused (still Mounted, busy), asking again ($_n); files open on ${_mp:-the volume}:"
-			[ -n "$_mp" ] && tmo 20 sudo -n lsof -n +f -- "$_mp" 2>/dev/null | head -20 | sed 's/^/NOTE:   /'
+	while ! has_state "$1" Appeared && ! has_state "$1" Failed && ! has_state "$1" Gone && [ "$(date +%s)" -lt "$_cu_end" ]; do
+		if has_state "$1" Unmounting; then
+			[ "$_cu_um" -eq 0 ] && _cu_um=$(date +%s)
+			if [ "$_cu_diag" -eq 0 ] && [ $(($(date +%s) - _cu_um)) -ge 20 ]; then
+				_cu_diag=1
+				unmount_diag "$1" "$_cu_mp"
+			fi
+		else
+			_cu_um=0
+		fi
+		if has_state "$1" Mounted && [ $(($(date +%s) - _cu_ask)) -ge 5 ]; then
+			_cu_n=$((_cu_n + 1))
+			note "unmount of $1 refused (still Mounted, busy), asking again ($_cu_n); files open on ${_cu_mp:-the volume}:"
+			[ -n "$_cu_mp" ] && tmo 20 sudo -n lsof -n +f -- "$_cu_mp" 2>/dev/null | head -20 | sed 's/^/NOTE:   /'
 			# holders without a file descriptor (Spotlight indexing, Quick Look, fseventsd) do not show in lsof
 			pgrep -lf 'mds|mdworker|fseventsd|QuickLook|quicklook' 2>/dev/null | head -10 | sed 's/^/NOTE:   pgrep: /'
-			_ask=$(date +%s)
+			_cu_ask=$(date +%s)
 			tmo 180 "$CLI" unmount "$1" >/dev/null 2>&1
 		fi
 		sleep 1
 	done
 	has_state "$1" Appeared
-	_r=$?
+	_cu_r=$?
 	# also on success, so the evidence shows when unmounts start needing re-asks routinely
-	[ "$_n" -gt 0 ] && note "unmount of $1 needed $_n re-ask(s)"
+	[ "$_cu_n" -gt 0 ] && note "unmount of $1 needed $_cu_n re-ask(s)"
 	_detach_raw "$1"
-	return $_r
+	return $_cu_r
 }
 json_get() { # json_get FILE KEY: top-level scalar of summary.json, empty when absent or null
 	python3 -B -c 'import json,sys; v=json.load(open(sys.argv[1])).get(sys.argv[2]); print("" if v is None else v)' "$1" "$2" 2>/dev/null
@@ -100,25 +140,25 @@ cycle() {
 	mode1="$(state_of "$bsd") $(mount_of "$bsd")"
 	eq "$nm the volume mounts rw" "$mode1" "Mounted rw"
 	mp=$(mpoint_of "$bsd")
-	args="--kind $kind --mp $mp --state $st --duration $cdur --workers $cnw --verify-every $verify --hang-limit $chang"
+	# separate words: a mount point can contain a space ("/Volumes/clean64m4k 2" after a stale mount)
+	set -- --kind "$kind" --mp "$mp" --state "$st" --duration "$cdur" --workers "$cnw" --verify-every "$verify" --hang-limit "$chang"
 	# the working set of the models stays far below the 64 MiB volume: 16 MiB (soak) or 16 workers of 1.5 MiB (par)
 	if [ "$kind" = soak ]; then
-		args="$args --cap 16777216 --filecap 1048576"
+		set -- "$@" --cap 16777216 --filecap 1048576
 	else
-		args="$args --cap 1572864 --filecap 524288"
+		set -- "$@" --cap 1572864 --filecap 524288
 	fi
 	if [ "$kind" = soak ]; then
 		check "$nm exactly one worker holds the device" [ "$(workers)" = 1 ]
 		wp=$(worker_pids | head -1)
-		args="$args --baseline $cbase --rss-pid ${wp:-0} --rss-every $rss"
+		set -- "$@" --baseline "$cbase" --rss-pid "${wp:-0}" --rss-every "$rss"
 		note "$nm worker pid ${wp:-none}, RSS $(ps -o rss= -p "${wp:-0}" 2>/dev/null | tr -d ' ') kB at the start"
 	fi
 	case $inj in
-	corrupt) args="$args --inject-corrupt" ;;
-	stall) args="$args --inject-stall 1:3:$((chang + 4))" ;;
+	corrupt) set -- "$@" --inject-corrupt ;;
+	stall) set -- "$@" --inject-stall "1:3:$((chang + 4))" ;;
 	esac
-	# shellcheck disable=SC2086
-	tmo $((cdur + 900)) python3 -B "$here/mixlib.py" run $args >"$st/run.log" 2>&1
+	tmo $((cdur + 900)) python3 -B "$here/mixlib.py" run "$@" >"$st/run.log" 2>&1
 	drc=$?
 	# a driver killed by the deadline must not leave workers writing to the volume (they also leave on their own when
 	# the parent is gone, and the driver's process group is killed on TERM and ALRM; this is the last resort)

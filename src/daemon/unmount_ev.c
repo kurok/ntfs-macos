@@ -30,6 +30,18 @@ void ntfsmac_uev_unmount_failed(ntfsmac_unmount_ev *e)
 	e->requested = false;
 }
 
+ntfsmac_dmn_status ntfsmac_unmount_verify(ntfsmac_dmn_status st, bool still_mounted)
+{
+	if (st != NTFSMAC_DMN_OK && st != NTFSMAC_DMN_E_STATE)
+		return st;
+	return still_mounted ? NTFSMAC_DMN_E_BUSY : NTFSMAC_DMN_OK;
+}
+
+bool ntfsmac_unmount_stuck(uint64_t since_ms, uint64_t now_ms, uint64_t bound_ms)
+{
+	return since_ms != 0 && now_ms >= since_ms && now_ms - since_ms >= bound_ms;
+}
+
 bool ntfsmac_uev_bind(ntfsmac_unmount_ev *e, uint64_t current_session, const char *bsd)
 {
 	if (e->session_id == 0 || e->session_id != current_session || bsd == NULL || bsd[0] == '\0' ||

@@ -71,6 +71,9 @@
 #define REAP_WAIT_MS 5000u
 #define FORCE_UNMOUNT_MS 10000u
 #define PLAIN_UNMOUNT_MS 6000u /* a plain unmount with its EBUSY retries */
+#define UNMOUNT_VERIFY_POLLS 10u   /* after an OK or "not a mount" answer: wait up to 10 x 100 ms for the mount to go */
+#define UNMOUNT_VERIFY_STEP_MS 100u
+#define UNMOUNTING_STUCK_MS 30000u /* a volume Unmounting for longer, with its mount present, goes back to Mounted */
 #define DA_SEEN_WAIT_MS 5000u  /* after a worker exit: wait for Disk Arbitration's unmount report */
 #define SHUTDOWN_WAIT_MS 50000u /* all volumes at SIGTERM; the plist's ExitTimeOut is 60 s */
 #define REQUEST_WAIT_MS 3000u
@@ -147,6 +150,7 @@ struct vol {
 	bool want_unmount;     /* a device error asked for an unmount: retry until it works */
 	unsigned unmount_tries;
 	unsigned tick_count;
+	uint64_t unmounting_since; /* monotonic ms when the tick first saw Unmounting; 0 otherwise */
 };
 
 static pthread_mutex_t g_mu = PTHREAD_MUTEX_INITIALIZER;
@@ -423,6 +427,7 @@ static void notify_token(vol *v, ntfsmac_notify_kind kind, const char *token)
 /* Mount table                                                         */
 /* ------------------------------------------------------------------ */
 
+/* A mount table that cannot be read counts as "gone": the verify-after rule then falls back to trusting the answer. */
 static bool mount_present(const char *path)
 {
 	ntfsmac_mw_mount *m = NULL;
@@ -740,6 +745,43 @@ static void note_unmount_failed(vol *v)
 	pthread_mutex_unlock(&g_mu);
 }
 
+static uint64_t ext_now_ms(void);
+
+/*
+ * One bounded unmount with the verify-after rule: an OK or "not a mount" answer counts only when
+ * the mount table agrees (found with a mount that outlived an EINVAL answer). Logs the request,
+ * the child's result with the real errno, the duration and the mount's presence afterwards.
+ * `src` says who asked: cli, device-error or shutdown. The caller has checked v->mp_valid.
+ */
+static ntfsmac_dmn_status unmount_checked(vol *v, const char *src, bool force, unsigned retries,
+					  unsigned timeout_ms, pid_t *busy)
+{
+	ntfsmac_mw_um_info info;
+	ntfsmac_dmn_status st, answer;
+	bool still;
+	unsigned i;
+
+	NTFSMAC_LOGI("%s: unmount requested by %s (%s)", v->bsd, src, force ? "force" : "plain");
+	st = ntfsmac_mw_unmount_bounded_ex(v->mp.path, force, retries, timeout_ms, busy, &info);
+	answer = st;
+	still = mount_present(v->mp.path);
+	for (i = 0; still && (st == NTFSMAC_DMN_OK || st == NTFSMAC_DMN_E_STATE) && i < UNMOUNT_VERIFY_POLLS; i++) {
+		sleep_ms(UNMOUNT_VERIFY_STEP_MS);
+		still = mount_present(v->mp.path);
+	}
+	st = ntfsmac_unmount_verify(st, still);
+	NTFSMAC_LOGI("%s: unmount by %s: status %s, child exit %d, errno %d, %u ms, mount %s afterwards", v->bsd,
+		     src, ntfsmac_dmn_status_name(answer), info.child_code, info.err, info.ms,
+		     still ? "present" : "gone");
+	if (st != answer)
+		NTFSMAC_LOGW("%s: unmount answered %s but %s is still mounted", v->bsd,
+			     ntfsmac_dmn_status_name(answer), v->mp.path);
+	/* Evidence (rule 3) takes the raw answer: "not a mount any more" with the mount gone is a mount
+	 * that merely vanished and must not count as our unmount (T-M5-05). Only a real OK does. */
+	note_unmount_call(v, answer == NTFSMAC_DMN_OK ? st : answer);
+	return st;
+}
+
 static bool unmount_evidence(vol *v, bool *requested, bool *da_seen)
 {
 	ntfsmac_unmount_ev e;
@@ -999,10 +1041,10 @@ static void unmount_after_error(vol *v)
 		return;
 	v->unmount_tries++;
 	/* Every unmount has a time bound: a stopped worker can hold unmount(2) for minutes. */
-	st = ntfsmac_mw_unmount_bounded(v->mp.path, force, force ? 0u : 1u,
-					force ? FORCE_UNMOUNT_MS : PLAIN_UNMOUNT_MS, &busy);
-	note_unmount_call(v, st);
-	if (st == NTFSMAC_DMN_OK || st == NTFSMAC_DMN_E_STATE)
+	st = unmount_checked(v, "device-error", force, force ? 0u : 1u,
+			     force ? FORCE_UNMOUNT_MS : PLAIN_UNMOUNT_MS, &busy);
+	/* Only a mount that is really gone ends the retries. */
+	if (st == NTFSMAC_DMN_OK)
 		v->want_unmount = false;
 }
 
@@ -1051,6 +1093,24 @@ static void vol_tick(void *p)
 			return;
 		}
 	}
+	/* Safety net: Unmounting only ends when the worker does. A mount that stays after an answer we
+	 * trusted must not hold the volume there for ever. */
+	if (s == NTFSMAC_VOL_UNMOUNTING && v->unmounting_since == 0u) {
+		v->unmounting_since = ext_now_ms();
+	} else if (s != NTFSMAC_VOL_UNMOUNTING) {
+		v->unmounting_since = 0u;
+	} else if (ntfsmac_unmount_stuck(v->unmounting_since, ext_now_ms(), UNMOUNTING_STUCK_MS)) {
+		bool present = v->mp_valid && mount_present(v->mp.path);
+
+		NTFSMAC_LOGW("%s: Unmounting for over %u s with the worker alive and the mount %s", v->bsd,
+			     UNMOUNTING_STUCK_MS / 1000u, present ? "present: back to Mounted" : "gone");
+		v->unmounting_since = ext_now_ms(); /* the next look is one bound later */
+		if (present) {
+			note_unmount_failed(v);
+			(void)sm_apply(v, NTFSMAC_VEV_UNMOUNT_BUSY, NTFSMAC_VMODE_NONE, NTFSMAC_VREASON_NONE, NULL);
+			return;
+		}
+	}
 	if (v->want_unmount && (v->tick_count % 8u) == 0u)
 		unmount_after_error(v);
 }
@@ -1058,6 +1118,7 @@ static void vol_tick(void *p)
 static void timer_start(vol *v)
 {
 	v->tick_count = 0;
+	v->unmounting_since = 0u;
 	v->timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, v->q);
 	if (v->timer == NULL)
 		return;
@@ -1583,11 +1644,9 @@ static void unmount_run(void *arg)
 	}
 	(void)sm_apply(v, NTFSMAC_VEV_UNMOUNT, NTFSMAC_VMODE_NONE, NTFSMAC_VREASON_NONE, NULL);
 	/* 4 retries: the transient EBUSY of T-M2-04 (section 4.5 step 1); a bound on the whole call. */
-	u->st = ntfsmac_mw_unmount_bounded(v->mp.path, u->force, u->force ? 0u : 4u,
-					   u->force ? FORCE_UNMOUNT_MS : PLAIN_UNMOUNT_MS, &u->busy);
-	note_unmount_call(v, u->st);
-	if (u->st == NTFSMAC_DMN_E_STATE)
-		u->st = NTFSMAC_DMN_OK; /* it is not a mount any more: the worker is ending */
+	u->st = unmount_checked(v, "cli", u->force, u->force ? 0u : 4u,
+				u->force ? FORCE_UNMOUNT_MS : PLAIN_UNMOUNT_MS, &u->busy);
+	/* OK also covers "not a mount any more" with the mount really gone: the worker is ending. */
 	if (u->st != NTFSMAC_DMN_OK) {
 		note_unmount_failed(v);
 		(void)sm_apply(v, NTFSMAC_VEV_UNMOUNT_BUSY, NTFSMAC_VMODE_NONE, NTFSMAC_VREASON_NONE, NULL);
@@ -2383,8 +2442,7 @@ static void shutdown_vol(void *arg)
 	if (v->mp_valid && s == NTFSMAC_VOL_MOUNTED) {
 		pid_t busy;
 
-		note_unmount_call(v, ntfsmac_mw_unmount_bounded(v->mp.path, false, 3u,
-								PLAIN_UNMOUNT_MS, &busy));
+		(void)unmount_checked(v, "shutdown", false, 3u, PLAIN_UNMOUNT_MS, &busy);
 	}
 	memset(&a, 0, sizeof a);
 	while (v->worker.pid > 1 && waited < 8000u) {

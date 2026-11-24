@@ -68,6 +68,7 @@ echo "-- after the kill: $(row "$bsd")"
 check "no worker is left" [ "$(workers)" = 0 ]
 check "the mount of the dead worker is gone from the mount table" wait_for 60 no_fuse_mounts
 check "the mount point directory is gone" sh -c "[ ! -e '$mp' ]"
+check_no_device_holder "I-DMN-14 a" "$bsd" 60
 check "the journal entry stays (the session is not reported clean)" [ "$(journal_count)" = 1 ]
 check "the daemon told the user that the session did not end cleanly" sh -c "sudo -n grep -q 'notification: ' $LOG"
 logcat | grep -i "notification" | tail -3

@@ -86,10 +86,22 @@ ntfsmac_dmn_status ntfsmac_mw_list(ntfsmac_mw_mount **out, size_t *n);
  * Run `fn(arg)` in a child process and wait at most `timeout_ms`. OK: the child exited 0.
  * IO: it exited otherwise or could not be started. TIMEOUT: it did not finish; it got SIGKILL
  * and is reaped if the kernel lets go within one second (a process stuck inside a file system
- * can ignore the signal for a while; it is then left to be reaped with the daemon's other
- * children). `fn` must call only async-signal-safe functions.
+ * can ignore the signal for a while; it is then kept in a list and reaped later, see
+ * ntfsmac_mw_reap_pending()). The child has every descriptor of the daemon closed except 0..2,
+ * so it cannot keep a device busy. `fn` must call only async-signal-safe functions and use
+ * nothing but its argument.
  */
 ntfsmac_dmn_status ntfsmac_mw_run_bounded(int (*fn)(void *), void *arg, unsigned timeout_ms);
+
+/* Hand a child that was killed and not yet reaped to the list that ntfsmac_mw_reap_pending() reaps. */
+void ntfsmac_mw_track_unreaped(pid_t pid);
+
+/*
+ * Reap, without waiting, the killed children of run_bounded that were still alive after their
+ * grace second. Called by every bounded run and by the mount table check. Returns how many are
+ * still not reaped.
+ */
+unsigned ntfsmac_mw_reap_pending(void);
 
 /*
  * unmount(2) with MNT_FORCE of `path`, in a child process with a time bound, so that a worker

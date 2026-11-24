@@ -136,6 +136,7 @@ one_rep() {
 	check "$id.$n no worker is left" wait_for 60 sh -c ". '$d/tests/integration/daemon/dmn_lib.sh' >/dev/null 2>&1; [ \"\$(workers)\" = 0 ]"
 	check "$id.$n no macfuse mount is left" wait_for 60 no_fuse_mounts
 	check "$id.$n the mount point directory is gone" wait_for 30 sh -c "[ ! -e '$mp' ]"
+	check_no_device_holder "$id.$n" "$bsd" 60
 	check "$id.$n the journal entry stays" [ "$(journal_count)" = 1 ]
 	if [ "$inject" = hash ]; then corrupt_sentinel "$img" && note "injected: one byte of base/sentinel.bin flipped in the image"; fi
 	if [ "$inject" = dirty ]; then "$work/bin/setvolflags" "$img" --clear DIRTY >/dev/null && note "injected: the dirty flag cleared in the image"; fi

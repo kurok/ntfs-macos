@@ -4,7 +4,10 @@
  * The decision is a pure function over lists; the bounded child runs real processes but touches
  * no mount. The real mount table and the force-unmount are covered by the VM driver.
  */
+#include <errno.h>
+#include <fcntl.h>
 #include <signal.h>
+#include <sys/wait.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
@@ -220,6 +223,66 @@ static int fn_hang(void *a)
 	return 0;
 }
 
+static int g_probe_fd = -1;
+
+/* In the child: 0 if the descriptor that the parent had open is closed here. */
+static int fn_fd_closed(void *a)
+{
+	(void)a;
+	return fcntl(g_probe_fd, F_GETFD) == -1 && errno == EBADF ? 0 : 1;
+}
+
+/* In the child: stdin, stdout and stderr stay. */
+static int fn_std_open(void *a)
+{
+	(void)a;
+	return fcntl(0, F_GETFD) != -1 && fcntl(1, F_GETFD) != -1 && fcntl(2, F_GETFD) != -1 ? 0 : 1;
+}
+
+/* U-DMN-MW-09: the bounded child holds no descriptor of the daemon; a killed child is not left a zombie. */
+static void test_child_fds_and_reap(void)
+{
+	int p[2], fd;
+	pid_t c;
+	unsigned i;
+	int st;
+
+	CHECK(pipe(p) == 0);
+	/* A descriptor without O_CLOEXEC, as the device descriptor of a session is: still closed. */
+	fd = open("/dev/null", O_RDWR);
+	CHECK(fd >= 3);
+	g_probe_fd = fd;
+	CHECK_EQ_INT(ntfsmac_mw_run_bounded(fn_fd_closed, NULL, 2000), NTFSMAC_DMN_OK);
+	g_probe_fd = p[1];
+	CHECK_EQ_INT(ntfsmac_mw_run_bounded(fn_fd_closed, NULL, 2000), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(ntfsmac_mw_run_bounded(fn_std_open, NULL, 2000), NTFSMAC_DMN_OK);
+	/* The parent keeps its own descriptors. */
+	CHECK(fcntl(p[1], F_GETFD) != -1 && fcntl(fd, F_GETFD) != -1);
+	close(fd);
+	close(p[0]);
+	close(p[1]);
+
+	/* A hung child is killed and reaped at once: nothing left to wait for. */
+	CHECK_EQ_INT(ntfsmac_mw_run_bounded(fn_hang, NULL, 200), NTFSMAC_DMN_E_TIMEOUT);
+	CHECK_EQ_INT(ntfsmac_mw_reap_pending(), 0);
+	CHECK(waitpid(-1, &st, WNOHANG) == -1 && errno == ECHILD);
+
+	/* A child that was killed but is still there (as one stuck in the kernel) is kept and reaped later. */
+	c = fork();
+	CHECK(c >= 0);
+	if (c == 0) {
+		for (;;)
+			pause();
+	}
+	ntfsmac_mw_track_unreaped(c);
+	CHECK_EQ_INT(ntfsmac_mw_reap_pending(), 1);
+	CHECK(kill(c, SIGKILL) == 0);
+	for (i = 0; i < 200 && ntfsmac_mw_reap_pending() != 0; i++)
+		usleep(10000);
+	CHECK_EQ_INT(ntfsmac_mw_reap_pending(), 0);
+	CHECK(waitpid(c, &st, WNOHANG) == -1 && errno == ECHILD);
+}
+
 /* U-DMN-MW-08: bad arguments mark nothing; the type name list; the bounded child. */
 static void test_misc(void)
 {
@@ -263,6 +326,7 @@ int main(void)
 	test_kill_scope();
 	test_path_exact();
 	test_misc();
+	test_child_fds_and_reap();
 	if (g_failures != 0) {
 		fprintf(stderr, "%d failure(s)\n", g_failures);
 		return 1;

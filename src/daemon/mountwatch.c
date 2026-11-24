@@ -19,6 +19,7 @@
 
 #include <errno.h>
 #include <grp.h>
+#include <pthread.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
@@ -217,21 +218,86 @@ static int wait_until(pid_t pid, uint64_t deadline, int *st)
 	}
 }
 
+/*
+ * Children that got SIGKILL and were not reaped within the grace second (stuck inside a file
+ * system call, in the kernel, where the signal waits). Each is reaped later by pid with
+ * waitpid(WNOHANG): at the next bounded run, and from ntfsmac_mw_reap_pending(). Nothing in the
+ * daemon waits for -1, so these pids cannot be taken by another reaper and the daemon's other
+ * waitpid() calls name their own pid.
+ */
+#define MW_PENDING_MAX 64
+
+static pthread_mutex_t g_pend_mu = PTHREAD_MUTEX_INITIALIZER;
+static pid_t g_pend[MW_PENDING_MAX];
+static unsigned g_npend;
+
+void ntfsmac_mw_track_unreaped(pid_t pid)
+{
+	pthread_mutex_lock(&g_pend_mu);
+	if (g_npend < MW_PENDING_MAX)
+		g_pend[g_npend++] = pid;
+	/* A full list means 64 children stuck at once: the 65th stays unreaped, the daemon goes on. */
+	pthread_mutex_unlock(&g_pend_mu);
+}
+
+unsigned ntfsmac_mw_reap_pending(void)
+{
+	unsigned i = 0, left;
+	int st;
+
+	pthread_mutex_lock(&g_pend_mu);
+	while (i < g_npend) {
+		pid_t r = waitpid(g_pend[i], &st, WNOHANG);
+
+		if (r == 0 || (r < 0 && errno == EINTR)) {
+			i++;
+			continue;
+		}
+		/* Reaped, or not our child (any more): drop it. */
+		g_pend[i] = g_pend[--g_npend];
+	}
+	left = g_npend;
+	pthread_mutex_unlock(&g_pend_mu);
+	return left;
+}
+
+/*
+ * In the child, after fork(). The daemon has threads, and the child holds a copy of every
+ * descriptor of the daemon (O_CLOEXEC only acts at exec, and the child never execs): a session's
+ * block device descriptor in it keeps the disk busy for as long as the child lives, for example
+ * in a forced unmount that blocks. Closing is only close(2), which is async-signal-safe; the
+ * limit `max` (the descriptor table size) is read by the parent before the fork.
+ * Descriptors 0..2 stay.
+ */
+static void close_inherited_fds(int max)
+{
+	int fd;
+
+	for (fd = 3; fd < max; fd++)
+		(void)close(fd);
+}
+
 /* As ntfsmac_mw_run_bounded(), and `*code` is the exit code of the child (fn's value, 0..255). */
 static ntfsmac_dmn_status run_bounded_code(int (*fn)(void *), void *arg, unsigned timeout_ms, int *code)
 {
 	pid_t pid;
 	int st = 0;
+	long openmax;
 
 	*code = -1;
 	if (fn == NULL)
 		return NTFSMAC_DMN_E_INVAL;
+	(void)ntfsmac_mw_reap_pending();
+	openmax = sysconf(_SC_OPEN_MAX);
+	if (openmax < 256 || openmax > 1048576)
+		openmax = openmax < 256 ? 256 : 1048576;
 	pid = fork();
 	if (pid < 0)
 		return NTFSMAC_DMN_E_IO;
 	if (pid == 0) {
 		/* Own group, so that nothing else the daemon does can signal it by mistake. */
 		(void)setpgid(0, 0);
+		close_inherited_fds((int)openmax);
 		_exit(fn(arg) & 0xff);
 	}
 	if (wait_until(pid, mw_now_ms() + timeout_ms, &st)) {
@@ -241,7 +307,8 @@ static ntfsmac_dmn_status run_bounded_code(int (*fn)(void *), void *arg, unsigne
 		return NTFSMAC_DMN_OK;
 	}
 	(void)kill(pid, SIGKILL);
-	(void)wait_until(pid, mw_now_ms() + 1000u, &st);
+	if (!wait_until(pid, mw_now_ms() + 1000u, &st))
+		ntfsmac_mw_track_unreaped(pid);
 	return NTFSMAC_DMN_E_TIMEOUT;
 }
 

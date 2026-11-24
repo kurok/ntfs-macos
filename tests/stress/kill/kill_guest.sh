@@ -312,6 +312,9 @@ rep() {
 		check "$id: no macfuse mount is left within ${step} s" wait_for "$step" no_fuse_mounts
 		check "$id: the mount point directory is gone" wait_for 30 path_gone "$mp"
 		check "$id: the daemon is still the same process and answers" same_daemon "$dp0"
+		# nothing may hold the disk (an ntfsmacd child that inherited the session's descriptor and is still
+		# blocked in the kernel's unmount would make the eject of the volume fail with "Resource busy")
+		check_no_device_holder "$id" "$bsd" "$step"
 		;;
 	esac
 	if [ "$tgt" = module ]; then

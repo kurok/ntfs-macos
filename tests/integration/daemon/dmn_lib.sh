@@ -160,7 +160,26 @@ _detach_raw() {
 		echo "detach of /dev/$1 failed: $_o1"
 		echo "force-detach of /dev/$1 failed: $_o2"
 		echo "hdiutil info:"; hdiutil info 2>&1 | grep -E "image-path|^/dev/$1([[:space:]]|s)"
-		echo "lsof /dev/$1*:"; sudo -n lsof 2>/dev/null | grep -E "/dev/r?$1(s[0-9]+)?\$" || echo "(no holder found)"
+		echo "lsof /dev/$1*:"; sudo -n lsof -nP 2>/dev/null | grep -E "/dev/r?$1(s[0-9]+)?\$" || echo "(no holder found)"
+	} | sed 's/^/NOTE: /'
+	return 1
+}
+# dev_holders BSD: the lsof lines of every process that holds /dev/BSD, /dev/rBSD or one of their slices
+dev_holders() { tmo 60 sudo -n lsof -nP 2>/dev/null | grep -E "/dev/r?$1(s[0-9]+)?\$"; }
+no_device_holder() { [ -z "$(dev_holders "$1")" ]; }
+# check_no_device_holder ID BSD SECONDS: no process at all holds the device within SECONDS (not the daemon, not a
+# child of it; a zombie has released its descriptors and is not listed). On failure the holders and their ps lines are printed as NOTE lines.
+check_no_device_holder() {
+	if wait_for "$3" no_device_holder "$2"; then
+		pass "$1: no process holds /dev/$2 within $3 s"
+		return 0
+	fi
+	failf "$1: a process still holds /dev/$2 after $3 s"
+	_h=$(dev_holders "$2")
+	{
+		echo "$_h"
+		_pl=$(echo "$_h" | awk '{ print $2 }' | sort -u | paste -sd, -)
+		[ -z "$_pl" ] || ps -axo pid,ppid,stat,etime,wchan,args -p "$_pl" 2>&1
 	} | sed 's/^/NOTE: /'
 	return 1
 }

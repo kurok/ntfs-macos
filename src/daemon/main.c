@@ -493,6 +493,7 @@ static bool mw_check(long uid_to_baseline, vol *self, stray_arg *self_out)
 	bool ok = true;
 	vol *v;
 
+	(void)ntfsmac_mw_reap_pending(); /* killed unmount children that were stuck in the kernel */
 	pthread_mutex_lock(&g_mw_mu);
 	if (ntfsmac_mw_list(&m, &nm) != NTFSMAC_DMN_OK || nm > MW_MOUNTS_MAX) {
 		NTFSMAC_LOGE("the mount table could not be read in full (%zu mounts): failing closed", nm);
@@ -864,6 +865,11 @@ static void vol_teardown(vol *v, const td_args *a)
 				     "Arbitration report of one (the macFUSE module died?): the session is "
 				     "not clean", v->bsd);
 		if (still_mounted) {
+			/*
+			 * The session's device descriptor (s->fd) stays open here: the journal step below
+			 * still needs it to write the entry and the marker. The unmount child does not
+			 * inherit it (run_bounded closes every descriptor >= 3 in the child).
+			 */
 			st = ntfsmac_mw_force_unmount(v->mp.path, FORCE_UNMOUNT_MS);
 			sleep_ms(100);
 			still_mounted = mount_present(v->mp.path);

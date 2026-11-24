@@ -48,9 +48,9 @@ add_test(NAME fuzz.mountwalk_seeds COMMAND fuzz_replay_mountwalk ${_corpus}/moun
 # fail for that; run.sh checks the leaks of the whole corpus in its own stage and lists them.
 set_tests_properties(fuzz.probe_seeds fuzz.mountwalk_seeds PROPERTIES ENVIRONMENT "ASAN_OPTIONS=detect_leaks=0")
 
-# Regression replay of the NTFS-3G findings F1, F3 and F4 (tests/fuzz/TRIAGE.md; fixed locally by the
-# patches 0012, 0010 and 0011, ADR-026), one ctest per finding so that one abort does not hide the
-# others: fuzz.findings.F1, fuzz.findings.F3, fuzz.findings.F4. F2 is a known leak and stays out.
+# Regression replay of the NTFS-3G findings F1, F3, F4 and F8 (tests/fuzz/TRIAGE.md; fixed locally by the
+# patches 0012, 0010, 0011 and 0015, ADR-026), one ctest per finding so that one abort does not hide the
+# others: fuzz.findings.F1, F3, F4, F8. F2 is a known leak and stays out.
 # The security descriptor reads are not skipped (NTFSMAC_FUZZ_SKIP_SECURITY is removed).
 #
 # They are registered only for an AddressSanitizer build (NTFSMAC_SANITIZE contains "address", and
@@ -68,11 +68,11 @@ set_tests_properties(fuzz.probe_seeds fuzz.mountwalk_seeds PROPERTIES ENVIRONMEN
 # The replay shows a fixed defect only against the library of build-ntfs3g.sh, which applies the series
 # of third_party/patches/ntfs-3g. A caller that links pristine upstream (the image of Environment A,
 # vm/linux/Dockerfile, in scripts/ci-local.sh linux-build-test) passes -DNTFSMAC_NTFS3G_PATCHED=OFF:
-# there F1, F3 and F4 are the unfixed upstream defects and must fail, so they are not registered.
+# there F1, F3, F4 and F8 are the unfixed upstream defects and must fail, so they are not registered.
 option(NTFSMAC_NTFS3G_PATCHED "libntfs-3g carries the patch series (ADR-026); OFF for pristine upstream" ON)
 
 if(NTFSMAC_SANITIZE MATCHES "address" AND NOT NTFSMAC_NTFS3G_PATCHED)
-  message(STATUS "NTFSMAC_NTFS3G_PATCHED=OFF: fuzz.findings.F1/F3/F4 not registered (pristine libntfs-3g)")
+  message(STATUS "NTFSMAC_NTFS3G_PATCHED=OFF: fuzz.findings.F1/F3/F4/F8 not registered (pristine libntfs-3g)")
 elseif(NTFSMAC_SANITIZE MATCHES "address")
   set(_findings ${CMAKE_CURRENT_SOURCE_DIR}/findings)
   # The image sets ASAN_OPTIONS (log_path and more); the options of the replay are appended to them.
@@ -82,15 +82,22 @@ elseif(NTFSMAC_SANITIZE MATCHES "address")
   else()
     set(_asan_opts "${_asan_extra}")
   endif()
-  foreach(_f IN ITEMS F1-getsecurityattr-alloc F3-valid-descr-heap-overflow F4-possible-symlink-heap-overflow)
+  # F8 asks for exactly 1 GiB (malloc(1073741824), the MFT record size of the boot sector): the limit of
+  # 1024 MB would let it through on the unpatched library, so its replay uses a lower one (512 MB).
+  foreach(_f IN ITEMS F1-getsecurityattr-alloc F3-valid-descr-heap-overflow F4-possible-symlink-heap-overflow
+                      F8-mft-record-size-alloc)
     string(REGEX MATCH "^F[0-9]+" _id ${_f})
+    set(_asan_opts_f "${_asan_opts}")
+    if(_id STREQUAL "F8")
+      set(_asan_opts_f "${_asan_opts}:max_allocation_size_mb=512")
+    endif()
     add_test(NAME fuzz.findings.${_id}
       COMMAND ${CMAKE_COMMAND} -E env --unset=NTFSMAC_FUZZ_SKIP_SECURITY $<TARGET_FILE:fuzz_replay_mountwalk>
               ${_findings}/${_f}.bin)
-    set_tests_properties(fuzz.findings.${_id} PROPERTIES ENVIRONMENT "ASAN_OPTIONS=${_asan_opts}")
+    set_tests_properties(fuzz.findings.${_id} PROPERTIES ENVIRONMENT "ASAN_OPTIONS=${_asan_opts_f}")
   endforeach()
 else()
-  message(STATUS "no AddressSanitizer build: fuzz.findings.F1/F3/F4 not registered")
+  message(STATUS "no AddressSanitizer build: fuzz.findings.F1/F3/F4/F8 not registered")
 endif()
 
 if(NTFSMAC_FUZZ)

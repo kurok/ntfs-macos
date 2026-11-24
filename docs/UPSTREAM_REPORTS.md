@@ -17,6 +17,7 @@ publishes them.
 | F2 `ntfs_mft_load()` leaks the run list on "not self-contained" | fuzzing | bug | public issue | Drafted 2026-11-16, not filed | none (4 KiB per failed mount) |
 | F5 `ntfs_make_symlink()` leaks the attribute on invalid data | fuzzing | bug | public issue | Drafted 2026-11-16, not filed | none (56 bytes per access) |
 | F7 `ntfs_device_mount()` leaks the `$AttrDef` inode when loading `$AttrDef` fails | fuzzing (re-run of 2026-11-16) | bug | public issue | Drafted 2026-11-16, not filed; reproduced with valgrind on stock 2026.9.28 | none (about 4 KiB per failed mount) |
+| F8 `ntfs_boot_sector_parse()` accepts MFT and INDX record sizes up to 2 GiB (`ntfs_mft_load()` allocates 1 GiB on mount; `1 << 31` overflows `int`) | fuzzing (campaign of 2026-11-23, N-37cd62), `tests/fuzz/TRIAGE.md` | security (denial of service) | private advisory | Drafted 2026-11-23, not filed | patch 0015 |
 | Read-only mount refuses a volume whose `$MFTMirr` is one write behind `$MFT` | crash sweep, `docs/spikes/M3-crashsweep-triage.md` | bug / enhancement | public issue | Drafted 2026-11-16, not filed; related upstream issue #209 | ADR-021 (`mirror_split`, repair) |
 | `ntfs_fsync()` never flushes the drive cache of a block device on macOS | T-M3-10, patch 0007 | bug | public issue | Text in the 0007 header, not filed | patch 0007 (ADR-022) |
 | Creation time stored as a raw `tv_sec` FILETIME on macOS | T-M3-06, patch 0008 | bug | public issue | Text in the 0008 header, not filed | patch 0008 (ADR-024) |

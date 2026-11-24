@@ -29,6 +29,52 @@ TS_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 ID_RE = re.compile(r"^[A-Z][A-Z0-9]*(-[A-Z0-9]+)+$")
 
+# The one set of paths that may change between the commit a result was recorded at (T) and the commit that relies on
+# it (G). Used by `ci-local.sh --verify-result` (the gate) and by the fuzz campaign re-triage
+# (campaign_result.retriage_bad); define it only here.
+#   - tests/results/, docs/audits/, CHECKPOINT.md, NEXT_ACTIONS.md, docs/SECURITY_FINDINGS.md and
+#     docs/UPSTREAM_REPORTS.md: records and documents, not code under test; any change is allowed.
+#   - tests/fuzz/findings/ (minimised inputs): replayed by ctest (fuzz.findings.*) and by the campaign, so an input
+#     that exists at T must be byte-identical at G (no edit, no deletion). Only a new file may be added.
+#   - tests/fuzz/campaign/known.tsv: read at run time by the fuzz-short stage (first matching row wins) and by the
+#     campaign triage. Only APPENDING rows is allowed: T's content must be a byte prefix of G's, so no row that
+#     existed at T is edited, reordered, shadowed by a row inserted above, or removed. The unit tests of the
+#     classifiers use a frozen copy (tests/fuzz/campaign/testdata/known.tsv), not the live file.
+#     Caveat: an appended row can still classify a signature that an earlier pass counted as unclassified; the
+#     next triage run, not the gate, judges that.
+# README.md is handled separately by the gate (only outside its status table, which must match report.py).
+ALLOWED_CHANGE_FILES = ("CHECKPOINT.md", "NEXT_ACTIONS.md", "docs/SECURITY_FINDINGS.md",
+                        "docs/UPSTREAM_REPORTS.md")  # exact paths, any change
+ALLOWED_CHANGE_DIRS = ("docs/audits/", "tests/results/")  # prefixes, any change
+ADD_ONLY_DIRS = ("tests/fuzz/findings/",)  # prefixes: a file may be added, an existing one must stay identical
+APPEND_ONLY_FILES = ("tests/fuzz/campaign/known.tsv",)  # exact paths: G's content starts with T's content
+
+
+def change_allowed(path, old, new):
+    """True when the change of PATH (repo-relative, forward slashes) from OLD to NEW (bytes at T and at G, None when
+    the file does not exist there) does not invalidate a recorded result."""
+    if path in ALLOWED_CHANGE_FILES or path.startswith(ALLOWED_CHANGE_DIRS):
+        return True
+    if path.startswith(ADD_ONLY_DIRS):
+        return old is None or old == new
+    if path in APPEND_ONLY_FILES:
+        # old must end at a row boundary, so G cannot extend T's last row in place
+        return old is None or (new is not None and new.startswith(old) and (old == b"" or old.endswith(b"\n")))
+    return False
+
+
+def disallowed_changes(paths, blob):
+    """The PATHS whose change is not allowed. blob(rev_name, path) returns the bytes of the path at "old" (T) or
+    "new" (G), or None when it does not exist there."""
+    return [p for p in paths if not change_allowed(p, blob("old", p), blob("new", p))]
+
+
+def git_blob(repo, rev, path):
+    """Bytes of PATH at REV, or None when it does not exist there."""
+    r = subprocess.run(("git", "-c", "safe.directory=*", "-C", repo, "cat-file", "blob", "%s:%s" % (rev, path)),
+                       stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=False)
+    return r.stdout if r.returncode == 0 else None
+
 
 def utc_now():
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())

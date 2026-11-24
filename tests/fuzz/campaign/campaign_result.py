@@ -44,14 +44,12 @@ def read_provenance(path):
 
 
 # Paths that may change between the fuzzed commit and the commit of a re-triage without touching the fuzzed code
-# (the classification: known.tsv, documents, results; the same idea as the paths the gate allows).
-RETRIAGE_FILES = ("tests/fuzz/campaign/known.tsv", "CHECKPOINT.md", "NEXT_ACTIONS.md", "docs/SECURITY_FINDINGS.md",
-                  "docs/UPSTREAM_REPORTS.md")  # exact paths
-RETRIAGE_DIRS = ("docs/audits/", "tests/results/", "tests/fuzz/findings/")  # the minimised inputs adopted with the classification
-
-
-def retriage_ok(path):
-    return path in RETRIAGE_FILES or path.startswith(RETRIAGE_DIRS)
+# (the classification: known.tsv appended to, new minimised findings, documents, results). The same rule the gate
+# applies: defined once in tests/harness/report.py (change_allowed).
+def retriage_bad(repo, fuzzed, cur, paths):
+    """The paths changed between the fuzzed commit and CUR that the re-triage does not allow."""
+    return report.disallowed_changes(
+        paths, lambda which, p: report.git_blob(repo, fuzzed if which == "old" else cur, p))
 
 
 def provenance(results_dir, allow_dirty=False, repo=None):
@@ -60,7 +58,7 @@ def provenance(results_dir, allow_dirty=False, repo=None):
     allow_dirty. The result is dirty when the tree was dirty at either point, HEAD differs between the two records, or
     the end record is missing. With repo it is also dirty when the tree is dirty now (an uncommitted known.tsv).
     A re-triage after the classification was committed (HEAD now differs from the fuzzed commit) gets git_sha = HEAD
-    and a note naming the fuzzed commit, but only when every path changed since the fuzzed commit is allowed by retriage_ok(),
+    and a note naming the fuzzed commit, but only when every path changed since the fuzzed commit is allowed by retriage_bad(),
     so the fuzzed code is unchanged; any other change makes the result dirty, with the reason."""
     start = read_provenance(os.path.join(results_dir, "provenance.txt"))
     end = read_provenance(os.path.join(results_dir, "provenance-end.txt"))
@@ -93,7 +91,7 @@ def provenance(results_dir, allow_dirty=False, repo=None):
         if cur is not None and cur != fuzzed:
             out = report._git(repo, "diff", "--name-only", "--no-renames", "-z", fuzzed, cur)
             paths = [p for p in (out or "").split("\0") if p]
-            other = [p for p in paths if not retriage_ok(p)]
+            other = retriage_bad(repo, fuzzed, cur, paths)
             if out is None:
                 dirty = True
                 notes.append("cannot compare the fuzzed commit %s with HEAD" % fuzzed[:12])

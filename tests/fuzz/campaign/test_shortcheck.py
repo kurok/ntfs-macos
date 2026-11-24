@@ -20,7 +20,7 @@ import unittest
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 SHORTCHECK = os.path.join(HERE, "shortcheck.py")
-KNOWN = os.path.join(HERE, "known.tsv")
+KNOWN = os.path.join(HERE, "testdata", "known.tsv")  # frozen copy: the live known.tsv may grow
 NTFS = "/tmp/b-eng-fuzz/src/libntfs-3g/"
 
 # leaks.log.sym of the failing full CI run (symbolize.py output: "#N function at file:line")
@@ -304,7 +304,15 @@ class RunScript(unittest.TestCase):
         for d in ("tests/fuzz/image", "tests/fuzz/sanitize", "vm/linux"):
             os.makedirs(os.path.join(tmp, d))
         shutil.copy(os.path.join(REPO, "tests/fuzz", script, "run.sh"), os.path.join(tmp, "tests/fuzz", script, "run.sh"))
-        os.symlink(HERE, os.path.join(tmp, "tests/fuzz/campaign"))
+        # a real directory of symlinks: the modules, and known.tsv pointing at the frozen copy (the scripts default to
+        # known.tsv next to shortcheck.py, found by abspath, not realpath), so a row appended to the live file cannot
+        # change these tests
+        cam = os.path.join(tmp, "tests/fuzz/campaign")
+        os.makedirs(cam)
+        for name in sorted(os.listdir(HERE)):
+            if name.endswith(".py") and not name.startswith("test_"):
+                os.symlink(os.path.join(HERE, name), os.path.join(cam, name))
+        os.symlink(KNOWN, os.path.join(cam, "known.tsv"))
         return tmp
 
     def run_script(self, script, tmp, tgz, rc, *opts):

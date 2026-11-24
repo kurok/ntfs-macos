@@ -1,0 +1,115 @@
+ntfs-3g (ntfs-macos) patch 0015: the boot sector parse refuses an MFT record size or INDX record size above 4096 bytes
+
+Rationale (M5 fuzz campaign of 2026-11-23, finding F8, signature N-37cd62, tests/fuzz/TRIAGE.md): in NTFS-3G
+2026.9.28, libntfs-3g/bootsect.c ntfs_boot_sector_is_ntfs() accepts a clusters_per_mft_record byte of 1 to
+0x40 (a number of clusters) and of 0xe1 to 0xf7 (negative: the record size is 2^-c bytes, so 2^9 to 2^31),
+and the same for clusters_per_index_record (lines 131 to 155). ntfs_boot_sector_parse() then sets
+vol->mft_record_size = 1 << -c, or c << vol->cluster_size_bits, and checks only that the result is a power
+of two (lines 274 to 282); the INDX size gets no check at all (lines 287 to 292). Both are on-disk values:
+  - ntfs_mft_load() (volume.c:265) calls ntfs_malloc(vol->mft_record_size) at the first step of every mount,
+    before anything else about the volume is validated. A crafted boot sector with c = 0xe2 (-30) asks for
+    1 GiB (libFuzzer: out-of-memory, malloc(1073741824), reproducer of F8); other values ask for up to 2 GiB.
+    The same size is used for the allocations of the $MFTMirr check (volume.c:961 and 962) and the record
+    buffers of mft.c (lines 184, 361, 485); vol->indx_record_size is used when a new index root is created
+    (dir.c:1587 to 1594).
+  - c = 0xe1 (-31) overflows: 1 << 31 is not representable in int (undefined behaviour), the result in a
+    u32 field is 0x80000000. A positive c shifted by a large cluster_size_bits can wrap in int as well.
+Resource use (an allocation of up to 2 GiB per mount of an untrusted volume); not a memory fault.
+Real volumes: Windows writes 1024 byte MFT records (4096 byte on 4Kn media) and 4096 byte INDX records, and
+mkntfs does the same. The Linux ntfs3 driver uses the same limit: fs/ntfs3/ntfs_fs.h defines
+MAXIMUM_BYTES_PER_MFT and MAXIMUM_BYTES_PER_INDEX as 4096, and ntfs_init_from_boot() in super.c refuses a
+larger record ("Unsupported bytes per MFT record").
+Change (libntfs-3g/bootsect.c, one hunk group):
+  - New macro NTFS_MACOS_MAX_RECORD_SIZE (4096) in front of ntfs_boot_sector_parse().
+  - ntfs_boot_sector_parse(): for both the MFT record and the INDX record the size is computed in a local
+    u64 (c < -12, or a positive c with cluster_size_bits above 12, gives the maximum u64 value, so no shift is by
+    more than 12 or by an undefined count, and none overflows; a positive c is shifted as u64), and the function logs an error and returns -1 (errno EINVAL, as for the other
+    rejections) when the size is above 4096, before anything is stored in the volume structure. The stored
+    sizes are the same as before for a size of 4096 or less. The power of two check of the MFT record size
+    and the other existing checks (including those of ntfs_boot_sector_is_ntfs()) are unchanged. No lower
+    bound is added.
+  - ntfs_boot_sector_is_ntfs() is not changed. A mount of a volume with a size above the limit fails in
+    ntfs_boot_sector_parse(), called by ntfs_volume_startup() (volume.c:582) right after the is_ntfs check,
+    before ntfs_mft_load().
+Other callers of ntfs_boot_sector_parse() are in ntfsprogs (ntfsfix.c lines 1254 and 1513, ntfsresize.c,
+ntfsck.c). The build configures --enable-ntfsprogs (scripts/build-ntfs3g.sh) and the package ships ntfsfix and
+mkntfs, so the shipped ntfsfix also refuses such a volume (it fails with the same error message).
+Scope: library-wide and cross-platform (no __APPLE__ guard). It only adds a rejection; every volume with
+record sizes of 4096 bytes or less takes the same path as before. A volume with a record size above 4096 is
+no longer mounted; none is known to exist (see the note on real volumes above).
+Upstream status: not yet reported; draft in docs/UPSTREAM_REPORTS.md (F8); carried per ADR-026 until a fixed
+release is pinned, then removed.
+Test: ctest fuzz.findings.F8 replays tests/fuzz/image/findings/F8-mft-record-size-alloc.bin through
+fuzz_replay_mountwalk, registered only for an ASan build of the patched library (tests/fuzz/image/
+CMakeLists.txt); the allocation limit set in the test (512 MB) is meant to make the 1 GiB request fail on the unpatched
+library (allocation-size-too-big); that run was not made when this patch was written. The campaign
+classifies the signature as F8 in tests/fuzz/campaign/known.tsv: seen
+on an engine that carries 0015 it is a REGRESSION.
+
+--- a/libntfs-3g/bootsect.c
++++ b/libntfs-3g/bootsect.c
+@@ -180,6 +180,12 @@
+ "   or the partition table is corrupt (partition is smaller than NTFS),\n"
+ "   or the NTFS boot sector is corrupt (NTFS size is not valid).\n";
+ 
++/*
++ * Largest MFT record and INDX record accepted (ntfs-macos 0015). Windows
++ * writes 1024 or 4096 byte MFT records and 4096 byte INDX records.
++ */
++#define NTFS_MACOS_MAX_RECORD_SIZE 4096
++
+ /**
+  * ntfs_boot_sector_parse - setup an ntfs volume from an ntfs boot sector
+  * @vol:	ntfs_volume to setup
+@@ -194,6 +200,7 @@
+ {
+ 	s64 sectors;
+ 	u16  sectors_per_cluster;
++	u64  record_size;
+ 	s8  c;
+ 
+ 	/* We return -1 with errno = EINVAL on error. */
+@@ -271,10 +278,22 @@
+ 	 * min bytes. Then:
+ 	 *	 mft_record_size = 2^(-clusters_per_mft_record) bytes.
+ 	 */
++	/*
++	 * ntfs-macos 0015 : the size is computed in 64 bits and refused above
++	 * NTFS_MACOS_MAX_RECORD_SIZE before it is stored, so that no shift
++	 * overflows and nothing allocates a record size from the boot sector
++	 */
+ 	if (c < 0)
+-		vol->mft_record_size = 1 << -c;
++		record_size = (c < -12) ? ~(u64)0 : (u64)1 << -c;
+ 	else
+-		vol->mft_record_size = c << vol->cluster_size_bits;
++		record_size = (c && vol->cluster_size_bits > 12) ? ~(u64)0 : (u64)c << vol->cluster_size_bits;
++	if (record_size > NTFS_MACOS_MAX_RECORD_SIZE) {
++		ntfs_log_error("mft_record_size is not supported "
++			       "(clusters_per_mft_record %d, more than %d "
++			       "bytes).\n", c, NTFS_MACOS_MAX_RECORD_SIZE);
++		return -1;
++	}
++	vol->mft_record_size = (u32)record_size;
+ 	if (vol->mft_record_size & (vol->mft_record_size - 1)) {
+ 		ntfs_log_error("mft_record_size (%d) is not a power of 2.\n",
+ 			       vol->mft_record_size);
+@@ -287,9 +306,16 @@
+ 	c = bs->clusters_per_index_record;
+ 	ntfs_log_debug("ClustersPerINDXRecord = 0x%x\n", c);
+ 	if (c < 0)
+-		vol->indx_record_size = 1 << -c;
++		record_size = (c < -12) ? ~(u64)0 : (u64)1 << -c;
+ 	else
+-		vol->indx_record_size = c << vol->cluster_size_bits;
++		record_size = (c && vol->cluster_size_bits > 12) ? ~(u64)0 : (u64)c << vol->cluster_size_bits;
++	if (record_size > NTFS_MACOS_MAX_RECORD_SIZE) {
++		ntfs_log_error("indx_record_size is not supported "
++			       "(clusters_per_index_record %d, more than %d "
++			       "bytes).\n", c, NTFS_MACOS_MAX_RECORD_SIZE);
++		return -1;
++	}
++	vol->indx_record_size = (u32)record_size;
+ 	vol->indx_record_size_bits = ffs(vol->indx_record_size) - 1;
+ 	ntfs_log_debug("INDXRecordSize = 0x%x\n", (unsigned)vol->indx_record_size);
+ 	ntfs_log_debug("INDXRecordSizeBits = %u\n", vol->indx_record_size_bits);

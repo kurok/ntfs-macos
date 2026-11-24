@@ -42,8 +42,11 @@
 #                    tests/results/ and its content is committed unchanged in the commit under
 #                    verification, every evidence path it names (relative to its own directory) is committed there too,
 #                    and git_sha is that commit (HEAD, or --commit REV) or an ancestor with
-#                    only tests/results/, docs/audits/, CHECKPOINT.md, NEXT_ACTIONS.md and the README status
-#                    table changed in between (renames count as the change of both paths; the table must be
+#                    only the allowed set changed in between (tests/harness/report.py change_allowed):
+#                    tests/results/, docs/audits/, CHECKPOINT.md, NEXT_ACTIONS.md, docs/SECURITY_FINDINGS.md,
+#                    docs/UPSTREAM_REPORTS.md, new files under tests/fuzz/findings/ (existing ones identical),
+#                    rows appended to tests/fuzz/campaign/known.tsv (its old content a prefix of the new), and
+#                    the README status table (renames count as the change of both paths; the table must be
 #                    what `report.py readme` renders from the results of the commit). --require-env
 #                    host,A,B also demands, per environment, STAGE-<ENV>-* cases for every stage of that
 #                    environment's `test-all.sh --env <ENV> --dry-run` plan and for the stages ci-local
@@ -247,8 +250,8 @@ files = sys.argv[8:]
 sys.path.insert(0, os.path.join(root, "tests", "harness"))
 import report  # noqa: E402
 
-ALLOWED_PREFIX = ("tests/results/", "docs/audits/")
-ALLOWED_FILES = ("CHECKPOINT.md", "NEXT_ACTIONS.md")
+# The paths that may change since the tested commit are defined once, in tests/harness/report.py
+# (change_allowed), and shared with the fuzz campaign re-triage.
 # Only the host plan has skips by design (test-all.sh plan_host: harness, stress). They are read from the plan
 # itself (`test-all.sh --env host --dry-run` prints a skipped stage as `... [note]`), so the note is never
 # copied into this script. The stage names are pinned: a new skip in the host plan is not by design until it is
@@ -333,7 +336,8 @@ def changed_outside(tested):
     bad_paths = []
     readme_changed = False
     for p in paths:
-        if p.startswith(ALLOWED_PREFIX) or p in ALLOWED_FILES:
+        if not report.disallowed_changes(
+                [p], lambda which, q: report.git_blob(root, tested if which == "old" else target, q)):
             continue
         if p == "README.md":
             readme_changed = True
@@ -859,7 +863,7 @@ if [ "$quick" -eq 0 ]; then
 		_skipped=
 		for _p in linux asan; do
 			echo "== linux-build-test: preset $_p"
-			echo "NOTE: fuzz.findings.F1/F3/F4 are not run here: the image of Environment A links pristine NTFS-3G, where these replays fail by design (they pass against the patched library in the A-unit asan stage, tests/unit/probe/inner.sh)"
+			echo "NOTE: fuzz.findings.F1/F3/F4/F8 are not run here: the image of Environment A links pristine NTFS-3G, where these replays fail by design (they pass against the patched library in the A-unit asan stage, tests/unit/probe/inner.sh)"
 			_o=$work/A/linux-$_p.out
 			_prc=0
 			sh "$root/vm/linux/run.sh" run -- bash -c \
@@ -875,7 +879,7 @@ if [ "$quick" -eq 0 ]; then
 				echo "NOTE: linux build or test FAILED with preset $_p: ${_err:-exit $_prc (see the log)}"
 			fi
 		done
-		[ "$_rc" -ne 0 ] || echo "NOTE: skipped tests, counted from SKIP: lines ($_skipped); fuzz.findings.F1/F3/F4 not run here (pristine NTFS-3G, run in A-unit asan)"
+		[ "$_rc" -ne 0 ] || echo "NOTE: skipped tests, counted from SKIP: lines ($_skipped); fuzz.findings.F1/F3/F4/F8 not run here (pristine NTFS-3G, run in A-unit asan)"
 		return "$_rc"
 	}
 

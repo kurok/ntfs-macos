@@ -83,7 +83,8 @@ upstream report, write the image that `fz_image_build()` makes for the input to 
 | F5 | `reparse.c` `ntfs_make_symlink()` (line 814 and following) | memory leak, 56 bytes | low | found only by the leak stage of run B (`hour2/mountwalk/leaks.log.sym`), corpus input in `hour2/mountwalk/corpus/` | no |
 | F6 | `inode.c` `ntfs_inode_sync_file_name()` (lines 815 to 822) | heap out-of-bounds read of 4 bytes (reparse tag of a non-resident or short attribute, no resident or length check), written into the index entries of the file's names | low to medium (read-write mounts only) | none (found by code reading in review; no image built) | no |
 | F7 | `volume.c` `ntfs_device_mount()` (line 1240, `ni = ntfs_inode_open(vol, FILE_AttrDef)`) | memory leak, 136 + 4096 bytes: the `$AttrDef` inode is not closed when `ntfs_attr_open(ni, AT_DATA, ...)` (or a later step of the `$AttrDef` load) fails, because `error_exit` calls only `__ntfs_volume_release()` | low | `findings/F7-attrdef-inode-leak.bin` (9 bytes; `fuzz_probe` and `fuzz_mountwalk` with leak detection on) | yes (any failed mount with a bad `$AttrDef`), probe is a short-lived process |
-| U | `bootsect.c` 229, 231, 237, 275; `volume.c` 273, 624, 1094; `runlist.c` 862, 882, 897, 961; `attrib.c` 385, 386, 1040, 1073; `unistr.c` 183, 188, 345, 376; `reparse.c` (misaligned loads) | undefined behaviour: left shifts of negative or large values, signed overflow, negative shift exponent, misaligned `ntfschar` loads | low (benign on arm64 and x86-64 with the usual compilers) | UBSan reports in `hour*/*/libfuzzer-*.log.sym`, list in `ubsan-engine.txt` | yes (bootsect, volume, runlist, unistr hit by the probe too) |
+| F8 | `volume.c` `ntfs_mft_load()` (line 265, `ntfs_malloc(vol->mft_record_size)`), from `ntfs_volume_startup()`; the size is set in `bootsect.c` `ntfs_boot_sector_parse()` | allocation of an on-disk size, up to 2 GiB (libFuzzer: out-of-memory, `malloc(1073741824)`); `1 << 31` overflows `int` | low (resource use; denial of service on mount) | `findings/F8-mft-record-size-alloc.bin` (9 bytes) | yes (every mount), probe is a short-lived process |
+| U | `bootsect.c` 229, 231, 237, 275 (236, 238, 244 with patch 0015, which moves them by seven lines); `volume.c` 273, 624, 1094; `runlist.c` 862, 882, 897, 961; `attrib.c` 385, 386, 1040, 1073, 1172; `unistr.c` 183, 188, 345, 376; `reparse.c` (misaligned loads) | undefined behaviour: left shifts of negative or large values, signed overflow, negative shift exponent, misaligned `ntfschar` loads | low (benign on arm64 and x86-64 with the usual compilers) | UBSan reports in `hour*/*/libfuzzer-*.log.sym`, list in `ubsan-engine.txt` | yes (bootsect, volume, runlist, unistr hit by the probe too) |
 
 Why they do not touch the probe: the probe opens the device O_RDONLY, mounts read-only,
 reads at most the first 4 KiB of `hiberfil.sys` and lists names. It never calls the security
@@ -181,15 +182,45 @@ issue (`docs/UPSTREAM_REPORTS.md`), not filed; reproduced on stock 2026.9.28 wit
 definitely and 4096 bytes indirectly lost from `volume.c:1240`). Suggested fix: close `na` and `ni` before
 `goto error_exit` in the `$AttrDef` block, as the `bad_upcase` label does for `$UpCase`.
 
+### F8: MFT record size from the boot sector is allocated without a bound
+
+Found by the extended campaign of T-M5-09 (8 CPU-hours, 2026-11-23, signature `N-37cd62`, class R2, denial of
+service): `oom ntfs_mft_load < ntfs_volume_startup < ntfs_device_mount @volume.c:265`, libFuzzer
+"out-of-memory (malloc(1073741824))", in `fuzz_mountwalk` units. `ntfs_boot_sector_is_ntfs()` accepts a
+`clusters_per_mft_record` byte of 1 to 0x40 (clusters) and 0xe1 to 0xf7 (negative: the record size is 2^-c bytes,
+so 2^9 to 2^31); `ntfs_boot_sector_parse()` sets `vol->mft_record_size` to `1 << -c` or `c << cluster_size_bits`
+and checks only that it is a power of two. `ntfs_mft_load()` allocates that many bytes at the first step of every
+mount. The same holds for `clusters_per_index_record` and `vol->indx_record_size` (no check at all). c = -31 is
+`1 << 31`, not representable in `int` (undefined behaviour). Real volumes have 1024 or 4096 byte MFT records and
+4096 byte INDX records; the Linux ntfs3 driver uses the same limit (`MAXIMUM_BYTES_PER_MFT` and `MAXIMUM_BYTES_PER_INDEX` are 4096 in
+`fs/ntfs3/ntfs_fs.h`; `ntfs_init_from_boot()` in `super.c` refuses a larger record). Fixed locally by patch 0015 (2026-11-23, ADR-026): `ntfs_boot_sector_parse()`
+computes both sizes in 64 bits and returns -1 with an error message when either is above 4096 bytes, before
+anything is stored or allocated. Reproducer: `tests/fuzz/image/findings/F8-mft-record-size-alloc.bin` (the
+minimised libFuzzer unit, 9 bytes); regression: ctest `fuzz.findings.F8` (ASan build of the patched library, allocation limit 512 MB; written 2026-11-23, not yet run in Environment A on the unpatched and the patched library). In
+`known.tsv` row F8 is `fixed` (0015), so the signature on an engine that carries the patch is a REGRESSION; on
+pristine 2026.9.28 it is expected. Not yet reported upstream: drafted, see `docs/UPSTREAM_REPORTS.md`. Draft
+text: *libntfs-3g: ntfs_boot_sector_parse() accepts MFT and INDX record sizes up to 2 GiB.* A boot sector with
+`clusters_per_mft_record` = 0xe2 makes `ntfs_mft_load()` call `ntfs_malloc(1073741824)` on mount, and 0xe1 shifts
+`1` by 31 into the sign bit of an `int`. Suggested fix: refuse record sizes above 4096 bytes in
+`ntfs_boot_sector_parse()`. Version 2026.9.28.
+
+Follow-up, not fixed by 0015: the same family remains for `INDEX_ROOT.index_block_size`, read from disk. It has no
+upper bound and reaches `ntfs_malloc()` at `dir.c:380` and `dir.c:1283`; the checks at `attrib.c:3547` and
+`dir.c:290` only test for at least 512 and a power of two. It is a separate allocation of an on-disk size (up to
+2 GiB per directory open) and is listed here as a follow-up, to be fixed in its own patch and finding.
+
 ### U: undefined behaviour in the library
 
 UBSan in the library is set to report and continue (each location once per process); in the
 project code any report aborts. The reports are signed shifts (`<<` of negative or large
-values: `bootsect.c:229`, `volume.c:273`, `runlist.c:862`, `897`, `attrib.c:385`, `386`), signed
+values: `bootsect.c:229`, `volume.c:273`, `runlist.c:862`, `897`, `attrib.c:385`, `386`, `1172`), signed
 overflow (`bootsect.c:229, 231`, `volume.c:624`, `1094`, `runlist.c:882`, `961`, `attrib.c:1040`,
 `1073`), a negative shift exponent (`bootsect.c:237`), a shift into the sign bit
 (`bootsect.c:275`), and misaligned 16-bit loads from on-disk names and reparse data
-(`unistr.c:183`, `188`, `345`, `376`, `reparse.c`). All follow from corrupt on-disk numbers; none
+(`unistr.c:183`, `188`, `345`, `376`, `reparse.c`). `attrib.c:1172` is new in the campaign of 2026-11-23: `rl->lcn << vol->cluster_size_bits`, the byte offset passed to
+`ntfs_pread()` in `ntfs_attr_pread()`, from a crafted run list; same family as `385` and `386`. Patch 0015 moves the
+lines of `bootsect.c` from 183 on (by six up to line 197, by seven after it) and removes the shifts at `275` and `290` (64-bit arithmetic); `known.tsv`
+lists the old and the new numbers of `bootsect.c`. All follow from corrupt on-disk numbers; none
 was linked to a wrong result in a harness oracle. They are listed, not proposed as one
 report: upstream already carries the shifts of `runlist.c` (T-M3-02 recorded them). If
 reported, one issue per file with the unsigned-arithmetic fix is the usual form.

@@ -17,7 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import fuzzsig  # noqa: E402
 
-KNOWN = os.path.join(HERE, "known.tsv")
+KNOWN = os.path.join(HERE, "testdata", "known.tsv")  # frozen copy: the live known.tsv may grow
 UB229 = "/tmp/b-eng-fuzz/src/libntfs-3g/bootsect.c:229:21: runtime error: left shift of 5 by 40 places cannot be represented in type 'int'"
 
 
@@ -123,6 +123,49 @@ class Sig(unittest.TestCase):
         self.assertIsNone(m("volume.c:2731"))
         self.assertIsNone(m("reparse.c:999"))
         self.assertIsNotNone(m("reparse.c:848"))
+
+    def test_f8_oom_matches_and_is_pinned(self):
+        """F8 (N-37cd62): the MFT record size of the boot sector is allocated by ntfs_mft_load(); fixed by 0015."""
+        rows = fuzzsig.load_known(KNOWN)
+        text = "ntfs_mft_load@volume.c:265 < ntfs_volume_startup@volume.c:652 < ntfs_device_mount@volume.c:956"
+        r = fuzzsig.match_known(rows, "", "oom", text)
+        self.assertEqual((r["id"], r["status"], r["component"], r["fixed_by"], r["klass"]),
+                         ("F8", "fixed", "engine", "0015", "R2"))
+        self.assertEqual(fuzzsig.match_known(rows, "", "asan:allocation-size-too-big", text)["id"], "F8")
+        # another allocation or another kind is not F8
+        self.assertIsNone(fuzzsig.match_known(rows, "", "oom", text.replace("volume.c:265", "volume.c:2650")))
+        self.assertIsNone(fuzzsig.match_known(rows, "", "oom", text.replace("volume.c:265 ", "mft.c:361 ")))
+        self.assertIsNone(fuzzsig.match_known(rows, "", "oom", "other@mft.c:1 < " + text))
+        self.assertIsNone(fuzzsig.match_known(rows, "", "leak", text))
+        self.assertIsNone(fuzzsig.match_known(rows, "", "timeout", text))
+
+    def test_f8_oom_log_signature(self):
+        """A libFuzzer out-of-memory log with the F8 frames gives kind oom and is recognised as F8."""
+        s = sig(["==1==ERROR: libFuzzer: out-of-memory (malloc(1073741824))",
+                 "    #0 0x1 in __sanitizer_print_stack_trace",
+                 "    #1 0x2 in ntfs_malloc " + NTFS + "misc.c:48",
+                 "    #2 0x3 in ntfs_mft_load " + NTFS + "volume.c:265",
+                 "    #3 0x4 in ntfs_volume_startup " + NTFS + "volume.c:652",
+                 "    #4 0x5 in ntfs_device_mount " + NTFS + "volume.c:956"])
+        self.assertEqual(s[1], "oom")
+        self.assertEqual(known_id(s), "F8")
+
+    def test_u_attrib_1172_anchored(self):
+        """attrib.c:1172 (rl->lcn << cluster_size_bits in ntfs_attr_pread) is benign; 11720 and 117 are not."""
+        rows = fuzzsig.load_known(KNOWN)
+        m = lambda t: fuzzsig.match_known(rows, "", "ubsan", t)  # noqa: E731
+        self.assertEqual(m("attrib.c:1172")["id"], "U")
+        self.assertIsNone(m("attrib.c:11720"))
+        self.assertIsNone(m("attrib.c:117"))
+        self.assertIsNone(m("attrib.c:11172"))
+        self.assertEqual(m("attrib.c:385")["id"], "U")
+
+    def test_u_bootsect_lines_with_patch_0015(self):
+        """0015 adds seven lines above the shifts at 229, 231 and 237: both numberings are benign."""
+        rows = fuzzsig.load_known(KNOWN)
+        for ln in ("229", "231", "237", "236", "238", "244"):
+            self.assertIsNotNone(fuzzsig.match_known(rows, "", "ubsan", "bootsect.c:" + ln), ln)
+        self.assertIsNone(fuzzsig.match_known(rows, "", "ubsan", "bootsect.c:2360"))
 
     def test_r2_m501_is_fixed(self):
         rows = fuzzsig.load_known(KNOWN)
@@ -254,7 +297,9 @@ class Result(unittest.TestCase):
         self.addCleanup(self._tmp.cleanup)
         self.repo = os.path.join(self._tmp.name, "repo")
         os.makedirs(os.path.join(self.repo, "tests", "fuzz", "campaign"))
-        for rel, text in (("src.c", "x\n"), ("tests/fuzz/campaign/known.tsv", "a\n")):
+        for rel, text in (("src.c", "x\n"), ("tests/fuzz/campaign/known.tsv", "a\n"),
+                         ("tests/fuzz/findings/old.bin", "x")):
+            os.makedirs(os.path.dirname(os.path.join(self.repo, rel)), exist_ok=True)
             with open(os.path.join(self.repo, rel), "w") as f:
                 f.write(text)
         self.git("init", "-q")
@@ -417,6 +462,36 @@ class Result(unittest.TestCase):
                                   "docs/SECURITY_FINDINGS.md": "t\n", "docs/audits/M5.md": "t\n"})
         self.assertFalse(doc["dirty_tree"])
         self.assertEqual(doc["cases"][0]["status"], "pass")
+
+    def test_retriage_known_tsv_must_be_append_only(self):
+        # the fuzzed commit has known.tsv = "a\n"
+        for text, ok in (("a\nb\n", True), ("A\n", False), ("z\na\n", False), ("", False), ("a\n\n", True)):
+            doc = self.retriage_with({"tests/fuzz/campaign/known.tsv": text})
+            self.assertEqual(doc["dirty_tree"], not ok, repr(text))
+            self.assertEqual(doc["cases"][0]["status"], "pass" if ok else "fail", repr(text))
+
+    def test_retriage_known_tsv_last_row_cannot_be_extended_in_place(self):
+        with tempfile.TemporaryDirectory() as t:
+            self.edit("tests/fuzz/campaign/known.tsv", "a", "no trailing newline")
+            self.SHA = self.git("rev-parse", "HEAD")
+            self.tree(t)
+            self.edit("tests/fuzz/campaign/known.tsv", "a b\n", "extend the last row")
+            doc = self.run_triage(t)[2]
+            self.assertTrue(doc["dirty_tree"])
+            self.assertIn("known.tsv", doc["cases"][0]["note"])
+
+    def test_retriage_findings_are_add_only(self):
+        # the fuzzed commit has tests/fuzz/findings/old.bin = "x"
+        doc = self.retriage_with({"tests/fuzz/findings/old.bin": "changed"})
+        self.assertTrue(doc["dirty_tree"])
+        self.assertIn("old.bin", doc["cases"][0]["note"])
+        with tempfile.TemporaryDirectory() as t:
+            self.tree(t)
+            self.git("rm", "-q", "tests/fuzz/findings/old.bin")
+            self.git("commit", "-q", "-m", "delete a finding")
+            doc = self.run_triage(t)[2]
+            self.assertTrue(doc["dirty_tree"])
+            self.assertIn("old.bin", doc["cases"][0]["note"])
 
     def test_retriage_rejects_lookalike_and_other_paths(self):
         for rel in ("tests/fuzz/campaign/known.tsv.bak", "docs/TEST_STRATEGY.md", "CHECKPOINT.md.old", "tests/fuzz/campaign/triage.py"):

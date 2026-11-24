@@ -34,7 +34,7 @@ foreach(_t ${_targets})
 endforeach()
 
 # Regression input of finding M5-01 (docs/SECURITY_FINDINGS.md): argv_check rule 2 accepted a leaf that
-# starts with "-". The replay aborts on the oracle failure unpatched. Same naming as fuzz.findings.F1/F3/F4.
+# starts with "-". The replay aborts on the oracle failure unpatched. Same naming as fuzz.findings.F1/F3/F4/F8.
 add_test(NAME fuzz.findings.M5-01
   COMMAND fuzz_replay_label ${PROJECT_SOURCE_DIR}/tests/fuzz/findings/M5-01-label.bin)
 

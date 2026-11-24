@@ -256,6 +256,67 @@ g commit -q -m "checkpoint and audit"
 ci --verify-result "$mkf" --pre-commit
 expect "CHECKPOINT.md, NEXT_ACTIONS.md and docs/audits/ may change" 0 'ok '
 
+mkdir -p "$work/r/tests/fuzz/findings" "$work/r/tests/fuzz/campaign" "$work/r/docs"
+printf 'row1\nrow2\n' >"$work/r/tests/fuzz/campaign/known.tsv"
+printf 'x\n' >"$work/r/docs/SECURITY_FINDINGS.md"
+printf 'x\n' >"$work/r/docs/UPSTREAM_REPORTS.md"
+printf 'x\n' >"$work/r/tests/fuzz/findings/x.bin"
+g add -A
+g commit -q -m "classification"
+ci --verify-result "$mkf" --pre-commit
+expect "a new known.tsv, SECURITY_FINDINGS.md, UPSTREAM_REPORTS.md and a new tests/fuzz/findings/ file may change" 0 'ok '
+
+# the result is now "tested" at this commit: record it as the base for the add-only and append-only rules
+mk "$pc" "$(g rev-parse HEAD)" false host -cls pass
+printf 'row1\nrow2\nrow3\n' >"$work/r/tests/fuzz/campaign/known.tsv"
+printf 'y\n' >"$work/r/tests/fuzz/findings/new.bin"
+g add -A
+g commit -q -m "append row, add finding"
+ci --verify-result "$mkf" --pre-commit
+expect "appending to known.tsv and adding a findings file is accepted" 0 'ok '
+
+printf 'row1\nROW2\nrow3\n' >"$work/r/tests/fuzz/campaign/known.tsv"
+g add -A
+g commit -q -m "edit a middle row"
+ci --verify-result "$mkf" --pre-commit
+expect "rejects a known.tsv whose old content is not a prefix (middle row edited)" 1 'outside the allowed set: tests/fuzz/campaign/known.tsv'
+printf 'new\nrow1\nrow2\nrow3\n' >"$work/r/tests/fuzz/campaign/known.tsv"
+g add -A
+g commit -q -m "insert a row above"
+ci --verify-result "$mkf" --pre-commit
+expect "rejects a row inserted above the old rows of known.tsv" 1 'outside the allowed set: tests/fuzz/campaign/known.tsv'
+printf 'row1\nrow2\nrow3\n' >"$work/r/tests/fuzz/campaign/known.tsv"
+g add -A
+g commit -q -m "known.tsv back"
+
+printf 'changed\n' >"$work/r/tests/fuzz/findings/x.bin"
+g add -A
+g commit -q -m "modify a finding"
+ci --verify-result "$mkf" --pre-commit
+expect "rejects a modified existing tests/fuzz/findings/ file" 1 'outside the allowed set: tests/fuzz/findings/x.bin'
+g rm -q -f tests/fuzz/findings/x.bin
+g commit -q -m "delete a finding"
+ci --verify-result "$mkf" --pre-commit
+expect "rejects a deleted existing tests/fuzz/findings/ file" 1 'outside the allowed set: tests/fuzz/findings/x.bin'
+printf 'x\n' >"$work/r/tests/fuzz/findings/x.bin"
+g add -A
+g commit -q -m "finding restored"
+
+printf 'y\n' >"$work/r/tests/fuzz/campaign/triage.py"
+g add -A
+g commit -q -m "triage code"
+ci --verify-result "$mkf" --pre-commit
+expect "rejects a change to tests/fuzz/campaign/triage.py (code, not classification)" 1 'outside the allowed set: tests/fuzz/campaign/triage.py'
+g rm -q -f tests/fuzz/campaign/triage.py
+g commit -q -m "drop triage code"
+printf 'y\n' >"$work/r/tests/fuzz/campaign/known.tsv.bak"
+g add -A
+g commit -q -m "lookalike"
+ci --verify-result "$mkf" --pre-commit
+expect "rejects a lookalike of known.tsv" 1 'outside the allowed set: tests/fuzz/campaign/known.tsv.bak'
+g rm -q -f tests/fuzz/campaign/known.tsv.bak
+g commit -q -m "drop lookalike"
+
 sed 's/^old$/hand edited/;/^<!-- status-table:begin/{n;s/.*/hand edited/;}' "$work/r/README.md" >"$work/r/README.t" && mv "$work/r/README.t" "$work/r/README.md"
 g add -A
 g commit -q -m "table edited by hand"

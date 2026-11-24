@@ -292,6 +292,9 @@ while IFS=$tab read -r name size cluster sector label recipe; do
 	truncate -s "$size" "$img"
 	mkntfs -F -Q -T -L "$label" -c "$cluster" -s "$sector" "$img" >"$out/$name.make.log" 2>&1 ||
 		{ cat "$out/$name.make.log"; die "mkntfs failed for $name"; }
+	# a volume serial of its own: the daemon's journal is keyed by it (see setserial.py)
+	python3 -I "$work/tests/fixtures/gen/setserial.py" "$img" "$name" >>"$out/$name.make.log" 2>&1 ||
+		{ cat "$out/$name.make.log"; die "setserial failed for $name"; }
 	if [ "$recipe" = names:dirty ]; then
 		"$bin/setvolflags" "$img" --set DIRTY >>"$out/$name.make.log" 2>&1 || die "setvolflags failed for $name"
 	fi

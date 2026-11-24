@@ -29,6 +29,8 @@ import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+from setserial import set_serial  # noqa: E402
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(HERE)), "unit", "probe"))
 from ntfsrec import SECTOR, find_attr, geometry  # noqa: E402
 
@@ -237,6 +239,9 @@ def make(volmark_fault, clean, out_img, reverse=False):
     if e.returncode == 0 or msg not in e.stdout + e.stderr:
         raise AssertionError("the engine did not refuse %s with %r: %r" % (name, msg, (e.stdout + e.stderr)[-300:]))
     lines.append("engine (ntfsinfo -m, NTFS-3G 2026.9.28): refused with \"%s.\"" % msg)
+    # last, after the checks that compare the image with clean-64m-4k: a volume serial of its own, the
+    # daemon's journal key (setserial.py); the volume was cut at record 3, the boot sectors are not involved
+    lines.append("volume serial %016X (own, setserial.py)" % set_serial(out_img, name))
     return lines
 
 

@@ -96,8 +96,9 @@ transient() { case $1 in Probing | Deciding | Mounting | Unmounting) return 0 ;;
 # the volume reached an end state of the attach: Mounted, or Failed (refused or failed)
 settled_row() { s=$(state_of "$1"); [ "$s" = Mounted ] || [ "$s" = Failed ]; }
 logcat() { sudo -n cat "$LOG" 2>/dev/null; }
-# The fixtures were made from one image and share a volume serial, which is the journal key: a case
-# that leaves an entry (a refused marker, a kill) must not decide the next case.
+# Each fixture has a volume serial of its own (tests/fixtures/gen/setserial.py), which is the journal key,
+# but a case that leaves an entry (a refused marker, a kill) must still not decide the next case on the
+# same image.
 reset_journal() { sudo -n sh -c "rm -f $JDIR/* $JDIR/cleared/* 2>/dev/null"; }
 journal_count() { sudo -n sh -c "ls $JDIR 2>/dev/null | grep -c '^[0-9A-F]\{16\}\$'" || true; }
 worker_pids() { ps -axo pid=,comm= | awk -v c="$INSTALL/ntfsmac-worker" '$2 == c { print $1 }'; }
@@ -279,7 +280,7 @@ prepare() {
 	build_tools
 	install_daemon
 	stop_daemon
-	reset_journal # the suites share one guest, and the fixtures one serial
+	reset_journal # the suites share one guest and one journal
 	echo "guest: $(sw_vers -productVersion) $(uname -m), user $(id -un) uid $(id -u), console owner $(stat -f %Su /dev/console)"
 }
 finish() {

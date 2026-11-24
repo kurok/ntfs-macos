@@ -220,6 +220,9 @@ while IFS=$tab read -r name size cluster sector seed label want; do
 	# -T: fake time 0 so mkntfs' time-seeded serial and GUIDs are fixed.
 	mkntfs -F -Q -T -L "$label" -c "$cluster" -s "$sector" "$img" >"$out/$name.mkntfs.log" 2>&1 ||
 		{ cat "$out/$name.mkntfs.log"; die "mkntfs failed for $name"; }
+	# a volume serial of its own: the daemon's journal is keyed by it (see setserial.py)
+	python3 -I "$work/tests/fixtures/gen/setserial.py" "$img" "$name" >>"$out/$name.mkntfs.log" 2>&1 ||
+		{ cat "$out/$name.mkntfs.log"; die "setserial failed for $name"; }
 	do_mount "$img" rw,big_writes
 	python3 -I "$bin/populate.py" "$mnt" "$seed" "$cluster" "$size" ||
 		die "populate failed for $name"

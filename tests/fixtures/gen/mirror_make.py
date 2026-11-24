@@ -40,6 +40,9 @@ os.environ["CRASHSWEEP_ROOT"] = ROOT
 sys.path.insert(0, os.environ.get("CRASHSWEEP_DIR", "/work/tests/stress/crashsweep"))
 import crashsweep as cs  # noqa: E402
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from setserial import set_serial  # noqa: E402
+
 N_SPLIT = 68
 # Failing cut points of the full (110 cuts per workload) and the short (50) sweep, from
 # docs/spikes/M3-crashsweep-triage.md. Each must still be a $MFT/$MFTMirr record-0 pair
@@ -255,6 +258,7 @@ def main():
     def finish(name, img, expect_msg, rule_accepts):
         dst = os.path.join(out, name + ".img")
         shutil.move(img, dst)
+        set_serial(dst, name)  # a serial of its own: the daemon's journal key (setserial.py)
         rc, msg = mount_msg(dst)
         first = next((ln.strip() for ln in msg.splitlines() if ln.strip()), "")
         check(rc != 0 and expect_msg in msg, "%s: ro,norecover mount refused with %r (got rc %d: %s)" %
@@ -272,11 +276,13 @@ def main():
     if want("mirror-newer"):
         dst = os.path.join(out, "mirror-newer.img")
         derive_newer(split, dst, g)
+        set_serial(dst, "mirror-newer")
         rc, msg = mount_msg(dst)
         check(rc != 0 and RECORD0_MSG in msg, "mirror-newer: ro,norecover mount refused with the record 0 message")
     if want("mirror-extra"):
         dst = os.path.join(out, "mirror-extra.img")
         derive_extra(split, dst, g)
+        set_serial(dst, "mirror-extra")
         rc, msg = mount_msg(dst)
         check(rc != 0 and RECORD0_MSG in msg, "mirror-extra: ro,norecover mount refused with the record 0 message")
     if want("mirror-torn"):

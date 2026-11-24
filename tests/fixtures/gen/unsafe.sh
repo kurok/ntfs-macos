@@ -154,6 +154,9 @@ make_image() {
 	# -T: fake time 0 so mkntfs' time-seeded serial and GUIDs are fixed.
 	mkntfs -F -Q -T -L "$_label" -c "$_cl" -s "$_ss" "$_img" >"$_log" 2>&1 ||
 		{ cat "$_log"; die "mkntfs failed for $_n"; }
+	# a volume serial of its own: the daemon's journal is keyed by it (see setserial.py)
+	python3 -I "$work/tests/fixtures/gen/setserial.py" "$_img" "$_n" >>"$_log" 2>&1 ||
+		{ cat "$_log"; die "setserial failed for $_n"; }
 	# Every multi-command branch below is an && chain: inside this brace group
 	# (the left side of ||) set -e is off, so only the last command would count.
 	{

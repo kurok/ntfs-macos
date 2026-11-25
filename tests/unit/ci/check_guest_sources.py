@@ -68,7 +68,8 @@ def logical_lines(text):
 
 def parse(text):
     """-> (guest dir, tar entries of the tar that feeds it, cc entries, errors).
-    A cc entry is {line, srcs, incs, args (the arguments without -o and its value), external}."""
+    A cc entry is {line, srcs, incs, args (the arguments without -o and its value), external, pre, post (the
+    library flags and libraries of the line as shell words: $ntfs, $nlibs or an inline $(pkg-config ...))}."""
     cflags, loops, errs = {}, {}, []
     tars, cc, guest = [], [], None
     for ln in logical_lines(text):
@@ -101,6 +102,12 @@ def parse(text):
         external = "pkg-config" in rest or any(v in rest for v in EXTERNAL_VARS)
         for k, v in cflags.items():
             rest = rest.replace("$" + k, v)
+        # what a guest build adds around the arguments (guest_build_plan.py): the flags of the libraries before them,
+        # their libraries after them; $ntfs and $nlibs are set by the guest script, $(pkg-config ...) is inline
+        pre = [v for v in EXTERNAL_VARS[:1] if v in rest]
+        post = [v for v in EXTERNAL_VARS[1:] if v in rest]
+        for pm in re.finditer(r"\$\(pkg-config ([^)]*)\)", rest):
+            (post if "--libs" in pm.group(1) else pre).append(pm.group(0))
         rest = re.sub(r"\"?\$\([^)]*\)\"?", " ", rest)  # $(pkg-config ...)
         rest = re.split(r"&&|\|\||;|\|", rest)[0].rstrip().rstrip(")")
         toks = [t.strip('"') for t in rest.split()]
@@ -130,7 +137,8 @@ def parse(text):
                     incs.append(a[i + 1])
                 elif t.startswith("-I") and len(t) > 2:
                     incs.append(t[2:])
-            cc.append({"line": rest, "srcs": srcs, "incs": incs, "args": a, "external": external})
+            cc.append({"line": rest, "srcs": srcs, "incs": incs, "args": a, "external": external,
+                       "pre": pre, "post": post})
     if guest is None:
         errs.append("no `d=$HOME/ntfsmac/DIR` guest directory assignment found")
     mine = [t for d, t in tars if d == guest]

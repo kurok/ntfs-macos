@@ -47,6 +47,10 @@ if(NTFSMAC_PYTHON3 AND NTFSMAC_SH)
   add_test(NAME ci.guest_sources
     COMMAND ${NTFSMAC_PYTHON3} -I -B ${_ci_dir}/check_guest_sources.py ${PROJECT_SOURCE_DIR})
   set_tests_properties(ci.guest_sources PROPERTIES TIMEOUT 60 LABELS ci)
+  # the plan of the guest-build stage of Environment B (every cc line of those scripts, built in one guest): no VM
+  add_test(NAME ci.guest_plan
+    COMMAND ${_ci_env} ${NTFSMAC_SH} ${_ci_dir}/test_guest_plan.sh ${PROJECT_SOURCE_DIR})
+  set_tests_properties(ci.guest_plan PROPERTIES TIMEOUT 60 LABELS ci)
   # the same guest cc lines built on the host, from the copied lists (macOS only: they link its frameworks; the
   # lines that need libntfs-3g or macFUSE are skipped); the script itself exits 77 on any other host
   if(APPLE)

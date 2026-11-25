@@ -533,8 +533,8 @@ class DryRunTest(unittest.TestCase):
         self.assertEqual([n for n, _ in self.names("--env", "A")],
                          ["preflight", "selftest", "unit-probe", "unit-volmark", "harness", "stress-crashsweep"])
         self.assertEqual([n for n, _ in self.names("--env", "B")],
-                         ["preflight", "build-release", "fixtures", "integration", "compat", "daemon", "stress-disconnect",
-                          "stress-kill", "stress-leaks", "stress-parallel", "stress-soak"])
+                         ["preflight", "build-release", "fixtures", "guest-build", "integration", "compat", "daemon",
+                          "stress-disconnect", "stress-kill", "stress-leaks", "stress-parallel", "stress-soak"])
 
     def test_host_never_runs_the_vm_cases(self):
         d = dict(self.names("--env", "host"))
@@ -781,6 +781,7 @@ class RunSuiteTest(unittest.TestCase):
             shutil.copy(os.path.join(REPO, rel), os.path.join(self.fake, rel))
         put(os.path.join(self.fake, "tests", "harness", "run-env-b.sh"),
             'echo "env-b $*"; exit ${STUB_ENVB_RC:-0}\n')
+        put(os.path.join(self.fake, "vm", "macos", "guest-build.sh"), 'echo "guest-build $*"; exit ${STUB_GBUILD_RC:-0}\n')
         put(os.path.join(self.fake, "tests", "harness", "run.py"),
             "import os, sys\n"
             "if '--list' in sys.argv:\n"
@@ -824,6 +825,24 @@ class RunSuiteTest(unittest.TestCase):
         self.assertEqual(st["daemon"][0], "skip")
         self.assertEqual(st["stress"], ("skip", "none registered"))
         self.assertEqual(os.listdir(self.slots), [])  # the slot lock is released
+
+    def test_guest_build_runs_first_in_a_full_run_and_a_failure_skips_the_rest(self):
+        r = self.run_suite()
+        self.assertEqual(r.returncode, 0, r.stderr.decode())
+        self.assertEqual(self.stages()["guest-build"][0], "pass")
+        r = self.run_suite(STUB_GBUILD_RC="1")
+        self.assertEqual(r.returncode, 1)
+        st = self.stages()
+        self.assertEqual(st["guest-build"][0], "fail")
+        for n in ("integration", "compat", "daemon"):
+            self.assertEqual(st[n], ("skip", "guest-build failed"), n)
+
+    def test_guest_build_is_skipped_by_quick_and_by_its_option(self):
+        self.run_suite("--quick")
+        self.assertEqual(self.stages()["guest-build"], ("skip", "not run with --quick or --cases"))
+        shutil.rmtree(self.work)
+        self.run_suite("--no-guest-build")
+        self.assertEqual(self.stages()["guest-build"], ("skip", "skipped by --no-guest-build"))
 
     def test_discovery_failure_is_a_failed_stage_not_a_skip(self):
         r = self.run_suite("--quick", STUB_LIST="fail")

@@ -15,8 +15,9 @@
 #   --env host   build and unit tests on this Mac (release, product, ASan): never a mount
 #   --env A      Linux container: selftest, probe and volmark suites, harness cases of
 #                Environment A, stress entries registered for A
-#   --env B      macOS VM (through vm/macos/run-suite.sh): harness cases of B, the host-side
-#                reference comparison (C-REF-*), the daemon suites (dmn_all.sh), stress entries for B
+#   --env B      macOS VM (through vm/macos/run-suite.sh): guest-build (every guest cc line compiled
+#                in one clone, first), harness cases of B, the host-side reference comparison
+#                (C-REF-*), the daemon suites (dmn_all.sh), stress entries for B
 #   --quick      a smoke run: skips the long stages (ASan, probe/volmark, compat, daemon suites,
 #                stress) and runs only the I-INT-* harness cases
 #   --out FILE   result file (default tests/results/<UTC date>-<short sha>-<env>[-runN].json);
@@ -419,7 +420,7 @@ plan_b() {
 		fi
 	fi
 	if [ -n "$blocked" ]; then
-		for _n in integration compat daemon stress; do skip "$_n" "vm/macos/run-suite.sh stage" "$blocked"; done
+		for _n in guest-build integration compat daemon stress; do skip "$_n" "vm/macos/run-suite.sh stage" "$blocked"; done
 		return 0
 	fi
 	set --

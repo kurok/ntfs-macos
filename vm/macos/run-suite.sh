@@ -9,6 +9,9 @@
 # is mounted on the host; every NTFS mount is inside a guest or the Linux container.
 #
 # Stages (all recorded in WORK/stages.tsv, the format tests/harness/report.py aggregate reads):
+#   guest-build  vm/macos/guest-build.sh: ONE clone that builds NTFS-3G and compiles every cc line of the VM
+#                scripts (tests/integration/daemon/*_vm.sh) in the guest, so a missing header or a link
+#                error fails in minutes; a failure skips every later stage. Full runs only (not --quick, --cases).
 #   integration  tests/harness/run-env-b.sh: the harness cases of env B, run in the guest
 #   compat       tests/harness/run-env-b.sh --orchestrate: the cases of env host that drive the guest
 #                and the Linux container (C-REF-*, I-BIG-COMP-01, I-NAME-U22, I-XATTR-09)
@@ -17,7 +20,7 @@
 #                (scripts/test-all.sh --list-stress B)
 #
 # Usage: vm/macos/run-suite.sh --work DIR [--quick] [--cases GLOB] [--fixtures DIR]
-#                              [--deps-tar FILE] [--slot-dir DIR] [--dry-run]
+#                              [--deps-tar FILE] [--no-guest-build] [--slot-dir DIR] [--dry-run]
 #   --work DIR      work directory: stages.tsv, logs/, results/ (harness result files and evidence),
 #                   artifacts/<stage>/, and suite.rc (this script's exit status)
 #   --quick         only the harness cases of env B (default I-INT-*); no compat, daemon or stress
@@ -31,6 +34,7 @@
 #                   (a `pid` file names the holder; a lock whose holder is gone is removed). The
 #                   slots are those of NTFSMAC_VM_SLOTS (default "1 2"). Default directory:
 #                   ${NTFSMAC_VM_SLOT_DIR:-${TMPDIR:-/tmp}/ntfsmac-vm-slots}, so a run always takes a slot.
+#   --no-guest-build  do not run the guest-build stage
 #   --dry-run       print the stage plan and exit
 # A failed read-only check (tart, ntfsmac-golden, docker) records the stage vm-preflight as failed and
 # every other stage as skipped. A harness case selection that cannot be resolved (run.py --list fails)
@@ -52,6 +56,7 @@ quick=0
 cases=
 fixtures=
 deps_tar=
+guest_build=1
 slot_dir=${NTFSMAC_VM_SLOT_DIR:-${TMPDIR:-/tmp}/ntfsmac-vm-slots}
 dry=0
 while [ $# -gt 0 ]; do
@@ -62,6 +67,7 @@ while [ $# -gt 0 ]; do
 	--fixtures) [ $# -ge 2 ] || die "--fixtures needs a directory"; fixtures=$2; shift ;;
 	--deps-tar) [ $# -ge 2 ] || die "--deps-tar needs a file"; deps_tar=$2; shift ;;
 	--slot-dir) [ $# -ge 2 ] || die "--slot-dir needs a directory"; slot_dir=$2; shift ;;
+	--no-guest-build) guest_build=0 ;;
 	--dry-run) dry=1 ;;
 	-h | --help) sed -n '4,40p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
 	*) die "unknown option: $1" ;;
@@ -230,6 +236,22 @@ if [ "$dry" -eq 0 ]; then
 		blocked="vm-preflight failed"
 	else
 		take_slot
+	fi
+fi
+
+# guest-build: one clone builds NTFS-3G and compiles every cc line of the VM scripts (a failure skips the rest, which
+# would run for an hour before the same error showed). Full runs only: --quick and --cases select harness cases.
+if [ "$guest_build" -eq 0 ]; then
+	skip guest-build "vm/macos/guest-build.sh" "skipped by --no-guest-build"
+elif [ -n "$blocked" ]; then
+	skip guest-build "vm/macos/guest-build.sh" "$blocked"
+elif [ "$quick" -eq 1 ] || [ -n "$cases" ]; then
+	skip guest-build "vm/macos/guest-build.sh" "not run with --quick or --cases"
+else
+	stage guest-build "vm/macos/guest-build.sh (one clone: build NTFS-3G, compile every cc line of the VM scripts)" \
+		sh "$here/guest-build.sh" --out-dir "$work/artifacts/guest-build"
+	if [ "$dry" -eq 0 ] && [ "$(awk -F '\t' '$1 == "guest-build" { s = $2 } END { print s }' "$work/stages.tsv")" != pass ]; then
+		blocked="guest-build failed"
 	fi
 fi
 

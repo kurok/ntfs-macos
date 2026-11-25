@@ -989,19 +989,95 @@ CLEAN
 	}
 
 	# take_slot / release_slot: the VM slot protocol of vm/macos/run-suite.sh (mkdir slot-N, pid file)
+	# pid_gone PID: 0 when no process has that pid. kill -0 alone would call a live process of another user dead
+	# (EPERM), so ps -p is asked too: a process is gone only when both fail.
+	pid_gone() {
+		case $1 in '' | *[!0-9]*) return 0 ;; esac
+		kill -0 "$1" 2>/dev/null && return 1
+		ps -p "$1" >/dev/null 2>&1 && return 1
+		return 0
+	}
+	# slot_try_claim SRC PID: take over a stale slot of dir _gd by claiming its pid file SRC (the slot dir itself never
+	# moves, so the number of slots can never be exceeded): rename SRC to pid.$$ (atomic, one contender wins), check it
+	# still holds the stale PID, then create the pid file (noclobber: it must not exist). A file whose content is not the
+	# stale PID (a live run's pid) is never deleted: it is put back, or left where it is.
+	slot_try_claim() {
+		mv "$1" "$_gd/pid.$$" 2>/dev/null || return 1
+		_gx=$(cat "$_gd/pid.$$" 2>/dev/null || true)
+		if [ "$_gx" = "$2" ]; then
+			if (set -C; echo $$ >"$_gd/pid") 2>/dev/null; then
+				rm -f "$_gd/pid.$$"
+				return 0
+			fi
+			rm -f "$_gd/pid.$$" # the stale content only; somebody else has created the pid file
+			return 1
+		fi
+		[ -e "$1" ] || mv "$_gd/pid.$$" "$1" 2>/dev/null || true
+		return 1
+	}
+	# slot_try N: take slot-N when it is free or its holder is gone; 0 on success, 1 when someone else holds it.
+	# Stale: the pid file names a dead process, or is empty and more than a minute old (a crash between its creation
+	# and its write); or there is no pid file and a pid.N claim file of a dead claimer N, or more than a minute old (a
+	# crash after the rename; N may be a reused pid) holding a dead pid; or an empty slot more than a minute old (a
+	# crash between mkdir and the pid file).
+	slot_try() {
+		_gd=$slot_dir/slot-$1
+		if mkdir "$_gd" 2>/dev/null; then
+			echo $$ >"$_gd/pid"
+			return 0
+		fi
+		if [ -e "$_gd/pid" ]; then
+			_gp=$(cat "$_gd/pid" 2>/dev/null || true)
+			if [ -n "$_gp" ]; then
+				pid_gone "$_gp" || return 1
+			else
+				[ -n "$(find "$_gd/pid" -mmin +1 2>/dev/null)" ] || return 1
+			fi
+			slot_try_claim "$_gd/pid" "$_gp" || return 1
+			echo "package: removed the stale slot-$1 (holder '$_gp' is gone)" >&2
+			return 0
+		fi
+		_gk=
+		for _gc in "$_gd"/pid.*; do
+			[ -f "$_gc" ] || continue
+			_gk=1
+			# a claim in progress (its claimer is alive and the file is recent): leave the slot alone
+			if ! pid_gone "${_gc##*/pid.}" && [ -z "$(find "$_gc" -mmin +1 2>/dev/null)" ]; then
+				return 1
+			fi
+		done
+		for _gc in "$_gd"/pid.*; do
+			[ -f "$_gc" ] || continue
+			_gp=$(cat "$_gc" 2>/dev/null || true)
+			if [ -n "$_gp" ] && pid_gone "$_gp"; then
+				slot_try_claim "$_gc" "$_gp" || return 1
+				echo "package: removed the stale slot-$1 (claim of a gone run, holder $_gp is gone)" >&2
+				return 0
+			fi
+			# the claimer died holding a live pid: give the pid file back
+			[ ! -e "$_gd/pid" ] && mv "$_gc" "$_gd/pid" 2>/dev/null || true
+			return 1
+		done
+		[ -z "$_gk" ] || return 1
+		# an empty slot that is more than a minute old
+		[ -n "$(find "$_gd" -maxdepth 0 -mmin +1 2>/dev/null)" ] || return 1
+		(set -C; echo $$ >"$_gd/pid") 2>/dev/null || return 1
+		echo "package: took the abandoned slot-$1 (no pid file)" >&2
+		return 0
+	}
+	# slot_rel N: give slot-N back, but only when its pid file holds this shell's pid
+	slot_rel() {
+		[ "$(cat "$slot_dir/slot-$1/pid" 2>/dev/null || true)" = "$$" ] || return 0
+		rm -f "$slot_dir/slot-$1/pid"
+		rmdir "$slot_dir/slot-$1" 2>/dev/null || true
+	}
 	take_slot() {
 		mkdir -p "$slot_dir"
 		while [ -z "$slot_held" ]; do
 			for _s in ${NTFSMAC_VM_SLOTS:-1 2}; do
-				if mkdir "$slot_dir/slot-$_s" 2>/dev/null; then
-					echo $$ >"$slot_dir/slot-$_s/pid"
+				if slot_try "$_s"; then
 					slot_held=$_s
 					break
-				fi
-				_p=$(cat "$slot_dir/slot-$_s/pid" 2>/dev/null || true)
-				if [ -n "$_p" ] && ! kill -0 "$_p" 2>/dev/null; then
-					rm -f "$slot_dir/slot-$_s/pid"
-					rmdir "$slot_dir/slot-$_s" 2>/dev/null || true
 				fi
 			done
 			[ -n "$slot_held" ] || sleep "${NTFSMAC_SLOT_WAIT:-30}"
@@ -1009,7 +1085,7 @@ CLEAN
 		echo "package: holding VM slot-$slot_held"
 	}
 	release_slot() {
-		[ -z "$slot_held" ] || { rm -f "$slot_dir/slot-$slot_held/pid"; rmdir "$slot_dir/slot-$slot_held" 2>/dev/null || true; }
+		[ -z "$slot_held" ] || slot_rel "$slot_held"
 		slot_held=
 	}
 

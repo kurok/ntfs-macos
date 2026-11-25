@@ -139,23 +139,37 @@ cmd_run() {
     vm_present "$vm" || die "$vm does not exist (clone first)"
     local pidf=$STATE/$vm.pid logf=$STATE/$vm.log
     if [ -f "$pidf" ] && kill -0 "$(cat "$pidf")" 2>/dev/null; then die "$vm already running"; fi
-    nohup tart run "${gfx[@]+"${gfx[@]}"}" --no-audio --no-clipboard "${args[@]+"${args[@]}"}" "$vm" \
-        >"$logf" 2>&1 </dev/null &
-    echo $! > "$pidf"
-    log "started $vm (pid $(cat "$pidf"), log $logf); waiting for guest ($TRANSPORT)"
-    local ip="" t0; t0=$(date +%s)
+    local attempt=1 retry_wait=${NTFSMAC_START_RETRY_WAIT:-10}
     while :; do
-        kill -0 "$(cat "$pidf")" 2>/dev/null || { tail -5 "$logf" >&2; die "tart run exited early"; }
-        [ -n "$ip" ] || ip=$(vm_ip "$vm" || true)
-        # perl alarm: tart exec can hang when no agent answers yet.
-        if { perl -e 'alarm shift; exec @ARGV or exit 127' 15 "$0" exec "$vm" -- true >/dev/null 2>&1; } 2>/dev/null; then break; fi
-        if [ $(( $(date +%s) - t0 )) -ge "$SSH_WAIT" ]; then
-            if [ "$TRANSPORT" = exec ]; then
-                die "no guest agent after ${SSH_WAIT}s (ip='${ip}'). The image needs the tart guest agent (macos-*-base images have it); see vm/macos/README.md"
+        nohup tart run "${gfx[@]+"${gfx[@]}"}" --no-audio --no-clipboard "${args[@]+"${args[@]}"}" "$vm" \
+            >"$logf" 2>&1 </dev/null &
+        echo $! > "$pidf"
+        log "started $vm (pid $(cat "$pidf"), log $logf); waiting for guest ($TRANSPORT)"
+        local ip="" t0 early=0; t0=$(date +%s)
+        while :; do
+            if ! kill -0 "$(cat "$pidf")" 2>/dev/null; then early=1; break; fi
+            [ -n "$ip" ] || ip=$(vm_ip "$vm" || true)
+            # perl alarm: tart exec can hang when no agent answers yet.
+            if { perl -e 'alarm shift; exec @ARGV or exit 127' 15 "$0" exec "$vm" -- true >/dev/null 2>&1; } 2>/dev/null; then break; fi
+            if [ $(( $(date +%s) - t0 )) -ge "$SSH_WAIT" ]; then
+                if [ "$TRANSPORT" = exec ]; then
+                    die "no guest agent after ${SSH_WAIT}s (ip='${ip}'). The image needs the tart guest agent (macos-*-base images have it); see vm/macos/README.md"
+                fi
+                die "no SSH after ${SSH_WAIT}s (ip='${ip}'). If the lease exists but nothing answers, the calling app probably lacks macOS Local Network permission; use NTFSMAC_TRANSPORT=exec or see vm/macos/README.md"
             fi
-            die "no SSH after ${SSH_WAIT}s (ip='${ip}'). If the lease exists but nothing answers, the calling app probably lacks macOS Local Network permission; use NTFSMAC_TRANSPORT=exec or see vm/macos/README.md"
+            sleep 3
+        done
+        [ "$early" -eq 1 ] || break
+        tail -5 "$logf" >&2
+        # VZErrorDomain Code=1 ("The virtual machine failed to start") is retried once after a pause; Code=6
+        # (virtual machine limit exceeded) and every other error are not
+        if [ "$attempt" -eq 1 ] && grep -Eq 'VZErrorDomain Code=1([^0-9]|$)' "$logf" 2>/dev/null; then
+            attempt=2
+            log "tart run failed with VZErrorDomain Code=1 (the virtual machine failed to start); retrying once in ${retry_wait}s"
+            sleep "$retry_wait"
+            continue
         fi
-        sleep 3
+        die "tart run exited early"
     done
     log "$vm up at $ip after $(( $(date +%s) - t0 ))s"
     echo "$ip"

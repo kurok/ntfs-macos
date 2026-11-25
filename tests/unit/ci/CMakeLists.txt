@@ -30,6 +30,10 @@ if(NTFSMAC_PYTHON3 AND NTFSMAC_SH)
   add_test(NAME ci.local_tools
     COMMAND ${_ci_env} ${NTFSMAC_SH} ${_ci_dir}/test_ci_local_tools.sh)
   set_tests_properties(ci.local_tools PROPERTIES TIMEOUT 60 LABELS ci)
+  # the VM slot protocol (stale takeover, EPERM) and the tart run start retry, with stubs only
+  add_test(NAME ci.vm_slots
+    COMMAND ${_ci_env} ${NTFSMAC_SH} ${_ci_dir}/test_vm_slots.sh)
+  set_tests_properties(ci.vm_slots PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 120 LABELS ci)
   # deps-tar and fixtures keys, seals and stamps, with fake tars and a temp git repository (M5-F07)
   add_test(NAME ci.run_inputs
     COMMAND ${_ci_env} ${NTFSMAC_SH} ${_ci_dir}/test_run_inputs.sh)

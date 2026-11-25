@@ -110,24 +110,88 @@ lane_tag=
 terminating=0 # a signal was handled
 waiting=0     # 1 while this shell waits for a stage or for the lanes: the stage or phase then records and exits itself
 
-# ---- slot locks (same protocol as dmn_all.sh) ----------------------------------------------------
-# grab_slot N: take slot-N when it is free or its holder is gone; 0 on success, 1 when someone else holds it
-grab_slot() {
-	if mkdir "$slot_dir/slot-$1" 2>/dev/null; then
-		echo $$ >"$slot_dir/slot-$1/pid"
-		return 0
-	fi
-	gs_p=$(cat "$slot_dir/slot-$1/pid" 2>/dev/null || true)
-	if [ -n "$gs_p" ] && ! kill -0 "$gs_p" 2>/dev/null; then
-		echo "run-suite: removing the stale slot-$1 (holder $gs_p is gone)" >&2
-		rm -f "$slot_dir/slot-$1/pid"
-		rmdir "$slot_dir/slot-$1" 2>/dev/null || true
-		if mkdir "$slot_dir/slot-$1" 2>/dev/null; then
-			echo $$ >"$slot_dir/slot-$1/pid"
+# ---- slot locks (same protocol as dmn_all.sh and scripts/ci-local.sh) ----------------------------------
+# pid_gone PID: 0 when no process has that pid. kill -0 alone would call a live process of another user dead
+# (EPERM), so ps -p is asked too: a process is gone only when both fail.
+pid_gone() {
+	case $1 in '' | *[!0-9]*) return 0 ;; esac
+	kill -0 "$1" 2>/dev/null && return 1
+	ps -p "$1" >/dev/null 2>&1 && return 1
+	return 0
+}
+# grab_slot_claim SRC PID: take over a stale slot of dir gs_d by claiming its pid file SRC (the slot dir itself never
+# moves, so the number of slots can never be exceeded): rename SRC to pid.$$ (atomic, one contender wins), check it
+# still holds the stale PID, then create the pid file (noclobber: it must not exist). A file whose content is not the
+# stale PID (a live run's pid) is never deleted: it is put back, or left where it is.
+grab_slot_claim() {
+	mv "$1" "$gs_d/pid.$$" 2>/dev/null || return 1
+	gs_x=$(cat "$gs_d/pid.$$" 2>/dev/null || true)
+	if [ "$gs_x" = "$2" ]; then
+		if (set -C; echo $$ >"$gs_d/pid") 2>/dev/null; then
+			rm -f "$gs_d/pid.$$"
 			return 0
 		fi
+		rm -f "$gs_d/pid.$$" # the stale content only; somebody else has created the pid file
+		return 1
 	fi
+	[ -e "$1" ] || mv "$gs_d/pid.$$" "$1" 2>/dev/null || true
 	return 1
+}
+# grab_slot N: take slot-N when it is free or its holder is gone; 0 on success, 1 when someone else holds it.
+# Stale: the pid file names a dead process, or is empty and more than a minute old (a crash between its creation
+# and its write); or there is no pid file and a pid.N claim file of a dead claimer N, or more than a minute old (a
+# crash after the rename; N may be a reused pid) holding a dead pid; or an empty slot more than a minute old (a
+# crash between mkdir and the pid file).
+grab_slot() {
+	gs_d=$slot_dir/slot-$1
+	if mkdir "$gs_d" 2>/dev/null; then
+		echo $$ >"$gs_d/pid"
+		return 0
+	fi
+	if [ -e "$gs_d/pid" ]; then
+		gs_p=$(cat "$gs_d/pid" 2>/dev/null || true)
+		if [ -n "$gs_p" ]; then
+			pid_gone "$gs_p" || return 1
+		else
+			[ -n "$(find "$gs_d/pid" -mmin +1 2>/dev/null)" ] || return 1
+		fi
+		grab_slot_claim "$gs_d/pid" "$gs_p" || return 1
+		echo "run-suite: removed the stale slot-$1 (holder '$gs_p' is gone)" >&2
+		return 0
+	fi
+	gs_k=
+	for gs_c in "$gs_d"/pid.*; do
+		[ -f "$gs_c" ] || continue
+		gs_k=1
+		# a claim in progress (its claimer is alive and the file is recent): leave the slot alone
+		if ! pid_gone "${gs_c##*/pid.}" && [ -z "$(find "$gs_c" -mmin +1 2>/dev/null)" ]; then
+			return 1
+		fi
+	done
+	for gs_c in "$gs_d"/pid.*; do
+		[ -f "$gs_c" ] || continue
+		gs_p=$(cat "$gs_c" 2>/dev/null || true)
+		if [ -n "$gs_p" ] && pid_gone "$gs_p"; then
+			grab_slot_claim "$gs_c" "$gs_p" || return 1
+			echo "run-suite: removed the stale slot-$1 (claim of a gone run, holder $gs_p is gone)" >&2
+			return 0
+		fi
+		# the claimer died holding a live pid: give the pid file back
+		[ ! -e "$gs_d/pid" ] && mv "$gs_c" "$gs_d/pid" 2>/dev/null || true
+		return 1
+	done
+	[ -z "$gs_k" ] || return 1
+	# an empty slot that is more than a minute old
+	[ -n "$(find "$gs_d" -maxdepth 0 -mmin +1 2>/dev/null)" ] || return 1
+	(set -C; echo $$ >"$gs_d/pid") 2>/dev/null || return 1
+	echo "run-suite: took the abandoned slot-$1 (no pid file)" >&2
+	return 0
+}
+# release_one N: give slot-N back, but only when its pid file holds this shell's pid
+release_one() {
+	[ "$(cat "$slot_dir/slot-$1/pid" 2>/dev/null || true)" = "$$" ] || return 0
+	rm -f "$slot_dir/slot-$1/pid"
+	rmdir "$slot_dir/slot-$1" 2>/dev/null || true
 }
 # take_slot: wait for a first slot (the run holds it from the preflight to the end)
 take_slot() {
@@ -159,18 +223,12 @@ try_second_slot() {
 	return 1
 }
 release_second_slot() {
-	if [ -n "$slot2" ]; then
-		rm -f "$slot_dir/slot-$slot2/pid"
-		rmdir "$slot_dir/slot-$slot2" 2>/dev/null || true
-	fi
+	[ -z "$slot2" ] || release_one "$slot2"
 	slot2=
 }
 release_slot() {
 	release_second_slot
-	if [ -n "$slot" ]; then
-		rm -f "$slot_dir/slot-$slot/pid"
-		rmdir "$slot_dir/slot-$slot" 2>/dev/null || true
-	fi
+	[ -z "$slot" ] || release_one "$slot"
 	slot=
 }
 

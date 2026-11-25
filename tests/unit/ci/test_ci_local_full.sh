@@ -352,6 +352,7 @@ cat >"$work/stub.sh" <<'STUB'
 # note STUB_SKIPNOTE (default: the note of the real plan for the by-design skips); STUB_EXTRA="ID:status ...":
 # more cases in the result (stress and harness cases merged into a real result). The plan of env host is the
 # REAL one (STUB_REAL_TEST_ALL --env host --dry-run), notes of the by-design skips included.
+# STUB_SLEEP="E:SECONDS ...": the stub of E sleeps; STUB_EVENTS=FILE: "start E" / "end E" / "term E" lines.
 env=; out=; dry=0
 while [ $# -gt 0 ]; do
 	case $1 in
@@ -377,6 +378,24 @@ if [ $dry = 1 ]; then
 	exit 0
 fi
 echo "$env" >>"$STUB_LOG"
+[ -z "${STUB_EVENTS:-}" ] || echo "start $env" >>"$STUB_EVENTS"
+# STUB_CLEANUP="E:SECONDS": on TERM the stub of E writes to its output, takes that long and records "cleaned E"
+term() {
+	[ -z "${STUB_EVENTS:-}" ] || echo "term $env" >>"$STUB_EVENTS"
+	for c in ${STUB_CLEANUP:-}; do
+		case $c in "$env":*)
+			echo "cleaning"; echo "cleaning" >&2
+			# a process of its own, as a real cleanup starts (release-local.sh deleting its clone)
+			sh -c 'sleep "$1"; echo "cleaned $2" >>"$3"' sh "${c#*:}" "$env" "${STUB_EVENTS:-/dev/null}" ;;
+		esac
+	done
+	exit 143
+}
+trap term TERM
+for x in ${STUB_SLEEP:-}; do
+	case $x in "$env":*) sleep "${x#*:}" ;; esac
+done
+[ -z "${STUB_EVENTS:-}" ] || echo "end $env" >>"$STUB_EVENTS"
 [ "${STUB_NOFILE:-}" != "$env" ] || exit 0
 python3 -B - "$out" "$env" "$STUB_REPO" "$(plan "$env")" <<'PY'
 import json, os, subprocess, sys
@@ -714,7 +733,7 @@ expect "F05: an adopted file outside tests/results/ is rejected without --pre-co
 rm -rf "$work/r/tests/gate"
 
 # ---- full mode with the stubs ---------------------------------------------------------------------
-full() { : >"$STUB_LOG"; rc=0; CI_LOCAL_TEST_OWN=1 "$work/r/scripts/ci-local.sh" "$@" >"$work/out" 2>&1 || rc=$?; unset STUB_FAIL STUB_NOFILE STUB_MISSING STUB_RC3 CI_LOCAL_TEST_OWN_FAIL; }
+full() { : >"$STUB_LOG"; rc=0; CI_LOCAL_TEST_OWN=1 "$work/r/scripts/ci-local.sh" "$@" >"$work/out" 2>&1 || rc=$?; unset STUB_FAIL STUB_NOFILE STUB_MISSING STUB_RC3 CI_LOCAL_TEST_OWN_FAIL STUB_SLEEP STUB_EVENTS STUB_CLEANUP CI_LOCAL_TEST_OWN_SLEEP CI_LOCAL_TEST_OWN_EVENTS CI_LOCAL_TEST_OWN_CLEANUP CI_LOCAL_TEST_FORK_DELAY CI_LOCAL_TEST_DOCKER_NCPU; }
 full --dry-run --fixtures "$work/fx"
 expect "S3: full mode with --fixtures warns that the run cannot pass the gate" 0 'WARNING: --fixtures .*cannot pass the gate'
 order() { tr '\n' ' ' <"$STUB_LOG"; }
@@ -729,8 +748,9 @@ check "--dry-run shows each stage, each test-all plan, the demanded envs and run
 
 full --results-dir "$work/resall"
 expect "full mode, every stage stubbed, passes with --require-env host,A,B derived" 0 'ci-local: PASSED'
-if [ "$(order)" = "host A B " ]; then r=0; else r=1; fi
-check "test-all runs host, A, B in order" "$r"
+# host runs first and alone; A (Docker group) and B (VM group) then run at the same time: no order between them
+if [ "$(sed -n 1p "$STUB_LOG")" = host ] && [ "$(sort "$STUB_LOG" | tr '\n' ' ')" = "A B host " ]; then r=0; else r=1; fi
+check "test-all runs host first, then A and B (concurrent groups)" "$r"
 r=1
 n=$(nfiles "$work/resall" .json)
 if [ "$n" -eq 6 ] && [ "$(nfiles "$work/resall" -ci.json)" -eq 3 ]; then r=0; fi
@@ -784,6 +804,156 @@ g checkout -q -- src/a.c
 STUB_RC3=host full --only host --results-dir "$work/resd8"
 if [ "$rc" -eq 1 ] && grep -q '^host  *FAIL ' "$work/out"; then r=0; else r=1; sed 's/^/    | /' "$work/out" | tail -8; fi
 check "M5-F12: test-all exit 3 for a tree that was clean at the start (it became dirty during the run) fails the stage" "$r"
+
+
+# ---- concurrent groups: Docker stages (A, linux-build-test, fuzz-short) next to VM stages (package, B) ------
+ev=$work/events
+# evn FILE PATTERN: line number of the first line equal to PATTERN, or 0
+evn() { n=$(grep -n -x -- "$2" "$1" | head -n 1 | cut -d: -f1); echo "${n:-0}"; }
+# lt A B: both lines exist and A comes before B
+lt() { [ "$1" -gt 0 ] && [ "$2" -gt 0 ] && [ "$1" -lt "$2" ]; }
+
+: >"$ev"
+export STUB_SLEEP="A:2 B:2" STUB_EVENTS=$ev CI_LOCAL_TEST_OWN_SLEEP="fuzz-short:3 package:1 linux-build-test:1" CI_LOCAL_TEST_OWN_EVENTS=$ev
+full --results-dir "$work/rescc"
+expect "G1: the concurrent run passes with every result verified" 0 'ci-local: PASSED'
+sA=$(evn "$ev" "start A"); sP=$(evn "$ev" "start package"); sB=$(evn "$ev" "start B"); eA=$(evn "$ev" "end A"); eP=$(evn "$ev" "end package")
+sL=$(evn "$ev" "start linux-build-test"); eL=$(evn "$ev" "end linux-build-test"); sF=$(evn "$ev" "start fuzz-short")
+# A and package start before anything ends (the two groups run at the same time), B starts while A is still running
+if lt "$sA" "$eA" && lt "$sP" "$eA" && lt "$sA" "$eP" && lt "$sB" "$eA"; then r=0; else r=1; cat "$ev" | tr '\n' ';'; fi
+check "G1: the Docker group (A) and the VM group (package, B) run at the same time" "$r"
+# the groups run their stages one after the other, in plan order
+if lt "$eA" "$sL" && lt "$eL" "$sF" && lt "$eP" "$sB"; then r=0; else r=1; fi
+check "G2: inside a group the stages are sequential (A, linux-build-test, fuzz-short; package, then B: never together)" "$r"
+# fuzz-short (3 s) ends after B starts; package ended long before: completion order differs from plan order
+sed -n '/== summary ==/,/== verify-result/p' "$work/out" | awk 'NF >= 3 && $2 ~ /^(ok|FAIL|NOTRUN)$/ { printf "%s ", $1 }' >"$work/sumorder"
+if [ "$(cat "$work/sumorder")" = "bootstrap host tsan static-analysis A linux-build-test fuzz-short package B " ]; then r=0; else r=1; cat "$work/sumorder"; fi
+check "G3: the summary lists every stage once, in plan order" "$r"
+if [ "$(nfiles "$work/rescc" .json)" -eq 6 ] && [ "$(nfiles "$work/rescc" -ci.json)" -eq 3 ]; then r=0; else r=1; fi
+check "G3: the same six result files as a serial run" "$r"
+if grep -q '^ci-local: \[D\] start A ' "$work/out" && grep -q '^ci-local: \[D\] end   A: ok in ' "$work/out" && grep -q '^ci-local: \[V\] start package ' "$work/out" &&
+	grep -q '^ci-local: \[V\] end   B: ok in ' "$work/out"; then r=0; else r=1; fi
+check "G4: the console shows a start line and an end line per concurrent stage" "$r"
+# each stage log is printed whole and the stages are not interleaved
+if awk '/^== ci-local stage .*: log of the concurrent run ==$/ { n++ } END { exit !(n == 5) }' "$work/out" &&
+	[ "$(grep -c 'stub stage fuzz-short' "$work/out")" -ge 1 ]; then r=0; else r=1; fi
+check "G4: the log of each of the five concurrent stages follows in plan order" "$r"
+unset STUB_SLEEP STUB_EVENTS CI_LOCAL_TEST_OWN_SLEEP CI_LOCAL_TEST_OWN_EVENTS
+
+# a failure in one group does not stop the other (and the group goes on with its next stage)
+: >"$ev"
+export STUB_SLEEP="A:1 B:1" STUB_EVENTS=$ev
+STUB_FAIL=A CI_LOCAL_TEST_OWN_FAIL=fuzz-short full --results-dir "$work/resgf"
+if [ "$rc" -eq 1 ] && grep -q '^A  *FAIL ' "$work/out" && grep -q '^linux-build-test  *ok ' "$work/out" && grep -q '^fuzz-short  *FAIL ' "$work/out" &&
+	grep -q '^package  *ok ' "$work/out" && grep -q '^B  *ok ' "$work/out" && grep -q 'ci-local: FAILED' "$work/out"; then r=0; else r=1; sed 's/^/    | /' "$work/out" | tail -20; fi
+check "G5: a failing Docker stage fails the run, the rest of its group and the VM group still run" "$r"
+: >"$ev"
+STUB_FAIL=B CI_LOCAL_TEST_OWN_FAIL=package full --results-dir "$work/resgv"
+if [ "$rc" -eq 1 ] && grep -q '^package  *FAIL ' "$work/out" && grep -q '^B  *FAIL ' "$work/out" && grep -q '^A  *ok ' "$work/out" &&
+	grep -q '^fuzz-short  *ok ' "$work/out" && grep -q '\[V\] end   package: FAIL' "$work/out" && grep -q 'ci-local: FAILED' "$work/out"; then r=0; else r=1; sed 's/^/    | /' "$work/out" | tail -20; fi
+check "G5: a failing VM stage fails the run, B still runs and the Docker group still runs" "$r"
+
+# --serial: the old order, one stage at a time, output on the console
+: >"$ev"
+export STUB_SLEEP="A:1 B:1" STUB_EVENTS=$ev CI_LOCAL_TEST_OWN_SLEEP="package:1" CI_LOCAL_TEST_OWN_EVENTS=$ev
+full --serial --results-dir "$work/ressr"
+expect "G6: --serial passes" 0 'ci-local: PASSED'
+eA=$(evn "$ev" "end A"); sP=$(evn "$ev" "start package"); eP=$(evn "$ev" "end package"); sB=$(evn "$ev" "start B")
+if [ "$(order)" = "host A B " ] && lt "$eA" "$sP" && lt "$eP" "$sB" && ! grep -q '\[D\]' "$work/out" && grep -q '^== ci-local stage fuzz-short ==' "$work/out"; then r=0; else r=1; fi
+check "G6: --serial runs host, A, B strictly one after the other with the console output of each stage" "$r"
+if [ "$(nfiles "$work/ressr" .json)" -eq 6 ]; then r=0; else r=1; fi
+check "G6: --serial writes the same six result files" "$r"
+unset STUB_SLEEP STUB_EVENTS CI_LOCAL_TEST_OWN_SLEEP CI_LOCAL_TEST_OWN_EVENTS
+full --dry-run --serial
+expect "G6: --dry-run --serial says that nothing runs concurrently" 0 'concurrency: none (--serial)'
+full --dry-run
+expect "G6: --dry-run names the concurrent groups" 0 'concurrency: after bootstrap host tsan static-analysis, the Docker stages (A linux-build-test fuzz-short) run next to the VM stages (package B)'
+full --dry-run --only host,A
+expect "G6: a selection with one group only runs without concurrency" 0 'concurrency: none, the selection has only one of the two groups'
+ci --serial --quick
+expect "G6: --serial with --quick exits 2" 2 'do not apply to --quick'
+ci --verify-result "$work/x.json" --serial
+expect "G6: --serial with --verify-result exits 2" 2 'do not apply to --verify-result'
+CI_LOCAL_DOCKER_CPUS=x full --dry-run
+expect "G6: CI_LOCAL_DOCKER_CPUS must be a whole number" 2 'CI_LOCAL_DOCKER_CPUS'
+unset CI_LOCAL_DOCKER_CPUS
+
+# the CPU cap of the Docker group (NTFS_LINUX_CPUS, read by vm/linux/run.sh) reaches its stages and only them
+: >"$ev"
+export CI_LOCAL_TEST_OWN_EVENTS=$ev
+full --results-dir "$work/rescpu"
+if grep -qx 'cpus linux-build-test 4' "$ev" && grep -qx 'cpus fuzz-short 4' "$ev" && grep -qx 'cpus package none' "$ev" && grep -qx 'cpus tsan none' "$ev"; then r=0; else r=1; cat "$ev" | tr '\n' ';'; fi
+check "G8: the Docker group runs with NTFS_LINUX_CPUS=4 (default), the VM group and the stages before them without a cap" "$r"
+: >"$ev"
+export CI_LOCAL_TEST_OWN_EVENTS=$ev CI_LOCAL_DOCKER_CPUS=0
+full --results-dir "$work/rescpu0"
+if grep -qx 'cpus linux-build-test none' "$ev"; then r=0; else r=1; cat "$ev" | tr '\n' ';'; fi
+check "G8: CI_LOCAL_DOCKER_CPUS=0 removes the cap" "$r"
+: >"$ev"
+export CI_LOCAL_TEST_OWN_EVENTS=$ev CI_LOCAL_DOCKER_CPUS=6
+full --results-dir "$work/rescpu6"
+if grep -qx 'cpus fuzz-short 6' "$ev"; then r=0; else r=1; cat "$ev" | tr '\n' ';'; fi
+check "G8: CI_LOCAL_DOCKER_CPUS=N sets the cap" "$r"
+: >"$ev"
+export CI_LOCAL_TEST_OWN_EVENTS=$ev
+unset CI_LOCAL_DOCKER_CPUS
+full --serial --results-dir "$work/rescps"
+if grep -qx 'cpus fuzz-short none' "$ev"; then r=0; else r=1; cat "$ev" | tr '\n' ';'; fi
+check "G8: --serial has no cap (the old behaviour)" "$r"
+unset CI_LOCAL_TEST_OWN_EVENTS
+
+# INT/TERM to ci-local stops both groups, waits for their cleanup (which writes through the pipes), prints the summary
+slots=$work/slots
+mkdir -p "$slots"
+: >"$ev"
+export STUB_SLEEP="A:60" STUB_CLEANUP="A:3" STUB_EVENTS=$ev CI_LOCAL_TEST_OWN_SLEEP="package:60" CI_LOCAL_TEST_OWN_CLEANUP="package:3" CI_LOCAL_TEST_OWN_EVENTS=$ev CI_LOCAL_TEST_OWN=1 CI_LOCAL_TEST_OWN_TAKE_SLOT=package
+: >"$STUB_LOG"
+rc=0
+"$work/r/scripts/ci-local.sh" --results-dir "$work/ressig" --slot-dir "$slots" >"$work/out" 2>&1 &
+cpid=$!
+i=0
+while [ "$i" -lt 60 ] && { [ "$(evn "$ev" "start A")" -eq 0 ] || [ "$(evn "$ev" "start package")" -eq 0 ]; }; do sleep 1; i=$((i + 1)); done
+sleep 1
+held=0; for d in "$slots"/slot-*; do [ ! -e "$d/pid" ] || held=$((held + 1)); done
+t0=$(date +%s)
+kill -TERM "$cpid"
+wait "$cpid" || rc=$?
+t1=$(date +%s)
+unset STUB_SLEEP STUB_CLEANUP STUB_EVENTS CI_LOCAL_TEST_OWN_SLEEP CI_LOCAL_TEST_OWN_EVENTS CI_LOCAL_TEST_OWN_CLEANUP CI_LOCAL_TEST_OWN CI_LOCAL_TEST_OWN_TAKE_SLOT
+if [ "$rc" -eq 130 ] && [ "$((t1 - t0))" -lt 20 ] && grep -q 'ci-local: INTERRUPTED' "$work/out" && grep -q '== summary ==' "$work/out" &&
+	grep -q '^host  *ok ' "$work/out" && grep -q '^A  *NOTRUN\|^A  *FAIL' "$work/out" && [ "$(evn "$ev" "term A")" -gt 0 ] &&
+	[ "$(evn "$ev" "start B")" -eq 0 ] && [ "$(evn "$ev" "end package")" -eq 0 ] && [ "$(evn "$ev" "end A")" -eq 0 ]; then r=0; else r=1; echo "rc=$rc t=$((t1 - t0))"; cat "$ev" | tr '\n' ';'; sed 's/^/    | /' "$work/out" | tail -20; fi
+check "G7: TERM to ci-local stops both groups (TERM reaches the stage processes), prints the summary and exits 130" "$r"
+# the stubs cleaned up while writing to stdout and stderr (the pipe to tee of an own stage stays open), and ci-local waited for it
+if [ "$(evn "$ev" "cleaned A")" -gt 0 ] && [ "$(evn "$ev" "cleaned package")" -gt 0 ] && [ "$((t1 - t0))" -ge 3 ]; then r=0; else r=1; cat "$ev" | tr '\n' ';'; fi
+check "G7: ci-local exits only after the cleanups (a process the trap starts, written through the pipe) have finished: no TERM to tee, none to the cleanup" "$r"
+if ! ps -A -o command= | grep -q '^sleep 6[0]$'; then r=0; else r=1; ps -A -o pid=,command= | grep '^ *[0-9]* sleep 6[0]$'; fi
+check "G7: no stub process is left behind" "$r"
+n=0; for d in "$slots"/slot-*; do [ ! -e "$d" ] || n=$((n + 1)); done
+check "G7: no VM slot is left behind (package held one under the pid of ci-local: $held before the signal)" "$([ "$n" -eq 0 ] && [ "$held" -eq 1 ] && echo 0 || echo 1)"
+
+# a signal in the window between the start of the two groups: the second group runs no stage
+: >"$ev"
+export STUB_SLEEP="A:60" STUB_CLEANUP="A:1" STUB_EVENTS=$ev CI_LOCAL_TEST_OWN_EVENTS=$ev CI_LOCAL_TEST_OWN=1 CI_LOCAL_TEST_FORK_DELAY=4
+rc=0
+"$work/r/scripts/ci-local.sh" --results-dir "$work/ressig2" --slot-dir "$slots" >"$work/out" 2>&1 &
+cpid=$!
+i=0
+while [ "$i" -lt 60 ] && [ "$(evn "$ev" "start A")" -eq 0 ]; do sleep 1; i=$((i + 1)); done
+kill -TERM "$cpid"
+wait "$cpid" || rc=$?
+unset STUB_SLEEP STUB_CLEANUP STUB_EVENTS CI_LOCAL_TEST_OWN_EVENTS CI_LOCAL_TEST_OWN CI_LOCAL_TEST_FORK_DELAY
+if [ "$rc" -eq 130 ] && [ "$(evn "$ev" "start package")" -eq 0 ] && [ "$(evn "$ev" "start B")" -eq 0 ] && [ "$(evn "$ev" "cleaned A")" -gt 0 ] &&
+	grep -q 'ci-local: INTERRUPTED' "$work/out" && grep -q '^package  *NOTRUN' "$work/out"; then r=0; else r=1; echo "rc=$rc"; cat "$ev" | tr '\n' ';'; sed 's/^/    | /' "$work/out" | tail -12; fi
+check "G7: a signal before the second group has started stops the first and starts no stage of the second" "$r"
+
+# the CPU cap is clamped to the CPUs of Docker
+: >"$ev"
+export CI_LOCAL_TEST_OWN_EVENTS=$ev CI_LOCAL_DOCKER_CPUS=64 CI_LOCAL_TEST_DOCKER_NCPU=8
+full --results-dir "$work/rescl"
+if grep -q 'WARNING: CI_LOCAL_DOCKER_CPUS=64 is more than the 8 CPUs of Docker: using 8' "$work/out" && grep -qx 'cpus fuzz-short 8' "$ev"; then r=0; else r=1; cat "$ev" | tr '\n' ';'; fi
+check "G8: CI_LOCAL_DOCKER_CPUS above the CPUs of Docker is clamped with a warning" "$r"
+unset CI_LOCAL_TEST_OWN_EVENTS CI_LOCAL_DOCKER_CPUS CI_LOCAL_TEST_DOCKER_NCPU
 
 if [ "$fails" -eq 0 ]; then echo "ALL PASSED"; exit 0; fi
 echo "$fails FAILED"; exit 1

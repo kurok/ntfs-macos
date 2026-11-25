@@ -5,13 +5,14 @@
 #
 # Usage: scripts/ci-local.sh --quick [--preset NAME] [--build-dir DIR]
 #        scripts/ci-local.sh [--only LIST] [--fuzz-seconds N] [--results-dir DIR] [--slot-dir DIR]
-#                            [--fixtures DIR] [--lanes 1|2] [--allow-dirty] [--dry-run]
+#                            [--fixtures DIR] [--lanes 1|2] [--serial] [--allow-dirty] [--dry-run]
 #        scripts/ci-local.sh --verify-result FILE [--verify-result FILE]... [--commit REV]
 #                            [--require-env LIST] [--require-case ID]... [--milestone NAME]
 #
 #   --quick          bootstrap check, configure, build, product build, ctest (T-M1-07). Before every push.
 #   (no --quick)     FULL mode (T-M5-08), before each milestone gate and release. Takes hours. Stages, in
-#                    order (it continues after a failure and exits 1 if any failed):
+#                    order (it continues after a failure and exits 1 if any failed; A, linux-build-test and
+#                    fuzz-short, the Docker stages, run next to package and B, the VM stages: see --serial):
 #                      bootstrap         scripts/bootstrap.sh
 #                      host              scripts/test-all.sh --env host (macOS build and unit tests, no mount)
 #                      tsan              ThreadSanitizer unit tests (tsan preset, ctest -R ^tsan., U-TSAN-*)
@@ -79,6 +80,13 @@
 #                    repetitions, ...); every other run writes it with the suffix -SHORT (M5-F04).
 #   --lanes N        (full mode) stage B: 2 (default) runs its VM stages in two lanes, two guests at a time;
 #                    1 runs them strictly one after the other (test-all.sh --lanes, docs/TEST_STRATEGY.md)
+#   --serial         (full mode) no concurrency between the Docker stages (A, linux-build-test, fuzz-short) and
+#                    the VM stages (package, B): every stage runs alone, in the order above, with its output on
+#                    the console. Default: after bootstrap, host, tsan and static-analysis the two groups run at
+#                    the same time, each group in the order above, one log per stage, and the Docker stages are
+#                    capped at CI_LOCAL_DOCKER_CPUS CPUs per container (default 4, 0: no cap) so that the guests
+#                    keep their cores. The results are the same (docs/TEST_STRATEGY.md). Use --serial to debug
+#                    or to time a stage.
 #   --fixtures DIR   (full mode) reuse fixture images. The run records the skip "reusing DIR", which the
 #                    gate rejects: such a run cannot pass the gate, and ci-local prints a warning at the
 #                    start. test-all.sh refuses a DIR whose images are not stamped (.fixtures-key, written by
@@ -93,7 +101,13 @@
 # Test seams (tests/unit/ci only): CI_LOCAL_TEST_ALL names a replacement for scripts/test-all.sh;
 # CI_LOCAL_TEST_OWN=1 replaces the commands of the stages ci-local runs itself (they succeed, except the
 # stages named in CI_LOCAL_TEST_OWN_FAIL); CI_LOCAL_LLVM_DIRS replaces the directories searched for
-# clang-tidy (tests/unit/ci/test_ci_local_tools.sh only). It is refused in full mode (exit 2) unless
+# clang-tidy (tests/unit/ci/test_ci_local_tools.sh only). With CI_LOCAL_TEST_OWN, a stub stage sleeps as
+# CI_LOCAL_TEST_OWN_SLEEP says ("NAME:SECONDS ...") and appends "start NAME" / "end NAME" lines to the file
+# CI_LOCAL_TEST_OWN_EVENTS (and "cpus NAME N" with the NTFS_LINUX_CPUS the stage runs with);
+# CI_LOCAL_TEST_OWN_CLEANUP="NAME:SECONDS ..." makes the stub of NAME trap TERM, write to its output and
+# take that long to clean up before it ends; CI_LOCAL_TEST_FORK_DELAY=SECONDS waits between the start of the
+# two groups; CI_LOCAL_TEST_OWN_TAKE_SLOT="NAME ..." makes those stubs take a VM slot like package_stage;
+# CI_LOCAL_TEST_DOCKER_NCPU=N stands for the CPU count of `docker info`. It is refused in full mode (exit 2) unless
 # CI_LOCAL_TEST_OWN is set: a gate run must look where the documentation says.
 #
 # ThreadSanitizer: `scripts/ci-local.sh --quick --preset tsan` builds and runs every test with
@@ -130,6 +144,7 @@ results_dir=
 slot_dir=
 fixtures=
 lanes=
+serial=0
 allow_dirty=0
 dry=0
 # options that belong to one mode only (checked after parsing)
@@ -188,6 +203,7 @@ while [ $# -gt 0 ]; do
 		[ $# -ge 2 ] || { usage; die "--lanes needs 1 or 2"; }
 		lanes=$2; full_opts="$full_opts $1"; shift
 		;;
+	--serial) serial=1; full_opts="$full_opts $1" ;;
 	--allow-dirty) allow_dirty=1; full_opts="$full_opts $1" ;;
 	--dry-run) dry=1; full_opts="$full_opts $1" ;;
 	--preset)
@@ -206,6 +222,8 @@ done
 
 case $fuzz_seconds in '' | *[!0-9]*) die "--fuzz-seconds needs a whole number" ;; esac
 case $lanes in '' | 1 | 2) ;; *) die "--lanes needs 1 or 2, not $lanes" ;; esac
+docker_cpus=${CI_LOCAL_DOCKER_CPUS:-4}
+case $docker_cpus in '' | *[!0-9]*) die "CI_LOCAL_DOCKER_CPUS needs a whole number (0: no cap)" ;; esac
 if [ -n "$verify_files" ]; then
 	[ "$quick" -eq 0 ] || die "--verify-result and --quick cannot be combined"
 	[ -z "$full_opts" ] || die "options of full mode do not apply to --verify-result:$full_opts"
@@ -635,6 +653,20 @@ if [ "$quick" -eq 0 ]; then
 		done
 	fi
 	want() { case " $sel " in *" $1 "*) return 0 ;; esac; return 1; }
+	# sel_of STAGE...: the selected ones among them, in the order given
+	sel_of() {
+		_so=
+		for _sx in "$@"; do
+			if want "$_sx"; then _so="${_so:+$_so }$_sx"; fi
+		done
+		printf '%s' "$_so"
+	}
+	# the stages that run before the two groups (local builds, CPU heavy), the Docker group and the VM group
+	grp_pre=$(sel_of bootstrap host tsan static-analysis)
+	grp_d=$(sel_of A linux-build-test fuzz-short)
+	grp_v=$(sel_of package B)
+	concurrent=0
+	if [ "$serial" -eq 0 ] && [ -n "$grp_d" ] && [ -n "$grp_v" ]; then concurrent=1; fi
 	[ -n "$results_dir" ] || results_dir=$root/tests/results
 	case $results_dir in /*) ;; *) results_dir=$(pwd)/$results_dir ;; esac
 	case $slot_dir in '' | /*) ;; *) slot_dir=$(pwd)/$slot_dir ;; esac
@@ -683,6 +715,14 @@ if [ "$quick" -eq 0 ]; then
 			host | A | B) "$test_all" --env "$_s" --dry-run 2>&1 | sed 's/^/      /' || true ;;
 			esac
 		done
+		if [ "$concurrent" -eq 1 ]; then
+			printf 'concurrency: after %s, the Docker stages (%s) run next to the VM stages (%s), each group in plan order; Docker cap: %s CPUs per container (0: none)\n' \
+				"${grp_pre:-nothing}" "$grp_d" "$grp_v" "$docker_cpus"
+		elif [ "$serial" -eq 1 ]; then
+			printf 'concurrency: none (--serial), the stages run one after the other\n'
+		else
+			printf 'concurrency: none, the selection has only one of the two groups\n'
+		fi
 		printf 'then: --verify-result --pre-commit on every result file against HEAD, --require-env %s\n' "$need_envs"
 		printf 'dry run: nothing was run, no result was written\n'
 		exit 0
@@ -702,12 +742,20 @@ if [ "$quick" -eq 0 ]; then
 		mkdir -p "$work/$_e/logs"
 		: >"$work/$_e/stages.tsv"
 	done
+	# per stage, one file each: its summary line (sum), its result files (res), its console log when run
+	# concurrently (live); the stages of the two groups run in different processes and share nothing else
+	mkdir -p "$work/sum" "$work/res" "$work/live"
 	slot_held=
 	cleanup() {
-		if [ -n "$slot_held" ]; then
-			rm -f "$slot_dir/slot-$slot_held/pid"
-			rmdir "$slot_dir/slot-$slot_held" 2>/dev/null || true
-		fi
+		# the slots taken by this run's stages: take_slot writes $$, the pid of this shell also in the
+		# subshells of the groups and of the stages, so a slot whose stage was stopped by a signal is
+		# released here (the VM suites of B hold their own slots under their own pids)
+		for _cd in "$slot_dir"/slot-*; do
+			[ -f "$_cd/pid" ] || continue
+			[ "$(cat "$_cd/pid" 2>/dev/null || true)" = "$$" ] || continue
+			rm -f "$_cd/pid"
+			rmdir "$_cd" 2>/dev/null || true
+		done
 		rm -rf "$work"
 	}
 	trap cleanup EXIT
@@ -718,11 +766,10 @@ if [ "$quick" -eq 0 ]; then
 	result_files=
 	failed=0
 	summary=
+	interrupted=0
 
-	note_result() { # NAME STATUS SECONDS
-		summary="${summary}$(printf '%-16s %-5s %5ss' "$1" "$2" "$3")
-"
-		[ "$2" = ok ] || failed=1
+	note_result() { # NAME STATUS SECONDS: the summary line of the stage
+		printf '%-16s %-5s %5ss\n' "$1" "$2" "$3" >"$work/sum/$1"
 	}
 
 	# free_name SUFFIX: a result path under results_dir that does not exist yet
@@ -752,8 +799,7 @@ if [ "$quick" -eq 0 ]; then
 		# that was dirty at the start; the final verification rejects such a result for a gate anyway
 		if [ "$_rc" -eq 3 ] && [ "$git_dirty" = true ]; then _rc=0; fi
 		if [ -f "$_out" ]; then
-			result_files="${result_files}$_out
-"
+			printf '%s\n' "$_out" >>"$work/res/$_env"
 		elif [ "$_rc" -eq 0 ]; then
 			printf 'ci-local: test-all --env %s exited 0 but wrote no result file\n' "$_env"
 			_rc=1
@@ -768,14 +814,14 @@ if [ "$quick" -eq 0 ]; then
 		printf '\n== ci-local stage %s ==\n' "$_on"
 		if [ -n "${CI_LOCAL_TEST_OWN:-}" ]; then set -- stub_own; fi
 		_log=$work/$_oe/logs/$_on.log
-		rm -f "$work/rc"
+		rm -f "$work/rc-$_on"
 		_t0=$(date +%s)
 		{
 			_rc=0
 			"$@" 2>&1 </dev/null || _rc=$?
-			echo "$_rc" >"$work/rc"
+			echo "$_rc" >"$work/rc-$_on"
 		} | tee "$_log"
-		_rc=$(cat "$work/rc" 2>/dev/null) || _rc=
+		_rc=$(cat "$work/rc-$_on" 2>/dev/null) || _rc=
 		case $_rc in '' | *[!0-9]*) _rc=255 ;; esac
 		_t1=$(date +%s)
 		_note=$(grep '^NOTE: ' "$_log" | tail -n 1 | cut -c7-300 | tr '\t' ' ' || true)
@@ -790,7 +836,40 @@ if [ "$quick" -eq 0 ]; then
 	}
 
 	stub_own() {
+		[ -z "${CI_LOCAL_TEST_OWN_EVENTS:-}" ] || echo "start $_on" >>"$CI_LOCAL_TEST_OWN_EVENTS"
+		[ -z "${CI_LOCAL_TEST_OWN_EVENTS:-}" ] || echo "cpus $_on ${NTFS_LINUX_CPUS:-none}" >>"$CI_LOCAL_TEST_OWN_EVENTS"
 		echo "NOTE: stub stage $_on"
+		case " ${CI_LOCAL_TEST_OWN_TAKE_SLOT:-} " in *" $_on "*) take_slot ;; esac
+		for _ss in ${CI_LOCAL_TEST_OWN_SLEEP:-}; do
+			case $_ss in
+			"$_on":*)
+				_sc=0
+				for _cs in ${CI_LOCAL_TEST_OWN_CLEANUP:-}; do
+					case $_cs in "$_on":*) _sc=${_cs#*:} ;; esac
+				done
+				if [ "$_sc" -gt 0 ]; then
+					# a stage like release-local.sh: a child with a TERM trap that writes to its output and starts
+					# a process of its own to clean up (which a second TERM from the sweeper would kill)
+					cat >"$work/stubclean.sh" <<'CLEAN'
+ev=$1; secs=$2; name=$3; wait_s=$4
+on_term() {
+	echo cleaning; echo cleaning >&2; echo after-cleanup
+	sh -c 'sleep "$1"; echo "cleaned $2" >>"$3"' sh "$secs" "$name" "$ev"
+	exit 143
+}
+trap on_term TERM
+sleep "$wait_s" &
+wait
+CLEAN
+					sh "$work/stubclean.sh" "${CI_LOCAL_TEST_OWN_EVENTS:-/dev/null}" "$_sc" "$_on" "${_ss#*:}" || true
+				else
+					sleep "${_ss#*:}"
+				fi
+				;;
+			esac
+		done
+		release_slot
+		[ -z "${CI_LOCAL_TEST_OWN_EVENTS:-}" ] || echo "end $_on" >>"$CI_LOCAL_TEST_OWN_EVENTS"
 		case ",${CI_LOCAL_TEST_OWN_FAIL:-}," in *",$_on,"*) echo "stub failure"; return 1 ;; esac
 		return 0
 	}
@@ -966,15 +1045,216 @@ if [ "$quick" -eq 0 ]; then
 		fi
 	}
 
-	if want bootstrap; then own_stage host bootstrap "$here/bootstrap.sh"; fi
-	if want host; then run_test_all host; fi
-	if want tsan; then own_stage host tsan tsan_stage; fi
-	if want static-analysis; then own_stage host static-analysis static_analysis; fi
-	if want A; then run_test_all A; fi
-	if want linux-build-test; then own_stage A linux-build-test linux_build_test; fi
-	if want fuzz-short; then own_stage A fuzz-short fuzz_short; fi
-	if want package; then own_stage B package package_stage; fi
-	if want B; then run_test_all B; fi
+	run_stage() { # NAME: one stage, its output on stdout
+		case $1 in
+		bootstrap) own_stage host bootstrap "$here/bootstrap.sh" ;;
+		host) run_test_all host ;;
+		tsan) own_stage host tsan tsan_stage ;;
+		static-analysis) own_stage host static-analysis static_analysis ;;
+		A) run_test_all A ;;
+		linux-build-test) own_stage A linux-build-test linux_build_test ;;
+		fuzz-short) own_stage A fuzz-short fuzz_short ;;
+		package) own_stage B package package_stage ;;
+		B) run_test_all B ;;
+		esac
+	}
+
+	# group_stage GROUP STAGE: run it with its output in its own log; the console gets a start and an end line
+	# (and the tail of the log of a failed stage), each written in one piece. `|| true` suspends set -e inside
+	# the stage, which is how every stage ran before as well (own_stage and run_test_all test each status).
+	group_stage() {
+		_gl=$work/live/$2.log
+		printf 'ci-local: [%s] start %s (log %s)\n' "$1" "$2" "$_gl"
+		run_stage "$2" >"$_gl" 2>&1 || true
+		_gsum=$(cat "$work/sum/$2" 2>/dev/null || true)
+		if [ -z "$_gsum" ]; then
+			printf 'ci-local: [%s] end   %s: LOST (no result recorded)\n' "$1" "$2"
+			return 0
+		fi
+		set -- "$1" "$2" $_gsum
+		if [ "$4" = ok ]; then
+			printf 'ci-local: [%s] end   %s: ok in %s\n' "$1" "$2" "$5"
+		else
+			printf 'ci-local: [%s] end   %s: FAIL in %s; last lines of %s:\n%s\n' "$1" "$2" "$5" "$_gl" "$(tail -n 15 "$_gl" | sed 's/^/    | /')"
+		fi
+	}
+
+	# tree_of PID: PID and its descendants, the top first, without the output filters of the pipelines
+	# (tee, sed, ...): a stage that is stopped writes its output through them while it cleans up, and a
+	# filter killed with it would turn that into a SIGPIPE that cuts the cleanup short
+	tree_of() {
+		ps -A -o pid= -o ppid= -o comm= | awk -v root="$1" '
+			function base(c) { sub(/.*\//, "", c); return c }
+			{ kid[$2] = kid[$2] " " $1; name[$1] = base($3) }
+			END {
+				n = 0; q[n++] = root
+				for (i = 0; i < n; i++) {
+					if (!(name[q[i]] in skip)) print q[i]
+					m = split(kid[q[i]], a, " "); for (j = 1; j <= m; j++) q[n++] = a[j]
+				}
+			}
+			BEGIN { split("tee sed awk cat tail head grep tr cut sort", f, " "); for (k in f) skip[f[k]] = 1 }'
+	}
+	# stamp PID: the start time of a process, so that a pid that was reused is not taken for the old process
+	stamp() { ps -o lstart= -p "$1" 2>/dev/null | tr ' ' '_'; }
+	children_of() { ps -A -o pid= -o ppid= | awk -v p="$1" '$2 == p { print $1 }'; }
+	# sweep_stop PID...: (run in a subshell) PID... are the group processes, children of this shell. The first
+	# pass sends TERM to every process of their trees. Later passes (every second) send it only to children of
+	# the groups that were not there before (a stage that started in the window of the signal), with their
+	# trees: what a stopped stage starts itself while it cleans up (release-local.sh deleting its clone) is
+	# never signalled again. It ends when the groups and every process it stopped are gone; what is left
+	# after CI_LOCAL_STOP_WAIT seconds gets KILL.
+	sweep_stop() {
+		_main=$$
+		_t=0
+		_seen=
+		_first=1
+		while :; do
+			_live=0
+			_roots=
+			for _r in "$@"; do
+				if [ "$(ps -o ppid= -p "$_r" 2>/dev/null | tr -d ' ')" = "$_main" ]; then
+					_live=1
+					_roots="$_roots $_r"
+				fi
+			done
+			for _r in $_roots; do
+				if [ "$_first" -eq 1 ]; then _top=$_r; else _top=$(children_of "$_r"); fi
+				for _c in $_top; do
+					case " $_seen " in *" $_c@"*) continue ;; esac
+					_seen="$_seen $_c@$(stamp "$_c")"
+					for _p in $(tree_of "$_c"); do
+						case " $_seen " in *" $_p@"*) ;; *) _seen="$_seen $_p@$(stamp "$_p")" ;; esac
+						kill -TERM "$_p" 2>/dev/null || true
+					done
+				done
+			done
+			_first=0
+			_left=
+			for _e in $_seen; do
+				if [ -n "${_e#*@}" ] && [ "$(stamp "${_e%%@*}")" = "${_e#*@}" ]; then _left="$_left ${_e%%@*}"; _live=1; fi
+			done
+			[ "$_live" -eq 1 ] || break
+			if [ "$_t" -ge "${CI_LOCAL_STOP_WAIT:-300}" ]; then
+				for _p in $_left; do kill -KILL "$_p" 2>/dev/null || true; done
+				break
+			fi
+			sleep 1
+			_t=$((_t + 1))
+		done
+	}
+	# INT, TERM or HUP while the two groups run: no stage starts any more (the stop file) and the sweeper
+	# stops what runs; the parent waits for the groups and for the sweeper, which ends when every process
+	# it stopped is gone. While the groups are being started the signal only sets the flags (a background
+	# job started by the handler would replace $! before it is read); the sweeper starts once, after both pids are known.
+	pid_d=
+	pid_v=
+	sweepers=
+	forking=0
+	stop_groups() {
+		[ -z "$sweepers" ] || return 0
+		# shellcheck disable=SC2086
+		sweep_stop $pid_d $pid_v &
+		sweepers=$!
+	}
+	sig_stop() {
+		[ "$interrupted" -eq 0 ] || return 0
+		interrupted=1
+		: >"$work/stop"
+		printf '\nci-local: interrupted: stopping the Docker and VM stages\n'
+		[ "$forking" -eq 1 ] || stop_groups
+	}
+	# wait_for PID...: until each has ended (wait is cut short by a trapped signal: ask again; a pid that is
+	# not a child of this shell makes wait fail at once: stop then)
+	wait_for() {
+		for _wp in "$@"; do
+			while kill -0 "$_wp" 2>/dev/null; do
+				_wr=0
+				wait "$_wp" 2>/dev/null || _wr=$?
+				[ "$_wr" -gt 128 ] || break
+			done
+		done
+	}
+
+	for _s in $grp_pre; do run_stage "$_s"; done
+
+	if [ "$concurrent" -eq 1 ]; then
+		printf '\n== ci-local: Docker stages (%s) next to VM stages (%s); one log per stage ==\n' "$grp_d" "$grp_v"
+		# the cap cannot exceed the CPUs Docker has (a larger --cpus is refused by docker run)
+		if [ "$docker_cpus" -ne 0 ]; then
+			if [ -n "${CI_LOCAL_TEST_OWN:-}" ]; then _dn=${CI_LOCAL_TEST_DOCKER_NCPU:-}; else _dn=$(docker info --format '{{.NCPU}}' 2>/dev/null || true); fi
+			case $_dn in
+			'' | *[!0-9]*) ;;
+			*)
+				if [ "$docker_cpus" -gt "$_dn" ]; then
+					printf 'ci-local: WARNING: CI_LOCAL_DOCKER_CPUS=%s is more than the %s CPUs of Docker: using %s
+' "$docker_cpus" "$_dn" "$_dn"
+					docker_cpus=$_dn
+				fi
+				;;
+			esac
+		fi
+		trap sig_stop INT TERM HUP
+		forking=1
+		(
+			trap 'exit 143' INT TERM HUP
+			if [ -z "${NTFS_LINUX_CPUS:-}" ] && [ "$docker_cpus" -ne 0 ]; then NTFS_LINUX_CPUS=$docker_cpus; export NTFS_LINUX_CPUS; fi
+			for _s in $grp_d; do
+				[ ! -e "$work/stop" ] || break
+				group_stage D "$_s"
+			done
+		) &
+		pid_d=$!
+		if [ -n "${CI_LOCAL_TEST_OWN:-}" ] && [ -n "${CI_LOCAL_TEST_FORK_DELAY:-}" ]; then sleep "$CI_LOCAL_TEST_FORK_DELAY"; fi
+		(
+			trap 'exit 143' INT TERM HUP
+			for _s in $grp_v; do
+				[ ! -e "$work/stop" ] || break
+				group_stage V "$_s"
+			done
+		) &
+		pid_v=$!
+		forking=0
+		# a signal while the groups were started only set the flags: stop them now (no stage starts after the
+		# stop file exists, but the first stage of a group may have started just before it)
+		if [ "$interrupted" -ne 0 ]; then stop_groups; fi
+		wait_for "$pid_d" "$pid_v"
+		# shellcheck disable=SC2086
+		wait_for $sweepers
+		trap 'exit 130' INT TERM HUP
+		# the logs of the concurrent stages, whole and in plan order (nothing interleaved)
+		for _s in $grp_d $grp_v; do
+			if [ -f "$work/live/$_s.log" ]; then
+				printf '\n== ci-local stage %s: log of the concurrent run ==\n' "$_s"
+				cat "$work/live/$_s.log"
+			fi
+		done
+	else
+		for _s in $grp_d $grp_v; do run_stage "$_s"; done
+	fi
+
+	# the summary and the result files, in plan order whatever the order of completion
+	for _s in $all_stages; do
+		want "$_s" || continue
+		if [ -s "$work/sum/$_s" ]; then
+			_l=$(cat "$work/sum/$_s")
+		else
+			_l=$(printf '%-16s %-5s %5s ' "$_s" NOTRUN -)
+		fi
+		summary="${summary}${_l}
+"
+		set -- $_l
+		[ "$2" = ok ] || failed=1
+		if [ -s "$work/res/$_s" ]; then
+			result_files="${result_files}$(cat "$work/res/$_s")
+"
+		fi
+	done
+	if [ "$interrupted" -eq 1 ]; then
+		printf '\n== summary ==\n%s' "$summary"
+		printf 'ci-local: INTERRUPTED\n'
+		exit 130
+	fi
 	aggregate_own host
 	aggregate_own A
 	aggregate_own B

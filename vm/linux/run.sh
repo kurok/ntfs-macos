@@ -7,8 +7,11 @@
 #        vm/linux/run.sh run [--asan] -- CMD...
 #
 # The repo is mounted read-only at /work. Images live in the container's /tmp only.
+# --init: a TERM to the docker client (ci-local.sh stopping its stages) reaches the stage and ends the container.
 # The container gets /dev/fuse and CAP_SYS_ADMIN, nothing else (no --privileged).
 # Env: NTFS_LINUX_APPARMOR_UNCONFINED=1 adds --security-opt apparmor=unconfined.
+#      NTFS_LINUX_CPUS=N adds --cpus N to every container (a CPU cap; unset: none). ci-local.sh sets it for
+#      the Docker stages that run next to the VM stages, so that they cannot starve the guests.
 set -eu
 
 here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
@@ -50,10 +53,11 @@ do_build() {
 docker_run() {
     flags=""
     [ "${NTFS_LINUX_APPARMOR_UNCONFINED:-0}" = 1 ] && flags="--security-opt apparmor=unconfined"
+    [ -z "${NTFS_LINUX_CPUS:-}" ] || flags="$flags --cpus $NTFS_LINUX_CPUS"
     tty=""
     [ -t 0 ] && [ -t 1 ] && tty="-t"
     # shellcheck disable=SC2086
-    docker run --rm -i $tty --device /dev/fuse --cap-add SYS_ADMIN $flags \
+    docker run --rm --init -i $tty --device /dev/fuse --cap-add SYS_ADMIN $flags \
         -v "$repo":/work:ro "$@"
 }
 

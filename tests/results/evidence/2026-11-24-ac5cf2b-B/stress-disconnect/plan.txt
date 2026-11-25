@@ -1,0 +1,4 @@
+reps=3
+workloads=seq small churn fsync
+controls=hash dirty
+fault=

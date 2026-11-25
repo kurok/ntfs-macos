@@ -1,0 +1,8 @@
+release libntfs-3g.a: faultio symbols=0, NTFSMAC_FAULT strings=0, errfd hook markers=0
+release ntfs-3g: faultio symbols=0, NTFSMAC_FAULT strings=0, errfd hook markers=0
+release ntfsfix: faultio symbols=0, NTFSMAC_FAULT strings=0, errfd hook markers=0
+release mkntfs: faultio symbols=0, NTFSMAC_FAULT strings=0, errfd hook markers=0
+release unix_io.o equals the reference (full series minus 0004): objdump -dr (.text .rodata .data) and nm identical (999 lines)
+faultio libntfs-3g.a: faultio symbols=6; ntfs-3g NTFSMAC_FAULT_PLAN strings=2 (positive control, must be >0)
+faultio ntfs-3g: NTFSMAC_FAULT_ERRFD_CMD strings=1 (positive control for the patch 0006 hook, must be >0)
+build proof: PASS

@@ -1,0 +1,259 @@
+22:55:03 start I-SYNC-02 (env B)
+22:55:03 $ cc -Wall -Wextra -Werror -dynamiclib -arch arm64 -arch arm64e -o <tmp>/ntfsmac-case-i_71dq3r/syncspy.dylib <tmp>/ntfsmac-h.8Ouvgv/integration/sync/syncspy.c -> rc=0
+22:55:03 $ /usr/bin/hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage <tmp>/ntfsmac-case-i_71dq3r/align-buffered.img -> rc=0
+22:55:03 /dev/disk6
+22:55:03 stderr: hdiutil: WARNING: 'hdiutil attach -nomount ...' is deprecated. Please use 'diskutil image attach --noMount ...' instead.
+22:55:03 attached align-buffered.img as /dev/disk6, using /dev/disk6 (buffered)
+22:55:03 $ /usr/bin/hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage <tmp>/ntfsmac-case-i_71dq3r/align-raw.img -> rc=0
+22:55:03 /dev/disk6
+22:55:03 stderr: hdiutil: WARNING: 'hdiutil attach -nomount ...' is deprecated. Please use 'diskutil image attach --noMount ...' instead.
+22:55:03 attached align-raw.img as /dev/disk6, using /dev/rdisk6 (raw)
+22:55:03 call                         buffered     raw         
+DKIOCSYNCHRONIZE             ok           ok          
+F_FULLFSYNC                  errno 25     errno 25    
+fsync                        ok           ok          
+pread off=0 len=1            ok 1         errno 22    
+pread off=0 len=100          ok 100       errno 22    
+pread off=0 len=4096         ok 4096      ok 4096     
+pread off=0 len=4140         ok 4140      errno 22    
+pread off=0 len=512          ok 512       ok 512      
+pread off=0 len=513          ok 513       errno 22    
+pread off=1 len=1            ok 1         errno 22    
+pread off=1 len=100          ok 100       errno 22    
+pread off=1 len=4096         ok 4096      errno 22    
+pread off=1 len=4140         ok 4140      errno 22    
+pread off=1 len=512          ok 512       errno 22    
+pread off=1 len=513          ok 513       errno 22    
+pread off=4096 len=1         ok 1         errno 22    
+pread off=4096 len=100       ok 100       errno 22    
+pread off=4096 len=4096      ok 4096      ok 4096     
+pread off=4096 len=4140      ok 4140      errno 22    
+pread off=4096 len=512       ok 512       ok 512      
+pread off=4096 len=513       ok 513       errno 22    
+pread off=512 len=1          ok 1         errno 22    
+pread off=512 len=100        ok 100       errno 22    
+pread off=512 len=4096       ok 4096      ok 4096     
+pread off=512 len=4140       ok 4140      errno 22    
+pread off=512 len=512        ok 512       ok 512      
+pread off=512 len=513        ok 513       errno 22    
+pread off=513 len=1          ok 1         errno 22    
+pread off=513 len=100        ok 100       errno 22    
+pread off=513 len=4096       ok 4096      errno 22    
+pread off=513 len=4140       ok 4140      errno 22    
+pread off=513 len=512        ok 512       errno 22    
+pread off=513 len=513        ok 513       errno 22    
+pwrite off=0 len=1           ok 1         errno 22    
+pwrite off=0 len=100         ok 100       errno 22    
+pwrite off=0 len=4096        ok 4096      ok 4096     
+pwrite off=0 len=4140        ok 4140      errno 22    
+pwrite off=0 len=512         ok 512       ok 512      
+pwrite off=0 len=513         ok 513       errno 22    
+pwrite off=1 len=1           ok 1         errno 22    
+pwrite off=1 len=100         ok 100       errno 22    
+pwrite off=1 len=4096        ok 4096      errno 22    
+pwrite off=1 len=4140        ok 4140      errno 22    
+pwrite off=1 len=512         ok 512       errno 22    
+pwrite off=1 len=513         ok 513       errno 22    
+pwrite off=4096 len=1        ok 1         errno 22    
+pwrite off=4096 len=100      ok 100       errno 22    
+pwrite off=4096 len=4096     ok 4096      ok 4096     
+pwrite off=4096 len=4140     ok 4140      errno 22    
+pwrite off=4096 len=512      ok 512       ok 512      
+pwrite off=4096 len=513      ok 513       errno 22    
+pwrite off=512 len=1         ok 1         errno 22    
+pwrite off=512 len=100       ok 100       errno 22    
+pwrite off=512 len=4096      ok 4096      ok 4096     
+pwrite off=512 len=4140      ok 4140      errno 22    
+pwrite off=512 len=512       ok 512       ok 512      
+pwrite off=512 len=513       ok 513       errno 22    
+pwrite off=513 len=1         ok 1         errno 22    
+pwrite off=513 len=100       ok 100       errno 22    
+pwrite off=513 len=4096      ok 4096      errno 22    
+pwrite off=513 len=4140      ok 4140      errno 22    
+pwrite off=513 len=512       ok 512       errno 22    
+pwrite off=513 len=513       ok 513       errno 22    
+
+22:55:03 $ /usr/bin/hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage <tmp>/ntfsmac-case-i_71dq3r/io-buffered.img -> rc=0
+22:55:03 /dev/disk6
+22:55:03 stderr: hdiutil: WARNING: 'hdiutil attach -nomount ...' is deprecated. Please use 'diskutil image attach --noMount ...' instead.
+22:55:03 attached io-buffered.img as /dev/disk6, using /dev/disk6 (buffered)
+22:55:04 $ /usr/bin/hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage <tmp>/ntfsmac-case-i_71dq3r/io-raw.img -> rc=0
+22:55:04 /dev/disk6
+22:55:04 stderr: hdiutil: WARNING: 'hdiutil attach -nomount ...' is deprecated. Please use 'diskutil image attach --noMount ...' instead.
+22:55:04 attached io-raw.img as /dev/disk6, using /dev/rdisk6 (raw)
+22:55:04 node I/O (MB/s): {"buffered": {"flush_ms": 9.0, "read_1MiB_MBps": 29582.9, "write_1MiB_MBps": 203.3, "write_4KiB_then_flush_MBps": 114.8, "write_4KiB_x2048_MBps": 128.9, "write_then_flush_MBps": 192.3}, "raw": {"flush_ms": 10.8, "read_1MiB_MBps": 2277.6, "write_1MiB_MBps": 2749.4, "write_4KiB_then_flush_MBps": 19.3, "write_4KiB_x2048_MBps": 19.7, "write_then_flush_MBps": 1423.9}}
+22:55:04 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L sync <tmp>/ntfsmac-case-i_71dq3r/cfile.img -> rc=0
+22:55:04 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:55:04 stderr: <tmp>/ntfsmac-case-i_71dq3r/cfile.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-i_71dq3r/cfile.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-i_71dq3r/cfile.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-i_71dq3r/cfile.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-i_71dq3r/cfile.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:55:04 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach <tmp>/ntfsmac-case-i_71dq3r/cfile.img <tmp>/ntfsmac-case-i_71dq3r/mnt-cfile
+22:55:08 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,ro <tmp>/ntfsmac-case-i_71dq3r/cfile.img <tmp>/ntfsmac-case-i_71dq3r/mnt-verify-cfile
+22:55:12 ntfsfix -n after cfile: rc=0
+22:55:12 correctness file: {"dksync_bad_rc": [], "failed_device_calls": [], "files_expected_ok": 12, "kind": "file", "mismatch_after_remount": [], "mounted": true, "ntfsfix_rc": 0, "ntfsfix_tail": ["Checking the alternate boot sector... OK", "NTFS volume version is 3.1.", "NTFS partition <tmp>/ntfsmac-case-i_71dq3r/cfile.img was processed successfully."], "op_errors": {}, "sync_calls": {"dksync": 0, "fsync": 0, "fullfsync": 15}, "worker_errors": []}
+22:55:12 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L sync <tmp>/ntfsmac-case-i_71dq3r/cbuf.img -> rc=0
+22:55:12 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:55:12 stderr: <tmp>/ntfsmac-case-i_71dq3r/cbuf.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-i_71dq3r/cbuf.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-i_71dq3r/cbuf.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-i_71dq3r/cbuf.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-i_71dq3r/cbuf.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:55:12 $ /usr/bin/hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage <tmp>/ntfsmac-case-i_71dq3r/cbuf.img -> rc=0
+22:55:12 /dev/disk6
+22:55:12 stderr: hdiutil: WARNING: 'hdiutil attach -nomount ...' is deprecated. Please use 'diskutil image attach --noMount ...' instead.
+22:55:12 attached cbuf.img as /dev/disk6, using /dev/disk6 (buffered)
+22:55:12 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach /dev/fd/5 <tmp>/ntfsmac-case-i_71dq3r/mnt-cbuf
+22:55:16 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,ro <tmp>/ntfsmac-case-i_71dq3r/cbuf.img <tmp>/ntfsmac-case-i_71dq3r/mnt-verify-cbuf
+22:55:20 ntfsfix -n after cbuf: rc=0
+22:55:20 correctness buffered: {"daemon_flush": {"dksync": 0, "fsync": 0}, "dksync_bad_rc": [], "failed_device_calls": [], "files_expected_ok": 12, "kind": "buffered", "mismatch_after_remount": [], "mounted": true, "ntfsfix_rc": 0, "ntfsfix_tail": ["Checking the alternate boot sector... OK", "NTFS volume version is 3.1.", "NTFS partition <tmp>/ntfsmac-case-i_71dq3r/cbuf.img was processed successfully."], "op_errors": {}, "sync_calls": {"dksync": 15, "fsync": 15, "fullfsync": 0}, "worker_errors": []}
+22:55:20 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L sync <tmp>/ntfsmac-case-i_71dq3r/craw.img -> rc=0
+22:55:20 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:55:20 stderr: <tmp>/ntfsmac-case-i_71dq3r/craw.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-i_71dq3r/craw.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-i_71dq3r/craw.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-i_71dq3r/craw.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-i_71dq3r/craw.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:55:20 $ /usr/bin/hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage <tmp>/ntfsmac-case-i_71dq3r/craw.img -> rc=0
+22:55:20 /dev/disk6
+22:55:20 stderr: hdiutil: WARNING: 'hdiutil attach -nomount ...' is deprecated. Please use 'diskutil image attach --noMount ...' instead.
+22:55:20 attached craw.img as /dev/disk6, using /dev/rdisk6 (raw)
+22:55:20 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach /dev/fd/5 <tmp>/ntfsmac-case-i_71dq3r/mnt-craw
+22:55:20 correctness raw: {"failed_device_calls": ["pread-fail off=8192 len=8 errno=22"], "kind": "raw", "mounted": false, "reason": "no mount on <tmp>/ntfsmac-case-i_71dq3r/mnt-craw (worker exited rc=12); worker output tail:\nntfs_attr_pread_i: ntfs_pread failed: Invalid argument\nFailed to calculate free MFT records: Invalid argument\nFailed to read NTFS $Bitmap: Invalid argument\nThe device '/dev/fd/5' doesn't seem to have a valid NTFS.\nMaybe the wrong device is used? Or the whole disk instead of a\npartition (e.g. /dev/sda, not /dev/sda1)? Or the other way around?"}
+22:55:20 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L sync <tmp>/ntfsmac-case-i_71dq3r/bfile.img -> rc=0
+22:55:20 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:55:20 stderr: <tmp>/ntfsmac-case-i_71dq3r/bfile.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-i_71dq3r/bfile.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-i_71dq3r/bfile.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-i_71dq3r/bfile.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-i_71dq3r/bfile.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:55:20 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach <tmp>/ntfsmac-case-i_71dq3r/bfile.img <tmp>/ntfsmac-case-i_71dq3r/mnt-bfile
+22:55:25 bench default (image file): {"errors": [], "fsync_ms": [18.3, 4.9, 4.3, 4.4, 4.7, 4.2, 4.1, 4.2, 4.5, 4.1, 4.2, 4.2, 4.7, 4.2, 4.3, 4.1, 4.7, 4.2, 4.2, 4.2, 5.0, 4.1, 4.4, 4.3, 4.9, 5.2, 4.5, 5.1, 8.8, 4.4], "kind": "file", "mounted": true, "opts": "", "seq_write_MBps": [688.2, 739.8, 760.8], "small_files_per_s": [396, 656, 305], "unmount_ms": 154.0, "variant": "default (image file)"}
+22:55:25 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L sync <tmp>/ntfsmac-case-i_71dq3r/bsync.img -> rc=0
+22:55:25 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:55:25 stderr: <tmp>/ntfsmac-case-i_71dq3r/bsync.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-i_71dq3r/bsync.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-i_71dq3r/bsync.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-i_71dq3r/bsync.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-i_71dq3r/bsync.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:55:25 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,sync <tmp>/ntfsmac-case-i_71dq3r/bsync.img <tmp>/ntfsmac-case-i_71dq3r/mnt-bsync
+22:55:52 bench sync option (image file): {"errors": [], "fsync_ms": [0.9, 40.9, 0.9, 0.9, 0.9, 0.9, 0.9, 1.0, 0.9, 0.9, 0.9, 0.8, 0.8, 0.7, 0.6, 0.6, 0.6, 0.6, 0.7, 0.7, 0.7, 0.6, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7], "kind": "file", "mounted": true, "opts": "sync", "seq_write_MBps": [28.4, 37.9, 37.2], "small_files_per_s": [14, 16, 16], "unmount_ms": 155.0, "variant": "sync option (image file)"}
+22:55:52 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L sync <tmp>/ntfsmac-case-i_71dq3r/bbuf.img -> rc=0
+22:55:52 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:55:52 stderr: <tmp>/ntfsmac-case-i_71dq3r/bbuf.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-i_71dq3r/bbuf.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-i_71dq3r/bbuf.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-i_71dq3r/bbuf.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-i_71dq3r/bbuf.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:55:52 $ /usr/bin/hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage <tmp>/ntfsmac-case-i_71dq3r/bbuf.img -> rc=0
+22:55:52 /dev/disk7
+22:55:52 stderr: hdiutil: WARNING: 'hdiutil attach -nomount ...' is deprecated. Please use 'diskutil image attach --noMount ...' instead.
+22:55:52 attached bbuf.img as /dev/disk7, using /dev/disk7 (buffered)
+22:55:52 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach /dev/fd/32 <tmp>/ntfsmac-case-i_71dq3r/mnt-bbuf
+22:55:58 bench buffered node /dev/diskN: {"errors": [], "fsync_ms": [10.3, 7.1, 4.0, 6.3, 4.6, 4.1, 3.4, 3.4, 40.3, 5.1, 4.2, 4.1, 5.2, 3.8, 3.7, 3.5, 4.7, 3.4, 3.6, 3.4, 3.9, 3.5, 3.6, 3.4, 4.7, 3.7, 3.4, 3.2, 4.5, 4.0], "kind": "buffered", "mounted": true, "opts": "", "seq_write_MBps": [130.7, 135.5, 137.2], "small_files_per_s": [602, 643, 403], "unmount_ms": 140.0, "variant": "buffered node /dev/diskN"}
+22:55:58 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L sync <tmp>/ntfsmac-case-i_71dq3r/bbufsync.img -> rc=0
+22:55:58 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:55:58 stderr: <tmp>/ntfsmac-case-i_71dq3r/bbufsync.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-i_71dq3r/bbufsync.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-i_71dq3r/bbufsync.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-i_71dq3r/bbufsync.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-i_71dq3r/bbufsync.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:55:58 $ /usr/bin/hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage <tmp>/ntfsmac-case-i_71dq3r/bbufsync.img -> rc=0
+22:55:58 /dev/disk7
+22:55:58 stderr: hdiutil: WARNING: 'hdiutil attach -nomount ...' is deprecated. Please use 'diskutil image attach --noMount ...' instead.
+22:55:58 attached bbufsync.img as /dev/disk7, using /dev/disk7 (buffered)
+22:55:58 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,sync /dev/fd/32 <tmp>/ntfsmac-case-i_71dq3r/mnt-bbufsync
+22:56:23 bench sync option, buffered node: {"errors": [], "fsync_ms": [1.3, 1.0, 0.9, 0.9, 0.9, 0.9, 1.1, 1.0, 1.0, 1.0, 1.1, 1.0, 1.0, 1.0, 1.0, 1.1, 1.0, 1.1, 1.1, 1.1, 1.0, 1.0, 1.0, 1.1, 1.1, 1.1, 1.0, 1.0, 0.9, 0.9], "kind": "buffered", "mounted": true, "opts": "sync", "seq_write_MBps": [31.3, 35.6, 31.2], "small_files_per_s": [16, 17, 17], "unmount_ms": 163.0, "variant": "sync option, buffered node"}
+22:56:23 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L sync <tmp>/ntfsmac-case-i_71dq3r/braw.img -> rc=0
+22:56:23 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:56:23 stderr: <tmp>/ntfsmac-case-i_71dq3r/braw.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-i_71dq3r/braw.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-i_71dq3r/braw.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-i_71dq3r/braw.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-i_71dq3r/braw.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:56:23 $ /usr/bin/hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage <tmp>/ntfsmac-case-i_71dq3r/braw.img -> rc=0
+22:56:23 /dev/disk7
+22:56:23 stderr: hdiutil: WARNING: 'hdiutil attach -nomount ...' is deprecated. Please use 'diskutil image attach --noMount ...' instead.
+22:56:23 attached braw.img as /dev/disk7, using /dev/rdisk7 (raw)
+22:56:23 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach /dev/fd/32 <tmp>/ntfsmac-case-i_71dq3r/mnt-braw
+22:56:24 bench raw node /dev/rdiskN: {"kind": "raw", "mounted": false, "opts": "", "reason": "no mount on <tmp>/ntfsmac-case-i_71dq3r/mnt-braw (worker exited rc=12); worker output tail:", "variant": "raw node /dev/rdiskN"}
+22:56:24 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L sync <tmp>/ntfsmac-case-i_71dq3r/cdef.img -> rc=0
+22:56:24 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:56:24 stderr: <tmp>/ntfsmac-case-i_71dq3r/cdef.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-i_71dq3r/cdef.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-i_71dq3r/cdef.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-i_71dq3r/cdef.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-i_71dq3r/cdef.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:56:24 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug <tmp>/ntfsmac-case-i_71dq3r/cdef.img <tmp>/ntfsmac-case-i_71dq3r/mnt-cdef
+22:56:31 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L sync <tmp>/ntfsmac-case-i_71dq3r/csync.img -> rc=0
+22:56:31 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:56:31 stderr: <tmp>/ntfsmac-case-i_71dq3r/csync.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-i_71dq3r/csync.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-i_71dq3r/csync.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-i_71dq3r/csync.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-i_71dq3r/csync.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:56:31 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug,sync <tmp>/ntfsmac-case-i_71dq3r/csync.img <tmp>/ntfsmac-case-i_71dq3r/mnt-csync
+22:56:38 sync counts: [{"opts": "(default)", "syncs_during_4_MiB_write": 0, "syncs_at_fsync_and_close": 1, "fuse_fsync_requests": 1, "mean_fullfsync_ms": 7.92}, {"opts": "sync", "syncs_during_4_MiB_write": 30, "syncs_at_fsync_and_close": 0, "fuse_fsync_requests": 1, "mean_fullfsync_ms": 3.26}]
+22:56:38 
+variant                      mounted   seq write 32 MiB MB/s  100 x 4 KiB files/s    fsync 4 KiB ms (med/max) unmount ms
+default (image file)         yes       739.8 (688.2/739.8/760.8) 396 (396/656/305)      4.4/18.3                 154.0
+sync option (image file)     yes       37.2 (28.4/37.9/37.2)  16 (14/16/16)          0.7/40.9                 155.0
+buffered node /dev/diskN     yes       135.5 (130.7/135.5/137.2) 602 (602/643/403)      4.0/40.3                 140.0
+sync option, buffered node   yes       31.3 (31.3/35.6/31.2)  17 (16/17/17)          1.0/1.3                  163.0
+raw node /dev/rdiskN         no        no mount on <tmp>/ntfsmac-case-i_71dq3r/mnt-braw (worker exited rc=12); worker output tail:
+
+device syncs for 4 x 1 MiB write + fsync + close (image file):
+{"fuse_fsync_requests": 1, "mean_fullfsync_ms": 7.92, "opts": "(default)", "syncs_at_fsync_and_close": 1, "syncs_during_4_MiB_write": 0}
+{"fuse_fsync_requests": 1, "mean_fullfsync_ms": 3.26, "opts": "sync", "syncs_at_fsync_and_close": 0, "syncs_during_4_MiB_write": 30}
+22:56:38 end I-SYNC-02: pass

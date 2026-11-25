@@ -1,0 +1,131 @@
+{
+ "dir_attrib_after": "0x830",
+ "dir_attrib_before": "0x30",
+ "disk": {
+  "plain.txt": {
+   "attr_compressed": false,
+   "attrs": "0x20",
+   "data": "non-resident, size 65536 alloc 65536 init 65536",
+   "file_compressed": false,
+   "resident": false
+  },
+  "z_empty": {
+   "attr_compressed": true,
+   "attrs": "0x820",
+   "data": "resident, 0 bytes",
+   "file_compressed": true,
+   "resident": true
+  },
+  "z_mixed": {
+   "attr_compressed": true,
+   "attrs": "0x820",
+   "data": "non-resident, size 2097152 alloc 2097152 init 2097152, compressed (unit 2^4 clusters, compressed size 1048576)",
+   "file_compressed": true,
+   "resident": false
+  },
+  "z_nested": {
+   "attr_compressed": true,
+   "attrs": "0x820",
+   "data": "non-resident, size 65536 alloc 65536 init 65536, compressed (unit 2^4 clusters, compressed size 8192)",
+   "file_compressed": true,
+   "resident": false
+  },
+  "z_one": {
+   "attr_compressed": true,
+   "attrs": "0x820",
+   "data": "resident, 1 bytes",
+   "file_compressed": true,
+   "resident": true
+  },
+  "z_rand": {
+   "attr_compressed": true,
+   "attrs": "0x820",
+   "data": "non-resident, size 1048576 alloc 1048576 init 1048576, compressed (unit 2^4 clusters, compressed size 1048576)",
+   "file_compressed": true,
+   "resident": false
+  },
+  "z_small": {
+   "attr_compressed": true,
+   "attrs": "0x820",
+   "data": "resident, 100 bytes",
+   "file_compressed": true,
+   "resident": true
+  },
+  "z_text": {
+   "attr_compressed": true,
+   "attrs": "0x820",
+   "data": "non-resident, size 2097152 alloc 2097152 init 2097152, compressed (unit 2^4 clusters, compressed size 262144)",
+   "file_compressed": true,
+   "resident": false
+  }
+ },
+ "errors": {},
+ "files": {
+  "cdir/sub/z_nested": {
+   "attrib": "0x820",
+   "blocks": 8192,
+   "compressed": true,
+   "sha": "d471ee2c879adf654a987b29c69d31bef291398e8a7b8ad9869ba56d2c7ed005",
+   "size": 65536
+  },
+  "cdir/z_big": {
+   "attrib": "0x820",
+   "blocks": 2621440,
+   "compressed": true,
+   "sha": "76e542b4d77a1d5643bf583a6f3a1974f6aac6a664f33258d55e79fbc5bb4b94",
+   "size": 20971520
+  },
+  "cdir/z_empty": {
+   "attrib": "0x820",
+   "blocks": 0,
+   "compressed": true,
+   "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "size": 0
+  },
+  "cdir/z_mixed": {
+   "attrib": "0x820",
+   "blocks": 1048576,
+   "compressed": true,
+   "sha": "4610d45f0d7e4068994976f82a9210a3f23a46e6e83a1c6d801b69fee3089b1a",
+   "size": 2097152
+  },
+  "cdir/z_one": {
+   "attrib": "0x820",
+   "blocks": 512,
+   "compressed": true,
+   "sha": "bbeebd879e1dff6918546dc0c179fdde505f2a21591c9a9c96e36b054ec5af83",
+   "size": 1
+  },
+  "cdir/z_rand": {
+   "attrib": "0x820",
+   "blocks": 1048576,
+   "compressed": true,
+   "sha": "5432e10b471239a18f010cf1f17fa7564957670ebe2d07b697f89de3ff9e5856",
+   "size": 1048576
+  },
+  "cdir/z_small": {
+   "attrib": "0x820",
+   "blocks": 512,
+   "compressed": true,
+   "sha": "67021eb0525fe6b076cd9f8ac5f03891e8afa91cab4d3f5797e2e0ec8ce1a5e3",
+   "size": 100
+  },
+  "cdir/z_text": {
+   "attrib": "0x820",
+   "blocks": 262144,
+   "compressed": true,
+   "sha": "dede186eab5194c9225bf87492fc1ae51f771380aab658e2a552e4ed22ca84df",
+   "size": 2097152
+  },
+  "plain.txt": {
+   "attrib": "0x20",
+   "blocks": 65536,
+   "compressed": false,
+   "sha": "a2b5e9e968f308ba7c53cf821689870cb56c6e4dc0e60a58412b91856248ae71",
+   "size": 65536
+  }
+ },
+ "image_sha256": "85a68e2ef6ef331958fc785a4901af0558ec94deb66b4e6354132859f6639f83",
+ "ntfs3g_version": "2026.9.28",
+ "os": "Debian GNU/Linux 13 (trixie) aarch64"
+}

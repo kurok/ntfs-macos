@@ -1,0 +1,9 @@
+{
+ "files": 166,
+ "dirs": 97,
+ "bytes": 5846789,
+ "mismatches": 1,
+ "detail": [
+  "par/w00/d000016/d000026/f000047: size/sha256 differ (disk (86773, '7e6ac79463bbe776766e41e4be151910a904bcc3635ac4ab30f66259632fbc0d'), expected (86773, 'f723ba0e9b14f1fcccde81506e06f823bff01a2da2bce5bf0b0086a1ea6fa72a'))"
+ ]
+}

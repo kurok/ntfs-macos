@@ -1,0 +1,110 @@
+23:01:35 start I-NAME-U22 (env host)
+23:01:36 phase A1 -> rc=0
+[I-NAME-U22] $ mkntfs -F -Q -L ntfsmac <tmp>/u22/vol.img -> rc=0
+[I-NAME-U22] Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+[I-NAME-U22] stderr: <tmp>/u22/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/u22/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/u22/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/u22/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/u22/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+[I-NAME-U22] $ ntfs-3g <tmp>/u22/vol.img <tmp>/u22/mnt -o rw,big_writes -> rc=0
+[I-NAME-U22] $ sync -> rc=0
+[I-NAME-U22] $ umount <tmp>/u22/mnt -> rc=0
+[I-NAME-U22] $ ntfsfix -n <tmp>/u22/vol.img -> rc=0
+[I-NAME-U22] Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition <tmp>/u22/vol.img was processed successfully.
+
+23:01:53 phase B -> rc=0
+[I-NAME-U22] $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro <tmp>/ntfsmac-u22.uEhBa8/vol.img <tmp>/ntfsmac-u22.uEhBa8/mnt -> rc=0
+[I-NAME-U22] mount: /dev/disk6s1 on <tmp>/ntfsmac-u22.uEhBa8/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+[I-NAME-U22] $ sync -> rc=0
+[I-NAME-U22] $ /sbin/umount <tmp>/ntfsmac-u22.uEhBa8/mnt -> rc=0
+[I-NAME-U22] $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,nonfconv <tmp>/ntfsmac-u22.uEhBa8/vol.img <tmp>/ntfsmac-u22.uEhBa8/mnt -> rc=0
+[I-NAME-U22] mount: /dev/disk6s1 on <tmp>/ntfsmac-u22.uEhBa8/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+[I-NAME-U22] $ sync -> rc=0
+[I-NAME-U22] $ /sbin/umount <tmp>/ntfsmac-u22.uEhBa8/mnt -> rc=0
+[I-NAME-U22] $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,debug <tmp>/ntfsmac-u22.uEhBa8/vol.img <tmp>/ntfsmac-u22.uEhBa8/mnt
+[I-NAME-U22] mount: /dev/disk6s1 on <tmp>/ntfsmac-u22.uEhBa8/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+[I-NAME-U22] $ sync -> rc=0
+[I-NAME-U22] $ /sbin/umount <tmp>/ntfsmac-u22.uEhBa8/mnt -> rc=0
+[I-NAME-U22] $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,nonfconv,debug <tmp>/ntfsmac-u22.uEhBa8/vol.img <tmp>/ntfsmac-u22.uEhBa8/mnt
+[I-NAME-U22] mount: /dev/disk6s1 on <tmp>/ntfsmac-u22.uEhBa8/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+[I-NAME-U22] $ sync -> rc=0
+[I-NAME-U22] $ /sbin/umount <tmp>/ntfsmac-u22.uEhBa8/mnt -> rc=0
+[I-NAME-U22] $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 <tmp>/ntfsmac-u22.uEhBa8/vol.img <tmp>/ntfsmac-u22.uEhBa8/mnt -> rc=0
+[I-NAME-U22] mount: /dev/disk6s1 on <tmp>/ntfsmac-u22.uEhBa8/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+[I-NAME-U22] $ sync -> rc=0
+[I-NAME-U22] $ /sbin/umount <tmp>/ntfsmac-u22.uEhBa8/mnt -> rc=0
+[I-NAME-U22] $ <home>/ntfsmac/deps/bin/ntfsfix -n <tmp>/ntfsmac-u22.uEhBa8/vol.img -> rc=0
+[I-NAME-U22] Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition <tmp>/ntfsmac-u22.uEhBa8/vol.img was processed successfully.
+
+23:01:54 phase A2 -> rc=0
+[I-NAME-U22] $ ntfsfix -n <tmp>/u22/vol.img -> rc=0
+[I-NAME-U22] Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition <tmp>/u22/vol.img was processed successfully.
+[I-NAME-U22] $ cc -std=c17 -O2 -o <tmp>/u22/treedump /work/tests/tools/treedump.c -> rc=0
+[I-NAME-U22] $ ntfs-3g <tmp>/u22/vol.img <tmp>/u22/mnt -o ro -> rc=0
+[I-NAME-U22] $ <tmp>/u22/treedump <tmp>/u22/mnt -> rc=0
+[I-NAME-U22] c5ffd
+f	g9-ü-nfd-only	38	36951aa488b1cea9d6f0d93856d71a46f6c22a03ea818189721dcdb3f9ac206d
+f	mac-nfc-café	34	a3194b0c62888f696221634d62d7023174e1c5a410a250ab6fc9ae4ae5310ea5
+f	mac-nfc-q̣̇	34	be6de03e9f6907d9c329e78b98c039732e048db432bd9ea1a54b9b892e649a09
+f	mac-nfc-Å	28	e4e41853986db705c227c0dd668a32443cb0117a996df67415ab40f7d8e5fc56
+f	mac-nfc-が	30	1d165bc95a392d0585f059ebce1b1bb633cdc4a038924a064a7303d1c767e841
+f	mac-nfc-한	30	7d323aa35efe77761d7676c55fb52098a0b40205966a9abfccbd502f6ce87f14
+f	mac-nfd-café	36	539ca71ca125a9d31f66ffae70f84b3383adfeef599e6f1073d4c8d2d120a5cd
+f	mac-nfd-q̣̇	34	a62543d82f58253cd55f5eb13c674e5914d5108e9ad11413f4853c59cfa45926
+f	mac-nfd-Å	30	a0662d151aaec6f955c5c967629a47bcf03cb86e11bbe64a31c0b3ef11c34039
+f	mac-nfd-が	36	c770c140de67509fd9246a4e323fdcd889ce1480cfa960366fe6dc89168d9986
+f	mac-nfd-한	42	83470fa08627f05e5d299337868d6e55c2f9b7c35f7ac99708fc239dc46c035b
+d	macdir-nfc-café
+f	macdir-nfc-café/inner.txt	40	5bcc57c5e92e2d81504ce4e2f50fc3e83242e3626925ae2d1c4c54b0e91acdba
+d	macdir-nfc-q̣̇
+f	macdir-nfc-q̣̇/inner.txt	40	26a3f6cca8712a95072312447bd94cee9f10dd0e842af5439266d9d2e503c901
+d	macdir-nfc-Å
+f	macdir-nfc-Å/inner.txt	34	5b648bea3c6a93ddc47d121220783b5b428d4faeef60212a75ee3721877d9b92
+d	macdir-nfc-が
+f	macdir-nfc-が/inner.txt	36	71a110e3990d4b4fc2210ea2a42d50ac49029399cac2f481e450e1ce1e3ec727
+d	macdir-nfc-한
+f	macdir-nfc-한/inner.txt	36	eee12f05477d24b731fbe853f6df684bad5773a81f0b809c52d53f8180cb5eea
+d	macdir-nfd-café
+f	macdir-nfd-café/inner.txt	42	48ae524af213b23705dcd61bb062eb00059edb4bf84bf601617a93e876c9633c
+d	macdir-nfd-q̣̇
+f	macdir-nfd-q̣̇/inner.txt	40	5431c37cea2b14bb802d3b83922e925241d11e40cd2ccfb83386c660a48f3a14
+d	macdir-nfd-Å
+f	macdir-nfd-Å/inner.txt	36	7765ca81738b0881f39a6e0ff7dc12dbddda7a8557c07e0cff5d9fc2a8bea582
+d	macdir-nfd-が
+f	macdir-nfd-が/inner.txt	42	d7c5dd2b0bcf13ec3a00d404d12cbd07a5445307c3dd95a2d4304d8fa931f078
+d	macdir-nfd-한
+f	macdir-nfd-한/inner.txt	48	b251e126064cd95d288dd3a9ab9ec4c98180d4f78b2ac7dfa1275032bc5c4181
+[I-NAME-U22] $ sync -> rc=0
+[I-NAME-U22] $ umount <tmp>/u22/mnt -> rc=0
+
+23:01:54 fact: g1: 'g1-café' is not NFC, listed but unreachable by name under the default mount
+23:01:54 fact: g2: 'g2-Å' is not NFC, listed but unreachable by name under the default mount
+23:01:54 fact: g2: 'g2-Å' is not NFC, listed but unreachable by name under the default mount
+23:01:54 fact: g3: 'g3-한' is not NFC, listed but unreachable by name under the default mount
+23:01:54 fact: g4: 'g4-が' is not NFC, listed but unreachable by name under the default mount
+23:01:54 fact: g5: 'g5-q̣̇' is not NFC, listed but unreachable by name under the default mount
+23:01:54 fact: g6: 'g6-é' is not NFC, listed but unreachable by name under the default mount
+23:01:54 fact: g9: 'g9-ü-nfd-only' is not NFC, listed but unreachable by name under the default mount
+23:01:54 fact: 20 of 20 Mac-created names are NFC on disk
+23:01:54 fact: unlink of the listed g1 name: ok; g1 entries on Linux afterwards: ['g1-café']
+23:01:54 Linux: NTFS-3G 2026.9.28 on Debian GNU/Linux 13 (trixie) aarch64; macOS: macOS 27.2 (26B123) arm64, macFUSE 5.5.0, NTFS-3G 2026.9.28
+23:01:54 PASS: every observation matches the rule (default mount: lookups are converted to NFC, listings to NFD; nonfconv: exact bytes; the worker receives the program's spelling in both)
+23:01:55 end I-NAME-U22: pass

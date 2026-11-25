@@ -1,0 +1,129 @@
+22:39:03 start I-MMAP-01 (env B)
+22:39:04 $ cc -Wall -Wextra -Werror -o <tmp>/ntfsmac-case-xniqba3w/mmaptool <tmp>/ntfsmac-h.8Ouvgv/integration/mmap/mmaptool.c -> rc=0
+22:39:04 $ cc -Wall -Wextra -Werror -dynamiclib -arch arm64 -arch arm64e -o <tmp>/ntfsmac-case-xniqba3w/syncspy.dylib <tmp>/ntfsmac-h.8Ouvgv/integration/sync/syncspy.c -> rc=0
+22:39:04 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac <tmp>/ntfsmac-case-xniqba3w/vol.img -> rc=0
+22:39:04 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:39:04 stderr: <tmp>/ntfsmac-case-xniqba3w/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-xniqba3w/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-xniqba3w/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-xniqba3w/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-xniqba3w/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:39:05 mount table clear for <tmp>/ntfsmac-case-xniqba3w/mnt after 0.00 s, settled 1.0 s
+22:39:05 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug <tmp>/ntfsmac-case-xniqba3w/vol.img <tmp>/ntfsmac-case-xniqba3w/mnt
+22:39:08 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-xniqba3w/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:39:11 tool> open <tmp>/ntfsmac-case-xniqba3w/mnt/a00.bin ro => ok fd=3
+22:39:11 tool> map 1 ro => ok
+22:39:11 tool> mget 0 1 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 1
+22:39:11 tool> quit => EOF
+22:39:11 tool> open <tmp>/ntfsmac-case-xniqba3w/mnt/a01.bin ro => ok fd=3
+22:39:11 tool> map 4095 ro => ok
+22:39:11 tool> mget 0 4095 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 4095
+22:39:11 tool> quit => EOF
+22:39:11 tool> open <tmp>/ntfsmac-case-xniqba3w/mnt/a02.bin ro => ok fd=3
+22:39:11 tool> map 4096 ro => ok
+22:39:11 tool> mget 0 4096 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 4096
+22:39:11 tool> quit => EOF
+22:39:11 tool> open <tmp>/ntfsmac-case-xniqba3w/mnt/a03.bin ro => ok fd=3
+22:39:11 tool> map 4097 ro => ok
+22:39:11 tool> mget 0 4097 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 4097
+22:39:11 tool> quit => EOF
+22:39:11 tool> open <tmp>/ntfsmac-case-xniqba3w/mnt/a04.bin ro => ok fd=3
+22:39:11 tool> map 16383 ro => ok
+22:39:11 tool> mget 0 16383 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 16383
+22:39:11 tool> quit => EOF
+22:39:11 tool> open <tmp>/ntfsmac-case-xniqba3w/mnt/a05.bin ro => ok fd=3
+22:39:11 tool> map 16384 ro => ok
+22:39:11 tool> mget 0 16384 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 16384
+22:39:11 tool> quit => EOF
+22:39:11 tool> open <tmp>/ntfsmac-case-xniqba3w/mnt/a06.bin ro => ok fd=3
+22:39:11 tool> map 16385 ro => ok
+22:39:11 tool> mget 0 16385 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 16385
+22:39:11 tool> quit => EOF
+22:39:11 tool> open <tmp>/ntfsmac-case-xniqba3w/mnt/a07.bin ro => ok fd=3
+22:39:11 tool> map 65549 ro => ok
+22:39:11 tool> mget 0 65549 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 65549
+22:39:11 tool> quit => EOF
+22:39:12 tool> open <tmp>/ntfsmac-case-xniqba3w/mnt/a08.bin ro => ok fd=3
+22:39:12 tool> map 3145735 ro => ok
+22:39:12 tool> mget 0 3145735 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 3145735
+22:39:12 tool> quit => EOF
+22:39:12 NOTE A: 9 files from 1 byte to 3 MiB+7: mapped read equals write(2) data
+22:39:12 tool> open <tmp>/ntfsmac-case-xniqba3w/mnt/b4096-other.bin ro => ok fd=3
+22:39:12 tool> map 4096 ro => ok
+22:39:12 tool> mget 0 4096 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 4096
+22:39:12 tool> mget 0 4096 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 4096
+22:39:12 B other size 4096: new data seen through the live mapping after 2 ms
+22:39:12 tool> quit => EOF
+22:39:12 tool> open <tmp>/ntfsmac-case-xniqba3w/mnt/b4096-own.bin rw => ok fd=3
+22:39:12 tool> map 4096 rw => ok
+22:39:12 tool> mget 0 4096 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 4096
+22:39:12 tool> pwrite 1365 <tmp>/ntfsmac-case-xniqba3w/tool-pw.bin => ok 1365
+22:39:12 tool> mget 0 4096 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 4096
+22:39:12 B own size 4096: new data seen through the live mapping after 1 ms
+22:39:12 tool> quit => EOF
+22:39:12 tool> open <tmp>/ntfsmac-case-xniqba3w/mnt/b4096-trunc.bin ro => ok fd=3
+22:39:12 tool> map 4096 ro => ok
+22:39:12 tool> mget 0 4096 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 4096
+22:39:12 tool> mget 0 4096 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 4096
+22:39:12 B trunc size 4096: new data seen through the live mapping after 3 ms
+22:39:12 tool> quit => EOF
+22:39:12 tool> open <tmp>/ntfsmac-case-xniqba3w/mnt/b16389-other.bin ro => ok fd=3
+22:39:12 tool> map 16389 ro => ok
+22:39:12 tool> mget 0 16389 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 16389
+22:39:12 tool> mget 0 16389 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 16389
+22:39:12 B other size 16389: new data seen through the live mapping after 2 ms
+22:39:12 tool> quit => EOF
+22:39:12 tool> open <tmp>/ntfsmac-case-xniqba3w/mnt/b16389-own.bin rw => ok fd=3
+22:39:12 tool> map 16389 rw => ok
+22:39:12 tool> mget 0 16389 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 16389
+22:39:12 tool> pwrite 5463 <tmp>/ntfsmac-case-xniqba3w/tool-pw.bin => ok 5463
+22:39:12 tool> mget 0 16389 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 16389
+22:39:12 B own size 16389: new data seen through the live mapping after 1 ms
+22:39:12 tool> quit => EOF
+22:39:12 tool> open <tmp>/ntfsmac-case-xniqba3w/mnt/b16389-trunc.bin ro => ok fd=3
+22:39:12 tool> map 16389 ro => ok
+22:39:12 tool> mget 0 16389 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 16389
+22:39:12 tool> mget 0 16389 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 16389
+22:39:12 B trunc size 16389: new data seen through the live mapping after 3 ms
+22:39:12 tool> quit => EOF
+22:39:12 tool> open <tmp>/ntfsmac-case-xniqba3w/mnt/b1048589-other.bin ro => ok fd=3
+22:39:12 tool> map 1048589 ro => ok
+22:39:12 tool> mget 0 1048589 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 1048589
+22:39:12 tool> mget 0 1048589 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 1048589
+22:39:12 B other size 1048589: new data seen through the live mapping after 2 ms
+22:39:12 tool> quit => EOF
+22:39:12 tool> open <tmp>/ntfsmac-case-xniqba3w/mnt/b1048589-own.bin rw => ok fd=3
+22:39:12 tool> map 1048589 rw => ok
+22:39:12 tool> mget 0 1048589 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 1048589
+22:39:12 tool> pwrite 349529 <tmp>/ntfsmac-case-xniqba3w/tool-pw.bin => ok 349529
+22:39:12 tool> mget 0 1048589 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 1048589
+22:39:12 B own size 1048589: new data seen through the live mapping after 2 ms
+22:39:12 tool> quit => EOF
+22:39:12 tool> open <tmp>/ntfsmac-case-xniqba3w/mnt/b1048589-trunc.bin ro => ok fd=3
+22:39:12 tool> map 1048589 ro => ok
+22:39:12 tool> mget 0 1048589 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 1048589
+22:39:12 tool> mget 0 1048589 <tmp>/ntfsmac-case-xniqba3w/tool-out.bin => ok 1048589
+22:39:12 B trunc size 1048589: new data seen through the live mapping after 4 ms
+22:39:12 tool> quit => EOF
+22:39:12 tool> open <tmp>/ntfsmac-case-xniqba3w/mnt/c.bin rw => ok fd=3
+22:39:12 tool> map 1048576 rw => ok
+22:39:12 tool> mput 777 <tmp>/ntfsmac-case-xniqba3w/tool-in.bin => ok 5000
+22:39:12 tool> msync sync => ok
+22:39:12 tool> quit => EOF
+22:39:12 /sbin/umount <tmp>/ntfsmac-case-xniqba3w/mnt -> rc=0 
+22:39:12 $ <home>/ntfsmac/deps/bin/ntfsfix -n <tmp>/ntfsmac-case-xniqba3w/vol.img -> rc=0
+22:39:12 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition <tmp>/ntfsmac-case-xniqba3w/vol.img was processed successfully.
+22:39:13 mount table clear for <tmp>/ntfsmac-case-xniqba3w/mnt after 0.00 s, settled 1.0 s
+22:39:13 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug,ro <tmp>/ntfsmac-case-xniqba3w/vol.img <tmp>/ntfsmac-case-xniqba3w/mnt
+22:39:17 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-xniqba3w/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+22:39:20 /sbin/umount <tmp>/ntfsmac-case-xniqba3w/mnt -> rc=0 
+22:39:20 end I-MMAP-01: pass

@@ -1,0 +1,2 @@
+soak: FAIL ops=6148 verifies=0 mismatches=1 errors=0 lat_max=0.105s p99<=0.016s
+  FAIL mismatch: d000118/d001103/big001678: content differs (model 266240 bytes, disk 266240 bytes, first difference at offset 0)

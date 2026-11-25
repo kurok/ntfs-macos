@@ -1,0 +1,52 @@
+[
+ {
+  "id": 0,
+  "ok": false,
+  "ops": {
+   "setup": 2,
+   "delete": 754,
+   "mmap": 444,
+   "randwrite": 915,
+   "truncate": 555,
+   "create": 886,
+   "dirrename": 149,
+   "mkdir": 289,
+   "rename": 577,
+   "readdir": 262,
+   "rmdir": 218,
+   "seqwrite": 741,
+   "readback": 305,
+   "verify": 41
+  },
+  "ops_total": 6138,
+  "lat_max_by_op": {
+   "setup": 0.0054,
+   "delete": 0.0842,
+   "mmap": 0.0907,
+   "randwrite": 0.0838,
+   "truncate": 0.0471,
+   "create": 0.0491,
+   "dirrename": 0.0462,
+   "mkdir": 0.0443,
+   "rename": 0.0903,
+   "readdir": 0.048,
+   "rmdir": 0.0434,
+   "seqwrite": 0.0935,
+   "readback": 0.0025,
+   "verify": 0.0014
+  },
+  "lat_max_s": 0.0935,
+  "slow": [],
+  "mismatches": [
+   "d000118/d001103/big001678: content differs (model 266240 bytes, disk 266240 bytes, first difference at offset 0)"
+  ],
+  "errors": [],
+  "verifies": 0,
+  "bytes_written": 96697775,
+  "bytes_verified": 125942617,
+  "files": 192,
+  "dirs": 39,
+  "shared_files": 0,
+  "seconds": 15.074
+ }
+]

@@ -1,0 +1,32 @@
+<tmp>/xpcvm.drXvRm/ntfsmacA: replacing existing signature
+<tmp>/xpcvm.drXvRm/ntfsmacB: replacing existing signature
+<tmp>/xpcvm.drXvRm/ntfsmacC: replacing existing signature
+guest: 27.2 arm64, user admin; requirement: cdhash of the installed CLI (A)
+PASS: fallback: sudo ntfsmac journal-clear is accepted (exit 0)
+PASS: fallback: the reply is shown
+PASS: the operation saw uid 0 from the audit token
+PASS: the operation got the typed label and the upper-cased serial
+PASS: the CLI said that it ran as root (no dialog)
+PASS: fallback: sudo ntfsmac repair --clear-dirty is accepted (exit 0)
+PASS: the repair request carries the action
+PASS: the typed confirmation can come from the terminal (exit 0)
+PASS: a re-signed copy of the CLI is refused (exit 3)
+  output: This removes the record that this Mac left the volume open, so that the next mount can be read/write again. It does not check or repair the file system. If the earlier session ended unclean, files written in it may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume's current mount is not changed.
+ntfsmac: running as root, so there is no password dialog. This daemon expects the dialog and may refuse the request.
+ntfsmac: the ntfsmac daemon closed the connection without a reply (is this the installed, signed ntfsmac?).
+PASS: a CLI without the hardened runtime is refused (exit 3)
+  output: This removes the record that this Mac left the volume open, so that the next mount can be read/write again. It does not check or repair the file system. If the earlier session ended unclean, files written in it may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume's current mount is not changed.
+ntfsmac: running as root, so there is no password dialog. This daemon expects the dialog and may refuse the request.
+ntfsmac: the ntfsmac daemon closed the connection without a reply (is this the installed, signed ntfsmac?).
+PASS: no operation ran for either
+PASS: default strategy: a request without a form is refused (exit 1)
+PASS: the refusal names the missing right (it is checked before the form)
+  output: This removes the record that this Mac left the volume open, so that the next mount can be read/write again. It does not check or repair the file system. If the earlier session ended unclean, files written in it may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume's current mount is not changed.
+ntfsmac: running as root, so there is no password dialog. This daemon expects the dialog and may refuse the request.
+ntfsmac: The administrator right of ntfsmac is missing or not set up as intended, so the request was refused. Reinstall the package.
+PASS: no operation ran
+PASS: with the service gone the CLI says the daemon is not running (exit 3)
+== daemon stderr
+  ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: root_peer
+  ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: external_form
+== result: 0 failure(s)

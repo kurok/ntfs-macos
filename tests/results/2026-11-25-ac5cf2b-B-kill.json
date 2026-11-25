@@ -1,0 +1,92 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "ac5cf2b5dab778a340bde623dbd9f63b298194e3",
+  "dirty_tree": false,
+  "env": "B",
+  "host_os": "macOS (host)",
+  "guest_os": "macOS 27.2 arm64",
+  "macfuse_version": "5.5.0",
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-25T00:38:59Z",
+  "finished": "2026-11-25T01:04:18Z",
+  "cases": [
+    {
+      "id": "S-KILL-01",
+      "status": "pass",
+      "duration_s": 263.0,
+      "evidence": [
+        "evidence/2026-11-25-ac5cf2b-B-kill/kill.log",
+        "evidence/2026-11-25-ac5cf2b-B-kill/kill-worker.log",
+        "evidence/2026-11-25-ac5cf2b-B-kill/provenance.txt",
+        "evidence/2026-11-25-ac5cf2b-B-kill/inputs.txt"
+      ],
+      "note": "SIGKILL of the worker: 20 of 20 repetitions passed (journal entry kept, next attach read-only with a documented reason, no stray worker or mount, data synced before the kill intact, image unchanged by the ro session); 15 s per repetition at most; parameters: 20 repetition(s) (criterion: 20), targets 'worker daemon module detach', controls on, driver status 0; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 65cd41f0703d"
+    },
+    {
+      "id": "S-KILL-02",
+      "status": "pass",
+      "duration_s": 434.0,
+      "evidence": [
+        "evidence/2026-11-25-ac5cf2b-B-kill/kill.log",
+        "evidence/2026-11-25-ac5cf2b-B-kill/kill-daemon.log",
+        "evidence/2026-11-25-ac5cf2b-B-kill/provenance.txt",
+        "evidence/2026-11-25-ac5cf2b-B-kill/inputs.txt"
+      ],
+      "note": "SIGKILL of the daemon (launchd restart): 20 of 20 repetitions passed (journal entry kept, next attach read-only with a documented reason, no stray worker or mount, data synced before the kill intact, image unchanged by the ro session); 23 s per repetition at most; parameters: 20 repetition(s) (criterion: 20), targets 'worker daemon module detach', controls on, driver status 0; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 65cd41f0703d"
+    },
+    {
+      "id": "S-KILL-03",
+      "status": "pass",
+      "duration_s": 401.0,
+      "evidence": [
+        "evidence/2026-11-25-ac5cf2b-B-kill/kill.log",
+        "evidence/2026-11-25-ac5cf2b-B-kill/kill-module.log",
+        "evidence/2026-11-25-ac5cf2b-B-kill/kill-module-measure.json",
+        "evidence/2026-11-25-ac5cf2b-B-kill/provenance.txt",
+        "evidence/2026-11-25-ac5cf2b-B-kill/inputs.txt"
+      ],
+      "note": "SIGKILL of the macFUSE module process that serves the mount: 20 of 20 repetitions passed (journal entry kept, next attach read-only with a documented reason, no stray worker or mount, data synced before the kill intact, image unchanged by the ro session); 25 s per repetition at most; MEASUREMENT (not a check): dirty mmap page lost, plain write survived, reported clean: no x20; parameters: 20 repetition(s) (criterion: 20), targets 'worker daemon module detach', controls on, driver status 0; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 65cd41f0703d"
+    },
+    {
+      "id": "S-KILL-04",
+      "status": "pass",
+      "duration_s": 290.0,
+      "evidence": [
+        "evidence/2026-11-25-ac5cf2b-B-kill/kill.log",
+        "evidence/2026-11-25-ac5cf2b-B-kill/kill-detach.log",
+        "evidence/2026-11-25-ac5cf2b-B-kill/provenance.txt",
+        "evidence/2026-11-25-ac5cf2b-B-kill/inputs.txt"
+      ],
+      "note": "force-detach (yank) of the image during a write: 20 of 20 repetitions passed (journal entry kept, next attach read-only with a documented reason, no stray worker or mount, data synced before the kill intact, image unchanged by the ro session); 17 s per repetition at most; parameters: 20 repetition(s) (criterion: 20), targets 'worker daemon module detach', controls on, driver status 0; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 65cd41f0703d"
+    },
+    {
+      "id": "S-KILL-RUN",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [
+        "evidence/2026-11-25-ac5cf2b-B-kill/kill.log",
+        "evidence/2026-11-25-ac5cf2b-B-kill/provenance.txt",
+        "evidence/2026-11-25-ac5cf2b-B-kill/inputs.txt"
+      ],
+      "note": "no failure outside the repetitions; the guest run finished; parameters: 20 repetition(s) (criterion: 20), targets 'worker daemon module detach', controls on, driver status 0; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 65cd41f0703d"
+    },
+    {
+      "id": "S-KILL-05",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [
+        "evidence/2026-11-25-ac5cf2b-B-kill/kill.log",
+        "evidence/2026-11-25-ac5cf2b-B-kill/provenance.txt",
+        "evidence/2026-11-25-ac5cf2b-B-kill/inputs.txt"
+      ],
+      "note": "injected damage is reported by the checks; a never-ending step fails after its deadline. inject-journal: PASS 1 failing check(s), all 'the journal entry stays'; inject-image: PASS 1 failing check(s), all 'the read-only session left the image unchanged'; inject-flags: PASS 1 failing check(s), all 'the dirty flag is still set on the image'; hang: PASS three never-ending steps failed after their deadline (15 s in total, the slow wait 9 s for a 6 s deadline); parameters: 20 repetition(s) (criterion: 20), targets 'worker daemon module detach', controls on, driver status 0; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 65cd41f0703d"
+    },
+    {
+      "id": "STAGE-B-MODE",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [],
+      "note": "criterion:kill"
+    }
+  ]
+}

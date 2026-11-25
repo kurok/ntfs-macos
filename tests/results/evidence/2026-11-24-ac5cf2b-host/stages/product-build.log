@@ -1,0 +1,10 @@
+-- Platform: macOS arm64 (product target)
+-- libntfs-3g not found: skipping ntfsmac-probe
+-- libntfs-3g not found: skipping ntfsmac-volmark
+-- libntfs-3g not found: skipping setvolflags, logfile_mark, txf_make
+-- libntfs-3g not found: skipping the image fuzz harnesses
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: <repo>/build/product
+[0/2] Re-checking globbed directories...
+ninja: no work to do.

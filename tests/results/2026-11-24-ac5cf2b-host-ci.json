@@ -1,0 +1,41 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "ac5cf2b5dab778a340bde623dbd9f63b298194e3",
+  "dirty_tree": false,
+  "env": "host",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": null,
+  "macfuse_version": null,
+  "ntfs3g_version": null,
+  "started": "2026-11-24T22:01:19Z",
+  "finished": "2026-11-25T00:02:37Z",
+  "cases": [
+    {
+      "id": "STAGE-HOST-BOOTSTRAP",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-host-ci/stages/bootstrap.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "STAGE-HOST-TSAN",
+      "status": "pass",
+      "duration_s": 4.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-host-ci/stages/tsan.log"
+      ],
+      "note": "U-TSAN-* under ThreadSanitizer (build/tsan)"
+    },
+    {
+      "id": "STAGE-HOST-STATIC-ANALYSIS",
+      "status": "pass",
+      "duration_s": 26.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-host-ci/stages/static-analysis.log"
+      ],
+      "note": "clang-tidy used: /opt/homebrew/opt/llvm/bin/clang-tidy (searched: PATH)"
+    }
+  ]
+}

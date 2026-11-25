@@ -1,0 +1,18 @@
+unit: verdict-s0  target: verdict  seconds: 2880  host: aarch64  clang: Debian clang version 19.1.7 (3+b1)
+start: 2026-11-25T06:53:13Z
+engine-patches: series
+seeds: 62
+run 1: exit 0 after 2881 s wall, 2881 s charged (07:41:15Z)
+executions in all runs: 241886562
+stat::average_exec_per_sec:     83959
+stat::new_units_added:          28986
+stat::slowest_unit_time_sec:    0
+stat::peak_rss_mb:              599
+last progress line: #241886562	DONE   cov: 584 ft: 6842 corp: 2245/3278Kb lim: 70000 exec/s: 83959 rss: 599Mb
+fuzz CPU seconds: 2881
+fuzz wall seconds: 2881
+corpus after the run: 2458 inputs
+UBSan locations in the engine (distinct, with counts): 0
+artifacts: 0  distinct signatures: 0
+end: 2026-11-25T07:41:15Z
+RESULT: no finding in 2880 s

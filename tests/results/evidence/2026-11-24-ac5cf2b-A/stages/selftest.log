@@ -1,0 +1,4 @@
+ntfs-3g 2026.9.28 integrated FUSE 27
+96cd0aa5f0de71f312b6791ac3bd7c9dbce016b36d4c7122d8b96e8c480d88da  hello.txt
+02cb2c4aac74eb5be85ab23827e8afc7dada8f098c6ff44c4995c02308009223  dir/blob.bin
+selftest OK

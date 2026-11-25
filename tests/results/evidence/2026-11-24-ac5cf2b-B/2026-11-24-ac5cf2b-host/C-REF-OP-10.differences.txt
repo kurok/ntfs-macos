@@ -1,0 +1,6 @@
+EXPECTED ED-04 op 3 link h/l1: A ok, B EIO
+EXPECTED ED-04 op 4 link h/dir/l2: A ok, B EIO
+EXPECTED ED-04 op 8 link h/l3: A ok, B EIO
+EXPECTED ED-04 op 10 link h/g-link: A ok, B EIO
+EXPECTED ED-01 .fseventsd: exists on B only (macOS creates it in the root of every mount)
+EXPECTED ED-01 .fseventsd/fseventsd-uuid: exists on B only (macOS creates it in the root of every mount)

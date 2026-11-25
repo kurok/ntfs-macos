@@ -1,0 +1,14 @@
+== control: leakctl leaks 8 blocks from ctl_leak_site
+leaks control rc=1
+== mount clean-64m-4k with the worker (MallocStackLogging=1)
+<home>/leakd/tests/stress/leaks/leaks_guest.sh: line 88:  8344 Killed: 9               MallocStackLogging=1 "$work/ctl/leakctl" "$work/ctl/ready" > /dev/null 2>&1
+/dev/disk6s1 on /Volumes/ntfsmacleak (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+NOTE: worker pid 8356 (<home>/ntfsmac/deps/bin/ntfs-3g)
+scan 1 (after the mount, before the workload): leaks rc=1 1 leak for 160 total leaked bytes
+== workload: 3 iteration(s)
+scan 2 (after iteration 1): leaks rc=1 1 leak for 160 total leaked bytes
+scan 3 (after iteration 3): leaks rc=1 1 leak for 160 total leaked bytes
+workload: iteration 2 done
+workload: iteration 3 done
+workload: ok
+== unmount

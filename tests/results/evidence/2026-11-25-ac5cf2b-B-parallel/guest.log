@@ -1,0 +1,95 @@
+guest: 27.2 arm64, user admin uid 501, console owner admin
+== start the job
+== par-real (real): par, 1800 s, 16 worker(s), hang limit 60 s
+PASS: par-real the volume mounts rw (Mounted rw)
+par: PASS ops=436316 verifies=240 mismatches=0 errors=0 lat_max=2.740s p99<=0.512s
+NOTE: unmount of disk6 refused (still Mounted, busy), asking again (1); files open on /Volumes/clean64m4k:
+NOTE:   COMMAND PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+NOTE:   mds     118 root  twd    DIR   1,25    65536  133 /Volumes/clean64m4k/many
+NOTE:   mds     118 root   17r   DIR   1,25     4096    2 /Volumes/clean64m4k
+NOTE:   mds     118 root   23r   DIR   1,25     4096    2 /Volumes/clean64m4k
+NOTE:   mds     118 root   24r   DIR   1,25    65536  133 /Volumes/clean64m4k/many
+NOTE:   mds     118 root   26r   DIR   1,25    65536  133 /Volumes/clean64m4k/many
+NOTE:   mds     118 root   29r   DIR   1,25     4096    2 /Volumes/clean64m4k
+NOTE:   pgrep: 93 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framework/Versions/A/Support/fseventsd
+NOTE:   pgrep: 118 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds
+NOTE:   pgrep: 382 /System/Library/Frameworks/QuickLookUI.framework/Versions/A/XPCServices/QuickLookUIService.xpc/Contents/MacOS/QuickLookUIService
+NOTE:   pgrep: 383 /System/Library/Frameworks/QuickLookThumbnailing.framework/Support/com.apple.quicklook.ThumbnailsAgent
+NOTE:   pgrep: 638 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdbulkimport -s mdworker-bundle -c MDSImporterBundleFinder -m com.apple.metadata.mdbulkimport
+NOTE: unmount of disk6 refused (still Mounted, busy), asking again (2); files open on /Volumes/clean64m4k:
+NOTE:   COMMAND PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+NOTE:   mds     118 root  twd    DIR   1,25    65536  133 /Volumes/clean64m4k/many
+NOTE:   mds     118 root   17r   DIR   1,25     4096    2 /Volumes/clean64m4k
+NOTE:   mds     118 root   23r   DIR   1,25     4096    2 /Volumes/clean64m4k
+NOTE:   mds     118 root   24r   DIR   1,25    65536  133 /Volumes/clean64m4k/many
+NOTE:   mds     118 root   26r   DIR   1,25    65536  133 /Volumes/clean64m4k/many
+NOTE:   mds     118 root   29r   DIR   1,25     4096    2 /Volumes/clean64m4k
+NOTE:   pgrep: 93 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framework/Versions/A/Support/fseventsd
+NOTE:   pgrep: 118 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds
+NOTE:   pgrep: 382 /System/Library/Frameworks/QuickLookUI.framework/Versions/A/XPCServices/QuickLookUIService.xpc/Contents/MacOS/QuickLookUIService
+NOTE:   pgrep: 383 /System/Library/Frameworks/QuickLookThumbnailing.framework/Support/com.apple.quicklook.ThumbnailsAgent
+NOTE:   pgrep: 638 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdbulkimport -s mdworker-bundle -c MDSImporterBundleFinder -m com.apple.metadata.mdbulkimport
+NOTE: unmount of disk6 refused (still Mounted, busy), asking again (3); files open on /Volumes/clean64m4k:
+NOTE:   COMMAND PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+NOTE:   mds     118 root  twd    DIR   1,25    65536  133 /Volumes/clean64m4k/many
+NOTE:   mds     118 root   17r   DIR   1,25     4096    2 /Volumes/clean64m4k
+NOTE:   mds     118 root   23r   DIR   1,25     4096    2 /Volumes/clean64m4k
+NOTE:   mds     118 root   24r   DIR   1,25    65536  133 /Volumes/clean64m4k/many
+NOTE:   mds     118 root   26r   DIR   1,25    65536  133 /Volumes/clean64m4k/many
+NOTE:   mds     118 root   29r   DIR   1,25     4096    2 /Volumes/clean64m4k
+NOTE:   pgrep: 93 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framework/Versions/A/Support/fseventsd
+NOTE:   pgrep: 118 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds
+NOTE:   pgrep: 382 /System/Library/Frameworks/QuickLookUI.framework/Versions/A/XPCServices/QuickLookUIService.xpc/Contents/MacOS/QuickLookUIService
+NOTE:   pgrep: 383 /System/Library/Frameworks/QuickLookThumbnailing.framework/Support/com.apple.quicklook.ThumbnailsAgent
+NOTE:   pgrep: 638 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdbulkimport -s mdworker-bundle -c MDSImporterBundleFinder -m com.apple.metadata.mdbulkimport
+NOTE: unmount of disk6 refused (still Mounted, busy), asking again (4); files open on /Volumes/clean64m4k:
+NOTE:   COMMAND PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+NOTE:   mds     118 root   17r   DIR   1,25     4096    2 /Volumes/clean64m4k
+NOTE:   mds     118 root   23r   DIR   1,25     4096    2 /Volumes/clean64m4k
+NOTE:   pgrep: 93 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framework/Versions/A/Support/fseventsd
+NOTE:   pgrep: 118 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds
+NOTE:   pgrep: 382 /System/Library/Frameworks/QuickLookUI.framework/Versions/A/XPCServices/QuickLookUIService.xpc/Contents/MacOS/QuickLookUIService
+NOTE:   pgrep: 383 /System/Library/Frameworks/QuickLookThumbnailing.framework/Support/com.apple.quicklook.ThumbnailsAgent
+NOTE:   pgrep: 638 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdbulkimport -s mdworker-bundle -c MDSImporterBundleFinder -m com.apple.metadata.mdbulkimport
+NOTE: unmount of disk6 needed 4 re-ask(s)
+PASS: par-real the volume unmounts cleanly through the daemon
+PASS: par-real ntfsfix -n after the unmount (0)
+PASS: par-real after the remount: state and mode (Mounted rw)
+verify: 826 files, 628 directories, 20234696 bytes, 0 mismatch(es)
+PASS: par-real ntfsfix -n after the verification session (0)
+== par-ctl-corrupt (control-corrupt): par, 10 s, 4 worker(s), hang limit 60 s, injected: corrupt
+PASS: par-ctl-corrupt the volume mounts rw (Mounted rw)
+par: FAIL ops=4060 verifies=3 mismatches=1 errors=0 lat_max=0.133s p99<=0.128s
+  FAIL mismatch: d000016/d000026/f000047: content differs (model 86773 bytes, disk 86773 bytes, first difference at offset 0)
+PASS: par-ctl-corrupt the volume unmounts cleanly through the daemon
+PASS: par-ctl-corrupt ntfsfix -n after the unmount (0)
+PASS: par-ctl-corrupt after the remount: state and mode (Mounted rw)
+verify: 166 files, 97 directories, 5846789 bytes, 1 mismatch(es)
+  BAD par/w00/d000016/d000026/f000047: size/sha256 differ (disk (86773, '7e6ac79463bbe776766e41e4be151910a904bcc3635ac4ab30f66259632fbc0d'), expected (86773, 'f723ba0e9b14f1fcccde81506e06f823bff01a2da2bce5bf0b0086a1ea6fa72a'))
+PASS: par-ctl-corrupt ntfsfix -n after the verification session (0)
+== par-ctl-stall (control-stall): par, 12 s, 4 worker(s), hang limit 4 s, injected: stall
+PASS: par-ctl-stall the volume mounts rw (Mounted rw)
+par: FAIL ops=0 verifies=0 mismatches=0 errors=0 lat_max=0.000s p99<=0.000s
+  FAIL hang: worker 1: no progress for 4.4 s (limit 4 s) in sh_read at 7 s
+NOTE: par-ctl-stall no remount verification (hang or no summary)
+== runs
+par-real	real	0	0	0	0	Mounted rw	Mounted rw
+par-ctl-corrupt	control-corrupt	1	1	0	0	Mounted rw	Mounted rw
+par-ctl-stall	control-stall	1	NA	NA	NA	Mounted rw	NA
+-- daemon log (tail)
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 140 ms, mount gone afterwards
+INFO: journal: entry A8D4029792CA7301 removed by path 1 (clean-session), tombstone A8D4029792CA7301-20261125T003525Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+result: 0 check(s) failed

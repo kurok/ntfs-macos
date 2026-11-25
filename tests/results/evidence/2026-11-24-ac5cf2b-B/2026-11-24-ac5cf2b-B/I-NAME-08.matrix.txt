@@ -1,0 +1,24 @@
+default|nfc
+  on disk (bytes seen by nonfconv): ['NFC']
+  default mount: {'listing': ['NFD'], 'read_nfc': 'nfc', 'read_nfd': 'nfc'}
+  nonfconv mount: {'listing': ['NFC'], 'read_nfc': 'nfc', 'read_nfd': 'ERRNO2'}
+default|nfc+nfd
+  on disk (bytes seen by nonfconv): ['NFC']
+  default mount: {'listing': ['NFD'], 'read_nfc': 'nfd', 'read_nfd': 'nfd'}
+  nonfconv mount: {'listing': ['NFC'], 'read_nfc': 'nfd', 'read_nfd': 'ERRNO2'}
+default|nfd
+  on disk (bytes seen by nonfconv): ['NFC']
+  default mount: {'listing': ['NFD'], 'read_nfc': 'nfd', 'read_nfd': 'nfd'}
+  nonfconv mount: {'listing': ['NFC'], 'read_nfc': 'nfd', 'read_nfd': 'ERRNO2'}
+nonfconv|nfc
+  on disk (bytes seen by nonfconv): ['NFC']
+  default mount: {'listing': ['NFD'], 'read_nfc': 'nfc', 'read_nfd': 'nfc'}
+  nonfconv mount: {'listing': ['NFC'], 'read_nfc': 'nfc', 'read_nfd': 'ERRNO2'}
+nonfconv|nfc+nfd
+  on disk (bytes seen by nonfconv): ['NFD', 'NFC']
+  default mount: {'listing': ['NFD', 'NFD'], 'read_nfc': 'nfc', 'read_nfd': 'nfc'}
+  nonfconv mount: {'listing': ['NFD', 'NFC'], 'read_nfc': 'nfc', 'read_nfd': 'nfd'}
+nonfconv|nfd
+  on disk (bytes seen by nonfconv): ['NFD']
+  default mount: {'listing': ['NFD'], 'read_nfc': 'ERRNO2', 'read_nfd': 'ERRNO2'}
+  nonfconv mount: {'listing': ['NFD'], 'read_nfc': 'ERRNO2', 'read_nfd': 'nfd'}

@@ -1,0 +1,18 @@
+unit: ctl-s0  target: ctl  seconds: 2880  host: aarch64  clang: Debian clang version 19.1.7 (3+b1)
+start: 2026-11-25T06:53:18Z
+engine-patches: series
+seeds: 450
+run 1: exit 0 after 2881 s wall, 2881 s charged (07:41:20Z)
+executions in all runs: 395637174
+stat::average_exec_per_sec:     137326
+stat::new_units_added:          18268
+stat::slowest_unit_time_sec:    0
+stat::peak_rss_mb:              713
+last progress line: #395637174	DONE   cov: 403 ft: 4209 corp: 2011/163Kb lim: 8200 exec/s: 137326 rss: 713Mb
+fuzz CPU seconds: 2881
+fuzz wall seconds: 2881
+corpus after the run: 2544 inputs
+UBSan locations in the engine (distinct, with counts): 0
+artifacts: 0  distinct signatures: 0
+end: 2026-11-25T07:41:21Z
+RESULT: no finding in 2880 s

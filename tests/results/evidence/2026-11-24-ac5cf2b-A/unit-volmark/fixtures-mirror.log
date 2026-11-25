@@ -1,0 +1,22 @@
+geometry: cluster 4096 record 1024 $MFT at 0x4000 $MFTMirr at 0x1fff000
+ok      smallfiles: write 68 is $MFT record 0 and write 69 $MFTMirr record 0
+ok      mirror-split: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      mirror-split: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      mirror-newer: ro,norecover mount refused with the record 0 message
+geometry: cluster 4096 record 1024 $MFT at 0x4000 $MFTMirr at 0x1fff000
+ok      smallfiles: write 68 is $MFT record 0 and write 69 $MFTMirr record 0
+ok      mirror-split: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      mirror-split: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      mirror-extra: ro,norecover mount refused with the record 0 message
+geometry: cluster 4096 record 1024 $MFT at 0x4000 $MFTMirr at 0x1fff000
+ok      smallfiles: write 68 is $MFT record 0 and write 69 $MFTMirr record 0
+ok      mirror-torn: ro,norecover mount refused with 'Incomplete multi-sector transfer' (got rc 13: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 5  usn: 6: Input/output error)
+geometry: cluster 4096 record 1024 $MFT at 0x4000 $MFTMirr at 0x1fff000
+ok      smallfiles: write 68 is $MFT record 0 and write 69 $MFTMirr record 0
+ok      mirror-split-dirty: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      mirror-split-dirty: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+geometry: cluster 4096 record 1024 $MFT at 0x4000 $MFTMirr at 0x1fff000
+ok      smallfiles: write 68 is $MFT record 0 and write 69 $MFTMirr record 0
+ok      hiberfil variant: a record-0 pair after write 67 exists
+ok      mirror-split-hiber: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      mirror-split-hiber: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n

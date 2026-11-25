@@ -1,0 +1,6 @@
+deps_tar=none
+fixtures_dir=<tmp>//par.YMErhB/fixtures
+fixtures_key=8833f0e75b3a8764b4aadd7f9adab9256c066571c3504bee081ef447a401b4d2
+fixtures_dirty=0
+fixture.clean-64m-4k.img=bad7eaa5b937d916fb84deebdbc957d5be03c703b3f2d945bfb36e415fced5aa (67108864 bytes)
+fixtures_manifest_sha256=50a4810dcfbc631273dd93784774aef480f713f02efdabc48269688d9f63a7b8

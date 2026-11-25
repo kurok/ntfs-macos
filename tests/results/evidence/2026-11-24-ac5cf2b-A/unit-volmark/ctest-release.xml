@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="3"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="36"
+	timestamp="2026-11-24T22:09:48"
+	>
+	<testcase name="volmark.args" classname="volmark.args" time="0.000730958" status="run">
+		<properties/>
+		<system-out>volmark.args: ok
+</system-out>
+	</testcase>
+	<testcase name="volmark.run" classname="volmark.run" time="28.6988" status="run">
+		<properties/>
+		<system-out>fixtures: 26 images from <tmp>/ntfsmac-unsafe, <tmp>/ntfsmac-fixtures, <tmp>/ntfsmac-mirror
+test_count_zero_before_step4_and_two_writes (__main__.VolmarkFault.test_count_zero_before_step4_and_two_writes) ... ok
+test_vmk07_cut_at_every_write (__main__.VolmarkFault.test_vmk07_cut_at_every_write) ... ok
+test_vmk08_readback_mismatch (__main__.VolmarkFault.test_vmk08_readback_mismatch) ... ok
+test_vmk_split_image (__main__.VolmarkFault.test_vmk_split_image) ... ok
+test_write_errors (__main__.VolmarkFault.test_write_errors)
+A write that fails (eio:N, dead:N): exit 12, no `d`, no write is repeated, and the image is ... ok
+test_usage_and_descriptor (__main__.VolmarkSteps.test_usage_and_descriptor) ... ok
+test_vmk01_set_and_vmk04_clear (__main__.VolmarkSteps.test_vmk01_set_and_vmk04_clear) ... ok
+test_vmk02_dirty_flag (__main__.VolmarkSteps.test_vmk02_dirty_flag) ... ok
+test_vmk02_vmk03_every_fixture (__main__.VolmarkSteps.test_vmk02_vmk03_every_fixture) ... ok
+test_vmk03_unsafe_states (__main__.VolmarkSteps.test_vmk03_u...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="volmark.syncmirror" classname="volmark.syncmirror" time="7.63432" status="run">
+		<properties/>
+		<system-out>fixtures: 26 images from <tmp>/ntfsmac-unsafe, <tmp>/ntfsmac-fixtures, <tmp>/ntfsmac-mirror
+test_sigkill_before_write (__main__.SyncMirror.test_sigkill_before_write) ... ok
+test_vmk11_record0 (__main__.SyncMirror.test_vmk11_record0) ... ok
+test_vmk11_record0_dirty (__main__.SyncMirror.test_vmk11_record0_dirty) ... ok
+test_vmk11_record3_set_cut (__main__.SyncMirror.test_vmk11_record3_set_cut) ... ok
+test_vmk11_records_0_and_3 (__main__.SyncMirror.test_vmk11_records_0_and_3) ... ok
+test_vmk12_binding (__main__.SyncMirror.test_vmk12_binding) ... ok
+test_vmk12_flags (__main__.SyncMirror.test_vmk12_flags) ... ok
+test_vmk12_refusals (__main__.SyncMirror.test_vmk12_refusals) ... ok
+test_vmk12_usage_and_descriptor (__main__.SyncMirror.test_vmk12_usage_and_descriptor) ... ok
+test_vmk14_twice (__main__.SyncMirror.test_vmk14_twice) ... ok
+test_count_and_offsets (__main__.SyncMirrorFault.test_count_and_offsets)
+One device write per differing record, at the $MFTMirr record, one record long; none before. ... ok
+test_vmk13_cut...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+</testsuite>

@@ -1,0 +1,75 @@
+22:32:18 start I-ERR-06 (env B)
+22:32:18 $ cc -Wall -Wextra -Werror -dynamiclib -arch arm64 -arch arm64e -o <tmp>/ntfsmac-case-61oinbz6/syncspy.dylib <tmp>/ntfsmac-h.8Ouvgv/integration/sync/syncspy.c -> rc=0
+22:32:18 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L sync <tmp>/ntfsmac-case-61oinbz6/buffered-dksync.img -> rc=0
+22:32:18 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:32:18 stderr: <tmp>/ntfsmac-case-61oinbz6/buffered-dksync.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-61oinbz6/buffered-dksync.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-61oinbz6/buffered-dksync.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-61oinbz6/buffered-dksync.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-61oinbz6/buffered-dksync.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:32:18 $ /usr/bin/hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage <tmp>/ntfsmac-case-61oinbz6/buffered-dksync.img -> rc=0
+22:32:18 /dev/disk6
+22:32:18 stderr: hdiutil: WARNING: 'hdiutil attach -nomount ...' is deprecated. Please use 'diskutil image attach --noMount ...' instead.
+22:32:18 attached buffered-dksync.img as /dev/disk6, using /dev/disk6 (buffered)
+22:32:18 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach /dev/fd/5 <tmp>/ntfsmac-case-61oinbz6/mnt-buffered-dksync  NTFSMAC_ERRFD=20
+22:32:27 worker exit rc=0, umount rc=0, channel at EOF: True
+22:32:27 records: ['S rw', 'W flush 5', 'W flush 5', 'W flush 5', 'W flush 5', 'W flush 5', 'U 0']
+22:32:27 device node, DKIOCSYNCHRONIZE forced to fail: 5 flush calls seen by syncspy, W records ['W flush 5', 'W flush 5', 'W flush 5', 'W flush 5', 'W flush 5'], other records ['S rw', 'U 0']
+22:32:27 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L sync <tmp>/ntfsmac-case-61oinbz6/file-fullfsync.img -> rc=0
+22:32:27 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:32:27 stderr: <tmp>/ntfsmac-case-61oinbz6/file-fullfsync.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-61oinbz6/file-fullfsync.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-61oinbz6/file-fullfsync.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-61oinbz6/file-fullfsync.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-61oinbz6/file-fullfsync.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:32:27 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach <tmp>/ntfsmac-case-61oinbz6/file-fullfsync.img <tmp>/ntfsmac-case-61oinbz6/mnt-file-fullfsync  NTFSMAC_ERRFD=20
+22:32:36 worker exit rc=0, umount rc=0, channel at EOF: True
+22:32:36 records: ['S rw', 'W flush 25', 'W flush 25', 'W flush 25', 'W flush 25', 'W flush 25', 'U 0']
+22:32:36 image file, F_FULLFSYNC forced to fail: 5 flush calls seen by syncspy, W records ['W flush 25', 'W flush 25', 'W flush 25', 'W flush 25', 'W flush 25'], other records ['S rw', 'U 0']
+22:32:37 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L sync <tmp>/ntfsmac-case-61oinbz6/buffered-ok.img -> rc=0
+22:32:37 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:32:37 stderr: <tmp>/ntfsmac-case-61oinbz6/buffered-ok.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-61oinbz6/buffered-ok.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-61oinbz6/buffered-ok.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-61oinbz6/buffered-ok.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-61oinbz6/buffered-ok.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:32:37 $ /usr/bin/hdiutil attach -nomount -imagekey diskimage-class=CRawDiskImage <tmp>/ntfsmac-case-61oinbz6/buffered-ok.img -> rc=0
+22:32:37 /dev/disk6
+22:32:37 stderr: hdiutil: WARNING: 'hdiutil attach -nomount ...' is deprecated. Please use 'diskutil image attach --noMount ...' instead.
+22:32:37 attached buffered-ok.img as /dev/disk6, using /dev/disk6 (buffered)
+22:32:37 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach /dev/fd/5 <tmp>/ntfsmac-case-61oinbz6/mnt-buffered-ok  NTFSMAC_ERRFD=20
+22:32:46 worker exit rc=0, umount rc=0, channel at EOF: True
+22:32:46 records: ['S rw', 'U 0']
+22:32:46 device node, no forced failure: 5 flush calls seen by syncspy, W records [], other records ['S rw', 'U 0']
+22:32:46 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L sync <tmp>/ntfsmac-case-61oinbz6/file-ok.img -> rc=0
+22:32:46 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:32:46 stderr: <tmp>/ntfsmac-case-61oinbz6/file-ok.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-61oinbz6/file-ok.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-61oinbz6/file-ok.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-61oinbz6/file-ok.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-61oinbz6/file-ok.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:32:46 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach <tmp>/ntfsmac-case-61oinbz6/file-ok.img <tmp>/ntfsmac-case-61oinbz6/mnt-file-ok  NTFSMAC_ERRFD=20
+22:32:56 worker exit rc=0, umount rc=0, channel at EOF: True
+22:32:56 records: ['S rw', 'U 0']
+22:32:56 image file, no forced failure: 5 flush calls seen by syncspy, W records [], other records ['S rw', 'U 0']
+22:32:56 end I-ERR-06: pass

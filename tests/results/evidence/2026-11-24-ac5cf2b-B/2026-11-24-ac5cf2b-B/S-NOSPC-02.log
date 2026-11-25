@@ -1,0 +1,62 @@
+22:58:11 start S-NOSPC-02 (env B)
+22:58:11 control 1: only ENOSPC passes
+22:58:12 control 2: the deadline fires
+22:58:12 control 3: damage is reported
+22:58:12 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac <tmp>/ntfsmac-case-jk1f4or6/vol.img -> rc=0
+22:58:12 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:58:12 stderr: <tmp>/ntfsmac-case-jk1f4or6/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-jk1f4or6/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-jk1f4or6/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-jk1f4or6/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-jk1f4or6/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:58:12 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 <tmp>/ntfsmac-case-jk1f4or6/vol.img <tmp>/ntfsmac-case-jk1f4or6/mnt -> rc=0
+22:58:16 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-jk1f4or6/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:58:16 $ sync -> rc=0
+22:58:16 $ /sbin/umount <tmp>/ntfsmac-case-jk1f4or6/mnt -> rc=0
+22:58:16 after unmount: $Volume flags 0x0000
+22:58:16 $ <home>/ntfsmac/deps/bin/ntfsfix -n <tmp>/ntfsmac-case-jk1f4or6/vol.img -> rc=0
+22:58:16 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition <tmp>/ntfsmac-case-jk1f4or6/vol.img was processed successfully.
+22:58:16 control 4: flags of the copy with the dirty bit set: 0x0001
+22:58:16 dirty copy: $Volume flags 0x0001
+22:58:16 control 4: a dirty image is reported, the unmounted image passes
+22:58:16 $ <home>/ntfsmac/deps/bin/ntfsfix -n <tmp>/ntfsmac-case-jk1f4or6/mirror.img -> rc=1
+22:58:16 Mounting volume... FAILED
+Attempting to correct errors... 
+Processing $MFT and $MFTMirr...
+Reading $MFT... OK
+Reading $MFTMirr... OK
+Comparing $MFTMirr to $MFT... FAILED
+Correcting differences in $MFTMirr record 0...OK
+Processing of $MFT and $MFTMirr completed successfully.
+Setting required flags on partition... OK
+Going to empty the journal ($LogFile)... OK
+22:58:16 stderr: $MFTMirr does not match $MFT (record 0).
+$MFTMirr does not match $MFT (record 0).
+Remount failed: Input/output error
+22:58:16 control 5: ntfsfix -n on the $MFTMirr copy: exit 1, 'tting required flags on partition... OK\nGoing to empty the journal ($LogFile)... OK\n$MFTMirr does not match $MFT (record 0).\n$MFTMirr does not match $MFT (record 0).\nRemount failed: Input/output error'
+22:58:16 mirror copy: $Volume flags 0x0000
+22:58:16 $ <home>/ntfsmac/deps/bin/ntfsfix -n <tmp>/ntfsmac-case-jk1f4or6/mirror.img -> rc=1
+22:58:16 Mounting volume... FAILED
+Attempting to correct errors... 
+Processing $MFT and $MFTMirr...
+Reading $MFT... OK
+Reading $MFTMirr... OK
+Comparing $MFTMirr to $MFT... FAILED
+Correcting differences in $MFTMirr record 0...OK
+Processing of $MFT and $MFTMirr completed successfully.
+Setting required flags on partition... OK
+Going to empty the journal ($LogFile)... OK
+22:58:16 stderr: $MFTMirr does not match $MFT (record 0).
+$MFTMirr does not match $MFT (record 0).
+Remount failed: Input/output error
+22:58:16 control 5: a damaged $MFTMirr is reported by ntfsfix
+22:58:16 end S-NOSPC-02: pass

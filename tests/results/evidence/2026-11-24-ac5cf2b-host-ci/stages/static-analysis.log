@@ -1,0 +1,100 @@
+shellcheck -x -S error
+clang-tidy: using /opt/homebrew/opt/llvm/bin/clang-tidy (searched: PATH)
+clang-tidy (clang-diagnostic-*, clang-analyzer-*; files of the compile database under src/)
+[1/58] Processing file <repo>/src/cli/authz.c.
+[2/58] Processing file <repo>/src/cli/cli.c.
+[3/58] Processing file <repo>/src/cli/client.c.
+[4/58] Processing file <repo>/src/cli/cmd_journal.c.
+[5/58] Processing file <repo>/src/cli/cmd_repair.c.
+[6/58] Processing file <repo>/src/cli/json.c.
+[7/58] Processing file <repo>/src/cli/main.c.
+[8/58] Processing file <repo>/src/cli/priv.c.
+[9/58] Processing file <repo>/src/cli/reasons.c.
+[10/58] Processing file <repo>/src/cli/render.c.
+[11/58] Processing file <repo>/src/cli/req.c.
+[12/58] Processing file <repo>/src/cli/xpc_client.c.
+[13/58] Processing file <repo>/src/common/label_cp.c.
+[14/58] Processing file <repo>/src/common/log.c.
+[15/58] Processing file <repo>/src/common/mftmirr.c.
+[16/58] Processing file <repo>/src/common/state_rank.c.
+[17/58] Processing file <repo>/src/common/test_log.c.
+[18/58] Processing file <repo>/src/daemon/conflict.c.
+[19/58] Processing file <repo>/src/daemon/ctl.c.
+[20/58] Processing file <repo>/src/daemon/ctl_journal.c.
+[21/58] Processing file <repo>/src/daemon/ctl_parse.c.
+[22/58] Processing file <repo>/src/daemon/ctl_peer.c.
+[23/58] Processing file <repo>/src/daemon/ctl_repair_mirror.c.
+[24/58] Processing file <repo>/src/daemon/ctl_sys.c.
+[25/58] Processing file <repo>/src/daemon/ctl_xpc.c.
+[26/58] Processing file <repo>/src/daemon/da.c.
+2 warnings generated.
+[27/58] Processing file <repo>/src/daemon/da_filter.c.
+5 warnings generated.
+[28/58] Processing file <repo>/src/daemon/doctor.c.
+5 warnings generated.
+[29/58] Processing file <repo>/src/daemon/errwatch.c.
+5 warnings generated.
+[30/58] Processing file <repo>/src/daemon/errwatch_io.c.
+5 warnings generated.
+[31/58] Processing file <repo>/src/daemon/main.c.
+5 warnings generated.
+[32/58] Processing file <repo>/src/daemon/mountpoint.c.
+5 warnings generated.
+[33/58] Processing file <repo>/src/daemon/mountwatch.c.
+5 warnings generated.
+[34/58] Processing file <repo>/src/daemon/notify.c.
+5 warnings generated.
+[35/58] Processing file <repo>/src/daemon/reconcile.c.
+5 warnings generated.
+[36/58] Processing file <repo>/src/daemon/report.c.
+5 warnings generated.
+[37/58] Processing file <repo>/src/daemon/session.c.
+5 warnings generated.
+[38/58] Processing file <repo>/src/daemon/spawn.c.
+5 warnings generated.
+[39/58] Processing file <repo>/src/daemon/spawn_holder.c.
+5 warnings generated.
+[40/58] Processing file <repo>/src/daemon/status.c.
+5 warnings generated.
+[41/58] Processing file <repo>/src/daemon/unmount.c.
+5 warnings generated.
+[42/58] Processing file <repo>/src/daemon/unmount_ev.c.
+6 warnings generated.
+[43/58] Processing file <repo>/src/daemon/usermap.c.
+6 warnings generated.
+[44/58] Processing file <repo>/src/daemon/usermap_file.c.
+6 warnings generated.
+[45/58] Processing file <repo>/src/daemon/volume.c.
+6 warnings generated.
+[46/58] (1/2) Processing file <repo>/src/journal/journal.c.
+6 warnings generated.
+[46/58] (2/2) Processing file <repo>/src/journal/journal.c.
+6 warnings generated.
+[47/58] Processing file <repo>/src/options/argv_check.c.
+6 warnings generated.
+[48/58] Processing file <repo>/src/options/options.c.
+6 warnings generated.
+[49/58] Processing file <repo>/src/policy/policy.c.
+6 warnings generated.
+[50/58] Processing file <repo>/src/probe/json.c.
+6 warnings generated.
+[51/58] Processing file <repo>/src/probe/nfc.c.
+6 warnings generated.
+[52/58] Processing file <repo>/src/probe/state.c.
+6 warnings generated.
+[53/58] Processing file <repo>/src/probe/text.c.
+6 warnings generated.
+[54/58] Processing file <repo>/src/sanitize/display.c.
+6 warnings generated.
+[55/58] Processing file <repo>/src/sanitize/label.c.
+6 warnings generated.
+[56/58] Processing file <repo>/src/sanitize/leaf.c.
+6 warnings generated.
+[57/58] Processing file <repo>/src/sanitize/verdict.c.
+6 warnings generated.
+[58/58] Processing file <repo>/src/volmark/args.c.
+6 warnings generated.
+Suppressed 11 warnings (6 in non-user code, 5 NOLINT).
+Use -header-filter=.* or leave it as default to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+cppcheck
+NOTE: clang-tidy used: /opt/homebrew/opt/llvm/bin/clang-tidy (searched: PATH)

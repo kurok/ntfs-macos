@@ -1,0 +1,2296 @@
+guest: 27.2 arm64, user admin uid 501, console owner admin
+== start the job
+== S-DISC-01 rep 1: workload seq, yank at 1
+PASS: S-DISC-01.1 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.1 the journal holds the entry of the rw session
+PASS: S-DISC-01.1 the writer is running at the moment of the yank
+PASS: S-DISC-01.1 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.1 point of the yank: 1 s into the workload, 232 operations done
+PASS: S-DISC-01.1 the workload had written something at the yank (232 operations)
+PASS: S-DISC-01.1 the volume row goes away within 120 s
+PASS: S-DISC-01.1 the writer is gone after the kill
+PASS: S-DISC-01.1 no worker is left
+PASS: S-DISC-01.1 no macfuse mount is left
+PASS: S-DISC-01.1 the mount point directory is gone
+PASS: S-DISC-01.1: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.1 the journal entry stays
+PASS: S-DISC-01.1 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.1 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.1 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.1 next attach: state (Mounted)
+PASS: S-DISC-01.1 next attach: mode (ro)
+NOTE: S-DISC-01.1 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.1 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.1 synced files: OK 6
+PASS: S-DISC-01.1 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.1 next attach: the journal entry is still there
+PASS: S-DISC-01.1 next attach: the read-only session left the image unchanged (41413566ba0a16daafb17698b841cad0be5e524cf15142f512d81e9d313c99f4)
+NOTE: S-DISC-01.1 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 41413566ba0a16daafb17698b841cad0be5e524cf15142f512d81e9d313c99f4
+REP S-DISC-01 1 seq delay=1 pass
+== S-DISC-01 rep 2: workload seq, yank at 2.2
+PASS: S-DISC-01.2 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.2 the journal holds the entry of the rw session
+PASS: S-DISC-01.2 the writer is running at the moment of the yank
+PASS: S-DISC-01.2 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.2 point of the yank: 2.2 s into the workload, 600 operations done
+PASS: S-DISC-01.2 the workload had written something at the yank (600 operations)
+PASS: S-DISC-01.2 the volume row goes away within 120 s
+PASS: S-DISC-01.2 the writer is gone after the kill
+PASS: S-DISC-01.2 no worker is left
+PASS: S-DISC-01.2 no macfuse mount is left
+PASS: S-DISC-01.2 the mount point directory is gone
+PASS: S-DISC-01.2: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.2 the journal entry stays
+PASS: S-DISC-01.2 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.2 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.2 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.2 next attach: state (Mounted)
+PASS: S-DISC-01.2 next attach: mode (ro)
+NOTE: S-DISC-01.2 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.2 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.2 synced files: OK 6
+PASS: S-DISC-01.2 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.2 next attach: the journal entry is still there
+PASS: S-DISC-01.2 next attach: the read-only session left the image unchanged (50d8ec0de60777ea81dbca6974aef8c0bdeb977fcf46960410e32966d4acd7a0)
+NOTE: S-DISC-01.2 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 50d8ec0de60777ea81dbca6974aef8c0bdeb977fcf46960410e32966d4acd7a0
+REP S-DISC-01 2 seq delay=2.2 pass
+== S-DISC-01 rep 3: workload seq, yank at 0.6
+PASS: S-DISC-01.3 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.3 the journal holds the entry of the rw session
+PASS: S-DISC-01.3 the writer is running at the moment of the yank
+PASS: S-DISC-01.3 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.3 point of the yank: 0.6 s into the workload, 160 operations done
+PASS: S-DISC-01.3 the workload had written something at the yank (160 operations)
+PASS: S-DISC-01.3 the volume row goes away within 120 s
+PASS: S-DISC-01.3 the writer is gone after the kill
+PASS: S-DISC-01.3 no worker is left
+PASS: S-DISC-01.3 no macfuse mount is left
+PASS: S-DISC-01.3 the mount point directory is gone
+PASS: S-DISC-01.3: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.3 the journal entry stays
+PASS: S-DISC-01.3 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.3 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.3 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.3 next attach: state (Mounted)
+PASS: S-DISC-01.3 next attach: mode (ro)
+NOTE: S-DISC-01.3 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.3 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.3 synced files: OK 6
+PASS: S-DISC-01.3 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.3 next attach: the journal entry is still there
+PASS: S-DISC-01.3 next attach: the read-only session left the image unchanged (2947e3fee0c6b32a388927829aa98a20942f012d4c75cc4156b8662de6587146)
+NOTE: S-DISC-01.3 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 2947e3fee0c6b32a388927829aa98a20942f012d4c75cc4156b8662de6587146
+REP S-DISC-01 3 seq delay=0.6 pass
+== S-DISC-01 rep 4: workload seq, yank at 3.5
+PASS: S-DISC-01.4 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.4 the journal holds the entry of the rw session
+PASS: S-DISC-01.4 the writer is running at the moment of the yank
+PASS: S-DISC-01.4 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.4 point of the yank: 3.5 s into the workload, 960 operations done
+PASS: S-DISC-01.4 the workload had written something at the yank (960 operations)
+PASS: S-DISC-01.4 the volume row goes away within 120 s
+PASS: S-DISC-01.4 the writer is gone after the kill
+PASS: S-DISC-01.4 no worker is left
+PASS: S-DISC-01.4 no macfuse mount is left
+PASS: S-DISC-01.4 the mount point directory is gone
+PASS: S-DISC-01.4: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.4 the journal entry stays
+PASS: S-DISC-01.4 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.4 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.4 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.4 next attach: state (Mounted)
+PASS: S-DISC-01.4 next attach: mode (ro)
+NOTE: S-DISC-01.4 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.4 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.4 synced files: OK 6
+PASS: S-DISC-01.4 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.4 next attach: the journal entry is still there
+PASS: S-DISC-01.4 next attach: the read-only session left the image unchanged (dcb6ef5253bc8ba8e23cd254c5594f7982c5c08b1e9c86200bbaae254de7c1bb)
+NOTE: S-DISC-01.4 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank dcb6ef5253bc8ba8e23cd254c5594f7982c5c08b1e9c86200bbaae254de7c1bb
+REP S-DISC-01 4 seq delay=3.5 pass
+== S-DISC-01 rep 5: workload seq, yank at 1.6
+PASS: S-DISC-01.5 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.5 the journal holds the entry of the rw session
+PASS: S-DISC-01.5 the writer is running at the moment of the yank
+PASS: S-DISC-01.5 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.5 point of the yank: 1.6 s into the workload, 400 operations done
+PASS: S-DISC-01.5 the workload had written something at the yank (400 operations)
+PASS: S-DISC-01.5 the volume row goes away within 120 s
+PASS: S-DISC-01.5 the writer is gone after the kill
+PASS: S-DISC-01.5 no worker is left
+PASS: S-DISC-01.5 no macfuse mount is left
+PASS: S-DISC-01.5 the mount point directory is gone
+PASS: S-DISC-01.5: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.5 the journal entry stays
+PASS: S-DISC-01.5 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.5 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.5 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.5 next attach: state (Mounted)
+PASS: S-DISC-01.5 next attach: mode (ro)
+NOTE: S-DISC-01.5 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.5 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.5 synced files: OK 6
+PASS: S-DISC-01.5 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.5 next attach: the journal entry is still there
+PASS: S-DISC-01.5 next attach: the read-only session left the image unchanged (41a56e289cc525813dab940b25538bfb7b599b4bc267616e0974d0c3442f970a)
+NOTE: S-DISC-01.5 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 41a56e289cc525813dab940b25538bfb7b599b4bc267616e0974d0c3442f970a
+REP S-DISC-01 5 seq delay=1.6 pass
+== S-DISC-01 rep 6: workload seq, yank at 0.3
+PASS: S-DISC-01.6 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.6 the journal holds the entry of the rw session
+PASS: S-DISC-01.6 the writer is running at the moment of the yank
+PASS: S-DISC-01.6 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.6 point of the yank: 0.3 s into the workload, 80 operations done
+PASS: S-DISC-01.6 the workload had written something at the yank (80 operations)
+PASS: S-DISC-01.6 the volume row goes away within 120 s
+PASS: S-DISC-01.6 the writer is gone after the kill
+PASS: S-DISC-01.6 no worker is left
+PASS: S-DISC-01.6 no macfuse mount is left
+PASS: S-DISC-01.6 the mount point directory is gone
+PASS: S-DISC-01.6: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.6 the journal entry stays
+PASS: S-DISC-01.6 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.6 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.6 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.6 next attach: state (Mounted)
+PASS: S-DISC-01.6 next attach: mode (ro)
+NOTE: S-DISC-01.6 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.6 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.6 synced files: OK 6
+PASS: S-DISC-01.6 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.6 next attach: the journal entry is still there
+PASS: S-DISC-01.6 next attach: the read-only session left the image unchanged (8ce6995a3a5f567ed3125f8d64617164a7c6670624416976407bd7d3ee7f3216)
+NOTE: S-DISC-01.6 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 8ce6995a3a5f567ed3125f8d64617164a7c6670624416976407bd7d3ee7f3216
+REP S-DISC-01 6 seq delay=0.3 pass
+== S-DISC-01 rep 7: workload seq, yank at 1
+PASS: S-DISC-01.7 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.7 the journal holds the entry of the rw session
+PASS: S-DISC-01.7 the writer is running at the moment of the yank
+PASS: S-DISC-01.7 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.7 point of the yank: 1 s into the workload, 240 operations done
+PASS: S-DISC-01.7 the workload had written something at the yank (240 operations)
+PASS: S-DISC-01.7 the volume row goes away within 120 s
+PASS: S-DISC-01.7 the writer is gone after the kill
+PASS: S-DISC-01.7 no worker is left
+PASS: S-DISC-01.7 no macfuse mount is left
+PASS: S-DISC-01.7 the mount point directory is gone
+PASS: S-DISC-01.7: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.7 the journal entry stays
+PASS: S-DISC-01.7 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.7 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.7 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.7 next attach: state (Mounted)
+PASS: S-DISC-01.7 next attach: mode (ro)
+NOTE: S-DISC-01.7 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.7 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.7 synced files: OK 6
+PASS: S-DISC-01.7 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.7 next attach: the journal entry is still there
+PASS: S-DISC-01.7 next attach: the read-only session left the image unchanged (e3b753e4842f9be0dd74e9b8d9d40b516d81637605fdf8d2303531228c002733)
+NOTE: S-DISC-01.7 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank e3b753e4842f9be0dd74e9b8d9d40b516d81637605fdf8d2303531228c002733
+REP S-DISC-01 7 seq delay=1 pass
+== S-DISC-01 rep 8: workload seq, yank at 2.2
+PASS: S-DISC-01.8 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.8 the journal holds the entry of the rw session
+PASS: S-DISC-01.8 the writer is running at the moment of the yank
+PASS: S-DISC-01.8 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.8 point of the yank: 2.2 s into the workload, 560 operations done
+PASS: S-DISC-01.8 the workload had written something at the yank (560 operations)
+PASS: S-DISC-01.8 the volume row goes away within 120 s
+PASS: S-DISC-01.8 the writer is gone after the kill
+PASS: S-DISC-01.8 no worker is left
+PASS: S-DISC-01.8 no macfuse mount is left
+PASS: S-DISC-01.8 the mount point directory is gone
+PASS: S-DISC-01.8: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.8 the journal entry stays
+PASS: S-DISC-01.8 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.8 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.8 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.8 next attach: state (Mounted)
+PASS: S-DISC-01.8 next attach: mode (ro)
+NOTE: S-DISC-01.8 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.8 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.8 synced files: OK 6
+PASS: S-DISC-01.8 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.8 next attach: the journal entry is still there
+PASS: S-DISC-01.8 next attach: the read-only session left the image unchanged (3e2c25cbac957c92f22808621dd8a7d0442507b4a3bdc52732e1b7e4bcf0e9a4)
+NOTE: S-DISC-01.8 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 3e2c25cbac957c92f22808621dd8a7d0442507b4a3bdc52732e1b7e4bcf0e9a4
+REP S-DISC-01 8 seq delay=2.2 pass
+== S-DISC-01 rep 9: workload seq, yank at 0.6
+PASS: S-DISC-01.9 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.9 the journal holds the entry of the rw session
+PASS: S-DISC-01.9 the writer is running at the moment of the yank
+PASS: S-DISC-01.9 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.9 point of the yank: 0.6 s into the workload, 152 operations done
+PASS: S-DISC-01.9 the workload had written something at the yank (152 operations)
+PASS: S-DISC-01.9 the volume row goes away within 120 s
+PASS: S-DISC-01.9 the writer is gone after the kill
+PASS: S-DISC-01.9 no worker is left
+PASS: S-DISC-01.9 no macfuse mount is left
+PASS: S-DISC-01.9 the mount point directory is gone
+PASS: S-DISC-01.9: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.9 the journal entry stays
+PASS: S-DISC-01.9 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.9 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.9 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.9 next attach: state (Mounted)
+PASS: S-DISC-01.9 next attach: mode (ro)
+NOTE: S-DISC-01.9 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.9 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.9 synced files: OK 6
+PASS: S-DISC-01.9 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.9 next attach: the journal entry is still there
+PASS: S-DISC-01.9 next attach: the read-only session left the image unchanged (58b9f05876092b1ec8a897aefafaaf9ed457a24446b07e7c89aaf2ffc42a7fb3)
+NOTE: S-DISC-01.9 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 58b9f05876092b1ec8a897aefafaaf9ed457a24446b07e7c89aaf2ffc42a7fb3
+REP S-DISC-01 9 seq delay=0.6 pass
+== S-DISC-01 rep 10: workload seq, yank at 3.5
+PASS: S-DISC-01.10 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.10 the journal holds the entry of the rw session
+PASS: S-DISC-01.10 the writer is running at the moment of the yank
+PASS: S-DISC-01.10 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.10 point of the yank: 3.5 s into the workload, 952 operations done
+PASS: S-DISC-01.10 the workload had written something at the yank (952 operations)
+PASS: S-DISC-01.10 the volume row goes away within 120 s
+PASS: S-DISC-01.10 the writer is gone after the kill
+PASS: S-DISC-01.10 no worker is left
+PASS: S-DISC-01.10 no macfuse mount is left
+PASS: S-DISC-01.10 the mount point directory is gone
+PASS: S-DISC-01.10: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.10 the journal entry stays
+PASS: S-DISC-01.10 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.10 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.10 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.10 next attach: state (Mounted)
+PASS: S-DISC-01.10 next attach: mode (ro)
+NOTE: S-DISC-01.10 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.10 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.10 synced files: OK 6
+PASS: S-DISC-01.10 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.10 next attach: the journal entry is still there
+PASS: S-DISC-01.10 next attach: the read-only session left the image unchanged (ded9e17446931d45c1a3bbe8b051c94b538912c339c10e84ca922039e6e683d6)
+NOTE: S-DISC-01.10 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank ded9e17446931d45c1a3bbe8b051c94b538912c339c10e84ca922039e6e683d6
+REP S-DISC-01 10 seq delay=3.5 pass
+== S-DISC-01 rep 11: workload seq, yank at 1.6
+PASS: S-DISC-01.11 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.11 the journal holds the entry of the rw session
+PASS: S-DISC-01.11 the writer is running at the moment of the yank
+PASS: S-DISC-01.11 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.11 point of the yank: 1.6 s into the workload, 400 operations done
+PASS: S-DISC-01.11 the workload had written something at the yank (400 operations)
+PASS: S-DISC-01.11 the volume row goes away within 120 s
+PASS: S-DISC-01.11 the writer is gone after the kill
+PASS: S-DISC-01.11 no worker is left
+PASS: S-DISC-01.11 no macfuse mount is left
+PASS: S-DISC-01.11 the mount point directory is gone
+PASS: S-DISC-01.11: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.11 the journal entry stays
+PASS: S-DISC-01.11 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.11 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.11 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.11 next attach: state (Mounted)
+PASS: S-DISC-01.11 next attach: mode (ro)
+NOTE: S-DISC-01.11 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.11 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.11 synced files: OK 6
+PASS: S-DISC-01.11 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.11 next attach: the journal entry is still there
+PASS: S-DISC-01.11 next attach: the read-only session left the image unchanged (1a91028a46edabf0ea7b8fff7e56c5b7cc6fda7b183d490363d339d7ec799854)
+NOTE: S-DISC-01.11 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 1a91028a46edabf0ea7b8fff7e56c5b7cc6fda7b183d490363d339d7ec799854
+REP S-DISC-01 11 seq delay=1.6 pass
+== S-DISC-01 rep 12: workload seq, yank at 0.3
+PASS: S-DISC-01.12 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.12 the journal holds the entry of the rw session
+PASS: S-DISC-01.12 the writer is running at the moment of the yank
+PASS: S-DISC-01.12 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.12 point of the yank: 0.3 s into the workload, 72 operations done
+PASS: S-DISC-01.12 the workload had written something at the yank (72 operations)
+PASS: S-DISC-01.12 the volume row goes away within 120 s
+PASS: S-DISC-01.12 the writer is gone after the kill
+PASS: S-DISC-01.12 no worker is left
+PASS: S-DISC-01.12 no macfuse mount is left
+PASS: S-DISC-01.12 the mount point directory is gone
+PASS: S-DISC-01.12: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.12 the journal entry stays
+PASS: S-DISC-01.12 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.12 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.12 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.12 next attach: state (Mounted)
+PASS: S-DISC-01.12 next attach: mode (ro)
+NOTE: S-DISC-01.12 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.12 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.12 synced files: OK 6
+PASS: S-DISC-01.12 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.12 next attach: the journal entry is still there
+PASS: S-DISC-01.12 next attach: the read-only session left the image unchanged (cde43349c57abd95fd76d8266eb3a156466e28574e99398cb782e3672b30f396)
+NOTE: S-DISC-01.12 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank cde43349c57abd95fd76d8266eb3a156466e28574e99398cb782e3672b30f396
+REP S-DISC-01 12 seq delay=0.3 pass
+== S-DISC-01 rep 13: workload seq, yank at 1
+PASS: S-DISC-01.13 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.13 the journal holds the entry of the rw session
+PASS: S-DISC-01.13 the writer is running at the moment of the yank
+PASS: S-DISC-01.13 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.13 point of the yank: 1 s into the workload, 240 operations done
+PASS: S-DISC-01.13 the workload had written something at the yank (240 operations)
+PASS: S-DISC-01.13 the volume row goes away within 120 s
+PASS: S-DISC-01.13 the writer is gone after the kill
+PASS: S-DISC-01.13 no worker is left
+PASS: S-DISC-01.13 no macfuse mount is left
+PASS: S-DISC-01.13 the mount point directory is gone
+PASS: S-DISC-01.13: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.13 the journal entry stays
+PASS: S-DISC-01.13 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.13 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.13 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.13 next attach: state (Mounted)
+PASS: S-DISC-01.13 next attach: mode (ro)
+NOTE: S-DISC-01.13 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.13 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.13 synced files: OK 6
+PASS: S-DISC-01.13 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.13 next attach: the journal entry is still there
+PASS: S-DISC-01.13 next attach: the read-only session left the image unchanged (24f937077662618754f342e46aaea4ea4b90071a0c671ff1016bed63703cf917)
+NOTE: S-DISC-01.13 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 24f937077662618754f342e46aaea4ea4b90071a0c671ff1016bed63703cf917
+REP S-DISC-01 13 seq delay=1 pass
+== S-DISC-01 rep 14: workload seq, yank at 2.2
+PASS: S-DISC-01.14 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.14 the journal holds the entry of the rw session
+PASS: S-DISC-01.14 the writer is running at the moment of the yank
+PASS: S-DISC-01.14 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.14 point of the yank: 2.2 s into the workload, 536 operations done
+PASS: S-DISC-01.14 the workload had written something at the yank (536 operations)
+PASS: S-DISC-01.14 the volume row goes away within 120 s
+PASS: S-DISC-01.14 the writer is gone after the kill
+PASS: S-DISC-01.14 no worker is left
+PASS: S-DISC-01.14 no macfuse mount is left
+PASS: S-DISC-01.14 the mount point directory is gone
+PASS: S-DISC-01.14: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.14 the journal entry stays
+PASS: S-DISC-01.14 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.14 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.14 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.14 next attach: state (Mounted)
+PASS: S-DISC-01.14 next attach: mode (ro)
+NOTE: S-DISC-01.14 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.14 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.14 synced files: OK 6
+PASS: S-DISC-01.14 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.14 next attach: the journal entry is still there
+PASS: S-DISC-01.14 next attach: the read-only session left the image unchanged (e2a8a475f898f76ef06c6a1133e92db89b4bca74d7fa8b8fddf08703528fe5f7)
+NOTE: S-DISC-01.14 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank e2a8a475f898f76ef06c6a1133e92db89b4bca74d7fa8b8fddf08703528fe5f7
+REP S-DISC-01 14 seq delay=2.2 pass
+== S-DISC-01 rep 15: workload seq, yank at 0.6
+PASS: S-DISC-01.15 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.15 the journal holds the entry of the rw session
+PASS: S-DISC-01.15 the writer is running at the moment of the yank
+PASS: S-DISC-01.15 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.15 point of the yank: 0.6 s into the workload, 144 operations done
+PASS: S-DISC-01.15 the workload had written something at the yank (144 operations)
+PASS: S-DISC-01.15 the volume row goes away within 120 s
+PASS: S-DISC-01.15 the writer is gone after the kill
+PASS: S-DISC-01.15 no worker is left
+PASS: S-DISC-01.15 no macfuse mount is left
+PASS: S-DISC-01.15 the mount point directory is gone
+PASS: S-DISC-01.15: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.15 the journal entry stays
+PASS: S-DISC-01.15 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.15 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.15 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.15 next attach: state (Mounted)
+PASS: S-DISC-01.15 next attach: mode (ro)
+NOTE: S-DISC-01.15 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.15 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.15 synced files: OK 6
+PASS: S-DISC-01.15 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.15 next attach: the journal entry is still there
+PASS: S-DISC-01.15 next attach: the read-only session left the image unchanged (9661432ec307376e7881c66b170b15927ea58be4e9e2746e3f46bcbb0023a8cf)
+NOTE: S-DISC-01.15 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 9661432ec307376e7881c66b170b15927ea58be4e9e2746e3f46bcbb0023a8cf
+REP S-DISC-01 15 seq delay=0.6 pass
+== S-DISC-01 rep 16: workload seq, yank at 3.5
+PASS: S-DISC-01.16 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.16 the journal holds the entry of the rw session
+PASS: S-DISC-01.16 the writer is running at the moment of the yank
+PASS: S-DISC-01.16 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.16 point of the yank: 3.5 s into the workload, 968 operations done
+PASS: S-DISC-01.16 the workload had written something at the yank (968 operations)
+PASS: S-DISC-01.16 the volume row goes away within 120 s
+PASS: S-DISC-01.16 the writer is gone after the kill
+PASS: S-DISC-01.16 no worker is left
+PASS: S-DISC-01.16 no macfuse mount is left
+PASS: S-DISC-01.16 the mount point directory is gone
+PASS: S-DISC-01.16: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.16 the journal entry stays
+PASS: S-DISC-01.16 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.16 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.16 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.16 next attach: state (Mounted)
+PASS: S-DISC-01.16 next attach: mode (ro)
+NOTE: S-DISC-01.16 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.16 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.16 synced files: OK 6
+PASS: S-DISC-01.16 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.16 next attach: the journal entry is still there
+PASS: S-DISC-01.16 next attach: the read-only session left the image unchanged (3b69f853db2f3e254bb0db51476b5a885e96af234f3a9a38c4d6ba3e5a137fd2)
+NOTE: S-DISC-01.16 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 3b69f853db2f3e254bb0db51476b5a885e96af234f3a9a38c4d6ba3e5a137fd2
+REP S-DISC-01 16 seq delay=3.5 pass
+== S-DISC-01 rep 17: workload seq, yank at 1.6
+PASS: S-DISC-01.17 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.17 the journal holds the entry of the rw session
+PASS: S-DISC-01.17 the writer is running at the moment of the yank
+PASS: S-DISC-01.17 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.17 point of the yank: 1.6 s into the workload, 400 operations done
+PASS: S-DISC-01.17 the workload had written something at the yank (400 operations)
+PASS: S-DISC-01.17 the volume row goes away within 120 s
+PASS: S-DISC-01.17 the writer is gone after the kill
+PASS: S-DISC-01.17 no worker is left
+PASS: S-DISC-01.17 no macfuse mount is left
+PASS: S-DISC-01.17 the mount point directory is gone
+PASS: S-DISC-01.17: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.17 the journal entry stays
+PASS: S-DISC-01.17 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.17 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.17 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.17 next attach: state (Mounted)
+PASS: S-DISC-01.17 next attach: mode (ro)
+NOTE: S-DISC-01.17 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.17 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.17 synced files: OK 6
+PASS: S-DISC-01.17 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.17 next attach: the journal entry is still there
+PASS: S-DISC-01.17 next attach: the read-only session left the image unchanged (8c7baf1162aeaba761451139cbfd0813e661ffc27317ff850aec9972d26040f2)
+NOTE: S-DISC-01.17 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 8c7baf1162aeaba761451139cbfd0813e661ffc27317ff850aec9972d26040f2
+REP S-DISC-01 17 seq delay=1.6 pass
+== S-DISC-01 rep 18: workload seq, yank at 0.3
+PASS: S-DISC-01.18 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.18 the journal holds the entry of the rw session
+PASS: S-DISC-01.18 the writer is running at the moment of the yank
+PASS: S-DISC-01.18 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.18 point of the yank: 0.3 s into the workload, 56 operations done
+PASS: S-DISC-01.18 the workload had written something at the yank (56 operations)
+PASS: S-DISC-01.18 the volume row goes away within 120 s
+PASS: S-DISC-01.18 the writer is gone after the kill
+PASS: S-DISC-01.18 no worker is left
+PASS: S-DISC-01.18 no macfuse mount is left
+PASS: S-DISC-01.18 the mount point directory is gone
+PASS: S-DISC-01.18: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.18 the journal entry stays
+PASS: S-DISC-01.18 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.18 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.18 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.18 next attach: state (Mounted)
+PASS: S-DISC-01.18 next attach: mode (ro)
+NOTE: S-DISC-01.18 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.18 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.18 synced files: OK 6
+PASS: S-DISC-01.18 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.18 next attach: the journal entry is still there
+PASS: S-DISC-01.18 next attach: the read-only session left the image unchanged (013df23f9bf8f5d57e3c087f0b0e0345ddce290d4260cd53196d72fa8ddaf36a)
+NOTE: S-DISC-01.18 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 013df23f9bf8f5d57e3c087f0b0e0345ddce290d4260cd53196d72fa8ddaf36a
+REP S-DISC-01 18 seq delay=0.3 pass
+== S-DISC-01 rep 19: workload seq, yank at 1
+PASS: S-DISC-01.19 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.19 the journal holds the entry of the rw session
+PASS: S-DISC-01.19 the writer is running at the moment of the yank
+PASS: S-DISC-01.19 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.19 point of the yank: 1 s into the workload, 216 operations done
+PASS: S-DISC-01.19 the workload had written something at the yank (216 operations)
+PASS: S-DISC-01.19 the volume row goes away within 120 s
+PASS: S-DISC-01.19 the writer is gone after the kill
+PASS: S-DISC-01.19 no worker is left
+PASS: S-DISC-01.19 no macfuse mount is left
+PASS: S-DISC-01.19 the mount point directory is gone
+PASS: S-DISC-01.19: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.19 the journal entry stays
+PASS: S-DISC-01.19 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.19 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.19 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.19 next attach: state (Mounted)
+PASS: S-DISC-01.19 next attach: mode (ro)
+NOTE: S-DISC-01.19 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.19 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.19 synced files: OK 6
+PASS: S-DISC-01.19 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.19 next attach: the journal entry is still there
+PASS: S-DISC-01.19 next attach: the read-only session left the image unchanged (9edfb16f8bf9e97f39a961980dbbe3502e085fb7b89ce9c8af2746818c660458)
+NOTE: S-DISC-01.19 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 9edfb16f8bf9e97f39a961980dbbe3502e085fb7b89ce9c8af2746818c660458
+REP S-DISC-01 19 seq delay=1 pass
+== S-DISC-01 rep 20: workload seq, yank at 2.2
+PASS: S-DISC-01.20 the volume mounts rw (Mounted rw)
+PASS: S-DISC-01.20 the journal holds the entry of the rw session
+PASS: S-DISC-01.20 the writer is running at the moment of the yank
+PASS: S-DISC-01.20 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-01.20 point of the yank: 2.2 s into the workload, 560 operations done
+PASS: S-DISC-01.20 the workload had written something at the yank (560 operations)
+PASS: S-DISC-01.20 the volume row goes away within 120 s
+PASS: S-DISC-01.20 the writer is gone after the kill
+PASS: S-DISC-01.20 no worker is left
+PASS: S-DISC-01.20 no macfuse mount is left
+PASS: S-DISC-01.20 the mount point directory is gone
+PASS: S-DISC-01.20: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-01.20 the journal entry stays
+PASS: S-DISC-01.20 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-01.20 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-01.20 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-01.20 next attach: state (Mounted)
+PASS: S-DISC-01.20 next attach: mode (ro)
+NOTE: S-DISC-01.20 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-01.20 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-01.20 synced files: OK 6
+PASS: S-DISC-01.20 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-01.20 next attach: the journal entry is still there
+PASS: S-DISC-01.20 next attach: the read-only session left the image unchanged (1691f83f9bcf80f9554bf431729884b1d46853b7b9811abe0c334a146619ce38)
+NOTE: S-DISC-01.20 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 1691f83f9bcf80f9554bf431729884b1d46853b7b9811abe0c334a146619ce38
+REP S-DISC-01 20 seq delay=2.2 pass
+== S-DISC-02 rep 1: workload small, yank at 1
+PASS: S-DISC-02.1 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.1 the journal holds the entry of the rw session
+PASS: S-DISC-02.1 the writer is running at the moment of the yank
+PASS: S-DISC-02.1 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.1 point of the yank: 1 s into the workload, 360 operations done
+PASS: S-DISC-02.1 the workload had written something at the yank (360 operations)
+PASS: S-DISC-02.1 the volume row goes away within 120 s
+PASS: S-DISC-02.1 the writer is gone after the kill
+PASS: S-DISC-02.1 no worker is left
+PASS: S-DISC-02.1 no macfuse mount is left
+PASS: S-DISC-02.1 the mount point directory is gone
+PASS: S-DISC-02.1: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.1 the journal entry stays
+PASS: S-DISC-02.1 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.1 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.1 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.1 next attach: state (Mounted)
+PASS: S-DISC-02.1 next attach: mode (ro)
+NOTE: S-DISC-02.1 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.1 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.1 synced files: OK 6
+PASS: S-DISC-02.1 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.1 next attach: the journal entry is still there
+PASS: S-DISC-02.1 next attach: the read-only session left the image unchanged (c75cb2d167ed2bee2d978b421a705b1157b8e5e3be5f49be9a129ec4480c7cd2)
+NOTE: S-DISC-02.1 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank c75cb2d167ed2bee2d978b421a705b1157b8e5e3be5f49be9a129ec4480c7cd2
+REP S-DISC-02 1 small delay=1 pass
+== S-DISC-02 rep 2: workload small, yank at 2.2
+PASS: S-DISC-02.2 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.2 the journal holds the entry of the rw session
+PASS: S-DISC-02.2 the writer is running at the moment of the yank
+PASS: S-DISC-02.2 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.2 point of the yank: 2.2 s into the workload, 824 operations done
+PASS: S-DISC-02.2 the workload had written something at the yank (824 operations)
+PASS: S-DISC-02.2 the volume row goes away within 120 s
+PASS: S-DISC-02.2 the writer is gone after the kill
+PASS: S-DISC-02.2 no worker is left
+PASS: S-DISC-02.2 no macfuse mount is left
+PASS: S-DISC-02.2 the mount point directory is gone
+PASS: S-DISC-02.2: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.2 the journal entry stays
+PASS: S-DISC-02.2 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.2 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.2 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.2 next attach: state (Mounted)
+PASS: S-DISC-02.2 next attach: mode (ro)
+NOTE: S-DISC-02.2 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.2 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.2 synced files: OK 6
+PASS: S-DISC-02.2 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.2 next attach: the journal entry is still there
+PASS: S-DISC-02.2 next attach: the read-only session left the image unchanged (593fb77ba85421fb9dc002165e723606e55f3bb7edccf71134a209d82b0ca9a4)
+NOTE: S-DISC-02.2 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 593fb77ba85421fb9dc002165e723606e55f3bb7edccf71134a209d82b0ca9a4
+REP S-DISC-02 2 small delay=2.2 pass
+== S-DISC-02 rep 3: workload small, yank at 0.6
+PASS: S-DISC-02.3 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.3 the journal holds the entry of the rw session
+PASS: S-DISC-02.3 the writer is running at the moment of the yank
+PASS: S-DISC-02.3 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.3 point of the yank: 0.6 s into the workload, 256 operations done
+PASS: S-DISC-02.3 the workload had written something at the yank (256 operations)
+PASS: S-DISC-02.3 the volume row goes away within 120 s
+PASS: S-DISC-02.3 the writer is gone after the kill
+PASS: S-DISC-02.3 no worker is left
+PASS: S-DISC-02.3 no macfuse mount is left
+PASS: S-DISC-02.3 the mount point directory is gone
+PASS: S-DISC-02.3: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.3 the journal entry stays
+PASS: S-DISC-02.3 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.3 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.3 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.3 next attach: state (Mounted)
+PASS: S-DISC-02.3 next attach: mode (ro)
+NOTE: S-DISC-02.3 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.3 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.3 synced files: OK 6
+PASS: S-DISC-02.3 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.3 next attach: the journal entry is still there
+PASS: S-DISC-02.3 next attach: the read-only session left the image unchanged (ab406fead3fc8f496cdf92d6a812023f6098fc573971422d7c94cfbc95114507)
+NOTE: S-DISC-02.3 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank ab406fead3fc8f496cdf92d6a812023f6098fc573971422d7c94cfbc95114507
+REP S-DISC-02 3 small delay=0.6 pass
+== S-DISC-02 rep 4: workload small, yank at 3.5
+PASS: S-DISC-02.4 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.4 the journal holds the entry of the rw session
+PASS: S-DISC-02.4 the writer is running at the moment of the yank
+PASS: S-DISC-02.4 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.4 point of the yank: 3.5 s into the workload, 1256 operations done
+PASS: S-DISC-02.4 the workload had written something at the yank (1256 operations)
+PASS: S-DISC-02.4 the volume row goes away within 120 s
+PASS: S-DISC-02.4 the writer is gone after the kill
+PASS: S-DISC-02.4 no worker is left
+PASS: S-DISC-02.4 no macfuse mount is left
+PASS: S-DISC-02.4 the mount point directory is gone
+PASS: S-DISC-02.4: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.4 the journal entry stays
+PASS: S-DISC-02.4 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.4 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.4 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.4 next attach: state (Mounted)
+PASS: S-DISC-02.4 next attach: mode (ro)
+NOTE: S-DISC-02.4 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.4 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.4 synced files: OK 6
+PASS: S-DISC-02.4 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.4 next attach: the journal entry is still there
+PASS: S-DISC-02.4 next attach: the read-only session left the image unchanged (c35d6ef31eebaca0c4930d552beadcf726934c21de03d175e1714815e7ac38a0)
+NOTE: S-DISC-02.4 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank c35d6ef31eebaca0c4930d552beadcf726934c21de03d175e1714815e7ac38a0
+REP S-DISC-02 4 small delay=3.5 pass
+== S-DISC-02 rep 5: workload small, yank at 1.6
+PASS: S-DISC-02.5 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.5 the journal holds the entry of the rw session
+PASS: S-DISC-02.5 the writer is running at the moment of the yank
+PASS: S-DISC-02.5 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.5 point of the yank: 1.6 s into the workload, 592 operations done
+PASS: S-DISC-02.5 the workload had written something at the yank (592 operations)
+PASS: S-DISC-02.5 the volume row goes away within 120 s
+PASS: S-DISC-02.5 the writer is gone after the kill
+PASS: S-DISC-02.5 no worker is left
+PASS: S-DISC-02.5 no macfuse mount is left
+PASS: S-DISC-02.5 the mount point directory is gone
+PASS: S-DISC-02.5: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.5 the journal entry stays
+PASS: S-DISC-02.5 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.5 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.5 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.5 next attach: state (Mounted)
+PASS: S-DISC-02.5 next attach: mode (ro)
+NOTE: S-DISC-02.5 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.5 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.5 synced files: OK 6
+PASS: S-DISC-02.5 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.5 next attach: the journal entry is still there
+PASS: S-DISC-02.5 next attach: the read-only session left the image unchanged (e3514efa964f7e53079867909efde2a8c0c7a4e8b9b408bbc2e99b55f2dd4005)
+NOTE: S-DISC-02.5 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank e3514efa964f7e53079867909efde2a8c0c7a4e8b9b408bbc2e99b55f2dd4005
+REP S-DISC-02 5 small delay=1.6 pass
+== S-DISC-02 rep 6: workload small, yank at 0.3
+PASS: S-DISC-02.6 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.6 the journal holds the entry of the rw session
+PASS: S-DISC-02.6 the writer is running at the moment of the yank
+PASS: S-DISC-02.6 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.6 point of the yank: 0.3 s into the workload, 144 operations done
+PASS: S-DISC-02.6 the workload had written something at the yank (144 operations)
+PASS: S-DISC-02.6 the volume row goes away within 120 s
+PASS: S-DISC-02.6 the writer is gone after the kill
+PASS: S-DISC-02.6 no worker is left
+PASS: S-DISC-02.6 no macfuse mount is left
+PASS: S-DISC-02.6 the mount point directory is gone
+PASS: S-DISC-02.6: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.6 the journal entry stays
+PASS: S-DISC-02.6 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.6 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.6 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.6 next attach: state (Mounted)
+PASS: S-DISC-02.6 next attach: mode (ro)
+NOTE: S-DISC-02.6 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.6 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.6 synced files: OK 6
+PASS: S-DISC-02.6 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.6 next attach: the journal entry is still there
+PASS: S-DISC-02.6 next attach: the read-only session left the image unchanged (c81a3143456dfa8c8b6220dd094851ebd4d05e1c3f6476b7a0be93522fac6a0e)
+NOTE: S-DISC-02.6 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank c81a3143456dfa8c8b6220dd094851ebd4d05e1c3f6476b7a0be93522fac6a0e
+REP S-DISC-02 6 small delay=0.3 pass
+== S-DISC-02 rep 7: workload small, yank at 1
+PASS: S-DISC-02.7 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.7 the journal holds the entry of the rw session
+PASS: S-DISC-02.7 the writer is running at the moment of the yank
+PASS: S-DISC-02.7 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.7 point of the yank: 1 s into the workload, 440 operations done
+PASS: S-DISC-02.7 the workload had written something at the yank (440 operations)
+PASS: S-DISC-02.7 the volume row goes away within 120 s
+PASS: S-DISC-02.7 the writer is gone after the kill
+PASS: S-DISC-02.7 no worker is left
+PASS: S-DISC-02.7 no macfuse mount is left
+PASS: S-DISC-02.7 the mount point directory is gone
+PASS: S-DISC-02.7: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.7 the journal entry stays
+PASS: S-DISC-02.7 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.7 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.7 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.7 next attach: state (Mounted)
+PASS: S-DISC-02.7 next attach: mode (ro)
+NOTE: S-DISC-02.7 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.7 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.7 synced files: OK 6
+PASS: S-DISC-02.7 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.7 next attach: the journal entry is still there
+PASS: S-DISC-02.7 next attach: the read-only session left the image unchanged (8667fbc91ad2f5bd757babe3e0f53bdc718ee2a9a9e81c98f070ffb84acea29d)
+NOTE: S-DISC-02.7 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 8667fbc91ad2f5bd757babe3e0f53bdc718ee2a9a9e81c98f070ffb84acea29d
+REP S-DISC-02 7 small delay=1 pass
+== S-DISC-02 rep 8: workload small, yank at 2.2
+PASS: S-DISC-02.8 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.8 the journal holds the entry of the rw session
+PASS: S-DISC-02.8 the writer is running at the moment of the yank
+PASS: S-DISC-02.8 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.8 point of the yank: 2.2 s into the workload, 872 operations done
+PASS: S-DISC-02.8 the workload had written something at the yank (872 operations)
+PASS: S-DISC-02.8 the volume row goes away within 120 s
+PASS: S-DISC-02.8 the writer is gone after the kill
+PASS: S-DISC-02.8 no worker is left
+PASS: S-DISC-02.8 no macfuse mount is left
+PASS: S-DISC-02.8 the mount point directory is gone
+PASS: S-DISC-02.8: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.8 the journal entry stays
+PASS: S-DISC-02.8 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.8 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.8 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.8 next attach: state (Mounted)
+PASS: S-DISC-02.8 next attach: mode (ro)
+NOTE: S-DISC-02.8 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.8 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.8 synced files: OK 6
+PASS: S-DISC-02.8 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.8 next attach: the journal entry is still there
+PASS: S-DISC-02.8 next attach: the read-only session left the image unchanged (a869d7a1b943b34db8cbf81b1801a6302ca005b557116b5fd92e398358193f59)
+NOTE: S-DISC-02.8 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank a869d7a1b943b34db8cbf81b1801a6302ca005b557116b5fd92e398358193f59
+REP S-DISC-02 8 small delay=2.2 pass
+== S-DISC-02 rep 9: workload small, yank at 0.6
+PASS: S-DISC-02.9 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.9 the journal holds the entry of the rw session
+PASS: S-DISC-02.9 the writer is running at the moment of the yank
+PASS: S-DISC-02.9 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.9 point of the yank: 0.6 s into the workload, 248 operations done
+PASS: S-DISC-02.9 the workload had written something at the yank (248 operations)
+PASS: S-DISC-02.9 the volume row goes away within 120 s
+PASS: S-DISC-02.9 the writer is gone after the kill
+PASS: S-DISC-02.9 no worker is left
+PASS: S-DISC-02.9 no macfuse mount is left
+PASS: S-DISC-02.9 the mount point directory is gone
+PASS: S-DISC-02.9: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.9 the journal entry stays
+PASS: S-DISC-02.9 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.9 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.9 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.9 next attach: state (Mounted)
+PASS: S-DISC-02.9 next attach: mode (ro)
+NOTE: S-DISC-02.9 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.9 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.9 synced files: OK 6
+PASS: S-DISC-02.9 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.9 next attach: the journal entry is still there
+PASS: S-DISC-02.9 next attach: the read-only session left the image unchanged (1a500cdfe8f0e00879abcd858ae5a62235124e3e4c4663df4d884fc6e9f4148d)
+NOTE: S-DISC-02.9 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 1a500cdfe8f0e00879abcd858ae5a62235124e3e4c4663df4d884fc6e9f4148d
+REP S-DISC-02 9 small delay=0.6 pass
+== S-DISC-02 rep 10: workload small, yank at 3.5
+PASS: S-DISC-02.10 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.10 the journal holds the entry of the rw session
+PASS: S-DISC-02.10 the writer is running at the moment of the yank
+PASS: S-DISC-02.10 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.10 point of the yank: 3.5 s into the workload, 1272 operations done
+PASS: S-DISC-02.10 the workload had written something at the yank (1272 operations)
+PASS: S-DISC-02.10 the volume row goes away within 120 s
+PASS: S-DISC-02.10 the writer is gone after the kill
+PASS: S-DISC-02.10 no worker is left
+PASS: S-DISC-02.10 no macfuse mount is left
+PASS: S-DISC-02.10 the mount point directory is gone
+PASS: S-DISC-02.10: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.10 the journal entry stays
+PASS: S-DISC-02.10 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.10 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.10 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.10 next attach: state (Mounted)
+PASS: S-DISC-02.10 next attach: mode (ro)
+NOTE: S-DISC-02.10 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.10 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.10 synced files: OK 6
+PASS: S-DISC-02.10 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.10 next attach: the journal entry is still there
+PASS: S-DISC-02.10 next attach: the read-only session left the image unchanged (ff7804a0699467017e9a6f96991f3744657d98bdbcc1f2f9f5cef3772ed0438b)
+NOTE: S-DISC-02.10 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank ff7804a0699467017e9a6f96991f3744657d98bdbcc1f2f9f5cef3772ed0438b
+REP S-DISC-02 10 small delay=3.5 pass
+== S-DISC-02 rep 11: workload small, yank at 1.6
+PASS: S-DISC-02.11 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.11 the journal holds the entry of the rw session
+PASS: S-DISC-02.11 the writer is running at the moment of the yank
+PASS: S-DISC-02.11 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.11 point of the yank: 1.6 s into the workload, 640 operations done
+PASS: S-DISC-02.11 the workload had written something at the yank (640 operations)
+PASS: S-DISC-02.11 the volume row goes away within 120 s
+PASS: S-DISC-02.11 the writer is gone after the kill
+PASS: S-DISC-02.11 no worker is left
+PASS: S-DISC-02.11 no macfuse mount is left
+PASS: S-DISC-02.11 the mount point directory is gone
+PASS: S-DISC-02.11: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.11 the journal entry stays
+PASS: S-DISC-02.11 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.11 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.11 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.11 next attach: state (Mounted)
+PASS: S-DISC-02.11 next attach: mode (ro)
+NOTE: S-DISC-02.11 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.11 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.11 synced files: OK 6
+PASS: S-DISC-02.11 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.11 next attach: the journal entry is still there
+PASS: S-DISC-02.11 next attach: the read-only session left the image unchanged (10ed629355b1bf4f5dd4001b5e78efab73de438d87726341fb9151ff20a75a28)
+NOTE: S-DISC-02.11 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 10ed629355b1bf4f5dd4001b5e78efab73de438d87726341fb9151ff20a75a28
+REP S-DISC-02 11 small delay=1.6 pass
+== S-DISC-02 rep 12: workload small, yank at 0.3
+PASS: S-DISC-02.12 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.12 the journal holds the entry of the rw session
+PASS: S-DISC-02.12 the writer is running at the moment of the yank
+PASS: S-DISC-02.12 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.12 point of the yank: 0.3 s into the workload, 192 operations done
+PASS: S-DISC-02.12 the workload had written something at the yank (192 operations)
+PASS: S-DISC-02.12 the volume row goes away within 120 s
+PASS: S-DISC-02.12 the writer is gone after the kill
+PASS: S-DISC-02.12 no worker is left
+PASS: S-DISC-02.12 no macfuse mount is left
+PASS: S-DISC-02.12 the mount point directory is gone
+PASS: S-DISC-02.12: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.12 the journal entry stays
+PASS: S-DISC-02.12 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.12 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.12 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.12 next attach: state (Mounted)
+PASS: S-DISC-02.12 next attach: mode (ro)
+NOTE: S-DISC-02.12 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.12 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.12 synced files: OK 6
+PASS: S-DISC-02.12 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.12 next attach: the journal entry is still there
+PASS: S-DISC-02.12 next attach: the read-only session left the image unchanged (0232ebbb5c0408709dc8c73ebe83471638d161851cfd4800917cff68517c1ac0)
+NOTE: S-DISC-02.12 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 0232ebbb5c0408709dc8c73ebe83471638d161851cfd4800917cff68517c1ac0
+REP S-DISC-02 12 small delay=0.3 pass
+== S-DISC-02 rep 13: workload small, yank at 1
+PASS: S-DISC-02.13 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.13 the journal holds the entry of the rw session
+PASS: S-DISC-02.13 the writer is running at the moment of the yank
+PASS: S-DISC-02.13 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.13 point of the yank: 1 s into the workload, 352 operations done
+PASS: S-DISC-02.13 the workload had written something at the yank (352 operations)
+PASS: S-DISC-02.13 the volume row goes away within 120 s
+PASS: S-DISC-02.13 the writer is gone after the kill
+PASS: S-DISC-02.13 no worker is left
+PASS: S-DISC-02.13 no macfuse mount is left
+PASS: S-DISC-02.13 the mount point directory is gone
+PASS: S-DISC-02.13: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.13 the journal entry stays
+PASS: S-DISC-02.13 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.13 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.13 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.13 next attach: state (Mounted)
+PASS: S-DISC-02.13 next attach: mode (ro)
+NOTE: S-DISC-02.13 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.13 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.13 synced files: OK 6
+PASS: S-DISC-02.13 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.13 next attach: the journal entry is still there
+PASS: S-DISC-02.13 next attach: the read-only session left the image unchanged (91861a89f5f70069385084b8267606a639e88849ae07ddbdf9642a843bcdd0b5)
+NOTE: S-DISC-02.13 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 91861a89f5f70069385084b8267606a639e88849ae07ddbdf9642a843bcdd0b5
+REP S-DISC-02 13 small delay=1 pass
+== S-DISC-02 rep 14: workload small, yank at 2.2
+PASS: S-DISC-02.14 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.14 the journal holds the entry of the rw session
+PASS: S-DISC-02.14 the writer is running at the moment of the yank
+PASS: S-DISC-02.14 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.14 point of the yank: 2.2 s into the workload, 832 operations done
+PASS: S-DISC-02.14 the workload had written something at the yank (832 operations)
+PASS: S-DISC-02.14 the volume row goes away within 120 s
+PASS: S-DISC-02.14 the writer is gone after the kill
+PASS: S-DISC-02.14 no worker is left
+PASS: S-DISC-02.14 no macfuse mount is left
+PASS: S-DISC-02.14 the mount point directory is gone
+PASS: S-DISC-02.14: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.14 the journal entry stays
+PASS: S-DISC-02.14 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.14 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.14 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.14 next attach: state (Mounted)
+PASS: S-DISC-02.14 next attach: mode (ro)
+NOTE: S-DISC-02.14 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.14 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.14 synced files: OK 6
+PASS: S-DISC-02.14 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.14 next attach: the journal entry is still there
+PASS: S-DISC-02.14 next attach: the read-only session left the image unchanged (fa4b0c695d7eb7ae61498efd7bf1becc3ccee66d5bdea888e19bf6c91494121d)
+NOTE: S-DISC-02.14 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank fa4b0c695d7eb7ae61498efd7bf1becc3ccee66d5bdea888e19bf6c91494121d
+REP S-DISC-02 14 small delay=2.2 pass
+== S-DISC-02 rep 15: workload small, yank at 0.6
+PASS: S-DISC-02.15 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.15 the journal holds the entry of the rw session
+PASS: S-DISC-02.15 the writer is running at the moment of the yank
+PASS: S-DISC-02.15 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.15 point of the yank: 0.6 s into the workload, 264 operations done
+PASS: S-DISC-02.15 the workload had written something at the yank (264 operations)
+PASS: S-DISC-02.15 the volume row goes away within 120 s
+PASS: S-DISC-02.15 the writer is gone after the kill
+PASS: S-DISC-02.15 no worker is left
+PASS: S-DISC-02.15 no macfuse mount is left
+PASS: S-DISC-02.15 the mount point directory is gone
+PASS: S-DISC-02.15: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.15 the journal entry stays
+PASS: S-DISC-02.15 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.15 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.15 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.15 next attach: state (Mounted)
+PASS: S-DISC-02.15 next attach: mode (ro)
+NOTE: S-DISC-02.15 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.15 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.15 synced files: OK 6
+PASS: S-DISC-02.15 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.15 next attach: the journal entry is still there
+PASS: S-DISC-02.15 next attach: the read-only session left the image unchanged (be80fa41c0cf06bf4aa03a974b2b0912448bb822fa241290d4aef9467281ccfe)
+NOTE: S-DISC-02.15 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank be80fa41c0cf06bf4aa03a974b2b0912448bb822fa241290d4aef9467281ccfe
+REP S-DISC-02 15 small delay=0.6 pass
+== S-DISC-02 rep 16: workload small, yank at 3.5
+PASS: S-DISC-02.16 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.16 the journal holds the entry of the rw session
+PASS: S-DISC-02.16 the writer is running at the moment of the yank
+PASS: S-DISC-02.16 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.16 point of the yank: 3.5 s into the workload, 1304 operations done
+PASS: S-DISC-02.16 the workload had written something at the yank (1304 operations)
+PASS: S-DISC-02.16 the volume row goes away within 120 s
+PASS: S-DISC-02.16 the writer is gone after the kill
+PASS: S-DISC-02.16 no worker is left
+PASS: S-DISC-02.16 no macfuse mount is left
+PASS: S-DISC-02.16 the mount point directory is gone
+PASS: S-DISC-02.16: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.16 the journal entry stays
+PASS: S-DISC-02.16 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.16 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.16 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.16 next attach: state (Mounted)
+PASS: S-DISC-02.16 next attach: mode (ro)
+NOTE: S-DISC-02.16 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.16 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.16 synced files: OK 6
+PASS: S-DISC-02.16 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.16 next attach: the journal entry is still there
+PASS: S-DISC-02.16 next attach: the read-only session left the image unchanged (add77572bb79703e2ee7aa58494aac7bb43548c2767bdfa3dac7fd132228807d)
+NOTE: S-DISC-02.16 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank add77572bb79703e2ee7aa58494aac7bb43548c2767bdfa3dac7fd132228807d
+REP S-DISC-02 16 small delay=3.5 pass
+== S-DISC-02 rep 17: workload small, yank at 1.6
+PASS: S-DISC-02.17 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.17 the journal holds the entry of the rw session
+PASS: S-DISC-02.17 the writer is running at the moment of the yank
+PASS: S-DISC-02.17 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.17 point of the yank: 1.6 s into the workload, 656 operations done
+PASS: S-DISC-02.17 the workload had written something at the yank (656 operations)
+PASS: S-DISC-02.17 the volume row goes away within 120 s
+PASS: S-DISC-02.17 the writer is gone after the kill
+PASS: S-DISC-02.17 no worker is left
+PASS: S-DISC-02.17 no macfuse mount is left
+PASS: S-DISC-02.17 the mount point directory is gone
+PASS: S-DISC-02.17: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.17 the journal entry stays
+PASS: S-DISC-02.17 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.17 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.17 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.17 next attach: state (Mounted)
+PASS: S-DISC-02.17 next attach: mode (ro)
+NOTE: S-DISC-02.17 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.17 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.17 synced files: OK 6
+PASS: S-DISC-02.17 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.17 next attach: the journal entry is still there
+PASS: S-DISC-02.17 next attach: the read-only session left the image unchanged (9640a325f5b9e05c390bc3aa731358a65ea51c5bec5eb8d67b8d3371258a02d5)
+NOTE: S-DISC-02.17 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 9640a325f5b9e05c390bc3aa731358a65ea51c5bec5eb8d67b8d3371258a02d5
+REP S-DISC-02 17 small delay=1.6 pass
+== S-DISC-02 rep 18: workload small, yank at 0.3
+PASS: S-DISC-02.18 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.18 the journal holds the entry of the rw session
+PASS: S-DISC-02.18 the writer is running at the moment of the yank
+PASS: S-DISC-02.18 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.18 point of the yank: 0.3 s into the workload, 152 operations done
+PASS: S-DISC-02.18 the workload had written something at the yank (152 operations)
+PASS: S-DISC-02.18 the volume row goes away within 120 s
+PASS: S-DISC-02.18 the writer is gone after the kill
+PASS: S-DISC-02.18 no worker is left
+PASS: S-DISC-02.18 no macfuse mount is left
+PASS: S-DISC-02.18 the mount point directory is gone
+PASS: S-DISC-02.18: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.18 the journal entry stays
+PASS: S-DISC-02.18 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.18 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.18 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.18 next attach: state (Mounted)
+PASS: S-DISC-02.18 next attach: mode (ro)
+NOTE: S-DISC-02.18 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.18 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.18 synced files: OK 6
+PASS: S-DISC-02.18 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.18 next attach: the journal entry is still there
+PASS: S-DISC-02.18 next attach: the read-only session left the image unchanged (0f057629d81f6e120697095debb85faf57560ab35f92303fbd8074df19c2104b)
+NOTE: S-DISC-02.18 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 0f057629d81f6e120697095debb85faf57560ab35f92303fbd8074df19c2104b
+REP S-DISC-02 18 small delay=0.3 pass
+== S-DISC-02 rep 19: workload small, yank at 1
+PASS: S-DISC-02.19 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.19 the journal holds the entry of the rw session
+PASS: S-DISC-02.19 the writer is running at the moment of the yank
+PASS: S-DISC-02.19 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.19 point of the yank: 1 s into the workload, 416 operations done
+PASS: S-DISC-02.19 the workload had written something at the yank (416 operations)
+PASS: S-DISC-02.19 the volume row goes away within 120 s
+PASS: S-DISC-02.19 the writer is gone after the kill
+PASS: S-DISC-02.19 no worker is left
+PASS: S-DISC-02.19 no macfuse mount is left
+PASS: S-DISC-02.19 the mount point directory is gone
+PASS: S-DISC-02.19: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.19 the journal entry stays
+PASS: S-DISC-02.19 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.19 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.19 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.19 next attach: state (Mounted)
+PASS: S-DISC-02.19 next attach: mode (ro)
+NOTE: S-DISC-02.19 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.19 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.19 synced files: OK 6
+PASS: S-DISC-02.19 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.19 next attach: the journal entry is still there
+PASS: S-DISC-02.19 next attach: the read-only session left the image unchanged (164a807a3cd89727162fa77b77450231c63d3b3a96ebc3b8e4061a41a2fc43c0)
+NOTE: S-DISC-02.19 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 164a807a3cd89727162fa77b77450231c63d3b3a96ebc3b8e4061a41a2fc43c0
+REP S-DISC-02 19 small delay=1 pass
+== S-DISC-02 rep 20: workload small, yank at 2.2
+PASS: S-DISC-02.20 the volume mounts rw (Mounted rw)
+PASS: S-DISC-02.20 the journal holds the entry of the rw session
+PASS: S-DISC-02.20 the writer is running at the moment of the yank
+PASS: S-DISC-02.20 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-02.20 point of the yank: 2.2 s into the workload, 840 operations done
+PASS: S-DISC-02.20 the workload had written something at the yank (840 operations)
+PASS: S-DISC-02.20 the volume row goes away within 120 s
+PASS: S-DISC-02.20 the writer is gone after the kill
+PASS: S-DISC-02.20 no worker is left
+PASS: S-DISC-02.20 no macfuse mount is left
+PASS: S-DISC-02.20 the mount point directory is gone
+PASS: S-DISC-02.20: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-02.20 the journal entry stays
+PASS: S-DISC-02.20 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-02.20 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-02.20 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-02.20 next attach: state (Mounted)
+PASS: S-DISC-02.20 next attach: mode (ro)
+NOTE: S-DISC-02.20 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-02.20 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-02.20 synced files: OK 6
+PASS: S-DISC-02.20 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-02.20 next attach: the journal entry is still there
+PASS: S-DISC-02.20 next attach: the read-only session left the image unchanged (2fbb89d18e084df7225fcecbdfea298d17cac3292c728c3d6835e3cc7ff3693f)
+NOTE: S-DISC-02.20 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 2fbb89d18e084df7225fcecbdfea298d17cac3292c728c3d6835e3cc7ff3693f
+REP S-DISC-02 20 small delay=2.2 pass
+== S-DISC-03 rep 1: workload churn, yank at 1
+PASS: S-DISC-03.1 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.1 the journal holds the entry of the rw session
+PASS: S-DISC-03.1 the writer is running at the moment of the yank
+PASS: S-DISC-03.1 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.1 point of the yank: 1 s into the workload, 104 operations done
+PASS: S-DISC-03.1 the workload had written something at the yank (104 operations)
+PASS: S-DISC-03.1 the volume row goes away within 120 s
+PASS: S-DISC-03.1 the writer is gone after the kill
+PASS: S-DISC-03.1 no worker is left
+PASS: S-DISC-03.1 no macfuse mount is left
+PASS: S-DISC-03.1 the mount point directory is gone
+PASS: S-DISC-03.1: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.1 the journal entry stays
+PASS: S-DISC-03.1 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.1 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.1 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.1 next attach: state (Mounted)
+PASS: S-DISC-03.1 next attach: mode (ro)
+NOTE: S-DISC-03.1 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.1 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.1 synced files: OK 6
+PASS: S-DISC-03.1 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.1 next attach: the journal entry is still there
+PASS: S-DISC-03.1 next attach: the read-only session left the image unchanged (f3795e4253152223d3d3509de0791104e6bbe5887b8c3487e362a029e71ec0d3)
+NOTE: S-DISC-03.1 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank f3795e4253152223d3d3509de0791104e6bbe5887b8c3487e362a029e71ec0d3
+REP S-DISC-03 1 churn delay=1 pass
+== S-DISC-03 rep 2: workload churn, yank at 2.2
+PASS: S-DISC-03.2 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.2 the journal holds the entry of the rw session
+PASS: S-DISC-03.2 the writer is running at the moment of the yank
+PASS: S-DISC-03.2 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.2 point of the yank: 2.2 s into the workload, 224 operations done
+PASS: S-DISC-03.2 the workload had written something at the yank (224 operations)
+PASS: S-DISC-03.2 the volume row goes away within 120 s
+PASS: S-DISC-03.2 the writer is gone after the kill
+PASS: S-DISC-03.2 no worker is left
+PASS: S-DISC-03.2 no macfuse mount is left
+PASS: S-DISC-03.2 the mount point directory is gone
+PASS: S-DISC-03.2: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.2 the journal entry stays
+PASS: S-DISC-03.2 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.2 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.2 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.2 next attach: state (Mounted)
+PASS: S-DISC-03.2 next attach: mode (ro)
+NOTE: S-DISC-03.2 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.2 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.2 synced files: OK 6
+PASS: S-DISC-03.2 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.2 next attach: the journal entry is still there
+PASS: S-DISC-03.2 next attach: the read-only session left the image unchanged (9c62f92cca5838415a18d1da920898e22acbdb00334b955980116d292fbf4c90)
+NOTE: S-DISC-03.2 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 9c62f92cca5838415a18d1da920898e22acbdb00334b955980116d292fbf4c90
+REP S-DISC-03 2 churn delay=2.2 pass
+== S-DISC-03 rep 3: workload churn, yank at 0.6
+PASS: S-DISC-03.3 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.3 the journal holds the entry of the rw session
+PASS: S-DISC-03.3 the writer is running at the moment of the yank
+PASS: S-DISC-03.3 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.3 point of the yank: 0.6 s into the workload, 72 operations done
+PASS: S-DISC-03.3 the workload had written something at the yank (72 operations)
+PASS: S-DISC-03.3 the volume row goes away within 120 s
+PASS: S-DISC-03.3 the writer is gone after the kill
+PASS: S-DISC-03.3 no worker is left
+PASS: S-DISC-03.3 no macfuse mount is left
+PASS: S-DISC-03.3 the mount point directory is gone
+PASS: S-DISC-03.3: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.3 the journal entry stays
+PASS: S-DISC-03.3 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.3 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.3 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.3 next attach: state (Mounted)
+PASS: S-DISC-03.3 next attach: mode (ro)
+NOTE: S-DISC-03.3 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.3 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.3 synced files: OK 6
+PASS: S-DISC-03.3 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.3 next attach: the journal entry is still there
+PASS: S-DISC-03.3 next attach: the read-only session left the image unchanged (c12c75e8d427957f728346be2374e640a56e7d7acc43adaf5cabc63bbccb231c)
+NOTE: S-DISC-03.3 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank c12c75e8d427957f728346be2374e640a56e7d7acc43adaf5cabc63bbccb231c
+REP S-DISC-03 3 churn delay=0.6 pass
+== S-DISC-03 rep 4: workload churn, yank at 3.5
+PASS: S-DISC-03.4 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.4 the journal holds the entry of the rw session
+PASS: S-DISC-03.4 the writer is running at the moment of the yank
+PASS: S-DISC-03.4 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.4 point of the yank: 3.5 s into the workload, 360 operations done
+PASS: S-DISC-03.4 the workload had written something at the yank (360 operations)
+PASS: S-DISC-03.4 the volume row goes away within 120 s
+PASS: S-DISC-03.4 the writer is gone after the kill
+PASS: S-DISC-03.4 no worker is left
+PASS: S-DISC-03.4 no macfuse mount is left
+PASS: S-DISC-03.4 the mount point directory is gone
+PASS: S-DISC-03.4: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.4 the journal entry stays
+PASS: S-DISC-03.4 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.4 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.4 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.4 next attach: state (Mounted)
+PASS: S-DISC-03.4 next attach: mode (ro)
+NOTE: S-DISC-03.4 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.4 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.4 synced files: OK 6
+PASS: S-DISC-03.4 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.4 next attach: the journal entry is still there
+PASS: S-DISC-03.4 next attach: the read-only session left the image unchanged (28ac6b7bd4fbaa0cdbcdf4e28dbe51251026cf8bb42d7f9f6101985b8ee00bab)
+NOTE: S-DISC-03.4 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 28ac6b7bd4fbaa0cdbcdf4e28dbe51251026cf8bb42d7f9f6101985b8ee00bab
+REP S-DISC-03 4 churn delay=3.5 pass
+== S-DISC-03 rep 5: workload churn, yank at 1.6
+PASS: S-DISC-03.5 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.5 the journal holds the entry of the rw session
+PASS: S-DISC-03.5 the writer is running at the moment of the yank
+PASS: S-DISC-03.5 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.5 point of the yank: 1.6 s into the workload, 168 operations done
+PASS: S-DISC-03.5 the workload had written something at the yank (168 operations)
+PASS: S-DISC-03.5 the volume row goes away within 120 s
+PASS: S-DISC-03.5 the writer is gone after the kill
+PASS: S-DISC-03.5 no worker is left
+PASS: S-DISC-03.5 no macfuse mount is left
+PASS: S-DISC-03.5 the mount point directory is gone
+PASS: S-DISC-03.5: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.5 the journal entry stays
+PASS: S-DISC-03.5 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.5 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.5 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.5 next attach: state (Mounted)
+PASS: S-DISC-03.5 next attach: mode (ro)
+NOTE: S-DISC-03.5 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.5 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.5 synced files: OK 6
+PASS: S-DISC-03.5 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.5 next attach: the journal entry is still there
+PASS: S-DISC-03.5 next attach: the read-only session left the image unchanged (602a28a6d429000730265658457da1fb2cff5fec81a31d25f8dde6d0890869ae)
+NOTE: S-DISC-03.5 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 602a28a6d429000730265658457da1fb2cff5fec81a31d25f8dde6d0890869ae
+REP S-DISC-03 5 churn delay=1.6 pass
+== S-DISC-03 rep 6: workload churn, yank at 0.3
+PASS: S-DISC-03.6 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.6 the journal holds the entry of the rw session
+PASS: S-DISC-03.6 the writer is running at the moment of the yank
+PASS: S-DISC-03.6 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.6 point of the yank: 0.3 s into the workload, 40 operations done
+PASS: S-DISC-03.6 the workload had written something at the yank (40 operations)
+PASS: S-DISC-03.6 the volume row goes away within 120 s
+PASS: S-DISC-03.6 the writer is gone after the kill
+PASS: S-DISC-03.6 no worker is left
+PASS: S-DISC-03.6 no macfuse mount is left
+PASS: S-DISC-03.6 the mount point directory is gone
+PASS: S-DISC-03.6: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.6 the journal entry stays
+PASS: S-DISC-03.6 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.6 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.6 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.6 next attach: state (Mounted)
+PASS: S-DISC-03.6 next attach: mode (ro)
+NOTE: S-DISC-03.6 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.6 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.6 synced files: OK 6
+PASS: S-DISC-03.6 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.6 next attach: the journal entry is still there
+PASS: S-DISC-03.6 next attach: the read-only session left the image unchanged (e213f8282dca287ad1aa64adafb64dc2f34ee67eb47f5cb02a45477a23ccaa89)
+NOTE: S-DISC-03.6 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank e213f8282dca287ad1aa64adafb64dc2f34ee67eb47f5cb02a45477a23ccaa89
+REP S-DISC-03 6 churn delay=0.3 pass
+== S-DISC-03 rep 7: workload churn, yank at 1
+PASS: S-DISC-03.7 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.7 the journal holds the entry of the rw session
+PASS: S-DISC-03.7 the writer is running at the moment of the yank
+PASS: S-DISC-03.7 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.7 point of the yank: 1 s into the workload, 104 operations done
+PASS: S-DISC-03.7 the workload had written something at the yank (104 operations)
+PASS: S-DISC-03.7 the volume row goes away within 120 s
+PASS: S-DISC-03.7 the writer is gone after the kill
+PASS: S-DISC-03.7 no worker is left
+PASS: S-DISC-03.7 no macfuse mount is left
+PASS: S-DISC-03.7 the mount point directory is gone
+PASS: S-DISC-03.7: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.7 the journal entry stays
+PASS: S-DISC-03.7 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.7 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.7 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.7 next attach: state (Mounted)
+PASS: S-DISC-03.7 next attach: mode (ro)
+NOTE: S-DISC-03.7 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.7 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.7 synced files: OK 6
+PASS: S-DISC-03.7 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.7 next attach: the journal entry is still there
+PASS: S-DISC-03.7 next attach: the read-only session left the image unchanged (4b48fe6420711c2a029d66e51f1dad61673d68f89c2ebaf80dfb24c40179ac0b)
+NOTE: S-DISC-03.7 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 4b48fe6420711c2a029d66e51f1dad61673d68f89c2ebaf80dfb24c40179ac0b
+REP S-DISC-03 7 churn delay=1 pass
+== S-DISC-03 rep 8: workload churn, yank at 2.2
+PASS: S-DISC-03.8 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.8 the journal holds the entry of the rw session
+PASS: S-DISC-03.8 the writer is running at the moment of the yank
+PASS: S-DISC-03.8 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.8 point of the yank: 2.2 s into the workload, 216 operations done
+PASS: S-DISC-03.8 the workload had written something at the yank (216 operations)
+PASS: S-DISC-03.8 the volume row goes away within 120 s
+PASS: S-DISC-03.8 the writer is gone after the kill
+PASS: S-DISC-03.8 no worker is left
+PASS: S-DISC-03.8 no macfuse mount is left
+PASS: S-DISC-03.8 the mount point directory is gone
+PASS: S-DISC-03.8: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.8 the journal entry stays
+PASS: S-DISC-03.8 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.8 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.8 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.8 next attach: state (Mounted)
+PASS: S-DISC-03.8 next attach: mode (ro)
+NOTE: S-DISC-03.8 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.8 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.8 synced files: OK 6
+PASS: S-DISC-03.8 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.8 next attach: the journal entry is still there
+PASS: S-DISC-03.8 next attach: the read-only session left the image unchanged (d987bb5906a9effb5e16861a322792bed2c7fcb7970cfa53d40bbae306ec03ea)
+NOTE: S-DISC-03.8 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank d987bb5906a9effb5e16861a322792bed2c7fcb7970cfa53d40bbae306ec03ea
+REP S-DISC-03 8 churn delay=2.2 pass
+== S-DISC-03 rep 9: workload churn, yank at 0.6
+PASS: S-DISC-03.9 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.9 the journal holds the entry of the rw session
+PASS: S-DISC-03.9 the writer is running at the moment of the yank
+PASS: S-DISC-03.9 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.9 point of the yank: 0.6 s into the workload, 80 operations done
+PASS: S-DISC-03.9 the workload had written something at the yank (80 operations)
+PASS: S-DISC-03.9 the volume row goes away within 120 s
+PASS: S-DISC-03.9 the writer is gone after the kill
+PASS: S-DISC-03.9 no worker is left
+PASS: S-DISC-03.9 no macfuse mount is left
+PASS: S-DISC-03.9 the mount point directory is gone
+PASS: S-DISC-03.9: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.9 the journal entry stays
+PASS: S-DISC-03.9 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.9 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.9 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.9 next attach: state (Mounted)
+PASS: S-DISC-03.9 next attach: mode (ro)
+NOTE: S-DISC-03.9 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.9 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.9 synced files: OK 6
+PASS: S-DISC-03.9 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.9 next attach: the journal entry is still there
+PASS: S-DISC-03.9 next attach: the read-only session left the image unchanged (36e70d547093a7c15b1370d7daf4a8bbbe123d6fbaad08f0f31e09de95d20dbb)
+NOTE: S-DISC-03.9 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 36e70d547093a7c15b1370d7daf4a8bbbe123d6fbaad08f0f31e09de95d20dbb
+REP S-DISC-03 9 churn delay=0.6 pass
+== S-DISC-03 rep 10: workload churn, yank at 3.5
+PASS: S-DISC-03.10 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.10 the journal holds the entry of the rw session
+PASS: S-DISC-03.10 the writer is running at the moment of the yank
+PASS: S-DISC-03.10 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.10 point of the yank: 3.5 s into the workload, 360 operations done
+PASS: S-DISC-03.10 the workload had written something at the yank (360 operations)
+PASS: S-DISC-03.10 the volume row goes away within 120 s
+PASS: S-DISC-03.10 the writer is gone after the kill
+PASS: S-DISC-03.10 no worker is left
+PASS: S-DISC-03.10 no macfuse mount is left
+PASS: S-DISC-03.10 the mount point directory is gone
+PASS: S-DISC-03.10: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.10 the journal entry stays
+PASS: S-DISC-03.10 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.10 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.10 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.10 next attach: state (Mounted)
+PASS: S-DISC-03.10 next attach: mode (ro)
+NOTE: S-DISC-03.10 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.10 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.10 synced files: OK 6
+PASS: S-DISC-03.10 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.10 next attach: the journal entry is still there
+PASS: S-DISC-03.10 next attach: the read-only session left the image unchanged (60d465e9c7b10b61ce05baba474c883b385ff312ceeb5a6363558d933573b2b9)
+NOTE: S-DISC-03.10 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 60d465e9c7b10b61ce05baba474c883b385ff312ceeb5a6363558d933573b2b9
+REP S-DISC-03 10 churn delay=3.5 pass
+== S-DISC-03 rep 11: workload churn, yank at 1.6
+PASS: S-DISC-03.11 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.11 the journal holds the entry of the rw session
+PASS: S-DISC-03.11 the writer is running at the moment of the yank
+PASS: S-DISC-03.11 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.11 point of the yank: 1.6 s into the workload, 160 operations done
+PASS: S-DISC-03.11 the workload had written something at the yank (160 operations)
+PASS: S-DISC-03.11 the volume row goes away within 120 s
+PASS: S-DISC-03.11 the writer is gone after the kill
+PASS: S-DISC-03.11 no worker is left
+PASS: S-DISC-03.11 no macfuse mount is left
+PASS: S-DISC-03.11 the mount point directory is gone
+PASS: S-DISC-03.11: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.11 the journal entry stays
+PASS: S-DISC-03.11 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.11 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.11 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.11 next attach: state (Mounted)
+PASS: S-DISC-03.11 next attach: mode (ro)
+NOTE: S-DISC-03.11 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.11 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.11 synced files: OK 6
+PASS: S-DISC-03.11 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.11 next attach: the journal entry is still there
+PASS: S-DISC-03.11 next attach: the read-only session left the image unchanged (e93d19dddaef02a20f747da33a45d9a6fe1182976145a0a40e8057bcdb78a328)
+NOTE: S-DISC-03.11 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank e93d19dddaef02a20f747da33a45d9a6fe1182976145a0a40e8057bcdb78a328
+REP S-DISC-03 11 churn delay=1.6 pass
+== S-DISC-03 rep 12: workload churn, yank at 0.3
+PASS: S-DISC-03.12 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.12 the journal holds the entry of the rw session
+PASS: S-DISC-03.12 the writer is running at the moment of the yank
+PASS: S-DISC-03.12 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.12 point of the yank: 0.3 s into the workload, 40 operations done
+PASS: S-DISC-03.12 the workload had written something at the yank (40 operations)
+PASS: S-DISC-03.12 the volume row goes away within 120 s
+PASS: S-DISC-03.12 the writer is gone after the kill
+PASS: S-DISC-03.12 no worker is left
+PASS: S-DISC-03.12 no macfuse mount is left
+PASS: S-DISC-03.12 the mount point directory is gone
+PASS: S-DISC-03.12: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.12 the journal entry stays
+PASS: S-DISC-03.12 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.12 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.12 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.12 next attach: state (Mounted)
+PASS: S-DISC-03.12 next attach: mode (ro)
+NOTE: S-DISC-03.12 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.12 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.12 synced files: OK 6
+PASS: S-DISC-03.12 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.12 next attach: the journal entry is still there
+PASS: S-DISC-03.12 next attach: the read-only session left the image unchanged (60508d5f1e235f2445519f6284399b49e8437eca44cb1cb67c064c668ddf262b)
+NOTE: S-DISC-03.12 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 60508d5f1e235f2445519f6284399b49e8437eca44cb1cb67c064c668ddf262b
+REP S-DISC-03 12 churn delay=0.3 pass
+== S-DISC-03 rep 13: workload churn, yank at 1
+PASS: S-DISC-03.13 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.13 the journal holds the entry of the rw session
+PASS: S-DISC-03.13 the writer is running at the moment of the yank
+PASS: S-DISC-03.13 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.13 point of the yank: 1 s into the workload, 104 operations done
+PASS: S-DISC-03.13 the workload had written something at the yank (104 operations)
+PASS: S-DISC-03.13 the volume row goes away within 120 s
+PASS: S-DISC-03.13 the writer is gone after the kill
+PASS: S-DISC-03.13 no worker is left
+PASS: S-DISC-03.13 no macfuse mount is left
+PASS: S-DISC-03.13 the mount point directory is gone
+PASS: S-DISC-03.13: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.13 the journal entry stays
+PASS: S-DISC-03.13 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.13 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.13 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.13 next attach: state (Mounted)
+PASS: S-DISC-03.13 next attach: mode (ro)
+NOTE: S-DISC-03.13 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.13 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.13 synced files: OK 6
+PASS: S-DISC-03.13 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.13 next attach: the journal entry is still there
+PASS: S-DISC-03.13 next attach: the read-only session left the image unchanged (d47e9a594a3827e4e2b0742444700f24ba192a349cb66929dc78e6f02ee054bc)
+NOTE: S-DISC-03.13 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank d47e9a594a3827e4e2b0742444700f24ba192a349cb66929dc78e6f02ee054bc
+REP S-DISC-03 13 churn delay=1 pass
+== S-DISC-03 rep 14: workload churn, yank at 2.2
+PASS: S-DISC-03.14 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.14 the journal holds the entry of the rw session
+PASS: S-DISC-03.14 the writer is running at the moment of the yank
+PASS: S-DISC-03.14 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.14 point of the yank: 2.2 s into the workload, 224 operations done
+PASS: S-DISC-03.14 the workload had written something at the yank (224 operations)
+PASS: S-DISC-03.14 the volume row goes away within 120 s
+PASS: S-DISC-03.14 the writer is gone after the kill
+PASS: S-DISC-03.14 no worker is left
+PASS: S-DISC-03.14 no macfuse mount is left
+PASS: S-DISC-03.14 the mount point directory is gone
+PASS: S-DISC-03.14: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.14 the journal entry stays
+PASS: S-DISC-03.14 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.14 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.14 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.14 next attach: state (Mounted)
+PASS: S-DISC-03.14 next attach: mode (ro)
+NOTE: S-DISC-03.14 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.14 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.14 synced files: OK 6
+PASS: S-DISC-03.14 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.14 next attach: the journal entry is still there
+PASS: S-DISC-03.14 next attach: the read-only session left the image unchanged (070fa0558bfe78efa53f6abfed13de20113189e9f469bdb86f22f78454b4f30a)
+NOTE: S-DISC-03.14 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 070fa0558bfe78efa53f6abfed13de20113189e9f469bdb86f22f78454b4f30a
+REP S-DISC-03 14 churn delay=2.2 pass
+== S-DISC-03 rep 15: workload churn, yank at 0.6
+PASS: S-DISC-03.15 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.15 the journal holds the entry of the rw session
+PASS: S-DISC-03.15 the writer is running at the moment of the yank
+PASS: S-DISC-03.15 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.15 point of the yank: 0.6 s into the workload, 80 operations done
+PASS: S-DISC-03.15 the workload had written something at the yank (80 operations)
+PASS: S-DISC-03.15 the volume row goes away within 120 s
+PASS: S-DISC-03.15 the writer is gone after the kill
+PASS: S-DISC-03.15 no worker is left
+PASS: S-DISC-03.15 no macfuse mount is left
+PASS: S-DISC-03.15 the mount point directory is gone
+PASS: S-DISC-03.15: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.15 the journal entry stays
+PASS: S-DISC-03.15 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.15 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.15 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.15 next attach: state (Mounted)
+PASS: S-DISC-03.15 next attach: mode (ro)
+NOTE: S-DISC-03.15 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.15 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.15 synced files: OK 6
+PASS: S-DISC-03.15 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.15 next attach: the journal entry is still there
+PASS: S-DISC-03.15 next attach: the read-only session left the image unchanged (3ad64454e61c3a5a653888559c10158f355d5b1e4c0d18337100448427a44f12)
+NOTE: S-DISC-03.15 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 3ad64454e61c3a5a653888559c10158f355d5b1e4c0d18337100448427a44f12
+REP S-DISC-03 15 churn delay=0.6 pass
+== S-DISC-03 rep 16: workload churn, yank at 3.5
+PASS: S-DISC-03.16 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.16 the journal holds the entry of the rw session
+PASS: S-DISC-03.16 the writer is running at the moment of the yank
+PASS: S-DISC-03.16 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.16 point of the yank: 3.5 s into the workload, 368 operations done
+PASS: S-DISC-03.16 the workload had written something at the yank (368 operations)
+PASS: S-DISC-03.16 the volume row goes away within 120 s
+PASS: S-DISC-03.16 the writer is gone after the kill
+PASS: S-DISC-03.16 no worker is left
+PASS: S-DISC-03.16 no macfuse mount is left
+PASS: S-DISC-03.16 the mount point directory is gone
+PASS: S-DISC-03.16: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.16 the journal entry stays
+PASS: S-DISC-03.16 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.16 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.16 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.16 next attach: state (Mounted)
+PASS: S-DISC-03.16 next attach: mode (ro)
+NOTE: S-DISC-03.16 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.16 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.16 synced files: OK 6
+PASS: S-DISC-03.16 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.16 next attach: the journal entry is still there
+PASS: S-DISC-03.16 next attach: the read-only session left the image unchanged (e80a52912b5753310e22556d71d5c41dfe3ffe00274c9f9225d05ffdfa5ce462)
+NOTE: S-DISC-03.16 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank e80a52912b5753310e22556d71d5c41dfe3ffe00274c9f9225d05ffdfa5ce462
+REP S-DISC-03 16 churn delay=3.5 pass
+== S-DISC-03 rep 17: workload churn, yank at 1.6
+PASS: S-DISC-03.17 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.17 the journal holds the entry of the rw session
+PASS: S-DISC-03.17 the writer is running at the moment of the yank
+PASS: S-DISC-03.17 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.17 point of the yank: 1.6 s into the workload, 144 operations done
+PASS: S-DISC-03.17 the workload had written something at the yank (144 operations)
+PASS: S-DISC-03.17 the volume row goes away within 120 s
+PASS: S-DISC-03.17 the writer is gone after the kill
+PASS: S-DISC-03.17 no worker is left
+PASS: S-DISC-03.17 no macfuse mount is left
+PASS: S-DISC-03.17 the mount point directory is gone
+PASS: S-DISC-03.17: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.17 the journal entry stays
+PASS: S-DISC-03.17 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.17 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.17 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.17 next attach: state (Mounted)
+PASS: S-DISC-03.17 next attach: mode (ro)
+NOTE: S-DISC-03.17 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.17 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.17 synced files: OK 6
+PASS: S-DISC-03.17 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.17 next attach: the journal entry is still there
+PASS: S-DISC-03.17 next attach: the read-only session left the image unchanged (364d7943afaacb5fc35feefb7eba2a1258a105e261fec24196eb1e23656e6798)
+NOTE: S-DISC-03.17 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 364d7943afaacb5fc35feefb7eba2a1258a105e261fec24196eb1e23656e6798
+REP S-DISC-03 17 churn delay=1.6 pass
+== S-DISC-03 rep 18: workload churn, yank at 0.3
+PASS: S-DISC-03.18 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.18 the journal holds the entry of the rw session
+PASS: S-DISC-03.18 the writer is running at the moment of the yank
+PASS: S-DISC-03.18 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.18 point of the yank: 0.3 s into the workload, 64 operations done
+PASS: S-DISC-03.18 the workload had written something at the yank (64 operations)
+PASS: S-DISC-03.18 the volume row goes away within 120 s
+PASS: S-DISC-03.18 the writer is gone after the kill
+PASS: S-DISC-03.18 no worker is left
+PASS: S-DISC-03.18 no macfuse mount is left
+PASS: S-DISC-03.18 the mount point directory is gone
+PASS: S-DISC-03.18: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.18 the journal entry stays
+PASS: S-DISC-03.18 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.18 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.18 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.18 next attach: state (Mounted)
+PASS: S-DISC-03.18 next attach: mode (ro)
+NOTE: S-DISC-03.18 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.18 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.18 synced files: OK 6
+PASS: S-DISC-03.18 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.18 next attach: the journal entry is still there
+PASS: S-DISC-03.18 next attach: the read-only session left the image unchanged (2128f64752e0da406d65feb1a1a5785026b34de0fff39636dbdcedf372851aee)
+NOTE: S-DISC-03.18 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 2128f64752e0da406d65feb1a1a5785026b34de0fff39636dbdcedf372851aee
+REP S-DISC-03 18 churn delay=0.3 pass
+== S-DISC-03 rep 19: workload churn, yank at 1
+PASS: S-DISC-03.19 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.19 the journal holds the entry of the rw session
+PASS: S-DISC-03.19 the writer is running at the moment of the yank
+PASS: S-DISC-03.19 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.19 point of the yank: 1 s into the workload, 128 operations done
+PASS: S-DISC-03.19 the workload had written something at the yank (128 operations)
+PASS: S-DISC-03.19 the volume row goes away within 120 s
+PASS: S-DISC-03.19 the writer is gone after the kill
+PASS: S-DISC-03.19 no worker is left
+PASS: S-DISC-03.19 no macfuse mount is left
+PASS: S-DISC-03.19 the mount point directory is gone
+PASS: S-DISC-03.19: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.19 the journal entry stays
+PASS: S-DISC-03.19 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.19 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.19 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.19 next attach: state (Mounted)
+PASS: S-DISC-03.19 next attach: mode (ro)
+NOTE: S-DISC-03.19 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.19 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.19 synced files: OK 6
+PASS: S-DISC-03.19 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.19 next attach: the journal entry is still there
+PASS: S-DISC-03.19 next attach: the read-only session left the image unchanged (b919e3f5252cd168e202ce36bf830ea37a5f86742bf67fe55aa93e065cc01a9c)
+NOTE: S-DISC-03.19 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank b919e3f5252cd168e202ce36bf830ea37a5f86742bf67fe55aa93e065cc01a9c
+REP S-DISC-03 19 churn delay=1 pass
+== S-DISC-03 rep 20: workload churn, yank at 2.2
+PASS: S-DISC-03.20 the volume mounts rw (Mounted rw)
+PASS: S-DISC-03.20 the journal holds the entry of the rw session
+PASS: S-DISC-03.20 the writer is running at the moment of the yank
+PASS: S-DISC-03.20 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-03.20 point of the yank: 2.2 s into the workload, 240 operations done
+PASS: S-DISC-03.20 the workload had written something at the yank (240 operations)
+PASS: S-DISC-03.20 the volume row goes away within 120 s
+PASS: S-DISC-03.20 the writer is gone after the kill
+PASS: S-DISC-03.20 no worker is left
+PASS: S-DISC-03.20 no macfuse mount is left
+PASS: S-DISC-03.20 the mount point directory is gone
+PASS: S-DISC-03.20: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-03.20 the journal entry stays
+PASS: S-DISC-03.20 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-03.20 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-03.20 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-03.20 next attach: state (Mounted)
+PASS: S-DISC-03.20 next attach: mode (ro)
+NOTE: S-DISC-03.20 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-03.20 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-03.20 synced files: OK 6
+PASS: S-DISC-03.20 next attach: every file synced before the yank is intact by hash (OK 6)
+PASS: S-DISC-03.20 next attach: the journal entry is still there
+PASS: S-DISC-03.20 next attach: the read-only session left the image unchanged (cbcb7954907d50b4de8f6d431cafd745bad3d0c4bddfabac52d5a5b299df28cf)
+NOTE: S-DISC-03.20 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank cbcb7954907d50b4de8f6d431cafd745bad3d0c4bddfabac52d5a5b299df28cf
+REP S-DISC-03 20 churn delay=2.2 pass
+== S-DISC-04 rep 1: workload fsync, yank at 3
+PASS: S-DISC-04.1 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.1 the journal holds the entry of the rw session
+PASS: S-DISC-04.1 the writer is running at the moment of the yank
+PASS: S-DISC-04.1 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.1 point of the yank: right after the fsyncs of file 3 returned (writer idle), 3 fsync records
+PASS: S-DISC-04.1 the volume row goes away within 120 s
+PASS: S-DISC-04.1 the writer is gone after the kill
+PASS: S-DISC-04.1 no worker is left
+PASS: S-DISC-04.1 no macfuse mount is left
+PASS: S-DISC-04.1 the mount point directory is gone
+PASS: S-DISC-04.1: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.1 the journal entry stays
+PASS: S-DISC-04.1 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.1 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.1 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.1 next attach: state (Mounted)
+PASS: S-DISC-04.1 next attach: mode (ro)
+NOTE: S-DISC-04.1 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.1 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.1 synced files: OK 9
+PASS: S-DISC-04.1 next attach: every file synced before the yank is intact by hash (OK 9)
+PASS: S-DISC-04.1 next attach: the journal entry is still there
+PASS: S-DISC-04.1 next attach: the read-only session left the image unchanged (f1922fde57b350a8404b2637e6bdc16bdaafb2efc78b026053ceb62528a5d766)
+NOTE: S-DISC-04.1 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank f1922fde57b350a8404b2637e6bdc16bdaafb2efc78b026053ceb62528a5d766
+REP S-DISC-04 1 fsync delay=3 pass
+== S-DISC-04 rep 2: workload fsync, yank at 6
+PASS: S-DISC-04.2 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.2 the journal holds the entry of the rw session
+PASS: S-DISC-04.2 the writer is running at the moment of the yank
+PASS: S-DISC-04.2 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.2 point of the yank: right after the fsyncs of file 6 returned (writer idle), 6 fsync records
+PASS: S-DISC-04.2 the volume row goes away within 120 s
+PASS: S-DISC-04.2 the writer is gone after the kill
+PASS: S-DISC-04.2 no worker is left
+PASS: S-DISC-04.2 no macfuse mount is left
+PASS: S-DISC-04.2 the mount point directory is gone
+PASS: S-DISC-04.2: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.2 the journal entry stays
+PASS: S-DISC-04.2 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.2 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.2 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.2 next attach: state (Mounted)
+PASS: S-DISC-04.2 next attach: mode (ro)
+NOTE: S-DISC-04.2 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.2 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.2 synced files: OK 12
+PASS: S-DISC-04.2 next attach: every file synced before the yank is intact by hash (OK 12)
+PASS: S-DISC-04.2 next attach: the journal entry is still there
+PASS: S-DISC-04.2 next attach: the read-only session left the image unchanged (ffdfe07a37384ff501ec6450895b316b73b332b0b70d2046a438a49ea87fb950)
+NOTE: S-DISC-04.2 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank ffdfe07a37384ff501ec6450895b316b73b332b0b70d2046a438a49ea87fb950
+REP S-DISC-04 2 fsync delay=6 pass
+== S-DISC-04 rep 3: workload fsync, yank at 2
+PASS: S-DISC-04.3 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.3 the journal holds the entry of the rw session
+PASS: S-DISC-04.3 the writer is running at the moment of the yank
+PASS: S-DISC-04.3 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.3 point of the yank: right after the fsyncs of file 2 returned (writer idle), 2 fsync records
+PASS: S-DISC-04.3 the volume row goes away within 120 s
+PASS: S-DISC-04.3 the writer is gone after the kill
+PASS: S-DISC-04.3 no worker is left
+PASS: S-DISC-04.3 no macfuse mount is left
+PASS: S-DISC-04.3 the mount point directory is gone
+PASS: S-DISC-04.3: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.3 the journal entry stays
+PASS: S-DISC-04.3 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.3 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.3 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.3 next attach: state (Mounted)
+PASS: S-DISC-04.3 next attach: mode (ro)
+NOTE: S-DISC-04.3 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.3 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.3 synced files: OK 8
+PASS: S-DISC-04.3 next attach: every file synced before the yank is intact by hash (OK 8)
+PASS: S-DISC-04.3 next attach: the journal entry is still there
+PASS: S-DISC-04.3 next attach: the read-only session left the image unchanged (50b7916e335c5eaf55c46b51d9538f29c1332961856e6290977ed77e75dd549a)
+NOTE: S-DISC-04.3 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 50b7916e335c5eaf55c46b51d9538f29c1332961856e6290977ed77e75dd549a
+REP S-DISC-04 3 fsync delay=2 pass
+== S-DISC-04 rep 4: workload fsync, yank at 9
+PASS: S-DISC-04.4 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.4 the journal holds the entry of the rw session
+PASS: S-DISC-04.4 the writer is running at the moment of the yank
+PASS: S-DISC-04.4 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.4 point of the yank: right after the fsyncs of file 9 returned (writer idle), 9 fsync records
+PASS: S-DISC-04.4 the volume row goes away within 120 s
+PASS: S-DISC-04.4 the writer is gone after the kill
+PASS: S-DISC-04.4 no worker is left
+PASS: S-DISC-04.4 no macfuse mount is left
+PASS: S-DISC-04.4 the mount point directory is gone
+PASS: S-DISC-04.4: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.4 the journal entry stays
+PASS: S-DISC-04.4 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.4 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.4 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.4 next attach: state (Mounted)
+PASS: S-DISC-04.4 next attach: mode (ro)
+NOTE: S-DISC-04.4 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.4 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.4 synced files: OK 15
+PASS: S-DISC-04.4 next attach: every file synced before the yank is intact by hash (OK 15)
+PASS: S-DISC-04.4 next attach: the journal entry is still there
+PASS: S-DISC-04.4 next attach: the read-only session left the image unchanged (d5e7e74fc8ba10b543968ad062cb56fdc8fbd6da892890cf69ec0a61b1f126e6)
+NOTE: S-DISC-04.4 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank d5e7e74fc8ba10b543968ad062cb56fdc8fbd6da892890cf69ec0a61b1f126e6
+REP S-DISC-04 4 fsync delay=9 pass
+== S-DISC-04 rep 5: workload fsync, yank at 4
+PASS: S-DISC-04.5 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.5 the journal holds the entry of the rw session
+PASS: S-DISC-04.5 the writer is running at the moment of the yank
+PASS: S-DISC-04.5 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.5 point of the yank: right after the fsyncs of file 4 returned (writer idle), 4 fsync records
+PASS: S-DISC-04.5 the volume row goes away within 120 s
+PASS: S-DISC-04.5 the writer is gone after the kill
+PASS: S-DISC-04.5 no worker is left
+PASS: S-DISC-04.5 no macfuse mount is left
+PASS: S-DISC-04.5 the mount point directory is gone
+PASS: S-DISC-04.5: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.5 the journal entry stays
+PASS: S-DISC-04.5 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.5 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.5 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.5 next attach: state (Mounted)
+PASS: S-DISC-04.5 next attach: mode (ro)
+NOTE: S-DISC-04.5 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.5 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.5 synced files: OK 10
+PASS: S-DISC-04.5 next attach: every file synced before the yank is intact by hash (OK 10)
+PASS: S-DISC-04.5 next attach: the journal entry is still there
+PASS: S-DISC-04.5 next attach: the read-only session left the image unchanged (03f84af8e69e88435bf7ef1a740ba4601e2a2283f818dfec98d578ba325e68a5)
+NOTE: S-DISC-04.5 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 03f84af8e69e88435bf7ef1a740ba4601e2a2283f818dfec98d578ba325e68a5
+REP S-DISC-04 5 fsync delay=4 pass
+== S-DISC-04 rep 6: workload fsync, yank at 1
+PASS: S-DISC-04.6 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.6 the journal holds the entry of the rw session
+PASS: S-DISC-04.6 the writer is running at the moment of the yank
+PASS: S-DISC-04.6 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.6 point of the yank: right after the fsyncs of file 1 returned (writer idle), 1 fsync records
+PASS: S-DISC-04.6 the volume row goes away within 120 s
+PASS: S-DISC-04.6 the writer is gone after the kill
+PASS: S-DISC-04.6 no worker is left
+PASS: S-DISC-04.6 no macfuse mount is left
+PASS: S-DISC-04.6 the mount point directory is gone
+PASS: S-DISC-04.6: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.6 the journal entry stays
+PASS: S-DISC-04.6 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.6 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.6 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.6 next attach: state (Mounted)
+PASS: S-DISC-04.6 next attach: mode (ro)
+NOTE: S-DISC-04.6 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.6 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.6 synced files: OK 7
+PASS: S-DISC-04.6 next attach: every file synced before the yank is intact by hash (OK 7)
+PASS: S-DISC-04.6 next attach: the journal entry is still there
+PASS: S-DISC-04.6 next attach: the read-only session left the image unchanged (6cbfe1448586346b042b57e71c9c497adf88b75baacc3fca7d70eae4cb367aa9)
+NOTE: S-DISC-04.6 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 6cbfe1448586346b042b57e71c9c497adf88b75baacc3fca7d70eae4cb367aa9
+REP S-DISC-04 6 fsync delay=1 pass
+== S-DISC-04 rep 7: workload fsync, yank at 3
+PASS: S-DISC-04.7 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.7 the journal holds the entry of the rw session
+PASS: S-DISC-04.7 the writer is running at the moment of the yank
+PASS: S-DISC-04.7 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.7 point of the yank: right after the fsyncs of file 3 returned (writer idle), 3 fsync records
+PASS: S-DISC-04.7 the volume row goes away within 120 s
+PASS: S-DISC-04.7 the writer is gone after the kill
+PASS: S-DISC-04.7 no worker is left
+PASS: S-DISC-04.7 no macfuse mount is left
+PASS: S-DISC-04.7 the mount point directory is gone
+PASS: S-DISC-04.7: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.7 the journal entry stays
+PASS: S-DISC-04.7 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.7 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.7 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.7 next attach: state (Mounted)
+PASS: S-DISC-04.7 next attach: mode (ro)
+NOTE: S-DISC-04.7 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.7 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.7 synced files: OK 9
+PASS: S-DISC-04.7 next attach: every file synced before the yank is intact by hash (OK 9)
+PASS: S-DISC-04.7 next attach: the journal entry is still there
+PASS: S-DISC-04.7 next attach: the read-only session left the image unchanged (2dfe58f722e59094145d83a4a1eed260cde7fc889db95c4419346e8f5b705b17)
+NOTE: S-DISC-04.7 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 2dfe58f722e59094145d83a4a1eed260cde7fc889db95c4419346e8f5b705b17
+REP S-DISC-04 7 fsync delay=3 pass
+== S-DISC-04 rep 8: workload fsync, yank at 6
+PASS: S-DISC-04.8 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.8 the journal holds the entry of the rw session
+PASS: S-DISC-04.8 the writer is running at the moment of the yank
+PASS: S-DISC-04.8 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.8 point of the yank: right after the fsyncs of file 6 returned (writer idle), 6 fsync records
+PASS: S-DISC-04.8 the volume row goes away within 120 s
+PASS: S-DISC-04.8 the writer is gone after the kill
+PASS: S-DISC-04.8 no worker is left
+PASS: S-DISC-04.8 no macfuse mount is left
+PASS: S-DISC-04.8 the mount point directory is gone
+PASS: S-DISC-04.8: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.8 the journal entry stays
+PASS: S-DISC-04.8 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.8 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.8 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.8 next attach: state (Mounted)
+PASS: S-DISC-04.8 next attach: mode (ro)
+NOTE: S-DISC-04.8 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.8 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.8 synced files: OK 12
+PASS: S-DISC-04.8 next attach: every file synced before the yank is intact by hash (OK 12)
+PASS: S-DISC-04.8 next attach: the journal entry is still there
+PASS: S-DISC-04.8 next attach: the read-only session left the image unchanged (c8676371e8089c52aef8aeb44134d27780d28f36a25841ed6da4df740a96633d)
+NOTE: S-DISC-04.8 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank c8676371e8089c52aef8aeb44134d27780d28f36a25841ed6da4df740a96633d
+REP S-DISC-04 8 fsync delay=6 pass
+== S-DISC-04 rep 9: workload fsync, yank at 2
+PASS: S-DISC-04.9 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.9 the journal holds the entry of the rw session
+PASS: S-DISC-04.9 the writer is running at the moment of the yank
+PASS: S-DISC-04.9 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.9 point of the yank: right after the fsyncs of file 2 returned (writer idle), 2 fsync records
+PASS: S-DISC-04.9 the volume row goes away within 120 s
+PASS: S-DISC-04.9 the writer is gone after the kill
+PASS: S-DISC-04.9 no worker is left
+PASS: S-DISC-04.9 no macfuse mount is left
+PASS: S-DISC-04.9 the mount point directory is gone
+PASS: S-DISC-04.9: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.9 the journal entry stays
+PASS: S-DISC-04.9 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.9 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.9 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.9 next attach: state (Mounted)
+PASS: S-DISC-04.9 next attach: mode (ro)
+NOTE: S-DISC-04.9 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.9 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.9 synced files: OK 8
+PASS: S-DISC-04.9 next attach: every file synced before the yank is intact by hash (OK 8)
+PASS: S-DISC-04.9 next attach: the journal entry is still there
+PASS: S-DISC-04.9 next attach: the read-only session left the image unchanged (c40ea0032e5e6bfeea71ae8bb610437a53b330c1e11de950c621e87f3254fd0c)
+NOTE: S-DISC-04.9 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank c40ea0032e5e6bfeea71ae8bb610437a53b330c1e11de950c621e87f3254fd0c
+REP S-DISC-04 9 fsync delay=2 pass
+== S-DISC-04 rep 10: workload fsync, yank at 9
+PASS: S-DISC-04.10 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.10 the journal holds the entry of the rw session
+PASS: S-DISC-04.10 the writer is running at the moment of the yank
+PASS: S-DISC-04.10 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.10 point of the yank: right after the fsyncs of file 9 returned (writer idle), 9 fsync records
+PASS: S-DISC-04.10 the volume row goes away within 120 s
+PASS: S-DISC-04.10 the writer is gone after the kill
+PASS: S-DISC-04.10 no worker is left
+PASS: S-DISC-04.10 no macfuse mount is left
+PASS: S-DISC-04.10 the mount point directory is gone
+PASS: S-DISC-04.10: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.10 the journal entry stays
+PASS: S-DISC-04.10 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.10 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.10 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.10 next attach: state (Mounted)
+PASS: S-DISC-04.10 next attach: mode (ro)
+NOTE: S-DISC-04.10 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.10 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.10 synced files: OK 15
+PASS: S-DISC-04.10 next attach: every file synced before the yank is intact by hash (OK 15)
+PASS: S-DISC-04.10 next attach: the journal entry is still there
+PASS: S-DISC-04.10 next attach: the read-only session left the image unchanged (f9f5333d5efad0f2f670daa5347c9d3fc730fa9784981482456e3ef070181a2a)
+NOTE: S-DISC-04.10 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank f9f5333d5efad0f2f670daa5347c9d3fc730fa9784981482456e3ef070181a2a
+REP S-DISC-04 10 fsync delay=9 pass
+== S-DISC-04 rep 11: workload fsync, yank at 4
+PASS: S-DISC-04.11 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.11 the journal holds the entry of the rw session
+PASS: S-DISC-04.11 the writer is running at the moment of the yank
+PASS: S-DISC-04.11 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.11 point of the yank: right after the fsyncs of file 4 returned (writer idle), 4 fsync records
+PASS: S-DISC-04.11 the volume row goes away within 120 s
+PASS: S-DISC-04.11 the writer is gone after the kill
+PASS: S-DISC-04.11 no worker is left
+PASS: S-DISC-04.11 no macfuse mount is left
+PASS: S-DISC-04.11 the mount point directory is gone
+PASS: S-DISC-04.11: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.11 the journal entry stays
+PASS: S-DISC-04.11 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.11 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.11 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.11 next attach: state (Mounted)
+PASS: S-DISC-04.11 next attach: mode (ro)
+NOTE: S-DISC-04.11 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.11 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.11 synced files: OK 10
+PASS: S-DISC-04.11 next attach: every file synced before the yank is intact by hash (OK 10)
+PASS: S-DISC-04.11 next attach: the journal entry is still there
+PASS: S-DISC-04.11 next attach: the read-only session left the image unchanged (25c3eb660ac188ea398a18936cd2b76732a3eb3e7603b82c9d0de2e41e936b52)
+NOTE: S-DISC-04.11 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 25c3eb660ac188ea398a18936cd2b76732a3eb3e7603b82c9d0de2e41e936b52
+REP S-DISC-04 11 fsync delay=4 pass
+== S-DISC-04 rep 12: workload fsync, yank at 1
+PASS: S-DISC-04.12 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.12 the journal holds the entry of the rw session
+PASS: S-DISC-04.12 the writer is running at the moment of the yank
+PASS: S-DISC-04.12 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.12 point of the yank: right after the fsyncs of file 1 returned (writer idle), 1 fsync records
+PASS: S-DISC-04.12 the volume row goes away within 120 s
+PASS: S-DISC-04.12 the writer is gone after the kill
+PASS: S-DISC-04.12 no worker is left
+PASS: S-DISC-04.12 no macfuse mount is left
+PASS: S-DISC-04.12 the mount point directory is gone
+PASS: S-DISC-04.12: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.12 the journal entry stays
+PASS: S-DISC-04.12 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.12 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.12 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.12 next attach: state (Mounted)
+PASS: S-DISC-04.12 next attach: mode (ro)
+NOTE: S-DISC-04.12 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.12 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.12 synced files: OK 7
+PASS: S-DISC-04.12 next attach: every file synced before the yank is intact by hash (OK 7)
+PASS: S-DISC-04.12 next attach: the journal entry is still there
+PASS: S-DISC-04.12 next attach: the read-only session left the image unchanged (802910c228eb6e95643ef64acfec8d3a5c3742ac049f2716ac35d3345b607e3d)
+NOTE: S-DISC-04.12 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 802910c228eb6e95643ef64acfec8d3a5c3742ac049f2716ac35d3345b607e3d
+REP S-DISC-04 12 fsync delay=1 pass
+== S-DISC-04 rep 13: workload fsync, yank at 3
+PASS: S-DISC-04.13 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.13 the journal holds the entry of the rw session
+PASS: S-DISC-04.13 the writer is running at the moment of the yank
+PASS: S-DISC-04.13 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.13 point of the yank: right after the fsyncs of file 3 returned (writer idle), 3 fsync records
+PASS: S-DISC-04.13 the volume row goes away within 120 s
+PASS: S-DISC-04.13 the writer is gone after the kill
+PASS: S-DISC-04.13 no worker is left
+PASS: S-DISC-04.13 no macfuse mount is left
+PASS: S-DISC-04.13 the mount point directory is gone
+PASS: S-DISC-04.13: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.13 the journal entry stays
+PASS: S-DISC-04.13 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.13 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.13 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.13 next attach: state (Mounted)
+PASS: S-DISC-04.13 next attach: mode (ro)
+NOTE: S-DISC-04.13 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.13 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.13 synced files: OK 9
+PASS: S-DISC-04.13 next attach: every file synced before the yank is intact by hash (OK 9)
+PASS: S-DISC-04.13 next attach: the journal entry is still there
+PASS: S-DISC-04.13 next attach: the read-only session left the image unchanged (05cedbd7bfd3cc020d4d51d490f5e916607110baa9aa9180c0cd315ec4e6e6eb)
+NOTE: S-DISC-04.13 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 05cedbd7bfd3cc020d4d51d490f5e916607110baa9aa9180c0cd315ec4e6e6eb
+REP S-DISC-04 13 fsync delay=3 pass
+== S-DISC-04 rep 14: workload fsync, yank at 6
+PASS: S-DISC-04.14 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.14 the journal holds the entry of the rw session
+PASS: S-DISC-04.14 the writer is running at the moment of the yank
+PASS: S-DISC-04.14 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.14 point of the yank: right after the fsyncs of file 6 returned (writer idle), 6 fsync records
+PASS: S-DISC-04.14 the volume row goes away within 120 s
+PASS: S-DISC-04.14 the writer is gone after the kill
+PASS: S-DISC-04.14 no worker is left
+PASS: S-DISC-04.14 no macfuse mount is left
+PASS: S-DISC-04.14 the mount point directory is gone
+PASS: S-DISC-04.14: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.14 the journal entry stays
+PASS: S-DISC-04.14 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.14 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.14 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.14 next attach: state (Mounted)
+PASS: S-DISC-04.14 next attach: mode (ro)
+NOTE: S-DISC-04.14 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.14 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.14 synced files: OK 12
+PASS: S-DISC-04.14 next attach: every file synced before the yank is intact by hash (OK 12)
+PASS: S-DISC-04.14 next attach: the journal entry is still there
+PASS: S-DISC-04.14 next attach: the read-only session left the image unchanged (17011e1d533b689cf257ba71de6aaa5151a1ad5e4fd1a184607f9f2a01be8c7a)
+NOTE: S-DISC-04.14 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 17011e1d533b689cf257ba71de6aaa5151a1ad5e4fd1a184607f9f2a01be8c7a
+REP S-DISC-04 14 fsync delay=6 pass
+== S-DISC-04 rep 15: workload fsync, yank at 2
+PASS: S-DISC-04.15 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.15 the journal holds the entry of the rw session
+PASS: S-DISC-04.15 the writer is running at the moment of the yank
+PASS: S-DISC-04.15 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.15 point of the yank: right after the fsyncs of file 2 returned (writer idle), 2 fsync records
+PASS: S-DISC-04.15 the volume row goes away within 120 s
+PASS: S-DISC-04.15 the writer is gone after the kill
+PASS: S-DISC-04.15 no worker is left
+PASS: S-DISC-04.15 no macfuse mount is left
+PASS: S-DISC-04.15 the mount point directory is gone
+PASS: S-DISC-04.15: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.15 the journal entry stays
+PASS: S-DISC-04.15 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.15 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.15 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.15 next attach: state (Mounted)
+PASS: S-DISC-04.15 next attach: mode (ro)
+NOTE: S-DISC-04.15 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.15 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.15 synced files: OK 8
+PASS: S-DISC-04.15 next attach: every file synced before the yank is intact by hash (OK 8)
+PASS: S-DISC-04.15 next attach: the journal entry is still there
+PASS: S-DISC-04.15 next attach: the read-only session left the image unchanged (cf706e7037ee2c0059ff4cc4221e8eb32603865b4a2b93680ec906b065d3b060)
+NOTE: S-DISC-04.15 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank cf706e7037ee2c0059ff4cc4221e8eb32603865b4a2b93680ec906b065d3b060
+REP S-DISC-04 15 fsync delay=2 pass
+== S-DISC-04 rep 16: workload fsync, yank at 9
+PASS: S-DISC-04.16 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.16 the journal holds the entry of the rw session
+PASS: S-DISC-04.16 the writer is running at the moment of the yank
+PASS: S-DISC-04.16 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.16 point of the yank: right after the fsyncs of file 9 returned (writer idle), 9 fsync records
+PASS: S-DISC-04.16 the volume row goes away within 120 s
+PASS: S-DISC-04.16 the writer is gone after the kill
+PASS: S-DISC-04.16 no worker is left
+PASS: S-DISC-04.16 no macfuse mount is left
+PASS: S-DISC-04.16 the mount point directory is gone
+PASS: S-DISC-04.16: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.16 the journal entry stays
+PASS: S-DISC-04.16 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.16 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.16 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.16 next attach: state (Mounted)
+PASS: S-DISC-04.16 next attach: mode (ro)
+NOTE: S-DISC-04.16 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.16 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.16 synced files: OK 15
+PASS: S-DISC-04.16 next attach: every file synced before the yank is intact by hash (OK 15)
+PASS: S-DISC-04.16 next attach: the journal entry is still there
+PASS: S-DISC-04.16 next attach: the read-only session left the image unchanged (cf2bb15c1c0df8121903b6fb224fb384d038bdb168a99c6c2f0e6cb8e59201c6)
+NOTE: S-DISC-04.16 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank cf2bb15c1c0df8121903b6fb224fb384d038bdb168a99c6c2f0e6cb8e59201c6
+REP S-DISC-04 16 fsync delay=9 pass
+== S-DISC-04 rep 17: workload fsync, yank at 4
+PASS: S-DISC-04.17 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.17 the journal holds the entry of the rw session
+PASS: S-DISC-04.17 the writer is running at the moment of the yank
+PASS: S-DISC-04.17 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.17 point of the yank: right after the fsyncs of file 4 returned (writer idle), 4 fsync records
+PASS: S-DISC-04.17 the volume row goes away within 120 s
+PASS: S-DISC-04.17 the writer is gone after the kill
+PASS: S-DISC-04.17 no worker is left
+PASS: S-DISC-04.17 no macfuse mount is left
+PASS: S-DISC-04.17 the mount point directory is gone
+PASS: S-DISC-04.17: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.17 the journal entry stays
+PASS: S-DISC-04.17 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.17 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.17 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.17 next attach: state (Mounted)
+PASS: S-DISC-04.17 next attach: mode (ro)
+NOTE: S-DISC-04.17 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.17 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.17 synced files: OK 10
+PASS: S-DISC-04.17 next attach: every file synced before the yank is intact by hash (OK 10)
+PASS: S-DISC-04.17 next attach: the journal entry is still there
+PASS: S-DISC-04.17 next attach: the read-only session left the image unchanged (08d70448b7e101bc49ec1d16365050aafc0f88d036053c03d116ac6b2f3751c4)
+NOTE: S-DISC-04.17 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 08d70448b7e101bc49ec1d16365050aafc0f88d036053c03d116ac6b2f3751c4
+REP S-DISC-04 17 fsync delay=4 pass
+== S-DISC-04 rep 18: workload fsync, yank at 1
+PASS: S-DISC-04.18 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.18 the journal holds the entry of the rw session
+PASS: S-DISC-04.18 the writer is running at the moment of the yank
+PASS: S-DISC-04.18 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.18 point of the yank: right after the fsyncs of file 1 returned (writer idle), 1 fsync records
+PASS: S-DISC-04.18 the volume row goes away within 120 s
+PASS: S-DISC-04.18 the writer is gone after the kill
+PASS: S-DISC-04.18 no worker is left
+PASS: S-DISC-04.18 no macfuse mount is left
+PASS: S-DISC-04.18 the mount point directory is gone
+PASS: S-DISC-04.18: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.18 the journal entry stays
+PASS: S-DISC-04.18 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.18 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.18 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.18 next attach: state (Mounted)
+PASS: S-DISC-04.18 next attach: mode (ro)
+NOTE: S-DISC-04.18 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.18 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.18 synced files: OK 7
+PASS: S-DISC-04.18 next attach: every file synced before the yank is intact by hash (OK 7)
+PASS: S-DISC-04.18 next attach: the journal entry is still there
+PASS: S-DISC-04.18 next attach: the read-only session left the image unchanged (1dc2fe7cf845342646adf7ad151d45c852a3406ea8aa88c0b9f20a2ef6e61189)
+NOTE: S-DISC-04.18 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 1dc2fe7cf845342646adf7ad151d45c852a3406ea8aa88c0b9f20a2ef6e61189
+REP S-DISC-04 18 fsync delay=1 pass
+== S-DISC-04 rep 19: workload fsync, yank at 3
+PASS: S-DISC-04.19 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.19 the journal holds the entry of the rw session
+PASS: S-DISC-04.19 the writer is running at the moment of the yank
+PASS: S-DISC-04.19 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.19 point of the yank: right after the fsyncs of file 3 returned (writer idle), 3 fsync records
+PASS: S-DISC-04.19 the volume row goes away within 120 s
+PASS: S-DISC-04.19 the writer is gone after the kill
+PASS: S-DISC-04.19 no worker is left
+PASS: S-DISC-04.19 no macfuse mount is left
+PASS: S-DISC-04.19 the mount point directory is gone
+PASS: S-DISC-04.19: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.19 the journal entry stays
+PASS: S-DISC-04.19 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.19 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.19 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.19 next attach: state (Mounted)
+PASS: S-DISC-04.19 next attach: mode (ro)
+NOTE: S-DISC-04.19 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.19 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.19 synced files: OK 9
+PASS: S-DISC-04.19 next attach: every file synced before the yank is intact by hash (OK 9)
+PASS: S-DISC-04.19 next attach: the journal entry is still there
+PASS: S-DISC-04.19 next attach: the read-only session left the image unchanged (18c52b60847458d512af8f0c4e569338adead5a0055c0a1105657cfb23af7ae4)
+NOTE: S-DISC-04.19 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 18c52b60847458d512af8f0c4e569338adead5a0055c0a1105657cfb23af7ae4
+REP S-DISC-04 19 fsync delay=3 pass
+== S-DISC-04 rep 20: workload fsync, yank at 6
+PASS: S-DISC-04.20 the volume mounts rw (Mounted rw)
+PASS: S-DISC-04.20 the journal holds the entry of the rw session
+PASS: S-DISC-04.20 the writer is running at the moment of the yank
+PASS: S-DISC-04.20 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-04.20 point of the yank: right after the fsyncs of file 6 returned (writer idle), 6 fsync records
+PASS: S-DISC-04.20 the volume row goes away within 120 s
+PASS: S-DISC-04.20 the writer is gone after the kill
+PASS: S-DISC-04.20 no worker is left
+PASS: S-DISC-04.20 no macfuse mount is left
+PASS: S-DISC-04.20 the mount point directory is gone
+PASS: S-DISC-04.20: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-04.20 the journal entry stays
+PASS: S-DISC-04.20 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-04.20 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-04.20 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-04.20 next attach: state (Mounted)
+PASS: S-DISC-04.20 next attach: mode (ro)
+NOTE: S-DISC-04.20 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-04.20 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-04.20 synced files: OK 12
+PASS: S-DISC-04.20 next attach: every file synced before the yank is intact by hash (OK 12)
+PASS: S-DISC-04.20 next attach: the journal entry is still there
+PASS: S-DISC-04.20 next attach: the read-only session left the image unchanged (197ba125e96a252c10278dc3a4fe6bbc24fc3dc1641cfc2f8d798bdd6d6748f1)
+NOTE: S-DISC-04.20 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 197ba125e96a252c10278dc3a4fe6bbc24fc3dc1641cfc2f8d798bdd6d6748f1
+REP S-DISC-04 20 fsync delay=6 pass
+== S-DISC-05 rep 1: workload fsync, yank at 3, injected fault: hash
+PASS: S-DISC-05.1 the volume mounts rw (Mounted rw)
+PASS: S-DISC-05.1 the journal holds the entry of the rw session
+PASS: S-DISC-05.1 the writer is running at the moment of the yank
+PASS: S-DISC-05.1 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-05.1 point of the yank: right after the fsyncs of file 3 returned (writer idle), 3 fsync records
+PASS: S-DISC-05.1 the volume row goes away within 120 s
+PASS: S-DISC-05.1 the writer is gone after the kill
+PASS: S-DISC-05.1 no worker is left
+PASS: S-DISC-05.1 no macfuse mount is left
+PASS: S-DISC-05.1 the mount point directory is gone
+PASS: S-DISC-05.1: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-05.1 the journal entry stays
+NOTE: injected: one byte of base/sentinel.bin flipped in the image
+PASS: S-DISC-05.1 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-05.1 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-05.1 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-05.1 next attach: state (Mounted)
+PASS: S-DISC-05.1 next attach: mode (ro)
+NOTE: S-DISC-05.1 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-05.1 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-05.1 synced files: BAD base/sentinel.bin: sha256 876bfd0574d3de70f0175d782ed38f316aad4a290be4ff5a19cbd034f3178b7c, expected d44f094db86a7ff003d8d1f5845d30435f71cf33fca3eec5e46b49ef0a7a0042
+FAIL: S-DISC-05.1 next attach: every file synced before the yank is intact by hash (BAD base/sentinel.bin: sha256 876bfd0574d3de70f0175d782ed38f316aad4a290be4ff5a19cbd034f3178b7c, expected d44f094db86a7ff003d8d1f5845d30435f71cf33fca3eec5e46b49ef0a7a0042)
+PASS: S-DISC-05.1 next attach: the journal entry is still there
+PASS: S-DISC-05.1 next attach: the read-only session left the image unchanged (9e060b014ddf689d2337f1103d405ec83282553a9c4864f20a152c90699a025d)
+NOTE: S-DISC-05.1 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 9e060b014ddf689d2337f1103d405ec83282553a9c4864f20a152c90699a025d
+REP S-DISC-05 1 fsync delay=3 pass
+== S-DISC-05 rep 2: workload fsync, yank at 6, injected fault: dirty
+PASS: S-DISC-05.2 the volume mounts rw (Mounted rw)
+PASS: S-DISC-05.2 the journal holds the entry of the rw session
+PASS: S-DISC-05.2 the writer is running at the moment of the yank
+PASS: S-DISC-05.2 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-05.2 point of the yank: right after the fsyncs of file 6 returned (writer idle), 6 fsync records
+PASS: S-DISC-05.2 the volume row goes away within 120 s
+PASS: S-DISC-05.2 the writer is gone after the kill
+PASS: S-DISC-05.2 no worker is left
+PASS: S-DISC-05.2 no macfuse mount is left
+PASS: S-DISC-05.2 the mount point directory is gone
+PASS: S-DISC-05.2: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-05.2 the journal entry stays
+NOTE: injected: the dirty flag cleared in the image
+PASS: S-DISC-05.2 ntfsfix -n exit status on the yanked image (0)
+FAIL: S-DISC-05.2 the dirty flag is set on the yanked image (flags_before=0x0000 flags_after=0x0000 mft=0x0000 mirror=0x0000)
+-- S-DISC-05.2 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  unclean_session
+PASS: S-DISC-05.2 next attach: state (Mounted)
+PASS: S-DISC-05.2 next attach: mode (ro)
+NOTE: S-DISC-05.2 next attach: reason 'unclean_session'
+PASS: S-DISC-05.2 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-05.2 synced files: OK 12
+PASS: S-DISC-05.2 next attach: every file synced before the yank is intact by hash (OK 12)
+PASS: S-DISC-05.2 next attach: the journal entry is still there
+PASS: S-DISC-05.2 next attach: the read-only session left the image unchanged (8ffb3c35adaa5f43132bda5865249e7ff574d72d69ea370f95e74cf11e4dcf4a)
+NOTE: S-DISC-05.2 image hash fixture 683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80, after yank 8ffb3c35adaa5f43132bda5865249e7ff574d72d69ea370f95e74cf11e4dcf4a
+REP S-DISC-05 2 fsync delay=6 pass
+== reps
+S-DISC-01	1	seq	1	pass	NOTE: S-DISC-01.1 point of the yank: 1 s into the workload, 232 operations done
+S-DISC-01	2	seq	2.2	pass	NOTE: S-DISC-01.2 point of the yank: 2.2 s into the workload, 600 operations done
+S-DISC-01	3	seq	0.6	pass	NOTE: S-DISC-01.3 point of the yank: 0.6 s into the workload, 160 operations done
+S-DISC-01	4	seq	3.5	pass	NOTE: S-DISC-01.4 point of the yank: 3.5 s into the workload, 960 operations done
+S-DISC-01	5	seq	1.6	pass	NOTE: S-DISC-01.5 point of the yank: 1.6 s into the workload, 400 operations done
+S-DISC-01	6	seq	0.3	pass	NOTE: S-DISC-01.6 point of the yank: 0.3 s into the workload, 80 operations done
+S-DISC-01	7	seq	1	pass	NOTE: S-DISC-01.7 point of the yank: 1 s into the workload, 240 operations done
+S-DISC-01	8	seq	2.2	pass	NOTE: S-DISC-01.8 point of the yank: 2.2 s into the workload, 560 operations done
+S-DISC-01	9	seq	0.6	pass	NOTE: S-DISC-01.9 point of the yank: 0.6 s into the workload, 152 operations done
+S-DISC-01	10	seq	3.5	pass	NOTE: S-DISC-01.10 point of the yank: 3.5 s into the workload, 952 operations done
+S-DISC-01	11	seq	1.6	pass	NOTE: S-DISC-01.11 point of the yank: 1.6 s into the workload, 400 operations done
+S-DISC-01	12	seq	0.3	pass	NOTE: S-DISC-01.12 point of the yank: 0.3 s into the workload, 72 operations done
+S-DISC-01	13	seq	1	pass	NOTE: S-DISC-01.13 point of the yank: 1 s into the workload, 240 operations done
+S-DISC-01	14	seq	2.2	pass	NOTE: S-DISC-01.14 point of the yank: 2.2 s into the workload, 536 operations done
+S-DISC-01	15	seq	0.6	pass	NOTE: S-DISC-01.15 point of the yank: 0.6 s into the workload, 144 operations done
+S-DISC-01	16	seq	3.5	pass	NOTE: S-DISC-01.16 point of the yank: 3.5 s into the workload, 968 operations done
+S-DISC-01	17	seq	1.6	pass	NOTE: S-DISC-01.17 point of the yank: 1.6 s into the workload, 400 operations done
+S-DISC-01	18	seq	0.3	pass	NOTE: S-DISC-01.18 point of the yank: 0.3 s into the workload, 56 operations done
+S-DISC-01	19	seq	1	pass	NOTE: S-DISC-01.19 point of the yank: 1 s into the workload, 216 operations done
+S-DISC-01	20	seq	2.2	pass	NOTE: S-DISC-01.20 point of the yank: 2.2 s into the workload, 560 operations done
+S-DISC-02	1	small	1	pass	NOTE: S-DISC-02.1 point of the yank: 1 s into the workload, 360 operations done
+S-DISC-02	2	small	2.2	pass	NOTE: S-DISC-02.2 point of the yank: 2.2 s into the workload, 824 operations done
+S-DISC-02	3	small	0.6	pass	NOTE: S-DISC-02.3 point of the yank: 0.6 s into the workload, 256 operations done
+S-DISC-02	4	small	3.5	pass	NOTE: S-DISC-02.4 point of the yank: 3.5 s into the workload, 1256 operations done
+S-DISC-02	5	small	1.6	pass	NOTE: S-DISC-02.5 point of the yank: 1.6 s into the workload, 592 operations done
+S-DISC-02	6	small	0.3	pass	NOTE: S-DISC-02.6 point of the yank: 0.3 s into the workload, 144 operations done
+S-DISC-02	7	small	1	pass	NOTE: S-DISC-02.7 point of the yank: 1 s into the workload, 440 operations done
+S-DISC-02	8	small	2.2	pass	NOTE: S-DISC-02.8 point of the yank: 2.2 s into the workload, 872 operations done
+S-DISC-02	9	small	0.6	pass	NOTE: S-DISC-02.9 point of the yank: 0.6 s into the workload, 248 operations done
+S-DISC-02	10	small	3.5	pass	NOTE: S-DISC-02.10 point of the yank: 3.5 s into the workload, 1272 operations done
+S-DISC-02	11	small	1.6	pass	NOTE: S-DISC-02.11 point of the yank: 1.6 s into the workload, 640 operations done
+S-DISC-02	12	small	0.3	pass	NOTE: S-DISC-02.12 point of the yank: 0.3 s into the workload, 192 operations done
+S-DISC-02	13	small	1	pass	NOTE: S-DISC-02.13 point of the yank: 1 s into the workload, 352 operations done
+S-DISC-02	14	small	2.2	pass	NOTE: S-DISC-02.14 point of the yank: 2.2 s into the workload, 832 operations done
+S-DISC-02	15	small	0.6	pass	NOTE: S-DISC-02.15 point of the yank: 0.6 s into the workload, 264 operations done
+S-DISC-02	16	small	3.5	pass	NOTE: S-DISC-02.16 point of the yank: 3.5 s into the workload, 1304 operations done
+S-DISC-02	17	small	1.6	pass	NOTE: S-DISC-02.17 point of the yank: 1.6 s into the workload, 656 operations done
+S-DISC-02	18	small	0.3	pass	NOTE: S-DISC-02.18 point of the yank: 0.3 s into the workload, 152 operations done
+S-DISC-02	19	small	1	pass	NOTE: S-DISC-02.19 point of the yank: 1 s into the workload, 416 operations done
+S-DISC-02	20	small	2.2	pass	NOTE: S-DISC-02.20 point of the yank: 2.2 s into the workload, 840 operations done
+S-DISC-03	1	churn	1	pass	NOTE: S-DISC-03.1 point of the yank: 1 s into the workload, 104 operations done
+S-DISC-03	2	churn	2.2	pass	NOTE: S-DISC-03.2 point of the yank: 2.2 s into the workload, 224 operations done
+S-DISC-03	3	churn	0.6	pass	NOTE: S-DISC-03.3 point of the yank: 0.6 s into the workload, 72 operations done
+S-DISC-03	4	churn	3.5	pass	NOTE: S-DISC-03.4 point of the yank: 3.5 s into the workload, 360 operations done
+S-DISC-03	5	churn	1.6	pass	NOTE: S-DISC-03.5 point of the yank: 1.6 s into the workload, 168 operations done
+S-DISC-03	6	churn	0.3	pass	NOTE: S-DISC-03.6 point of the yank: 0.3 s into the workload, 40 operations done
+S-DISC-03	7	churn	1	pass	NOTE: S-DISC-03.7 point of the yank: 1 s into the workload, 104 operations done
+S-DISC-03	8	churn	2.2	pass	NOTE: S-DISC-03.8 point of the yank: 2.2 s into the workload, 216 operations done
+S-DISC-03	9	churn	0.6	pass	NOTE: S-DISC-03.9 point of the yank: 0.6 s into the workload, 80 operations done
+S-DISC-03	10	churn	3.5	pass	NOTE: S-DISC-03.10 point of the yank: 3.5 s into the workload, 360 operations done
+S-DISC-03	11	churn	1.6	pass	NOTE: S-DISC-03.11 point of the yank: 1.6 s into the workload, 160 operations done
+S-DISC-03	12	churn	0.3	pass	NOTE: S-DISC-03.12 point of the yank: 0.3 s into the workload, 40 operations done
+S-DISC-03	13	churn	1	pass	NOTE: S-DISC-03.13 point of the yank: 1 s into the workload, 104 operations done
+S-DISC-03	14	churn	2.2	pass	NOTE: S-DISC-03.14 point of the yank: 2.2 s into the workload, 224 operations done
+S-DISC-03	15	churn	0.6	pass	NOTE: S-DISC-03.15 point of the yank: 0.6 s into the workload, 80 operations done
+S-DISC-03	16	churn	3.5	pass	NOTE: S-DISC-03.16 point of the yank: 3.5 s into the workload, 368 operations done
+S-DISC-03	17	churn	1.6	pass	NOTE: S-DISC-03.17 point of the yank: 1.6 s into the workload, 144 operations done
+S-DISC-03	18	churn	0.3	pass	NOTE: S-DISC-03.18 point of the yank: 0.3 s into the workload, 64 operations done
+S-DISC-03	19	churn	1	pass	NOTE: S-DISC-03.19 point of the yank: 1 s into the workload, 128 operations done
+S-DISC-03	20	churn	2.2	pass	NOTE: S-DISC-03.20 point of the yank: 2.2 s into the workload, 240 operations done
+S-DISC-04	1	fsync	3	pass	NOTE: S-DISC-04.1 point of the yank: right after the fsyncs of file 3 returned (writer idle), 3 fsync records
+S-DISC-04	2	fsync	6	pass	NOTE: S-DISC-04.2 point of the yank: right after the fsyncs of file 6 returned (writer idle), 6 fsync records
+S-DISC-04	3	fsync	2	pass	NOTE: S-DISC-04.3 point of the yank: right after the fsyncs of file 2 returned (writer idle), 2 fsync records
+S-DISC-04	4	fsync	9	pass	NOTE: S-DISC-04.4 point of the yank: right after the fsyncs of file 9 returned (writer idle), 9 fsync records
+S-DISC-04	5	fsync	4	pass	NOTE: S-DISC-04.5 point of the yank: right after the fsyncs of file 4 returned (writer idle), 4 fsync records
+S-DISC-04	6	fsync	1	pass	NOTE: S-DISC-04.6 point of the yank: right after the fsyncs of file 1 returned (writer idle), 1 fsync records
+S-DISC-04	7	fsync	3	pass	NOTE: S-DISC-04.7 point of the yank: right after the fsyncs of file 3 returned (writer idle), 3 fsync records
+S-DISC-04	8	fsync	6	pass	NOTE: S-DISC-04.8 point of the yank: right after the fsyncs of file 6 returned (writer idle), 6 fsync records
+S-DISC-04	9	fsync	2	pass	NOTE: S-DISC-04.9 point of the yank: right after the fsyncs of file 2 returned (writer idle), 2 fsync records
+S-DISC-04	10	fsync	9	pass	NOTE: S-DISC-04.10 point of the yank: right after the fsyncs of file 9 returned (writer idle), 9 fsync records
+S-DISC-04	11	fsync	4	pass	NOTE: S-DISC-04.11 point of the yank: right after the fsyncs of file 4 returned (writer idle), 4 fsync records
+S-DISC-04	12	fsync	1	pass	NOTE: S-DISC-04.12 point of the yank: right after the fsyncs of file 1 returned (writer idle), 1 fsync records
+S-DISC-04	13	fsync	3	pass	NOTE: S-DISC-04.13 point of the yank: right after the fsyncs of file 3 returned (writer idle), 3 fsync records
+S-DISC-04	14	fsync	6	pass	NOTE: S-DISC-04.14 point of the yank: right after the fsyncs of file 6 returned (writer idle), 6 fsync records
+S-DISC-04	15	fsync	2	pass	NOTE: S-DISC-04.15 point of the yank: right after the fsyncs of file 2 returned (writer idle), 2 fsync records
+S-DISC-04	16	fsync	9	pass	NOTE: S-DISC-04.16 point of the yank: right after the fsyncs of file 9 returned (writer idle), 9 fsync records
+S-DISC-04	17	fsync	4	pass	NOTE: S-DISC-04.17 point of the yank: right after the fsyncs of file 4 returned (writer idle), 4 fsync records
+S-DISC-04	18	fsync	1	pass	NOTE: S-DISC-04.18 point of the yank: right after the fsyncs of file 1 returned (writer idle), 1 fsync records
+S-DISC-04	19	fsync	3	pass	NOTE: S-DISC-04.19 point of the yank: right after the fsyncs of file 3 returned (writer idle), 3 fsync records
+S-DISC-04	20	fsync	6	pass	NOTE: S-DISC-04.20 point of the yank: right after the fsyncs of file 6 returned (writer idle), 6 fsync records
+S-DISC-05	1	fsync	3	pass	the check caught the injected fault (hash) and nothing else failed: FAIL: S-DISC-05.1 next attach: every file synced before the yank is intact by hash (BAD base/sentinel.bin: sha256 876bfd0574d3de70f0175d782ed38f316aad4a290be4ff5a19cbd034f3178b7c, expected d44f094db86
+S-DISC-05	2	fsync	6	pass	the check caught the injected fault (dirty) and nothing else failed: FAIL: S-DISC-05.2 the dirty flag is set on the yanked image (flags_before=0x0000 flags_after=0x0000 mft=0x0000 mirror=0x0000)
+-- daemon log (tail)
+WARN: disk6: forced unmount of the volume: ok
+INFO: notification: clean64m4k did not end its session cleanly. The volume will be read-only next time; run chkdsk on Windows, then attach it again.
+INFO: disk6: UNMOUNTED -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision ro
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read-only: the last session on this Mac did not end cleanly; run chkdsk on Windows, then attach it again.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 16 ms, mount gone afterwards
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+result: 0 check(s) failed

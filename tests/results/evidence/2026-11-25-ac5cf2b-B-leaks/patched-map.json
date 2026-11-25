@@ -1,0 +1,583 @@
+{
+ "series": [
+  "0003-inherited-device-descriptor.patch",
+  "0004-faultio-device-layer.patch",
+  "0006-session-channel.patch",
+  "0007-device-drive-flush.patch",
+  "0008-creation-time-conversion.patch",
+  "0009-xattr-names-exempt-windows-names.patch",
+  "0010-valid-descr-header-length.patch",
+  "0011-possible-symlink-header-length.patch",
+  "0012-retrievesecurityattr-bounds.patch",
+  "0013-inode-sync-reparse-tag-length.patch",
+  "0014-readdir-offsets.patch",
+  "0015-boot-sector-record-size-limit.patch"
+ ],
+ "files": {
+  "device.h": {
+   "lines": [
+    [
+     144,
+     152
+    ]
+   ],
+   "functions": {}
+  },
+  "unix_io.c": {
+   "lines": [
+    [
+     59,
+     60
+    ],
+    [
+     70,
+     103
+    ],
+    [
+     108,
+     312
+    ],
+    [
+     330,
+     357
+    ],
+    [
+     365,
+     366
+    ],
+    [
+     372,
+     373
+    ],
+    [
+     395,
+     397
+    ],
+    [
+     399,
+     400
+    ],
+    [
+     405,
+     412
+    ],
+    [
+     427,
+     465
+    ],
+    [
+     469,
+     471
+    ],
+    [
+     541,
+     541
+    ],
+    [
+     612,
+     612
+    ],
+    [
+     651,
+     651
+    ],
+    [
+     667,
+     667
+    ],
+    [
+     706,
+     763
+    ],
+    [
+     769,
+     769
+    ],
+    [
+     772,
+     772
+    ],
+    [
+     774,
+     775
+    ]
+   ],
+   "functions": {
+    "ntfs_device_inherited_fd": [
+     84,
+     102
+    ],
+    "ntfsmac_count": [
+     144,
+     151
+    ],
+    "ntfsmac_errfd_init": [
+     153,
+     211
+    ],
+    "ntfsmac_errfd_put": [
+     213,
+     251
+    ],
+    "ntfsmac_errfd_rec": [
+     253,
+     263
+    ],
+    "ntfsmac_errfd_session": [
+     266,
+     272
+    ],
+    "ntfsmac_errfd_error": [
+     275,
+     284
+    ],
+    "ntfsmac_errfd_warn": [
+     287,
+     296
+    ],
+    "ntfsmac_errfd_unmounted": [
+     299,
+     309
+    ],
+    "ntfs_fsync": [
+     323,
+     379
+    ],
+    "ntfs_device_unix_io_open": [
+     390,
+     521
+    ],
+    "ntfs_device_unix_io_close": [
+     531,
+     560
+    ],
+    "ntfs_device_unix_io_write": [
+     604,
+     613
+    ],
+    "ntfs_device_unix_io_pwrite": [
+     643,
+     652
+    ],
+    "ntfs_device_unix_io_sync": [
+     662,
+     674
+    ],
+    "ntfsmac_unix_io_close": [
+     712,
+     722
+    ],
+    "ntfsmac_unix_io_write": [
+     724,
+     736
+    ],
+    "ntfsmac_unix_io_pwrite": [
+     738,
+     750
+    ],
+    "ntfsmac_unix_io_sync": [
+     752,
+     762
+    ]
+   }
+  },
+  "ntfs-3g.c": {
+   "lines": [
+    [
+     114,
+     115
+    ],
+    [
+     166,
+     202
+    ],
+    [
+     206,
+     206
+    ],
+    [
+     644,
+     644
+    ],
+    [
+     666,
+     666
+    ],
+    [
+     708,
+     708
+    ],
+    [
+     1297,
+     1384
+    ],
+    [
+     1387,
+     1387
+    ],
+    [
+     1492,
+     1497
+    ],
+    [
+     1561,
+     1562
+    ],
+    [
+     1565,
+     1565
+    ],
+    [
+     1570,
+     1571
+    ],
+    [
+     1574,
+     1580
+    ],
+    [
+     1589,
+     1589
+    ],
+    [
+     1591,
+     1596
+    ],
+    [
+     1602,
+     1602
+    ],
+    [
+     1604,
+     1616
+    ],
+    [
+     1620,
+     1621
+    ],
+    [
+     1626,
+     1627
+    ],
+    [
+     3773,
+     3781
+    ],
+    [
+     3788,
+     3788
+    ],
+    [
+     4025,
+     4030
+    ],
+    [
+     4032,
+     4032
+    ],
+    [
+     4119,
+     4121
+    ],
+    [
+     4123,
+     4126
+    ],
+    [
+     4134,
+     4189
+    ],
+    [
+     4231,
+     4232
+    ],
+    [
+     4269,
+     4282
+    ],
+    [
+     4710,
+     4719
+    ],
+    [
+     4834,
+     4835
+    ]
+   ],
+   "functions": {
+    "ntfs_macfuse_getxtimes": [
+     623,
+     652
+    ],
+    "ntfs_macfuse_setcrtime": [
+     654,
+     673
+    ],
+    "ntfs_macfuse_setchgtime": [
+     696,
+     715
+    ],
+    "ntfs_fuse_snap_find": [
+     1302,
+     1310
+    ],
+    "ntfs_fuse_snap_add": [
+     1313,
+     1355
+    ],
+    "ntfs_fuse_snap_serve": [
+     1362,
+     1383
+    ],
+    "ntfs_fuse_filler": [
+     1385,
+     1502
+    ],
+    "ntfs_fuse_readdir": [
+     1560,
+     1629
+    ],
+    "ntfs_fuse_setxattr": [
+     3606,
+     3857
+    ],
+    "ntfs_fuse_removexattr": [
+     3859,
+     4053
+    ],
+    "ntfs_close": [
+     4091,
+     4129
+    ],
+    "ntfs_fuse_destroy2": [
+     4131,
+     4134
+    ],
+    "ntfs_fuse_opendir_snap": [
+     4141,
+     4163
+    ],
+    "ntfs_fuse_releasedir_snap": [
+     4165,
+     4190
+    ],
+    "inherited_blkdev": [
+     4275,
+     4281
+    ],
+    "main": [
+     4587,
+     4874
+    ]
+   }
+  },
+  "ntfs-3g_common.c": {
+   "lines": [
+    [
+     681,
+     690
+    ]
+   ],
+   "functions": {
+    "ntfs_parse_options": [
+     654,
+     755
+    ]
+   }
+  },
+  "faultio.h": {
+   "lines": [
+    [
+     1,
+     313
+    ]
+   ],
+   "functions": {
+    "faultio_publish": [
+     80,
+     90
+    ],
+    "faultio_trace": [
+     92,
+     106
+    ],
+    "faultio_report": [
+     108,
+     113
+    ],
+    "faultio_number": [
+     115,
+     124
+    ],
+    "faultio_init": [
+     126,
+     180
+    ],
+    "faultio_drop": [
+     182,
+     188
+    ],
+    "faultio_power_lost": [
+     191,
+     201
+    ],
+    "faultio_real": [
+     204,
+     223
+    ],
+    "faultio_write": [
+     225,
+     296
+    ],
+    "faultio_fsync": [
+     298,
+     308
+    ]
+   }
+  },
+  "acls.c": {
+   "lines": [
+    [
+     674,
+     680
+    ]
+   ],
+   "functions": {
+    "ntfs_valid_descr": [
+     662,
+     768
+    ]
+   }
+  },
+  "reparse.c": {
+   "lines": [
+    [
+     927,
+     936
+    ]
+   ],
+   "functions": {
+    "ntfs_possible_symlink": [
+     918,
+     941
+    ]
+   }
+  },
+  "security.c": {
+   "lines": [
+    [
+     811,
+     845
+    ],
+    [
+     867,
+     867
+    ],
+    [
+     914,
+     916
+    ],
+    [
+     929,
+     945
+    ],
+    [
+     1862,
+     1862
+    ],
+    [
+     1877,
+     1877
+    ],
+    [
+     1884,
+     1895
+    ]
+   ],
+   "functions": {
+    "sds_record_within": [
+     821,
+     843
+    ],
+    "setsecurityattr": [
+     854,
+     984
+    ],
+    "retrievesecurityattr": [
+     1848,
+     1917
+    ]
+   }
+  },
+  "inode.c": {
+   "lines": [
+    [
+     819,
+     827
+    ],
+    [
+     829,
+     830
+    ]
+   ],
+   "functions": {
+    "ntfs_inode_sync_file_name": [
+     796,
+     940
+    ]
+   }
+  },
+  "fuse.c": {
+   "lines": [
+    [
+     2199,
+     2206
+    ]
+   ],
+   "functions": {
+    "readdir_fill": [
+     2175,
+     2211
+    ]
+   }
+  },
+  "bootsect.c": {
+   "lines": [
+    [
+     183,
+     188
+    ],
+    [
+     203,
+     203
+    ],
+    [
+     281,
+     285
+    ],
+    [
+     287,
+     287
+    ],
+    [
+     289,
+     296
+    ],
+    [
+     309,
+     309
+    ],
+    [
+     311,
+     318
+    ]
+   ],
+   "functions": {
+    "ntfs_boot_sector_parse": [
+     199,
+     335
+    ]
+   }
+  }
+ }
+}

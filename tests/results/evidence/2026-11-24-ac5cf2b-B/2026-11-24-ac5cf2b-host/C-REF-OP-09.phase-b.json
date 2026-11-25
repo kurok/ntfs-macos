@@ -1,0 +1,176 @@
+{
+ "builder_optstr": "backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022",
+ "dump": {
+  ".fseventsd": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134400348522215890,
+    "crtime": 134400348522213524,
+    "ctime": 134400348522242500,
+    "mtime": 134400348522242500
+   },
+   "xattrs": {}
+  },
+  ".fseventsd/fseventsd-uuid": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "1f85623c265e04221c1b897a2f3192854d40b4ea0bd6f1bc71c488ba87acf784",
+   "size": 36,
+   "t": "f",
+   "times": {
+    "atime": 134400348522242460,
+    "crtime": 134400348522241096,
+    "ctime": 134400348522312650,
+    "mtime": 134400348522312650
+   },
+   "xattrs": {}
+  },
+  "big": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134400348523032480,
+    "crtime": 134400348523030429,
+    "ctime": 134400348528625940,
+    "mtime": 134400348528625940
+   },
+   "xattrs": {}
+  },
+  "big/after": {
+   "attrib": "0x00000020",
+   "blocks": 20971520,
+   "group": null,
+   "nlink": 1,
+   "sha": "14254cfb01d236b83de5162a1937aec081a9a96999327d22290d604b61a24759",
+   "size": 20971520,
+   "t": "f",
+   "times": {
+    "atime": 134400348528625900,
+    "crtime": 134400348528624826,
+    "ctime": 134400348528981290,
+    "mtime": 134400348528981290
+   },
+   "xattrs": {}
+  },
+  "big/file": {
+   "attrib": "0x00000020",
+   "blocks": 125829120,
+   "group": null,
+   "nlink": 1,
+   "sha": "848c3feb17d7b0ed88fa50e1eb4c4052f1c526b7e5148f626d5434645bf3fb8e",
+   "size": 125829120,
+   "t": "f",
+   "times": {
+    "atime": 134400348523045870,
+    "crtime": 134400348523044184,
+    "ctime": 134400348527517760,
+    "mtime": 134400348527517760
+   },
+   "xattrs": {}
+  },
+  "big/third": {
+   "attrib": "0x00000020",
+   "blocks": 10489856,
+   "group": null,
+   "nlink": 1,
+   "sha": "0ac78cccbfd91eddf5506cac05b06c80041343eca6e9c7c93eadfa04e8593034",
+   "size": 10485761,
+   "t": "f",
+   "times": {
+    "atime": 134400348528413280,
+    "crtime": 134400348528412047,
+    "ctime": 134400348528599730,
+    "mtime": 134400348528599730
+   },
+   "xattrs": {}
+  }
+ },
+ "env": "B",
+ "image_sha256": "28f95ac2d768a9f81eef9c519a7ed0bde9c6eb9b3277558f4777ef6f63a1613c",
+ "image_sha256_in": "28f95ac2d768a9f81eef9c519a7ed0bde9c6eb9b3277558f4777ef6f63a1613c",
+ "image_size": 335544320,
+ "macfuse_version": "5.5.0",
+ "ntfs3g_version": "2026.9.28",
+ "ntfsfix": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition <tmp>/refop09/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "ntfsfix_after_replay": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition <tmp>/ntfsmac-ref.QV02Pf/out/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "oplog": [
+  {
+   "i": 0,
+   "op": "mkdir",
+   "path": "big",
+   "rc": "ok"
+  },
+  {
+   "i": 1,
+   "op": "create",
+   "path": "big/file",
+   "rc": "ok"
+  },
+  {
+   "i": 2,
+   "op": "write",
+   "path": "big/file",
+   "rc": "ok"
+  },
+  {
+   "i": 3,
+   "op": "append",
+   "path": "big/file",
+   "rc": "ok"
+  },
+  {
+   "i": 4,
+   "op": "truncate",
+   "path": "big/file",
+   "rc": "ok"
+  },
+  {
+   "i": 5,
+   "op": "create",
+   "path": "big/second",
+   "rc": "ok"
+  },
+  {
+   "i": 6,
+   "op": "create",
+   "path": "big/third",
+   "rc": "ok"
+  },
+  {
+   "i": 7,
+   "op": "unlink",
+   "path": "big/second",
+   "rc": "ok"
+  },
+  {
+   "i": 8,
+   "op": "create",
+   "path": "big/after",
+   "rc": "ok"
+  },
+  {
+   "i": 9,
+   "op": "fsync",
+   "path": "big/file",
+   "rc": "ok"
+  }
+ ],
+ "optstr": "backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022",
+ "os": "Debian GNU/Linux 13 (trixie) aarch64",
+ "t_end": 1795561253.095344,
+ "t_start": 1795561249.350066,
+ "treedump": "d\t.fseventsd\nf\t.fseventsd/fseventsd-uuid\t36\t1f85623c265e04221c1b897a2f3192854d40b4ea0bd6f1bc71c488ba87acf784\nd\tbig\nf\tbig/after\t20971520\t14254cfb01d236b83de5162a1937aec081a9a96999327d22290d604b61a24759\nf\tbig/file\t125829120\t848c3feb17d7b0ed88fa50e1eb4c4052f1c526b7e5148f626d5434645bf3fb8e\nf\tbig/third\t10485761\t0ac78cccbfd91eddf5506cac05b06c80041343eca6e9c7c93eadfa04e8593034\n"
+}

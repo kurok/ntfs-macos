@@ -1,0 +1,14 @@
+1795560877.185426 open pid=29676 fd=3 path=/dev/null
+1795560877.185582 open pid=29676 fd=3 path=<tmp>/ntfsmac-case-m7jshswv/inject.img
+1795560877.185662 open pid=29676 fd=5 path=/dev/null
+1795560877.188664 open pid=29676 fd=5 path=/dev/null
+1795560880.647122 fullfsync pid=29676 fd=3 path=<tmp>/ntfsmac-case-m7jshswv/inject.img rc=-1 errno=25 us=0 writes=62 bytes=162810
+1795560880.647841 fsync pid=29676 fd=3 path=<tmp>/ntfsmac-case-m7jshswv/inject.img rc=0 errno=0 us=707 writes=0 bytes=0
+1795560883.832035 fullfsync pid=29676 fd=3 path=<tmp>/ntfsmac-case-m7jshswv/inject.img rc=-1 errno=25 us=0 writes=18 bytes=45057
+1795560883.832480 fsync pid=29676 fd=3 path=<tmp>/ntfsmac-case-m7jshswv/inject.img rc=0 errno=0 us=434 writes=0 bytes=0
+1795560886.350218 fullfsync pid=29676 fd=3 path=<tmp>/ntfsmac-case-m7jshswv/inject.img rc=-1 errno=25 us=0 writes=6 bytes=20480
+1795560886.350556 fsync pid=29676 fd=3 path=<tmp>/ntfsmac-case-m7jshswv/inject.img rc=0 errno=0 us=327 writes=0 bytes=0
+1795560888.981112 fullfsync pid=29676 fd=3 path=<tmp>/ntfsmac-case-m7jshswv/inject.img rc=-1 errno=25 us=0 writes=6 bytes=24576
+1795560888.988556 fsync pid=29676 fd=3 path=<tmp>/ntfsmac-case-m7jshswv/inject.img rc=0 errno=0 us=7426 writes=0 bytes=0
+1795560892.985578 fullfsync pid=29676 fd=3 path=<tmp>/ntfsmac-case-m7jshswv/inject.img rc=-1 errno=25 us=0 writes=6 bytes=28672
+1795560892.985599 fsync pid=29676 fd=3 path=<tmp>/ntfsmac-case-m7jshswv/inject.img rc=0 errno=0 us=2 writes=0 bytes=0

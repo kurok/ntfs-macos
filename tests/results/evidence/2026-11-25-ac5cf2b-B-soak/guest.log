@@ -1,0 +1,44 @@
+guest: 27.2 arm64, user admin uid 501, console owner admin
+== start the job
+== soak-real (real): soak, 21600 s, 1 worker(s), hang limit 60 s
+PASS: soak-real the volume mounts rw (Mounted rw)
+PASS: soak-real exactly one worker holds the device
+NOTE: soak-real worker pid 8477, RSS 15520 kB at the start
+soak: PASS ops=6120125 verifies=36 mismatches=0 errors=0 lat_max=0.631s p99<=0.064s rss={"status": "pass", "baseline_kb": 14272, "baseline_t": 3600.21, "peak_kb": 14448, "final_kb": 14432, "growth_pct": 1.233, "final_growth_pct": 1.121, "limit_pct": 10.0, "samples_after": 600}
+PASS: soak-real the volume unmounts cleanly through the daemon
+PASS: soak-real ntfsfix -n after the unmount (0)
+PASS: soak-real after the remount: state and mode (Mounted rw)
+verify: 207 files, 41 directories, 16316676 bytes, 0 mismatch(es)
+PASS: soak-real ntfsfix -n after the verification session (0)
+== soak-ctl-corrupt (control-corrupt): soak, 15 s, 1 worker(s), hang limit 60 s, injected: corrupt
+PASS: soak-ctl-corrupt the volume mounts rw (Mounted rw)
+PASS: soak-ctl-corrupt exactly one worker holds the device
+NOTE: soak-ctl-corrupt worker pid 12735, RSS 15504 kB at the start
+soak: FAIL ops=6148 verifies=0 mismatches=1 errors=0 lat_max=0.105s p99<=0.016s
+  FAIL mismatch: d000118/d001103/big001678: content differs (model 266240 bytes, disk 266240 bytes, first difference at offset 0)
+PASS: soak-ctl-corrupt the volume unmounts cleanly through the daemon
+PASS: soak-ctl-corrupt ntfsfix -n after the unmount (0)
+PASS: soak-ctl-corrupt after the remount: state and mode (Mounted rw)
+verify: 196 files, 41 directories, 16386937 bytes, 1 mismatch(es)
+  BAD soak/w00/d000118/d001103/big001678: size/sha256 differ (disk (266240, '80aaf29fbfdef0bb3bc94de87bdb2cda54eaf2313d50259c9ab48d8f5b252315'), expected (266240, '91dd1c848f25ca50328a5b310909f16e037988501dc666e91982d80353e09e24'))
+PASS: soak-ctl-corrupt ntfsfix -n after the verification session (0)
+== runs
+soak-real	real	0	0	0	0	Mounted rw	Mounted rw
+soak-ctl-corrupt	control-corrupt	1	1	0	0	Mounted rw	Mounted rw
+-- daemon log (tail)
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 117 ms, mount gone afterwards
+INFO: journal: entry A8D4029792CA7301 removed by path 1 (clean-session), tombstone A8D4029792CA7301-20261125T060440Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+result: 0 check(s) failed

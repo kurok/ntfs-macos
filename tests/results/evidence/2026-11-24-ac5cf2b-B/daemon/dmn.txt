@@ -1,0 +1,1476 @@
+######## suite classes
+guest: 27.2 arm64, user admin uid 501, console owner admin
+== start the job (real probe, volmark and worker)
+PASS: the privileged XPC service is registered with launchd
+== I-DMN-01: clean classes mount read/write
+-- I-DMN-01 clean-64m-4k (disk6): disk6  clean64m4k  Mounted  rw     /Volumes/clean64m4k  -
+PASS: I-DMN-01 clean-64m-4k: mounted within 10 s of the attach (criterion 4.1; 6 s)
+PASS: I-DMN-01 clean-64m-4k state (Mounted)
+PASS: I-DMN-01 clean-64m-4k mode (rw)
+PASS: I-DMN-01 clean-64m-4k: the kernel mount is a macfuse mount that is not read-only
+PASS: I-DMN-01 clean-64m-4k: a file can be written and read back
+PASS: I-DMN-01 clean-64m-4k: the session holds a journal entry
+NOTE: I-DMN-01 clean-64m-4k: image hash changed by the rw session: yes
+PASS: I-DMN-01 clean-64m-4k: the journal entry is gone after the clean unmount
+-- I-DMN-01 log-init (disk6): disk6  log-init  Mounted  rw     /Volumes/log-init  -
+PASS: I-DMN-01 log-init: mounted within 10 s of the attach (criterion 4.1; 5 s)
+PASS: I-DMN-01 log-init state (Mounted)
+PASS: I-DMN-01 log-init mode (rw)
+PASS: I-DMN-01 log-init: the kernel mount is a macfuse mount that is not read-only
+PASS: I-DMN-01 log-init: a file can be written and read back
+PASS: I-DMN-01 log-init: the session holds a journal entry
+NOTE: I-DMN-01 log-init: image hash changed by the rw session: yes
+PASS: I-DMN-01 log-init: the journal entry is gone after the clean unmount
+-- I-DMN-01 log-bumped (disk6): disk6  log-bumped  Mounted  rw     /Volumes/log-bumped  -
+PASS: I-DMN-01 log-bumped: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-01 log-bumped state (Mounted)
+PASS: I-DMN-01 log-bumped mode (rw)
+PASS: I-DMN-01 log-bumped: the kernel mount is a macfuse mount that is not read-only
+PASS: I-DMN-01 log-bumped: a file can be written and read back
+PASS: I-DMN-01 log-bumped: the session holds a journal entry
+NOTE: I-DMN-01 log-bumped: image hash changed by the rw session: yes
+PASS: I-DMN-01 log-bumped: the journal entry is gone after the clean unmount
+-- I-DMN-01 chkdsk-flag (disk6): disk6  chkdsk-flag  Mounted  rw     /Volumes/chkdsk-flag  -
+PASS: I-DMN-01 chkdsk-flag: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-01 chkdsk-flag state (Mounted)
+PASS: I-DMN-01 chkdsk-flag mode (rw)
+PASS: I-DMN-01 chkdsk-flag: the kernel mount is a macfuse mount that is not read-only
+PASS: I-DMN-01 chkdsk-flag: a file can be written and read back
+PASS: I-DMN-01 chkdsk-flag: the session holds a journal entry
+NOTE: I-DMN-01 chkdsk-flag: image hash changed by the rw session: yes
+PASS: I-DMN-01 chkdsk-flag: the journal entry is gone after the clean unmount
+-- I-DMN-01 hiber-inactive (disk6): disk6  hiber-inactive  Mounted  rw     /Volumes/hiber-inactive  -
+PASS: I-DMN-01 hiber-inactive: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-01 hiber-inactive state (Mounted)
+PASS: I-DMN-01 hiber-inactive mode (rw)
+PASS: I-DMN-01 hiber-inactive: the kernel mount is a macfuse mount that is not read-only
+PASS: I-DMN-01 hiber-inactive: a file can be written and read back
+PASS: I-DMN-01 hiber-inactive: the session holds a journal entry
+NOTE: I-DMN-01 hiber-inactive: image hash changed by the rw session: yes
+PASS: I-DMN-01 hiber-inactive: the journal entry is gone after the clean unmount
+-- I-DMN-01 hiber-subdir (disk6): disk6  hiber-subdir  Mounted  rw     /Volumes/hiber-subdir  -
+PASS: I-DMN-01 hiber-subdir: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-01 hiber-subdir state (Mounted)
+PASS: I-DMN-01 hiber-subdir mode (rw)
+PASS: I-DMN-01 hiber-subdir: the kernel mount is a macfuse mount that is not read-only
+PASS: I-DMN-01 hiber-subdir: a file can be written and read back
+PASS: I-DMN-01 hiber-subdir: the session holds a journal entry
+NOTE: I-DMN-01 hiber-subdir: image hash changed by the rw session: yes
+PASS: I-DMN-01 hiber-subdir: the journal entry is gone after the clean unmount
+-- I-DMN-01 txf-nonresident (disk6): disk6  txf-nonresident  Mounted  rw     /Volumes/txf-nonresident  -
+PASS: I-DMN-01 txf-nonresident: mounted within 10 s of the attach (criterion 4.1; 4 s)
+PASS: I-DMN-01 txf-nonresident state (Mounted)
+PASS: I-DMN-01 txf-nonresident mode (rw)
+PASS: I-DMN-01 txf-nonresident: the kernel mount is a macfuse mount that is not read-only
+PASS: I-DMN-01 txf-nonresident: a file can be written and read back
+PASS: I-DMN-01 txf-nonresident: the session holds a journal entry
+NOTE: I-DMN-01 txf-nonresident: image hash changed by the rw session: yes
+PASS: I-DMN-01 txf-nonresident: the journal entry is gone after the clean unmount
+== I-DMN-02: dirty flag
+-- I-DMN-02 dirty-flag (disk6): disk6  dirty-flag  Mounted  ro     /Volumes/dirty-flag  dirty_flag
+PASS: I-DMN-02 dirty-flag: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-02 dirty-flag state (Mounted)
+PASS: I-DMN-02 dirty-flag mode (ro)
+PASS: I-DMN-02 dirty-flag reason (dirty_flag)
+PASS: I-DMN-02 dirty-flag: the kernel mount is read-only
+PASS: I-DMN-02 dirty-flag: the root can be listed
+PASS: I-DMN-02 dirty-flag: a write is refused
+PASS: I-DMN-02 dirty-flag: no journal entry (no write session)
+PASS: I-DMN-02 dirty-flag: image hash unchanged after the session (41199054cc69a470e670826861a8997d4ebc707e24dd34c41ae8cc073e601a6d)
+-- I-DMN-02 dirty-chkdsk-flag (disk6): disk6  dirty-chkdsk-flag  Mounted  ro     /Volumes/dirty-chkdsk-flag  dirty_flag
+PASS: I-DMN-02 dirty-chkdsk-flag: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-02 dirty-chkdsk-flag state (Mounted)
+PASS: I-DMN-02 dirty-chkdsk-flag mode (ro)
+PASS: I-DMN-02 dirty-chkdsk-flag reason (dirty_flag)
+PASS: I-DMN-02 dirty-chkdsk-flag: the kernel mount is read-only
+PASS: I-DMN-02 dirty-chkdsk-flag: the root can be listed
+PASS: I-DMN-02 dirty-chkdsk-flag: a write is refused
+PASS: I-DMN-02 dirty-chkdsk-flag: no journal entry (no write session)
+PASS: I-DMN-02 dirty-chkdsk-flag: image hash unchanged after the session (02d1f0672d2789013e018fe180e4222223b98803e3158d752fab4fa06d919521)
+== I-DMN-03: unclean log
+-- I-DMN-03 unclean-log (disk6): disk6  unclean-log  Mounted  ro     /Volumes/unclean-log  unclean_log
+PASS: I-DMN-03 unclean-log: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-03 unclean-log state (Mounted)
+PASS: I-DMN-03 unclean-log mode (ro)
+PASS: I-DMN-03 unclean-log reason (unclean_log)
+PASS: I-DMN-03 unclean-log: the kernel mount is read-only
+PASS: I-DMN-03 unclean-log: the root can be listed
+PASS: I-DMN-03 unclean-log: a write is refused
+PASS: I-DMN-03 unclean-log: no journal entry (no write session)
+PASS: I-DMN-03 unclean-log: image hash unchanged after the session (a511083942f6820d33df40c6db3911491bdcca14a327f76927047cc2f7f65a6a)
+== I-DMN-04: log version 2 (fast startup)
+-- I-DMN-04 log-v2 (disk6): disk6  log-v2  Mounted  ro     /Volumes/log-v2  hibernated
+PASS: I-DMN-04 log-v2: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-04 log-v2 state (Mounted)
+PASS: I-DMN-04 log-v2 mode (ro)
+PASS: I-DMN-04 log-v2 reason (hibernated)
+PASS: I-DMN-04 log-v2: the kernel mount is read-only
+PASS: I-DMN-04 log-v2: the root can be listed
+PASS: I-DMN-04 log-v2: a write is refused
+PASS: I-DMN-04 log-v2: no journal entry (no write session)
+PASS: I-DMN-04 log-v2: image hash unchanged after the session (114d1dc1de236555821bc76b6b20283b1883c61882627cfa5bb9df2938157111)
+== I-DMN-05: hibernation file, signature hibr, HIBR, other case
+-- I-DMN-05 hiber-lower (disk6): disk6  hiber-lower  Mounted  ro     /Volumes/hiber-lower  hibernated
+PASS: I-DMN-05 hiber-lower: mounted within 10 s of the attach (criterion 4.1; 4 s)
+PASS: I-DMN-05 hiber-lower state (Mounted)
+PASS: I-DMN-05 hiber-lower mode (ro)
+PASS: I-DMN-05 hiber-lower reason (hibernated)
+PASS: I-DMN-05 hiber-lower: the kernel mount is read-only
+hiberfil.sys
+PASS: I-DMN-05 hiber-lower: the root can be listed
+PASS: I-DMN-05 hiber-lower: a write is refused
+PASS: I-DMN-05 hiber-lower: no journal entry (no write session)
+PASS: I-DMN-05 hiber-lower: image hash unchanged after the session (edfb09208244965186e0c99f6da6160bb962c276680dd5e276fda9f7ae7f5b75)
+-- I-DMN-05 hiber-upper (disk6): disk6  hiber-upper  Mounted  ro     /Volumes/hiber-upper  hibernated
+PASS: I-DMN-05 hiber-upper: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-05 hiber-upper state (Mounted)
+PASS: I-DMN-05 hiber-upper mode (ro)
+PASS: I-DMN-05 hiber-upper reason (hibernated)
+PASS: I-DMN-05 hiber-upper: the kernel mount is read-only
+hiberfil.sys
+PASS: I-DMN-05 hiber-upper: the root can be listed
+PASS: I-DMN-05 hiber-upper: a write is refused
+PASS: I-DMN-05 hiber-upper: no journal entry (no write session)
+PASS: I-DMN-05 hiber-upper: image hash unchanged after the session (90ea7f86696a27189b3562daf87551a9239d2d88dcd4af23d4aa42e5de12a6f4)
+-- I-DMN-05 hiber-case (disk6): disk6  hiber-case  Mounted  ro     /Volumes/hiber-case  hibernated
+PASS: I-DMN-05 hiber-case: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-05 hiber-case state (Mounted)
+PASS: I-DMN-05 hiber-case mode (ro)
+PASS: I-DMN-05 hiber-case reason (hibernated)
+PASS: I-DMN-05 hiber-case: the kernel mount is read-only
+HiberFil.sys
+PASS: I-DMN-05 hiber-case: the root can be listed
+PASS: I-DMN-05 hiber-case: a write is refused
+PASS: I-DMN-05 hiber-case: no journal entry (no write session)
+PASS: I-DMN-05 hiber-case: image hash unchanged after the session (f6152fc9b768025cb37afd83bfeb55aff5f240c59593910297ab411879d1c91c)
+== I-DMN-06: hibernation file, short, wake, unknown signature
+-- I-DMN-06 hiber-short (disk6): disk6  hiber-short  Mounted  ro     /Volumes/hiber-short  hibernated
+PASS: I-DMN-06 hiber-short: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-06 hiber-short state (Mounted)
+PASS: I-DMN-06 hiber-short mode (ro)
+PASS: I-DMN-06 hiber-short reason (hibernated)
+PASS: I-DMN-06 hiber-short: the kernel mount is read-only
+hiberfil.sys
+PASS: I-DMN-06 hiber-short: the root can be listed
+PASS: I-DMN-06 hiber-short: a write is refused
+PASS: I-DMN-06 hiber-short: no journal entry (no write session)
+PASS: I-DMN-06 hiber-short: image hash unchanged after the session (19920610f821138ce93ae48c714148ed5158e457c89cc295d3f9ed6d31c9dc03)
+-- I-DMN-06 hiber-wake (disk6): disk6  hiber-wake  Mounted  ro     /Volumes/hiber-wake  hibernated
+PASS: I-DMN-06 hiber-wake: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-06 hiber-wake state (Mounted)
+PASS: I-DMN-06 hiber-wake mode (ro)
+PASS: I-DMN-06 hiber-wake reason (hibernated)
+PASS: I-DMN-06 hiber-wake: the kernel mount is read-only
+hiberfil.sys
+PASS: I-DMN-06 hiber-wake: the root can be listed
+PASS: I-DMN-06 hiber-wake: a write is refused
+PASS: I-DMN-06 hiber-wake: no journal entry (no write session)
+PASS: I-DMN-06 hiber-wake: image hash unchanged after the session (c3573b026af7819d3d4956ce9cc80f6be2dd2d636f9dafa3a71c2d890264f31f)
+-- I-DMN-06 hiber-unknown (disk6): disk6  hiber-unknown  Mounted  ro     /Volumes/hiber-unknown  hibernated
+PASS: I-DMN-06 hiber-unknown: mounted within 10 s of the attach (criterion 4.1; 3 s)
+PASS: I-DMN-06 hiber-unknown state (Mounted)
+PASS: I-DMN-06 hiber-unknown mode (ro)
+PASS: I-DMN-06 hiber-unknown reason (hibernated)
+PASS: I-DMN-06 hiber-unknown: the kernel mount is read-only
+hiberfil.sys
+PASS: I-DMN-06 hiber-unknown: the root can be listed
+PASS: I-DMN-06 hiber-unknown: a write is refused
+PASS: I-DMN-06 hiber-unknown: no journal entry (no write session)
+PASS: I-DMN-06 hiber-unknown: image hash unchanged after the session (7959364e074f083e72b8517954c5bacee73041a16b12c1c2a30ac22d2565b479)
+== I-DMN-07: corrupt and unsupported
+-- I-DMN-07 truncated (disk6): disk6  NTFS-32F5B2D8  Failed  none   -           refused
+NOTE: I-DMN-07 truncated: the refusal was reached 1 s after the attach
+PASS: I-DMN-07 truncated: no mount (state 'Failed', reason 'refused')
+PASS: I-DMN-07 truncated: the refusal ends in state Failed (Failed)
+NOTE: I-DMN-07 truncated: Apple's own ntfs.fs mount of the refused volume (U15): /dev/disk6 on /Volumes/truncated (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+PASS: I-DMN-07 truncated reason (refused)
+PASS: I-DMN-07 truncated: image hash unchanged after the session (938f3a5eb20d7bf5554773209dda0cd2162f78eaf9fa828015ffb3589c942c83)
+-- I-DMN-07 truncated-60 (disk6): disk6  truncated-60  Failed  none   -           refused
+NOTE: I-DMN-07 truncated-60: the refusal was reached 1 s after the attach
+PASS: I-DMN-07 truncated-60: no mount (state 'Failed', reason 'refused')
+PASS: I-DMN-07 truncated-60: the refusal ends in state Failed (Failed)
+NOTE: I-DMN-07 truncated-60: Apple's own ntfs.fs mount of the refused volume (U15): /dev/disk6 on /Volumes/truncated-60 (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+PASS: I-DMN-07 truncated-60 reason (refused)
+PASS: I-DMN-07 truncated-60: image hash unchanged after the session (8e4857473548e2fee8b79b0de90b44e3750f8e906d8356d2904ab912872ffd42)
+-- I-DMN-07 bitlocker-sig (disk6): disk6  -      Failed  none   -           refused
+NOTE: I-DMN-07 bitlocker-sig: the refusal was reached 2 s after the attach
+PASS: I-DMN-07 bitlocker-sig: no mount (state 'Failed', reason 'refused')
+PASS: I-DMN-07 bitlocker-sig: the refusal ends in state Failed (Failed)
+NOTE: I-DMN-07 bitlocker-sig: Apple's own ntfs.fs mount of the refused volume (U15): none
+PASS: I-DMN-07 bitlocker-sig reason (refused)
+PASS: I-DMN-07 bitlocker-sig: image hash unchanged after the session (65ddcf71165cc660d3ad11760fb62d6f059344801d0a879ec486105cd154c26e)
+== I-DMN-08: stale mirror
+-- I-DMN-08 mirror-split (disk6): disk6  mirror-split  Failed  none   -           mirror_split
+NOTE: I-DMN-08 mirror-split: the refusal was reached 1 s after the attach
+PASS: I-DMN-08 mirror-split: no mount (state 'Failed', reason 'mirror_split')
+PASS: I-DMN-08 mirror-split: the refusal ends in state Failed (Failed)
+NOTE: I-DMN-08 mirror-split: Apple's own ntfs.fs mount of the refused volume (U15): /dev/disk6 on /Volumes/mirror-split (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+PASS: I-DMN-08 mirror-split reason (mirror_split)
+PASS: I-DMN-08 mirror-split: image hash unchanged after the session (21ad3aa653c54d411255d6214071ecf7418c0a76a9e46ea58ca48f39df82c051)
+-- I-DMN-08 vmk-split (disk6): disk6  clean64m4k  Failed  none   -           mirror_split
+NOTE: I-DMN-08 vmk-split: the refusal was reached 1 s after the attach
+PASS: I-DMN-08 vmk-split: no mount (state 'Failed', reason 'mirror_split')
+PASS: I-DMN-08 vmk-split: the refusal ends in state Failed (Failed)
+NOTE: I-DMN-08 vmk-split: Apple's own ntfs.fs mount of the refused volume (U15): /dev/disk6 on /Volumes/clean64m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+PASS: I-DMN-08 vmk-split reason (mirror_split)
+PASS: I-DMN-08 vmk-split: image hash unchanged after the session (58fc6a99dc1d509fa21f76fcb93a9067778953c9cbeb5df1a397614742618ce9)
+-- I-DMN-08 vmk-split-clear (disk6): disk6  clean64m4k  Failed  none   -           mirror_split
+NOTE: I-DMN-08 vmk-split-clear: the refusal was reached 1 s after the attach
+PASS: I-DMN-08 vmk-split-clear: no mount (state 'Failed', reason 'mirror_split')
+PASS: I-DMN-08 vmk-split-clear: the refusal ends in state Failed (Failed)
+NOTE: I-DMN-08 vmk-split-clear: Apple's own ntfs.fs mount of the refused volume (U15): /dev/disk6 on /Volumes/clean64m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+PASS: I-DMN-08 vmk-split-clear reason (mirror_split)
+PASS: I-DMN-08 vmk-split-clear: image hash unchanged after the session (863c0120543305c8e401839336f052147b386777508969feed16db4e7af3abd0)
+-- daemon log (first 120 lines)
+INFO: check 4 of ADR-019: root_peer
+ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: root_peer
+INFO: ntfsmacd: started
+INFO: disk4: appeared (6291456 bytes)
+INFO: disk4: START -> Probing
+INFO: disk4: PROBE_DONE -> Deciding
+INFO: disk4: probe state unsupported, decision refuse
+INFO: disk4: REFUSED -> Failed
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 26 ms, mount gone afterwards
+INFO: journal: entry A8D4029792CA7301 removed by path 1 (clean-session), tombstone A8D4029792CA7301-20261124T231543Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: log-init is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 25 ms, mount gone afterwards
+INFO: journal: entry 71D9038B7CB74EB3 removed by path 1 (clean-session), tombstone 71D9038B7CB74EB3-20261124T231552Z
+INFO: notification: log-init ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: log-bumped is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 26 ms, mount gone afterwards
+INFO: journal: entry 250EC768D4D46A0E removed by path 1 (clean-session), tombstone 250EC768D4D46A0E-20261124T231559Z
+INFO: notification: log-bumped ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: chkdsk-flag is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 25 ms, mount gone afterwards
+INFO: journal: entry D6551B4F0C178F00 removed by path 1 (clean-session), tombstone D6551B4F0C178F00-20261124T231606Z
+INFO: notification: chkdsk-flag ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: hiber-inactive is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 24 ms, mount gone afterwards
+INFO: journal: entry 9FA62EAD363FC9BB removed by path 1 (clean-session), tombstone 9FA62EAD363FC9BB-20261124T231612Z
+INFO: notification: hiber-inactive ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: hiber-subdir is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 23 ms, mount gone afterwards
+INFO: journal: entry 400F3B2568738D82 removed by path 1 (clean-session), tombstone 400F3B2568738D82-20261124T231619Z
+INFO: notification: hiber-subdir ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: txf-nonresident is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 25 ms, mount gone afterwards
+INFO: journal: entry 2C0399204ED99A18 removed by path 1 (clean-session), tombstone 2C0399204ED99A18-20261124T231626Z
+INFO: notification: txf-nonresident ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state dirty_flag, decision ro
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: dirty-flag is mounted read-only: the volume is marked dirty; run chkdsk on Windows.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 13 ms, mount gone afterwards
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+PASS: no worker is left
+== I-DMN-23: a probe that reports clean for the unsafe images; the marker step is on
+-- I-DMN-23 dirty-flag (disk6): disk6  dirty-flag  Mounted  ro     /Volumes/dirty-flag  marker_failed
+PASS: I-DMN-23 dirty-flag: the probe stand-in said clean (status shows probe state clean)
+PASS: I-DMN-23 dirty-flag: state and mode (marker on: volmark refuses, so ro) (Mounted ro)
+PASS: I-DMN-23 dirty-flag: the reason is given ('marker_failed')
+PASS: I-DMN-23 dirty-flag: the kernel mount is read-only
+NOTE: I-DMN-23 dirty-flag: reported ro with reason 'marker_failed'
+PASS: I-DMN-23 dirty-flag: the image is no longer attached before it is hashed
+PASS: I-DMN-23 dirty-flag: image hash unchanged (no write reached the image) (41199054cc69a470e670826861a8997d4ebc707e24dd34c41ae8cc073e601a6d)
+-- I-DMN-23 unclean-log (disk6): disk6  unclean-log  Mounted  ro     /Volumes/unclean-log  marker_failed
+PASS: I-DMN-23 unclean-log: the probe stand-in said clean (status shows probe state clean)
+PASS: I-DMN-23 unclean-log: state and mode (marker on: volmark refuses, so ro) (Mounted ro)
+PASS: I-DMN-23 unclean-log: the reason is given ('marker_failed')
+PASS: I-DMN-23 unclean-log: the kernel mount is read-only
+NOTE: I-DMN-23 unclean-log: reported ro with reason 'marker_failed'
+PASS: I-DMN-23 unclean-log: the image is no longer attached before it is hashed
+PASS: I-DMN-23 unclean-log: image hash unchanged (no write reached the image) (a511083942f6820d33df40c6db3911491bdcca14a327f76927047cc2f7f65a6a)
+-- I-DMN-23 log-v2 (disk6): disk6  log-v2  Mounted  ro     /Volumes/log-v2  marker_failed
+PASS: I-DMN-23 log-v2: the probe stand-in said clean (status shows probe state clean)
+PASS: I-DMN-23 log-v2: state and mode (marker on: volmark refuses, so ro) (Mounted ro)
+PASS: I-DMN-23 log-v2: the reason is given ('marker_failed')
+PASS: I-DMN-23 log-v2: the kernel mount is read-only
+NOTE: I-DMN-23 log-v2: reported ro with reason 'marker_failed'
+PASS: I-DMN-23 log-v2: the image is no longer attached before it is hashed
+PASS: I-DMN-23 log-v2: image hash unchanged (no write reached the image) (114d1dc1de236555821bc76b6b20283b1883c61882627cfa5bb9df2938157111)
+-- I-DMN-23 hiber-lower (disk6): disk6  hiber-lower  Mounted  ro     /Volumes/hiber-lower  marker_failed
+PASS: I-DMN-23 hiber-lower: the probe stand-in said clean (status shows probe state clean)
+PASS: I-DMN-23 hiber-lower: state and mode (marker on: volmark refuses, so ro) (Mounted ro)
+PASS: I-DMN-23 hiber-lower: the reason is given ('marker_failed')
+PASS: I-DMN-23 hiber-lower: the kernel mount is read-only
+NOTE: I-DMN-23 hiber-lower: reported ro with reason 'marker_failed'
+PASS: I-DMN-23 hiber-lower: the image is no longer attached before it is hashed
+PASS: I-DMN-23 hiber-lower: image hash unchanged (no write reached the image) (edfb09208244965186e0c99f6da6160bb962c276680dd5e276fda9f7ae7f5b75)
+-- daemon log
+INFO: check 4 of ADR-019: root_peer
+ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: root_peer
+INFO: ntfsmacd: started
+INFO: disk4: appeared (6291456 bytes)
+INFO: disk4: START -> Probing
+INFO: disk4: PROBE_DONE -> Deciding
+INFO: disk4: probe state clean, decision ro
+INFO: disk4: DECIDED -> Mounting
+WARN: disk4: the worker exited with status 12 before the mount appeared
+ERROR: disk4: the worker did not mount (I/O error)
+INFO: disk4: MOUNT_FAILED -> Failed
+INFO: notification: the volume was not mounted: the file system program did not start.
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: dirty-flag is mounted read-only: could not mark the volume; mounted read-only.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 12 ms, mount gone afterwards
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: unclean-log is mounted read-only: could not mark the volume; mounted read-only.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 13 ms, mount gone afterwards
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: log-v2 is mounted read-only: could not mark the volume; mounted read-only.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 12 ms, mount gone afterwards
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: hiber-lower is mounted read-only: could not mark the volume; mounted read-only.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 13 ms, mount gone afterwards
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+== I-DMN-23 with the marker step disabled (--no-marker): the outcomes are recorded
+-- I-DMN-23 (no marker) dirty-flag (disk6): disk6  dirty-flag  Mounted  rw     /Volumes/dirty-flag  -
+NOTE: I-DMN-23 (no marker) dirty-flag: state Mounted mode rw reason '' (expected: written, rw: the engine does not check the flag)
+PASS: I-DMN-23 (no marker) dirty-flag: the image is no longer attached before it is hashed
+NOTE: I-DMN-23 (no marker) dirty-flag: image hash changed: yes
+-- I-DMN-23 (no marker) unclean-log (disk6): disk6  unclean-log  Mounted  ro     /Volumes/unclean-log  engine_ro
+PASS: I-DMN-23 (no marker) unclean-log: the engine's read-only fallback is reported as ro with a reason (Mounted ro)
+NOTE: I-DMN-23 (no marker) unclean-log: reason 'engine_ro'
+PASS: I-DMN-23 (no marker) unclean-log: the image is no longer attached before it is hashed
+PASS: I-DMN-23 (no marker) unclean-log: image hash unchanged (a511083942f6820d33df40c6db3911491bdcca14a327f76927047cc2f7f65a6a)
+-- I-DMN-23 (no marker) log-v2 (disk6): disk6  log-v2  Mounted  ro     /Volumes/log-v2  engine_ro
+PASS: I-DMN-23 (no marker) log-v2: the engine's read-only fallback is reported as ro with a reason (Mounted ro)
+NOTE: I-DMN-23 (no marker) log-v2: reason 'engine_ro'
+PASS: I-DMN-23 (no marker) log-v2: the image is no longer attached before it is hashed
+PASS: I-DMN-23 (no marker) log-v2: image hash unchanged (114d1dc1de236555821bc76b6b20283b1883c61882627cfa5bb9df2938157111)
+-- I-DMN-23 (no marker) hiber-lower (disk6): disk6  hiber-lower  Mounted  ro     /Volumes/hiber-lower  engine_ro
+PASS: I-DMN-23 (no marker) hiber-lower: the engine's read-only fallback is reported as ro with a reason (Mounted ro)
+NOTE: I-DMN-23 (no marker) hiber-lower: reason 'engine_ro'
+PASS: I-DMN-23 (no marker) hiber-lower: the image is no longer attached before it is hashed
+PASS: I-DMN-23 (no marker) hiber-lower: image hash unchanged (edfb09208244965186e0c99f6da6160bb962c276680dd5e276fda9f7ae7f5b75)
+-- daemon log
+INFO: restart: a journal entry without a live mount stays (the next mount is read-only)
+INFO: check 4 of ADR-019: root_peer
+ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: root_peer
+INFO: ntfsmacd: started
+INFO: disk4: appeared (6291456 bytes)
+INFO: disk4: START -> Probing
+INFO: disk4: PROBE_DONE -> Deciding
+INFO: disk4: probe state clean, decision ro
+INFO: disk4: DECIDED -> Mounting
+WARN: disk4: the worker exited with status 12 before the mount appeared
+ERROR: disk4: the worker did not mount (I/O error)
+INFO: disk4: MOUNT_FAILED -> Failed
+INFO: notification: the volume was not mounted: the file system program did not start.
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: dirty-flag is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 24 ms, mount gone afterwards
+INFO: journal: entry 9FAD93E09641B364 removed by path 1 (clean-session), tombstone 9FAD93E09641B364-20261124T231901Z
+INFO: notification: dirty-flag ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: unclean-log is mounted read-only: the engine mounted read-only.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 26 ms, mount gone afterwards
+INFO: notification: unclean-log did not end its session cleanly. The volume will be read-only next time; run chkdsk on Windows, then attach it again.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: log-v2 is mounted read-only: the engine mounted read-only.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 24 ms, mount gone afterwards
+INFO: notification: log-v2 did not end its session cleanly. The volume will be read-only next time; run chkdsk on Windows, then attach it again.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: hiber-lower is mounted read-only: the engine mounted read-only.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 25 ms, mount gone afterwards
+INFO: notification: hiber-lower did not end its session cleanly. The volume will be read-only next time; run chkdsk on Windows, then attach it again.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+result: 0 check(s) failed
+######## suite classes: exit 0
+######## suite kill
+guest: 27.2 arm64, user admin uid 501, console owner admin
+== start the job
+== I-DMN-14 a: SIGKILL of the worker during a rw session
+PASS: I-DMN-14 a: the volume mounts rw (Mounted rw)
+PASS: the journal holds the entry of the rw session
+NOTE: worker pid 12654, killed with SIGKILL
+PASS: the volume leaves Mounted within 60 s
+-- after the kill: disk6  clean64m4k  Appeared  none   -           -
+PASS: no worker is left
+PASS: the mount of the dead worker is gone from the mount table
+PASS: the mount point directory is gone
+PASS: I-DMN-14 a: no process holds /dev/disk6 within 60 s
+PASS: the journal entry stays (the session is not reported clean)
+PASS: the daemon told the user that the session did not end cleanly
+INFO: notification: clean64m4k is mounted read/write.
+INFO: notification: clean64m4k did not end its session cleanly. The volume will be read-only next time; run chkdsk on Windows, then attach it again.
+-- I-DMN-14 a next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: I-DMN-14 a next attach: state (Mounted)
+PASS: I-DMN-14 a next attach: mode (ro)
+NOTE: I-DMN-14 a next attach: reason 'dirty_flag_journal'
+PASS: I-DMN-14 a next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: I-DMN-14 a next attach: the file synced before the failure is intact
+PASS: I-DMN-14 a next attach: the journal entry is still there
+PASS: I-DMN-14 a next attach: the read-only session left the image unchanged (9faa478d6ba85ff46cd03a1aea8048059fb663753b915c99ed92214df561ed7d)
+== I-DMN-14 b and I-DMN-15: SIGKILL of the daemon with a rw volume mounted, then the launchd restart
+PASS: I-DMN-14 b: the volume mounts rw (Mounted rw)
+NOTE: daemon pid 12628, killed with SIGKILL; worker pids: 12941 
+PASS: launchd starts the daemon again (new pid)
+PASS: the control socket answers again
+-- after the restart: list
+BSD    LABEL       STATE    MOUNT  MOUNTPOINT           REASON
+disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+-- mount table
+/dev/disk7s1 on /Volumes/clean64m4k (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+-- workers: 13033 
+PASS: after the restart no worker of the dead daemon is alive (pids: 12941 )
+PASS: the restarted daemon holds no read/write mount: its volume is ro
+PASS: the journal entry is still there
+PASS: no read/write macfuse mount of the image is left after the restart (0)
+-- daemon log after the restart
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+WARN: restart: forced unmount of a mount of the earlier daemon: ok
+INFO: check 4 of ADR-019: root_peer
+ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: root_peer
+INFO: ntfsmacd: started
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk4: appeared (6291456 bytes)
+INFO: disk4: START -> Probing
+INFO: disk4: PROBE_DONE -> Deciding
+INFO: disk4: probe state unsupported, decision refuse
+INFO: disk4: REFUSED -> Failed
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state dirty_flag, decision ro
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read-only: this Mac left the volume open and writes from that session may be incomplete; run chkdsk on Windows.
+PASS: after the stop no macfuse mount is left
+-- I-DMN-14 b next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: I-DMN-14 b next attach: state (Mounted)
+PASS: I-DMN-14 b next attach: mode (ro)
+NOTE: I-DMN-14 b next attach: reason 'dirty_flag_journal'
+PASS: I-DMN-14 b next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: I-DMN-14 b next attach: the file synced before the failure is intact
+PASS: I-DMN-14 b next attach: the journal entry is still there
+PASS: I-DMN-14 b next attach: the read-only session left the image unchanged (0a6ef4811ba0089aa4de3d4adb038b055ff6b5252c0fb925d64917a0d83e9bf3)
+== I-DMN-16: force-detach of the image during a write
+PASS: I-DMN-16: the volume mounts rw (Mounted rw)
+NOTE: writer pid 13444 is running; force-detach of /dev/disk6 now
+PASS: hdiutil detach -force is refused while the worker holds the device (rc 16, EBUSY) (16)
+PASS: the writer is still running at the moment of the yank
+PASS: the yank (kill of the process that serves the image) worked
+PASS: the volume row goes away within 120 s
+-- after the force-detach: row ''
+PASS: no worker is left
+PASS: no macfuse mount is left
+PASS: the mount point directory is gone
+PASS: the journal entry stays
+INFO: notification: clean64m4k is mounted read-only: this Mac left the volume open and writes from that session may be incomplete; run chkdsk on Windows.
+INFO: notification: clean64m4k is mounted read/write.
+INFO: notification: clean64m4k did not end its session cleanly. The volume will be read-only next time; run chkdsk on Windows, then attach it again.
+-- ntfsfix -n of the image after the force-detach (read-only check)
+Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition <tmp>/dmnvm.TRfuhv/clean-64m-4k.img was processed successfully.
+PASS: ntfsfix -n exit status on the yanked image (0)
+PASS: the dirty flag is still set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- I-DMN-16 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: I-DMN-16 next attach: state (Mounted)
+PASS: I-DMN-16 next attach: mode (ro)
+NOTE: I-DMN-16 next attach: reason 'dirty_flag_journal'
+PASS: I-DMN-16 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: I-DMN-16 next attach: the file synced before the failure is intact
+PASS: I-DMN-16 next attach: the journal entry is still there
+PASS: I-DMN-16 next attach: the read-only session left the image unchanged (fefa9d17c49471c1e798b2135c3b882dcd243836ecd3c170c183967cbbbd95d1)
+-- daemon log
+INFO: restart: a journal entry without a live mount stays (the next mount is read-only)
+INFO: check 4 of ADR-019: root_peer
+ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: root_peer
+INFO: ntfsmacd: started
+INFO: disk4: appeared (6291456 bytes)
+INFO: disk4: START -> Probing
+INFO: disk4: PROBE_DONE -> Deciding
+INFO: disk4: probe state unsupported, decision refuse
+INFO: disk4: REFUSED -> Failed
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state dirty_flag, decision ro
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read-only: this Mac left the volume open and writes from that session may be incomplete; run chkdsk on Windows.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 13 ms, mount gone afterwards
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: DISK_GONE -> Unmounting
+WARN: disk6: forced unmount of the volume: ok
+INFO: notification: clean64m4k did not end its session cleanly. The volume will be read-only next time; run chkdsk on Windows, then attach it again.
+INFO: disk6: UNMOUNTED -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state dirty_flag, decision ro
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read-only: this Mac left the volume open and writes from that session may be incomplete; run chkdsk on Windows.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 15 ms, mount gone afterwards
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+-- children log
+Version 2026.9.28 external FUSE 29
+Mounted /dev/fd/10 (Read-Only, label "clean64m4k", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022,ro
+Mount options: backend=fskit,local,ro,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/10,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+Unmounting /dev/fd/10 (clean64m4k)
+Version 2026.9.28 external FUSE 29
+Mounted /dev/fd/11 (Read-Write, label "clean64m4k", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+Mount options: backend=fskit,local,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/11,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+Version 2026.9.28 external FUSE 29
+Mounted /dev/fd/10 (Read-Only, label "clean64m4k", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022,ro
+Mount options: backend=fskit,local,ro,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/10,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+Unmounting /dev/fd/10 (clean64m4k)
+result: 0 check(s) failed
+######## suite kill: exit 0
+######## suite unmount
+guest: 27.2 arm64, user admin uid 501, console owner admin
+== start the job
+PASS: I-DMN-10: the volume mounts rw (Mounted rw)
+PASS: I-DMN-10: the journal holds the entry while the volume is rw
+-- I-DMN-10: trigger: "$CLI" unmount "$bsd" 2>&1
+result: unmounting
+NOTE: I-DMN-10: trigger returned 0
+PASS: I-DMN-10: the volume returns to Appeared
+PASS: I-DMN-10: the mount point directory is gone
+PASS: I-DMN-10: no macfuse mount is left
+PASS: I-DMN-10: the journal entry is gone (positive clean-session proof)
+PASS: I-DMN-10: the daemon said 'ejected, all data written'
+PASS: I-DMN-10: no worker is left
+PASS: I-DMN-10: the dirty flag on the image is clear (0x0000)
+PASS: I-DMN-10: the next attach is rw (the session ended clean) (Mounted rw)
+PASS: I-DMN-10: the data is intact after the next mount (d92fe9fe3deed85312b4fa972bf74c69cd997f5cadf1862af70cde2ef71a00a3)
+PASS: I-DMN-11: the volume mounts rw (Mounted rw)
+PASS: I-DMN-11: the journal holds the entry while the volume is rw
+-- I-DMN-11: trigger: diskutil unmount "/Volumes/$leaf" 2>&1
+Volume macFUSE Volume on disk7s1 failed to unmount
+NOTE: I-DMN-11: trigger returned 1
+KNOWN-FAIL: I-DMN-11: diskutil unmount of the worker's mount answers 'Volume macFUSE Volume on diskNs1 failed to unmount' (the unified log shows macFUSE's FSKit module answering access checks with error 45 at that moment); the same without the daemon loaded, on a plain ntfs-3g mount (evidence diskutil_unmount-without-daemon.txt), so it is the FSKit mount on this macOS and not the daemon; umount and ntfsmac unmount work
+PASS: I-DMN-12: the volume mounts rw (Mounted rw)
+PASS: I-DMN-12: the journal holds the entry while the volume is rw
+-- I-DMN-12: trigger: umount "/Volumes/$leaf" 2>&1
+
+NOTE: I-DMN-12: trigger returned 0
+PASS: I-DMN-12: the volume returns to Appeared
+PASS: I-DMN-12: the mount point directory is gone
+PASS: I-DMN-12: no macfuse mount is left
+PASS: I-DMN-12: the journal entry is gone (positive clean-session proof)
+PASS: I-DMN-12: the daemon said 'ejected, all data written'
+PASS: I-DMN-12: no worker is left
+PASS: I-DMN-12: the dirty flag on the image is clear (0x0000)
+PASS: I-DMN-12: the next attach is rw (the session ended clean) (Mounted rw)
+PASS: I-DMN-12: the data is intact after the next mount (91f6103247967b2bd8a98d4df358fe75e1c90793cc95d3a8a122751c756a1419)
+== I-DMN-13: Finder eject
+osascript rc 142: 
+NOTE: I-DMN-13: NOT RUNNABLE unattended here: Finder did not accept the AppleScript (rc 142). See tests/integration/finder/finder_guest.sh
+PASS: I-DMN-13: the volume mounts rw (Mounted rw)
+PASS: I-DMN-13: the journal holds the entry while the volume is rw
+-- I-DMN-13: trigger: o=$(tmo 60 osascript -l JavaScript -e "ObjC.import(\"AppKit\"); \$.NSWorkspace.sharedWorkspace.unmountAndEjectDeviceAtPath(\"/Volumes/$leaf\")" 2>&1); echo "NSWorkspace: $o"; [ "$o" = true ]
+NSWorkspace: true
+NOTE: I-DMN-13: trigger returned 0
+PASS: I-DMN-13: the volume returns to Appeared
+PASS: I-DMN-13: the mount point directory is gone
+PASS: I-DMN-13: no macfuse mount is left
+PASS: I-DMN-13: the journal entry is gone (positive clean-session proof)
+PASS: I-DMN-13: the daemon said 'ejected, all data written'
+PASS: I-DMN-13: no worker is left
+PASS: I-DMN-13: the dirty flag on the image is clear (0x0000)
+PASS: I-DMN-13: the next attach is rw (the session ended clean) (Mounted rw)
+PASS: I-DMN-13: the data is intact after the next mount (eae55de1838d21e8b455633ed0cf4478fb1c41ec736991f2f92e82c72e89f07c)
+-- daemon log
+INFO: journal: entry A8D4029792CA7301 removed by path 1 (clean-session), tombstone A8D4029792CA7301-20261124T232145Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: journal: entry A8D4029792CA7301 removed by path 1 (clean-session), tombstone A8D4029792CA7301-20261124T232153Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 31 ms, mount gone afterwards
+INFO: journal: entry A8D4029792CA7301 removed by path 1 (clean-session), tombstone A8D4029792CA7301-20261124T232158Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+== I-DMN-17: passive mode with a dummy third-party NTFS bundle
+NOTE: doctor output:
+ok: macFUSE is installed.
+ok: macFUSE version 5.5.0 is supported.
+ok: The macFUSE file system extension is enabled.
+problem: Paragon NTFS (ufsd_NTFS.fs) is installed. ntfsmac is passive: it mounts nothing and does not stop the other driver from mounting.
+ok: No session journal entries: no volume was left open by this Mac.
+ok: No unreadable journal entries.
+ok: 8 cleared journal entries are kept as tombstones.
+ok: No notification banner has been sent since the daemon started, so banner delivery is unknown.
+PASS: doctor names the bundle
+PASS: the daemon says passive mode in its log
+-- list in passive mode
+BSD    LABEL  STATE     MOUNT  MOUNTPOINT  REASON
+disk6  -      Appeared  none   -           -
+disk4  -      Appeared  none   -           -
+PASS: the daemon did nothing with the disk: its state stays Appeared (no state machine was started)
+PASS: the system's own driver mounted the disk: the daemon issued no dissent
+PASS: the daemon did not mount it: no macfuse mount
+PASS: no worker was started
+PASS: I-DMN-17: image hash unchanged (cea1f113e8aaa72c9dac9e2034f0b69bb0c30fbf7b135587ca49061596e828f6)
+result: 0 check(s) failed
+######## suite unmount: exit 0
+######## suite labels
+guest: 27.2 arm64, user admin uid 501, console owner admin
+== start the job
+-- label-allrepl (disk6) expected leaf 'NTFS-A9E18A18': mount point '/Volumes/NTFS-A9E18A18'
+PASS: I-DMN-18 label-allrepl: state (Mounted rw)
+PASS: I-DMN-18 label-allrepl: mount point (/Volumes/NTFS-A9E18A18)
+PASS: I-DMN-18 label-allrepl: the directory exists and is the mount
+PASS: I-DMN-18 label-allrepl: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-allrepl: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-allrepl: display name 'macFUSE Volume' differs from the leaf 'NTFS-A9E18A18'
+PASS: I-DMN-18 label-allrepl: the mount point directory is gone
+-- label-astral (disk6) expected leaf '😀 x': mount point '/Volumes/😀 x'
+PASS: I-DMN-18 label-astral: state (Mounted rw)
+PASS: I-DMN-18 label-astral: mount point (/Volumes/😀 x)
+PASS: I-DMN-18 label-astral: the directory exists and is the mount
+PASS: I-DMN-18 label-astral: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-astral: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-astral: display name 'macFUSE Volume' differs from the leaf '😀 x'
+PASS: I-DMN-18 label-astral: the mount point directory is gone
+-- label-backslash (disk6) expected leaf 'a__b': mount point '/Volumes/a__b'
+PASS: I-DMN-18 label-backslash: state (Mounted rw)
+PASS: I-DMN-18 label-backslash: mount point (/Volumes/a__b)
+PASS: I-DMN-18 label-backslash: the directory exists and is the mount
+PASS: I-DMN-18 label-backslash: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-backslash: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-backslash: display name 'macFUSE Volume' differs from the leaf 'a__b'
+PASS: I-DMN-18 label-backslash: the mount point directory is gone
+-- label-bidi (disk6) expected leaf 'abc_txt.exe': mount point '/Volumes/abc_txt.exe'
+PASS: I-DMN-18 label-bidi: state (Mounted rw)
+PASS: I-DMN-18 label-bidi: mount point (/Volumes/abc_txt.exe)
+PASS: I-DMN-18 label-bidi: the directory exists and is the mount
+PASS: I-DMN-18 label-bidi: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-bidi: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-bidi: display name 'macFUSE Volume' differs from the leaf 'abc_txt.exe'
+PASS: I-DMN-18 label-bidi: the mount point directory is gone
+-- label-c1 (disk6) expected leaf 'a_b': mount point '/Volumes/a_b'
+PASS: I-DMN-18 label-c1: state (Mounted rw)
+PASS: I-DMN-18 label-c1: mount point (/Volumes/a_b)
+PASS: I-DMN-18 label-c1: the directory exists and is the mount
+PASS: I-DMN-18 label-c1: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-c1: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-c1: display name 'macFUSE Volume' differs from the leaf 'a_b'
+PASS: I-DMN-18 label-c1: the mount point directory is gone
+-- label-comma (disk6) expected leaf 'X_remove_hiberfile': mount point '/Volumes/X_remove_hiberfile'
+PASS: I-DMN-18 label-comma: state (Mounted rw)
+PASS: I-DMN-18 label-comma: mount point (/Volumes/X_remove_hiberfile)
+PASS: I-DMN-18 label-comma: the directory exists and is the mount
+PASS: I-DMN-18 label-comma: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-comma: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-comma: display name 'macFUSE Volume' differs from the leaf 'X_remove_hiberfile'
+PASS: I-DMN-18 label-comma: the mount point directory is gone
+-- label-dot (disk6) expected leaf '_hidden': mount point '/Volumes/_hidden'
+PASS: I-DMN-18 label-dot: state (Mounted rw)
+PASS: I-DMN-18 label-dot: mount point (/Volumes/_hidden)
+PASS: I-DMN-18 label-dot: the directory exists and is the mount
+PASS: I-DMN-18 label-dot: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-dot: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-dot: display name 'macFUSE Volume' differs from the leaf '_hidden'
+PASS: I-DMN-18 label-dot: the mount point directory is gone
+-- label-dotdot (disk6) expected leaf '_._.._etc_x': mount point '/Volumes/_._.._etc_x'
+PASS: I-DMN-18 label-dotdot: state (Mounted rw)
+PASS: I-DMN-18 label-dotdot: mount point (/Volumes/_._.._etc_x)
+PASS: I-DMN-18 label-dotdot: the directory exists and is the mount
+PASS: I-DMN-18 label-dotdot: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-dotdot: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-dotdot: display name 'macFUSE Volume' differs from the leaf '_._.._etc_x'
+PASS: I-DMN-18 label-dotdot: the mount point directory is gone
+-- label-dotsonly (disk6) expected leaf 'NTFS-A8E08917': mount point '/Volumes/NTFS-A8E08917'
+PASS: I-DMN-18 label-dotsonly: state (Mounted rw)
+PASS: I-DMN-18 label-dotsonly: mount point (/Volumes/NTFS-A8E08917)
+PASS: I-DMN-18 label-dotsonly: the directory exists and is the mount
+PASS: I-DMN-18 label-dotsonly: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-dotsonly: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-dotsonly: display name 'macFUSE Volume' differs from the leaf 'NTFS-A8E08917'
+PASS: I-DMN-18 label-dotsonly: the mount point directory is gone
+-- label-empty (disk6) expected leaf 'NTFS-9BD37C0A': mount point '/Volumes/NTFS-9BD37C0A'
+PASS: I-DMN-18 label-empty: state (Mounted rw)
+PASS: I-DMN-18 label-empty: mount point (/Volumes/NTFS-9BD37C0A)
+PASS: I-DMN-18 label-empty: the directory exists and is the mount
+PASS: I-DMN-18 label-empty: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-empty: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-empty: display name 'macFUSE Volume' differs from the leaf 'NTFS-9BD37C0A'
+PASS: I-DMN-18 label-empty: the mount point directory is gone
+-- label-equals (disk6) expected leaf 'X_1': mount point '/Volumes/X_1'
+PASS: I-DMN-18 label-equals: state (Mounted rw)
+PASS: I-DMN-18 label-equals: mount point (/Volumes/X_1)
+PASS: I-DMN-18 label-equals: the directory exists and is the mount
+PASS: I-DMN-18 label-equals: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-equals: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-equals: display name 'macFUSE Volume' differs from the leaf 'X_1'
+PASS: I-DMN-18 label-equals: the mount point directory is gone
+-- label-esc (disk6) expected leaf 'a__31mred': mount point '/Volumes/a__31mred'
+PASS: I-DMN-18 label-esc: state (Mounted rw)
+PASS: I-DMN-18 label-esc: mount point (/Volumes/a__31mred)
+PASS: I-DMN-18 label-esc: the directory exists and is the mount
+PASS: I-DMN-18 label-esc: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-esc: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-esc: display name 'macFUSE Volume' differs from the leaf 'a__31mred'
+PASS: I-DMN-18 label-esc: the mount point directory is gone
+-- label-fuseopt (disk6) expected leaf 'X_allow_other_uid_0': mount point '/Volumes/X_allow_other_uid_0'
+PASS: I-DMN-18 label-fuseopt: state (Mounted rw)
+PASS: I-DMN-18 label-fuseopt: mount point (/Volumes/X_allow_other_uid_0)
+PASS: I-DMN-18 label-fuseopt: the directory exists and is the mount
+PASS: I-DMN-18 label-fuseopt: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-fuseopt: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-fuseopt: display name 'macFUSE Volume' differs from the leaf 'X_allow_other_uid_0'
+PASS: I-DMN-18 label-fuseopt: the mount point directory is gone
+-- label-hangul-filler (disk6) expected leaf 'a_b': mount point '/Volumes/a_b'
+PASS: I-DMN-18 label-hangul-filler: state (Mounted rw)
+PASS: I-DMN-18 label-hangul-filler: mount point (/Volumes/a_b)
+PASS: I-DMN-18 label-hangul-filler: the directory exists and is the mount
+PASS: I-DMN-18 label-hangul-filler: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-hangul-filler: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-hangul-filler: display name 'macFUSE Volume' differs from the leaf 'a_b'
+PASS: I-DMN-18 label-hangul-filler: the mount point directory is gone
+-- label-hyphen (disk6) expected leaf '_e x': mount point '/Volumes/_e x'
+PASS: I-DMN-18 label-hyphen: state (Mounted rw)
+PASS: I-DMN-18 label-hyphen: mount point (/Volumes/_e x)
+PASS: I-DMN-18 label-hyphen: the directory exists and is the mount
+PASS: I-DMN-18 label-hyphen: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-hyphen: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-hyphen: display name 'macFUSE Volume' differs from the leaf '_e x'
+PASS: I-DMN-18 label-hyphen: the mount point directory is gone
+-- label-long (disk6) expected leaf 'éééééééééééééééééééééééééééééééé': mount point '/Volumes/éééééééééééééééééééééééééééééééé'
+PASS: I-DMN-18 label-long: state (Mounted rw)
+PASS: I-DMN-18 label-long: mount point (/Volumes/éééééééééééééééééééééééééééééééé)
+PASS: I-DMN-18 label-long: the directory exists and is the mount
+PASS: I-DMN-18 label-long: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-long: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-long: display name 'macFUSE Volume' differs from the leaf 'éééééééééééééééééééééééééééééééé'
+PASS: I-DMN-18 label-long: the mount point directory is gone
+-- label-lookalike (disk6) expected leaf 'x_y_z': mount point '/Volumes/x_y_z'
+PASS: I-DMN-18 label-lookalike: state (Mounted rw)
+PASS: I-DMN-18 label-lookalike: mount point (/Volumes/x_y_z)
+PASS: I-DMN-18 label-lookalike: the directory exists and is the mount
+PASS: I-DMN-18 label-lookalike: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-lookalike: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-lookalike: display name 'macFUSE Volume' differs from the leaf 'x_y_z'
+PASS: I-DMN-18 label-lookalike: the mount point directory is gone
+-- label-mark-first (disk6) expected leaf '_x': mount point '/Volumes/_x'
+PASS: I-DMN-18 label-mark-first: state (Mounted rw)
+PASS: I-DMN-18 label-mark-first: mount point (/Volumes/_x)
+PASS: I-DMN-18 label-mark-first: the directory exists and is the mount
+PASS: I-DMN-18 label-mark-first: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-mark-first: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-mark-first: display name 'macFUSE Volume' differs from the leaf '_x'
+PASS: I-DMN-18 label-mark-first: the mount point directory is gone
+-- label-mark-inside (disk6) expected leaf 'éx': mount point '/Volumes/éx'
+PASS: I-DMN-18 label-mark-inside: state (Mounted rw)
+PASS: I-DMN-18 label-mark-inside: mount point (/Volumes/éx)
+PASS: I-DMN-18 label-mark-inside: the directory exists and is the mount
+PASS: I-DMN-18 label-mark-inside: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-mark-inside: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-mark-inside: display name 'macFUSE Volume' differs from the leaf 'éx'
+PASS: I-DMN-18 label-mark-inside: the mount point directory is gone
+-- label-nbsp (disk6) expected leaf 'a_b': mount point '/Volumes/a_b'
+PASS: I-DMN-18 label-nbsp: state (Mounted rw)
+PASS: I-DMN-18 label-nbsp: mount point (/Volumes/a_b)
+PASS: I-DMN-18 label-nbsp: the directory exists and is the mount
+PASS: I-DMN-18 label-nbsp: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-nbsp: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-nbsp: display name 'macFUSE Volume' differs from the leaf 'a_b'
+PASS: I-DMN-18 label-nbsp: the mount point directory is gone
+-- label-newline (disk6) expected leaf 'a_b': mount point '/Volumes/a_b'
+PASS: I-DMN-18 label-newline: state (Mounted rw)
+PASS: I-DMN-18 label-newline: mount point (/Volumes/a_b)
+PASS: I-DMN-18 label-newline: the directory exists and is the mount
+PASS: I-DMN-18 label-newline: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-newline: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-newline: display name 'macFUSE Volume' differs from the leaf 'a_b'
+PASS: I-DMN-18 label-newline: the mount point directory is gone
+-- label-private (disk6) expected leaf 'a_b': mount point '/Volumes/a_b'
+PASS: I-DMN-18 label-private: state (Mounted rw)
+PASS: I-DMN-18 label-private: mount point (/Volumes/a_b)
+PASS: I-DMN-18 label-private: the directory exists and is the mount
+PASS: I-DMN-18 label-private: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-private: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-private: display name 'macFUSE Volume' differs from the leaf 'a_b'
+PASS: I-DMN-18 label-private: the mount point directory is gone
+-- label-slash (disk6) expected leaf 'a_b_c': mount point '/Volumes/a_b_c'
+PASS: I-DMN-18 label-slash: state (Mounted rw)
+PASS: I-DMN-18 label-slash: mount point (/Volumes/a_b_c)
+PASS: I-DMN-18 label-slash: the directory exists and is the mount
+PASS: I-DMN-18 label-slash: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-slash: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-slash: display name 'macFUSE Volume' differs from the leaf 'a_b_c'
+PASS: I-DMN-18 label-slash: the mount point directory is gone
+-- label-spaces (disk6) expected leaf 'NTFS-A3DB8412': mount point '/Volumes/NTFS-A3DB8412'
+PASS: I-DMN-18 label-spaces: state (Mounted rw)
+PASS: I-DMN-18 label-spaces: mount point (/Volumes/NTFS-A3DB8412)
+PASS: I-DMN-18 label-spaces: the directory exists and is the mount
+PASS: I-DMN-18 label-spaces: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-spaces: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-spaces: display name 'macFUSE Volume' differs from the leaf 'NTFS-A3DB8412'
+PASS: I-DMN-18 label-spaces: the mount point directory is gone
+-- label-trailing (disk6) expected leaf 'name': mount point '/Volumes/name'
+PASS: I-DMN-18 label-trailing: state (Mounted rw)
+PASS: I-DMN-18 label-trailing: mount point (/Volumes/name)
+PASS: I-DMN-18 label-trailing: the directory exists and is the mount
+PASS: I-DMN-18 label-trailing: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-trailing: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-trailing: display name 'macFUSE Volume' differs from the leaf 'name'
+PASS: I-DMN-18 label-trailing: the mount point directory is gone
+-- label-varsel (disk6) expected leaf 'x_y': mount point '/Volumes/x_y'
+PASS: I-DMN-18 label-varsel: state (Mounted rw)
+PASS: I-DMN-18 label-varsel: mount point (/Volumes/x_y)
+PASS: I-DMN-18 label-varsel: the directory exists and is the mount
+PASS: I-DMN-18 label-varsel: the worker's options are all on the allow-list, none is banned
+PASS: I-DMN-18 label-varsel: the worker is started with a descriptor and the mount point only
+NOTE: I-DMN-18 label-varsel: display name 'macFUSE Volume' differs from the leaf 'x_y'
+PASS: I-DMN-18 label-varsel: the mount point directory is gone
+== the pair with the same label: DATA, then DATA 2
+-- dup-a (disk6): '/Volumes/DATA'; dup-b (disk8): '/Volumes/DATA 2'
+PASS: I-DMN-18 label-dup-a: mount point (/Volumes/DATA)
+PASS: I-DMN-18 label-dup-b: mount point gets a suffix (/Volumes/DATA 2)
+PASS: the two mount points are gone
+NOTE: detach of /dev/disk6 failed: hdiutil: WARNING: 'hdiutil detach ...' is deprecated. Please use 'diskutil eject ...' instead.
+NOTE: hdiutil: couldn't eject "disk6" - Resource busy
+NOTE: force-detach of /dev/disk6 failed: hdiutil: WARNING: 'hdiutil detach -force ...' is deprecated. Please use 'diskutil eject force ...' instead.
+NOTE: hdiutil: couldn't eject "disk6" - Resource busy
+NOTE: hdiutil info:
+NOTE: image-path      : /System/Library/AssetsV2/com_apple_MobileAsset_PKITrustStore/purpose_auto/d1b36c40ecf011c1a2dfeacc93215881ad4cf525.asset/AssetData/Restore/SECUREPKITRUSTSTOREASSETS_SECUREPKITRUSTSTORE_Cryptex.dmg
+NOTE: image-path      : <tmp>/dmnvm.pMMAeS/label-dup-a.img
+NOTE: /dev/disk6		
+NOTE: image-path      : <tmp>/dmnvm.pMMAeS/label-dup-b.img
+NOTE: lsof /dev/disk6*:
+NOTE: (no holder found)
+PASS: I-DMN-18: nothing was created in / by the daemon (.VolumeIcon.icns .file .nofollow .resolve .vol Applications Library System Users Volumes bin cores dev etc home opt pkg private sbin tmp usr var )
+NOTE: entries left in /Volumes: Macintosh HD|
+-- daemon log (tail)
+INFO: disk8: appeared (67108864 bytes)
+INFO: disk8: START -> Probing
+INFO: disk8: PROBE_DONE -> Deciding
+INFO: disk8: probe state clean, decision rw
+INFO: disk8: DECIDED -> Mounting
+INFO: disk8: MOUNTED -> Mounted
+INFO: notification: DATA is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 26 ms, mount gone afterwards
+INFO: disk8: UNMOUNT -> Unmounting
+INFO: disk8: unmount requested by cli (plain)
+INFO: disk8: unmount by cli: status ok, child exit 0, errno 0, 29 ms, mount gone afterwards
+INFO: journal: entry B3DF0DA29DD57E0C removed by path 1 (clean-session), tombstone B3DF0DA29DD57E0C-20261124T232512Z
+INFO: notification: DATA ejected, all data written.
+INFO: disk8: UNMOUNTED -> Appeared
+INFO: journal: entry B2DE0CA19CD47D0B removed by path 1 (clean-session), tombstone B2DE0CA19CD47D0B-20261124T232512Z
+INFO: notification: DATA ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk8: DISK_GONE -> Gone
+result: 0 check(s) failed
+######## suite labels: exit 0
+######## suite priv
+guest: 27.2 arm64, user admin uid 501, console owner admin
+== start the job
+== I-DMN-19: journal-clear over the real XPC service
+PASS: the killed session left the entry and the flag on the image
+-- (disk6) disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+NOTE: label 'clean64m4k', serial (last 8) '92CA7301'
+   This removes the record that this Mac left the volume open, so that the next mount can be read/write again. It does not check or repair the file system. If the earlier session ended unclean, files written in it may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume's current mount is not changed.
+   This Mac left the volume open on 2026-11-24T23:25:17Z (UTC); files written in that session may be incomplete or damaged. Windows chkdsk is strongly preferred.
+   ntfsmac: The volume is not clean. A journal entry can be cleared only on a volume that a fresh check finds clean. Run Windows chkdsk.
+PASS: I-DMN-19 probe not clean: refused (exit 1)
+PASS: I-DMN-19 probe not clean: the reason is given
+PASS: I-DMN-19 probe not clean: the entry is still there
+-- (disk6) disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  unclean_session
+PASS: I-DMN-20 flag cleared, LSN unchanged: ro, entry kept (state mode) (Mounted ro)
+PASS: I-DMN-20 flag cleared, LSN unchanged: reason (unclean_session)
+PASS: I-DMN-20 the entry is kept
+PASS: I-DMN-19 wrong label: refused (exit 1): ntfsmac: The label or the serial you typed does not match the volume.
+PASS: I-DMN-19 wrong label: the reason is the confirmation
+PASS: I-DMN-19 wrong serial: refused (exit 1)
+   This removes the record that this Mac left the volume open, so that the next mount can be read/write again. It does not check or repair the file system. If the earlier session ended unclean, files written in it may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume's current mount is not changed.
+   This Mac left the volume open on 2026-11-24T23:25:17Z (UTC); files written in that session may be incomplete or damaged. Windows chkdsk is strongly preferred.
+   Warning: the dirty marker is gone, but nothing shows that this volume was checked since this Mac used it (a drive can lose a write when it is unplugged).
+   ntfsmac: the ntfsmac daemon closed the connection without a reply (is this the installed, signed ntfsmac?).
+PASS: I-DMN-19 a re-signed copy of the CLI: refused by check 3, the connection is dropped (exit 3)
+PASS: I-DMN-19 a CLI without the hardened runtime: refused by check 3 (exit 3)
+   ntfsmac: journal-clear needs administrator rights. Run it again with sudo: sudo ntfsmac journal-clear disk6
+PASS: I-DMN-19 not root: the CLI says to use sudo before anything is typed (exit 1)
+PASS: I-DMN-19 none of the refusals touched the entry
+-- spawned peer: a stand-in worker runs a client of the XPC service, under a worker profile that allows everything
+   Warning: the dirty marker is gone, but nothing shows that this volume was checked since this Mac used it (a drive can lose a write when it is unplugged).
+   ntfsmac: The administrator authorization was not accepted.
+PASS: I-DMN-19 spawned peer: the control run from this shell is not refused by check 2 (it is stopped later by check 4: no root)
+PASS: I-DMN-19 spawned peer: the control run reaches check 4 (the root fallback refuses the form)
+PASS: I-DMN-19 spawned peer: the request was made from the stand-in worker
+-- the stand-in worker's client run:
+   This removes the record that this Mac left the volume open, so that the next mount can be read/write again. It does not check or repair the file system. If the earlier session ended unclean, files written in it may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume's current mount is not changed.
+   This Mac left the volume open on 2026-11-24T23:25:17Z (UTC); files written in that session may be incomplete or damaged. Windows chkdsk is strongly preferred.
+   Warning: the dirty marker is gone, but nothing shows that this volume was checked since this Mac used it (a drive can lose a write when it is unplugged).
+   ntfsmac: The request came from a process that the NTFS daemon started, so it was refused.
+   exit 1
+PASS: I-DMN-19 spawned peer: refused by check 2, the daemon's own text
+PASS: I-DMN-19 spawned peer: the entry is still there
+PASS: I-DMN-19 before the accept: ro, unclean_session (Mounted ro unclean_session)
+   This removes the record that this Mac left the volume open, so that the next mount can be read/write again. It does not check or repair the file system. If the earlier session ended unclean, files written in it may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume's current mount is not changed.
+   This Mac left the volume open on 2026-11-24T23:25:17Z (UTC); files written in that session may be incomplete or damaged. Windows chkdsk is strongly preferred.
+   Warning: the dirty marker is gone, but nothing shows that this volume was checked since this Mac used it (a drive can lose a write when it is unplugged).
+   Warning: the dirty marker is gone, but nothing shows that this volume was checked since this Mac used it. A drive can lose a write when it is unplugged. Windows chkdsk is strongly preferred.
+   result: cleared
+   warning: lost_flush
+PASS: I-DMN-19 accepted on a clean volume with an entry (exit 0)
+PASS: I-DMN-19 accepted: the entry moved to the tombstones
+PASS: I-DMN-19 accepted: the current mount mode is unchanged (ro)
+NOTE: ntfsmac mount: result: started volume:   bsd: disk6   label: clean64m4k   state: Mounting   mount: none   mountpoint: /Volumes/clean64m4k   reason:  
+PASS: I-DMN-19 accepted: the next mount is rw (Mounted rw)
+NOTE: flags on the image: 0x8000
+-- (disk6) disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  unclean_session
+PASS: I-DMN-19 accepted with only 0x8000 set (chkdsk-flag, N-04) (exit 0): warning: lost_flush
+PASS: the clean volume is rw (live session, entry present) (Mounted rw)
+   This removes the record that this Mac left the volume open, so that the next mount can be read/write again. It does not check or repair the file system. If the earlier session ended unclean, files written in it may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume's current mount is not changed.
+   ntfsmac: The volume is not clean. A journal entry can be cleared only on a volume that a fresh check finds clean. Run Windows chkdsk.
+PASS: I-DMN-19 volume mounted rw with a live session: refused (exit 1)
+PASS: I-DMN-19 mounted rw: the text names the gate that failed (the marker makes the probe see a dirty volume first)
+PASS: I-DMN-19 mounted rw: the entry stays
+PASS: I-DMN-19 no entry: refused (exit 1)
+PASS: I-DMN-19 no entry: the text says so
+== I-DMN-20: flag cleared and the LSN advanced; the evidence rule is off in the daemon
+NOTE: logfile_mark --bump-lsn exit 0
+-- (disk6) disk6  log-init  Mounted  ro     /Volumes/log-init  unclean_session
+PASS: I-DMN-20 LSN changed, rule disabled: attach is ro (Mounted ro)
+PASS: I-DMN-20 LSN changed, rule disabled: the entry is kept
+NOTE: I-DMN-20 rule ENABLED is not runnable at daemon level: evidence_rule_enabled is false in main.c (ARCHITECTURE.md section 3.5 rule 2, U12); the module level is journal_vm.sh case evidence
+== I-DMN-21: repair --clear-dirty
+PASS: dirty-flag attaches ro (Mounted ro dirty_flag)
+   This clears the dirty flag on the volume. It does not check or repair the file system. If this Mac left the volume open earlier, files written in that session may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume must not be mounted.
+   ntfsmac: The volume is mounted. Unmount it first.
+PASS: I-DMN-21 refused while mounted (exit 1)
+PASS: I-DMN-21 mounted: the text says to unmount first
+PASS: I-DMN-21 a re-signed CLI: refused by check 3 (exit 3)
+PASS: I-DMN-21 not root: told to use sudo (exit 1)
+PASS: I-DMN-21 wrong label: refused (exit 1)
+PASS: I-DMN-21 the refusals left the flag set
+   This clears the dirty flag on the volume. It does not check or repair the file system. If this Mac left the volume open earlier, files written in that session may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume must not be mounted.
+   result: repaired
+   journal_entry: none
+   warning: none
+PASS: I-DMN-21 accepted on dirty-flag (exit 0)
+PASS: I-DMN-21 the flag is clear on the image (0x0000)
+PASS: I-DMN-21 only a few bytes of the image changed (8; record 3 of $MFT and $MFTMirr)
+PASS: I-DMN-21 after the repair the volume mounts rw (Mounted rw)
+PASS: I-DMN-21 accepted on dirty-chkdsk-flag (exit 0)
+PASS: I-DMN-21 dirty-chkdsk-flag: the flag 0x8000 is kept, DIRTY cleared (0x8000)
+PASS: I-DMN-21 unclean-log: refused (exit 1): ntfsmac: The volume does not show only the dirty flag. Only that state can be repaired here; run Windows chkdsk.
+PASS: I-DMN-21 hiber-lower: refused (exit 1): ntfsmac: The volume does not show only the dirty flag. Only that state can be repaired here; run Windows chkdsk.
+PASS: I-DMN-21 an extra non-informational flag (CHKDSK_UNDERWAY): refused (exit 1): ntfsmac: The volume does not show only the dirty flag. Only that state can be repaired here; run Windows chkdsk.
+   This clears the dirty flag on the volume. It does not check or repair the file system. If this Mac left the volume open earlier, files written in that session may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume must not be mounted.
+   This Mac left the volume open on 2026-11-24T23:29:18Z (UTC); files written in that session may be incomplete or damaged. Windows chkdsk is strongly preferred.
+   Warning: this Mac left the volume open earlier; files written in that session may be incomplete or damaged. Windows chkdsk is strongly preferred.
+   result: repaired
+   journal_entry: removed
+   warning: journal_entry
+PASS: I-DMN-21 with a journal entry: the extra warning text is present
+== I-DMN-22: the dirty marker in the daemon flow
+PASS: I-DMN-22 rw mount (Mounted rw)
+PASS: I-DMN-22 during the rw session the image has VOLUME_IS_DIRTY (0x0001)
+PASS: I-DMN-22 after the clean eject the flag is clear (0x0000)
+PASS: I-DMN-22 after the kill (force-detach class) the flag stays set (0x0001)
+-- volmark replaced by a program that exits 1
+-- (disk6) disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  marker_failed
+PASS: I-DMN-22 volmark exits 1: ro mount (Mounted ro)
+PASS: I-DMN-22 volmark exits 1: reason (marker_failed)
+PASS: I-DMN-22 volmark exits 1: the image is unchanged (cea1f113e8aaa72c9dac9e2034f0b69bb0c30fbf7b135587ca49061596e828f6)
+-- I-DMN-25 c: a volmark that changes sector 0
+PASS: I-DMN-25 c: the attach happened (a BSD name and a row)
+-- (disk6) disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  marker_failed
+PASS: I-DMN-25 c: not mounted rw (state 'Mounted', mode 'ro')
+NOTE: I-DMN-25 c: reason 'marker_failed'
+PASS: I-DMN-25 c: the byte the stub changed is the only change
+NOTE: I-DMN-25 c: image hash changed: no
+== I-DMN-25 b: the disk is already mounted by Apple's driver when the daemon starts
+NOTE: Apple's mount before the daemon: /dev/disk6 on /Volumes/clean64m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+PASS: Apple's driver has the disk mounted (the premise)
+-- (disk6) disk6  clean64m4k  Mounted  rw     /Volumes/clean64m4k  -
+-- mount table for the disk:
+INFO: disk6: appeared (67108864 bytes, mounted by another driver)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+PASS: I-DMN-25 b: the daemon found the disk mounted by another driver and still mounts it (state mode) (Mounted rw)
+PASS: I-DMN-25 b: Apple's mount is gone (the daemon unmounted it before opening the device)
+PASS: I-DMN-25 b: the log says the disk was mounted by another driver at the start
+NOTE: I-DMN-25 b: image hash changed by the rw session: yes
+== I-DMN-27: repair --sync-mirror, the notification text and the XPC door
+-- disk6 is not Mounted (state 'Failed', reason 'mirror_split'): daemon log, then the children
+INFO: check 4 of ADR-019: root_peer
+ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: root_peer
+INFO: ntfsmacd: started
+INFO: disk6: appeared (67108864 bytes, mounted by another driver)
+INFO: disk6: START -> Probing
+INFO: disk4: appeared (6291456 bytes)
+INFO: disk4: START -> Probing
+INFO: disk4: PROBE_DONE -> Deciding
+INFO: disk4: probe state unsupported, decision refuse
+INFO: disk4: REFUSED -> Failed
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 27 ms, mount gone afterwards
+INFO: journal: entry A8D4029792CA7301 removed by path 1 (clean-session), tombstone A8D4029792CA7301-20261124T233013Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state mirror_split, decision refuse
+INFO: disk6: REFUSED -> Failed
+INFO: notification: mirror-split: this volume was interrupted while NTFS-3G updated its file table; the data region was not touched. Run ntfsmac repair --sync-mirror, or Windows chkdsk.
+Version 2026.9.28 external FUSE 29
+Mounted /dev/fd/11 (Read-Write, label "clean64m4k", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+Mount options: backend=fskit,local,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/11,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+Unmounting /dev/fd/11 (clean64m4k)
+-- mount table (no apfs), /Volumes, the workers
+/dev/disk6 on /Volumes/mirror-split (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+total 0
+drwxr-xr-x   4 root   wheel   128 Nov 24 23:30 .
+drwxr-xr-x  23 root   wheel   736 Oct 22 23:10 ..
+lrwxr-xr-x   1 root   wheel     1 Nov 24 23:14 Macintosh HD -> /
+drwxr-xr-x   1 admin  staff  4096 Nov 24 22:28 mirror-split
+-- (disk6) disk6  mirror-split  Failed  none   -           mirror_split
+PASS: I-DMN-27 the attach of mirror-split is refused (state Failed)
+PASS: I-DMN-27 the reason is mirror_split
+-- notifications in the daemon log:
+INFO: notification: clean64m4k is mounted read/write.
+INFO: notification: clean64m4k ejected, all data written.
+INFO: notification: mirror-split: this volume was interrupted while NTFS-3G updated its file table; the data region was not touched. Run ntfsmac repair --sync-mirror, or Windows chkdsk.
+PASS: I-DMN-27 the notification names repair --sync-mirror
+PASS: I-DMN-27 the notification names Windows chkdsk
+PASS: I-DMN-27 the refused attach did not write the image (21ad3aa653c54d411255d6214071ecf7418c0a76a9e46ea58ca48f39df82c051)
+NOTE: U15 in the daemon flow: Apple's ntfs.fs mounted the refused mirror-split image: /dev/disk6 on /Volumes/mirror-split (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+   This copies the first records of the $MFT over their copies in the $MFTMirr, the mirror that NTFS-3G refuses to mount when an update to the two was interrupted. It writes only the records that differ, never the data region, never the log, and it does not touch the dirty flag or this Mac's session journal. It does not check or repair the file system: Windows chkdsk is still the check. It is refused unless the volume shows exactly this damage, and the volume must not be mounted. It is not mounted for you afterwards: the next mount decides again.
+   ntfsmac: The volume could not be checked just now (is it mounted by another driver?).
+PASS: I-DMN-27 while Apple's driver has the disk mounted the repair is refused with the hint (exit 1)
+PASS: I-DMN-27 the refusal did not write the image (21ad3aa653c54d411255d6214071ecf7418c0a76a9e46ea58ca48f39df82c051)
+PASS: I-DMN-27 diskutil unmount takes Apple's mount away
+PASS: I-DMN-27 wrong label: refused by the confirmation (exit 1)
+PASS: I-DMN-27 wrong serial: refused by the confirmation (exit 1)
+   This copies the first records of the $MFT over their copies in the $MFTMirr, the mirror that NTFS-3G refuses to mount when an update to the two was interrupted. It writes only the records that differ, never the data region, never the log, and it does not touch the dirty flag or this Mac's session journal. It does not check or repair the file system: Windows chkdsk is still the check. It is refused unless the volume shows exactly this damage, and the volume must not be mounted. It is not mounted for you afterwards: the next mount decides again.
+   ntfsmac: the ntfsmac daemon closed the connection without a reply (is this the installed, signed ntfsmac?).
+PASS: I-DMN-27 a re-signed CLI: refused over XPC (exit 3)
+PASS: I-DMN-27 a re-signed CLI: the refusal is check 3, not the volume
+PASS: I-DMN-27 a CLI without the hardened runtime: refused by check 3 (exit 3)
+PASS: I-DMN-27 not root: told to use sudo (exit 1)
+PASS: I-DMN-27 none of the refusals wrote the image (21ad3aa653c54d411255d6214071ecf7418c0a76a9e46ea58ca48f39df82c051)
+   This copies the first records of the $MFT over their copies in the $MFTMirr, the mirror that NTFS-3G refuses to mount when an update to the two was interrupted. It writes only the records that differ, never the data region, never the log, and it does not touch the dirty flag or this Mac's session journal. It does not check or repair the file system: Windows chkdsk is still the check. It is refused unless the volume shows exactly this damage, and the volume must not be mounted. It is not mounted for you afterwards: the next mount decides again.
+   The mirror was repaired. A fresh check of the volume now shows: clean.
+   This was not a check of the file system. The volume was not mounted; the next mount decides again, and a volume that still has the dirty flag set is read-only. Windows chkdsk is the way to check it.
+   result: repaired
+   state: clean
+   journal_entry: untouched
+PASS: I-DMN-27 accepted on mirror-split (exit 0)
+PASS: I-DMN-27 the reply says repaired and shows a fresh state
+PASS: I-DMN-27 the image changed
+NOTE: I-DMN-27 bytes changed on the image: 5
+PASS: I-DMN-27 only a few bytes changed (5, at most 4096: the differing $MFTMirr records)
+-- ntfsfix -n on a copy after the repair
+Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition <tmp>/dmnvm.go2ceX/after.img was processed successfully.
+PASS: I-DMN-27 ntfsfix -n exit status on the repaired image (0)
+NOTE: ntfsmac mount: result: started volume:   bsd: disk6   label: mirror-split   state: Mounting   mount: none   mountpoint: /Volumes/mirror-split   reason:  
+-- (disk6) disk6  mirror-split  Mounted  rw     /Volumes/mirror-split  -
+PASS: I-DMN-27 after the repair the volume mounts rw (Mounted rw)
+-- daemon log (tail)
+ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: root_peer
+INFO: ntfsmacd: started
+INFO: disk6: appeared (67108864 bytes, mounted by another driver)
+INFO: disk6: START -> Probing
+INFO: disk4: appeared (6291456 bytes)
+INFO: disk4: START -> Probing
+INFO: disk4: PROBE_DONE -> Deciding
+INFO: disk4: probe state unsupported, decision refuse
+INFO: disk4: REFUSED -> Failed
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 27 ms, mount gone afterwards
+INFO: journal: entry A8D4029792CA7301 removed by path 1 (clean-session), tombstone A8D4029792CA7301-20261124T233013Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state mirror_split, decision refuse
+INFO: disk6: REFUSED -> Failed
+INFO: notification: mirror-split: this volume was interrupted while NTFS-3G updated its file table; the data region was not touched. Run ntfsmac repair --sync-mirror, or Windows chkdsk.
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: mirror-split is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 30 ms, mount gone afterwards
+INFO: journal: entry EF50372A6C5BD3E1 removed by path 1 (clean-session), tombstone EF50372A6C5BD3E1-20261124T233027Z
+INFO: notification: mirror-split ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+-- children log (tail)
+Version 2026.9.28 external FUSE 29
+Mounted /dev/fd/11 (Read-Write, label "clean64m4k", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+Mount options: backend=fskit,local,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/11,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+Unmounting /dev/fd/11 (clean64m4k)
+Version 2026.9.28 external FUSE 29
+Mounted /dev/fd/13 (Read-Write, label "mirror-split", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+Mount options: backend=fskit,local,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/13,blkdev,blksize=4096
+Global ownership and permissions enforced, configuration type 1
+Unmounting /dev/fd/13 (mirror-split)
+result: 0 check(s) failed
+######## suite priv: exit 0
+######## suite slow
+guest: 27.2 arm64, user admin uid 501, console owner admin
+PASS: slow probe, run 1: the volume mounts rw (16 s) (Mounted rw)
+PASS: slow probe, run 2: the volume mounts rw (17 s) (Mounted rw)
+PASS: slow probe, run 3: the volume mounts rw (17 s) (Mounted rw)
+PASS: no 'did not mount' in the daemon log
+PASS: macFUSE's own 8 MiB disks were never taken for NTFS disks (no 'appeared (8388608' line)
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 30 ms, mount gone afterwards
+INFO: journal: entry A8D4029792CA7301 removed by path 1 (clean-session), tombstone A8D4029792CA7301-20261124T233124Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+result: 0 check(s) failed
+######## suite slow: exit 0
+######## suite u15
+guest: 27.2 arm64
+PASS: the daemon is not loaded (nothing dissents)
+== clean-64m-4k
+hdiutil attach rc 0: hdiutil: WARNING: 'hdiutil attach ...' is deprecated. Please use 'diskutil image attach ...' instead.
+/dev/disk6          	                               	/Volumes/clean64m4k
+-- diskutil info disk6
+   Device Node:               /dev/disk6
+   Volume Name:               clean64m4k
+   Mounted:                   Yes
+   Mount Point:               /Volumes/clean64m4k
+   File System Personality:   NTFS
+   Type (Bundle):             ntfs
+-- mount table
+/dev/disk6 on /Volumes/clean64m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+NOTE: U15 clean-64m-4k: Apple's driver MOUNTED it: /dev/disk6 on /Volumes/clean64m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+NOTE: U15 clean-64m-4k: listing of the root: boundary docs empty large link-to-readme long many small sparse unicode with spaces 
+RESULT U15 clean-64m-4k mounted=1
+PASS: clean-64m-4k: the image is unchanged (cea1f113e8aaa72c9dac9e2034f0b69bb0c30fbf7b135587ca49061596e828f6)
+== vmk-split
+hdiutil attach rc 0: hdiutil: WARNING: 'hdiutil attach ...' is deprecated. Please use 'diskutil image attach ...' instead.
+/dev/disk6          	                               	/Volumes/clean64m4k
+-- diskutil info disk6
+   Device Node:               /dev/disk6
+   Volume Name:               clean64m4k
+   Mounted:                   Yes
+   Mount Point:               /Volumes/clean64m4k
+   File System Personality:   NTFS
+   Type (Bundle):             ntfs
+-- mount table
+/dev/disk6 on /Volumes/clean64m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+NOTE: U15 vmk-split: Apple's driver MOUNTED it: /dev/disk6 on /Volumes/clean64m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+NOTE: U15 vmk-split: listing of the root: boundary docs empty large link-to-readme long many small sparse unicode with spaces 
+RESULT U15 vmk-split mounted=1
+PASS: vmk-split: the image is unchanged (58fc6a99dc1d509fa21f76fcb93a9067778953c9cbeb5df1a397614742618ce9)
+== vmk-split-clear
+hdiutil attach rc 0: hdiutil: WARNING: 'hdiutil attach ...' is deprecated. Please use 'diskutil image attach ...' instead.
+/dev/disk6          	                               	/Volumes/clean64m4k
+-- diskutil info disk6
+   Device Node:               /dev/disk6
+   Volume Name:               clean64m4k
+   Mounted:                   Yes
+   Mount Point:               /Volumes/clean64m4k
+   File System Personality:   NTFS
+   Type (Bundle):             ntfs
+-- mount table
+/dev/disk6 on /Volumes/clean64m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+NOTE: U15 vmk-split-clear: Apple's driver MOUNTED it: /dev/disk6 on /Volumes/clean64m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+NOTE: U15 vmk-split-clear: listing of the root: boundary docs empty large link-to-readme long many small sparse unicode with spaces 
+RESULT U15 vmk-split-clear mounted=1
+PASS: vmk-split-clear: the image is unchanged (863c0120543305c8e401839336f052147b386777508969feed16db4e7af3abd0)
+== mirror-split
+hdiutil attach rc 0: hdiutil: WARNING: 'hdiutil attach ...' is deprecated. Please use 'diskutil image attach ...' instead.
+/dev/disk6          	                               	/Volumes/mirror-split
+-- diskutil info disk6
+   Device Node:               /dev/disk6
+   Volume Name:               mirror-split
+   Mounted:                   Yes
+   Mount Point:               /Volumes/mirror-split
+   File System Personality:   NTFS
+   Type (Bundle):             ntfs
+-- mount table
+/dev/disk6 on /Volumes/mirror-split (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+NOTE: U15 mirror-split: Apple's driver MOUNTED it: /dev/disk6 on /Volumes/mirror-split (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+NOTE: U15 mirror-split: listing of the root: d0 d1 d2 
+RESULT U15 mirror-split mounted=1
+PASS: mirror-split: the image is unchanged (21ad3aa653c54d411255d6214071ecf7418c0a76a9e46ea58ca48f39df82c051)
+result: 0 check(s) failed
+######## suite u15: exit 0
+######## suite finder
+guest: 27.2 arm64, user admin uid 501, console owner admin
+== start the job and attach a clean volume
+PASS: the volume mounts rw (Mounted rw)
+-- mount point '/Volumes/clean64m4k'
+== what does not need Finder
+PASS: I-FND-01 the mount point is /Volumes/<leaf> and is a directory
+PASS: I-FND-01 the volume is listed by diskutil under its disk
+RESULT U14: display name of /Volumes/clean64m4k is 'macFUSE Volume' (the leaf is 'clean64m4k')
+NOTE: U14: the system's display name for the worker's mount is 'macFUSE Volume', the leaf is 'clean64m4k'
+NOTE: mdls kMDItemDisplayName: kMDItemDisplayName = (null)
+NOTE: Finder running: 361 (empty: no Finder in this session)
+== can this session drive Finder?
+osascript rc 142: 
+NOTE: NOT RUNNABLE UNATTENDED: osascript failed or timed out (rc 142). The Finder cases below were not run; use --guided in the guest's GUI session.
+NOT RUNNABLE: I-FND-01: osascript failed or timed out (rc 142)
+NOT RUNNABLE: I-FND-02: osascript failed or timed out (rc 142)
+NOT RUNNABLE: I-FND-03: osascript failed or timed out (rc 142)
+NOT RUNNABLE: I-FND-04: osascript failed or timed out (rc 142)
+== steps without Finder automation
+PASS: a ditto copy in (the call Finder's copy ends in) has the same bytes
+PASS: ditto: the generated tree has 1000 files (1000)
+PASS: ditto: the volume holds 1000 files (1000)
+PASS: ditto: SHA-256 of every file on the volume equals the source
+NOTE: names differ in bytes between m-src and m-vol but not after normalization to form C (the volume or the copy returns another Unicode form)
+-- Finder cases not run: 4 (a case that did not run is never counted as passed)
+-- daemon log (tail)
+INFO: disk4: REFUSED -> Failed
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 2844 ms, mount gone afterwards
+INFO: journal: entry A8D4029792CA7301 removed by path 1 (clean-session), tombstone A8D4029792CA7301-20261124T233306Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+result: 0 check(s) failed
+dmn_vm: no finder evidence (the Finder cases did not run)
+######## suite finder: exit 0

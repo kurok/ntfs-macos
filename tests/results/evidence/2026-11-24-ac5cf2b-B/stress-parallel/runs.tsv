@@ -1,0 +1,3 @@
+par-real	real	0	0	0	0	Mounted rw	Mounted rw
+par-ctl-corrupt	control-corrupt	1	1	0	0	Mounted rw	Mounted rw
+par-ctl-stall	control-stall	1	NA	NA	NA	Mounted rw	NA

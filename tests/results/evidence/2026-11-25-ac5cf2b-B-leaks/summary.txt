@@ -1,0 +1,28 @@
+S-LEAK-01 PASS
+
+3 scan(s) of the worker after 50 workload iteration(s); project leaks: 0
+engine and platform leaks: engine: ROOT LEAK: <malloc in fuse_new_common> (x1)
+
+control: leaks found 1 root(s) allocated in ctl_leak_site; classified with no rule: 0 project (expected 0); line rule 'leakctl.c:24 is patched': 1 R1 hit(s) with a parsed frame leakctl.c:19..29 (expected >= 1); function rule 'ctl_leak_site is patched': 1 R2 hit(s) (expected >= 1)
+
+leaks-worker-scan1.txt: 1 leak(s), 160 bytes, 1 root(s)
+  [engine] x1 ROOT LEAK: <malloc in fuse_new_common>
+      worker image frames only at unpatched lines (innermost mount_fuse ntfs-3g.c:4543)
+      at libfuse.2.dylib fuse_new_common
+      at ntfs-3g mount_fuse ntfs-3g.c:4543
+      at ntfs-3g main ntfs-3g.c:4828
+      at dyld start
+leaks-worker-scan2.txt: 1 leak(s), 160 bytes, 1 root(s)
+  [engine] x1 ROOT LEAK: <malloc in fuse_new_common>
+      worker image frames only at unpatched lines (innermost mount_fuse ntfs-3g.c:4543)
+      at libfuse.2.dylib fuse_new_common
+      at ntfs-3g mount_fuse ntfs-3g.c:4543
+      at ntfs-3g main ntfs-3g.c:4828
+      at dyld start
+leaks-worker-scan3.txt: 1 leak(s), 160 bytes, 1 root(s)
+  [engine] x1 ROOT LEAK: <malloc in fuse_new_common>
+      worker image frames only at unpatched lines (innermost mount_fuse ntfs-3g.c:4543)
+      at libfuse.2.dylib fuse_new_common
+      at ntfs-3g mount_fuse ntfs-3g.c:4543
+      at ntfs-3g main ntfs-3g.c:4828
+      at dyld start

@@ -1,0 +1,9 @@
+spawn      exit 0  PASS 39  FAIL 0
+spawn-sbx  exit 0  PASS 31  FAIL 0
+sandbox    exit 0  PASS 138  FAIL 0
+errwatch   exit 0  PASS 32  FAIL 0
+journal    exit 0  PASS 121  FAIL 0
+xpc        exit 0  PASS 15  FAIL 0
+mirror     exit 0  PASS 49  FAIL 0
+attach     exit 0  PASS 50  FAIL 0
+dmn        exit 0  PASS 549  FAIL 0

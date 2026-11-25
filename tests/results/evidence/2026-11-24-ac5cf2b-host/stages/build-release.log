@@ -1,0 +1,14 @@
+-- Platform: macOS arm64 (product target)
+-- libntfs-3g not found: skipping ntfsmac-probe
+-- libntfs-3g not found: skipping ntfsmac-volmark
+-- libntfs-3g not found: skipping setvolflags, logfile_mark, txf_make
+-- libntfs-3g not found: skipping the image fuzz harnesses
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: <repo>/build/release
+[0/2] Re-checking globbed directories...
+[1/6] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_options.c.o
+[2/6] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_probe.c.o
+[3/6] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_policy.c.o
+[4/6] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_journal.c.o
+[5/6] Linking C executable tests/unit/contracts/test_headers

@@ -1,0 +1,50 @@
+[
+ {
+  "id": 0,
+  "ok": true,
+  "ops": {
+   "setup": 1,
+   "delete": 30208,
+   "mmap": 14302,
+   "randwrite": 28978,
+   "truncate": 20904,
+   "create": 29020,
+   "dirrename": 4798,
+   "mkdir": 9609,
+   "rename": 19269,
+   "readdir": 7227,
+   "rmdir": 7240,
+   "seqwrite": 24003,
+   "readback": 9595,
+   "verify": 1200
+  },
+  "ops_total": 206354,
+  "lat_max_by_op": {
+   "setup": 0.001,
+   "delete": 0.1351,
+   "mmap": 0.7311,
+   "randwrite": 0.2199,
+   "truncate": 0.1582,
+   "create": 0.1978,
+   "dirrename": 0.0864,
+   "mkdir": 0.1408,
+   "rename": 0.1785,
+   "readdir": 0.0939,
+   "rmdir": 0.0869,
+   "seqwrite": 0.2429,
+   "readback": 0.1281,
+   "verify": 0.0849
+  },
+  "lat_max_s": 0.7311,
+  "slow": [],
+  "mismatches": [],
+  "errors": [],
+  "verifies": 5,
+  "bytes_written": 3127157771,
+  "bytes_verified": 4198405720,
+  "files": 250,
+  "dirs": 39,
+  "shared_files": 0,
+  "seconds": 600.294
+ }
+]

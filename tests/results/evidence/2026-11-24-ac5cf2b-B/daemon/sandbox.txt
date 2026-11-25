@@ -1,0 +1,458 @@
+guest: 27.2 arm64, user admin uid 501 gid 20
+== probe: the probe profile (I-SBX-01)
+PASS: probe under the profile: the stand-in ran and all its checks held (status ok, code 0)
+  stub PASS: start: probe-sbx (profile applied)
+  stub PASS: probe: read the inherited descriptor
+  stub PASS: probe: open /etc/passwd: denied expected, got Operation not permitted
+  stub PASS: probe: create a file in /private/tmp: denied expected, got Operation not permitted
+  stub PASS: probe: open the directory /Users: denied expected, got Operation not permitted
+  stub PASS: probe: open /usr/local/etc/ntfs-macos/other: denied expected, got Operation not permitted
+  stub PASS: probe: TCP connect to 127.0.0.1: denied expected, got Operation not permitted
+  stub PASS: probe: connect() to another Unix socket: denied expected, got Operation not permitted
+  stub PASS: probe: connect() to the control socket: denied expected, got Operation not permitted
+  stub PASS: probe: connect() to the control socket, resolved spelling of its path: denied expected, got Operation not permitted
+  stub PASS: probe: lookup of the privileged XPC service: sandbox denial (1100) expected, lookup gave 1100
+  stub PASS: probe: lookup of another Mach service: sandbox denial (1100) expected, lookup gave 1100
+  stub PASS: probe: start /usr/bin/true: denied expected, got Operation not permitted
+  stub PASS: probe: fork: denied expected, got Operation not permitted
+  stub PASS: probe: open the path /dev/fd/6: denied expected, got Operation not permitted
+PASS: probe under the profile: no check failed (0 failed)
+PASS: probe under the profile: 15 checks passed (at least 14 expected)
+PASS: probe control, no profile: the stand-in ran and all its checks held (status ok, code 0)
+  stub PASS: start: probe-ctl (no profile)
+  stub PASS: probe: read the inherited descriptor
+  stub PASS: probe: open /etc/passwd: success expected, got success
+  stub PASS: probe: create a file in /private/tmp: success expected, got success
+  stub PASS: probe: open the directory /Users: success expected, got success
+  stub PASS: probe: open /usr/local/etc/ntfs-macos/other: success expected, got success
+  stub PASS: probe: TCP connect to 127.0.0.1: success expected, got success
+  stub PASS: probe: connect() to another Unix socket: success expected, got success
+  stub PASS: probe: connect() to the control socket: success expected, got success
+  stub PASS: probe: connect() to the control socket, resolved spelling of its path: success expected, got success
+  stub PASS: probe: lookup of the privileged XPC service: success expected, lookup gave 0
+  stub PASS: probe: lookup of another Mach service: success expected, lookup gave 0
+  stub PASS: probe: start /usr/bin/true: success expected, got success
+  stub PASS: probe: fork: success expected, got success
+  stub PASS: probe: open the path /dev/fd/6: success expected, got success
+PASS: probe control, no profile: no check failed (0 failed)
+PASS: probe control, no profile: 15 checks passed (at least 14 expected)
+== volmark: the volmark profile (I-SBX-02)
+PASS: volmark under the profile: the stand-in ran and all its checks held (status ok, code 0)
+  stub PASS: start: volmark-sbx (profile applied)
+  stub PASS: volmark: read the inherited descriptor
+  stub PASS: volmark: open /etc/passwd: denied expected, got Operation not permitted
+  stub PASS: volmark: create a file in /private/tmp: denied expected, got Operation not permitted
+  stub PASS: volmark: open the directory /Users: denied expected, got Operation not permitted
+  stub PASS: volmark: open /usr/local/etc/ntfs-macos/other: denied expected, got Operation not permitted
+  stub PASS: volmark: TCP connect to 127.0.0.1: denied expected, got Operation not permitted
+  stub PASS: volmark: connect() to another Unix socket: denied expected, got Operation not permitted
+  stub PASS: volmark: connect() to the control socket: denied expected, got Operation not permitted
+  stub PASS: volmark: connect() to the control socket, resolved spelling of its path: denied expected, got Operation not permitted
+  stub PASS: volmark: lookup of the privileged XPC service: sandbox denial (1100) expected, lookup gave 1100
+  stub PASS: volmark: lookup of another Mach service: sandbox denial (1100) expected, lookup gave 1100
+  stub PASS: volmark: start /usr/bin/true: denied expected, got Operation not permitted
+  stub PASS: volmark: fork: denied expected, got Operation not permitted
+  stub PASS: volmark: open the path /dev/fd/6: denied expected, got Operation not permitted
+PASS: volmark under the profile: no check failed (0 failed)
+PASS: volmark under the profile: 15 checks passed (at least 14 expected)
+PASS: volmark control, no profile: the stand-in ran and all its checks held (status ok, code 0)
+  stub PASS: start: volmark-ctl (no profile)
+  stub PASS: volmark: read the inherited descriptor
+  stub PASS: volmark: open /etc/passwd: success expected, got success
+  stub PASS: volmark: create a file in /private/tmp: success expected, got success
+  stub PASS: volmark: open the directory /Users: success expected, got success
+  stub PASS: volmark: open /usr/local/etc/ntfs-macos/other: success expected, got success
+  stub PASS: volmark: TCP connect to 127.0.0.1: success expected, got success
+  stub PASS: volmark: connect() to another Unix socket: success expected, got success
+  stub PASS: volmark: connect() to the control socket: success expected, got success
+  stub PASS: volmark: connect() to the control socket, resolved spelling of its path: success expected, got success
+  stub PASS: volmark: lookup of the privileged XPC service: success expected, lookup gave 0
+  stub PASS: volmark: lookup of another Mach service: success expected, lookup gave 0
+  stub PASS: volmark: start /usr/bin/true: success expected, got success
+  stub PASS: volmark: fork: success expected, got success
+  stub PASS: volmark: open the path /dev/fd/6: success expected, got success
+PASS: volmark control, no profile: no check failed (0 failed)
+PASS: volmark control, no profile: 15 checks passed (at least 14 expected)
+== worker: the worker profile (I-SBX-03)
+PASS: worker under the profile: the worker started (status ok)
+PASS: worker under the profile: the stand-in ran and all its checks held (exit status 0)
+  stub PASS: start: worker-sbx (profile applied)
+  stub PASS: worker: read the inherited descriptor
+  stub PASS: worker: open /etc/passwd: denied expected, got Operation not permitted
+  stub PASS: worker: create a file in /private/tmp: denied expected, got Operation not permitted
+  stub PASS: worker: open the directory /Users: denied expected, got Operation not permitted
+  stub PASS: worker: open /usr/local/etc/ntfs-macos/other: denied expected, got Operation not permitted
+  stub PASS: worker: TCP connect to 127.0.0.1: denied expected, got Operation not permitted
+  stub PASS: worker: connect() to another Unix socket: denied expected, got Operation not permitted
+  stub PASS: worker: connect() to the control socket: denied expected, got Operation not permitted
+  stub PASS: worker: connect() to the control socket, resolved spelling of its path: denied expected, got Operation not permitted
+  stub PASS: worker: lookup of the privileged XPC service: sandbox denial (1100) expected, lookup gave 1100
+  stub PASS: worker: lookup of another Mach service: sandbox denial (1100) expected, lookup gave 1100
+  stub PASS: worker: start /usr/bin/true: denied expected, got Operation not permitted
+  stub PASS: worker: open the path /dev/fd/N: denied expected, got Operation not permitted
+  stub PASS: worker: open the UserMapping file: denied expected, got Operation not permitted
+  stub PASS: worker: lookup of io.macfuse.mount: allowed expected, got success
+  stub PASS: worker: fork: allowed expected, got success
+PASS: worker under the profile: no check failed (0 failed)
+PASS: worker under the profile: 17 checks passed (at least 17 expected)
+PASS: worker control, no profile: the worker started (status ok)
+PASS: worker control, no profile: the stand-in ran and all its checks held (exit status 0)
+  stub PASS: start: worker-ctl (no profile)
+  stub PASS: worker: read the inherited descriptor
+  stub PASS: worker: open /etc/passwd: success expected, got success
+  stub PASS: worker: create a file in /private/tmp: success expected, got success
+  stub PASS: worker: open the directory /Users: success expected, got success
+  stub PASS: worker: open /usr/local/etc/ntfs-macos/other: success expected, got success
+  stub PASS: worker: TCP connect to 127.0.0.1: success expected, got success
+  stub PASS: worker: connect() to another Unix socket: success expected, got success
+  stub PASS: worker: connect() to the control socket: success expected, got success
+  stub PASS: worker: connect() to the control socket, resolved spelling of its path: success expected, got success
+  stub PASS: worker: lookup of the privileged XPC service: success expected, lookup gave 0
+  stub PASS: worker: lookup of another Mach service: success expected, lookup gave 0
+  stub PASS: worker: start /usr/bin/true: success expected, got success
+  stub PASS: worker: open the path /dev/fd/N: success expected, got success
+  stub PASS: worker: open the UserMapping file: allowed expected, got success
+  stub PASS: worker: lookup of io.macfuse.mount: allowed expected, got success
+  stub PASS: worker: fork: allowed expected, got success
+PASS: worker control, no profile: no check failed (0 failed)
+PASS: worker control, no profile: 17 checks passed (at least 17 expected)
+== worker-um: the worker profile (I-SBX-04)
+PASS: worker under the profile, usermapping=: the worker started (status ok)
+PASS: worker under the profile, usermapping=: the stand-in ran and all its checks held (exit status 0)
+  stub PASS: start: worker-sbx-um (profile applied)
+  stub PASS: worker: read the inherited descriptor
+  stub PASS: worker: open /etc/passwd: denied expected, got Operation not permitted
+  stub PASS: worker: create a file in /private/tmp: denied expected, got Operation not permitted
+  stub PASS: worker: open the directory /Users: denied expected, got Operation not permitted
+  stub PASS: worker: open /usr/local/etc/ntfs-macos/other: denied expected, got Operation not permitted
+  stub PASS: worker: TCP connect to 127.0.0.1: denied expected, got Operation not permitted
+  stub PASS: worker: connect() to another Unix socket: denied expected, got Operation not permitted
+  stub PASS: worker: connect() to the control socket: denied expected, got Operation not permitted
+  stub PASS: worker: connect() to the control socket, resolved spelling of its path: denied expected, got Operation not permitted
+  stub PASS: worker: lookup of the privileged XPC service: sandbox denial (1100) expected, lookup gave 1100
+  stub PASS: worker: lookup of another Mach service: sandbox denial (1100) expected, lookup gave 1100
+  stub PASS: worker: start /usr/bin/true: denied expected, got Operation not permitted
+  stub PASS: worker: open the path /dev/fd/N: denied expected, got Operation not permitted
+  stub PASS: worker: open the UserMapping file: allowed expected, got success
+  stub PASS: worker: lookup of io.macfuse.mount: allowed expected, got success
+  stub PASS: worker: fork: allowed expected, got success
+PASS: worker under the profile, usermapping=: no check failed (0 failed)
+PASS: worker under the profile, usermapping=: 17 checks passed (at least 17 expected)
+PASS: worker control, no profile, usermapping=: the worker started (status ok)
+PASS: worker control, no profile, usermapping=: the stand-in ran and all its checks held (exit status 0)
+  stub PASS: start: worker-ctl-um (no profile)
+  stub PASS: worker: read the inherited descriptor
+  stub PASS: worker: open /etc/passwd: success expected, got success
+  stub PASS: worker: create a file in /private/tmp: success expected, got success
+  stub PASS: worker: open the directory /Users: success expected, got success
+  stub PASS: worker: open /usr/local/etc/ntfs-macos/other: success expected, got success
+  stub PASS: worker: TCP connect to 127.0.0.1: success expected, got success
+  stub PASS: worker: connect() to another Unix socket: success expected, got success
+  stub PASS: worker: connect() to the control socket: success expected, got success
+  stub PASS: worker: connect() to the control socket, resolved spelling of its path: success expected, got success
+  stub PASS: worker: lookup of the privileged XPC service: success expected, lookup gave 0
+  stub PASS: worker: lookup of another Mach service: success expected, lookup gave 0
+  stub PASS: worker: start /usr/bin/true: success expected, got success
+  stub PASS: worker: open the path /dev/fd/N: success expected, got success
+  stub PASS: worker: open the UserMapping file: allowed expected, got success
+  stub PASS: worker: lookup of io.macfuse.mount: allowed expected, got success
+  stub PASS: worker: fork: allowed expected, got success
+PASS: worker control, no profile, usermapping=: no check failed (0 failed)
+PASS: worker control, no profile, usermapping=: 17 checks passed (at least 17 expected)
+== desc: a descendant that leaves the process group and loses its parent (I-SBX-05, I-SBX-12)
+PASS: worker under the profile, with a descendant: the worker started (status ok)
+PASS: worker under the profile, with a descendant: the descendant finished its attempts after the worker exited
+PASS: worker under the profile, with a descendant: the descendant still runs (pid 8451)
+PASS: worker under the profile, with a descendant: the stand-in ran and all its checks held (exit status 0)
+PASS: worker under the profile, with a descendant: the descendant is gone after the teardown of the worker
+PASS: worker under the profile, with a descendant: no process of the user holds the device any more (0 more killed)
+  stub PASS: start: worker-sbx-desc (profile applied)
+  stub PASS: worker: read the inherited descriptor
+  stub PASS: worker: open /etc/passwd: denied expected, got Operation not permitted
+  stub PASS: worker: create a file in /private/tmp: denied expected, got Operation not permitted
+  stub PASS: worker: open the directory /Users: denied expected, got Operation not permitted
+  stub PASS: worker: open /usr/local/etc/ntfs-macos/other: denied expected, got Operation not permitted
+  stub PASS: worker: TCP connect to 127.0.0.1: denied expected, got Operation not permitted
+  stub PASS: worker: connect() to another Unix socket: denied expected, got Operation not permitted
+  stub PASS: worker: connect() to the control socket: denied expected, got Operation not permitted
+  stub PASS: worker: connect() to the control socket, resolved spelling of its path: denied expected, got Operation not permitted
+  stub PASS: worker: lookup of the privileged XPC service: sandbox denial (1100) expected, lookup gave 1100
+  stub PASS: worker: lookup of another Mach service: sandbox denial (1100) expected, lookup gave 1100
+  stub PASS: worker: start /usr/bin/true: denied expected, got Operation not permitted
+  stub PASS: worker: open the path /dev/fd/N: denied expected, got Operation not permitted
+  stub PASS: worker: open the UserMapping file: denied expected, got Operation not permitted
+  stub PASS: worker: lookup of io.macfuse.mount: allowed expected, got success
+  stub PASS: worker: fork: allowed expected, got success
+  stub PASS: desc: lost its parent: ppid 1
+  stub PASS: desc: leads its own process group: pgid 8451 pid 8451
+  stub PASS: desc: connect() to the control socket: denied expected, got Operation not permitted
+  stub PASS: desc: connect() to the control socket, resolved spelling: denied expected, got Operation not permitted
+  stub PASS: desc: lookup of the privileged XPC service: sandbox denial (1100) expected, lookup gave 1100
+PASS: worker under the profile, with a descendant: no check failed (0 failed)
+PASS: worker under the profile, with a descendant: 22 checks passed (at least 22 expected)
+PASS: worker control, no profile, with a descendant: the worker started (status ok)
+PASS: worker control, no profile, with a descendant: the descendant finished its attempts after the worker exited
+PASS: worker control, no profile, with a descendant: the descendant still runs (pid 8455)
+PASS: worker control, no profile, with a descendant: the stand-in ran and all its checks held (exit status 0)
+PASS: worker control, no profile, with a descendant: the descendant is gone after the teardown of the worker
+PASS: worker control, no profile, with a descendant: no process of the user holds the device any more (0 more killed)
+  stub PASS: start: worker-ctl-desc (no profile)
+  stub PASS: worker: read the inherited descriptor
+  stub PASS: worker: open /etc/passwd: success expected, got success
+  stub PASS: worker: create a file in /private/tmp: success expected, got success
+  stub PASS: worker: open the directory /Users: success expected, got success
+  stub PASS: worker: open /usr/local/etc/ntfs-macos/other: success expected, got success
+  stub PASS: worker: TCP connect to 127.0.0.1: success expected, got success
+  stub PASS: worker: connect() to another Unix socket: success expected, got success
+  stub PASS: worker: connect() to the control socket: success expected, got success
+  stub PASS: worker: connect() to the control socket, resolved spelling of its path: success expected, got success
+  stub PASS: worker: lookup of the privileged XPC service: success expected, lookup gave 0
+  stub PASS: worker: lookup of another Mach service: success expected, lookup gave 0
+  stub PASS: worker: start /usr/bin/true: success expected, got success
+  stub PASS: worker: open the path /dev/fd/N: success expected, got success
+  stub PASS: worker: open the UserMapping file: allowed expected, got success
+  stub PASS: worker: lookup of io.macfuse.mount: allowed expected, got success
+  stub PASS: worker: fork: allowed expected, got success
+  stub PASS: desc: lost its parent: ppid 1
+  stub PASS: desc: leads its own process group: pgid 8455 pid 8455
+  stub PASS: desc: connect() to the control socket: success expected, got success
+  stub PASS: desc: connect() to the control socket, resolved spelling: success expected, got success
+  stub PASS: desc: lookup of the privileged XPC service: success expected, lookup gave 0
+PASS: worker control, no profile, with a descendant: no check failed (0 failed)
+PASS: worker control, no profile, with a descendant: 22 checks passed (at least 22 expected)
+== desc-broad: the same descendant under the widened profile (I-SBX-11)
+PASS: worker under the profile, with a descendant widened ahead of its last rules: the worker started (status ok)
+PASS: worker under the profile, with a descendant widened ahead of its last rules: the descendant finished its attempts after the worker exited
+PASS: worker under the profile, with a descendant widened ahead of its last rules: the descendant still runs (pid 8459)
+PASS: worker under the profile, with a descendant widened ahead of its last rules: the stand-in ran and all its checks held (exit status 0)
+PASS: worker under the profile, with a descendant widened ahead of its last rules: the descendant is gone after the teardown of the worker
+PASS: worker under the profile, with a descendant widened ahead of its last rules: no process of the user holds the device any more (0 more killed)
+  stub PASS: start: worker-sbx-desc-broad (profile applied)
+  stub PASS: worker: read the inherited descriptor
+  stub PASS: worker: open /etc/passwd: denied expected, got Operation not permitted
+  stub PASS: worker: create a file in /private/tmp: denied expected, got Operation not permitted
+  stub PASS: worker: open the directory /Users: denied expected, got Operation not permitted
+  stub PASS: worker: open /usr/local/etc/ntfs-macos/other: denied expected, got Operation not permitted
+  stub PASS: worker: TCP connect to 127.0.0.1: allowed expected, got success
+  stub PASS: worker: connect() to another Unix socket: allowed expected, got success
+  stub PASS: worker: connect() to the control socket: denied expected, got Operation not permitted
+  stub PASS: worker: connect() to the control socket, resolved spelling of its path: denied expected, got Operation not permitted
+  stub PASS: worker: lookup of the privileged XPC service: sandbox denial (1100) expected, lookup gave 1100
+  stub PASS: worker: lookup of another Mach service: success expected, lookup gave 0
+  stub PASS: worker: start /usr/bin/true: denied expected, got Operation not permitted
+  stub PASS: worker: open the path /dev/fd/N: denied expected, got Operation not permitted
+  stub PASS: worker: open the UserMapping file: denied expected, got Operation not permitted
+  stub PASS: worker: lookup of io.macfuse.mount: allowed expected, got success
+  stub PASS: worker: fork: allowed expected, got success
+  stub PASS: desc: lost its parent: ppid 1
+  stub PASS: desc: leads its own process group: pgid 8459 pid 8459
+  stub PASS: desc: connect() to the control socket: denied expected, got Operation not permitted
+  stub PASS: desc: connect() to the control socket, resolved spelling: denied expected, got Operation not permitted
+  stub PASS: desc: lookup of the privileged XPC service: sandbox denial (1100) expected, lookup gave 1100
+PASS: worker under the profile, with a descendant widened ahead of its last rules: no check failed (0 failed)
+PASS: worker under the profile, with a descendant widened ahead of its last rules: 22 checks passed (at least 22 expected)
+== tree: the worker group is killed while a descendant outside the group lives (I-SBX-12)
+PASS: worker under the profile, with a descendant and the worker alive: the worker started (status ok)
+PASS: worker under the profile, with a descendant and the worker alive: the descendant finished its attempts
+PASS: worker under the profile, with a descendant and the worker alive: the descendant still runs (pid 8463)
+PASS: worker under the profile, with a descendant and the worker alive: kill of the worker's group
+PASS: worker under the profile, with a descendant and the worker alive: the worker was killed (exit status 137)
+PASS: worker under the profile, with a descendant and the worker alive: the descendant is gone after the teardown of the worker
+PASS: worker under the profile, with a descendant and the worker alive: no process of the user holds the device any more (0 more killed)
+  stub PASS: start: worker-sbx-tree (profile applied)
+  stub PASS: worker: read the inherited descriptor
+  stub PASS: worker: open /etc/passwd: denied expected, got Operation not permitted
+  stub PASS: worker: create a file in /private/tmp: denied expected, got Operation not permitted
+  stub PASS: worker: open the directory /Users: denied expected, got Operation not permitted
+  stub PASS: worker: open /usr/local/etc/ntfs-macos/other: denied expected, got Operation not permitted
+  stub PASS: worker: TCP connect to 127.0.0.1: denied expected, got Operation not permitted
+  stub PASS: worker: connect() to another Unix socket: denied expected, got Operation not permitted
+  stub PASS: worker: connect() to the control socket: denied expected, got Operation not permitted
+  stub PASS: worker: connect() to the control socket, resolved spelling of its path: denied expected, got Operation not permitted
+  stub PASS: worker: lookup of the privileged XPC service: sandbox denial (1100) expected, lookup gave 1100
+  stub PASS: worker: lookup of another Mach service: sandbox denial (1100) expected, lookup gave 1100
+  stub PASS: worker: start /usr/bin/true: denied expected, got Operation not permitted
+  stub PASS: worker: open the path /dev/fd/N: denied expected, got Operation not permitted
+  stub PASS: worker: open the UserMapping file: denied expected, got Operation not permitted
+  stub PASS: worker: lookup of io.macfuse.mount: allowed expected, got success
+  stub PASS: worker: fork: allowed expected, got success
+  stub PASS: desc: leads its own process group: pgid 8463 pid 8463
+  stub PASS: desc: connect() to the control socket: denied expected, got Operation not permitted
+  stub PASS: desc: connect() to the control socket, resolved spelling: denied expected, got Operation not permitted
+  stub PASS: desc: lookup of the privileged XPC service: sandbox denial (1100) expected, lookup gave 1100
+PASS: worker under the profile, with a descendant and the worker alive: no check failed (0 failed)
+PASS: worker under the profile, with a descendant and the worker alive: 21 checks passed (at least 21 expected)
+PASS: worker control, no profile, with a descendant and the worker alive: the worker started (status ok)
+PASS: worker control, no profile, with a descendant and the worker alive: the descendant finished its attempts
+PASS: worker control, no profile, with a descendant and the worker alive: the descendant still runs (pid 8467)
+PASS: worker control, no profile, with a descendant and the worker alive: kill of the worker's group
+PASS: worker control, no profile, with a descendant and the worker alive: the worker was killed (exit status 137)
+PASS: worker control, no profile, with a descendant and the worker alive: the descendant is gone after the teardown of the worker
+PASS: worker control, no profile, with a descendant and the worker alive: no process of the user holds the device any more (0 more killed)
+  stub PASS: start: worker-ctl-tree (no profile)
+  stub PASS: worker: read the inherited descriptor
+  stub PASS: worker: open /etc/passwd: success expected, got success
+  stub PASS: worker: create a file in /private/tmp: success expected, got success
+  stub PASS: worker: open the directory /Users: success expected, got success
+  stub PASS: worker: open /usr/local/etc/ntfs-macos/other: success expected, got success
+  stub PASS: worker: TCP connect to 127.0.0.1: success expected, got success
+  stub PASS: worker: connect() to another Unix socket: success expected, got success
+  stub PASS: worker: connect() to the control socket: success expected, got success
+  stub PASS: worker: connect() to the control socket, resolved spelling of its path: success expected, got success
+  stub PASS: worker: lookup of the privileged XPC service: success expected, lookup gave 0
+  stub PASS: worker: lookup of another Mach service: success expected, lookup gave 0
+  stub PASS: worker: start /usr/bin/true: success expected, got success
+  stub PASS: worker: open the path /dev/fd/N: success expected, got success
+  stub PASS: worker: open the UserMapping file: allowed expected, got success
+  stub PASS: worker: lookup of io.macfuse.mount: allowed expected, got success
+  stub PASS: worker: fork: allowed expected, got success
+  stub PASS: desc: leads its own process group: pgid 8467 pid 8467
+  stub PASS: desc: connect() to the control socket: success expected, got success
+  stub PASS: desc: connect() to the control socket, resolved spelling: success expected, got success
+  stub PASS: desc: lookup of the privileged XPC service: success expected, lookup gave 0
+PASS: worker control, no profile, with a descendant and the worker alive: no check failed (0 failed)
+PASS: worker control, no profile, with a descendant and the worker alive: 21 checks passed (at least 21 expected)
+== broad: the last rules win over a wider allow (I-SBX-08)
+PASS: worker under the profile widened ahead of its last rules, started in /var/run: the worker started (status ok)
+PASS: worker under the profile widened ahead of its last rules, started in /var/run: the stand-in ran and all its checks held (exit status 0)
+  stub PASS: start: worker-sbx-broad-cwd (profile applied)
+  stub PASS: worker: read the inherited descriptor
+  stub PASS: worker: open /etc/passwd: denied expected, got Operation not permitted
+  stub PASS: worker: create a file in /private/tmp: denied expected, got Operation not permitted
+  stub PASS: worker: open the directory /Users: denied expected, got Operation not permitted
+  stub PASS: worker: open /usr/local/etc/ntfs-macos/other: denied expected, got Operation not permitted
+  stub PASS: worker: TCP connect to 127.0.0.1: allowed expected, got success
+  stub PASS: worker: connect() to another Unix socket: allowed expected, got success
+  stub PASS: worker: connect() to the control socket: denied expected, got Operation not permitted
+  stub PASS: worker: connect() to the control socket, resolved spelling of its path: denied expected, got Operation not permitted
+  stub PASS: worker: connect() to the control socket by a relative path: denied expected, got Operation not permitted
+  stub PASS: worker: lookup of the privileged XPC service: sandbox denial (1100) expected, lookup gave 1100
+  stub PASS: worker: lookup of another Mach service: success expected, lookup gave 0
+  stub PASS: worker: start /usr/bin/true: denied expected, got Operation not permitted
+  stub PASS: worker: open the path /dev/fd/N: denied expected, got Operation not permitted
+  stub PASS: worker: open the UserMapping file: denied expected, got Operation not permitted
+  stub PASS: worker: lookup of io.macfuse.mount: allowed expected, got success
+  stub PASS: worker: fork: allowed expected, got success
+PASS: worker under the profile widened ahead of its last rules, started in /var/run: no check failed (0 failed)
+PASS: worker under the profile widened ahead of its last rules, started in /var/run: 18 checks passed (at least 17 expected)
+PASS: worker control, no profile, started in /var/run: the worker started (status ok)
+PASS: worker control, no profile, started in /var/run: the stand-in ran and all its checks held (exit status 0)
+  stub PASS: start: worker-ctl-cwd (no profile)
+  stub PASS: worker: read the inherited descriptor
+  stub PASS: worker: open /etc/passwd: success expected, got success
+  stub PASS: worker: create a file in /private/tmp: success expected, got success
+  stub PASS: worker: open the directory /Users: success expected, got success
+  stub PASS: worker: open /usr/local/etc/ntfs-macos/other: success expected, got success
+  stub PASS: worker: TCP connect to 127.0.0.1: success expected, got success
+  stub PASS: worker: connect() to another Unix socket: success expected, got success
+  stub PASS: worker: connect() to the control socket: success expected, got success
+  stub PASS: worker: connect() to the control socket, resolved spelling of its path: success expected, got success
+  stub PASS: worker: connect() to the control socket by a relative path: success expected, got success
+  stub PASS: worker: lookup of the privileged XPC service: success expected, lookup gave 0
+  stub PASS: worker: lookup of another Mach service: success expected, lookup gave 0
+  stub PASS: worker: start /usr/bin/true: success expected, got success
+  stub PASS: worker: open the path /dev/fd/N: success expected, got success
+  stub PASS: worker: open the UserMapping file: allowed expected, got success
+  stub PASS: worker: lookup of io.macfuse.mount: allowed expected, got success
+  stub PASS: worker: fork: allowed expected, got success
+PASS: worker control, no profile, started in /var/run: no check failed (0 failed)
+PASS: worker control, no profile, started in /var/run: 18 checks passed (at least 17 expected)
+== fail: sandbox-exec that cannot apply the profile never starts the program (I-SBX-10)
+PASS: the profile as it is (control): the program ran (status ok)
+PASS: a profile with a syntax error: the spawn failed (status I/O error)
+PASS: a profile with a syntax error: the program never started (its first line is missing from its log)
+PASS: a profile with a syntax error: the verdict is unknown
+PASS: a profile that names a parameter that is not given: the spawn failed (status I/O error)
+PASS: a profile that names a parameter that is not given: the program never started (its first line is missing from its log)
+PASS: a profile that names a parameter that is not given: the verdict is unknown
+PASS: a sandbox-exec that is missing: the spawn failed (status I/O error)
+PASS: a sandbox-exec that is missing: the program never started (its first line is missing from its log)
+PASS: a sandbox-exec that is missing: the verdict is unknown
+== result: 0 failure(s)
+== fuse2: a second FUSE mount by the worker, on a directory of the console user (I-SBX-09)
+PASS: fuse2-ctl: the stand-in started (status ok)
+  fuse2-ctl: libfuse is serving; mount table has an entry at the directory (type macfuse, flags 0x10201218); the user reads pwned.txt: the stand-in's file
+PASS: fuse2-ctl: clean-up: the mount is gone and the user's own file is visible again
+PASS: fuse2 control, no profile: the stand-in's second mount appears and serves its file
+PASS: fuse2-sbx: the stand-in started (status ok)
+  fuse2-sbx: libfuse is serving; mount table has an entry at the directory (type macfuse, flags 0x10201218); the user reads pwned.txt: the stand-in's file
+PASS: fuse2-sbx: clean-up: the mount is gone and the user's own file is visible again
+PASS: fuse2 under the worker profile: KNOWN RESIDUAL RISK (R-07), the second mount appears on the user's directory and serves the worker's files
+== result: 0 failure(s)
+== priv: probe and volmark as nobody (I-DMN-09)
+PASS: priv: probe stand-in ran (status ok); its checks of descriptors, group and signals held
+PASS: priv: volmark stand-in ran (status ok, code 0)
+PASS: priv: child 1 ran as uid 4294967294 gid 4294967294 (not root)
+PASS: priv: child 1 is the configured unprivileged user (uid 4294967294)
+PASS: priv: child 2 ran as uid 4294967294 gid 4294967294 (not root)
+PASS: priv: child 2 is the configured unprivileged user (uid 4294967294)
+PASS: priv: both stand-ins reported their user (2)
+== result: 0 failure(s)
+== rw: worker as the console user from a root process (U6, I-DMN-09)
+  spawn_worker: ok after 3253 ms, mounted_ro=0
+PASS: rw: the mount appeared
+PASS: rw: MNT_RDONLY of the mount (0) matches the decision
+  mount: /dev/disk6s1 on /Volumes/spawnvmrw (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+  worker: pid 8567:   501  8567 <tmp>/sandboxvm.ek3z9r/ntfsmac-worker /dev/fd/4 /Volumes/spawnvmrw -o backend=fskit,local,norecover,noatime,windows_names,nocompression,no_d
+PASS: rw: the worker runs as the console user (uid 501)
+PASS: rw: the worker leads its own process group
+PASS: rw: the console user writes and reads a file through the mount (code 0)
+  channel so far: S rw|
+PASS: rw: the first record is S rw
+PASS: rw: unmount(2) (code 0)
+PASS: rw: worker exited with status 0
+  channel at the end: S rw|U 0|
+PASS: rw: records show a clean end (S rw ... U 0, no E)
+PASS: rw: the mount is gone
+NOTE: rw: rmdir /Volumes/spawnvmrw: No such file or directory
+  log: Version 2026.9.28 external FUSE 29
+  log: Mounted /dev/fd/4 (Read-Write, label "sandboxvm", NTFS 3.1)
+  log: Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+  log: Mount options: backend=fskit,local,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/4
+  log: Global ownership and permissions enforced, configuration type 1
+  log: Unmounting /dev/fd/4 (sandboxvm)
+== result: 0 failure(s)
+== ro: worker as the console user from a root process (U6, I-DMN-09)
+  spawn_worker: ok after 3218 ms, mounted_ro=1
+PASS: ro: the mount appeared
+PASS: ro: MNT_RDONLY of the mount (1) matches the decision
+  mount: /dev/disk6s1 on /Volumes/spawnvmro (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+  worker: pid 8613:   501  8613 <tmp>/sandboxvm.ek3z9r/ntfsmac-worker /dev/fd/4 /Volumes/spawnvmro -o backend=fskit,local,norecover,noatime,windows_names,nocompression,no_d
+PASS: ro: the worker runs as the console user (uid 501)
+PASS: ro: the worker leads its own process group
+PASS: ro: the console user reads the file of the rw case and cannot write through the mount (code 0)
+  channel so far: S ro|
+PASS: ro: the first record is S ro
+PASS: ro: unmount(2) (code 0)
+PASS: ro: worker exited with status 0
+  channel at the end: S ro|U 0|
+PASS: ro: the mount is gone
+NOTE: ro: rmdir /Volumes/spawnvmro: No such file or directory
+  log: Version 2026.9.28 external FUSE 29
+  log: Mounted /dev/fd/4 (Read-Only, label "sandboxvm", NTFS 3.1)
+  log: Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022,ro
+  log: Mount options: backend=fskit,local,ro,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/4
+  log: Global ownership and permissions enforced, configuration type 1
+  log: Unmounting /dev/fd/4 (sandboxvm)
+== result: 0 failure(s)
+== real: the real probe and volmark under their profiles (I-SBX-07)
+PASS: image file: control probe without a profile: state clean (status ok)
+PASS: image file: the probe runs under probe.sb (status ok)
+PASS: image file: the verdict under the profile equals the control (state clean)
+PASS: volmark set printed no warning (a refused ioctl would show here)
+PASS: image file: volmark set runs under volmark.sb (code 0)
+PASS: image file: the probe sees the flag set by volmark (state dirty_flag)
+PASS: volmark clear printed no warning (a refused ioctl would show here)
+PASS: image file: volmark clear runs under volmark.sb (code 0)
+PASS: image file: the probe sees the flag cleared (state clean)
+  raw disk: /dev/rdisk6
+PASS: raw disk: control probe without a profile: state clean (status ok)
+PASS: raw disk: the probe runs under probe.sb (status ok)
+PASS: raw disk: the verdict under the profile equals the control (state clean)
+PASS: volmark set printed no warning (a refused ioctl would show here)
+PASS: raw disk: volmark set runs under volmark.sb (code 0)
+PASS: raw disk: the probe sees the flag set by volmark (state dirty_flag)
+PASS: volmark clear printed no warning (a refused ioctl would show here)
+PASS: raw disk: volmark clear runs under volmark.sb (code 0)
+PASS: raw disk: the probe sees the flag cleared (state clean)
+== result: 0 failure(s)

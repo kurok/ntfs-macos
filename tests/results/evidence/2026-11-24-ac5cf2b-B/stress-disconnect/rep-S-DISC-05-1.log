@@ -1,0 +1,26 @@
+== S-DISC-05 rep 1: workload fsync, yank at 3, injected fault: hash
+PASS: S-DISC-05.1 the volume mounts rw (Mounted rw)
+PASS: S-DISC-05.1 the journal holds the entry of the rw session
+PASS: S-DISC-05.1 the writer is running at the moment of the yank
+PASS: S-DISC-05.1 the yank (kill of the process that serves the image) worked
+NOTE: S-DISC-05.1 point of the yank: right after the fsyncs of file 3 returned (writer idle), 3 fsync records
+PASS: S-DISC-05.1 the volume row goes away within 120 s
+PASS: S-DISC-05.1 the writer is gone after the kill
+PASS: S-DISC-05.1 no worker is left
+PASS: S-DISC-05.1 no macfuse mount is left
+PASS: S-DISC-05.1 the mount point directory is gone
+PASS: S-DISC-05.1: no process holds /dev/disk6 within 60 s
+PASS: S-DISC-05.1 the journal entry stays
+NOTE: injected: one byte of base/sentinel.bin flipped in the image
+PASS: S-DISC-05.1 ntfsfix -n exit status on the yanked image (0)
+PASS: S-DISC-05.1 the dirty flag is set on the yanked image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- S-DISC-05.1 next attach (disk6): disk6  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: S-DISC-05.1 next attach: state (Mounted)
+PASS: S-DISC-05.1 next attach: mode (ro)
+NOTE: S-DISC-05.1 next attach: reason 'dirty_flag_journal'
+PASS: S-DISC-05.1 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-05.1 synced files: BAD base/sentinel.bin: sha256 876bfd0574d3de70f0175d782ed38f316aad4a290be4ff5a19cbd034f3178b7c, expected d44f094db86a7ff003d8d1f5845d30435f71cf33fca3eec5e46b49ef0a7a0042
+FAIL: S-DISC-05.1 next attach: every file synced before the yank is intact by hash (BAD base/sentinel.bin: sha256 876bfd0574d3de70f0175d782ed38f316aad4a290be4ff5a19cbd034f3178b7c, expected d44f094db86a7ff003d8d1f5845d30435f71cf33fca3eec5e46b49ef0a7a0042)
+PASS: S-DISC-05.1 next attach: the journal entry is still there
+PASS: S-DISC-05.1 next attach: the read-only session left the image unchanged (38119189f5fb6f0a2074fe01903bdc84353e3c28b89516dd6164ca2afb32c543)
+NOTE: S-DISC-05.1 image hash fixture 0737ba9d6d70c724ef44b375c33b9d5c50dd49a1620983733de8f9b59240f743, after yank 38119189f5fb6f0a2074fe01903bdc84353e3c28b89516dd6164ca2afb32c543

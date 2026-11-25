@@ -1,0 +1,16 @@
+{
+ "unsynced_data_after_module_kill": [
+  {
+   "rep": "module#1",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#2",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  }
+ ]
+}

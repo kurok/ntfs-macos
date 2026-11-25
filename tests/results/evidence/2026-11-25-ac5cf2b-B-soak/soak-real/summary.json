@@ -1,0 +1,60 @@
+{
+ "kind": "soak",
+ "workers": 1,
+ "duration_planned_s": 21600.0,
+ "duration_actual_s": 21600.99,
+ "verify_every_s": 600.0,
+ "hang_limit_s": 60.0,
+ "baseline_s": 3600.0,
+ "ops_total": 6120125,
+ "mismatches": 0,
+ "errors": 0,
+ "verifies": 36,
+ "verifies_min_per_worker": 36,
+ "bytes_written": 92756470375,
+ "bytes_verified": 122331682080,
+ "lat_max_s": 0.6308,
+ "lat_p50_s": 0.002,
+ "lat_p99_s": 0.064,
+ "lat_p999_s": 0.128,
+ "slowest": [],
+ "ops_by_kind": {
+  "create": 858122,
+  "seqwrite": 715501,
+  "randwrite": 859012,
+  "truncate": 628913,
+  "rename": 573365,
+  "mmap": 430019,
+  "delete": 900940,
+  "mkdir": 286844,
+  "rmdir": 214514,
+  "dirrename": 142536,
+  "readdir": 215351,
+  "readback": 286284,
+  "verify": 8723,
+  "setup": 1
+ },
+ "worker_ok": [
+  true
+ ],
+ "hang": null,
+ "injected": {
+  "corrupt": false,
+  "stall": ""
+ },
+ "rss_samples": 721,
+ "rss": {
+  "status": "pass",
+  "baseline_kb": 14272,
+  "baseline_t": 3600.21,
+  "peak_kb": 14448,
+  "final_kb": 14432,
+  "growth_pct": 1.233,
+  "final_growth_pct": 1.121,
+  "limit_pct": 10.0,
+  "samples_after": 600
+ },
+ "ps_errors": 0,
+ "failures": [],
+ "verdict": "pass"
+}

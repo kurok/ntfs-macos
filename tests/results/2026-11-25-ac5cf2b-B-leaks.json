@@ -1,0 +1,51 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "ac5cf2b5dab778a340bde623dbd9f63b298194e3",
+  "dirty_tree": false,
+  "env": "B",
+  "host_os": "macOS 27.2.1",
+  "guest_os": "macOS 27.2 arm64",
+  "macfuse_version": "5.5.0",
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-25T00:35:36Z",
+  "finished": "2026-11-25T00:38:49Z",
+  "cases": [
+    {
+      "id": "S-LEAK-01",
+      "status": "pass",
+      "duration_s": 144.0,
+      "evidence": [
+        "evidence/2026-11-25-ac5cf2b-B-leaks/summary.txt",
+        "evidence/2026-11-25-ac5cf2b-B-leaks/classification.json",
+        "evidence/2026-11-25-ac5cf2b-B-leaks/patched-map.json",
+        "evidence/2026-11-25-ac5cf2b-B-leaks/meta.txt",
+        "evidence/2026-11-25-ac5cf2b-B-leaks/leaks-control.txt",
+        "evidence/2026-11-25-ac5cf2b-B-leaks/workload.log",
+        "evidence/2026-11-25-ac5cf2b-B-leaks/worker.log",
+        "evidence/2026-11-25-ac5cf2b-B-leaks/provenance.txt",
+        "evidence/2026-11-25-ac5cf2b-B-leaks/leaks-worker-scan1.txt",
+        "evidence/2026-11-25-ac5cf2b-B-leaks/leaks-worker-scan2.txt",
+        "evidence/2026-11-25-ac5cf2b-B-leaks/leaks-worker-scan3.txt",
+        "evidence/2026-11-25-ac5cf2b-B-leaks/inputs.txt"
+      ],
+      "note": "3 scan(s) of the worker after 50 workload iteration(s); project leaks: 0; engine and platform leaks: engine: ROOT LEAK: <malloc in fuse_new_common> (x1); parameters: 50 workload iteration(s), criterion 50; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 ebfcee76596b"
+    },
+    {
+      "id": "S-LEAK-01-CONTROL",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [
+        "evidence/2026-11-25-ac5cf2b-B-leaks/leaks-control.txt",
+        "evidence/2026-11-25-ac5cf2b-B-leaks/inputs.txt"
+      ],
+      "note": "leaks found 1 root(s) allocated in ctl_leak_site; classified with no rule: 0 project (expected 0); line rule 'leakctl.c:24 is patched': 1 R1 hit(s) with a parsed frame leakctl.c:19..29 (expected >= 1); function rule 'ctl_leak_site is patched': 1 R2 hit(s) (expected >= 1); inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 ebfcee76596b"
+    },
+    {
+      "id": "STAGE-B-MODE",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [],
+      "note": "criterion:leaks"
+    }
+  ]
+}

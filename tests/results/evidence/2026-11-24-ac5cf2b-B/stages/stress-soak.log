@@ -1,0 +1,53 @@
+[0/2] Re-checking globbed directories...
+ninja: no work to do.
+mixlib selftest: ok
+mix_result selftest: ok
+soak: generating clean-64m-4k in Environment A
+ok       clean-64m-4k 4a57af780cc4146b3f400f54e8fee65a3c475a04039800389f6e510ee7add8fc (375 entries)
+soak: copying the suite into ntfsmac-soak-93638
+soak: running in the guest (600 s, workers 1, baseline 100 s, controls: corrupt)
+PASS: soak-real exactly one worker holds the device
+NOTE: soak-real worker pid 8490, RSS 15472 kB at the start
+soak: PASS ops=206354 verifies=5 mismatches=0 errors=0 lat_max=0.731s p99<=0.064s rss={"status": "pass", "baseline_kb": 13440, "baseline_t": 100.37, "peak_kb": 13920, "final_kb": 13920, "growth_pct": 3.571, "final_growth_pct": 3.571, "limit_pct": 10.0, "samples_after": 50}
+PASS: soak-real the volume unmounts cleanly through the daemon
+PASS: soak-real ntfsfix -n after the unmount (0)
+PASS: soak-real after the remount: state and mode (Mounted rw)
+verify: 250 files, 41 directories, 16614368 bytes, 0 mismatch(es)
+PASS: soak-real ntfsfix -n after the verification session (0)
+== soak-ctl-corrupt (control-corrupt): soak, 15 s, 1 worker(s), hang limit 60 s, injected: corrupt
+PASS: soak-ctl-corrupt the volume mounts rw (Mounted rw)
+PASS: soak-ctl-corrupt exactly one worker holds the device
+NOTE: soak-ctl-corrupt worker pid 9350, RSS 15472 kB at the start
+soak: FAIL ops=6138 verifies=0 mismatches=1 errors=0 lat_max=0.093s p99<=0.016s
+  FAIL mismatch: d000118/d001103/big001678: content differs (model 266240 bytes, disk 266240 bytes, first difference at offset 0)
+PASS: soak-ctl-corrupt the volume unmounts cleanly through the daemon
+PASS: soak-ctl-corrupt ntfsfix -n after the unmount (0)
+PASS: soak-ctl-corrupt after the remount: state and mode (Mounted rw)
+verify: 192 files, 41 directories, 16254364 bytes, 1 mismatch(es)
+  BAD soak/w00/d000118/d001103/big001678: size/sha256 differ (disk (266240, '80aaf29fbfdef0bb3bc94de87bdb2cda54eaf2313d50259c9ab48d8f5b252315'), expected (266240, '91dd1c848f25ca50328a5b310909f16e037988501dc666e91982d80353e09e24'))
+PASS: soak-ctl-corrupt ntfsfix -n after the verification session (0)
+== runs
+soak-real	real	0	0	0	0	Mounted rw	Mounted rw
+soak-ctl-corrupt	control-corrupt	1	1	0	0	Mounted rw	Mounted rw
+-- daemon log (tail)
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 123 ms, mount gone afterwards
+INFO: journal: entry A8D4029792CA7301 removed by path 1 (clean-session), tombstone A8D4029792CA7301-20261125T000226Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+result: 0 check(s) failed
+soak: guest script exit 0
+S-SOAK-01-SHORT PASS: shortened run, not criterion 5.2 (the case id has the suffix -SHORT): soak: mixed workload with a model, full verification, worker RSS: 600 s planned, 601 s run, 1 worker(s), 206354 ops, 5 full verification(s), 2982.3 MiB written, 4003.9 MiB verified, 0 mismatch(es), 0 error(s); op latency p50<=2 ms p99<=64 ms max 0.73 s (hang limit 60 s); worker RSS baseline 13440 kB at 100 s, peak 13920 kB, fina
+S-SOAK-01-CONTROL-SHORT PASS: negative controls (corrupt): rss-synthetic caught: synthetic samples 0%/9.9%/10.0%/30%/no baseline gave pass/pass/fail/fail/error (expected pass/pass/fail/fail/error); corrupt caught: injected byte flip: driver exit 1, failure kinds ['mismatch'], 1 mismatch(es), remount verification exit 1 with 1 mismatch(es); inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833
+tart.sh: stopped ntfsmac-soak-93638
+tart.sh: deleted ntfsmac-soak-93638

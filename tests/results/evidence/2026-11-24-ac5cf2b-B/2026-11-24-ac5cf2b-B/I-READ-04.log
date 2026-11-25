@@ -1,0 +1,203 @@
+22:51:55 start I-READ-04 (env B)
+22:51:55 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac <tmp>/ntfsmac-case-wrtqrc5w/vol.img -> rc=0
+22:51:55 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:51:55 stderr: <tmp>/ntfsmac-case-wrtqrc5w/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-wrtqrc5w/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-wrtqrc5w/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-wrtqrc5w/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-wrtqrc5w/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:51:55 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr <tmp>/ntfsmac-case-wrtqrc5w/vol.img <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:51:59 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-wrtqrc5w/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:51:59 $ sync -> rc=0
+22:51:59 $ /sbin/umount <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:51:59 on disk r0: resident, 0 bytes
+22:51:59 on disk r1: resident, 1 bytes
+22:51:59 on disk r64: resident, 64 bytes
+22:51:59 on disk r128: resident, 128 bytes
+22:51:59 on disk r256: resident, 256 bytes
+22:51:59 on disk r384: resident, 384 bytes
+22:51:59 on disk r448: resident, 448 bytes
+22:51:59 on disk r512: resident, 512 bytes
+22:51:59 on disk r576: resident, 576 bytes
+22:51:59 on disk r640: resident, 640 bytes
+22:51:59 on disk r704: non-resident, size 704 alloc 4096 init 704
+22:51:59 on disk r768: non-resident, size 768 alloc 4096 init 768
+22:51:59 on disk r832: non-resident, size 832 alloc 4096 init 832
+22:51:59 on disk r896: non-resident, size 896 alloc 4096 init 896
+22:51:59 on disk r960: non-resident, size 960 alloc 4096 init 960
+22:51:59 largest resident size among [0, 1, 64, 128, 256, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960]: 640
+22:51:59 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr <tmp>/ntfsmac-case-wrtqrc5w/vol.img <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:02 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-wrtqrc5w/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:52:02 cold r0 cached read(100): 0 reads: (none)
+22:52:02 cold r0 cached read(8388608): 0 reads: (none)
+22:52:02 cold r0 nocache read(100): 0 reads: (none)
+22:52:02 cold r0 nocache read(8388608): 0 reads: (none)
+22:52:02 cold r1 cached read(101): 1 reads: 1
+22:52:02 cold r1 cached read(8388608): 1 reads: 1
+22:52:02 cold r1 nocache read(101): 1 reads: 1
+22:52:02 cold r1 nocache read(8388608): 1 reads: 1
+22:52:02 cold r128 cached read(228): 1 reads: 128
+22:52:02 cold r128 cached read(8388608): 1 reads: 128
+22:52:02 cold r128 nocache read(228): 1 reads: 128
+22:52:03 cold r128 nocache read(8388608): 1 reads: 128
+22:52:03 cold r256 cached read(356): 1 reads: 256
+22:52:03 cold r256 cached read(8388608): 1 reads: 256
+22:52:03 cold r256 nocache read(356): 1 reads: 256
+22:52:03 cold r256 nocache read(8388608): 1 reads: 256
+22:52:03 cold r384 cached read(484): 1 reads: 384
+22:52:03 cold r384 cached read(8388608): 1 reads: 384
+22:52:03 cold r384 nocache read(484): 1 reads: 384
+22:52:03 cold r384 nocache read(8388608): 1 reads: 384
+22:52:03 cold r448 cached read(548): 1 reads: 448
+22:52:03 cold r448 cached read(8388608): 1 reads: 448
+22:52:03 cold r448 nocache read(548): 1 reads: 448
+22:52:03 cold r448 nocache read(8388608): 1 reads: 448
+22:52:03 cold r512 cached read(612): 1 reads: 512
+22:52:03 cold r512 cached read(8388608): 1 reads: 512
+22:52:03 cold r512 nocache read(612): 1 reads: 512
+22:52:03 cold r512 nocache read(8388608): 1 reads: 512
+22:52:03 cold r576 cached read(676): 1 reads: 576
+22:52:03 cold r576 cached read(8388608): 1 reads: 576
+22:52:03 cold r576 nocache read(676): 1 reads: 576
+22:52:03 cold r576 nocache read(8388608): 1 reads: 576
+22:52:03 cold r64 cached read(164): 1 reads: 64
+22:52:03 cold r64 cached read(8388608): 1 reads: 64
+22:52:03 cold r64 nocache read(164): 1 reads: 64
+22:52:03 cold r64 nocache read(8388608): 1 reads: 64
+22:52:03 cold r640 cached read(740): 1 reads: 640
+22:52:03 cold r640 cached read(8388608): 1 reads: 640
+22:52:03 cold r640 nocache read(740): 1 reads: 640
+22:52:03 cold r640 nocache read(8388608): 1 reads: 640
+22:52:03 cold r704 cached read(804): 1 reads: 704
+22:52:03 cold r704 cached read(8388608): 1 reads: 704
+22:52:03 cold r704 nocache read(804): 1 reads: 704
+22:52:03 cold r704 nocache read(8388608): 1 reads: 704
+22:52:03 cold r768 cached read(868): 1 reads: 768
+22:52:03 cold r768 cached read(8388608): 1 reads: 768
+22:52:03 cold r768 nocache read(868): 1 reads: 768
+22:52:03 cold r768 nocache read(8388608): 1 reads: 768
+22:52:03 cold r832 cached read(932): 1 reads: 832
+22:52:03 cold r832 cached read(8388608): 1 reads: 832
+22:52:03 cold r832 nocache read(932): 1 reads: 832
+22:52:03 cold r832 nocache read(8388608): 1 reads: 832
+22:52:03 cold r896 cached read(996): 1 reads: 896
+22:52:03 cold r896 cached read(8388608): 1 reads: 896
+22:52:03 cold r896 nocache read(996): 1 reads: 896
+22:52:03 cold r896 nocache read(8388608): 1 reads: 896
+22:52:03 cold r960 cached read(1060): 1 reads: 960
+22:52:03 cold r960 cached read(8388608): 1 reads: 960
+22:52:03 cold r960 nocache read(1060): 1 reads: 960
+22:52:03 cold r960 nocache read(8388608): 1 reads: 960
+22:52:03 $ sync -> rc=0
+22:52:03 $ /sbin/umount <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:03 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr <tmp>/ntfsmac-case-wrtqrc5w/vol.img <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:07 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-wrtqrc5w/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:52:07 $ sync -> rc=0
+22:52:07 $ /sbin/umount <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:07 on disk tr: resident, 100 bytes
+22:52:07 after 'create 100 B': 100 bytes; resident, 100 bytes
+22:52:07 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr <tmp>/ntfsmac-case-wrtqrc5w/vol.img <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:10 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-wrtqrc5w/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:52:10 after 'create 100 B' cached read(200): 1 reads: 100
+22:52:10 after 'create 100 B' cached read(8388608): 1 reads: 100
+22:52:10 after 'create 100 B' nocache read(200): 1 reads: 100
+22:52:10 after 'create 100 B' nocache read(8388608): 1 reads: 100
+22:52:10 $ sync -> rc=0
+22:52:10 $ /sbin/umount <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:10 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr <tmp>/ntfsmac-case-wrtqrc5w/vol.img <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:14 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-wrtqrc5w/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:52:14 $ sync -> rc=0
+22:52:14 $ /sbin/umount <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:14 on disk tr: non-resident, size 5000 alloc 8192 init 5000
+22:52:14 after 'write at 4900 (grow to 5000)': 5000 bytes; non-resident, size 5000 alloc 8192 init 5000
+22:52:14 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr <tmp>/ntfsmac-case-wrtqrc5w/vol.img <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:17 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-wrtqrc5w/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:52:17 after 'write at 4900 (grow to 5000)' cached read(5100): 1 reads: 5000
+22:52:17 after 'write at 4900 (grow to 5000)' cached read(8388608): 1 reads: 5000
+22:52:17 after 'write at 4900 (grow to 5000)' nocache read(5100): 1 reads: 5000
+22:52:17 after 'write at 4900 (grow to 5000)' nocache read(8388608): 1 reads: 5000
+22:52:17 $ sync -> rc=0
+22:52:17 $ /sbin/umount <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:17 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr <tmp>/ntfsmac-case-wrtqrc5w/vol.img <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:21 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-wrtqrc5w/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:52:21 $ sync -> rc=0
+22:52:21 $ /sbin/umount <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:21 on disk tr: non-resident, size 50 alloc 4096 init 50
+22:52:21 after 'truncate to 50': 50 bytes; non-resident, size 50 alloc 4096 init 50
+22:52:21 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr <tmp>/ntfsmac-case-wrtqrc5w/vol.img <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:25 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-wrtqrc5w/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:52:25 after 'truncate to 50' cached read(150): 1 reads: 50
+22:52:25 after 'truncate to 50' cached read(8388608): 1 reads: 50
+22:52:25 after 'truncate to 50' nocache read(150): 1 reads: 50
+22:52:25 after 'truncate to 50' nocache read(8388608): 1 reads: 50
+22:52:25 $ sync -> rc=0
+22:52:25 $ /sbin/umount <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:25 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr <tmp>/ntfsmac-case-wrtqrc5w/vol.img <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:29 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-wrtqrc5w/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:52:29 $ sync -> rc=0
+22:52:29 $ /sbin/umount <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:29 on disk tr: resident, 0 bytes
+22:52:29 after 'truncate to 0': 0 bytes; resident, 0 bytes
+22:52:29 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr <tmp>/ntfsmac-case-wrtqrc5w/vol.img <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:32 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-wrtqrc5w/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:52:32 after 'truncate to 0' cached read(100): 0 reads: (none)
+22:52:32 after 'truncate to 0' cached read(8388608): 0 reads: (none)
+22:52:32 after 'truncate to 0' nocache read(100): 0 reads: (none)
+22:52:32 after 'truncate to 0' nocache read(8388608): 0 reads: (none)
+22:52:32 $ sync -> rc=0
+22:52:32 $ /sbin/umount <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:32 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr <tmp>/ntfsmac-case-wrtqrc5w/vol.img <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:36 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-wrtqrc5w/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:52:36 $ sync -> rc=0
+22:52:36 $ /sbin/umount <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:36 on disk tr: resident, 30 bytes
+22:52:36 after 'write 30 B': 30 bytes; resident, 30 bytes
+22:52:36 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr <tmp>/ntfsmac-case-wrtqrc5w/vol.img <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:40 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-wrtqrc5w/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:52:40 after 'write 30 B' cached read(130): 1 reads: 30
+22:52:40 after 'write 30 B' cached read(8388608): 1 reads: 30
+22:52:40 after 'write 30 B' nocache read(130): 1 reads: 30
+22:52:40 after 'write 30 B' nocache read(8388608): 1 reads: 30
+22:52:40 $ sync -> rc=0
+22:52:40 $ /sbin/umount <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:40 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr <tmp>/ntfsmac-case-wrtqrc5w/vol.img <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:44 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-wrtqrc5w/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:52:44 $ sync -> rc=0
+22:52:44 $ /sbin/umount <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:44 on disk tr: non-resident, size 10485760 alloc 10485760 init 30, sparse (unit 2^4 clusters, compressed size 4096)
+22:52:44 after 'truncate up to 10 MiB': 10485760 bytes; non-resident, size 10485760 alloc 10485760 init 30, sparse (unit 2^4 clusters, compressed size 4096)
+22:52:44 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr <tmp>/ntfsmac-case-wrtqrc5w/vol.img <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:49 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-wrtqrc5w/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:52:49 after 'truncate up to 10 MiB' cached read(10485860): 1 reads: 10485760
+22:52:49 after 'truncate up to 10 MiB' cached read(8388608): 2 reads: 8388608 2097152
+22:52:49 after 'truncate up to 10 MiB' nocache read(10485860): 1 reads: 10485760
+22:52:49 after 'truncate up to 10 MiB' nocache read(8388608): 2 reads: 8388608 2097152
+22:52:49 $ sync -> rc=0
+22:52:49 $ /sbin/umount <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:49 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr <tmp>/ntfsmac-case-wrtqrc5w/vol.img <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:52 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-wrtqrc5w/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:52:52 $ sync -> rc=0
+22:52:52 $ /sbin/umount <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:52 on disk tr: non-resident, size 5296 alloc 8192 init 5296
+22:52:52 after 'append 300 B x4 then 4096': 5296 bytes; non-resident, size 5296 alloc 8192 init 5296
+22:52:52 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr <tmp>/ntfsmac-case-wrtqrc5w/vol.img <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:56 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-wrtqrc5w/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:52:56 after 'append 300 B x4 then 4096' cached read(5396): 1 reads: 5296
+22:52:56 after 'append 300 B x4 then 4096' cached read(8388608): 1 reads: 5296
+22:52:56 after 'append 300 B x4 then 4096' nocache read(5396): 1 reads: 5296
+22:52:56 after 'append 300 B x4 then 4096' nocache read(8388608): 1 reads: 5296
+22:52:56 $ sync -> rc=0
+22:52:56 $ /sbin/umount <tmp>/ntfsmac-case-wrtqrc5w/mnt -> rc=0
+22:52:56 $ <home>/ntfsmac/deps/bin/ntfsfix -n <tmp>/ntfsmac-case-wrtqrc5w/vol.img -> rc=0
+22:52:56 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition <tmp>/ntfsmac-case-wrtqrc5w/vol.img was processed successfully.
+22:52:56 PASS: records leave the MFT record above 640 bytes; every transition read back correctly
+22:52:56 end I-READ-04: pass

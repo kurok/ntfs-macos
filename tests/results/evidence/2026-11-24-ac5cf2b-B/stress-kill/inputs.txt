@@ -1,0 +1,6 @@
+deps_tar=none
+fixtures_dir=<tmp>//kill.2Opucc/fixtures
+fixtures_key=8833f0e75b3a8764b4aadd7f9adab9256c066571c3504bee081ef447a401b4d2
+fixtures_dirty=0
+fixture.clean-64m-4k.img=9d0b82ac009bd39c4054da32ecf8b967cf521422592beca300a879fde8735ac8 (67108864 bytes)
+fixtures_manifest_sha256=f7f51cf923c41f0577966491962c6bb16c64de5487b766f2ed7abe1ab9991daf

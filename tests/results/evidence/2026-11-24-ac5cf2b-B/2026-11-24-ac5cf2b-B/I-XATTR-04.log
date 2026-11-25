@@ -1,0 +1,65 @@
+22:57:04 start I-XATTR-04 (env B)
+22:57:04 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac <tmp>/ntfsmac-case-neglzsyv/vol.img -> rc=0
+22:57:04 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:57:04 stderr: <tmp>/ntfsmac-case-neglzsyv/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-neglzsyv/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-neglzsyv/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-neglzsyv/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-neglzsyv/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:57:04 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,windows_names,noatime,streams_interface=openxattr <tmp>/ntfsmac-case-neglzsyv/vol.img <tmp>/ntfsmac-case-neglzsyv/mnt -> rc=0
+22:57:08 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-neglzsyv/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:57:08 ok   set com.apple.quarantine -> ?(0)
+22:57:08 ok   get com.apple.quarantine
+22:57:08 ok   xattr -p quarantine
+22:57:08 ok   set com.apple.lastuseddate#PS on dl.bin -> ?(0)
+22:57:08 ok   set com.apple.TextEncoding on dl.bin -> ?(0)
+22:57:08 ok   set com.apple.ResourceFork (70 KiB) -> ?(0)
+22:57:08 ok   get com.apple.ResourceFork
+22:57:08 ok   ..namedfork/rsrc reads what the xattr API stored
+22:57:08 ok   stat of ..namedfork/rsrc is the fork size
+22:57:08 ok   xattr API reads what ..namedfork/rsrc wrote
+22:57:08 ok   ResourceFork is listed after a write through the path
+22:57:08 ok   data fork untouched by the resource fork
+22:57:08 ok   remove quarantine -> ?(0)
+22:57:08 ok   get quarantine after remove -> ENOATTR(93)
+22:57:08 ok   remove ResourceFork -> ?(0)
+22:57:08 ..namedfork/rsrc after removing the xattr: errno ENOENT(2) (recorded)
+22:57:08 ok   set quarantine again -> ?(0)
+22:57:08 ok   dl.bin: all names before remount
+22:57:08 $ sync -> rc=0
+22:57:08 $ /sbin/umount <tmp>/ntfsmac-case-neglzsyv/mnt -> rc=0
+22:57:08 $ <home>/ntfsmac/deps/bin/ntfsfix -n <tmp>/ntfsmac-case-neglzsyv/vol.img -> rc=0
+22:57:08 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition <tmp>/ntfsmac-case-neglzsyv/vol.img was processed successfully.
+22:57:08 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,windows_names,noatime,streams_interface=openxattr <tmp>/ntfsmac-case-neglzsyv/vol.img <tmp>/ntfsmac-case-neglzsyv/mnt -> rc=0
+22:57:12 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-neglzsyv/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+22:57:12 ok   dl.bin after remount
+22:57:12 ok   resource fork after remount, through the path
+22:57:12 ok   no ._* files
+22:57:12 $ sync -> rc=0
+22:57:12 $ /sbin/umount <tmp>/ntfsmac-case-neglzsyv/mnt -> rc=0
+22:57:12 $ <home>/ntfsmac/deps/bin/ntfsfix -n <tmp>/ntfsmac-case-neglzsyv/vol.img -> rc=0
+22:57:12 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition <tmp>/ntfsmac-case-neglzsyv/vol.img was processed successfully.
+22:57:12 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,windows_names,noatime,streams_interface=openxattr,debug <tmp>/ntfsmac-case-neglzsyv/vol.img <tmp>/ntfsmac-case-neglzsyv/mnt
+22:57:15 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-neglzsyv/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:57:15 ok   trace: set a 100-byte resource fork -> ?(0)
+22:57:15 ok   trace: read at position 0
+22:57:15 ok   trace: read at position 50 -> EINVAL(22)
+22:57:15 ok   trace: read at position 100 (end-of-fork probe) -> EINVAL(22)
+22:57:15 $ sync -> rc=0
+22:57:15 $ /sbin/umount <tmp>/ntfsmac-case-neglzsyv/mnt -> rc=0
+22:57:15 worker getxattr requests for the resource fork (size, position): [('0', '0'), ('100', '0')]
+22:57:15 ok   the worker only ever sees position 0: the non-zero reads are refused before the request reaches it
+22:57:15 end I-XATTR-04: pass

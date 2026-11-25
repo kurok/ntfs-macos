@@ -1,0 +1,335 @@
+{
+ "builder_optstr": "backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022",
+ "dump": {
+  "t": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 125911584770000000,
+    "crtime": 134400348280794217,
+    "ctime": 134400348280819123,
+    "mtime": 125911584990000000
+   },
+   "xattrs": {}
+  },
+  "t/d1": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 125911584000000000,
+    "crtime": 134400348280805098,
+    "ctime": 134400348280818259,
+    "mtime": 125911584001234567
+   },
+   "xattrs": {}
+  },
+  "t/d1/inner": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "5181f08980fc52792ddab9fb8ceeb7a9fcec6a125738800f700359f4b9ccf8e8",
+   "size": 10,
+   "t": "f",
+   "times": {
+    "atime": 134400348280807264,
+    "crtime": 134400348280807264,
+    "ctime": 134400348280807921,
+    "mtime": 134400348280807921
+   },
+   "xattrs": {}
+  },
+  "t/d2": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 159394409010000000,
+    "crtime": 134400348280806258,
+    "ctime": 134400348280818736,
+    "mtime": 110133216002500000
+   },
+   "xattrs": {}
+  },
+  "t/d2/moved": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "c4c43582f5ce6de250490ffc55eb0bc2739f9357b874c4dd4c0b38e4f3bfd81e",
+   "size": 100,
+   "t": "f",
+   "times": {
+    "atime": 125911584030000000,
+    "crtime": 134400348280813163,
+    "ctime": 134400348280815702,
+    "mtime": 125911584040000000
+   },
+   "xattrs": {}
+  },
+  "t/f1": {
+   "attrib": "0x00000020",
+   "blocks": 4096,
+   "group": null,
+   "nlink": 1,
+   "sha": "2c3f54c80ec4e2ea380ba8a1427f52b812cd4a455e8881d16812196b88b0f8a3",
+   "size": 1000,
+   "t": "f",
+   "times": {
+    "atime": 125911584050000000,
+    "crtime": 134400348280795690,
+    "ctime": 134400348280812338,
+    "mtime": 125911584090000000
+   },
+   "xattrs": {}
+  },
+  "t/f2": {
+   "attrib": "0x00000020",
+   "blocks": 4096,
+   "group": null,
+   "nlink": 1,
+   "sha": "f9308213f497d787c038bb02a6843e98c686d4d19d2e6e60e086cffddb4fae5b",
+   "size": 2000,
+   "t": "f",
+   "times": {
+    "atime": 125911584001234567,
+    "crtime": 134400348280798319,
+    "ctime": 134400348280809240,
+    "mtime": 125911584011234567
+   },
+   "xattrs": {}
+  },
+  "t/f3": {
+   "attrib": "0x00000020",
+   "blocks": 4096,
+   "group": null,
+   "nlink": 1,
+   "sha": "c86cfba038b372b9f3653945f2aeb21b5baa4f51ef9da7aa26a61f36d9aba8c2",
+   "size": 3000,
+   "t": "f",
+   "times": {
+    "atime": 110133216002500000,
+    "crtime": 134400348280800149,
+    "ctime": 134400348280809790,
+    "mtime": 110133216002500000
+   },
+   "xattrs": {}
+  },
+  "t/f4": {
+   "attrib": "0x00000020",
+   "blocks": 4096,
+   "group": null,
+   "nlink": 1,
+   "sha": "e995c46a7b127d1dc8909e839b53670c9f109570f54af2a77b92ba3b99173fc6",
+   "size": 4000,
+   "t": "f",
+   "times": {
+    "atime": 159394409010000000,
+    "crtime": 134400348280801782,
+    "ctime": 134400348280810387,
+    "mtime": 159394409080000000
+   },
+   "xattrs": {}
+  },
+  "t/f5": {
+   "attrib": "0x00000020",
+   "blocks": 8192,
+   "group": null,
+   "nlink": 1,
+   "sha": "43b482dce81de08b56fb5cab912801c89b1ef7ebbcf38893deb795ceacbe916c",
+   "size": 5000,
+   "t": "f",
+   "times": {
+    "atime": 189025920000000000,
+    "crtime": 134400348280803228,
+    "ctime": 134400348280810885,
+    "mtime": 189025920000000000
+   },
+   "xattrs": {}
+  },
+  "t/same": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "030bd0794f032ac8e008dab900317140f436fff7cb2fa17b8bb84e53806329d9",
+   "size": 50,
+   "t": "f",
+   "times": {
+    "atime": 125911584001234567,
+    "crtime": 134400348280816547,
+    "ctime": 134400348280817735,
+    "mtime": 125911584001234567
+   },
+   "xattrs": {}
+  }
+ },
+ "env": "A",
+ "image_sha256": "caa6221d97d9b4d64037caa4abc5f1bb804311f8c88104a8abebabac191c2c70",
+ "macfuse_version": null,
+ "ntfs3g_version": "2026.9.28",
+ "ntfsfix": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition <tmp>/refop07/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "ntfsfix_after_replay": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition <tmp>/refop07/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "oplog": [
+  {
+   "i": 0,
+   "op": "mkdir",
+   "path": "t",
+   "rc": "ok"
+  },
+  {
+   "i": 1,
+   "op": "create",
+   "path": "t/f1",
+   "rc": "ok"
+  },
+  {
+   "i": 2,
+   "op": "create",
+   "path": "t/f2",
+   "rc": "ok"
+  },
+  {
+   "i": 3,
+   "op": "create",
+   "path": "t/f3",
+   "rc": "ok"
+  },
+  {
+   "i": 4,
+   "op": "create",
+   "path": "t/f4",
+   "rc": "ok"
+  },
+  {
+   "i": 5,
+   "op": "create",
+   "path": "t/f5",
+   "rc": "ok"
+  },
+  {
+   "i": 6,
+   "op": "mkdir",
+   "path": "t/d1",
+   "rc": "ok"
+  },
+  {
+   "i": 7,
+   "op": "mkdir",
+   "path": "t/d2",
+   "rc": "ok"
+  },
+  {
+   "i": 8,
+   "op": "create",
+   "path": "t/d1/inner",
+   "rc": "ok"
+  },
+  {
+   "i": 9,
+   "op": "utime",
+   "path": "t/f1",
+   "rc": "ok"
+  },
+  {
+   "i": 10,
+   "op": "utime",
+   "path": "t/f2",
+   "rc": "ok"
+  },
+  {
+   "i": 11,
+   "op": "utime",
+   "path": "t/f3",
+   "rc": "ok"
+  },
+  {
+   "i": 12,
+   "op": "utime",
+   "path": "t/f4",
+   "rc": "ok"
+  },
+  {
+   "i": 13,
+   "op": "utime",
+   "path": "t/f5",
+   "rc": "ok"
+  },
+  {
+   "i": 14,
+   "op": "write",
+   "path": "t/f1",
+   "rc": "ok"
+  },
+  {
+   "i": 15,
+   "op": "utime",
+   "path": "t/f1",
+   "rc": "ok"
+  },
+  {
+   "i": 16,
+   "op": "create",
+   "path": "t/moved",
+   "rc": "ok"
+  },
+  {
+   "i": 17,
+   "op": "utime",
+   "path": "t/moved",
+   "rc": "ok"
+  },
+  {
+   "i": 18,
+   "op": "rename",
+   "path": "t/d2/moved",
+   "rc": "ok"
+  },
+  {
+   "i": 19,
+   "op": "create",
+   "path": "t/same",
+   "rc": "ok"
+  },
+  {
+   "i": 20,
+   "op": "utime",
+   "path": "t/same",
+   "rc": "ok"
+  },
+  {
+   "i": 21,
+   "op": "utime",
+   "path": "t/d1",
+   "rc": "ok"
+  },
+  {
+   "i": 22,
+   "op": "utime",
+   "path": "t/d2",
+   "rc": "ok"
+  },
+  {
+   "i": 23,
+   "op": "utime",
+   "path": "t",
+   "rc": "ok"
+  }
+ ],
+ "optstr": "norecover,noatime,windows_names,nocompression,streams_interface=openxattr,uid=0,gid=0,fmask=0133,dmask=0022",
+ "os": "Debian GNU/Linux 13 (trixie) aarch64",
+ "t_end": 1795561228.2870498,
+ "t_start": 1795561228.0778172,
+ "treedump": "d\tt\nd\tt/d1\nf\tt/d1/inner\t10\t5181f08980fc52792ddab9fb8ceeb7a9fcec6a125738800f700359f4b9ccf8e8\nd\tt/d2\nf\tt/d2/moved\t100\tc4c43582f5ce6de250490ffc55eb0bc2739f9357b874c4dd4c0b38e4f3bfd81e\nf\tt/f1\t1000\t2c3f54c80ec4e2ea380ba8a1427f52b812cd4a455e8881d16812196b88b0f8a3\nf\tt/f2\t2000\tf9308213f497d787c038bb02a6843e98c686d4d19d2e6e60e086cffddb4fae5b\nf\tt/f3\t3000\tc86cfba038b372b9f3653945f2aeb21b5baa4f51ef9da7aa26a61f36d9aba8c2\nf\tt/f4\t4000\te995c46a7b127d1dc8909e839b53670c9f109570f54af2a77b92ba3b99173fc6\nf\tt/f5\t5000\t43b482dce81de08b56fb5cab912801c89b1ef7ebbcf38893deb795ceacbe916c\nf\tt/same\t50\t030bd0794f032ac8e008dab900317140f436fff7cb2fa17b8bb84e53806329d9\n"
+}

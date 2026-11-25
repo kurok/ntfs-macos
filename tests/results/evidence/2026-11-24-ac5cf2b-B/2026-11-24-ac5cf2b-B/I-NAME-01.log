@@ -1,0 +1,42 @@
+22:46:41 start I-NAME-01 (env B)
+22:46:41 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac <tmp>/ntfsmac-case-p61lk2k6/vol.img -> rc=0
+22:46:41 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:46:41 stderr: <tmp>/ntfsmac-case-p61lk2k6/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-p61lk2k6/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-p61lk2k6/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-p61lk2k6/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-p61lk2k6/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:46:41 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 <tmp>/ntfsmac-case-p61lk2k6/vol.img <tmp>/ntfsmac-case-p61lk2k6/mnt -> rc=0
+22:46:44 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-p61lk2k6/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:46:44 after creating the NFC name, the listing holds [('63616665cc81', 'NFD')]
+22:46:44 O_EXCL create by the NFD form -> errno 17 (EEXIST)
+22:46:44 observed: read by NFC after a write by NFD (stale if it is the old text) -> b'written as NFC'
+22:46:44 observed: stat size by NFC / by NFD -> (14, 17)
+22:46:44 mkdir by the other form -> errno 17 (EEXIST)
+22:46:44 observed: read d-NFC/inside after creating it below d-NFD -> b'in'
+22:46:44 observed: stat of the old NFC name after a rename of the NFD name -> os.stat_result(st_mode=33279, st_ino=68, st_dev=16777240, st_nlink=1, st_uid=501, st_gid=20, st_size=14, st_atime=1795560404, st_mtime=1795560404, st_ctime=1795560404)
+22:46:44 $ sync -> rc=0
+22:46:44 $ /sbin/umount <tmp>/ntfsmac-case-p61lk2k6/mnt -> rc=0
+22:46:44 $ <home>/ntfsmac/deps/bin/ntfsfix -n <tmp>/ntfsmac-case-p61lk2k6/vol.img -> rc=0
+22:46:44 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition <tmp>/ntfsmac-case-p61lk2k6/vol.img was processed successfully.
+22:46:44 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro <tmp>/ntfsmac-case-p61lk2k6/vol.img <tmp>/ntfsmac-case-p61lk2k6/mnt -> rc=0
+22:46:47 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-p61lk2k6/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+22:46:47 $ sync -> rc=0
+22:46:47 $ /sbin/umount <tmp>/ntfsmac-case-p61lk2k6/mnt -> rc=0
+22:46:47 remount check (I-NAME-01): 2 files, 1 directories compared, 0 problems
+22:46:47 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro <tmp>/ntfsmac-case-p61lk2k6/vol.img <tmp>/ntfsmac-case-p61lk2k6/mnt -> rc=0
+22:46:51 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-p61lk2k6/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+22:46:51 old name after the remount -> errno 2 (ENOENT)
+22:46:51 $ sync -> rc=0
+22:46:51 $ /sbin/umount <tmp>/ntfsmac-case-p61lk2k6/mnt -> rc=0
+22:46:51 stale read by NFC in the same session: True
+22:46:51 end I-NAME-01: pass

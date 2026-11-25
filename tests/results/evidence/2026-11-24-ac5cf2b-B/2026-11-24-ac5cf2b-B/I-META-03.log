@@ -1,0 +1,57 @@
+22:37:52 start I-META-03 (env B)
+22:37:52 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac <tmp>/ntfsmac-case-8g19bni2/vol.img -> rc=0
+22:37:52 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:37:52 stderr: <tmp>/ntfsmac-case-8g19bni2/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-8g19bni2/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-8g19bni2/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-8g19bni2/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-8g19bni2/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:37:52 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 <tmp>/ntfsmac-case-8g19bni2/vol.img <tmp>/ntfsmac-case-8g19bni2/mnt -> rc=0
+22:37:55 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-8g19bni2/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:37:55 $ echo content > <tmp>/ntfsmac-case-8g19bni2/mnt/fa_noatime; mkdir <tmp>/ntfsmac-case-8g19bni2/mnt/da_noatime; echo x > <tmp>/ntfsmac-case-8g19bni2/mnt/da_noatime/inner -> rc=0
+22:37:55 $ echo content > <tmp>/ntfsmac-case-8g19bni2/mnt/fa_atime; mkdir <tmp>/ntfsmac-case-8g19bni2/mnt/da_atime; echo x > <tmp>/ntfsmac-case-8g19bni2/mnt/da_atime/inner -> rc=0
+22:37:55 $ echo content > <tmp>/ntfsmac-case-8g19bni2/mnt/fa_relatime; mkdir <tmp>/ntfsmac-case-8g19bni2/mnt/da_relatime; echo x > <tmp>/ntfsmac-case-8g19bni2/mnt/da_relatime/inner -> rc=0
+22:37:55 $ echo content > <tmp>/ntfsmac-case-8g19bni2/mnt/fa_default; mkdir <tmp>/ntfsmac-case-8g19bni2/mnt/da_default; echo x > <tmp>/ntfsmac-case-8g19bni2/mnt/da_default/inner -> rc=0
+22:37:55 $ echo content > <tmp>/ntfsmac-case-8g19bni2/mnt/fa_product; mkdir <tmp>/ntfsmac-case-8g19bni2/mnt/da_product; echo x > <tmp>/ntfsmac-case-8g19bni2/mnt/da_product/inner -> rc=0
+22:37:55 $ sync -> rc=0
+22:37:55 $ /sbin/umount <tmp>/ntfsmac-case-8g19bni2/mnt -> rc=0
+22:37:56 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime <tmp>/ntfsmac-case-8g19bni2/vol.img <tmp>/ntfsmac-case-8g19bni2/mnt -> rc=0
+22:37:59 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-8g19bni2/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:38:00 $ sync -> rc=0
+22:38:00 $ /sbin/umount <tmp>/ntfsmac-case-8g19bni2/mnt -> rc=0
+22:38:00 noatime (-o noatime): file atime live 2020-01-01 00:00:00.000000000, disk 2020-01-01 00:00:00.000000000 (updated: False); dir atime live 2020-01-01 00:00:00.000000000, disk 2020-01-01 00:00:00.000000000 (updated: False); file mtime disk 2020-01-01 00:00:00.000000000
+22:38:00 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,atime <tmp>/ntfsmac-case-8g19bni2/vol.img <tmp>/ntfsmac-case-8g19bni2/mnt -> rc=0
+22:38:03 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-8g19bni2/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:38:05 $ sync -> rc=0
+22:38:05 $ /sbin/umount <tmp>/ntfsmac-case-8g19bni2/mnt -> rc=0
+22:38:05 atime (-o atime): file atime live 2020-01-01 00:00:00.000000000, disk 2026-11-24 22:38:03.776421000 (updated: True); dir atime live 2020-01-01 00:00:00.000000000, disk 2026-11-24 22:38:03.777969000 (updated: True); file mtime disk 2020-01-01 00:00:00.000000000
+22:38:05 atime: the live atime differs from the disk (live 2020-01-01 00:00:00.000000000)
+22:38:05 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,relatime <tmp>/ntfsmac-case-8g19bni2/vol.img <tmp>/ntfsmac-case-8g19bni2/mnt -> rc=0
+22:38:08 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-8g19bni2/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:38:09 $ sync -> rc=0
+22:38:09 $ /sbin/umount <tmp>/ntfsmac-case-8g19bni2/mnt -> rc=0
+22:38:09 relatime (-o relatime): file atime live 2020-01-01 00:00:00.000000000, disk 2026-11-24 22:38:08.151197000 (updated: True); dir atime live 2020-01-01 00:00:00.000000000, disk 2026-11-24 22:38:08.152742000 (updated: True); file mtime disk 2020-01-01 00:00:00.000000000
+22:38:09 relatime: the live atime differs from the disk (live 2020-01-01 00:00:00.000000000)
+22:38:09 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 <tmp>/ntfsmac-case-8g19bni2/vol.img <tmp>/ntfsmac-case-8g19bni2/mnt -> rc=0
+22:38:12 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-8g19bni2/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:38:13 $ sync -> rc=0
+22:38:13 $ /sbin/umount <tmp>/ntfsmac-case-8g19bni2/mnt -> rc=0
+22:38:13 default (-o -): file atime live 2020-01-01 00:00:00.000000000, disk 2026-11-24 22:38:12.585828000 (updated: True); dir atime live 2020-01-01 00:00:00.000000000, disk 2026-11-24 22:38:12.587530000 (updated: True); file mtime disk 2020-01-01 00:00:00.000000000
+22:38:13 default: the live atime differs from the disk (live 2020-01-01 00:00:00.000000000)
+22:38:13 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022 <tmp>/ntfsmac-case-8g19bni2/vol.img <tmp>/ntfsmac-case-8g19bni2/mnt -> rc=0
+22:38:17 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-8g19bni2/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:38:18 $ sync -> rc=0
+22:38:18 $ /sbin/umount <tmp>/ntfsmac-case-8g19bni2/mnt -> rc=0
+22:38:18 product (-o noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022): file atime live 2020-01-01 00:00:00.000000000, disk 2020-01-01 00:00:00.000000000 (updated: False); dir atime live 2020-01-01 00:00:00.000000000, disk 2020-01-01 00:00:00.000000000 (updated: False); file mtime disk 2020-01-01 00:00:00.000000000
+22:38:18 $ <home>/ntfsmac/deps/bin/ntfsfix -n <tmp>/ntfsmac-case-8g19bni2/vol.img -> rc=0
+22:38:18 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition <tmp>/ntfsmac-case-8g19bni2/vol.img was processed successfully.
+22:38:18 end I-META-03: pass

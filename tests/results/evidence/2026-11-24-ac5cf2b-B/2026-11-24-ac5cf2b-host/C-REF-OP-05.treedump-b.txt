@@ -1,0 +1,30 @@
+d	.fseventsd
+f	.fseventsd/fseventsd-uuid	36	8e2727b5ac2d94539191e4ef667d98932e6cf26beb780b8dbc1877fd94691a66
+d	uni
+f	uni/ leading space	11100	d3badcdda9a115d113165e445aa3bf1dfe5434cd3c5bd8681874f5fcc6e3c7a7
+f	uni/UPPER	13100	564e0dfd41572b403782b206c4da687034df15fd926e881019e961815e52f41b
+f	uni/Upper	15100	c8c6fd7d9e1ccb3532e8eb0580aaf130c00a228a88160ea635d2501ff40a5cb4
+f	uni/café-renamed.txt	100	06675713903b5052854a0048db4100137604bd48fd6dc3a12e2e972b2952e1b3
+f	uni/dots.in.name...txt	12100	fd014d05a893d4fba0250db16958114529f38963eb3edfb836ffac0cb65eaaf6
+f	uni/emoji 🙂.bin	2100	08011016b92fbf011bb19bf16629f9d2fcbef3380294db4e823f1cbbb6902263
+f	uni/family 👨‍👩‍👧.txt	3100	4be8152e8e06e2cbf2ae95ebf8a75e43f4dbca497d6b896a2f0b636d2fb94142
+f	uni/flag 🇺🇦.txt	4100	e082a42792cec5ca4b13a870de3c5c56a87313461e7872d2db07a6fbfc45e9e1
+d	uni/nfd-dir-ü
+f	uni/nfd-dir-ü/file	66	ec9ff1d76db9a6dae0d00d02218909ec8131b3ceb6c84ffbb44ae0b6a759edef
+f	uni/résumé.txt	555	e61109597b6d964a68c064e3e3a593f1e43e409215c8d792ea84480b234615e0
+f	uni/straße.txt	9100	f59d72eda88dbec9ad6ba65bb8b8404940daca2373a6d497275b405c30bd7214
+f	uni/upper	14100	4a55de1268e95255de1619b4545945b8d35fbbccf94fbb5f0dbfea7518de93f8
+f	uni/with space inside.txt	10100	93d08ca4c46706624ac9bd473ae6cbfbeb44a18502377153e468b885e5c17b2b
+f	uni/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx	18100	0cee07c3de381731d8068ae9a9c89563436afd4a68e3f416e34c216e424462e3
+f	uni/Å-angstrom.txt	17100	49bb73f3405c09fa354d9e1aceb59a8065ad502d9d5845f0c66bdd7df490aab2
+f	uni/Å.txt	16100	5b1bc837f5386d5a0837725b004746d2f0eb48c1134c71fd382cc491849a106f
+d	uni/über dir
+f	uni/über dir/inüber.txt	4321	ef6a6b0cef464d2556fd81fa2e134fb0f39814f32f30e2fee3bd86d9b79ed811
+f	uni/ελληνικά.txt	8100	76117bc3624a2d0caf1d062e11fc0fae1a4e11265eb03407ef20ce3fcb278c30
+f	uni/שלום.txt	6100	4ee6a741f34b21248533fa8c609fafabe3f11c0faa3c869e56915b287ce07cf1
+f	uni/مرحبا.txt	7100	bf2f9b7bbc295207c327b5d89174b639dc73048cbd4a8cd285dc5d5238dfa685
+f	uni/日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日日	19100	1ea7ce9205d0d6895aa29572a3f293c4bf16bbc997c0be926aa688f00aec36fb
+d	uni/日本語
+f	uni/日本語/файл.bin	1100	8b6d0042a552e6e8ae4838e57214194ba296611f8df6ab93e0deac805fd4579f
+f	uni/한국어.txt	5100	f535be62b3e58535d83f0274a60f3bbe2ceffac1e4267731c76deada2b53ad8c
+f	uni/🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂	20100	a57049d6b7d2ae7917cc8b0d0a45502412f60ff0b911a2c3f7f0dc3574ec0258

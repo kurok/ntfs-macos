@@ -1,0 +1,252 @@
+{
+ "notes": [
+  "past EOF: {'read_in_last_page': 'ok 0', 'read_whole_page_after_eof': 'sigbus', 'write_in_last_page_after_eof': 'ok 32', 'write_whole_page_after_eof': 'sigbus', 'fsize_after_msync': 'ok 24576'}",
+  "shrink under a mapping: {'read_cut_page': 'sigbus', 'read_kept_page': 'ok 84', 'write_cut_page': 'sigbus', 'regrown_bytes_zero': True, 'regrown_via_read2_zero': True}"
+ ],
+ "page_size": 16384,
+ "pastEOF": {
+  "fsize_after_msync": "ok 24576",
+  "read_in_last_page": "ok 0",
+  "read_whole_page_after_eof": "sigbus",
+  "write_in_last_page_after_eof": "ok 32",
+  "write_whole_page_after_eof": "sigbus"
+ },
+ "shrink": {
+  "read_cut_page": "sigbus",
+  "read_kept_page": "ok 84",
+  "regrown_bytes_zero": true,
+  "regrown_via_read2_zero": true,
+  "write_cut_page": "sigbus"
+ },
+ "steps": [
+  {
+   "call_ms": 1.1,
+   "device_syncs": 0,
+   "device_writes": 12,
+   "fuse": [
+    "<CREATE n1 +-2ms",
+    "<SETATTR n5 +-1ms",
+    "<RELEASE n5 +-1ms",
+    "<OPEN n5 +-0ms",
+    "<SETATTR n5 +0ms"
+   ],
+   "opcodes": [
+    "CREATE",
+    "OPEN",
+    "RELEASE",
+    "SETATTR"
+   ],
+   "ret": "ok",
+   "step": "ext-4096.bin: ftruncate up",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 3.1,
+   "device_syncs": 0,
+   "device_writes": 2,
+   "fuse": [
+    "<READ n5 4096@0 +2ms"
+   ],
+   "opcodes": [
+    "READ"
+   ],
+   "ret": "ok 4096",
+   "step": "ext-4096.bin: mapped write over the new range",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 2.4,
+   "device_syncs": 0,
+   "device_writes": 5,
+   "fuse": [
+    "<WRITE n5 4096@0 +1ms"
+   ],
+   "opcodes": [
+    "WRITE"
+   ],
+   "ret": "ok",
+   "step": "ext-4096.bin: msync sync",
+   "write_bytes": 4096,
+   "write_bytes_during": 4096,
+   "write_requests": 1
+  },
+  {
+   "call_ms": 0.4,
+   "device_syncs": 0,
+   "device_writes": 12,
+   "fuse": [
+    "<CREATE n1 +-1ms",
+    "<SETATTR n6 +-1ms",
+    "<RELEASE n6 +-0ms",
+    "<OPEN n6 +-0ms",
+    "<SETATTR n6 +0ms"
+   ],
+   "opcodes": [
+    "CREATE",
+    "OPEN",
+    "RELEASE",
+    "SETATTR"
+   ],
+   "ret": "ok",
+   "step": "ext-16484.bin: ftruncate up",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 2.6,
+   "device_syncs": 0,
+   "device_writes": 2,
+   "fuse": [
+    "<READ n6 16896@0 +2ms"
+   ],
+   "opcodes": [
+    "READ"
+   ],
+   "ret": "ok 16484",
+   "step": "ext-16484.bin: mapped write over the new range",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 2.5,
+   "device_syncs": 0,
+   "device_writes": 5,
+   "fuse": [
+    "<WRITE n6 16484@0 +1ms"
+   ],
+   "opcodes": [
+    "WRITE"
+   ],
+   "ret": "ok",
+   "step": "ext-16484.bin: msync sync",
+   "write_bytes": 16484,
+   "write_bytes_during": 16484,
+   "write_requests": 1
+  },
+  {
+   "call_ms": 0.8,
+   "device_syncs": 0,
+   "device_writes": 2,
+   "fuse": [
+    "<SETATTR n7 +0ms"
+   ],
+   "opcodes": [
+    "SETATTR"
+   ],
+   "ret": "ok",
+   "step": "ext-1048589.bin: ftruncate up",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 10.1,
+   "device_syncs": 0,
+   "device_writes": 2,
+   "fuse": [
+    "<READ n7 32768@0 +3ms",
+    "<READ n7 16384@32768 +4ms",
+    "<READ n7 16384@49152 +5ms",
+    "<READ n7 65536@65536 +6ms",
+    "<READ n7 131072@131072 +7ms",
+    "<READ n7 262144@262144 +8ms",
+    "<READ n7 524288@524288 +9ms",
+    "<READ n7 512@1048576 +10ms"
+   ],
+   "opcodes": [
+    "READ"
+   ],
+   "ret": "ok 1048589",
+   "step": "ext-1048589.bin: mapped write over the new range",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 3.9,
+   "device_syncs": 0,
+   "device_writes": 10,
+   "fuse": [
+    "<WRITE n7 1048576@0 +2ms",
+    "<WRITE n7 13@1048576 +3ms"
+   ],
+   "opcodes": [
+    "WRITE"
+   ],
+   "ret": "ok",
+   "step": "ext-1048589.bin: msync sync",
+   "write_bytes": 1048589,
+   "write_bytes_during": 1048589,
+   "write_requests": 2
+  },
+  {
+   "call_ms": 0.1,
+   "device_syncs": 0,
+   "device_writes": 4,
+   "fuse": [
+    "<SETATTR n8 +-9ms",
+    "<READ n8 32768@0 +-5ms",
+    "<READ n8 16384@32768 +-5ms",
+    "<READ n8 16384@49152 +-4ms",
+    "<READ n8 65536@65536 +-3ms",
+    "<READ n8 131072@131072 +-2ms",
+    "<READ n8 262144@262144 +-2ms",
+    "<READ n8 524288@524288 +-1ms",
+    "<READ n8 512@1048576 +-0ms"
+   ],
+   "opcodes": [
+    "READ",
+    "SETATTR"
+   ],
+   "ret": "ok",
+   "step": "ext-nosync.bin: munmap",
+   "write_bytes": 0,
+   "write_bytes_during": 0,
+   "write_requests": 0
+  },
+  {
+   "call_ms": 3.9,
+   "device_syncs": 0,
+   "device_writes": 9,
+   "fuse": [
+    "<WRITE n8 13@1048576 +1ms",
+    "<WRITE n8 1048576@0 +2ms",
+    "<RELEASE n8 +3ms"
+   ],
+   "opcodes": [
+    "RELEASE",
+    "WRITE"
+   ],
+   "ret": "ok",
+   "step": "ext-nosync.bin: close",
+   "write_bytes": 1048589,
+   "write_bytes_during": 1048589,
+   "write_requests": 2
+  }
+ ],
+ "verify": {
+  "files": {
+   "ext-1048589.bin": "ok",
+   "ext-16484.bin": "ok",
+   "ext-4096.bin": "ok",
+   "ext-nosync.bin": "ok",
+   "pastEOF.bin": "ok",
+   "shrink.bin": "ok"
+  },
+  "fsck_rc": 0,
+  "fsck_tail": [
+   "Processing of $MFT and $MFTMirr completed successfully.",
+   "Checking the alternate boot sector... OK",
+   "NTFS volume version is 3.1.",
+   "NTFS partition <tmp>/ntfsmac-case-b6eahg5n/vol.img was processed successfully."
+  ],
+  "mount": "ok",
+  "tag": "05"
+ }
+}

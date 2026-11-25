@@ -1,0 +1,5 @@
+id	status	kind	component	class	exploitable	signature	caller	count	units	fixed_by	input
+F7	known	leak	engine	L	no (bounded per process)	leak ntfs_attr_open < ntfs_device_mount @attrib.c:426	-	1	mountwalk-s3	-	-
+F5	known	leak	engine	L	no (bounded per process)	leak ntfs_attr_readall < ntfs_make_symlink @attrib.c:7025	-	1	mountwalk-s0	-	-
+F7	known	leak	engine	L	no (bounded per process)	leak ntfs_inode_open < ntfs_device_mount < mount_view @inode.c:95	mount_view@src/probe/probe.c:98	2	probe-s0,probe-s1	-	-
+F7	known	leak	engine	L	no (bounded per process)	leak ntfs_inode_open < ntfs_device_mount @inode.c:95	-	2	mountwalk-s1,mountwalk-s2	-	-

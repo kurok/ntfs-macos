@@ -1,0 +1,20 @@
+dmn_all: output in <tmp>//ntfsmac-test-all.ONyQ9M/b/artifacts/daemon
+dmn_all: === spawn: sh <repo>/tests/integration/daemon/spawn_vm.sh --out <tmp>//ntfsmac-test-all.ONyQ9M/b/artifacts/daemon/spawn.txt
+spawn      exit 0  PASS 39  FAIL 0
+dmn_all: === spawn-sbx: sh <repo>/tests/integration/daemon/spawn_vm.sh --sandbox --out <tmp>//ntfsmac-test-all.ONyQ9M/b/artifacts/daemon/spawn-sbx.txt
+spawn-sbx  exit 0  PASS 31  FAIL 0
+dmn_all: === sandbox: sh <repo>/tests/integration/daemon/sandbox_vm.sh --out <tmp>//ntfsmac-test-all.ONyQ9M/b/artifacts/daemon/sandbox.txt
+sandbox    exit 0  PASS 138  FAIL 0
+dmn_all: === errwatch: sh <repo>/tests/integration/daemon/errwatch_vm.sh --out <tmp>//ntfsmac-test-all.ONyQ9M/b/artifacts/daemon/errwatch.txt
+errwatch   exit 0  PASS 32  FAIL 0
+dmn_all: === journal: sh <repo>/tests/integration/daemon/journal_vm.sh --out <tmp>//ntfsmac-test-all.ONyQ9M/b/artifacts/daemon/journal.txt
+journal    exit 0  PASS 121  FAIL 0
+dmn_all: === xpc: sh <repo>/tests/integration/daemon/xpc_vm.sh --out <tmp>//ntfsmac-test-all.ONyQ9M/b/artifacts/daemon/xpc.txt
+xpc        exit 0  PASS 15  FAIL 0
+dmn_all: === mirror: sh <repo>/tests/integration/daemon/dmn_mirror_vm.sh --out <tmp>//ntfsmac-test-all.ONyQ9M/b/artifacts/daemon/mirror.txt
+mirror     exit 0  PASS 49  FAIL 0
+dmn_all: === attach: sh <repo>/tests/integration/daemon/attach_vm.sh --fixtures <tmp>//ntfsmac-test-all.ONyQ9M/fixtures  --out <tmp>//ntfsmac-test-all.ONyQ9M/b/artifacts/daemon/attach.txt
+attach     exit 0  PASS 50  FAIL 0
+dmn_all: === dmn: sh <repo>/tests/integration/daemon/dmn_vm.sh --fixtures <tmp>//ntfsmac-test-all.ONyQ9M/fixtures  --out <tmp>//ntfsmac-test-all.ONyQ9M/b/artifacts/daemon/dmn.txt classes kill unmount labels priv slow u15 finder
+dmn        exit 0  PASS 549  FAIL 0
+dmn_all: summary in <tmp>//ntfsmac-test-all.ONyQ9M/b/artifacts/daemon/summary.txt

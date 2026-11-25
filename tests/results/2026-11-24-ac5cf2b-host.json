@@ -1,0 +1,80 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "ac5cf2b5dab778a340bde623dbd9f63b298194e3",
+  "dirty_tree": false,
+  "env": "host",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": null,
+  "macfuse_version": null,
+  "ntfs3g_version": null,
+  "started": "2026-11-24T22:01:19Z",
+  "finished": "2026-11-24T22:05:26Z",
+  "cases": [
+    {
+      "id": "STAGE-HOST-BUILD-RELEASE",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-host/stages/build-release.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "STAGE-HOST-UNIT-RELEASE",
+      "status": "pass",
+      "duration_s": 116.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-host/stages/unit-release.log"
+      ],
+      "note": "100% tests passed out of 82"
+    },
+    {
+      "id": "STAGE-HOST-PRODUCT-BUILD",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-host/stages/product-build.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "STAGE-HOST-BUILD-ASAN",
+      "status": "pass",
+      "duration_s": 1.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-host/stages/build-asan.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "STAGE-HOST-UNIT-ASAN",
+      "status": "pass",
+      "duration_s": 130.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-host/stages/unit-asan.log"
+      ],
+      "note": "100% tests passed out of 82"
+    },
+    {
+      "id": "STAGE-HOST-HARNESS",
+      "status": "skip",
+      "duration_s": 0.0,
+      "evidence": [],
+      "note": "they drive the VM and the container: they run in --env B"
+    },
+    {
+      "id": "STAGE-HOST-STRESS",
+      "status": "skip",
+      "duration_s": 0.0,
+      "evidence": [],
+      "note": "none registered"
+    },
+    {
+      "id": "STAGE-HOST-MODE",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [],
+      "note": "full"
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+-- Platform: macOS arm64 (product target)
+-- Sanitizers: address,undefined
+-- libntfs-3g not found: skipping ntfsmac-probe
+-- libntfs-3g not found: skipping ntfsmac-volmark
+-- libntfs-3g not found: skipping setvolflags, logfile_mark, txf_make
+-- libntfs-3g not found: skipping the image fuzz harnesses
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: <repo>/build/asan
+[0/2] Re-checking globbed directories...
+[1/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_repair_mirror.c.o
+[2/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/errwatch.c.o
+[3/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/conflict.c.o
+[4/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_peer.c.o
+[5/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/mountpoint.c.o
+[6/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/status.c.o
+[7/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/errwatch_io.c.o
+[8/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/report.c.o
+[9/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/notify.c.o
+[10/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_journal.c.o
+[11/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_parse.c.o
+[12/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/mountwatch.c.o
+[13/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/doctor.c.o
+[14/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/reconcile.c.o
+[15/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl.c.o
+[16/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_xpc.c.o
+[17/104] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_probe.c.o
+[18/104] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_policy.c.o
+[19/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/unmount_ev.c.o
+[20/104] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_journal.c.o
+[21/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/da.c.o
+[22/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/volume.c.o
+[23/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/session.c.o
+[24/104] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_options.c.o
+[25/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/unmount.c.o
+[26/104] Building C object tests/unit/da/CMakeFiles/da_watch.dir/__/__/integration/daemon/da_watch.c.o
+[27/104] Building C object tests/unit/da/CMakeFiles/da_filter.dir/da_filter.c.o
+[28/104] Building C object tests/unit/daemon/CMakeFiles/statemachine_stubs.dir/statemachine_stubs.c.o
+[29/104] Building C object tests/unit/daemon/CMakeFiles/unmount_ev_test.dir/unmount_ev_test.c.o
+[30/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_sys.c.o
+[31/104] Building C object tests/unit/ctl/CMakeFiles/ctl_fuzz.dir/ctl_fuzz.c.o
+[32/104] Building C object tests/unit/ctl/CMakeFiles/ctl_vm_probe.dir/ctl_vm_probe.c.o
+[33/104] Building C object tests/unit/daemon/CMakeFiles/statemachine_invalid.dir/statemachine_invalid.c.o
+[34/104] Building C object tests/unit/ctl/CMakeFiles/ctl_parse.dir/ctl_parse.c.o
+[35/104] Building C object tests/unit/ctl/CMakeFiles/ctl_xpc.dir/ctl_xpc.c.o
+[36/104] Building C object tests/unit/daemon/CMakeFiles/unmount_test.dir/unmount_test.c.o
+[37/104] Building C object tests/unit/daemon/CMakeFiles/unmount_verify_test.dir/unmount_verify_test.c.o
+[38/104] Building C object tests/unit/daemon/CMakeFiles/statemachine_transitions.dir/statemachine_transitions.c.o
+[39/104] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/spawn.c.o
+[40/104] Building C object tests/unit/daemon/CMakeFiles/mountpoint_test.dir/mountpoint_test.c.o
+[41/104] Building C object tests/unit/ctl/CMakeFiles/ctl_socket.dir/ctl_socket.c.o
+[42/104] Building C object tests/unit/ctl/CMakeFiles/ctl_handle.dir/ctl_handle.c.o
+[43/104] Building C object tests/unit/ctl/CMakeFiles/ctl_peer.dir/ctl_peer.c.o
+[44/104] Building C object tests/unit/daemon/CMakeFiles/startup_test.dir/startup_test.c.o
+[45/104] Building C object tests/unit/daemon/CMakeFiles/errwatch_test.dir/errwatch_test.c.o
+[46/104] Building C object tests/unit/daemon/CMakeFiles/report_test.dir/report_test.c.o
+[47/104] Building C object tests/unit/daemon_conflict/CMakeFiles/test_daemon_conflict.dir/test_conflict.c.o
+[48/104] Building C object tests/unit/spawn/CMakeFiles/test_holder.dir/test_holder.c.o
+[49/104] Building C object tests/unit/daemon/CMakeFiles/notify_test.dir/notify_test.c.o
+[50/104] Building C object tests/unit/daemon/CMakeFiles/mountwatch_test.dir/mountwatch_test.c.o
+[51/104] Building C object tests/unit/tsan/CMakeFiles/tsan_statemachine.dir/tsan_statemachine.c.o
+[52/104] Building C object tests/unit/ctl/CMakeFiles/ctl_cli.dir/ctl_cli.c.o
+[53/104] Building C object tests/unit/spawn/CMakeFiles/test_sandbox.dir/test_sandbox.c.o
+[54/104] Linking C static library src/daemon/libntfsmac_daemon.a
+[55/104] Building C object tests/unit/reconcile/CMakeFiles/test_reconcile.dir/test_reconcile.c.o
+[56/104] Linking C executable tests/unit/contracts/test_headers
+[57/104] Building C object tests/unit/daemon/CMakeFiles/privops_test.dir/privops_test.c.o
+[58/104] Building C object tests/unit/tsan/CMakeFiles/tsan_session.dir/tsan_session.c.o
+[59/104] Building C object tests/unit/daemon_conflict/CMakeFiles/test_daemon_doctor.dir/test_doctor.c.o
+[60/104] Building C object src/daemon/CMakeFiles/ntfsmacd.dir/main.c.o
+[61/104] Building C object tests/fuzz/ctl/CMakeFiles/fuzz_replay_ctl.dir/fuzz_ctl.c.o
+[62/104] Building C object tests/unit/tsan/CMakeFiles/tsan_ctl_journal.dir/tsan_ctl_journal.c.o
+[63/104] Building C object tests/unit/spawn/CMakeFiles/test_spawn.dir/test_spawn.c.o
+[64/104] Building C object tests/unit/daemon/CMakeFiles/session_test.dir/session_test.c.o
+[65/104] Linking C executable tests/unit/ctl/ctl_peer
+[66/104] Linking C executable src/cli/ntfsmac
+[67/104] Linking C executable tests/unit/da/da_filter
+[68/104] Linking C executable tests/unit/ctl/ctl_parse
+[69/104] Linking C executable tests/unit/da/da_watch
+[70/104] Linking C executable tests/unit/ctl/ctl_fuzz
+[71/104] Linking C executable tests/unit/ctl/ctl_socket
+[72/104] Linking C executable tests/unit/ctl/ctl_handle
+[73/104] Linking C executable tests/unit/ctl/ctl_vm_probe
+[74/104] Linking C executable tests/unit/daemon/statemachine_transitions
+[75/104] Linking C executable tests/unit/ctl/ctl_xpc
+[76/104] Linking C executable tests/unit/ctl/ctl_cli
+[77/104] Linking C executable tests/unit/daemon/statemachine_invalid
+[78/104] Linking C executable tests/unit/daemon/statemachine_stubs
+[79/104] Linking C executable tests/unit/daemon/mountpoint_test
+[80/104] Linking C executable src/daemon/ntfsmacd
+[81/104] Linking C executable tests/unit/daemon/unmount_test
+[82/104] Linking C executable tests/unit/daemon/unmount_verify_test
+[83/104] Linking C executable tests/unit/daemon/unmount_ev_test
+[84/104] Linking C executable tests/unit/daemon/errwatch_test
+[85/104] Linking C executable tests/unit/daemon/notify_test
+[86/104] Linking C executable tests/unit/daemon_conflict/test_daemon_conflict
+[87/104] Linking C executable tests/unit/reconcile/test_reconcile
+[88/104] Linking C executable tests/unit/spawn/test_usermap_file
+[89/104] Linking C executable tests/unit/daemon/startup_test
+[90/104] Linking C executable tests/unit/daemon/report_test
+[91/104] Linking C executable tests/unit/daemon/plist_test
+[92/104] Linking C executable tests/unit/spawn/test_spawn
+[93/104] Linking C executable tests/unit/daemon_conflict/test_daemon_doctor
+[94/104] Linking C executable tests/unit/spawn/test_usermap
+[95/104] Linking C executable tests/unit/daemon/privops_test
+[96/104] Linking C executable tests/unit/spawn/test_holder
+[97/104] Linking C executable tests/unit/tsan/tsan_ctl_journal
+[98/104] Linking C executable tests/unit/daemon/mountwatch_test
+[99/104] Linking C executable tests/unit/tsan/tsan_statemachine
+[100/104] Linking C executable tests/unit/daemon/session_test
+[101/104] Linking C executable tests/fuzz/ctl/fuzz_replay_ctl
+[102/104] Linking C executable tests/unit/spawn/test_sandbox
+[103/104] Linking C executable tests/unit/tsan/tsan_session

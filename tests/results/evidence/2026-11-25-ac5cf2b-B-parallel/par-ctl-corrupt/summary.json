@@ -1,0 +1,61 @@
+{
+ "kind": "par",
+ "workers": 4,
+ "duration_planned_s": 10.0,
+ "duration_actual_s": 10.95,
+ "verify_every_s": 120.0,
+ "hang_limit_s": 60.0,
+ "baseline_s": 0.0,
+ "ops_total": 4060,
+ "mismatches": 1,
+ "errors": 0,
+ "verifies": 3,
+ "verifies_min_per_worker": 0,
+ "bytes_written": 42585556,
+ "bytes_verified": 53817173,
+ "lat_max_s": 0.1333,
+ "lat_p50_s": 0.008,
+ "lat_p99_s": 0.128,
+ "lat_p999_s": 0.128,
+ "slowest": [],
+ "ops_by_kind": {
+  "create": 399,
+  "seqwrite": 325,
+  "randwrite": 351,
+  "truncate": 266,
+  "rename": 221,
+  "mmap": 177,
+  "delete": 372,
+  "mkdir": 132,
+  "rmdir": 103,
+  "dirrename": 57,
+  "readdir": 95,
+  "readback": 137,
+  "verify": 158,
+  "sh_create": 367,
+  "sh_rename": 171,
+  "sh_delete": 287,
+  "sh_read": 371,
+  "sh_list": 66,
+  "setup": 5
+ },
+ "worker_ok": [
+  false,
+  true,
+  true,
+  true
+ ],
+ "hang": null,
+ "injected": {
+  "corrupt": true,
+  "stall": ""
+ },
+ "ps_errors": 0,
+ "failures": [
+  {
+   "kind": "mismatch",
+   "detail": "d000016/d000026/f000047: content differs (model 86773 bytes, disk 86773 bytes, first difference at offset 0)"
+  }
+ ],
+ "verdict": "fail"
+}

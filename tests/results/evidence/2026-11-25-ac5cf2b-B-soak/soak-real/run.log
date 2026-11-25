@@ -1,0 +1,1 @@
+soak: PASS ops=6120125 verifies=36 mismatches=0 errors=0 lat_max=0.631s p99<=0.064s rss={"status": "pass", "baseline_kb": 14272, "baseline_t": 3600.21, "peak_kb": 14448, "final_kb": 14432, "growth_pct": 1.233, "final_growth_pct": 1.121, "limit_pct": 10.0, "samples_after": 600}

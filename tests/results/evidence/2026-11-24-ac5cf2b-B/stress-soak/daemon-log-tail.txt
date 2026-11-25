@@ -1,0 +1,60 @@
+INFO: disk4: START -> Probing
+INFO: disk4: PROBE_DONE -> Deciding
+INFO: disk4: probe state unsupported, decision refuse
+INFO: disk4: REFUSED -> Failed
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 460 ms, mount gone afterwards
+INFO: journal: entry A8D4029792CA7301 removed by path 1 (clean-session), tombstone A8D4029792CA7301-20261125T000148Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 145 ms, mount gone afterwards
+INFO: journal: entry A8D4029792CA7301 removed by path 1 (clean-session), tombstone A8D4029792CA7301-20261125T000156Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 113 ms, mount gone afterwards
+INFO: journal: entry A8D4029792CA7301 removed by path 1 (clean-session), tombstone A8D4029792CA7301-20261125T000219Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 123 ms, mount gone afterwards
+INFO: journal: entry A8D4029792CA7301 removed by path 1 (clean-session), tombstone A8D4029792CA7301-20261125T000226Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone

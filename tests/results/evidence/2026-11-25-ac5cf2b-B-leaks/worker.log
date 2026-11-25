@@ -1,0 +1,6 @@
+Version 2026.9.28 external FUSE 29
+Mounted /dev/fd/9 (Read-Write, label "clean64m4k", NTFS 3.1)
+Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+Mount options: backend=fskit,local,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/9
+Global ownership and permissions enforced, configuration type 1
+Unmounting /dev/fd/9 (clean64m4k)

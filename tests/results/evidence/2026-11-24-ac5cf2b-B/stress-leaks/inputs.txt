@@ -1,0 +1,6 @@
+deps_tar=none
+fixtures_dir=<tmp>//leaks.DHHRAQ/fixtures
+fixtures_key=8833f0e75b3a8764b4aadd7f9adab9256c066571c3504bee081ef447a401b4d2
+fixtures_dirty=0
+fixture.clean-64m-4k.img=865569e03934280e5e88b539d0ea8cfcf6b075dfc92e7c54d9c2e878284845e6 (67108864 bytes)
+fixtures_manifest_sha256=276f86d10041a7af26daf0745b656ed4d47f6742a82e9877d3d0808daab3e9cc

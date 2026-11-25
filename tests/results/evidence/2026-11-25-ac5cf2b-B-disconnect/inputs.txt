@@ -1,0 +1,6 @@
+deps_tar=none
+fixtures_dir=<tmp>//disconnect.h6douo/fixtures
+fixtures_key=8833f0e75b3a8764b4aadd7f9adab9256c066571c3504bee081ef447a401b4d2
+fixtures_dirty=0
+fixture.clean-64m-4k.img=683350ad082a7fcfe21466b70d4398a5d6b8a63083f1728c8f1c9f4693360c80 (67108864 bytes)
+fixtures_manifest_sha256=034c85fa55c8b03542ef3a378e42fa5c888b8ee982f0040a5750d9682a806b0e

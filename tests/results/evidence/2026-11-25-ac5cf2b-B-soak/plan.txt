@@ -1,0 +1,10 @@
+kind=soak
+duration=21600
+baseline=3600
+verify=600
+rss_every=30
+workers=1
+hang=60
+controls=corrupt
+fault=
+mode=full

@@ -1,0 +1,16 @@
+guest_os=macOS 27.2 arm64
+macfuse=5.5.0
+ntfs3g=2026.9.28
+iterations=50
+fixture=clean-64m-4k
+lineinfo=1
+workload_rc=0
+worker_exit=0
+seconds=144
+host_os=macOS 27.2.1
+deps_tar=none
+fixtures_dir=<tmp>//leaks.BrFTNJ/fixtures
+fixtures_key=8833f0e75b3a8764b4aadd7f9adab9256c066571c3504bee081ef447a401b4d2
+fixtures_dirty=0
+fixture.clean-64m-4k.img=cae1777d599b86bb8db962314b87076cf5cf31bb136fbd1321edbf6d95852254 (67108864 bytes)
+fixtures_manifest_sha256=ebfcee76596bf33ff6444091f84b299fde7d78e7588294875cda7e76962350f9

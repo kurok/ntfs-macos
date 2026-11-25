@@ -1,0 +1,242 @@
+{
+ "contents": {
+  "2e66736576656e7473642f66736576656e7473642d75756964": "94E3ED27-F58A-4CA6-B9D1-C1200F74BC24",
+  "67312d63616665cc81": "content:67312d63616665cc81",
+  "67322d41cc8a": "content:67322d41cc8a",
+  "67322dc385": "content:67322dc385",
+  "67322de284ab": "content:67322de284ab",
+  "67332de18492e185a1e186ab": "content:67332de18492e185a1e186ab",
+  "67332ded959c": "content:67332ded959c",
+  "67342de3818be38299": "content:67342de3818be38299",
+  "67342de3818c": "content:67342de3818c",
+  "67352d71cc87cca3": "content:67352d71cc87cca3",
+  "67352d71cca3cc87": "content:67352d71cca3cc87",
+  "67362d65cc812f696e6e65722e747874": "content:67362d65cc81",
+  "67362dc3a92f696e6e65722e747874": "content:67362dc3a9",
+  "67372d706c61696e2e747874": "content:67372d706c61696e2e747874",
+  "67382dc3bc2d6e66632d6f6e6c79": "content:67382dc3bc2d6e66632d6f6e6c79",
+  "67392d75cc882d6e66642d6f6e6c79": "content:67392d75cc882d6e66642d6f6e6c79",
+  "6d61632d6e66632d636166c3a9": "content:6d61632d6e66632d636166c3a9",
+  "6d61632d6e66632d71cca3cc87": "content:6d61632d6e66632d71cca3cc87",
+  "6d61632d6e66632dc385": "content:6d61632d6e66632dc385",
+  "6d61632d6e66632de3818c": "content:6d61632d6e66632de3818c",
+  "6d61632d6e66632ded959c": "content:6d61632d6e66632ded959c",
+  "6d61632d6e66642d636166c3a9": "content:6d61632d6e66642d63616665cc81",
+  "6d61632d6e66642d71cca3cc87": "content:6d61632d6e66642d71cca3cc87",
+  "6d61632d6e66642dc385": "content:6d61632d6e66642d41cc8a",
+  "6d61632d6e66642de3818c": "content:6d61632d6e66642de3818be38299",
+  "6d61632d6e66642ded959c": "content:6d61632d6e66642de18492e185a1e186ab",
+  "6d61636469722d6e66632d636166c3a92f696e6e65722e747874": "content:6d61636469722d6e66632d636166c3a9",
+  "6d61636469722d6e66632d71cca3cc872f696e6e65722e747874": "content:6d61636469722d6e66632d71cca3cc87",
+  "6d61636469722d6e66632dc3852f696e6e65722e747874": "content:6d61636469722d6e66632dc385",
+  "6d61636469722d6e66632de3818c2f696e6e65722e747874": "content:6d61636469722d6e66632de3818c",
+  "6d61636469722d6e66632ded959c2f696e6e65722e747874": "content:6d61636469722d6e66632ded959c",
+  "6d61636469722d6e66642d636166c3a92f696e6e65722e747874": "content:6d61636469722d6e66642d63616665cc81",
+  "6d61636469722d6e66642d71cca3cc872f696e6e65722e747874": "content:6d61636469722d6e66642d71cca3cc87",
+  "6d61636469722d6e66642dc3852f696e6e65722e747874": "content:6d61636469722d6e66642d41cc8a",
+  "6d61636469722d6e66642de3818c2f696e6e65722e747874": "content:6d61636469722d6e66642de3818be38299",
+  "6d61636469722d6e66642ded959c2f696e6e65722e747874": "content:6d61636469722d6e66642de18492e185a1e186ab"
+ },
+ "image_sha256": "555f824eb6ab9669b4e5ab976fff7e1fe3b91e34590e3269c47a4d317ead44d6",
+ "names": [
+  {
+   "dir": true,
+   "path_hex": "2e66736576656e747364"
+  },
+  {
+   "dir": false,
+   "path_hex": "67312d63616665cc81"
+  },
+  {
+   "dir": false,
+   "path_hex": "67322d41cc8a"
+  },
+  {
+   "dir": false,
+   "path_hex": "67322dc385"
+  },
+  {
+   "dir": false,
+   "path_hex": "67322de284ab"
+  },
+  {
+   "dir": false,
+   "path_hex": "67332de18492e185a1e186ab"
+  },
+  {
+   "dir": false,
+   "path_hex": "67332ded959c"
+  },
+  {
+   "dir": false,
+   "path_hex": "67342de3818be38299"
+  },
+  {
+   "dir": false,
+   "path_hex": "67342de3818c"
+  },
+  {
+   "dir": false,
+   "path_hex": "67352d71cc87cca3"
+  },
+  {
+   "dir": false,
+   "path_hex": "67352d71cca3cc87"
+  },
+  {
+   "dir": true,
+   "path_hex": "67362d65cc81"
+  },
+  {
+   "dir": true,
+   "path_hex": "67362dc3a9"
+  },
+  {
+   "dir": false,
+   "path_hex": "67372d706c61696e2e747874"
+  },
+  {
+   "dir": false,
+   "path_hex": "67382dc3bc2d6e66632d6f6e6c79"
+  },
+  {
+   "dir": false,
+   "path_hex": "67392d75cc882d6e66642d6f6e6c79"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61632d6e66632d636166c3a9"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61632d6e66632d71cca3cc87"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61632d6e66632dc385"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61632d6e66632de3818c"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61632d6e66632ded959c"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61632d6e66642d636166c3a9"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61632d6e66642d71cca3cc87"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61632d6e66642dc385"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61632d6e66642de3818c"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61632d6e66642ded959c"
+  },
+  {
+   "dir": true,
+   "path_hex": "6d61636469722d6e66632d636166c3a9"
+  },
+  {
+   "dir": true,
+   "path_hex": "6d61636469722d6e66632d71cca3cc87"
+  },
+  {
+   "dir": true,
+   "path_hex": "6d61636469722d6e66632dc385"
+  },
+  {
+   "dir": true,
+   "path_hex": "6d61636469722d6e66632de3818c"
+  },
+  {
+   "dir": true,
+   "path_hex": "6d61636469722d6e66632ded959c"
+  },
+  {
+   "dir": true,
+   "path_hex": "6d61636469722d6e66642d636166c3a9"
+  },
+  {
+   "dir": true,
+   "path_hex": "6d61636469722d6e66642d71cca3cc87"
+  },
+  {
+   "dir": true,
+   "path_hex": "6d61636469722d6e66642dc385"
+  },
+  {
+   "dir": true,
+   "path_hex": "6d61636469722d6e66642de3818c"
+  },
+  {
+   "dir": true,
+   "path_hex": "6d61636469722d6e66642ded959c"
+  },
+  {
+   "dir": false,
+   "path_hex": "2e66736576656e7473642f66736576656e7473642d75756964"
+  },
+  {
+   "dir": false,
+   "path_hex": "67362d65cc812f696e6e65722e747874"
+  },
+  {
+   "dir": false,
+   "path_hex": "67362dc3a92f696e6e65722e747874"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61636469722d6e66632d636166c3a92f696e6e65722e747874"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61636469722d6e66632d71cca3cc872f696e6e65722e747874"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61636469722d6e66632dc3852f696e6e65722e747874"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61636469722d6e66632de3818c2f696e6e65722e747874"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61636469722d6e66632ded959c2f696e6e65722e747874"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61636469722d6e66642d636166c3a92f696e6e65722e747874"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61636469722d6e66642d71cca3cc872f696e6e65722e747874"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61636469722d6e66642dc3852f696e6e65722e747874"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61636469722d6e66642de3818c2f696e6e65722e747874"
+  },
+  {
+   "dir": false,
+   "path_hex": "6d61636469722d6e66642ded959c2f696e6e65722e747874"
+  }
+ ],
+ "ntfs3g_version": "2026.9.28",
+ "ntfsfix_rc": 0,
+ "os": "Debian GNU/Linux 13 (trixie) aarch64"
+}

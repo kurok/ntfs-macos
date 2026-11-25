@@ -1,0 +1,1386 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "ac5cf2b5dab778a340bde623dbd9f63b298194e3",
+  "dirty_tree": false,
+  "env": "B",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "macOS 27.2 (26B123) arm64",
+  "macfuse_version": "5.5.0",
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-24T22:27:47Z",
+  "finished": "2026-11-25T00:02:37Z",
+  "cases": [
+    {
+      "id": "STAGE-B-PREFLIGHT",
+      "status": "pass",
+      "duration_s": 2.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stages/preflight.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "STAGE-B-BUILD-RELEASE",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stages/build-release.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "STAGE-B-FIXTURES",
+      "status": "pass",
+      "duration_s": 60.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stages/fixtures.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "STAGE-B-MODE",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [],
+      "note": "full"
+    },
+    {
+      "id": "STAGE-B-INTEGRATION",
+      "status": "pass",
+      "duration_s": 1774.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stages/integration.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "STAGE-B-COMPAT",
+      "status": "pass",
+      "duration_s": 226.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stages/compat.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "STAGE-B-DAEMON",
+      "status": "pass",
+      "duration_s": 1865.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stages/daemon.log",
+        "evidence/2026-11-24-ac5cf2b-B/daemon/attach.log",
+        "evidence/2026-11-24-ac5cf2b-B/daemon/attach.txt",
+        "evidence/2026-11-24-ac5cf2b-B/daemon/dmn.log",
+        "evidence/2026-11-24-ac5cf2b-B/daemon/dmn.txt",
+        "evidence/2026-11-24-ac5cf2b-B/daemon/errwatch.log",
+        "evidence/2026-11-24-ac5cf2b-B/daemon/errwatch.txt",
+        "evidence/2026-11-24-ac5cf2b-B/daemon/journal.log",
+        "evidence/2026-11-24-ac5cf2b-B/daemon/journal.txt",
+        "evidence/2026-11-24-ac5cf2b-B/daemon/mirror.log",
+        "evidence/2026-11-24-ac5cf2b-B/daemon/mirror.txt",
+        "evidence/2026-11-24-ac5cf2b-B/daemon/sandbox.log",
+        "evidence/2026-11-24-ac5cf2b-B/daemon/sandbox.txt",
+        "evidence/2026-11-24-ac5cf2b-B/daemon/spawn-sbx.log",
+        "evidence/2026-11-24-ac5cf2b-B/daemon/spawn-sbx.txt",
+        "evidence/2026-11-24-ac5cf2b-B/daemon/spawn.log",
+        "evidence/2026-11-24-ac5cf2b-B/daemon/spawn.txt",
+        "evidence/2026-11-24-ac5cf2b-B/daemon/summary.txt",
+        "evidence/2026-11-24-ac5cf2b-B/daemon/xpc.log",
+        "evidence/2026-11-24-ac5cf2b-B/daemon/xpc.txt"
+      ],
+      "note": "spawn      exit 0  PASS 39  FAIL 0; spawn-sbx  exit 0  PASS 31  FAIL 0; sandbox    exit 0  PASS 138  FAIL 0; errwatch   exit 0  PASS 32  FAIL 0; journal    exit 0  PASS 121  FAIL 0; xpc        exit 0  PASS 15  FAIL 0; mirror     exit 0  PASS 49  FAIL 0; attach     exit 0  PASS 50  FAIL 0; dmn        exit 0  PASS 549  FAIL 0"
+    },
+    {
+      "id": "STAGE-B-STRESS-DISCONNECT",
+      "status": "pass",
+      "duration_s": 286.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stages/stress-disconnect.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/daemon-log-tail.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/guest.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/inputs.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/meta.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/plan.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/provenance.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/rep-S-DISC-01-1.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/rep-S-DISC-01-2.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/rep-S-DISC-01-3.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/rep-S-DISC-02-1.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/rep-S-DISC-02-2.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/rep-S-DISC-02-3.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/rep-S-DISC-03-1.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/rep-S-DISC-03-2.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/rep-S-DISC-03-3.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/rep-S-DISC-04-1.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/rep-S-DISC-04-2.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/rep-S-DISC-04-3.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/rep-S-DISC-05-1.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/rep-S-DISC-05-2.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/reps.tsv",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/result.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "STAGE-B-STRESS-KILL",
+      "status": "pass",
+      "duration_s": 256.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stages/stress-kill.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/driver.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/inputs.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/kill-daemon.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/kill-detach.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/kill-module-measure.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/kill-module.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/kill-worker.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/kill.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/provenance.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/result.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/summary.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "STAGE-B-STRESS-LEAKS",
+      "status": "pass",
+      "duration_s": 71.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stages/stress-leaks.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/classification.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/guest.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/inputs.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/leaks-control.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/leaks-worker-scan1.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/leaks-worker-scan2.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/leaks-worker-scan3.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/meta.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/patched-map.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/patched-map.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/provenance.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/result.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/summary.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/worker.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/workload.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "STAGE-B-STRESS-PARALLEL",
+      "status": "pass",
+      "duration_s": 429.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stages/stress-parallel.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/daemon-log-tail.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/guest.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/inputs.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/meta.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/plan.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/provenance.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/result.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/runs.tsv",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-ctl-corrupt/ntfsfix1.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-ctl-corrupt/ntfsfix2.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-ctl-corrupt/remount.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-ctl-corrupt/run.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-ctl-corrupt/summary.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-ctl-corrupt/verify.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-ctl-corrupt/workers.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-ctl-stall/run.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-ctl-stall/summary.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-real/ntfsfix1.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-real/ntfsfix2.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-real/remount.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-real/run.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-real/summary.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-real/verify.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-real/workers.json"
+      ],
+      "note": "not copied (archive or image): par-ctl-corrupt/state.tar.gz, par-ctl-stall/state.tar.gz, par-real/state.tar.gz"
+    },
+    {
+      "id": "STAGE-B-STRESS-SOAK",
+      "status": "pass",
+      "duration_s": 718.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stages/stress-soak.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/daemon-log-tail.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/guest.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/inputs.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/meta.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/plan.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/provenance.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/result.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/runs.tsv",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-ctl-corrupt/ntfsfix1.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-ctl-corrupt/ntfsfix2.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-ctl-corrupt/remount.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-ctl-corrupt/rss.tsv",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-ctl-corrupt/run.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-ctl-corrupt/summary.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-ctl-corrupt/verify.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-ctl-corrupt/workers.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-real/ntfsfix1.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-real/ntfsfix2.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-real/remount.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-real/rss.tsv",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-real/run.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-real/summary.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-real/verify.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-real/workers.json"
+      ],
+      "note": "not copied (archive or image): soak-ctl-corrupt/state.tar.gz, soak-real/state.tar.gz"
+    },
+    {
+      "id": "I-BIG-01",
+      "status": "pass",
+      "duration_s": 9.226,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-BIG-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-BIG-02",
+      "status": "pass",
+      "duration_s": 54.708,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-BIG-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-BIG-03",
+      "status": "pass",
+      "duration_s": 55.158,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-BIG-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-BIG-SPARSE-01",
+      "status": "pass",
+      "duration_s": 13.674,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-BIG-SPARSE-01.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-BIG-SPARSE-01.sparse01_all_hole.ntfsinfo.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-BIG-SPARSE-01.sparse01_hole_end.ntfsinfo.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-BIG-SPARSE-01.sparse01_hole_middle.ntfsinfo.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-BIG-SPARSE-01.sparse01_hole_start.ntfsinfo.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-BIG-SPARSE-02",
+      "status": "pass",
+      "duration_s": 13.974,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-BIG-SPARSE-02.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-BIG-SPARSE-02.sparse02.ntfsinfo.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-03",
+      "status": "pass",
+      "duration_s": 6.573,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-ERR-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-05",
+      "status": "pass",
+      "duration_s": 6.344,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-ERR-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-06",
+      "status": "pass",
+      "duration_s": 38.233,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-ERR-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-07",
+      "status": "pass",
+      "duration_s": 20.117,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-ERR-07.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-01",
+      "status": "pass",
+      "duration_s": 6.566,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-FUNC-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-02",
+      "status": "pass",
+      "duration_s": 9.492,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-FUNC-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-03",
+      "status": "pass",
+      "duration_s": 6.752,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-FUNC-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-04",
+      "status": "pass",
+      "duration_s": 6.241,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-FUNC-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-05",
+      "status": "pass",
+      "duration_s": 6.362,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-FUNC-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-06",
+      "status": "pass",
+      "duration_s": 6.293,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-FUNC-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-07",
+      "status": "pass",
+      "duration_s": 6.334,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-FUNC-07.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-08",
+      "status": "pass",
+      "duration_s": 12.254,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-FUNC-08.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-DIR-01",
+      "status": "pass",
+      "duration_s": 17.168,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-FUNC-DIR-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-DIR-02",
+      "status": "pass",
+      "duration_s": 108.486,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-FUNC-DIR-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-DIR-03",
+      "status": "pass",
+      "duration_s": 8.011,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-FUNC-DIR-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-INT-01",
+      "status": "pass",
+      "duration_s": 10.363,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-INT-01.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-INT-01.sha256.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-INT-03",
+      "status": "pass",
+      "duration_s": 10.584,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-INT-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-INT-CYCLE-01",
+      "status": "pass",
+      "duration_s": 43.919,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-INT-CYCLE-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-01",
+      "status": "pass",
+      "duration_s": 8.858,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-META-01.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-META-01.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-02",
+      "status": "pass",
+      "duration_s": 7.949,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-META-02.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-META-02.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-03",
+      "status": "pass",
+      "duration_s": 26.212,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-META-03.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-META-03.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-04",
+      "status": "pass",
+      "duration_s": 10.465,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-META-04.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-META-04.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-05",
+      "status": "pass",
+      "duration_s": 7.945,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-META-05.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-META-05.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-06",
+      "status": "pass",
+      "duration_s": 10.036,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-META-06.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-META-06.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-07",
+      "status": "pass",
+      "duration_s": 17.128,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-META-07.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-META-07.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-01",
+      "status": "pass",
+      "duration_s": 16.349,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-01.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-01.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-02",
+      "status": "pass",
+      "duration_s": 50.421,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-02.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-02.observations.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-02.worker-debug.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-03",
+      "status": "pass",
+      "duration_s": 66.728,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-03.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-03.observations.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-03.worker-debug.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-04",
+      "status": "pass",
+      "duration_s": 65.331,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-04.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-04.observations.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-04.worker-debug-fd+map.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-04.worker-debug-force-first.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-04.worker-debug-map-only.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-04.worker-debug-redirty.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-05",
+      "status": "pass",
+      "duration_s": 27.293,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-05.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-05.observations.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-05.worker-debug.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-06",
+      "status": "pass",
+      "duration_s": 162.789,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-06.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-06.observations.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-06.worker-debug.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-MMAP-07",
+      "status": "pass",
+      "duration_s": 68.194,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-07.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-07.observations.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-07.worker-debug-kill-clean.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-07.worker-debug-kill-dirty.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-07.worker-debug-kill-synced-then-dirty.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-MMAP-07.worker-debug.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-01",
+      "status": "pass",
+      "duration_s": 9.875,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-NAME-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-02",
+      "status": "pass",
+      "duration_s": 10.9,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-NAME-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-03",
+      "status": "pass",
+      "duration_s": 19.239,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-NAME-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-04",
+      "status": "pass",
+      "duration_s": 6.286,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-NAME-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-05",
+      "status": "pass",
+      "duration_s": 6.347,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-NAME-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-06",
+      "status": "pass",
+      "duration_s": 6.587,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-NAME-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-08",
+      "status": "pass",
+      "duration_s": 102.145,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-NAME-08.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-NAME-08.matrix.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-NAME-08.worker-default.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-NAME-08.worker-nonfconv.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-01",
+      "status": "pass",
+      "duration_s": 8.062,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-PERM-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-02",
+      "status": "pass",
+      "duration_s": 18.638,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-PERM-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-03",
+      "status": "pass",
+      "duration_s": 26.756,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-PERM-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-04",
+      "status": "pass",
+      "duration_s": 27.396,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-PERM-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-05",
+      "status": "pass",
+      "duration_s": 11.844,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-PERM-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-06",
+      "status": "pass",
+      "duration_s": 25.629,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-PERM-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-07",
+      "status": "pass",
+      "duration_s": 11.962,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-PERM-07.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-01",
+      "status": "pass",
+      "duration_s": 7.31,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-READ-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-02",
+      "status": "pass",
+      "duration_s": 7.836,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-READ-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-03",
+      "status": "pass",
+      "duration_s": 7.579,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-READ-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-04",
+      "status": "pass",
+      "duration_s": 60.873,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-READ-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-05",
+      "status": "pass",
+      "duration_s": 14.543,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-READ-05.driver-debug.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-READ-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-06",
+      "status": "pass",
+      "duration_s": 10.086,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-READ-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-07",
+      "status": "pass",
+      "duration_s": 15.098,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-READ-07.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-SYNC-01",
+      "status": "pass",
+      "duration_s": 87.108,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-01.buf.fuse.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-01.buf.spy.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-01.file.fuse.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-01.file.spy.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-01.inject.fuse.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-01.inject.spy.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-01.injectdk.fuse.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-01.injectdk.spy.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-01.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-01.raw.mountfail.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-01.trace-buffered-dksync-fails.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-01.trace-buffered.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-01.trace-file-fullfsync-fails.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-01.trace-file.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-01.trace.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-SYNC-02",
+      "status": "pass",
+      "duration_s": 94.734,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-02.alignment.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-02.bench.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-02.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-02.node-io.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-SYNC-02.u10.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-01",
+      "status": "pass",
+      "duration_s": 7.495,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-XATTR-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-02",
+      "status": "pass",
+      "duration_s": 7.606,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-XATTR-02.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-XATTR-02.max-size.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-03",
+      "status": "pass",
+      "duration_s": 11.215,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-XATTR-03.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-XATTR-03.worker-debug.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-04",
+      "status": "pass",
+      "duration_s": 11.209,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-XATTR-04.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-XATTR-04.worker-debug.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-05",
+      "status": "pass",
+      "duration_s": 18.618,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-XATTR-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-06",
+      "status": "pass",
+      "duration_s": 12.089,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-XATTR-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-07",
+      "status": "pass",
+      "duration_s": 7.858,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-XATTR-07.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-08",
+      "status": "pass",
+      "duration_s": 7.152,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/I-XATTR-08.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "S-NOSPC-01",
+      "status": "pass",
+      "duration_s": 9.855,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/S-NOSPC-01.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/S-NOSPC-01.sha256.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "S-NOSPC-02",
+      "status": "pass",
+      "duration_s": 4.744,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-B/S-NOSPC-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-01",
+      "status": "pass",
+      "duration_s": 28.858,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-01.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-01.ntfsfix-linux.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-01.sha256-linux.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-01.treedump-linux.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-01.treedump-macos.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-01",
+      "status": "pass",
+      "duration_s": 7.14,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-01.differences.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-01.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-01.phase-a.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-01.phase-b.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-01.treedump-a.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-01.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-02",
+      "status": "pass",
+      "duration_s": 7.178,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-02.differences.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-02.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-02.phase-a.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-02.phase-b.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-02.treedump-a.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-02.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-03",
+      "status": "pass",
+      "duration_s": 6.574,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-03.differences.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-03.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-03.phase-a.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-03.phase-b.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-03.treedump-a.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-03.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-04",
+      "status": "pass",
+      "duration_s": 8.421,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-04.differences.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-04.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-04.phase-a.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-04.phase-b.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-04.treedump-a.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-04.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-05",
+      "status": "pass",
+      "duration_s": 6.552,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-05.differences.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-05.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-05.phase-a.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-05.phase-b.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-05.treedump-a.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-05.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-06",
+      "status": "pass",
+      "duration_s": 7.198,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-06.differences.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-06.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-06.phase-a.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-06.phase-b.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-06.treedump-a.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-06.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-07",
+      "status": "pass",
+      "duration_s": 7.179,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-07.differences.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-07.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-07.phase-a.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-07.phase-b.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-07.treedump-a.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-07.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-08",
+      "status": "pass",
+      "duration_s": 9.969,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-08.differences.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-08.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-08.phase-a.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-08.phase-b.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-08.treedump-a.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-08.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-09",
+      "status": "pass",
+      "duration_s": 12.61,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-09.differences.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-09.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-09.phase-a.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-09.phase-b.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-09.treedump-a.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-09.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-10",
+      "status": "pass",
+      "duration_s": 7.172,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-10.differences.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-10.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-10.phase-a.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-10.phase-b.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-10.treedump-a.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-10.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-11",
+      "status": "pass",
+      "duration_s": 7.167,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-11.differences.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-11.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-11.phase-a.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-11.phase-b.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-11.treedump-a.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-11.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "C-REF-OP-12",
+      "status": "pass",
+      "duration_s": 7.399,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-12.differences.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-12.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-12.phase-a.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-12.phase-b.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-12.treedump-a.txt",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/C-REF-OP-12.treedump-b.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-BIG-COMP-01",
+      "status": "pass",
+      "duration_s": 12.844,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/I-BIG-COMP-01.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/I-BIG-COMP-01.phase-a1.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/I-BIG-COMP-01.phase-a2.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/I-BIG-COMP-01.phase-b.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-U22",
+      "status": "pass",
+      "duration_s": 18.979,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/I-NAME-U22.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/I-NAME-U22.phase-a1.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/I-NAME-U22.phase-a2.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/I-NAME-U22.phase-b.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/I-NAME-U22.treedump-linux-final.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-09",
+      "status": "pass",
+      "duration_s": 7.538,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/I-XATTR-09.log",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/I-XATTR-09.phase-a1.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/I-XATTR-09.phase-a2.json",
+        "evidence/2026-11-24-ac5cf2b-B/2026-11-24-ac5cf2b-host/I-XATTR-09.phase-b.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "S-DISC-01-SHORT",
+      "status": "pass",
+      "duration_s": 48.857,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/reps.tsv",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/plan.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/meta.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/guest.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/provenance.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/rep-S-DISC-01-1.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/inputs.txt"
+      ],
+      "note": "force-detach during a large sequential write: 3 of 3 planned yank(s) at 1,2.2,0.6 (seconds into the workload; the fsync workload: right after file number), 3 passed. Checks per yank: volume leaves Mounted, no worker, no macfuse mount, mount point gone, journal entry stays; ntfsfix -n exit 0 and VOLUME_IS_DIRTY set; next attach ro with the documented reason, synced files intact by hash, image hash unchanged by the ro session; shortened or weaker run, not the criterion run (the case id has the suffix -SHORT); parameters: 3 yank(s) per workload (criterion: 20), workloads seq small churn fsync, controls 'hash dirty', fault ''; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 e1575774a970"
+    },
+    {
+      "id": "S-DISC-02-SHORT",
+      "status": "pass",
+      "duration_s": 48.857,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/reps.tsv",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/plan.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/meta.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/guest.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/provenance.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/rep-S-DISC-02-1.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/inputs.txt"
+      ],
+      "note": "force-detach during many small file creates: 3 of 3 planned yank(s) at 1,2.2,0.6 (seconds into the workload; the fsync workload: right after file number), 3 passed. Checks per yank: volume leaves Mounted, no worker, no macfuse mount, mount point gone, journal entry stays; ntfsfix -n exit 0 and VOLUME_IS_DIRTY set; next attach ro with the documented reason, synced files intact by hash, image hash unchanged by the ro session; shortened or weaker run, not the criterion run (the case id has the suffix -SHORT); parameters: 3 yank(s) per workload (criterion: 20), workloads seq small churn fsync, controls 'hash dirty', fault ''; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 e1575774a970"
+    },
+    {
+      "id": "S-DISC-03-SHORT",
+      "status": "pass",
+      "duration_s": 48.857,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/reps.tsv",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/plan.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/meta.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/guest.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/provenance.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/rep-S-DISC-03-1.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/inputs.txt"
+      ],
+      "note": "force-detach during rename and metadata churn: 3 of 3 planned yank(s) at 1,2.2,0.6 (seconds into the workload; the fsync workload: right after file number), 3 passed. Checks per yank: volume leaves Mounted, no worker, no macfuse mount, mount point gone, journal entry stays; ntfsfix -n exit 0 and VOLUME_IS_DIRTY set; next attach ro with the documented reason, synced files intact by hash, image hash unchanged by the ro session; shortened or weaker run, not the criterion run (the case id has the suffix -SHORT); parameters: 3 yank(s) per workload (criterion: 20), workloads seq small churn fsync, controls 'hash dirty', fault ''; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 e1575774a970"
+    },
+    {
+      "id": "S-DISC-04-SHORT",
+      "status": "pass",
+      "duration_s": 48.857,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/reps.tsv",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/plan.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/meta.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/guest.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/provenance.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/rep-S-DISC-04-1.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/inputs.txt"
+      ],
+      "note": "force-detach right after an fsync of file and directory: 3 of 3 planned yank(s) at 3,6,2 (seconds into the workload; the fsync workload: right after file number), 3 passed. Checks per yank: volume leaves Mounted, no worker, no macfuse mount, mount point gone, journal entry stays; ntfsfix -n exit 0 and VOLUME_IS_DIRTY set; next attach ro with the documented reason, synced files intact by hash, image hash unchanged by the ro session; shortened or weaker run, not the criterion run (the case id has the suffix -SHORT); parameters: 3 yank(s) per workload (criterion: 20), workloads seq small churn fsync, controls 'hash dirty', fault ''; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 e1575774a970"
+    },
+    {
+      "id": "S-DISC-05-SHORT",
+      "status": "pass",
+      "duration_s": 32.571,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/reps.tsv",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/plan.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/meta.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/guest.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/provenance.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/rep-S-DISC-05-1.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-disconnect/inputs.txt"
+      ],
+      "note": "negative controls: an injected fault must make the checks fail: 2 control(s), 2 caught their fault; shortened or weaker run, not the criterion run (the case id has the suffix -SHORT); parameters: 3 yank(s) per workload (criterion: 20), workloads seq small churn fsync, controls 'hash dirty', fault ''; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 e1575774a970"
+    },
+    {
+      "id": "S-KILL-01-SHORT",
+      "status": "pass",
+      "duration_s": 29.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/kill.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/kill-worker.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/provenance.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/inputs.txt"
+      ],
+      "note": "SIGKILL of the worker: 2 of 2 repetitions passed (journal entry kept, next attach read-only with a documented reason, no stray worker or mount, data synced before the kill intact, image unchanged by the ro session); 15 s per repetition at most; shortened or weaker run, not the criterion run (the case id has the suffix -SHORT); parameters: 2 repetition(s) (criterion: 20), targets 'worker daemon module detach', controls on, driver status 0; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 f7f51cf923c4"
+    },
+    {
+      "id": "S-KILL-02-SHORT",
+      "status": "pass",
+      "duration_s": 39.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/kill.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/kill-daemon.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/provenance.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/inputs.txt"
+      ],
+      "note": "SIGKILL of the daemon (launchd restart): 2 of 2 repetitions passed (journal entry kept, next attach read-only with a documented reason, no stray worker or mount, data synced before the kill intact, image unchanged by the ro session); 20 s per repetition at most; shortened or weaker run, not the criterion run (the case id has the suffix -SHORT); parameters: 2 repetition(s) (criterion: 20), targets 'worker daemon module detach', controls on, driver status 0; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 f7f51cf923c4"
+    },
+    {
+      "id": "S-KILL-03-SHORT",
+      "status": "pass",
+      "duration_s": 37.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/kill.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/kill-module.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/kill-module-measure.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/provenance.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/inputs.txt"
+      ],
+      "note": "SIGKILL of the macFUSE module process that serves the mount: 2 of 2 repetitions passed (journal entry kept, next attach read-only with a documented reason, no stray worker or mount, data synced before the kill intact, image unchanged by the ro session); 19 s per repetition at most; MEASUREMENT (not a check): dirty mmap page lost, plain write survived, reported clean: no x2; shortened or weaker run, not the criterion run (the case id has the suffix -SHORT); parameters: 2 repetition(s) (criterion: 20), targets 'worker daemon module detach', controls on, driver status 0; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 f7f51cf923c4"
+    },
+    {
+      "id": "S-KILL-04-SHORT",
+      "status": "pass",
+      "duration_s": 27.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/kill.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/kill-detach.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/provenance.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/inputs.txt"
+      ],
+      "note": "force-detach (yank) of the image during a write: 2 of 2 repetitions passed (journal entry kept, next attach read-only with a documented reason, no stray worker or mount, data synced before the kill intact, image unchanged by the ro session); 14 s per repetition at most; shortened or weaker run, not the criterion run (the case id has the suffix -SHORT); parameters: 2 repetition(s) (criterion: 20), targets 'worker daemon module detach', controls on, driver status 0; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 f7f51cf923c4"
+    },
+    {
+      "id": "S-KILL-RUN-SHORT",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/kill.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/provenance.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/inputs.txt"
+      ],
+      "note": "no failure outside the repetitions; the guest run finished; shortened or weaker run, not the criterion run (the case id has the suffix -SHORT); parameters: 2 repetition(s) (criterion: 20), targets 'worker daemon module detach', controls on, driver status 0; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 f7f51cf923c4"
+    },
+    {
+      "id": "S-KILL-05-SHORT",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/kill.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/provenance.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-kill/inputs.txt"
+      ],
+      "note": "injected damage is reported by the checks; a never-ending step fails after its deadline. inject-journal: PASS 1 failing check(s), all 'the journal entry stays'; inject-image: PASS 1 failing check(s), all 'the read-only session left the image unchanged'; inject-flags: PASS 1 failing check(s), all 'the dirty flag is still set on the image'; hang: PASS three never-ending steps failed after their deadline (15 s in total, the slow wait 9 s for a 6 s deadline); shortened or weaker run, not the criterion run (the case id has the suffix -SHORT); parameters: 2 repetition(s) (criterion: 20), targets 'worker daemon module detach', controls on, driver status 0; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 f7f51cf923c4"
+    },
+    {
+      "id": "S-LEAK-01-SHORT",
+      "status": "pass",
+      "duration_s": 15.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/summary.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/classification.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/patched-map.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/meta.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/leaks-control.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/workload.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/worker.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/provenance.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/leaks-worker-scan1.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/leaks-worker-scan2.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/leaks-worker-scan3.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/inputs.txt"
+      ],
+      "note": "shortened run, not criterion 5.4 (the case id has the suffix -SHORT; 50 iterations are required): 3 scan(s) of the worker after 3 workload iteration(s); project leaks: 0; engine and platform leaks: engine: ROOT LEAK: <malloc in fuse_new_common> (x1); parameters: 3 workload iteration(s), criterion 50; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 276f86d10041"
+    },
+    {
+      "id": "S-LEAK-01-CONTROL-SHORT",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/leaks-control.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-leaks/inputs.txt"
+      ],
+      "note": "leaks found 1 root(s) allocated in ctl_leak_site; classified with no rule: 0 project (expected 0); line rule 'leakctl.c:24 is patched': 1 R1 hit(s) with a parsed frame leakctl.c:19..29 (expected >= 1); function rule 'ctl_leak_site is patched': 1 R2 hit(s) (expected >= 1); inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 276f86d10041"
+    },
+    {
+      "id": "S-PAR-01-SHORT",
+      "status": "pass",
+      "duration_s": 301.3,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/plan.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/meta.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/runs.tsv",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/guest.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/provenance.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-real/summary.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-real/run.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-real/workers.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-real/remount.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-real/verify.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/inputs.txt"
+      ],
+      "note": "shortened run, not criterion 5.3 (the case id has the suffix -SHORT): parallel: concurrent writers in private and shared directories, latency and hang watch: 300 s planned, 301 s run, 16 worker(s), 113318 ops, 80 full verification(s), 1115.8 MiB written, 1410.6 MiB verified, 0 mismatch(es), 0 error(s); op latency p50<=32 ms p99<=256 ms max 2.39 s (hang limit 60 s); parameters: duration 300 s, baseline 50 s, workers 16, hang limit 60 s, controls 'corrupt stall', fault ''; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 634dc9358a33; evidence not stored: par-real/state.tar.gz"
+    },
+    {
+      "id": "S-PAR-01-CONTROL-SHORT",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/runs.tsv",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-ctl-corrupt/summary.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-ctl-corrupt/run.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-ctl-corrupt/remount.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-ctl-corrupt/verify.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-ctl-stall/summary.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/par-ctl-stall/run.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-parallel/inputs.txt"
+      ],
+      "note": "negative controls (corrupt stall): corrupt caught: injected byte flip: driver exit 1, failure kinds ['mismatch'], 1 mismatch(es), remount verification exit 1 with 1 mismatch(es); stall caught: simulated stall of worker 1: driver exit 1, failure kinds ['hang'], watchdog {'worker': 1, 'op': 'randwrite', 'seconds': 4.2, 'at_s': 7.2}; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 634dc9358a33"
+    },
+    {
+      "id": "S-SOAK-01-SHORT",
+      "status": "pass",
+      "duration_s": 601.47,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/plan.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/meta.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/runs.tsv",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/guest.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/provenance.txt",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-real/summary.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-real/run.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-real/rss.tsv",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-real/workers.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-real/remount.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-real/verify.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/inputs.txt"
+      ],
+      "note": "shortened run, not criterion 5.2 (the case id has the suffix -SHORT): soak: mixed workload with a model, full verification, worker RSS: 600 s planned, 601 s run, 1 worker(s), 206354 ops, 5 full verification(s), 2982.3 MiB written, 4003.9 MiB verified, 0 mismatch(es), 0 error(s); op latency p50<=2 ms p99<=64 ms max 0.73 s (hang limit 60 s); worker RSS baseline 13440 kB at 100 s, peak 13920 kB, final 13920 kB, growth 3.57% (rule: below 10%), 50 samples after the baseline; parameters: duration 600 s, baseline 100 s, workers 1, hang limit 60 s, controls 'corrupt', fault ''; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 f7b138fcd0d5; evidence not stored: soak-real/state.tar.gz"
+    },
+    {
+      "id": "S-SOAK-01-CONTROL-SHORT",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/runs.tsv",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-ctl-corrupt/summary.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-ctl-corrupt/run.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-ctl-corrupt/remount.json",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/soak-ctl-corrupt/verify.log",
+        "evidence/2026-11-24-ac5cf2b-B/stress-soak/inputs.txt"
+      ],
+      "note": "negative controls (corrupt): rss-synthetic caught: synthetic samples 0%/9.9%/10.0%/30%/no baseline gave pass/pass/fail/fail/error (expected pass/pass/fail/fail/error); corrupt caught: injected byte flip: driver exit 1, failure kinds ['mismatch'], 1 mismatch(es), remount verification exit 1 with 1 mismatch(es); inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 f7b138fcd0d5"
+    }
+  ]
+}

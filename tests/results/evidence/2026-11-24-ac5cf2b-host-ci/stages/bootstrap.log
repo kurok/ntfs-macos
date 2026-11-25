@@ -1,0 +1,7 @@
+Checking prerequisites (nothing is installed by this script)
+ok       cmake 4.4.5
+ok       ninja 1.13.2
+ok       pkgconf 3.0.10
+ok       C compiler cc (Apple clang version 21.0.0 (clang-2100.4.1.1))
+
+All prerequisites present.

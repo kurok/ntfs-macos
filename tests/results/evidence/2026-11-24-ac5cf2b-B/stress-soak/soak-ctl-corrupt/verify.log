@@ -1,0 +1,2 @@
+verify: 192 files, 41 directories, 16254364 bytes, 1 mismatch(es)
+  BAD soak/w00/d000118/d001103/big001678: size/sha256 differ (disk (266240, '80aaf29fbfdef0bb3bc94de87bdb2cda54eaf2313d50259c9ab48d8f5b252315'), expected (266240, '91dd1c848f25ca50328a5b310909f16e037988501dc666e91982d80353e09e24'))

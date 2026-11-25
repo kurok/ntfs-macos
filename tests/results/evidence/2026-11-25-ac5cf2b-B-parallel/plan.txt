@@ -1,0 +1,10 @@
+kind=par
+duration=1800
+baseline=300
+verify=120
+rss_every=10
+workers=16
+hang=60
+controls=corrupt stall
+fault=
+mode=full

@@ -1,0 +1,91 @@
+-- The C compiler identification is GNU 14.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Platform: Linux (portable parts only)
+-- Performing Test NTFSMAC_HAVE_STACK_PROTECTOR_STRONG
+-- Performing Test NTFSMAC_HAVE_STACK_PROTECTOR_STRONG - Success
+-- Performing Test NTFSMAC_HAVE_AUTO_VAR_INIT
+-- Performing Test NTFSMAC_HAVE_AUTO_VAR_INIT - Success
+-- Sanitizers: address,undefined
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.2s)
+-- Generating done (0.0s)
+-- Build files have been written to: <tmp>/bld-asan-fio
+[0/2] Re-checking globbed directories...
+[1/12] Building C object src/volmark/CMakeFiles/volmark_test.dir/main_test.c.o
+[2/12] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/cli.c.o
+[3/12] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_pure.dir/args.c.o
+[4/12] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/vdev.c.o
+[5/12] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/syncmirror.c.o
+[6/12] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/volmark.c.o
+[7/12] Linking C static library src/volmark/libntfsmac_volmark_pure.a
+[8/12] Building C object src/common/CMakeFiles/ntfsmac_mftmirr.dir/mftmirr.c.o
+[9/12] Linking C static library src/common/libntfsmac_mftmirr.a
+[10/12] Linking C static library src/volmark/libntfsmac_volmark_core.a
+[11/12] Linking C executable src/volmark/volmark_test
+-- The C compiler identification is GNU 14.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Platform: Linux (portable parts only)
+-- Performing Test NTFSMAC_HAVE_STACK_PROTECTOR_STRONG
+-- Performing Test NTFSMAC_HAVE_STACK_PROTECTOR_STRONG - Success
+-- Performing Test NTFSMAC_HAVE_AUTO_VAR_INIT
+-- Performing Test NTFSMAC_HAVE_AUTO_VAR_INIT - Success
+-- Sanitizers: address,undefined
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.2s)
+-- Generating done (0.0s)
+-- Build files have been written to: <tmp>/bld-asan
+[0/2] Re-checking globbed directories...
+[1/30] Building C object src/common/CMakeFiles/ntfsmac_state_rank.dir/state_rank.c.o
+[2/30] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_pure.dir/args.c.o
+[3/30] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/state.c.o
+[4/30] Linking C static library src/common/libntfsmac_state_rank.a
+[5/30] Linking C static library src/volmark/libntfsmac_volmark_pure.a
+[6/30] Building C object src/volmark/CMakeFiles/volmark_test.dir/main_test.c.o
+[7/30] Building C object src/probe/CMakeFiles/ntfsmac-probe.dir/main.c.o
+[8/30] Building C object src/volmark/CMakeFiles/ntfsmac-volmark.dir/main.c.o
+[9/30] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/text.c.o
+[10/30] Building C object tests/unit/volmark/CMakeFiles/test_volmark_args.dir/test_args.c.o
+[11/30] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/json.c.o
+[12/30] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/nfc.c.o
+[13/30] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/cli.c.o
+[14/30] Linking C executable tests/unit/volmark/test_volmark_args
+[15/30] Building C object src/probe/CMakeFiles/ntfsmac_probe_core.dir/cli.c.o
+[16/30] Building C object src/probe/CMakeFiles/ntfsmac_probe_core.dir/names.c.o
+[17/30] Building C object src/probe/CMakeFiles/ntfsmac_probe_core.dir/devio.c.o
+[18/30] Linking C static library src/probe/libntfsmac_probe_pure.a
+[19/30] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/vdev.c.o
+[20/30] Building C object src/probe/CMakeFiles/ntfsmac_probe_core.dir/probe.c.o
+[21/30] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/volmark.c.o
+[22/30] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/syncmirror.c.o
+[23/30] Building C object src/common/CMakeFiles/ntfsmac_mftmirr.dir/mftmirr.c.o
+[24/30] Linking C static library src/common/libntfsmac_mftmirr.a
+[25/30] Linking C static library src/volmark/libntfsmac_volmark_core.a
+[26/30] Linking C static library src/probe/libntfsmac_probe_core.a
+[27/30] Linking C executable src/volmark/volmark_test
+[28/30] Linking C executable src/volmark/ntfsmac-volmark
+[29/30] Linking C executable src/probe/ntfsmac-probe
+Internal ctest changing into directory: <tmp>/bld-asan
+Test project <tmp>/bld-asan
+    Start 76: volmark.args
+1/3 Test #76: volmark.args .....................   Passed    0.00 sec
+    Start 77: volmark.run
+2/3 Test #77: volmark.run ......................   Passed   29.38 sec
+    Start 78: volmark.syncmirror
+3/3 Test #78: volmark.syncmirror ...............   Passed    8.31 sec
+
+100% tests passed, 0 tests failed out of 3
+
+Total Test time (real) =  37.70 sec
+ASan/UBSan: no report

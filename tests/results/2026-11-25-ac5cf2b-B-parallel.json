@@ -1,0 +1,56 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "ac5cf2b5dab778a340bde623dbd9f63b298194e3",
+  "dirty_tree": false,
+  "env": "B",
+  "host_os": "macOS 27.2.1",
+  "guest_os": "macOS 27.2",
+  "macfuse_version": "5.5.0",
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-25T00:03:13Z",
+  "finished": "2026-11-25T00:35:27Z",
+  "cases": [
+    {
+      "id": "S-PAR-01",
+      "status": "pass",
+      "duration_s": 1801.57,
+      "evidence": [
+        "evidence/2026-11-25-ac5cf2b-B-parallel/plan.txt",
+        "evidence/2026-11-25-ac5cf2b-B-parallel/meta.txt",
+        "evidence/2026-11-25-ac5cf2b-B-parallel/runs.tsv",
+        "evidence/2026-11-25-ac5cf2b-B-parallel/guest.log",
+        "evidence/2026-11-25-ac5cf2b-B-parallel/provenance.txt",
+        "evidence/2026-11-25-ac5cf2b-B-parallel/par-real/summary.json",
+        "evidence/2026-11-25-ac5cf2b-B-parallel/par-real/run.log",
+        "evidence/2026-11-25-ac5cf2b-B-parallel/par-real/workers.json",
+        "evidence/2026-11-25-ac5cf2b-B-parallel/par-real/remount.json",
+        "evidence/2026-11-25-ac5cf2b-B-parallel/par-real/verify.log",
+        "evidence/2026-11-25-ac5cf2b-B-parallel/inputs.txt"
+      ],
+      "note": "parallel: concurrent writers in private and shared directories, latency and hang watch: 1800 s planned, 1802 s run, 16 worker(s), 436316 ops, 240 full verification(s), 4306.7 MiB written, 5458.1 MiB verified, 0 mismatch(es), 0 error(s); op latency p50<=64 ms p99<=512 ms max 2.74 s (hang limit 60 s); parameters: duration 1800 s, baseline 300 s, workers 16, hang limit 60 s, controls 'corrupt stall', fault ''; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 50a4810dcfbc; evidence not stored: par-real/state.tar.gz"
+    },
+    {
+      "id": "S-PAR-01-CONTROL",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [
+        "evidence/2026-11-25-ac5cf2b-B-parallel/runs.tsv",
+        "evidence/2026-11-25-ac5cf2b-B-parallel/par-ctl-corrupt/summary.json",
+        "evidence/2026-11-25-ac5cf2b-B-parallel/par-ctl-corrupt/run.log",
+        "evidence/2026-11-25-ac5cf2b-B-parallel/par-ctl-corrupt/remount.json",
+        "evidence/2026-11-25-ac5cf2b-B-parallel/par-ctl-corrupt/verify.log",
+        "evidence/2026-11-25-ac5cf2b-B-parallel/par-ctl-stall/summary.json",
+        "evidence/2026-11-25-ac5cf2b-B-parallel/par-ctl-stall/run.log",
+        "evidence/2026-11-25-ac5cf2b-B-parallel/inputs.txt"
+      ],
+      "note": "negative controls (corrupt stall): corrupt caught: injected byte flip: driver exit 1, failure kinds ['mismatch'], 1 mismatch(es), remount verification exit 1 with 1 mismatch(es); stall caught: simulated stall of worker 1: driver exit 1, failure kinds ['hang'], watchdog {'worker': 1, 'op': 'sh_read', 'seconds': 4.4, 'at_s': 7.4}; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 50a4810dcfbc"
+    },
+    {
+      "id": "STAGE-B-MODE",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [],
+      "note": "criterion:parallel"
+    }
+  ]
+}

@@ -1,0 +1,703 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="88"
+	failures="0"
+	disabled="0"
+	skipped="1"
+	hostname=""
+	time="90"
+	timestamp="2026-11-24T22:07:41"
+	>
+	<testcase name="common.log" classname="common.log" time="0.00296725" status="run">
+		<properties/>
+		<system-out>INFO: stderr sink ok
+</system-out>
+	</testcase>
+	<testcase name="tools.treedump" classname="tools.treedump" time="0.0326379" status="run">
+		<properties/>
+		<system-out>treedump: OK
+</system-out>
+	</testcase>
+	<testcase name="tools.logfile_mark_selftest" classname="tools.logfile_mark_selftest" time="0.00343763" status="run">
+		<properties/>
+		<system-out>selftest ok
+</system-out>
+	</testcase>
+	<testcase name="harness.unit" classname="harness.unit" time="7.4518" status="run">
+		<properties/>
+		<system-out>/work/tests/unit/harness/test_adopt.py:61: ResourceWarning: unclosed file &lt;_io.TextIOWrapper name='<tmp>/tmpe_xulxvs/results/2026-11-21-0123456-B-soak.json' mode='r' encoding='utf-8'&gt;
+  doc = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.../work/tests/unit/harness/test_adopt.py:71: ResourceWarning: unclosed file &lt;_io.TextIOWrapper name='<tmp>/tmpo6ousmxt/results/2026-11-21-0123456-B-soak.json' mode='r' encoding='utf-8'&gt;
+  doc = json.load(open(self.adopt()))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/work/tests/unit/harness/test_adopt.py:78: ResourceWarning: unclosed file &lt;_io.TextIOWrapper name='<tmp>/tmpo6ousmxt/results/evidence/2026-11-21-0123456-B-soak/plan.txt' mode='r' encoding='utf-8'&gt;
+  self.assertNotIn(REPO, open(os.path.join(self.out, ev[0])).read())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.../work/tests/unit/harness/test_adopt.py:94: ResourceWarning: unclosed file &lt;_io.TextIOWrapper n...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ci.local" classname="ci.local" time="0.215432" status="run">
+		<properties>
+			<property name="cmake_labels" value="ci"/>
+		</properties>
+		<system-out>PASS  unknown option exits 2
+PASS  no --quick selects full mode (--dry-run only prints the plan)
+PASS  --verify-result of a missing file exits 2 (read before HEAD is resolved)
+PASS  --verify-result of a missing file exits 2 in a copy with nogit
+PASS  --verify-result of a missing file exits 2 in a copy with dangling
+PASS  missing --preset value exits 2
+PASS  quick mode with passing stages exits 0 and runs all stages (fake cmake and ctest)
+PASS  quick mode: a failing configure stage exits 1
+PASS  quick mode: after a failing configure stage no later stage ran
+PASS  quick mode: a failing build stage exits 1
+PASS  quick mode: after a failing build stage no later stage ran
+PASS  quick mode: a failing product stage exits 1
+PASS  quick mode: after a failing product stage no later stage ran
+PASS  quick mode: a failing ctest stage exits 1
+PASS  quick mode: after a failing ctest stage no later stage ran
+PASS  quick mode: a failing bootstrap exits 1 and stops before cmake
+ALL PASSED (--usage: the build runs of the copies...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ci.local_full" classname="ci.local_full" time="4.92317" status="run">
+		<properties>
+			<property name="cmake_labels" value="ci"/>
+		</properties>
+		<system-out>PASS  --verify-result without a file exits 2
+PASS  --only with an unknown stage exits 2
+PASS  an empty --only selection exits 2
+PASS  --fuzz-seconds needs a number
+PASS  --commit without --verify-result exits 2
+PASS  --quick --dry-run exits 2
+PASS  --quick --only exits 2
+PASS  --quick --results-dir exits 2
+PASS  --quick --allow-dirty exits 2
+PASS  --quick --fuzz-seconds exits 2
+PASS  --quick --commit exits 2
+PASS  --preset without --quick exits 2
+PASS  --verify-result --dry-run exits 2
+PASS  --verify-result --only exits 2
+PASS  --verify-result --results-dir exits 2
+PASS  --verify-result --quick exits 2
+PASS  unreadable result file exits 2
+PASS  unresolvable --commit exits 2
+PASS  a clean result for HEAD is accepted
+PASS  rejects an invalid schema
+PASS  rejects a malformed git_sha through the schema check
+PASS  rejects a file that is not JSON
+PASS  rejects NaN in the JSON
+PASS  rejects a duplicate key in the JSON
+PASS  rejects a result without env
+PASS  rejects dirty_tree true
+PASS  rejects a failed case and n...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ci.local_tools" classname="ci.local_tools" time="0.0272145" status="run">
+		<properties>
+			<property name="cmake_labels" value="ci"/>
+		</properties>
+		<system-out>PASS  no clang-tidy: the stage fails
+PASS  clang-tidy found in the llvm directory is used and named
+PASS  clang-tidy on PATH wins over the llvm directory
+PASS  a failing clang-tidy fails the stage
+PASS  the output names the directories searched
+PASS  the not-installed message names the searched directories and the override
+PASS  full mode refuses CI_LOCAL_LLVM_DIRS
+ALL PASSED
+</system-out>
+	</testcase>
+	<testcase name="ci.run_inputs" classname="ci.run_inputs" time="1.64073" status="run">
+		<properties>
+			<property name="cmake_labels" value="ci"/>
+		</properties>
+		<system-out>PASS  deps-key is 64 hex digits
+PASS  deps-key is stable
+PASS  the key does not depend on --prefix and --build-dir
+PASS  the key ignores the host CFLAGS and LDFLAGS (the guest builds run with them unset)
+PASS  --print-key exits before the tool-presence loop (the loop is gated)
+PASS  deps-seal appends the key
+PASS  a sealed tar passes deps-check
+PASS  a sealed tar passes with the current key and its layout given
+PASS  a sealed tar is refused for another key
+PASS  a tar of the dmn layout is refused for the pkg layout
+PASS  the refusal names the layouts
+PASS  a pkg tar passes for the pkg layout
+PASS  a pkg tar is refused for dmn (the default)
+PASS  a tar without a key is refused
+PASS  the refusal says that the key is missing
+PASS  a sealed tar is not sealed twice
+PASS  a tar with two key members is refused
+PASS  a tar made for a different key is refused
+PASS  the refusal is announced
+PASS  a tar with a malformed key is refused
+PASS  an unreadable tar (not a tar) is refused
+PASS  a missing tar is refused
+PASS  de...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ci.gate_cases" classname="ci.gate_cases" time="0.0510421" status="run">
+		<properties>
+			<property name="cmake_labels" value="ci"/>
+		</properties>
+		<system-out>gate_cases_check: 20 id(s), 0 bad
+</system-out>
+	</testcase>
+	<testcase name="ci.fuzz_short" classname="ci.fuzz_short" time="0.568073" status="run">
+		<properties>
+			<property name="cmake_labels" value="ci"/>
+		</properties>
+		<system-out>..................s.................
+----------------------------------------------------------------------
+Ran 36 tests in 0.544s
+
+OK (skipped=1)
+</system-out>
+	</testcase>
+	<testcase name="ci.guest_sources" classname="ci.guest_sources" time="0.0543076" status="run">
+		<properties>
+			<property name="cmake_labels" value="ci"/>
+		</properties>
+		<system-out>guest sources: 6 scripts, every header is copied and every sibling .c is compiled
+</system-out>
+	</testcase>
+	<testcase name="stress.soak_mixlib" classname="stress.soak_mixlib" time="0.000673167" status="notrun">
+		<skipped message="SKIP_RETURN_CODE=77"/>
+		<properties>
+			<property name="cmake_labels" value="ci"/>
+		</properties>
+		<system-out>SKIP: mixlib runs in the macOS guest only (slot store atomicity is not given on this OS)
+</system-out>
+	</testcase>
+	<testcase name="stress.soak_result" classname="stress.soak_result" time="0.0369664" status="run">
+		<properties>
+			<property name="cmake_labels" value="ci"/>
+		</properties>
+		<system-out>mix_result selftest: ok
+</system-out>
+	</testcase>
+	<testcase name="stress.kill_result" classname="stress.kill_result" time="0.0101521" status="run">
+		<properties>
+			<property name="cmake_labels" value="ci"/>
+		</properties>
+		<system-out>result.py selftest ok
+</system-out>
+	</testcase>
+	<testcase name="stress.disconnect_result" classname="stress.disconnect_result" time="0.0185299" status="run">
+		<properties>
+			<property name="cmake_labels" value="ci"/>
+		</properties>
+		<system-out>disc_result selftest: ok
+</system-out>
+	</testcase>
+	<testcase name="stress.leaks_classify" classname="stress.leaks_classify" time="0.0153905" status="run">
+		<properties>
+			<property name="cmake_labels" value="ci"/>
+		</properties>
+		<system-out>classify selftest: 27 checks passed
+</system-out>
+	</testcase>
+	<testcase name="perf.result" classname="perf.result" time="0.227591" status="run">
+		<properties>
+			<property name="cmake_labels" value="ci"/>
+		</properties>
+		<system-out>result.py selftest ok
+</system-out>
+	</testcase>
+	<testcase name="perf.report" classname="perf.report" time="0.15359" status="run">
+		<properties>
+			<property name="cmake_labels" value="ci"/>
+		</properties>
+		<system-out>report.py selftest ok
+</system-out>
+	</testcase>
+	<testcase name="harness.inputs" classname="harness.inputs" time="0.00969358" status="run">
+		<properties>
+			<property name="cmake_labels" value="ci"/>
+		</properties>
+		<system-out>inputs.py selftest ok
+</system-out>
+	</testcase>
+	<testcase name="contracts.headers" classname="contracts.headers" time="0.00309846" status="run">
+		<properties/>
+		<system-out>contracts headers: ok
+</system-out>
+	</testcase>
+	<testcase name="contracts.probe_schema" classname="contracts.probe_schema" time="0.0264401" status="run">
+		<properties/>
+		<system-out>test_all_flags_and_codes_at_the_caps (__main__.ProbeSchema.test_all_flags_and_codes_at_the_caps) ... ok
+test_array_caps_and_duplicates (__main__.ProbeSchema.test_array_caps_and_duplicates) ... ok
+test_bad_logfile_lsn (__main__.ProbeSchema.test_bad_logfile_lsn) ... ok
+test_bad_serial (__main__.ProbeSchema.test_bad_serial) ... ok
+test_clean_volume_validates (__main__.ProbeSchema.test_clean_volume_validates) ... ok
+test_cross_field_rules (__main__.ProbeSchema.test_cross_field_rules) ... ok
+test_doc_example_carries_the_nonnfc_keys (__main__.ProbeSchema.test_doc_example_carries_the_nonnfc_keys) ... ok
+test_doc_example_validates (__main__.ProbeSchema.test_doc_example_validates) ... ok
+test_duplicate_keys_rejected_by_loader (__main__.ProbeSchema.test_duplicate_keys_rejected_by_loader) ... ok
+test_enum_violations (__main__.ProbeSchema.test_enum_violations) ... ok
+test_enums_match_probe_h (__main__.ProbeSchema.test_enums_match_probe_h) ... ok
+test_integer_ranges (__main__.ProbeSchema.test_integer_ranges) ... ok
+test_m...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="daemon.da_filter" classname="daemon.da_filter" time="0.00320317" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="ctl.parse" classname="ctl.parse" time="0.00314771" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="ctl.peer" classname="ctl.peer" time="0.00310879" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="ctl.handle" classname="ctl.handle" time="0.00334187" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="ctl.fuzz" classname="ctl.fuzz" time="0.947645" status="run">
+		<properties/>
+		<system-out>ctl_fuzz: 200000 inputs, 1181 parsed, 20616 denied, 93 reached journal_clear/repair
+</system-out>
+	</testcase>
+	<testcase name="ctl.socket" classname="ctl.socket" time="3.58228" status="run">
+		<properties/>
+		<system-out>ntfsmacd: <tmp>/ntfsmac-ctl-zFfKN0/s was replaced (different inode or type) while it was examined; not starting, path left untouched
+ntfsmacd: <tmp>/ntfsmac-ctl-zFfKN0/s was replaced (different inode or type) while it was examined; not starting, path left untouched
+</system-out>
+	</testcase>
+	<testcase name="ctl.cli" classname="ctl.cli" time="0.124212" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="ctl.xpc" classname="ctl.xpc" time="0.0090235" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="daemon.statemachine_transitions" classname="daemon.statemachine_transitions" time="0.00561958" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="daemon.statemachine_invalid" classname="daemon.statemachine_invalid" time="0.00547996" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="daemon.statemachine_stubs" classname="daemon.statemachine_stubs" time="0.00543229" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="daemon.mountpoint" classname="daemon.mountpoint" time="0.0361456" status="run">
+		<properties/>
+		<system-out>SKIP: mountpoint production entry refusal: runs only when not root
+</system-out>
+	</testcase>
+	<testcase name="daemon.unmount" classname="daemon.unmount" time="0.00371679" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="daemon.unmount_ev" classname="daemon.unmount_ev" time="0.00328008" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="daemon.unmount_verify" classname="daemon.unmount_verify" time="0.00304642" status="run">
+		<properties/>
+		<system-out>unmount_verify_test: ok
+</system-out>
+	</testcase>
+	<testcase name="daemon.errwatch" classname="daemon.errwatch" time="0.813372" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="daemon.session" classname="daemon.session" time="0.0962686" status="run">
+		<properties/>
+		<system-out>INFO: journal: entry 1122334455667788 removed by path 2 (external-check), tombstone 1122334455667788-20231114T221320Z
+INFO: journal: entry 1122334455667788 removed by path 2 (external-check), tombstone 1122334455667788-20231114T221320Z
+INFO: journal: entry 1122334455667788 removed by path 1 (clean-session), tombstone 1122334455667788-20231114T221320Z
+INFO: journal: entry 1122334455667788 removed by path 1 (clean-session), tombstone 1122334455667788-20231114T221320Z
+INFO: journal: entry 1122334455667788 removed by path 1 (clean-session), tombstone 1122334455667788-20231114T221320Z
+INFO: journal: entry 1122334455667788 removed by path 1 (clean-session), tombstone 1122334455667788-20231114T221320Z
+INFO: journal: entry 1122334455667788 removed by path 1 (clean-session), tombstone 1122334455667788-20231114T221320Z
+INFO: journal: entry 1122334455667788 removed by path 1 (clean-session), tombstone 1122334455667788-20231114T221320Z
+INFO: journal: entry 1122334455667788 removed by path 1 (clean-session), tombstone 112...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="daemon.privops" classname="daemon.privops" time="0.0629549" status="run">
+		<properties/>
+		<system-out>INFO: journal: entry 1122334455667788 removed by path 3 (journal-clear), tombstone 1122334455667788-20231114T221320Z
+INFO: journal: entry 1122334455667788 removed by path 3 (journal-clear), tombstone 1122334455667788-20231114T221320Z
+INFO: journal: entry 1122334455667788 removed by path 3 (journal-clear), tombstone 1122334455667788-20231114T221320Z
+INFO: journal: entry 1122334455667788 removed by path 3 (journal-clear), tombstone 1122334455667788-20231114T221320Z
+INFO: journal: entry 1122334455667788 removed by path 3 (journal-clear), tombstone 1122334455667788-20231114T221320Z
+INFO: journal: entry 1122334455667788 removed by path 3 (journal-clear), tombstone 1122334455667788-20231114T221320Z
+INFO: journal: entry 1122334455667788 removed by path 3 (journal-clear), tombstone 1122334455667788-20231114T221320Z
+INFO: journal: entry 1122334455667788 removed by path 3 (journal-clear), tombstone 1122334455667788-20231114T221320Z
+INFO: journal: entry 1122334455667788 removed by path 3 (journal-clear), tombstone 11223...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="daemon.mountwatch" classname="daemon.mountwatch" time="1.39434" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="daemon.notify" classname="daemon.notify" time="0.00734529" status="run">
+		<properties/>
+		<system-out>INFO: notification: Disk is mounted read/write.
+INFO: notification: Disk ejected, all data written.
+</system-out>
+	</testcase>
+	<testcase name="daemon.startup" classname="daemon.startup" time="0.005375" status="run">
+		<properties/>
+		<system-out>SKIP: startup exec_as refusal before exec: runs only when not root
+</system-out>
+	</testcase>
+	<testcase name="daemon.report" classname="daemon.report" time="0.00550408" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="daemon.plist" classname="daemon.plist" time="0.00410117" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="daemon.conflict" classname="daemon.conflict" time="0.00577258" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="daemon.doctor" classname="daemon.doctor" time="0.0121765" status="run">
+		<properties/>
+		<system-out>INFO: journal: entry 0000000000000033 removed by path 3 (journal-clear), tombstone 0000000000000033-20231114T221500Z
+</system-out>
+	</testcase>
+	<testcase name="policy.table" classname="policy.table" time="0.0340325" status="run">
+		<properties/>
+		<system-out>policy: all checks passed
+</system-out>
+	</testcase>
+	<testcase name="policy.options" classname="policy.options" time="0.0364049" status="run">
+		<properties/>
+		<system-out>options: all checks passed
+</system-out>
+	</testcase>
+	<testcase name="policy.mount_options_json" classname="policy.mount_options_json" time="0.258964" status="run">
+		<properties/>
+		<system-out>.......
+----------------------------------------------------------------------
+Ran 7 tests in 0.236s
+
+OK
+</system-out>
+	</testcase>
+	<testcase name="packaging.manifest" classname="packaging.manifest" time="0.0172994" status="run">
+		<properties/>
+		<system-out>PASS: manifest and tree agree
+</system-out>
+	</testcase>
+	<testcase name="packaging.manifest_mutants" classname="packaging.manifest_mutants" time="0.364668" status="run">
+		<properties/>
+		<system-out>PASS: the unaltered manifest passes
+PASS: mutant a profile of the tree is missing refused
+PASS: mutant the plist is missing refused
+PASS: mutant the worker is missing refused
+PASS: mutant the CLI is missing refused
+PASS: mutant the right is missing refused
+PASS: mutant the sandbox directory is missing refused
+PASS: mutant a program is not executable refused
+PASS: mutant a profile is group-writable refused
+PASS: mutant a profile is owned by a user refused
+PASS: mutant the mode is not octal refused
+PASS: mutant an unknown type refused
+PASS: mutant a path outside the project refused
+PASS: mutant a path in the shared bin directory refused
+PASS: mutant a dir that is shared refused
+PASS: mutant a dot-dot path refused
+PASS: mutant a relative path refused
+PASS: mutant a double slash refused
+PASS: mutant a duplicate refused
+PASS: mutant a second right refused
+PASS: mutant a state path elsewhere refused
+PASS: mutant a system launchd plist refused
+PASS: mutant a file with no source in the installer refused
+</system-out>
+	</testcase>
+	<testcase name="packaging.syntax_dev-install" classname="packaging.syntax_dev-install" time="0.000639834" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="packaging.syntax_uninstall" classname="packaging.syntax_uninstall" time="0.000503542" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="packaging.syntax_build-pkg" classname="packaging.syntax_build-pkg" time="0.000623292" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="probe.pure" classname="probe.pure" time="0.0504095" status="run">
+		<properties/>
+		<system-out>worst case verdict: 53126 bytes (limit 65536)
+probe pure: all checks passed
+</system-out>
+	</testcase>
+	<testcase name="probe.nfc" classname="probe.nfc" time="2.8396" status="run">
+		<properties/>
+		<system-out>tables: Unicode 15.1.0; python: Unicode 15.1.0
+test_composition_pairs (__main__.Nfc.test_composition_pairs) ... ok
+test_every_code_point (__main__.Nfc.test_every_code_point) ... ok
+test_fixture_names (__main__.Nfc.test_fixture_names) ... /work/tests/unit/probe/test_nfc.py:171: ResourceWarning: unclosed file &lt;_io.TextIOWrapper name='<tmp>/ntfsmac-names/names-nfd.all' mode='r' encoding='utf-8'&gt;
+  for line in open(path, encoding="utf-8"):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/work/tests/unit/probe/test_nfc.py:171: ResourceWarning: unclosed file &lt;_io.TextIOWrapper name='<tmp>/ntfsmac-names/names-nfc.all' mode='r' encoding='utf-8'&gt;
+  for line in open(path, encoding="utf-8"):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_hangul (__main__.Nfc.test_hangul) ... ok
+test_longest_decomposition_and_length_limits (__main__.Nfc.test_longest_decomposition_and_length_limits) ... ok
+test_random_mark_sequences (__main__.Nfc.test_random_mark_sequences) ... ...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="probe.mftmirr" classname="probe.mftmirr" time="0.32826" status="run">
+		<properties/>
+		<system-out>test_m1_mirror_or_mft_not_where_the_boot_sector_says (__main__.Rule.test_m1_mirror_or_mft_not_where_the_boot_sector_says) ... ok
+test_m1_mirror_smaller_than_four_records (__main__.Rule.test_m1_mirror_smaller_than_four_records) ... ok
+test_m1_records_beyond_the_fourth_must_not_differ (__main__.Rule.test_m1_records_beyond_the_fourth_must_not_differ) ... ok
+test_m2_invalid_records (__main__.Rule.test_m2_invalid_records) ... ok
+test_m2_torn_records (__main__.Rule.test_m2_torn_records) ... ok
+test_m2_usa_header_invalid (__main__.Rule.test_m2_usa_header_invalid) ... ok
+test_m3_nothing_differs (__main__.Rule.test_m3_nothing_differs) ... ok
+test_m4_allocation_larger_by_a_part_of_a_cluster (__main__.Rule.test_m4_allocation_larger_by_a_part_of_a_cluster) ... ok
+test_m4_attribute_length_changed (__main__.Rule.test_m4_attribute_length_changed) ... ok
+test_m4_header_field_changed (__main__.Rule.test_m4_header_field_changed) ... ok
+test_m4_highest_vcn_wrong (__main__.Rule.test_m4_highest_vcn_wrong) ... ok
+test_m4_only_the_...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="probe.run" classname="probe.run" time="43.6256" status="run">
+		<properties/>
+		<system-out>fixtures: 72 images from <tmp>/ntfsmac-unsafe, <tmp>/ntfsmac-fixtures, <tmp>/ntfsmac-names, <tmp>/ntfsmac-mirror, <tmp>/ntfsmac-vmk
+test_accepts_bsd_name (__main__.Probe.test_accepts_bsd_name) ... ok
+test_bitlocker_flag (__main__.Probe.test_bitlocker_flag) ... ok
+test_budget_default_is_not_zero (__main__.Probe.test_budget_default_is_not_zero) ... ok
+test_clean_fixtures (__main__.Probe.test_clean_fixtures) ... ok
+test_descriptor_problems_exit_3 (__main__.Probe.test_descriptor_problems_exit_3) ... ok
+test_flag_bits (__main__.Probe.test_flag_bits) ... ok
+test_hibernation_variants (__main__.Probe.test_hibernation_variants) ... ok
+test_informational_flags (__main__.Probe.test_informational_flags) ... ok
+test_label_is_escaped_not_interpreted (__main__.Probe.test_label_is_escaped_not_interpreted) ... ok
+test_log_variants (__main__.Probe.test_log_variants) ... ok
+test_manifest_fixtures (__main__.Probe.test_manifest_fixtures) ... ok
+test_mirror_01_split (__main__.Probe.test_mirror_01_split) ... ok
+test_mirror_01_vmk_split ...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="daemon.reconcile" classname="daemon.reconcile" time="0.00836125" status="run">
+		<properties/>
+		<system-out>ok
+</system-out>
+	</testcase>
+	<testcase name="sanitize.label" classname="sanitize.label" time="0.642465" status="run">
+		<properties/>
+		<system-out>test_label: 149327 allowed code points, 2187 of them combining marks
+test_label: ok
+</system-out>
+	</testcase>
+	<testcase name="sanitize.display" classname="sanitize.display" time="0.760718" status="run">
+		<properties/>
+		<system-out>test_display: ok
+</system-out>
+	</testcase>
+	<testcase name="sanitize.verdict" classname="sanitize.verdict" time="0.0174996" status="run">
+		<properties/>
+		<system-out>test_verdict: ok
+</system-out>
+	</testcase>
+	<testcase name="sanitize.verdict_schema" classname="sanitize.verdict_schema" time="2.06783" status="run">
+		<properties/>
+		<system-out>test_corpus_forms (__main__.VerdictSchema.test_corpus_forms) ... ok
+test_corpus_size (__main__.VerdictSchema.test_corpus_size) ... ok
+test_example_of_section_3_1 (__main__.VerdictSchema.test_example_of_section_3_1) ... ok
+test_length_caps (__main__.VerdictSchema.test_length_caps) ... ok
+test_mutations (__main__.VerdictSchema.test_mutations) ... ok
+test_random_valid_documents (__main__.VerdictSchema.test_random_valid_documents)
+Valid documents in random spellings: always accepted, fields equal. ... ok
+test_truncations (__main__.VerdictSchema.test_truncations) ... ok
+test_valid_documents_with_one_mutation (__main__.VerdictSchema.test_valid_documents_with_one_mutation)
+One schema-level change to a valid document: accept iff the schema does. ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 2.042s
+
+OK
+</system-out>
+	</testcase>
+	<testcase name="daemon.spawn_holder" classname="daemon.spawn_holder" time="0.00334621" status="run">
+		<properties/>
+		<system-out>test_holder: ok
+</system-out>
+	</testcase>
+	<testcase name="daemon.usermap" classname="daemon.usermap" time="0.00544425" status="run">
+		<properties/>
+		<system-out>test_usermap: ok
+</system-out>
+	</testcase>
+	<testcase name="daemon.usermap_file" classname="daemon.usermap_file" time="0.00723204" status="run">
+		<properties/>
+		<system-out>test_usermap_file: ok
+</system-out>
+	</testcase>
+	<testcase name="daemon.spawn" classname="daemon.spawn" time="11.407" status="run">
+		<properties/>
+		<system-out>WARN: device holder not killed (not the worker or its leftover): pid 87007, executable /usr/bin/sleep
+WARN: device holder not killed (not the worker or its leftover): pid 87007, executable /usr/bin/sleep
+WARN: device holder not killed (not the worker or its leftover): pid 87008, executable <tmp>/bld-asan/tests/unit/spawn/test_spawn
+WARN: usermapping= not used: /usr/local/etc/ntfs-macos/UserMapping: cannot be opened or read
+test_spawn: ok
+</system-out>
+	</testcase>
+	<testcase name="daemon.sandbox" classname="daemon.sandbox" time="0.211143" status="run">
+		<properties/>
+		<system-out>WARN: usermapping= not used: <tmp>/sandbox-test.1sXRv4/UserMapping: changed between the check and the use
+WARN: usermapping= not used: <tmp>/sandbox-test.1sXRv4/UserMapping line 1: Bad implicit SID pattern (last number must be 1000 to 2147483647)
+WARN: usermapping= not used: <tmp>/sandbox-test.1sXRv4/UserMapping: mode is not 0644
+WARN: usermapping= not used: <tmp>/sandbox-test.1sXRv4/UserMapping: cannot be opened or read
+test_sandbox: ok
+</system-out>
+	</testcase>
+	<testcase name="sandbox.profiles" classname="sandbox.profiles" time="0.0316154" status="run">
+		<properties/>
+		<system-out>sandbox_lint: ok
+</system-out>
+	</testcase>
+	<testcase name="sandbox.lint_mutants" classname="sandbox.lint_mutants" time="0.957176" status="run">
+		<properties/>
+		<system-out>sandbox_lint_test: ok (29 mutants caught)
+</system-out>
+	</testcase>
+	<testcase name="sandbox.seams_hidden" classname="sandbox.seams_hidden" time="0.00793337" status="run">
+		<properties/>
+		<system-out>/work/tests/unit/spawn/seam_leak.c: In function 'main':
+/work/tests/unit/spawn/seam_leak.c:14:10: error: 'ntfsmac_spawn_config' has no member named 'sandbox_dir'
+   14 |         c.sandbox_dir = NULL;
+      |          ^
+/work/tests/unit/spawn/seam_leak.c:15:10: error: 'ntfsmac_spawn_config' has no member named 'sandbox_exec_path'
+   15 |         c.sandbox_exec_path = "/bin/true";
+      |          ^
+/work/tests/unit/spawn/seam_leak.c:16:10: error: 'ntfsmac_spawn_config' has no member named 'sandbox_owner'
+   16 |         c.sandbox_owner = 1;
+      |          ^
+/work/tests/unit/spawn/seam_leak.c:17:10: error: 'ntfsmac_spawn_config' has no member named 'after_check_hook'
+   17 |         c.after_check_hook = NULL;
+      |          ^
+</system-out>
+	</testcase>
+	<testcase name="sandbox.seams_visible" classname="sandbox.seams_visible" time="0.00717004" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="tsan.statemachine" classname="tsan.statemachine" time="1.50887" status="run">
+		<properties/>
+		<system-out>tsan_statemachine: 13084 events accepted, 466916 refused, 24 volumes ended Gone
+</system-out>
+	</testcase>
+	<testcase name="tsan.ctl_journal" classname="tsan.ctl_journal" time="0.368271" status="run">
+		<properties/>
+		<system-out>tsan_ctl_journal: list 72, status 89, mount 83, unmount 66, doctor 75, journal_clear 80 (each shared form reached once)
+</system-out>
+	</testcase>
+	<testcase name="tsan.session" classname="tsan.session" time="0.0685408" status="run">
+		<properties/>
+		<system-out>INFO: journal: entry AB00000000000000 removed by path 1 (clean-session), tombstone AB00000000000000-20231114T221324Z
+INFO: journal: entry AB00000000000003 removed by path 1 (clean-session), tombstone AB00000000000003-20231118T093324Z
+INFO: journal: entry AB00000000000001 removed by path 1 (clean-session), tombstone AB00000000000001-20231116T020004Z
+INFO: journal: entry AB00000000000002 removed by path 1 (clean-session), tombstone AB00000000000002-20231117T054644Z
+INFO: journal: entry AB00000000000000 removed by path 3 (journal-clear), tombstone AB00000000000000-20261124T220910Z
+INFO: journal: entry AB00000000000001 removed by path 3 (journal-clear), tombstone AB00000000000001-20261124T220910Z
+INFO: journal: entry AB00000000000003 removed by path 3 (journal-clear), tombstone AB00000000000003-20261124T220910Z
+INFO: journal: entry AB00000000000000 removed by path 1 (clean-session), tombstone AB00000000000000-20231114T221336Z
+INFO: journal: entry AB00000000000002 removed by path 3 (journal-clear), tombstone AB000...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="volmark.args" classname="volmark.args" time="0.00355075" status="run">
+		<properties/>
+		<system-out>volmark.args: ok
+</system-out>
+	</testcase>
+	<testcase name="fuzz.sanitize_verdict_seeds" classname="fuzz.sanitize_verdict_seeds" time="0.01262" status="run">
+		<properties/>
+		<system-out>fuzz_main: 62 inputs replayed
+</system-out>
+	</testcase>
+	<testcase name="fuzz.sanitize_label_seeds" classname="fuzz.sanitize_label_seeds" time="0.00993358" status="run">
+		<properties/>
+		<system-out>fuzz_main: 33 inputs replayed
+</system-out>
+	</testcase>
+	<testcase name="fuzz.sanitize_display_seeds" classname="fuzz.sanitize_display_seeds" time="0.00544825" status="run">
+		<properties/>
+		<system-out>fuzz_main: 17 inputs replayed
+</system-out>
+	</testcase>
+	<testcase name="fuzz.findings.M5-01" classname="fuzz.findings.M5-01" time="0.003238" status="run">
+		<properties/>
+		<system-out>fuzz_main: 1 inputs replayed
+</system-out>
+	</testcase>
+	<testcase name="fuzz.probe_seeds" classname="fuzz.probe_seeds" time="0.431884" status="run">
+		<properties/>
+		<system-out>fuzz_main: 495 inputs replayed
+</system-out>
+	</testcase>
+	<testcase name="fuzz.mountwalk_seeds" classname="fuzz.mountwalk_seeds" time="0.348233" status="run">
+		<properties/>
+		<system-out>fuzz_main: 495 inputs replayed
+</system-out>
+	</testcase>
+	<testcase name="fuzz.findings.F1" classname="fuzz.findings.F1" time="0.0284569" status="run">
+		<properties/>
+		<system-out>fuzz_main: 1 inputs replayed
+</system-out>
+	</testcase>
+	<testcase name="fuzz.findings.F3" classname="fuzz.findings.F3" time="0.0278591" status="run">
+		<properties/>
+		<system-out>fuzz_main: 1 inputs replayed
+</system-out>
+	</testcase>
+	<testcase name="fuzz.findings.F4" classname="fuzz.findings.F4" time="0.0275434" status="run">
+		<properties/>
+		<system-out>fuzz_main: 1 inputs replayed
+</system-out>
+	</testcase>
+	<testcase name="fuzz.findings.F8" classname="fuzz.findings.F8" time="0.0262981" status="run">
+		<properties/>
+		<system-out>fuzz_main: 1 inputs replayed
+</system-out>
+	</testcase>
+	<testcase name="fuzz.ctl_seeds" classname="fuzz.ctl_seeds" time="0.0550898" status="run">
+		<properties/>
+		<system-out>fuzz_main: 450 inputs replayed
+</system-out>
+	</testcase>
+	<testcase name="fuzz.campaign_tools" classname="fuzz.campaign_tools" time="1.40165" status="run">
+		<properties/>
+		<system-out>/work/tests/fuzz/campaign/test_campaign.py:336: ResourceWarning: unclosed file &lt;_io.TextIOWrapper name='<tmp>/tmprlmqz9wn/result.json' mode='r' encoding='utf-8'&gt;
+  doc = json.load(open(os.path.join(t, "result.json")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./work/tests/fuzz/campaign/test_campaign.py:336: ResourceWarning: unclosed file &lt;_io.TextIOWrapper name='<tmp>/tmpzzmotmvl/result.json' mode='r' encoding='utf-8'&gt;
+  doc = json.load(open(os.path.join(t, "result.json")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./work/tests/fuzz/campaign/test_campaign.py:336: ResourceWarning: unclosed file &lt;_io.TextIOWrapper name='<tmp>/tmpz1z09bbx/result.json' mode='r' encoding='utf-8'&gt;
+  doc = json.load(open(os.path.join(t, "result.json")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/work/tests/fuzz/campaign/test_campaign.py:336: ResourceWarning: unclosed file &lt;_io.TextIOWrapper name='<tmp>/tmpfltmlpl3/result.json' mode='r' enc...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+</testsuite>

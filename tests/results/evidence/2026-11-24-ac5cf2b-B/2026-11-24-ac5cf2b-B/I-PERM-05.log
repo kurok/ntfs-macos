@@ -1,0 +1,43 @@
+22:50:43 start I-PERM-05 (env B)
+22:50:43 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac <tmp>/ntfsmac-case-5he20ur_/vol.img -> rc=0
+22:50:43 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:50:43 stderr: <tmp>/ntfsmac-case-5he20ur_/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-5he20ur_/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-5he20ur_/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-5he20ur_/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-5he20ur_/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:50:43 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022 <tmp>/ntfsmac-case-5he20ur_/vol.img <tmp>/ntfsmac-case-5he20ur_/mnt -> rc=0
+22:50:47 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-5he20ur_/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:50:47 $ /usr/bin/cc -o <tmp>/ntfsmac-case-5he20ur_/mnt/hello <tmp>/ntfsmac-case-5he20ur_/hello.c -> rc=0
+22:50:47 rw session 1: run.sh mode 0644, chmod +x ok, mode 0644, exec -> ('ran', 0, 'script-ran')
+22:50:47 rw session 1: native mode 0644, chmod +x ok, mode 0644, exec -> ('ran', 0, '')
+22:50:47 rw session 1: hello mode 0644, chmod +x ok, mode 0644, exec -> ('ran', 0, 'native-ran')
+22:50:47 $ sync -> rc=0
+22:50:47 $ /sbin/umount <tmp>/ntfsmac-case-5he20ur_/mnt -> rc=0
+22:50:47 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022 <tmp>/ntfsmac-case-5he20ur_/vol.img <tmp>/ntfsmac-case-5he20ur_/mnt -> rc=0
+22:50:51 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-5he20ur_/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:50:51 rw session 2: run.sh mode 0644, chmod +x ok, mode 0644, exec -> ('ran', 0, 'script-ran')
+22:50:51 rw session 2: native mode 0644, chmod +x ok, mode 0644, exec -> ('ran', 0, '')
+22:50:51 rw session 2: hello mode 0644, chmod +x ok, mode 0644, exec -> ('ran', 0, 'native-ran')
+22:50:51 $ sync -> rc=0
+22:50:51 $ /sbin/umount <tmp>/ntfsmac-case-5he20ur_/mnt -> rc=0
+22:50:51 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro,noatime,windows_names,streams_interface=openxattr,fmask=0133,dmask=0022 <tmp>/ntfsmac-case-5he20ur_/vol.img <tmp>/ntfsmac-case-5he20ur_/mnt -> rc=0
+22:50:55 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-5he20ur_/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+22:50:55 ro session: run.sh mode 0644, chmod +x -, mode 0644, exec -> ('ran', 0, 'script-ran')
+22:50:55 ro session: native mode 0644, chmod +x -, mode 0644, exec -> ('ran', 0, '')
+22:50:55 ro session: hello mode 0644, chmod +x -, mode 0644, exec -> ('ran', 0, 'native-ran')
+22:50:55 $ sync -> rc=0
+22:50:55 $ /sbin/umount <tmp>/ntfsmac-case-5he20ur_/mnt -> rc=0
+22:50:55 execute bit: not checked, files without x run on B
+22:50:55 $ <home>/ntfsmac/deps/bin/ntfsfix -n <tmp>/ntfsmac-case-5he20ur_/vol.img -> rc=0
+22:50:55 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition <tmp>/ntfsmac-case-5he20ur_/vol.img was processed successfully.
+22:50:55 end I-PERM-05: pass

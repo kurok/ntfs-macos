@@ -1,0 +1,6 @@
+deps_tar=none
+fixtures_dir=<tmp>//soak.ZVPTz2/fixtures
+fixtures_key=8833f0e75b3a8764b4aadd7f9adab9256c066571c3504bee081ef447a401b4d2
+fixtures_dirty=0
+fixture.clean-64m-4k.img=e7b78d5f65bb72e2e3cb7a1e5dfefcdc9d42e147380186faaf31a572e43c3686 (67108864 bytes)
+fixtures_manifest_sha256=5568d695a9feaeffd26ab42c77a62445e84157953a7e2ff60c166cf6bfa2bf7b

@@ -1,0 +1,346 @@
+probe: exit 1
+  known findings only: F2,F7 (not a failure with --known-ok)
+    known F2  leak: leak ntfs_mapping_pairs_decompress < ntfs_mft_load < ntfs_volume_startup @runlist.c:820
+    known F7  leak: leak ntfs_inode_open < ntfs_device_mount < mount_view @inode.c:95
+  short-check: known: F2, F7
+  target: probe  seconds: 300  host: aarch64  clang: Debian clang version 19.1.7 (3+b1)
+  start: 2026-11-24T22:14:07Z
+  libntfs-3g: 2026.9.28
+  patches applied:
+    0003-inherited-device-descriptor.patch
+    0004-faultio-device-layer.patch
+    0006-session-channel.patch
+    0007-device-drive-flush.patch
+    0008-creation-time-conversion.patch
+    0009-xattr-names-exempt-windows-names.patch
+    0010-valid-descr-header-length.patch
+    0011-possible-symlink-header-length.patch
+    0012-retrievesecurityattr-bounds.patch
+    0013-inode-sync-reparse-tag-length.patch
+    0014-readdir-offsets.patch
+    0015-boot-sector-record-size-limit.patch
+  seeds: 495
+  run 1: exit 0 after 301 s (22:19:20Z)
+  stat::average_exec_per_sec:     1105
+  stat::new_units_added:          4701
+  stat::slowest_unit_time_sec:    0
+  stat::peak_rss_mb:              458
+  executions in all runs: 332662
+  last progress line: #332662	DONE   cov: 3401 ft: 18184 corp: 3597/73Kb lim: 121 exec/s: 1105 rss: 458Mb
+  artifacts (crash, oom, timeout, slow unit): 0
+  UBSan reports (distinct lines, with counts): 5
+          1 volume.c:273:44: runtime error: left shift of 33909456017848320 by 9 places cannot be represented in type 'LCN' (aka 'long')
+          1 unistr.c:345:8: runtime error: load of misaligned address 0x5190004777d1 for type 'const ntfschar' (aka 'const unsigned short'), which requires 2 byte alignment
+          1 runlist.c:897:26: runtime error: left shift of negative value -80
+          1 runlist.c:862:26: runtime error: left shift of negative value -80
+          1 bootsect.c:236:21: runtime error: left shift of 1152921504606846974 by 9 places cannot be represented in type 's64' (aka 'long')
+  corpus after the run: 3938 inputs
+  fuzz CPU seconds: 301
+  leak replay: inputs 3938, leaking 10, failed without a leak report 0
+  replay complete
+  leaks in the corpus replay: 11 (leaks.log.sym)
+    Direct leak of 4096 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_mapping_pairs_decompress at <tmp>/b-eng-fuzz/src/libntfs-3g/runlist.c:820
+        #3 ntfs_mft_load at <tmp>/b-eng-fuzz/src/libntfs-3g/volume.c:365
+    Direct leak of 136 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_calloc at ??:?
+        #1 ntfs_calloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:47
+        #2 ntfs_inode_open at <tmp>/b-eng-fuzz/src/libntfs-3g/inode.c:95
+        #3 ntfs_device_mount at <tmp>/b-eng-fuzz/src/libntfs-3g/volume.c:1240
+    Direct leak of 4096 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_mapping_pairs_decompress at <tmp>/b-eng-fuzz/src/libntfs-3g/runlist.c:820
+        #3 ntfs_mft_load at <tmp>/b-eng-fuzz/src/libntfs-3g/volume.c:365
+    Direct leak of 4096 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_mapping_pairs_decompress at <tmp>/b-eng-fuzz/src/libntfs-3g/runlist.c:820
+        #3 ntfs_mft_load at <tmp>/b-eng-fuzz/src/libntfs-3g/volume.c:365
+    Direct leak of 4096 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_mapping_pairs_decompress at <tmp>/b-eng-fuzz/src/libntfs-3g/runlist.c:820
+        #3 ntfs_mft_load at <tmp>/b-eng-fuzz/src/libntfs-3g/volume.c:365
+    Direct leak of 4096 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_mapping_pairs_decompress at <tmp>/b-eng-fuzz/src/libntfs-3g/runlist.c:820
+        #3 ntfs_mft_load at <tmp>/b-eng-fuzz/src/libntfs-3g/volume.c:365
+    Direct leak of 4096 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_mapping_pairs_decompress at <tmp>/b-eng-fuzz/src/libntfs-3g/runlist.c:820
+        #3 ntfs_mft_load at <tmp>/b-eng-fuzz/src/libntfs-3g/volume.c:365
+    Direct leak of 4096 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_mapping_pairs_decompress at <tmp>/b-eng-fuzz/src/libntfs-3g/runlist.c:820
+        #3 ntfs_mft_load at <tmp>/b-eng-fuzz/src/libntfs-3g/volume.c:365
+    Direct leak of 4096 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_mapping_pairs_decompress at <tmp>/b-eng-fuzz/src/libntfs-3g/runlist.c:820
+        #3 ntfs_mft_load at <tmp>/b-eng-fuzz/src/libntfs-3g/volume.c:365
+    Direct leak of 4096 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_mapping_pairs_decompress at <tmp>/b-eng-fuzz/src/libntfs-3g/runlist.c:820
+        #3 ntfs_mft_load at <tmp>/b-eng-fuzz/src/libntfs-3g/volume.c:365
+  coverage of the code under test (gcov, replay of the corpus above; lines executed of lines):
+    src/probe/devio.c	Lines executed:49.29% of 140
+    tests/fuzz/image/fuzz_probe.c	Lines executed:76.47% of 51
+    tests/fuzz/image/image.c	Lines executed:86.67% of 135
+    src/probe/json.c	Lines executed:94.05% of 84
+    src/common/label_cp.c	Lines executed:30.26% of 76
+    src/common/mftmirr.c	Lines executed:82.12% of 397
+    src/probe/names.c	Lines executed:85.78% of 211
+    src/probe/nfc.c	Lines executed:95.56% of 135
+    src/probe/probe.c	Lines executed:76.09% of 230
+    src/probe/state.c	Lines executed:74.19% of 31
+    src/common/state_rank.c	Lines executed:75.00% of 4
+    src/probe/text.c	Lines executed:88.00% of 50
+    acls.c	Lines executed:0.00% of 1071
+    attrib.c	Lines executed:15.73% of 3166
+    attrlist.c	Lines executed:0.00% of 138
+    bitmap.c	Lines executed:0.00% of 99
+    bootsect.c	Lines executed:78.26% of 115
+    cache.c	Lines executed:7.06% of 255
+    collate.c	Lines executed:0.00% of 91
+    compress.c	Lines executed:14.73% of 896
+    device.c	Lines executed:21.56% of 218
+    dir.c	Lines executed:27.37% of 1352
+    ea.c	Lines executed:0.00% of 191
+    index.c	Lines executed:7.09% of 1029
+    inode.c	Lines executed:15.08% of 736
+    lcnalloc.c	Lines executed:0.00% of 354
+    logfile.c	Lines executed:17.14% of 280
+    logging.c	Lines executed:10.19% of 157
+    mft.c	Lines executed:9.05% of 917
+    misc.c	Lines executed:44.44% of 18
+    mst.c	Lines executed:48.44% of 64
+    object_id.c	Lines executed:0.00% of 203
+    realpath.c	Lines executed:0.00% of 22
+    reparse.c	Lines executed:1.78% of 619
+    runlist.c	Lines executed:13.16% of 661
+    security.c	Lines executed:1.82% of 1703
+    unistr.c	Lines executed:29.63% of 594
+    unix_io.c	Lines executed:0.00% of 222
+    volume.c	Lines executed:41.79% of 914
+  end: 2026-11-24T22:19:59Z
+  RESULT: FINDING (artifacts/, libfuzzer-*.log)
+mountwalk: exit 1
+  known findings only: F2,F5,F7 (not a failure with --known-ok)
+    known F5  leak: leak ntfs_attr_readall < ntfs_make_symlink @attrib.c:7025
+    known F2  leak: leak ntfs_mapping_pairs_decompress < ntfs_mft_load < ntfs_volume_startup @runlist.c:820
+    known F7  leak: leak ntfs_inode_open < ntfs_device_mount @inode.c:95
+  short-check: known: F2, F5, F7
+  target: mountwalk  seconds: 300  host: aarch64  clang: Debian clang version 19.1.7 (3+b1)
+  start: 2026-11-24T22:14:07Z
+  libntfs-3g: 2026.9.28
+  patches applied:
+    0003-inherited-device-descriptor.patch
+    0004-faultio-device-layer.patch
+    0006-session-channel.patch
+    0007-device-drive-flush.patch
+    0008-creation-time-conversion.patch
+    0009-xattr-names-exempt-windows-names.patch
+    0010-valid-descr-header-length.patch
+    0011-possible-symlink-header-length.patch
+    0012-retrievesecurityattr-bounds.patch
+    0013-inode-sync-reparse-tag-length.patch
+    0014-readdir-offsets.patch
+    0015-boot-sector-record-size-limit.patch
+  seeds: 495
+  run 1: exit 0 after 301 s (22:19:20Z)
+  stat::average_exec_per_sec:     1012
+  stat::new_units_added:          4349
+  stat::slowest_unit_time_sec:    0
+  stat::peak_rss_mb:              475
+  executions in all runs: 304776
+  last progress line: #304776	DONE   cov: 3756 ft: 20502 corp: 3300/68Kb lim: 91 exec/s: 1012 rss: 475Mb
+  artifacts (crash, oom, timeout, slow unit): 0
+  UBSan reports (distinct lines, with counts): 7
+          1 volume.c:624:35: runtime error: signed integer overflow: 8502514875891687197 + 1122768497249615936 cannot be represented in type 'LCN' (aka 'long')
+          1 volume.c:273:44: runtime error: left shift of 238722666071769409 by 12 places cannot be represented in type 'LCN' (aka 'long')
+          1 unistr.c:345:8: runtime error: load of misaligned address 0x52100baaf611 for type 'const ntfschar' (aka 'const unsigned short'), which requires 2 byte alignment
+          1 runlist.c:897:26: runtime error: left shift of negative value -80
+          1 runlist.c:862:26: runtime error: left shift of negative value -108
+          1 dir.c:399:38: runtime error: left shift of 471935679408898048 by 9 places cannot be represented in type 'VCN' (aka 'long')
+          1 bootsect.c:236:21: runtime error: left shift of 1152921504606846974 by 9 places cannot be represented in type 's64' (aka 'long')
+  corpus after the run: 3657 inputs
+  fuzz CPU seconds: 301
+  leak replay: inputs 3657, leaking 74, failed without a leak report 0
+  replay complete
+  leaks in the corpus replay: 75 (leaks.log.sym)
+    Direct leak of 56 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_attr_readall at <tmp>/b-eng-fuzz/src/libntfs-3g/attrib.c:7025
+        #3 ntfs_make_symlink at <tmp>/b-eng-fuzz/src/libntfs-3g/reparse.c:814
+    Direct leak of 56 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_attr_readall at <tmp>/b-eng-fuzz/src/libntfs-3g/attrib.c:7025
+        #3 ntfs_make_symlink at <tmp>/b-eng-fuzz/src/libntfs-3g/reparse.c:814
+    Direct leak of 56 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_attr_readall at <tmp>/b-eng-fuzz/src/libntfs-3g/attrib.c:7025
+        #3 ntfs_make_symlink at <tmp>/b-eng-fuzz/src/libntfs-3g/reparse.c:814
+    Direct leak of 56 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_attr_readall at <tmp>/b-eng-fuzz/src/libntfs-3g/attrib.c:7025
+        #3 ntfs_make_symlink at <tmp>/b-eng-fuzz/src/libntfs-3g/reparse.c:814
+    Direct leak of 56 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_attr_readall at <tmp>/b-eng-fuzz/src/libntfs-3g/attrib.c:7025
+        #3 ntfs_make_symlink at <tmp>/b-eng-fuzz/src/libntfs-3g/reparse.c:814
+    Direct leak of 56 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_attr_readall at <tmp>/b-eng-fuzz/src/libntfs-3g/attrib.c:7025
+        #3 ntfs_make_symlink at <tmp>/b-eng-fuzz/src/libntfs-3g/reparse.c:814
+    Direct leak of 56 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_attr_readall at <tmp>/b-eng-fuzz/src/libntfs-3g/attrib.c:7025
+        #3 ntfs_make_symlink at <tmp>/b-eng-fuzz/src/libntfs-3g/reparse.c:814
+    Direct leak of 56 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_attr_readall at <tmp>/b-eng-fuzz/src/libntfs-3g/attrib.c:7025
+        #3 ntfs_make_symlink at <tmp>/b-eng-fuzz/src/libntfs-3g/reparse.c:814
+    Direct leak of 56 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_attr_readall at <tmp>/b-eng-fuzz/src/libntfs-3g/attrib.c:7025
+        #3 ntfs_make_symlink at <tmp>/b-eng-fuzz/src/libntfs-3g/reparse.c:814
+    Direct leak of 56 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_attr_readall at <tmp>/b-eng-fuzz/src/libntfs-3g/attrib.c:7025
+        #3 ntfs_make_symlink at <tmp>/b-eng-fuzz/src/libntfs-3g/reparse.c:814
+    Direct leak of 2 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_attr_readall at <tmp>/b-eng-fuzz/src/libntfs-3g/attrib.c:7025
+        #3 ntfs_make_symlink at <tmp>/b-eng-fuzz/src/libntfs-3g/reparse.c:814
+    Direct leak of 56 byte(s) in 1 object(s) allocated from:
+        #0 ___interceptor_malloc at ??:?
+        #1 ntfs_malloc at <tmp>/b-eng-fuzz/src/libntfs-3g/misc.c:57
+        #2 ntfs_attr_readall at <tmp>/b-eng-fuzz/src/libntfs-3g/attrib.c:7025
+        #3 ntfs_make_symlink at <tmp>/b-eng-fuzz/src/libntfs-3g/reparse.c:814
+  coverage of the code under test (gcov, replay of the corpus above; lines executed of lines):
+    tests/fuzz/image/fuzz_mountwalk.c	Lines executed:80.86% of 256
+    tests/fuzz/image/image.c	Lines executed:86.67% of 135
+    acls.c	Lines executed:1.59% of 1071
+    attrib.c	Lines executed:15.13% of 3166
+    attrlist.c	Lines executed:0.00% of 138
+    bitmap.c	Lines executed:0.00% of 99
+    bootsect.c	Lines executed:95.65% of 115
+    cache.c	Lines executed:7.06% of 255
+    collate.c	Lines executed:17.58% of 91
+    compress.c	Lines executed:19.75% of 896
+    device.c	Lines executed:22.48% of 218
+    dir.c	Lines executed:32.25% of 1352
+    ea.c	Lines executed:6.28% of 191
+    efs.c	Lines executed:0.00% of 170
+    index.c	Lines executed:21.09% of 1029
+    inode.c	Lines executed:16.44% of 736
+    lcnalloc.c	Lines executed:0.00% of 354
+    logfile.c	Lines executed:0.00% of 280
+    logging.c	Lines executed:10.19% of 157
+    mft.c	Lines executed:9.05% of 917
+    misc.c	Lines executed:44.44% of 18
+    mst.c	Lines executed:48.44% of 64
+    object_id.c	Lines executed:3.45% of 203
+    realpath.c	Lines executed:0.00% of 22
+    reparse.c	Lines executed:25.04% of 619
+    runlist.c	Lines executed:28.59% of 661
+    security.c	Lines executed:6.69% of 1703
+    unistr.c	Lines executed:48.65% of 594
+    unix_io.c	Lines executed:0.00% of 222
+    volume.c	Lines executed:41.79% of 914
+    xattrs.c	Lines executed:32.18% of 174
+  end: 2026-11-24T22:21:04Z
+  RESULT: FINDING (artifacts/, libfuzzer-*.log)
+run.sh: results in <repo>/build/fuzz/ci/20261124T221407Z/image (exit 0)
+verdict: exit 0
+  target: verdict  seconds: 300  host: aarch64  clang: Debian clang version 19.1.7 (3+b1)
+  start: 2026-11-24T22:21:04Z
+  seeds: 62
+  libFuzzer exit: 0
+  stat::number_of_executed_units: 16938496
+  stat::average_exec_per_sec:     56274
+  stat::new_units_added:          16893
+  stat::slowest_unit_time_sec:    0
+  stat::peak_rss_mb:              483
+  last progress line: #16938496	DONE   cov: 584 ft: 6445 corp: 1986/3266Kb lim: 70000 exec/s: 56274 rss: 483Mb
+  artifacts (crash, oom, timeout, slow unit): 0
+  corpus after the run: 2118 inputs
+  coverage of the code under test (gcov, replay of the corpus above):
+  File '/work/src/sanitize/display.c'
+  Lines executed:84.09% of 44
+  File '/work/src/sanitize/label.c'
+  Lines executed:93.10% of 58
+  File '/work/src/common/label_cp.c'
+  Lines executed:76.32% of 76
+  File '/work/src/sanitize/verdict.c'
+  Lines executed:95.65% of 483
+  end: 2026-11-24T22:26:06Z
+  RESULT: no finding in 300 s
+label: exit 0
+  target: label  seconds: 300  host: aarch64  clang: Debian clang version 19.1.7 (3+b1)
+  start: 2026-11-24T22:21:04Z
+  seeds: 33
+  libFuzzer exit: 0
+  stat::number_of_executed_units: 3192062
+  stat::average_exec_per_sec:     10604
+  stat::new_units_added:          4551
+  stat::slowest_unit_time_sec:    0
+  stat::peak_rss_mb:              545
+  last progress line: #3192062	DONE   cov: 367 ft: 4891 corp: 1036/44Kb lim: 1100 exec/s: 10604 rss: 545Mb
+  artifacts (crash, oom, timeout, slow unit): 0
+  corpus after the run: 1028 inputs
+  coverage of the code under test (gcov, replay of the corpus above):
+  File '/work/src/sanitize/display.c'
+  Lines executed:0.00% of 44
+  File '/work/src/sanitize/label.c'
+  Lines executed:94.83% of 58
+  File '/work/src/common/label_cp.c'
+  Lines executed:97.37% of 76
+  File '/work/src/sanitize/verdict.c'
+  Lines executed:0.00% of 483
+  end: 2026-11-24T22:26:06Z
+  RESULT: no finding in 300 s
+display: exit 0
+  target: display  seconds: 300  host: aarch64  clang: Debian clang version 19.1.7 (3+b1)
+  start: 2026-11-24T22:21:04Z
+  seeds: 17
+  libFuzzer exit: 0
+  stat::number_of_executed_units: 4426131
+  stat::average_exec_per_sec:     14704
+  stat::new_units_added:          6837
+  stat::slowest_unit_time_sec:    0
+  stat::peak_rss_mb:              489
+  last progress line: #4426131	DONE   cov: 172 ft: 3435 corp: 800/105Kb lim: 1100 exec/s: 14704 rss: 489Mb
+  artifacts (crash, oom, timeout, slow unit): 0
+  corpus after the run: 803 inputs
+  coverage of the code under test (gcov, replay of the corpus above):
+  File '/work/src/sanitize/display.c'
+  Lines executed:97.73% of 44
+  File '/work/src/sanitize/label.c'
+  Lines executed:0.00% of 58
+  File '/work/src/common/label_cp.c'
+  Lines executed:63.16% of 76
+  File '/work/src/sanitize/verdict.c'
+  Lines executed:0.00% of 483
+  end: 2026-11-24T22:26:06Z
+  RESULT: no finding in 300 s
+run.sh: results in <repo>/build/fuzz/ci/20261124T221407Z/sanitize (exit 0)
+NOTE: known findings seen: F2, F5, F7; left out: image run --skip-security (F1/F3, covered by the replays); fuzz output in build/fuzz/ci/20261124T221407Z

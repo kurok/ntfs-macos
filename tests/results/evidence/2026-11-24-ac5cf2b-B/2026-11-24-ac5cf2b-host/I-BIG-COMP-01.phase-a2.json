@@ -1,0 +1,181 @@
+{
+ "a2_update": {
+  "info": {
+   "attrib": "0x820",
+   "blocks": 2076672,
+   "compressed": true,
+   "sha": "d77182898983dfd9d2b5c5a503b02df1cab8bb5452db8dfd172f32be2e66d9a5",
+   "size": 2597152
+  },
+  "ok": true
+ },
+ "disk": {
+  "inner": {
+   "attr_compressed": true,
+   "attrs": "0x820",
+   "data": "non-resident, size 1048576 alloc 1048576 init 1048576, compressed (unit 2^4 clusters, compressed size 131072)",
+   "file_compressed": true,
+   "resident": false
+  },
+  "n2_text": {
+   "attr_compressed": false,
+   "attrs": "0x20",
+   "data": "non-resident, size 524288 alloc 524288 init 524288",
+   "file_compressed": false,
+   "resident": false
+  },
+  "n_plain": {
+   "attr_compressed": false,
+   "attrs": "0x20",
+   "data": "non-resident, size 1048576 alloc 1048576 init 1048576",
+   "file_compressed": false,
+   "resident": false
+  },
+  "n_text": {
+   "attr_compressed": true,
+   "attrs": "0x820",
+   "data": "non-resident, size 1048576 alloc 1048576 init 1048576, compressed (unit 2^4 clusters, compressed size 131072)",
+   "file_compressed": true,
+   "resident": false
+  },
+  "plain.txt": {
+   "attr_compressed": false,
+   "attrs": "0x20",
+   "data": "non-resident, size 65536 alloc 65536 init 65536",
+   "file_compressed": false,
+   "resident": false
+  },
+  "z_empty": {
+   "attr_compressed": true,
+   "attrs": "0x820",
+   "data": "non-resident, size 1000 alloc 65536 init 1000, compressed (unit 2^4 clusters, compressed size 4096)",
+   "file_compressed": true,
+   "resident": false
+  },
+  "z_mixed": {
+   "attr_compressed": true,
+   "attrs": "0x820",
+   "data": "non-resident, size 2397152 alloc 2424832 init 2397152, compressed (unit 2^4 clusters, compressed size 1875968)",
+   "file_compressed": true,
+   "resident": false
+  },
+  "z_nested_renamed": {
+   "attr_compressed": true,
+   "attrs": "0x820",
+   "data": "non-resident, size 65536 alloc 65536 init 65536, compressed (unit 2^4 clusters, compressed size 65536)",
+   "file_compressed": true,
+   "resident": false
+  },
+  "z_rand": {
+   "attr_compressed": true,
+   "attrs": "0x820",
+   "data": "non-resident, size 1048576 alloc 1048576 init 1048576, compressed (unit 2^4 clusters, compressed size 1048576)",
+   "file_compressed": true,
+   "resident": false
+  },
+  "z_small": {
+   "attr_compressed": true,
+   "attrs": "0x820",
+   "data": "resident, 100 bytes",
+   "file_compressed": true,
+   "resident": true
+  },
+  "z_text": {
+   "attr_compressed": true,
+   "attrs": "0x820",
+   "data": "non-resident, size 2097152 alloc 2097152 init 2097152, compressed (unit 2^4 clusters, compressed size 376832)",
+   "file_compressed": true,
+   "resident": false
+  }
+ },
+ "image_sha256": "071dec115f94bd4b5c3e8b1f67bf90fc2104203edc37b69373437f096a3ea5ba",
+ "ntfs3g_version": "2026.9.28",
+ "ntfsfix_rc": 0,
+ "os": "Debian GNU/Linux 13 (trixie) aarch64",
+ "read_in_a": {
+  "cdir/n2_text": {
+   "attrib": "0x20",
+   "blocks": 524288,
+   "compressed": false,
+   "sha": "7a20ed4489cad2aa10a9efd6ed0c06e3d9d156f2cdcb2b133456643f303c86ff",
+   "size": 524288
+  },
+  "cdir/n_text": {
+   "attrib": "0x820",
+   "blocks": 131072,
+   "compressed": true,
+   "sha": "174fd42002a544a7b4f92983aff3f3ad4f8d716d6a9a399840b25ef75dceedaf",
+   "size": 1048576
+  },
+  "cdir/newsub/inner": {
+   "attrib": "0x820",
+   "blocks": 131072,
+   "compressed": true,
+   "sha": "174fd42002a544a7b4f92983aff3f3ad4f8d716d6a9a399840b25ef75dceedaf",
+   "size": 1048576
+  },
+  "cdir/sub/z_nested_renamed": {
+   "attrib": "0x820",
+   "blocks": 65536,
+   "compressed": true,
+   "sha": "ce3df19d91527ee08d89dde97e5661417041458d2f7734687857a49ca5e5e5db",
+   "size": 65536
+  },
+  "cdir/z_big": {
+   "attrib": "0x820",
+   "blocks": 659456,
+   "compressed": true,
+   "sha": "00776c43b94cb69aa0abbbb358294751c61f8f6c58d03c3f20148b407e985230",
+   "size": 6291456
+  },
+  "cdir/z_empty": {
+   "attrib": "0x820",
+   "blocks": 4096,
+   "compressed": true,
+   "sha": "1e5f8f4d5b214b82a6fd626a25cde41cf52e96bb282e86907b9854707f6da26f",
+   "size": 1000
+  },
+  "cdir/z_mixed": {
+   "attrib": "0x820",
+   "blocks": 1875968,
+   "compressed": true,
+   "sha": "48854004a87a4faa0c53cb7ebf0cf66fe2540ec92af179fca85faae294036b2b",
+   "size": 2397152
+  },
+  "cdir/z_rand": {
+   "attrib": "0x820",
+   "blocks": 1048576,
+   "compressed": true,
+   "sha": "af14a85fb0e1150788c6afb13bfabeaf258f53d6706d4b4d6b55077c6bfda69c",
+   "size": 1048576
+  },
+  "cdir/z_small": {
+   "attrib": "0x820",
+   "blocks": 512,
+   "compressed": true,
+   "sha": "db543132e1d59bf45ab68c00d6952739ffca09863ea5ad9616e1db6d0cb20089",
+   "size": 100
+  },
+  "cdir/z_text": {
+   "attrib": "0x820",
+   "blocks": 376832,
+   "compressed": true,
+   "sha": "3d5fa3644f0db1a82b03d608c95f2b05178f75c0132aa75cc0a81ae8a9a79945",
+   "size": 2097152
+  },
+  "n_plain": {
+   "attrib": "0x20",
+   "blocks": 1048576,
+   "compressed": false,
+   "sha": "174fd42002a544a7b4f92983aff3f3ad4f8d716d6a9a399840b25ef75dceedaf",
+   "size": 1048576
+  },
+  "plain.txt": {
+   "attrib": "0x20",
+   "blocks": 65536,
+   "compressed": false,
+   "sha": "a2b5e9e968f308ba7c53cf821689870cb56c6e4dc0e60a58412b91856248ae71",
+   "size": 65536
+  }
+ }
+}

@@ -1,0 +1,124 @@
+{
+ "unsynced_data_after_module_kill": [
+  {
+   "rep": "module#1",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#2",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#3",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#4",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#5",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#6",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#7",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#8",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#9",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#10",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#11",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#12",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#13",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#14",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#15",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#16",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#17",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#18",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#19",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  },
+  {
+   "rep": "module#20",
+   "mmap": "lost",
+   "plain": "survived",
+   "clean_report": "no"
+  }
+ ]
+}

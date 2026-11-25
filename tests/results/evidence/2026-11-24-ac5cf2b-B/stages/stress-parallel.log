@@ -1,0 +1,53 @@
+[0/2] Re-checking globbed directories...
+ninja: no work to do.
+mixlib selftest: ok
+mix_result selftest: ok
+par: generating clean-64m-4k in Environment A
+ok       clean-64m-4k 4a57af780cc4146b3f400f54e8fee65a3c475a04039800389f6e510ee7add8fc (375 entries)
+par: copying the suite into ntfsmac-par-92452
+par: running in the guest (300 s, workers 16, baseline 50 s, controls: corrupt stall)
+PASS: par-real ntfsfix -n after the unmount (0)
+PASS: par-real after the remount: state and mode (Mounted rw)
+verify: 743 files, 632 directories, 20708118 bytes, 0 mismatch(es)
+PASS: par-real ntfsfix -n after the verification session (0)
+== par-ctl-corrupt (control-corrupt): par, 10 s, 4 worker(s), hang limit 60 s, injected: corrupt
+PASS: par-ctl-corrupt the volume mounts rw (Mounted rw)
+par: FAIL ops=4455 verifies=3 mismatches=1 errors=0 lat_max=0.311s p99<=0.128s
+  FAIL mismatch: d000117/d000151/f000203: content differs (model 28346 bytes, disk 28346 bytes, first difference at offset 0)
+PASS: par-ctl-corrupt the volume unmounts cleanly through the daemon
+PASS: par-ctl-corrupt ntfsfix -n after the unmount (0)
+PASS: par-ctl-corrupt after the remount: state and mode (Mounted rw)
+verify: 134 files, 115 directories, 5731689 bytes, 1 mismatch(es)
+  BAD par/w00/d000117/d000151/f000203: size/sha256 differ (disk (28346, 'ee61eab86e66594338cc4165cabdb0d5f387f621e3c4755688367f6d0f003854'), expected (28346, '2609540624b9a1c6cad4737d8df36bfec26cb42f005792b912af1ec62221acfd'))
+PASS: par-ctl-corrupt ntfsfix -n after the verification session (0)
+== par-ctl-stall (control-stall): par, 12 s, 4 worker(s), hang limit 4 s, injected: stall
+PASS: par-ctl-stall the volume mounts rw (Mounted rw)
+par: FAIL ops=0 verifies=0 mismatches=0 errors=0 lat_max=0.000s p99<=0.000s
+  FAIL hang: worker 1: no progress for 4.2 s (limit 4 s) in randwrite at 7 s
+NOTE: par-ctl-stall no remount verification (hang or no summary)
+== runs
+par-real	real	0	0	0	0	Mounted rw	Mounted rw
+par-ctl-corrupt	control-corrupt	1	1	0	0	Mounted rw	Mounted rw
+par-ctl-stall	control-stall	1	NA	NA	NA	Mounted rw	NA
+-- daemon log (tail)
+INFO: disk6: DISK_GONE -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision rw
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read/write.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 102 ms, mount gone afterwards
+INFO: journal: entry A8D4029792CA7301 removed by path 1 (clean-session), tombstone A8D4029792CA7301-20261124T235028Z
+INFO: notification: clean64m4k ejected, all data written.
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+result: 0 check(s) failed
+par: guest script exit 0
+S-PAR-01-SHORT PASS: shortened run, not criterion 5.3 (the case id has the suffix -SHORT): parallel: concurrent writers in private and shared directories, latency and hang watch: 300 s planned, 301 s run, 16 worker(s), 113318 ops, 80 full verification(s), 1115.8 MiB written, 1410.6 MiB verified, 0 mismatch(es), 0 error(s); op latency p50<=32 ms p99<=256 ms max 2.39 s (hang limit 60 s); parameters: duration 300 s, base
+S-PAR-01-CONTROL-SHORT PASS: negative controls (corrupt stall): corrupt caught: injected byte flip: driver exit 1, failure kinds ['mismatch'], 1 mismatch(es), remount verification exit 1 with 1 mismatch(es); stall caught: simulated stall of worker 1: driver exit 1, failure kinds ['hang'], watchdog {'worker': 1, 'op': 'randwrite', 'seconds': 4.2, 'at_s': 7.2}; inputs: deps tar none (NTFS-3G built in the guest from this checkou
+tart.sh: stopped ntfsmac-par-92452
+tart.sh: deleted ntfsmac-par-92452

@@ -1,0 +1,96 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "ac5cf2b5dab778a340bde623dbd9f63b298194e3",
+  "dirty_tree": false,
+  "env": "B",
+  "host_os": "macOS 27.2.1",
+  "guest_os": "macOS 27.2",
+  "macfuse_version": "5.5.0",
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-25T01:04:20Z",
+  "finished": "2026-11-25T01:28:50Z",
+  "cases": [
+    {
+      "id": "S-DISC-01",
+      "status": "pass",
+      "duration_s": 346.341,
+      "evidence": [
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/reps.tsv",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/plan.txt",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/meta.txt",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/guest.log",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/provenance.txt",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/rep-S-DISC-01-1.log",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/inputs.txt"
+      ],
+      "note": "force-detach during a large sequential write: 20 of 20 planned yank(s) at 1,2.2,0.6,3.5,1.6,0.3,1,2.2,0.6,3.5,1.6,0.3,1,2.2,0.6,3.5,1.6,0.3,1,2.2 (seconds into the workload; the fsync workload: right after file number), 20 passed. Checks per yank: volume leaves Mounted, no worker, no macfuse mount, mount point gone, journal entry stays; ntfsfix -n exit 0 and VOLUME_IS_DIRTY set; next attach ro with the documented reason, synced files intact by hash, image hash unchanged by the ro session; parameters: 20 yank(s) per workload (criterion: 20), workloads seq small churn fsync, controls 'hash dirty', fault ''; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 034c85fa55c8"
+    },
+    {
+      "id": "S-DISC-02",
+      "status": "pass",
+      "duration_s": 346.341,
+      "evidence": [
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/reps.tsv",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/plan.txt",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/meta.txt",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/guest.log",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/provenance.txt",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/rep-S-DISC-02-1.log",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/inputs.txt"
+      ],
+      "note": "force-detach during many small file creates: 20 of 20 planned yank(s) at 1,2.2,0.6,3.5,1.6,0.3,1,2.2,0.6,3.5,1.6,0.3,1,2.2,0.6,3.5,1.6,0.3,1,2.2 (seconds into the workload; the fsync workload: right after file number), 20 passed. Checks per yank: volume leaves Mounted, no worker, no macfuse mount, mount point gone, journal entry stays; ntfsfix -n exit 0 and VOLUME_IS_DIRTY set; next attach ro with the documented reason, synced files intact by hash, image hash unchanged by the ro session; parameters: 20 yank(s) per workload (criterion: 20), workloads seq small churn fsync, controls 'hash dirty', fault ''; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 034c85fa55c8"
+    },
+    {
+      "id": "S-DISC-03",
+      "status": "pass",
+      "duration_s": 346.341,
+      "evidence": [
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/reps.tsv",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/plan.txt",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/meta.txt",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/guest.log",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/provenance.txt",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/rep-S-DISC-03-1.log",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/inputs.txt"
+      ],
+      "note": "force-detach during rename and metadata churn: 20 of 20 planned yank(s) at 1,2.2,0.6,3.5,1.6,0.3,1,2.2,0.6,3.5,1.6,0.3,1,2.2,0.6,3.5,1.6,0.3,1,2.2 (seconds into the workload; the fsync workload: right after file number), 20 passed. Checks per yank: volume leaves Mounted, no worker, no macfuse mount, mount point gone, journal entry stays; ntfsfix -n exit 0 and VOLUME_IS_DIRTY set; next attach ro with the documented reason, synced files intact by hash, image hash unchanged by the ro session; parameters: 20 yank(s) per workload (criterion: 20), workloads seq small churn fsync, controls 'hash dirty', fault ''; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 034c85fa55c8"
+    },
+    {
+      "id": "S-DISC-04",
+      "status": "pass",
+      "duration_s": 346.341,
+      "evidence": [
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/reps.tsv",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/plan.txt",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/meta.txt",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/guest.log",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/provenance.txt",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/rep-S-DISC-04-1.log",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/inputs.txt"
+      ],
+      "note": "force-detach right after an fsync of file and directory: 20 of 20 planned yank(s) at 3,6,2,9,4,1,3,6,2,9,4,1,3,6,2,9,4,1,3,6 (seconds into the workload; the fsync workload: right after file number), 20 passed. Checks per yank: volume leaves Mounted, no worker, no macfuse mount, mount point gone, journal entry stays; ntfsfix -n exit 0 and VOLUME_IS_DIRTY set; next attach ro with the documented reason, synced files intact by hash, image hash unchanged by the ro session; parameters: 20 yank(s) per workload (criterion: 20), workloads seq small churn fsync, controls 'hash dirty', fault ''; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 034c85fa55c8"
+    },
+    {
+      "id": "S-DISC-05",
+      "status": "pass",
+      "duration_s": 34.634,
+      "evidence": [
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/reps.tsv",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/plan.txt",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/meta.txt",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/guest.log",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/provenance.txt",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/rep-S-DISC-05-1.log",
+        "evidence/2026-11-25-ac5cf2b-B-disconnect/inputs.txt"
+      ],
+      "note": "negative controls: an injected fault must make the checks fail: 2 control(s), 2 caught their fault; parameters: 20 yank(s) per workload (criterion: 20), workloads seq small churn fsync, controls 'hash dirty', fault ''; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 034c85fa55c8"
+    },
+    {
+      "id": "STAGE-B-MODE",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [],
+      "note": "criterion:disconnect"
+    }
+  ]
+}

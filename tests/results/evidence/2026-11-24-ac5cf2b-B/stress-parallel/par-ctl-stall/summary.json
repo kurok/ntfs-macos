@@ -1,0 +1,41 @@
+{
+ "kind": "par",
+ "workers": 4,
+ "duration_planned_s": 12.0,
+ "duration_actual_s": 7.57,
+ "verify_every_s": 60.0,
+ "hang_limit_s": 4.0,
+ "baseline_s": 0.0,
+ "ops_total": 0,
+ "mismatches": 0,
+ "errors": 0,
+ "verifies": 0,
+ "verifies_min_per_worker": 0,
+ "bytes_written": 0,
+ "bytes_verified": 0,
+ "lat_max_s": 0.0,
+ "lat_p50_s": 0.0,
+ "lat_p99_s": 0.0,
+ "lat_p999_s": 0.0,
+ "slowest": [],
+ "ops_by_kind": {},
+ "worker_ok": [],
+ "hang": {
+  "worker": 1,
+  "op": "randwrite",
+  "seconds": 4.2,
+  "at_s": 7.2
+ },
+ "injected": {
+  "corrupt": false,
+  "stall": "1:3:8"
+ },
+ "ps_errors": 0,
+ "failures": [
+  {
+   "kind": "hang",
+   "detail": "worker 1: no progress for 4.2 s (limit 4 s) in randwrite at 7 s"
+  }
+ ],
+ "verdict": "fail"
+}

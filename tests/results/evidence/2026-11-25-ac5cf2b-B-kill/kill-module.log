@@ -1,0 +1,582 @@
+== target module: 20 repetition(s)
+== module repetition 1/20
+PASS: module#1: the volume mounts rw (Mounted rw)
+PASS: module#1: the journal holds the entry of the rw session
+PASS: module#1: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#1: module instances before: 8569 25706 ; the one holding a raw disk: 25706
+PASS: module#1: the volume leaves Mounted within 90 s
+PASS: module#1: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#1 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#1: no worker is left within 90 s
+PASS: module#1: no macfuse mount is left within 90 s
+PASS: module#1: the mount point directory is gone
+PASS: module#1: the daemon is still the same process and answers
+PASS: module#1: no process holds /dev/disk4 within 90 s
+NOTE: module#1 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#1: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#1 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#1 next attach: state (Mounted)
+PASS: module#1 next attach: mode (ro)
+NOTE: module#1 next attach: reason 'dirty_flag_journal'
+PASS: module#1 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#1 next attach: the file synced before the failure is intact (synced-before-module-1-8307)
+MEASURE module#1 mmap=lost plain=survived clean_report=no
+NOTE: module#1 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#1 next attach: the journal entry is still there
+PASS: module#1 next attach: the read-only session left the image unchanged (4ee7db06d0a7d6f583ec233113f26cb001d02734f6fd9dc5e21d3a7bfe8c1c11)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 25787 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#1: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#1: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 1 PASS 18
+== module repetition 2/20
+PASS: module#2: the volume mounts rw (Mounted rw)
+PASS: module#2: the journal holds the entry of the rw session
+PASS: module#2: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#2: module instances before: 8569 26196 ; the one holding a raw disk: 26196
+PASS: module#2: the volume leaves Mounted within 90 s
+PASS: module#2: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#2 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#2: no worker is left within 90 s
+PASS: module#2: no macfuse mount is left within 90 s
+PASS: module#2: the mount point directory is gone
+PASS: module#2: the daemon is still the same process and answers
+PASS: module#2: no process holds /dev/disk4 within 90 s
+NOTE: module#2 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#2: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#2 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#2 next attach: state (Mounted)
+PASS: module#2 next attach: mode (ro)
+NOTE: module#2 next attach: reason 'dirty_flag_journal'
+PASS: module#2 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#2 next attach: the file synced before the failure is intact (synced-before-module-2-8307)
+MEASURE module#2 mmap=lost plain=survived clean_report=no
+NOTE: module#2 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#2 next attach: the journal entry is still there
+PASS: module#2 next attach: the read-only session left the image unchanged (8acdb9560a256b0bce08af941d1b3dec6f6de35af22e01d2b3539334493e1d90)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 26277 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#2: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#2: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 2 PASS 20
+== module repetition 3/20
+PASS: module#3: the volume mounts rw (Mounted rw)
+PASS: module#3: the journal holds the entry of the rw session
+PASS: module#3: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#3: module instances before: 8569 26699 ; the one holding a raw disk: 26699
+PASS: module#3: the volume leaves Mounted within 90 s
+PASS: module#3: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#3 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#3: no worker is left within 90 s
+PASS: module#3: no macfuse mount is left within 90 s
+PASS: module#3: the mount point directory is gone
+PASS: module#3: the daemon is still the same process and answers
+PASS: module#3: no process holds /dev/disk4 within 90 s
+NOTE: module#3 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#3: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#3 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#3 next attach: state (Mounted)
+PASS: module#3 next attach: mode (ro)
+NOTE: module#3 next attach: reason 'dirty_flag_journal'
+PASS: module#3 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#3 next attach: the file synced before the failure is intact (synced-before-module-3-8307)
+MEASURE module#3 mmap=lost plain=survived clean_report=no
+NOTE: module#3 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#3 next attach: the journal entry is still there
+PASS: module#3 next attach: the read-only session left the image unchanged (b20b4d826705fd9470694ac1164db0aa0151ffc1b15066c66e46dd36ba4cdebe)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 26781 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#3: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#3: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 3 PASS 19
+== module repetition 4/20
+PASS: module#4: the volume mounts rw (Mounted rw)
+PASS: module#4: the journal holds the entry of the rw session
+PASS: module#4: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#4: module instances before: 8569 27196 ; the one holding a raw disk: 27196
+PASS: module#4: the volume leaves Mounted within 90 s
+PASS: module#4: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#4 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#4: no worker is left within 90 s
+PASS: module#4: no macfuse mount is left within 90 s
+PASS: module#4: the mount point directory is gone
+PASS: module#4: the daemon is still the same process and answers
+PASS: module#4: no process holds /dev/disk4 within 90 s
+NOTE: module#4 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#4: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#4 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#4 next attach: state (Mounted)
+PASS: module#4 next attach: mode (ro)
+NOTE: module#4 next attach: reason 'dirty_flag_journal'
+PASS: module#4 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#4 next attach: the file synced before the failure is intact (synced-before-module-4-8307)
+MEASURE module#4 mmap=lost plain=survived clean_report=no
+NOTE: module#4 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#4 next attach: the journal entry is still there
+PASS: module#4 next attach: the read-only session left the image unchanged (d608b8623ff6ef8d5c174ee14d41b4b34bb46d4d8baff65bbae2ff9d6e2d650b)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 27278 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#4: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#4: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 4 PASS 18
+== module repetition 5/20
+PASS: module#5: the volume mounts rw (Mounted rw)
+PASS: module#5: the journal holds the entry of the rw session
+PASS: module#5: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#5: module instances before: 8569 27687 ; the one holding a raw disk: 27687
+PASS: module#5: the volume leaves Mounted within 90 s
+PASS: module#5: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#5 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#5: no worker is left within 90 s
+PASS: module#5: no macfuse mount is left within 90 s
+PASS: module#5: the mount point directory is gone
+PASS: module#5: the daemon is still the same process and answers
+PASS: module#5: no process holds /dev/disk4 within 90 s
+NOTE: module#5 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#5: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#5 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#5 next attach: state (Mounted)
+PASS: module#5 next attach: mode (ro)
+NOTE: module#5 next attach: reason 'dirty_flag_journal'
+PASS: module#5 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#5 next attach: the file synced before the failure is intact (synced-before-module-5-8307)
+MEASURE module#5 mmap=lost plain=survived clean_report=no
+NOTE: module#5 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#5 next attach: the journal entry is still there
+PASS: module#5 next attach: the read-only session left the image unchanged (a16d52c34a4fb286c92f621533a7af2de26ab69c5c29838f33efbc8b324657e8)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 27768 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#5: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#5: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 5 PASS 19
+== module repetition 6/20
+PASS: module#6: the volume mounts rw (Mounted rw)
+PASS: module#6: the journal holds the entry of the rw session
+PASS: module#6: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#6: module instances before: 8569 28184 ; the one holding a raw disk: 28184
+PASS: module#6: the volume leaves Mounted within 90 s
+PASS: module#6: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#6 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#6: no worker is left within 90 s
+PASS: module#6: no macfuse mount is left within 90 s
+PASS: module#6: the mount point directory is gone
+PASS: module#6: the daemon is still the same process and answers
+PASS: module#6: no process holds /dev/disk4 within 90 s
+NOTE: module#6 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#6: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#6 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#6 next attach: state (Mounted)
+PASS: module#6 next attach: mode (ro)
+NOTE: module#6 next attach: reason 'dirty_flag_journal'
+PASS: module#6 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#6 next attach: the file synced before the failure is intact (synced-before-module-6-8307)
+MEASURE module#6 mmap=lost plain=survived clean_report=no
+NOTE: module#6 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#6 next attach: the journal entry is still there
+PASS: module#6 next attach: the read-only session left the image unchanged (4095609865fda36231094309ad76e832850b8c0047efbaeb72598e58fe77dee8)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 28265 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#6: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#6: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 6 PASS 20
+== module repetition 7/20
+PASS: module#7: the volume mounts rw (Mounted rw)
+PASS: module#7: the journal holds the entry of the rw session
+PASS: module#7: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#7: module instances before: 8569 28681 ; the one holding a raw disk: 28681
+PASS: module#7: the volume leaves Mounted within 90 s
+PASS: module#7: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#7 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#7: no worker is left within 90 s
+PASS: module#7: no macfuse mount is left within 90 s
+PASS: module#7: the mount point directory is gone
+PASS: module#7: the daemon is still the same process and answers
+PASS: module#7: no process holds /dev/disk4 within 90 s
+NOTE: module#7 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#7: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#7 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#7 next attach: state (Mounted)
+PASS: module#7 next attach: mode (ro)
+NOTE: module#7 next attach: reason 'dirty_flag_journal'
+PASS: module#7 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#7 next attach: the file synced before the failure is intact (synced-before-module-7-8307)
+MEASURE module#7 mmap=lost plain=survived clean_report=no
+NOTE: module#7 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#7 next attach: the journal entry is still there
+PASS: module#7 next attach: the read-only session left the image unchanged (e049f35b6ca62916d436dcffc84eaa0f7ceb3f63b2e3d50586fe3709dc047feb)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 28762 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#7: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#7: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 7 PASS 19
+== module repetition 8/20
+PASS: module#8: the volume mounts rw (Mounted rw)
+PASS: module#8: the journal holds the entry of the rw session
+PASS: module#8: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#8: module instances before: 8569 29178 ; the one holding a raw disk: 29178
+PASS: module#8: the volume leaves Mounted within 90 s
+PASS: module#8: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#8 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#8: no worker is left within 90 s
+PASS: module#8: no macfuse mount is left within 90 s
+PASS: module#8: the mount point directory is gone
+PASS: module#8: the daemon is still the same process and answers
+PASS: module#8: no process holds /dev/disk4 within 90 s
+NOTE: module#8 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#8: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#8 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#8 next attach: state (Mounted)
+PASS: module#8 next attach: mode (ro)
+NOTE: module#8 next attach: reason 'dirty_flag_journal'
+PASS: module#8 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#8 next attach: the file synced before the failure is intact (synced-before-module-8-8307)
+MEASURE module#8 mmap=lost plain=survived clean_report=no
+NOTE: module#8 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#8 next attach: the journal entry is still there
+PASS: module#8 next attach: the read-only session left the image unchanged (022783298ad5652de727ba31297d7cefabc09b9840d073667b0287bc1f50c2d6)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 29267 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#8: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#8: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 8 PASS 20
+== module repetition 9/20
+PASS: module#9: the volume mounts rw (Mounted rw)
+PASS: module#9: the journal holds the entry of the rw session
+PASS: module#9: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#9: module instances before: 8569 29692 ; the one holding a raw disk: 29692
+PASS: module#9: the volume leaves Mounted within 90 s
+PASS: module#9: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#9 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#9: no worker is left within 90 s
+PASS: module#9: no macfuse mount is left within 90 s
+PASS: module#9: the mount point directory is gone
+PASS: module#9: the daemon is still the same process and answers
+PASS: module#9: no process holds /dev/disk4 within 90 s
+NOTE: module#9 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#9: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#9 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#9 next attach: state (Mounted)
+PASS: module#9 next attach: mode (ro)
+NOTE: module#9 next attach: reason 'dirty_flag_journal'
+PASS: module#9 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#9 next attach: the file synced before the failure is intact (synced-before-module-9-8307)
+MEASURE module#9 mmap=lost plain=survived clean_report=no
+NOTE: module#9 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#9 next attach: the journal entry is still there
+PASS: module#9 next attach: the read-only session left the image unchanged (8132794cba2e203c02577e491b01de82cd0004918551b0af51367b13435634e2)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 29773 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#9: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#9: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 9 PASS 22
+== module repetition 10/20
+PASS: module#10: the volume mounts rw (Mounted rw)
+PASS: module#10: the journal holds the entry of the rw session
+PASS: module#10: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#10: module instances before: 8569 30199 ; the one holding a raw disk: 30199
+PASS: module#10: the volume leaves Mounted within 90 s
+PASS: module#10: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#10 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#10: no worker is left within 90 s
+PASS: module#10: no macfuse mount is left within 90 s
+PASS: module#10: the mount point directory is gone
+PASS: module#10: the daemon is still the same process and answers
+PASS: module#10: no process holds /dev/disk4 within 90 s
+NOTE: module#10 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#10: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#10 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#10 next attach: state (Mounted)
+PASS: module#10 next attach: mode (ro)
+NOTE: module#10 next attach: reason 'dirty_flag_journal'
+PASS: module#10 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#10 next attach: the file synced before the failure is intact (synced-before-module-10-8307)
+MEASURE module#10 mmap=lost plain=survived clean_report=no
+NOTE: module#10 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#10 next attach: the journal entry is still there
+PASS: module#10 next attach: the read-only session left the image unchanged (d6cf8b8d0b48a1587943d5f868aa3ccd343662dac87fef7c973ea807a29a4804)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 30280 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#10: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#10: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 10 PASS 25
+== module repetition 11/20
+PASS: module#11: the volume mounts rw (Mounted rw)
+PASS: module#11: the journal holds the entry of the rw session
+PASS: module#11: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#11: module instances before: 8569 30760 ; the one holding a raw disk: 30760
+PASS: module#11: the volume leaves Mounted within 90 s
+PASS: module#11: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#11 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#11: no worker is left within 90 s
+PASS: module#11: no macfuse mount is left within 90 s
+PASS: module#11: the mount point directory is gone
+PASS: module#11: the daemon is still the same process and answers
+PASS: module#11: no process holds /dev/disk4 within 90 s
+NOTE: module#11 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#11: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#11 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#11 next attach: state (Mounted)
+PASS: module#11 next attach: mode (ro)
+NOTE: module#11 next attach: reason 'dirty_flag_journal'
+PASS: module#11 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#11 next attach: the file synced before the failure is intact (synced-before-module-11-8307)
+MEASURE module#11 mmap=lost plain=survived clean_report=no
+NOTE: module#11 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#11 next attach: the journal entry is still there
+PASS: module#11 next attach: the read-only session left the image unchanged (c4adc0cbbc2fb1ccfdb5eb6381e753cfa007b4901422940f977f50ebcd7e0bb4)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 30841 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#11: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#11: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 11 PASS 22
+== module repetition 12/20
+PASS: module#12: the volume mounts rw (Mounted rw)
+PASS: module#12: the journal holds the entry of the rw session
+PASS: module#12: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#12: module instances before: 8569 31264 ; the one holding a raw disk: 31264
+PASS: module#12: the volume leaves Mounted within 90 s
+PASS: module#12: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#12 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#12: no worker is left within 90 s
+PASS: module#12: no macfuse mount is left within 90 s
+PASS: module#12: the mount point directory is gone
+PASS: module#12: the daemon is still the same process and answers
+PASS: module#12: no process holds /dev/disk4 within 90 s
+NOTE: module#12 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#12: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#12 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#12 next attach: state (Mounted)
+PASS: module#12 next attach: mode (ro)
+NOTE: module#12 next attach: reason 'dirty_flag_journal'
+PASS: module#12 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#12 next attach: the file synced before the failure is intact (synced-before-module-12-8307)
+MEASURE module#12 mmap=lost plain=survived clean_report=no
+NOTE: module#12 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#12 next attach: the journal entry is still there
+PASS: module#12 next attach: the read-only session left the image unchanged (dff381295a471daf159d2f4bf73f416376acd940a203af415db2be5fa630f6f1)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 31345 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#12: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#12: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 12 PASS 21
+== module repetition 13/20
+PASS: module#13: the volume mounts rw (Mounted rw)
+PASS: module#13: the journal holds the entry of the rw session
+PASS: module#13: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#13: module instances before: 8569 31770 ; the one holding a raw disk: 31770
+PASS: module#13: the volume leaves Mounted within 90 s
+PASS: module#13: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#13 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#13: no worker is left within 90 s
+PASS: module#13: no macfuse mount is left within 90 s
+PASS: module#13: the mount point directory is gone
+PASS: module#13: the daemon is still the same process and answers
+PASS: module#13: no process holds /dev/disk4 within 90 s
+NOTE: module#13 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#13: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#13 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#13 next attach: state (Mounted)
+PASS: module#13 next attach: mode (ro)
+NOTE: module#13 next attach: reason 'dirty_flag_journal'
+PASS: module#13 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#13 next attach: the file synced before the failure is intact (synced-before-module-13-8307)
+MEASURE module#13 mmap=lost plain=survived clean_report=no
+NOTE: module#13 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#13 next attach: the journal entry is still there
+PASS: module#13 next attach: the read-only session left the image unchanged (61a1885225879961435aa145b19fc211ccdd78ce5bd88f37457859f92a381c8d)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 31860 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#13: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#13: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 13 PASS 20
+== module repetition 14/20
+PASS: module#14: the volume mounts rw (Mounted rw)
+PASS: module#14: the journal holds the entry of the rw session
+PASS: module#14: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#14: module instances before: 8569 32283 ; the one holding a raw disk: 32283
+PASS: module#14: the volume leaves Mounted within 90 s
+PASS: module#14: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#14 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#14: no worker is left within 90 s
+PASS: module#14: no macfuse mount is left within 90 s
+PASS: module#14: the mount point directory is gone
+PASS: module#14: the daemon is still the same process and answers
+PASS: module#14: no process holds /dev/disk4 within 90 s
+NOTE: module#14 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#14: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#14 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#14 next attach: state (Mounted)
+PASS: module#14 next attach: mode (ro)
+NOTE: module#14 next attach: reason 'dirty_flag_journal'
+PASS: module#14 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#14 next attach: the file synced before the failure is intact (synced-before-module-14-8307)
+MEASURE module#14 mmap=lost plain=survived clean_report=no
+NOTE: module#14 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#14 next attach: the journal entry is still there
+PASS: module#14 next attach: the read-only session left the image unchanged (24053fa3eb6900e984b4831c1629f21562ee4eab535971c8b505054cd2e2a4da)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 32372 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#14: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#14: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 14 PASS 21
+== module repetition 15/20
+PASS: module#15: the volume mounts rw (Mounted rw)
+PASS: module#15: the journal holds the entry of the rw session
+PASS: module#15: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#15: module instances before: 8569 32795 ; the one holding a raw disk: 32795
+PASS: module#15: the volume leaves Mounted within 90 s
+PASS: module#15: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#15 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#15: no worker is left within 90 s
+PASS: module#15: no macfuse mount is left within 90 s
+PASS: module#15: the mount point directory is gone
+PASS: module#15: the daemon is still the same process and answers
+PASS: module#15: no process holds /dev/disk4 within 90 s
+NOTE: module#15 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#15: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#15 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#15 next attach: state (Mounted)
+PASS: module#15 next attach: mode (ro)
+NOTE: module#15 next attach: reason 'dirty_flag_journal'
+PASS: module#15 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#15 next attach: the file synced before the failure is intact (synced-before-module-15-8307)
+MEASURE module#15 mmap=lost plain=survived clean_report=no
+NOTE: module#15 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#15 next attach: the journal entry is still there
+PASS: module#15 next attach: the read-only session left the image unchanged (bd9746f950f0666e21683b6de12a53eeb17a4bdf2c8228b71e8558f55032d3cb)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 32876 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#15: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#15: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 15 PASS 19
+== module repetition 16/20
+PASS: module#16: the volume mounts rw (Mounted rw)
+PASS: module#16: the journal holds the entry of the rw session
+PASS: module#16: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#16: module instances before: 8569 33292 ; the one holding a raw disk: 33292
+PASS: module#16: the volume leaves Mounted within 90 s
+PASS: module#16: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#16 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#16: no worker is left within 90 s
+PASS: module#16: no macfuse mount is left within 90 s
+PASS: module#16: the mount point directory is gone
+PASS: module#16: the daemon is still the same process and answers
+PASS: module#16: no process holds /dev/disk4 within 90 s
+NOTE: module#16 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#16: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#16 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#16 next attach: state (Mounted)
+PASS: module#16 next attach: mode (ro)
+NOTE: module#16 next attach: reason 'dirty_flag_journal'
+PASS: module#16 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#16 next attach: the file synced before the failure is intact (synced-before-module-16-8307)
+MEASURE module#16 mmap=lost plain=survived clean_report=no
+NOTE: module#16 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#16 next attach: the journal entry is still there
+PASS: module#16 next attach: the read-only session left the image unchanged (534fadd2fc8f7d109bc44a2e3fd7d5a1968eedf508d873199ad88c68ec0781d6)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 33381 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#16: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#16: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 16 PASS 20
+== module repetition 17/20
+PASS: module#17: the volume mounts rw (Mounted rw)
+PASS: module#17: the journal holds the entry of the rw session
+PASS: module#17: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#17: module instances before: 8569 33797 ; the one holding a raw disk: 33797
+PASS: module#17: the volume leaves Mounted within 90 s
+PASS: module#17: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#17 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#17: no worker is left within 90 s
+PASS: module#17: no macfuse mount is left within 90 s
+PASS: module#17: the mount point directory is gone
+PASS: module#17: the daemon is still the same process and answers
+PASS: module#17: no process holds /dev/disk4 within 90 s
+NOTE: module#17 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#17: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#17 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#17 next attach: state (Mounted)
+PASS: module#17 next attach: mode (ro)
+NOTE: module#17 next attach: reason 'dirty_flag_journal'
+PASS: module#17 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#17 next attach: the file synced before the failure is intact (synced-before-module-17-8307)
+MEASURE module#17 mmap=lost plain=survived clean_report=no
+NOTE: module#17 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#17 next attach: the journal entry is still there
+PASS: module#17 next attach: the read-only session left the image unchanged (7c6d9f7d256f853f942509847bed0bee61818b4ea6fd53bca153c2edd319f343)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 33878 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#17: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#17: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 17 PASS 20
+== module repetition 18/20
+PASS: module#18: the volume mounts rw (Mounted rw)
+PASS: module#18: the journal holds the entry of the rw session
+PASS: module#18: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#18: module instances before: 8569 34301 ; the one holding a raw disk: 34301
+PASS: module#18: the volume leaves Mounted within 90 s
+PASS: module#18: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#18 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#18: no worker is left within 90 s
+PASS: module#18: no macfuse mount is left within 90 s
+PASS: module#18: the mount point directory is gone
+PASS: module#18: the daemon is still the same process and answers
+PASS: module#18: no process holds /dev/disk4 within 90 s
+NOTE: module#18 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#18: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#18 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#18 next attach: state (Mounted)
+PASS: module#18 next attach: mode (ro)
+NOTE: module#18 next attach: reason 'dirty_flag_journal'
+PASS: module#18 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#18 next attach: the file synced before the failure is intact (synced-before-module-18-8307)
+MEASURE module#18 mmap=lost plain=survived clean_report=no
+NOTE: module#18 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#18 next attach: the journal entry is still there
+PASS: module#18 next attach: the read-only session left the image unchanged (d3bf4a7093efefa49d506ad5c9d283af43b629ae7d17034a9a48e0cd151d7683)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 34382 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#18: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#18: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 18 PASS 20
+== module repetition 19/20
+PASS: module#19: the volume mounts rw (Mounted rw)
+PASS: module#19: the journal holds the entry of the rw session
+PASS: module#19: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#19: module instances before: 8569 34798 ; the one holding a raw disk: 34798
+PASS: module#19: the volume leaves Mounted within 90 s
+PASS: module#19: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#19 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#19: no worker is left within 90 s
+PASS: module#19: no macfuse mount is left within 90 s
+PASS: module#19: the mount point directory is gone
+PASS: module#19: the daemon is still the same process and answers
+PASS: module#19: no process holds /dev/disk4 within 90 s
+NOTE: module#19 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#19: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#19 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#19 next attach: state (Mounted)
+PASS: module#19 next attach: mode (ro)
+NOTE: module#19 next attach: reason 'dirty_flag_journal'
+PASS: module#19 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#19 next attach: the file synced before the failure is intact (synced-before-module-19-8307)
+MEASURE module#19 mmap=lost plain=survived clean_report=no
+NOTE: module#19 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#19 next attach: the journal entry is still there
+PASS: module#19 next attach: the read-only session left the image unchanged (4f3022b4c2e5f414f537a65911925787a5a908774b09be501db268fcec72cb4d)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 34879 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#19: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#19: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 19 PASS 19
+== module repetition 20/20
+PASS: module#20: the volume mounts rw (Mounted rw)
+PASS: module#20: the journal holds the entry of the rw session
+PASS: module#20: exactly one macFUSE module process holds the volume's raw device (1)
+NOTE: module#20: module instances before: 8569 35295 ; the one holding a raw disk: 35295
+PASS: module#20: the volume leaves Mounted within 90 s
+PASS: module#20: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- module#20 after the kill: row 'disk4  clean64m4k  Appeared  none   -           -'; modules: 8569 
+PASS: module#20: no worker is left within 90 s
+PASS: module#20: no macfuse mount is left within 90 s
+PASS: module#20: the mount point directory is gone
+PASS: module#20: the daemon is still the same process and answers
+PASS: module#20: no process holds /dev/disk4 within 90 s
+NOTE: module#20 outcome: the journal entry was kept (flags: flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+PASS: module#20: the dirty flag is set on the image (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- module#20 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: module#20 next attach: state (Mounted)
+PASS: module#20 next attach: mode (ro)
+NOTE: module#20 next attach: reason 'dirty_flag_journal'
+PASS: module#20 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: module#20 next attach: the file synced before the failure is intact (synced-before-module-20-8307)
+MEASURE module#20 mmap=lost plain=survived clean_report=no
+NOTE: module#20 unsynced data after the module kill: dirty mmap page (no msync) lost, plain write() without fsync survived; session reported clean: no
+PASS: module#20 next attach: the journal entry is still there
+PASS: module#20 next attach: the read-only session left the image unchanged (a481c984cd40a0d5f5b75e974158345c4f71380606db322b53f691a474f17298)
+<home>/ntfsmac/dmn/tests/stress/kill/kill_guest.sh: line 375: 35376 Killed: 9               "$work/bin/mmapdirty" "$_mp/mm.bin" > "$work/mm.out" 2>&1
+PASS: module#20: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: module#20: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP module 20 PASS 19
+TARGET module reps=20 failed=0

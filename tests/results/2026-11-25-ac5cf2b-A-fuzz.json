@@ -1,0 +1,43 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "ac5cf2b5dab778a340bde623dbd9f63b298194e3",
+  "dirty_tree": false,
+  "env": "A",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": null,
+  "macfuse_version": null,
+  "ntfs3g_version": null,
+  "started": "2026-11-25T06:04:52Z",
+  "finished": "2026-11-25T07:41:29Z",
+  "cases": [
+    {
+      "id": "F-CAMPAIGN-01",
+      "status": "pass",
+      "duration_s": 28810.0,
+      "evidence": [
+        "evidence/2026-11-25-ac5cf2b-A-fuzz/triage.md",
+        "evidence/2026-11-25-ac5cf2b-A-fuzz/triage.tsv",
+        "evidence/2026-11-25-ac5cf2b-A-fuzz/provenance.txt",
+        "evidence/2026-11-25-ac5cf2b-A-fuzz/provenance-end.txt",
+        "evidence/2026-11-25-ac5cf2b-A-fuzz/units/ctl-s0/summary.txt",
+        "evidence/2026-11-25-ac5cf2b-A-fuzz/units/display-s0/summary.txt",
+        "evidence/2026-11-25-ac5cf2b-A-fuzz/units/label-s0/summary.txt",
+        "evidence/2026-11-25-ac5cf2b-A-fuzz/units/mountwalk-s0/summary.txt",
+        "evidence/2026-11-25-ac5cf2b-A-fuzz/units/mountwalk-s1/summary.txt",
+        "evidence/2026-11-25-ac5cf2b-A-fuzz/units/mountwalk-s2/summary.txt",
+        "evidence/2026-11-25-ac5cf2b-A-fuzz/units/mountwalk-s3/summary.txt",
+        "evidence/2026-11-25-ac5cf2b-A-fuzz/units/probe-s0/summary.txt",
+        "evidence/2026-11-25-ac5cf2b-A-fuzz/units/probe-s1/summary.txt",
+        "evidence/2026-11-25-ac5cf2b-A-fuzz/units/verdict-s0/summary.txt"
+      ],
+      "note": "10 unit(s), targets ctl display label mountwalk probe verdict, planned budget 28800 s (criterion 28800 s, 8 CPU-hours), fuzz CPU time 28810 s, engine patch series in every unit; known findings seen: F5, F7"
+    },
+    {
+      "id": "STAGE-A-MODE",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [],
+      "note": "criterion:fuzz"
+    }
+  ]
+}

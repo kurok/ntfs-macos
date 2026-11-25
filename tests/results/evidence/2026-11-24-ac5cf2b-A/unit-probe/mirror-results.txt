@@ -1,0 +1,98 @@
+ok      smallfiles: write 68 is $MFT record 0 and write 69 $MFTMirr record 0
+ok      mirror-split: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      mirror-split: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      mirror-newer: ro,norecover mount refused with the record 0 message
+ok      mirror-extra: ro,norecover mount refused with the record 0 message
+ok      mirror-torn: ro,norecover mount refused with 'Incomplete multi-sector transfer' (got rc 13: Incomplete multi-sector transfer: magic: 0x454c4946  size: 1024  usa_ofs: 48  usa_count: 1  data: 5  usn: 6: Input/output error)
+ok      mirror-split-dirty: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      mirror-split-dirty: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      hiberfil variant: a record-0 pair after write 67 exists
+ok      mirror-split-hiber: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      mirror-split-hiber: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-smallfiles-c68: write 68 is $MFT record 0 and write 69 $MFTMirr record 0
+ok      sweep-smallfiles-c68: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-smallfiles-c68: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-smallfiles-c76: write 76 is $MFT record 0 and write 77 $MFTMirr record 0
+ok      sweep-smallfiles-c76: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-smallfiles-c76: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-smallfiles-c226: write 226 is $MFT record 0 and write 227 $MFTMirr record 0
+ok      sweep-smallfiles-c226: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-smallfiles-c226: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-smallfiles-c558: write 558 is $MFT record 0 and write 559 $MFTMirr record 0
+ok      sweep-smallfiles-c558: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-smallfiles-c558: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-smallfiles-c693: write 693 is $MFT record 0 and write 694 $MFTMirr record 0
+ok      sweep-smallfiles-c693: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-smallfiles-c693: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-smallfiles-c760: write 760 is $MFT record 0 and write 761 $MFTMirr record 0
+ok      sweep-smallfiles-c760: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-smallfiles-c760: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-smallfiles-c864: write 864 is $MFT record 0 and write 865 $MFTMirr record 0
+ok      sweep-smallfiles-c864: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-smallfiles-c864: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-smallfiles-c1089: write 1089 is $MFT record 0 and write 1090 $MFTMirr record 0
+ok      sweep-smallfiles-c1089: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-smallfiles-c1089: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-smallfiles-c1283: write 1283 is $MFT record 0 and write 1284 $MFTMirr record 0
+ok      sweep-smallfiles-c1283: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-smallfiles-c1283: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-smallfiles-c1385: write 1385 is $MFT record 0 and write 1386 $MFTMirr record 0
+ok      sweep-smallfiles-c1385: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-smallfiles-c1385: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-renamechurn-c70: write 70 is $MFT record 0 and write 71 $MFTMirr record 0
+ok      sweep-renamechurn-c70: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-renamechurn-c70: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-renamechurn-c263: write 263 is $MFT record 0 and write 264 $MFTMirr record 0
+ok      sweep-renamechurn-c263: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-renamechurn-c263: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-renamechurn-c305: write 305 is $MFT record 0 and write 306 $MFTMirr record 0
+ok      sweep-renamechurn-c305: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-renamechurn-c305: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-renamechurn-c415: write 415 is $MFT record 0 and write 416 $MFTMirr record 0
+ok      sweep-renamechurn-c415: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-renamechurn-c415: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-renamechurn-c471: write 471 is $MFT record 0 and write 472 $MFTMirr record 0
+ok      sweep-renamechurn-c471: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-renamechurn-c471: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-renamechurn-c1015: write 1015 is $MFT record 0 and write 1016 $MFTMirr record 0
+ok      sweep-renamechurn-c1015: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-renamechurn-c1015: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-renamechurn-c1138: write 1138 is $MFT record 0 and write 1139 $MFTMirr record 0
+ok      sweep-renamechurn-c1138: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-renamechurn-c1138: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-renamechurn-c1162: write 1162 is $MFT record 0 and write 1163 $MFTMirr record 0
+ok      sweep-renamechurn-c1162: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-renamechurn-c1162: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-renamechurn-c1384: write 1384 is $MFT record 0 and write 1385 $MFTMirr record 0
+ok      sweep-renamechurn-c1384: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-renamechurn-c1384: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-dirtree-c276: write 276 is $MFT record 0 and write 277 $MFTMirr record 0
+ok      sweep-dirtree-c276: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-dirtree-c276: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-dirtree-c459: write 459 is $MFT record 0 and write 460 $MFTMirr record 0
+ok      sweep-dirtree-c459: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-dirtree-c459: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-dirtree-c510: write 510 is $MFT record 0 and write 511 $MFTMirr record 0
+ok      sweep-dirtree-c510: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-dirtree-c510: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-dirtree-c1020: write 1020 is $MFT record 0 and write 1021 $MFTMirr record 0
+ok      sweep-dirtree-c1020: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-dirtree-c1020: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-dirtree-c1326: write 1326 is $MFT record 0 and write 1327 $MFTMirr record 0
+ok      sweep-dirtree-c1326: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-dirtree-c1326: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-dirtree-c2292: write 2292 is $MFT record 0 and write 2293 $MFTMirr record 0
+ok      sweep-dirtree-c2292: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-dirtree-c2292: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-dirtree-c2338: write 2338 is $MFT record 0 and write 2339 $MFTMirr record 0
+ok      sweep-dirtree-c2338: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-dirtree-c2338: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-dirtree-c3255: write 3255 is $MFT record 0 and write 3256 $MFTMirr record 0
+ok      sweep-dirtree-c3255: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-dirtree-c3255: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-dirtree-c3805: write 3805 is $MFT record 0 and write 3806 $MFTMirr record 0
+ok      sweep-dirtree-c3805: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-dirtree-c3805: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n
+ok      sweep-dirtree-c4079: write 4079 is $MFT record 0 and write 4080 $MFTMirr record 0
+ok      sweep-dirtree-c4079: ro,norecover mount refused with '$MFTMirr does not match $MFT (record 0).' (got rc 13: $MFTMirr does not match $MFT (record 0).)
+ok      sweep-dirtree-c4079: copying $MFT record 0 over the mirror gives a clean read-only mount and ntfsfix -n

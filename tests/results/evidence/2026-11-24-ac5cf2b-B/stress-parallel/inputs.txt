@@ -1,0 +1,6 @@
+deps_tar=none
+fixtures_dir=<tmp>//par.3cI69l/fixtures
+fixtures_key=8833f0e75b3a8764b4aadd7f9adab9256c066571c3504bee081ef447a401b4d2
+fixtures_dirty=0
+fixture.clean-64m-4k.img=eadeac606008c38fa50ffb7b6e4109326699a4b2136c1b68ce4e98b0b92d711d (67108864 bytes)
+fixtures_manifest_sha256=634dc9358a334aa99abcfa150f5e7e53982131184307324d0cc4919f63b79772

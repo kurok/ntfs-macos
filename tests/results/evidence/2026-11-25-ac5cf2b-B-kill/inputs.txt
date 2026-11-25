@@ -1,0 +1,6 @@
+deps_tar=none
+fixtures_dir=<tmp>//kill.OsI3NT/fixtures
+fixtures_key=8833f0e75b3a8764b4aadd7f9adab9256c066571c3504bee081ef447a401b4d2
+fixtures_dirty=0
+fixture.clean-64m-4k.img=57d7777624b975793861094404f22f31574ba0733b9ebfe80283976a32edaef3 (67108864 bytes)
+fixtures_manifest_sha256=65cd41f0703d00fe16b96a88e974555ec178549b92c20b73d4bc5d87ba0b7ab4

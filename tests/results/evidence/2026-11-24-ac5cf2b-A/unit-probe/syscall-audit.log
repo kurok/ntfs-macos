@@ -1,0 +1,1 @@
+syscall audit: valgrind-3.24.0; 5 open() calls ['/usr/libexec/valgrind/vgpreload_core-arm64-linux.so', '/usr/libexec/valgrind/vgpreload_memcheck-arm64-linux.so', '/usr/lib/debug/libc.so.6', '/etc/ld.so.cache', '/lib/aarch64-linux-gnu/libc.so.6'] (loader, libc, valgrind preloads only); 50 pread64 of the device; no write-type call on fd 5

@@ -1,0 +1,55 @@
+[0/2] Re-checking globbed directories...
+ninja: no work to do.
+disc_result selftest: ok
+disconnect: generating clean-64m-4k in Environment A
+ok       clean-64m-4k 4a57af780cc4146b3f400f54e8fee65a3c475a04039800389f6e510ee7add8fc (375 entries)
+disconnect: copying the suite into ntfsmac-disc-89057
+disconnect: running in the guest (3 yank(s) per workload: seq small churn fsync; controls: hash dirty)
+NOTE: S-DISC-05.2 next attach: reason 'unclean_session'
+PASS: S-DISC-05.2 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+-- S-DISC-05.2 synced files: OK 12
+PASS: S-DISC-05.2 next attach: every file synced before the yank is intact by hash (OK 12)
+PASS: S-DISC-05.2 next attach: the journal entry is still there
+PASS: S-DISC-05.2 next attach: the read-only session left the image unchanged (20e1a3d97efeb7180b7dfd5d73d25749617896c5d01c4d8d06388b60e69c7e5e)
+NOTE: S-DISC-05.2 image hash fixture 0737ba9d6d70c724ef44b375c33b9d5c50dd49a1620983733de8f9b59240f743, after yank 20e1a3d97efeb7180b7dfd5d73d25749617896c5d01c4d8d06388b60e69c7e5e
+REP S-DISC-05 2 fsync delay=6 pass
+== reps
+S-DISC-01	1	seq	1	pass	NOTE: S-DISC-01.1 point of the yank: 1 s into the workload, 280 operations done
+S-DISC-01	2	seq	2.2	pass	NOTE: S-DISC-01.2 point of the yank: 2.2 s into the workload, 632 operations done
+S-DISC-01	3	seq	0.6	pass	NOTE: S-DISC-01.3 point of the yank: 0.6 s into the workload, 176 operations done
+S-DISC-02	1	small	1	pass	NOTE: S-DISC-02.1 point of the yank: 1 s into the workload, 424 operations done
+S-DISC-02	2	small	2.2	pass	NOTE: S-DISC-02.2 point of the yank: 2.2 s into the workload, 912 operations done
+S-DISC-02	3	small	0.6	pass	NOTE: S-DISC-02.3 point of the yank: 0.6 s into the workload, 304 operations done
+S-DISC-03	1	churn	1	pass	NOTE: S-DISC-03.1 point of the yank: 1 s into the workload, 128 operations done
+S-DISC-03	2	churn	2.2	pass	NOTE: S-DISC-03.2 point of the yank: 2.2 s into the workload, 272 operations done
+S-DISC-03	3	churn	0.6	pass	NOTE: S-DISC-03.3 point of the yank: 0.6 s into the workload, 80 operations done
+S-DISC-04	1	fsync	3	pass	NOTE: S-DISC-04.1 point of the yank: right after the fsyncs of file 3 returned (writer idle), 3 fsync records
+S-DISC-04	2	fsync	6	pass	NOTE: S-DISC-04.2 point of the yank: right after the fsyncs of file 6 returned (writer idle), 6 fsync records
+S-DISC-04	3	fsync	2	pass	NOTE: S-DISC-04.3 point of the yank: right after the fsyncs of file 2 returned (writer idle), 2 fsync records
+S-DISC-05	1	fsync	3	pass	the check caught the injected fault (hash) and nothing else failed: FAIL: S-DISC-05.1 next attach: every file synced before the yank is intact by hash (BAD base/sentinel.bin: sha256 876bfd0574d3de70f0175d782ed38f316aad4a290be4ff5a19cbd034f3178b7c, expected d44f094db86
+S-DISC-05	2	fsync	6	pass	the check caught the injected fault (dirty) and nothing else failed: FAIL: S-DISC-05.2 the dirty flag is set on the yanked image (flags_before=0x0000 flags_after=0x0000 mft=0x0000 mirror=0x0000)
+-- daemon log (tail)
+WARN: disk6: forced unmount of the volume: ok
+INFO: notification: clean64m4k did not end its session cleanly. The volume will be read-only next time; run chkdsk on Windows, then attach it again.
+INFO: disk6: UNMOUNTED -> Gone
+INFO: disk6: appeared (67108864 bytes)
+INFO: disk6: START -> Probing
+INFO: disk6: PROBE_DONE -> Deciding
+INFO: disk6: probe state clean, decision ro
+INFO: disk6: DECIDED -> Mounting
+INFO: disk6: MOUNTED -> Mounted
+INFO: notification: clean64m4k is mounted read-only: the last session on this Mac did not end cleanly; run chkdsk on Windows, then attach it again.
+INFO: disk6: UNMOUNT -> Unmounting
+INFO: disk6: unmount requested by cli (plain)
+INFO: disk6: unmount by cli: status ok, child exit 0, errno 0, 13 ms, mount gone afterwards
+INFO: disk6: UNMOUNTED -> Appeared
+INFO: disk6: DISK_GONE -> Gone
+result: 0 check(s) failed
+disconnect: guest script exit 0
+S-DISC-01-SHORT PASS: force-detach during a large sequential write: 3 of 3 planned yank(s) at 1,2.2,0.6 (seconds into the workload; the fsync workload: right after file number), 3 passed. Checks per yank: volume leaves Mounted, no worker, no macfuse mount, mount point gone, journal entry stays; ntfsfix -n exit 0 and VOLU
+S-DISC-02-SHORT PASS: force-detach during many small file creates: 3 of 3 planned yank(s) at 1,2.2,0.6 (seconds into the workload; the fsync workload: right after file number), 3 passed. Checks per yank: volume leaves Mounted, no worker, no macfuse mount, mount point gone, journal entry stays; ntfsfix -n exit 0 and VOLUM
+S-DISC-03-SHORT PASS: force-detach during rename and metadata churn: 3 of 3 planned yank(s) at 1,2.2,0.6 (seconds into the workload; the fsync workload: right after file number), 3 passed. Checks per yank: volume leaves Mounted, no worker, no macfuse mount, mount point gone, journal entry stays; ntfsfix -n exit 0 and VOL
+S-DISC-04-SHORT PASS: force-detach right after an fsync of file and directory: 3 of 3 planned yank(s) at 3,6,2 (seconds into the workload; the fsync workload: right after file number), 3 passed. Checks per yank: volume leaves Mounted, no worker, no macfuse mount, mount point gone, journal entry stays; ntfsfix -n exit 0 a
+S-DISC-05-SHORT PASS: negative controls: an injected fault must make the checks fail: 2 control(s), 2 caught their fault; shortened or weaker run, not the criterion run (the case id has the suffix -SHORT); parameters: 3 yank(s) per workload (criterion: 20), workloads seq small churn fsync, controls 'hash dirty', fault ''
+tart.sh: stopped ntfsmac-disc-89057
+tart.sh: deleted ntfsmac-disc-89057

@@ -1,0 +1,6 @@
+deps_tar=none
+fixtures_dir=<tmp>//disconnect.4ZmPP6/fixtures
+fixtures_key=8833f0e75b3a8764b4aadd7f9adab9256c066571c3504bee081ef447a401b4d2
+fixtures_dirty=0
+fixture.clean-64m-4k.img=0737ba9d6d70c724ef44b375c33b9d5c50dd49a1620983733de8f9b59240f743 (67108864 bytes)
+fixtures_manifest_sha256=e1575774a970ceca56a0b21420e39c22d8217c3a72aa767f124c390338931729

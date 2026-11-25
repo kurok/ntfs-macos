@@ -1,0 +1,22 @@
+unit: mountwalk-s3  target: mountwalk  seconds: 2880  host: aarch64  clang: Debian clang version 19.1.7 (3+b1)
+start: 2026-11-25T06:53:13Z
+engine-patches: series
+libntfs-3g: 2026.9.28
+patches applied: 0003-inherited-device-descriptor.patch 0004-faultio-device-layer.patch 0006-session-channel.patch 0007-device-drive-flush.patch 0008-creation-time-conversion.patch 0009-xattr-names-exempt-windows-names.patch 0010-valid-descr-header-length.patch 0011-possible-symlink-header-length.patch 0012-retrievesecurityattr-bounds.patch 0013-inode-sync-reparse-tag-length.patch 0014-readdir-offsets.patch 0015-boot-sector-record-size-limit.patch 
+seeds: 501
+run 1: exit 0 after 2881 s wall, 2881 s charged (07:41:27Z)
+executions in all runs: 1577097
+stat::average_exec_per_sec:     547
+stat::new_units_added:          10114
+stat::slowest_unit_time_sec:    0
+stat::peak_rss_mb:              1155
+last progress line: #1577097	DONE   cov: 4582 ft: 27114 corp: 5272/134Kb lim: 1550 exec/s: 547 rss: 1155Mb
+fuzz CPU seconds: 2881
+fuzz wall seconds: 2881
+corpus after the run: 5676 inputs
+UBSan locations in the engine (distinct, with counts): 20
+distinct leaks in the corpus replay: 1
+artifacts: 0  distinct signatures: 1
+  mountwalk-s3-L01	leak ntfs_attr_open < ntfs_device_mount @attrib.c:426	leak	engine
+end: 2026-11-25T07:41:28Z
+RESULT: FINDING (1 distinct, see findings.tsv)

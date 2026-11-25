@@ -1,0 +1,55 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "ac5cf2b5dab778a340bde623dbd9f63b298194e3",
+  "dirty_tree": false,
+  "env": "B",
+  "host_os": "macOS 27.2.1",
+  "guest_os": "macOS 27.2",
+  "macfuse_version": "5.5.0",
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-25T00:03:03Z",
+  "finished": "2026-11-25T06:04:42Z",
+  "cases": [
+    {
+      "id": "S-SOAK-01",
+      "status": "pass",
+      "duration_s": 21600.99,
+      "evidence": [
+        "evidence/2026-11-25-ac5cf2b-B-soak/plan.txt",
+        "evidence/2026-11-25-ac5cf2b-B-soak/meta.txt",
+        "evidence/2026-11-25-ac5cf2b-B-soak/runs.tsv",
+        "evidence/2026-11-25-ac5cf2b-B-soak/guest.log",
+        "evidence/2026-11-25-ac5cf2b-B-soak/provenance.txt",
+        "evidence/2026-11-25-ac5cf2b-B-soak/soak-real/summary.json",
+        "evidence/2026-11-25-ac5cf2b-B-soak/soak-real/run.log",
+        "evidence/2026-11-25-ac5cf2b-B-soak/soak-real/rss.tsv",
+        "evidence/2026-11-25-ac5cf2b-B-soak/soak-real/workers.json",
+        "evidence/2026-11-25-ac5cf2b-B-soak/soak-real/remount.json",
+        "evidence/2026-11-25-ac5cf2b-B-soak/soak-real/verify.log",
+        "evidence/2026-11-25-ac5cf2b-B-soak/inputs.txt"
+      ],
+      "note": "soak: mixed workload with a model, full verification, worker RSS: 21600 s planned, 21601 s run, 1 worker(s), 6120125 ops, 36 full verification(s), 88459.5 MiB written, 116664.6 MiB verified, 0 mismatch(es), 0 error(s); op latency p50<=2 ms p99<=64 ms max 0.63 s (hang limit 60 s); worker RSS baseline 14272 kB at 3600 s, peak 14448 kB, final 14432 kB, growth 1.23% (rule: below 10%), 600 samples after the baseline; parameters: duration 21600 s, baseline 3600 s, workers 1, hang limit 60 s, controls 'corrupt', fault ''; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 5568d695a9fe; evidence not stored: soak-real/state.tar.gz"
+    },
+    {
+      "id": "S-SOAK-01-CONTROL",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [
+        "evidence/2026-11-25-ac5cf2b-B-soak/runs.tsv",
+        "evidence/2026-11-25-ac5cf2b-B-soak/soak-ctl-corrupt/summary.json",
+        "evidence/2026-11-25-ac5cf2b-B-soak/soak-ctl-corrupt/run.log",
+        "evidence/2026-11-25-ac5cf2b-B-soak/soak-ctl-corrupt/remount.json",
+        "evidence/2026-11-25-ac5cf2b-B-soak/soak-ctl-corrupt/verify.log",
+        "evidence/2026-11-25-ac5cf2b-B-soak/inputs.txt"
+      ],
+      "note": "negative controls (corrupt): rss-synthetic caught: synthetic samples 0%/9.9%/10.0%/30%/no baseline gave pass/pass/fail/fail/error (expected pass/pass/fail/fail/error); corrupt caught: injected byte flip: driver exit 1, failure kinds ['mismatch'], 1 mismatch(es), remount verification exit 1 with 1 mismatch(es); inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 5568d695a9fe"
+    },
+    {
+      "id": "STAGE-B-MODE",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [],
+      "note": "criterion:soak"
+    }
+  ]
+}

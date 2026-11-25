@@ -1,0 +1,82 @@
+S-DISC-01	1	seq	1	pass	NOTE: S-DISC-01.1 point of the yank: 1 s into the workload, 232 operations done
+S-DISC-01	2	seq	2.2	pass	NOTE: S-DISC-01.2 point of the yank: 2.2 s into the workload, 600 operations done
+S-DISC-01	3	seq	0.6	pass	NOTE: S-DISC-01.3 point of the yank: 0.6 s into the workload, 160 operations done
+S-DISC-01	4	seq	3.5	pass	NOTE: S-DISC-01.4 point of the yank: 3.5 s into the workload, 960 operations done
+S-DISC-01	5	seq	1.6	pass	NOTE: S-DISC-01.5 point of the yank: 1.6 s into the workload, 400 operations done
+S-DISC-01	6	seq	0.3	pass	NOTE: S-DISC-01.6 point of the yank: 0.3 s into the workload, 80 operations done
+S-DISC-01	7	seq	1	pass	NOTE: S-DISC-01.7 point of the yank: 1 s into the workload, 240 operations done
+S-DISC-01	8	seq	2.2	pass	NOTE: S-DISC-01.8 point of the yank: 2.2 s into the workload, 560 operations done
+S-DISC-01	9	seq	0.6	pass	NOTE: S-DISC-01.9 point of the yank: 0.6 s into the workload, 152 operations done
+S-DISC-01	10	seq	3.5	pass	NOTE: S-DISC-01.10 point of the yank: 3.5 s into the workload, 952 operations done
+S-DISC-01	11	seq	1.6	pass	NOTE: S-DISC-01.11 point of the yank: 1.6 s into the workload, 400 operations done
+S-DISC-01	12	seq	0.3	pass	NOTE: S-DISC-01.12 point of the yank: 0.3 s into the workload, 72 operations done
+S-DISC-01	13	seq	1	pass	NOTE: S-DISC-01.13 point of the yank: 1 s into the workload, 240 operations done
+S-DISC-01	14	seq	2.2	pass	NOTE: S-DISC-01.14 point of the yank: 2.2 s into the workload, 536 operations done
+S-DISC-01	15	seq	0.6	pass	NOTE: S-DISC-01.15 point of the yank: 0.6 s into the workload, 144 operations done
+S-DISC-01	16	seq	3.5	pass	NOTE: S-DISC-01.16 point of the yank: 3.5 s into the workload, 968 operations done
+S-DISC-01	17	seq	1.6	pass	NOTE: S-DISC-01.17 point of the yank: 1.6 s into the workload, 400 operations done
+S-DISC-01	18	seq	0.3	pass	NOTE: S-DISC-01.18 point of the yank: 0.3 s into the workload, 56 operations done
+S-DISC-01	19	seq	1	pass	NOTE: S-DISC-01.19 point of the yank: 1 s into the workload, 216 operations done
+S-DISC-01	20	seq	2.2	pass	NOTE: S-DISC-01.20 point of the yank: 2.2 s into the workload, 560 operations done
+S-DISC-02	1	small	1	pass	NOTE: S-DISC-02.1 point of the yank: 1 s into the workload, 360 operations done
+S-DISC-02	2	small	2.2	pass	NOTE: S-DISC-02.2 point of the yank: 2.2 s into the workload, 824 operations done
+S-DISC-02	3	small	0.6	pass	NOTE: S-DISC-02.3 point of the yank: 0.6 s into the workload, 256 operations done
+S-DISC-02	4	small	3.5	pass	NOTE: S-DISC-02.4 point of the yank: 3.5 s into the workload, 1256 operations done
+S-DISC-02	5	small	1.6	pass	NOTE: S-DISC-02.5 point of the yank: 1.6 s into the workload, 592 operations done
+S-DISC-02	6	small	0.3	pass	NOTE: S-DISC-02.6 point of the yank: 0.3 s into the workload, 144 operations done
+S-DISC-02	7	small	1	pass	NOTE: S-DISC-02.7 point of the yank: 1 s into the workload, 440 operations done
+S-DISC-02	8	small	2.2	pass	NOTE: S-DISC-02.8 point of the yank: 2.2 s into the workload, 872 operations done
+S-DISC-02	9	small	0.6	pass	NOTE: S-DISC-02.9 point of the yank: 0.6 s into the workload, 248 operations done
+S-DISC-02	10	small	3.5	pass	NOTE: S-DISC-02.10 point of the yank: 3.5 s into the workload, 1272 operations done
+S-DISC-02	11	small	1.6	pass	NOTE: S-DISC-02.11 point of the yank: 1.6 s into the workload, 640 operations done
+S-DISC-02	12	small	0.3	pass	NOTE: S-DISC-02.12 point of the yank: 0.3 s into the workload, 192 operations done
+S-DISC-02	13	small	1	pass	NOTE: S-DISC-02.13 point of the yank: 1 s into the workload, 352 operations done
+S-DISC-02	14	small	2.2	pass	NOTE: S-DISC-02.14 point of the yank: 2.2 s into the workload, 832 operations done
+S-DISC-02	15	small	0.6	pass	NOTE: S-DISC-02.15 point of the yank: 0.6 s into the workload, 264 operations done
+S-DISC-02	16	small	3.5	pass	NOTE: S-DISC-02.16 point of the yank: 3.5 s into the workload, 1304 operations done
+S-DISC-02	17	small	1.6	pass	NOTE: S-DISC-02.17 point of the yank: 1.6 s into the workload, 656 operations done
+S-DISC-02	18	small	0.3	pass	NOTE: S-DISC-02.18 point of the yank: 0.3 s into the workload, 152 operations done
+S-DISC-02	19	small	1	pass	NOTE: S-DISC-02.19 point of the yank: 1 s into the workload, 416 operations done
+S-DISC-02	20	small	2.2	pass	NOTE: S-DISC-02.20 point of the yank: 2.2 s into the workload, 840 operations done
+S-DISC-03	1	churn	1	pass	NOTE: S-DISC-03.1 point of the yank: 1 s into the workload, 104 operations done
+S-DISC-03	2	churn	2.2	pass	NOTE: S-DISC-03.2 point of the yank: 2.2 s into the workload, 224 operations done
+S-DISC-03	3	churn	0.6	pass	NOTE: S-DISC-03.3 point of the yank: 0.6 s into the workload, 72 operations done
+S-DISC-03	4	churn	3.5	pass	NOTE: S-DISC-03.4 point of the yank: 3.5 s into the workload, 360 operations done
+S-DISC-03	5	churn	1.6	pass	NOTE: S-DISC-03.5 point of the yank: 1.6 s into the workload, 168 operations done
+S-DISC-03	6	churn	0.3	pass	NOTE: S-DISC-03.6 point of the yank: 0.3 s into the workload, 40 operations done
+S-DISC-03	7	churn	1	pass	NOTE: S-DISC-03.7 point of the yank: 1 s into the workload, 104 operations done
+S-DISC-03	8	churn	2.2	pass	NOTE: S-DISC-03.8 point of the yank: 2.2 s into the workload, 216 operations done
+S-DISC-03	9	churn	0.6	pass	NOTE: S-DISC-03.9 point of the yank: 0.6 s into the workload, 80 operations done
+S-DISC-03	10	churn	3.5	pass	NOTE: S-DISC-03.10 point of the yank: 3.5 s into the workload, 360 operations done
+S-DISC-03	11	churn	1.6	pass	NOTE: S-DISC-03.11 point of the yank: 1.6 s into the workload, 160 operations done
+S-DISC-03	12	churn	0.3	pass	NOTE: S-DISC-03.12 point of the yank: 0.3 s into the workload, 40 operations done
+S-DISC-03	13	churn	1	pass	NOTE: S-DISC-03.13 point of the yank: 1 s into the workload, 104 operations done
+S-DISC-03	14	churn	2.2	pass	NOTE: S-DISC-03.14 point of the yank: 2.2 s into the workload, 224 operations done
+S-DISC-03	15	churn	0.6	pass	NOTE: S-DISC-03.15 point of the yank: 0.6 s into the workload, 80 operations done
+S-DISC-03	16	churn	3.5	pass	NOTE: S-DISC-03.16 point of the yank: 3.5 s into the workload, 368 operations done
+S-DISC-03	17	churn	1.6	pass	NOTE: S-DISC-03.17 point of the yank: 1.6 s into the workload, 144 operations done
+S-DISC-03	18	churn	0.3	pass	NOTE: S-DISC-03.18 point of the yank: 0.3 s into the workload, 64 operations done
+S-DISC-03	19	churn	1	pass	NOTE: S-DISC-03.19 point of the yank: 1 s into the workload, 128 operations done
+S-DISC-03	20	churn	2.2	pass	NOTE: S-DISC-03.20 point of the yank: 2.2 s into the workload, 240 operations done
+S-DISC-04	1	fsync	3	pass	NOTE: S-DISC-04.1 point of the yank: right after the fsyncs of file 3 returned (writer idle), 3 fsync records
+S-DISC-04	2	fsync	6	pass	NOTE: S-DISC-04.2 point of the yank: right after the fsyncs of file 6 returned (writer idle), 6 fsync records
+S-DISC-04	3	fsync	2	pass	NOTE: S-DISC-04.3 point of the yank: right after the fsyncs of file 2 returned (writer idle), 2 fsync records
+S-DISC-04	4	fsync	9	pass	NOTE: S-DISC-04.4 point of the yank: right after the fsyncs of file 9 returned (writer idle), 9 fsync records
+S-DISC-04	5	fsync	4	pass	NOTE: S-DISC-04.5 point of the yank: right after the fsyncs of file 4 returned (writer idle), 4 fsync records
+S-DISC-04	6	fsync	1	pass	NOTE: S-DISC-04.6 point of the yank: right after the fsyncs of file 1 returned (writer idle), 1 fsync records
+S-DISC-04	7	fsync	3	pass	NOTE: S-DISC-04.7 point of the yank: right after the fsyncs of file 3 returned (writer idle), 3 fsync records
+S-DISC-04	8	fsync	6	pass	NOTE: S-DISC-04.8 point of the yank: right after the fsyncs of file 6 returned (writer idle), 6 fsync records
+S-DISC-04	9	fsync	2	pass	NOTE: S-DISC-04.9 point of the yank: right after the fsyncs of file 2 returned (writer idle), 2 fsync records
+S-DISC-04	10	fsync	9	pass	NOTE: S-DISC-04.10 point of the yank: right after the fsyncs of file 9 returned (writer idle), 9 fsync records
+S-DISC-04	11	fsync	4	pass	NOTE: S-DISC-04.11 point of the yank: right after the fsyncs of file 4 returned (writer idle), 4 fsync records
+S-DISC-04	12	fsync	1	pass	NOTE: S-DISC-04.12 point of the yank: right after the fsyncs of file 1 returned (writer idle), 1 fsync records
+S-DISC-04	13	fsync	3	pass	NOTE: S-DISC-04.13 point of the yank: right after the fsyncs of file 3 returned (writer idle), 3 fsync records
+S-DISC-04	14	fsync	6	pass	NOTE: S-DISC-04.14 point of the yank: right after the fsyncs of file 6 returned (writer idle), 6 fsync records
+S-DISC-04	15	fsync	2	pass	NOTE: S-DISC-04.15 point of the yank: right after the fsyncs of file 2 returned (writer idle), 2 fsync records
+S-DISC-04	16	fsync	9	pass	NOTE: S-DISC-04.16 point of the yank: right after the fsyncs of file 9 returned (writer idle), 9 fsync records
+S-DISC-04	17	fsync	4	pass	NOTE: S-DISC-04.17 point of the yank: right after the fsyncs of file 4 returned (writer idle), 4 fsync records
+S-DISC-04	18	fsync	1	pass	NOTE: S-DISC-04.18 point of the yank: right after the fsyncs of file 1 returned (writer idle), 1 fsync records
+S-DISC-04	19	fsync	3	pass	NOTE: S-DISC-04.19 point of the yank: right after the fsyncs of file 3 returned (writer idle), 3 fsync records
+S-DISC-04	20	fsync	6	pass	NOTE: S-DISC-04.20 point of the yank: right after the fsyncs of file 6 returned (writer idle), 6 fsync records
+S-DISC-05	1	fsync	3	pass	the check caught the injected fault (hash) and nothing else failed: FAIL: S-DISC-05.1 next attach: every file synced before the yank is intact by hash (BAD base/sentinel.bin: sha256 876bfd0574d3de70f0175d782ed38f316aad4a290be4ff5a19cbd034f3178b7c, expected d44f094db86
+S-DISC-05	2	fsync	6	pass	the check caught the injected fault (dirty) and nothing else failed: FAIL: S-DISC-05.2 the dirty flag is set on the yanked image (flags_before=0x0000 flags_after=0x0000 mft=0x0000 mirror=0x0000)

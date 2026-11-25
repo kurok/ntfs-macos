@@ -1,0 +1,50 @@
+{
+ "schema": "ntfsmac-test-result/1",
+ "git_sha": "ac5cf2b5dab778a340bde623dbd9f63b298194e3",
+ "dirty_tree": false,
+ "env": "B",
+ "host_os": "macOS 27.2.1",
+ "guest_os": "macOS 27.2",
+ "macfuse_version": "5.5.0",
+ "ntfs3g_version": "2026.9.28",
+ "started": "2026-11-24T23:43:40Z",
+ "finished": "2026-11-24T23:50:30Z",
+ "cases": [
+  {
+   "id": "S-PAR-01-SHORT",
+   "status": "pass",
+   "duration_s": 301.3,
+   "evidence": [
+    "plan.txt",
+    "meta.txt",
+    "runs.tsv",
+    "guest.log",
+    "provenance.txt",
+    "par-real/summary.json",
+    "par-real/run.log",
+    "par-real/workers.json",
+    "par-real/remount.json",
+    "par-real/verify.log",
+    "par-real/state.tar.gz",
+    "inputs.txt"
+   ],
+   "note": "shortened run, not criterion 5.3 (the case id has the suffix -SHORT): parallel: concurrent writers in private and shared directories, latency and hang watch: 300 s planned, 301 s run, 16 worker(s), 113318 ops, 80 full verification(s), 1115.8 MiB written, 1410.6 MiB verified, 0 mismatch(es), 0 error(s); op latency p50<=32 ms p99<=256 ms max 2.39 s (hang limit 60 s); parameters: duration 300 s, baseline 50 s, workers 16, hang limit 60 s, controls 'corrupt stall', fault ''; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 634dc9358a33"
+  },
+  {
+   "id": "S-PAR-01-CONTROL-SHORT",
+   "status": "pass",
+   "duration_s": 0.0,
+   "evidence": [
+    "runs.tsv",
+    "par-ctl-corrupt/summary.json",
+    "par-ctl-corrupt/run.log",
+    "par-ctl-corrupt/remount.json",
+    "par-ctl-corrupt/verify.log",
+    "par-ctl-stall/summary.json",
+    "par-ctl-stall/run.log",
+    "inputs.txt"
+   ],
+   "note": "negative controls (corrupt stall): corrupt caught: injected byte flip: driver exit 1, failure kinds ['mismatch'], 1 mismatch(es), remount verification exit 1 with 1 mismatch(es); stall caught: simulated stall of worker 1: driver exit 1, failure kinds ['hang'], watchdog {'worker': 1, 'op': 'randwrite', 'seconds': 4.2, 'at_s': 7.2}; inputs: deps tar none (NTFS-3G built in the guest from this checkout); fixtures key 8833f0e75b3a manifest sha256 634dc9358a33"
+  }
+ ]
+}

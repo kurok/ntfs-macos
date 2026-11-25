@@ -1,0 +1,6 @@
+git_sha=ac5cf2b5dab778a340bde623dbd9f63b298194e3
+dirty=false
+deps_key=f11e64c52b13d8f09fd7d482098f9abd431c7a8afc71f56864037a3808dd15cb
+fixtures_key=8833f0e75b3a8764b4aadd7f9adab9256c066571c3504bee081ef447a401b4d2
+fixtures_dirty=0
+binaries=ntfsmacd and ntfsmac rebuilt with cmake --build at the recorded commit before the run

@@ -1,0 +1,66 @@
+guest: 27.2 arm64, user admin uid 501 gid 20
+== priv: probe and volmark as nobody (I-DMN-09)
+PASS: priv: probe stand-in ran (status ok); its checks of descriptors, group and signals held
+PASS: priv: volmark stand-in ran (status ok, code 0)
+PASS: priv: child 1 ran as uid 4294967294 gid 4294967294 (not root)
+PASS: priv: child 1 is the configured unprivileged user (uid 4294967294)
+PASS: priv: child 2 ran as uid 4294967294 gid 4294967294 (not root)
+PASS: priv: child 2 is the configured unprivileged user (uid 4294967294)
+PASS: priv: both stand-ins reported their user (2)
+== result: 0 failure(s)
+== rw: worker as the console user from a root process (U6, I-DMN-09)
+  spawn_worker: ok after 4491 ms, mounted_ro=0
+PASS: rw: the mount appeared
+PASS: rw: MNT_RDONLY of the mount (0) matches the decision
+  mount: /dev/disk6s1 on /Volumes/spawnvmrw (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+  worker: pid 8376:   501  8376 <tmp>/spawnvm.3X8nln/ntfsmac-worker /dev/fd/4 /Volumes/spawnvmrw -o backend=fskit,local,norecover,noatime,windows_names,nocompression,no_det
+PASS: rw: the worker runs as the console user (uid 501)
+PASS: rw: the worker leads its own process group
+PASS: rw: the console user writes and reads a file through the mount (code 0)
+  channel so far: S rw|
+PASS: rw: the first record is S rw
+PASS: rw: unmount(2) (code 0)
+PASS: rw: worker exited with status 0
+  channel at the end: S rw|U 0|
+PASS: rw: records show a clean end (S rw ... U 0, no E)
+PASS: rw: the mount is gone
+NOTE: rw: rmdir /Volumes/spawnvmrw: No such file or directory
+  log: Version 2026.9.28 external FUSE 29
+  log: Mounted /dev/fd/4 (Read-Write, label "spawnvm", NTFS 3.1)
+  log: Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+  log: Mount options: backend=fskit,local,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/4
+  log: Global ownership and permissions enforced, configuration type 1
+  log: Unmounting /dev/fd/4 (spawnvm)
+== result: 0 failure(s)
+== ro: worker as the console user from a root process (U6, I-DMN-09)
+  spawn_worker: ok after 3269 ms, mounted_ro=1
+PASS: ro: the mount appeared
+PASS: ro: MNT_RDONLY of the mount (1) matches the decision
+  mount: /dev/disk6s1 on /Volumes/spawnvmro (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+  worker: pid 8435:   501  8435 <tmp>/spawnvm.3X8nln/ntfsmac-worker /dev/fd/4 /Volumes/spawnvmro -o backend=fskit,local,norecover,noatime,windows_names,nocompression,no_det
+PASS: ro: the worker runs as the console user (uid 501)
+PASS: ro: the worker leads its own process group
+PASS: ro: the console user reads the file of the rw case and cannot write through the mount (code 0)
+  channel so far: S ro|
+PASS: ro: the first record is S ro
+PASS: ro: unmount(2) (code 0)
+PASS: ro: worker exited with status 0
+  channel at the end: S ro|U 0|
+PASS: ro: the mount is gone
+NOTE: ro: rmdir /Volumes/spawnvmro: No such file or directory
+  log: Version 2026.9.28 external FUSE 29
+  log: Mounted /dev/fd/4 (Read-Only, label "spawnvm", NTFS 3.1)
+  log: Cmdline options: backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022,ro
+  log: Mount options: backend=fskit,local,ro,allow_other,nonempty,noatime,default_permissions,fsname=/dev/fd/4
+  log: Global ownership and permissions enforced, configuration type 1
+  log: Unmounting /dev/fd/4 (spawnvm)
+== result: 0 failure(s)
+== u20: getfsstat(MNT_NOWAIT) while the worker is stopped (U20)
+PASS: u20: the mount appeared after 3459 ms (the wait polls getfsstat)
+NOTE: u20: SIGSTOP sent to pid 8489; polling for 30 s
+PASS: u20: the mount was listed in 103 of 103 calls while the worker was stopped
+PASS: u20: the slowest getfsstat call took 125 us (limit 200000)
+PASS: u20: worker exited with status 137
+NOTE: u20: forced unmount after the kill gave -2 (0 is success)
+PASS: u20: the mount is gone
+== result: 0 failure(s)

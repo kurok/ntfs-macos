@@ -1,0 +1,172 @@
+Test project <repo>/build/asan
+      Start  1: common.log
+ 1/82 Test  #1: common.log ........................   Passed    0.01 sec
+      Start  2: tools.treedump
+ 2/82 Test  #2: tools.treedump ....................   Passed    0.10 sec
+      Start  3: harness.unit
+ 3/82 Test  #3: harness.unit ......................   Passed   15.21 sec
+      Start  4: ci.local
+ 4/82 Test  #4: ci.local ..........................   Passed    1.50 sec
+      Start  5: ci.local_full
+ 5/82 Test  #5: ci.local_full .....................   Passed   16.45 sec
+      Start  6: ci.local_tools
+ 6/82 Test  #6: ci.local_tools ....................   Passed    0.76 sec
+      Start  7: ci.run_inputs
+ 7/82 Test  #7: ci.run_inputs .....................   Passed   10.41 sec
+      Start  8: ci.gate_cases
+ 8/82 Test  #8: ci.gate_cases .....................   Passed    0.06 sec
+      Start  9: ci.fuzz_short
+ 9/82 Test  #9: ci.fuzz_short .....................   Passed    1.16 sec
+      Start 10: ci.guest_sources
+10/82 Test #10: ci.guest_sources ..................   Passed    0.04 sec
+      Start 11: ci.guest_link
+11/82 Test #11: ci.guest_link .....................   Passed    4.49 sec
+      Start 12: stress.soak_mixlib
+12/82 Test #12: stress.soak_mixlib ................   Passed   11.28 sec
+      Start 13: stress.soak_result
+13/82 Test #13: stress.soak_result ................   Passed    0.06 sec
+      Start 14: stress.kill_result
+14/82 Test #14: stress.kill_result ................   Passed    0.02 sec
+      Start 15: stress.disconnect_result
+15/82 Test #15: stress.disconnect_result ..........   Passed    0.03 sec
+      Start 16: stress.leaks_classify
+16/82 Test #16: stress.leaks_classify .............   Passed    0.03 sec
+      Start 17: perf.result
+17/82 Test #17: perf.result .......................   Passed    7.94 sec
+      Start 18: perf.report
+18/82 Test #18: perf.report .......................   Passed    0.18 sec
+      Start 19: harness.inputs
+19/82 Test #19: harness.inputs ....................   Passed    0.02 sec
+      Start 20: contracts.headers
+20/82 Test #20: contracts.headers .................   Passed    0.17 sec
+      Start 21: contracts.probe_schema
+21/82 Test #21: contracts.probe_schema ............   Passed    0.07 sec
+      Start 22: daemon.da_filter
+22/82 Test #22: daemon.da_filter ..................   Passed    0.31 sec
+      Start 23: ctl.parse
+23/82 Test #23: ctl.parse .........................   Passed    0.31 sec
+      Start 24: ctl.peer
+24/82 Test #24: ctl.peer ..........................   Passed    0.18 sec
+      Start 25: ctl.handle
+25/82 Test #25: ctl.handle ........................   Passed    0.19 sec
+      Start 26: ctl.fuzz
+26/82 Test #26: ctl.fuzz ..........................   Passed    1.14 sec
+      Start 27: ctl.socket
+27/82 Test #27: ctl.socket ........................   Passed    3.76 sec
+      Start 28: ctl.cli
+28/82 Test #28: ctl.cli ...........................   Passed    0.28 sec
+      Start 29: ctl.xpc
+29/82 Test #29: ctl.xpc ...........................   Passed    0.29 sec
+      Start 30: daemon.statemachine_transitions
+30/82 Test #30: daemon.statemachine_transitions ...   Passed    0.24 sec
+      Start 31: daemon.statemachine_invalid
+31/82 Test #31: daemon.statemachine_invalid .......   Passed    0.17 sec
+      Start 32: daemon.statemachine_stubs
+32/82 Test #32: daemon.statemachine_stubs .........   Passed    0.35 sec
+      Start 33: daemon.mountpoint
+33/82 Test #33: daemon.mountpoint .................   Passed    0.19 sec
+      Start 34: daemon.unmount
+34/82 Test #34: daemon.unmount ....................   Passed    0.17 sec
+      Start 35: daemon.unmount_ev
+35/82 Test #35: daemon.unmount_ev .................   Passed    0.18 sec
+      Start 36: daemon.unmount_verify
+36/82 Test #36: daemon.unmount_verify .............   Passed    0.19 sec
+      Start 37: daemon.errwatch
+37/82 Test #37: daemon.errwatch ...................   Passed    1.00 sec
+      Start 38: daemon.session
+38/82 Test #38: daemon.session ....................   Passed    1.50 sec
+      Start 39: daemon.privops
+39/82 Test #39: daemon.privops ....................   Passed    0.80 sec
+      Start 40: daemon.mountwatch
+40/82 Test #40: daemon.mountwatch .................   Passed    1.50 sec
+      Start 41: daemon.notify
+41/82 Test #41: daemon.notify .....................   Passed    0.20 sec
+      Start 42: daemon.startup
+42/82 Test #42: daemon.startup ....................   Passed    0.21 sec
+      Start 43: daemon.report
+43/82 Test #43: daemon.report .....................   Passed    0.19 sec
+      Start 44: daemon.plist
+44/82 Test #44: daemon.plist ......................   Passed    0.18 sec
+      Start 45: daemon.conflict
+45/82 Test #45: daemon.conflict ...................   Passed    0.29 sec
+      Start 46: daemon.doctor
+46/82 Test #46: daemon.doctor .....................   Passed    0.26 sec
+      Start 47: journal.unit
+47/82 Test #47: journal.unit ......................   Passed    1.76 sec
+      Start 48: journal.crash
+48/82 Test #48: journal.crash .....................   Passed    6.04 sec
+      Start 49: policy.table
+49/82 Test #49: policy.table ......................   Passed    0.07 sec
+      Start 50: policy.options
+50/82 Test #50: policy.options ....................   Passed    0.05 sec
+      Start 51: policy.mount_options_json
+51/82 Test #51: policy.mount_options_json .........   Passed    0.86 sec
+      Start 52: packaging.manifest
+52/82 Test #52: packaging.manifest ................   Passed    0.08 sec
+      Start 53: packaging.manifest_mutants
+53/82 Test #53: packaging.manifest_mutants ........   Passed    1.96 sec
+      Start 54: packaging.syntax_dev-install
+54/82 Test #54: packaging.syntax_dev-install ......   Passed    0.00 sec
+      Start 55: packaging.syntax_uninstall
+55/82 Test #55: packaging.syntax_uninstall ........   Passed    0.00 sec
+      Start 56: packaging.syntax_build-pkg
+56/82 Test #56: packaging.syntax_build-pkg ........   Passed    0.00 sec
+      Start 57: probe.pure
+57/82 Test #57: probe.pure ........................   Passed    0.07 sec
+      Start 58: probe.nfc
+58/82 Test #58: probe.nfc .........................   Passed    1.49 sec
+      Start 59: daemon.reconcile
+59/82 Test #59: daemon.reconcile ..................   Passed    0.23 sec
+      Start 60: sanitize.label
+60/82 Test #60: sanitize.label ....................   Passed    1.10 sec
+      Start 61: sanitize.display
+61/82 Test #61: sanitize.display ..................   Passed    1.17 sec
+      Start 62: sanitize.verdict
+62/82 Test #62: sanitize.verdict ..................   Passed    0.03 sec
+      Start 63: sanitize.verdict_schema
+63/82 Test #63: sanitize.verdict_schema ...........   Passed    2.95 sec
+      Start 64: daemon.spawn_holder
+64/82 Test #64: daemon.spawn_holder ...............   Passed    0.17 sec
+      Start 65: daemon.usermap
+65/82 Test #65: daemon.usermap ....................   Passed    0.18 sec
+      Start 66: daemon.usermap_file
+66/82 Test #66: daemon.usermap_file ...............   Passed    0.22 sec
+      Start 67: daemon.spawn
+67/82 Test #67: daemon.spawn ......................   Passed   13.39 sec
+      Start 68: daemon.sandbox
+68/82 Test #68: daemon.sandbox ....................   Passed    0.74 sec
+      Start 69: sandbox.profiles
+69/82 Test #69: sandbox.profiles ..................   Passed    0.19 sec
+      Start 70: sandbox.lint_mutants
+70/82 Test #70: sandbox.lint_mutants ..............   Passed    6.12 sec
+      Start 71: sandbox.seams_hidden
+71/82 Test #71: sandbox.seams_hidden ..............   Passed    0.02 sec
+      Start 72: sandbox.seams_visible
+72/82 Test #72: sandbox.seams_visible .............   Passed    0.02 sec
+      Start 73: tsan.statemachine
+73/82 Test #73: tsan.statemachine .................   Passed    0.73 sec
+      Start 74: tsan.ctl_journal
+74/82 Test #74: tsan.ctl_journal ..................   Passed    1.28 sec
+      Start 75: tsan.session
+75/82 Test #75: tsan.session ......................   Passed    0.55 sec
+      Start 76: volmark.args
+76/82 Test #76: volmark.args ......................   Passed    0.01 sec
+      Start 77: fuzz.sanitize_verdict_seeds
+77/82 Test #77: fuzz.sanitize_verdict_seeds .......   Passed    0.02 sec
+      Start 78: fuzz.sanitize_label_seeds
+78/82 Test #78: fuzz.sanitize_label_seeds .........   Passed    0.01 sec
+      Start 79: fuzz.sanitize_display_seeds
+79/82 Test #79: fuzz.sanitize_display_seeds .......   Passed    0.01 sec
+      Start 80: fuzz.findings.M5-01
+80/82 Test #80: fuzz.findings.M5-01 ...............   Passed    0.01 sec
+      Start 81: fuzz.ctl_seeds
+81/82 Test #81: fuzz.ctl_seeds ....................   Passed    0.20 sec
+      Start 82: fuzz.campaign_tools
+82/82 Test #82: fuzz.campaign_tools ...............   Passed    4.66 sec
+
+100% tests passed out of 82
+
+Label Time Summary:
+ci    =  54.42 sec*proc (16 tests)
+
+Total Test time (real) = 130.46 sec

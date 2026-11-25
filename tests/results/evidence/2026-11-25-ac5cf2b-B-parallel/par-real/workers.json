@@ -1,0 +1,1262 @@
+[
+ {
+  "id": 0,
+  "ok": true,
+  "ops": {
+   "setup": 1,
+   "sh_create": 2571,
+   "truncate": 1885,
+   "randwrite": 2517,
+   "sh_delete": 1941,
+   "mmap": 1233,
+   "mkdir": 834,
+   "sh_rename": 1294,
+   "sh_read": 2197,
+   "rename": 1697,
+   "readdir": 573,
+   "seqwrite": 2078,
+   "delete": 2628,
+   "create": 2549,
+   "readback": 833,
+   "rmdir": 612,
+   "dirrename": 414,
+   "sh_list": 387,
+   "verify": 860
+  },
+  "ops_total": 27104,
+  "lat_max_by_op": {
+   "setup": 0.0019,
+   "sh_create": 2.4903,
+   "truncate": 0.391,
+   "randwrite": 0.7894,
+   "sh_delete": 0.2669,
+   "mmap": 0.8067,
+   "mkdir": 0.2184,
+   "sh_rename": 0.252,
+   "sh_read": 1.9845,
+   "rename": 0.981,
+   "readdir": 0.389,
+   "seqwrite": 1.6814,
+   "delete": 0.3944,
+   "create": 1.3198,
+   "readback": 1.7666,
+   "rmdir": 0.2947,
+   "dirrename": 0.2625,
+   "sh_list": 0.7031,
+   "verify": 0.1696
+  },
+  "lat_max_s": 2.4903,
+  "slow": [
+   [
+    2.49,
+    "sh_create"
+   ],
+   [
+    1.984,
+    "sh_read"
+   ],
+   [
+    1.824,
+    "sh_create"
+   ],
+   [
+    1.767,
+    "readback"
+   ],
+   [
+    1.681,
+    "seqwrite"
+   ]
+  ],
+  "mismatches": [],
+  "errors": [],
+  "verifies": 15,
+  "bytes_written": 270814410,
+  "bytes_verified": 350191137,
+  "files": 13,
+  "dirs": 39,
+  "shared_files": 39,
+  "seconds": 1800.628
+ },
+ {
+  "id": 1,
+  "ok": true,
+  "ops": {
+   "setup": 1,
+   "sh_create": 2522,
+   "sh_delete": 1844,
+   "mkdir": 797,
+   "rename": 1711,
+   "create": 2542,
+   "mmap": 1265,
+   "truncate": 1880,
+   "sh_read": 2130,
+   "sh_rename": 1307,
+   "randwrite": 2570,
+   "delete": 2652,
+   "readdir": 664,
+   "seqwrite": 2120,
+   "readback": 852,
+   "sh_list": 447,
+   "dirrename": 453,
+   "rmdir": 613,
+   "verify": 841
+  },
+  "ops_total": 27211,
+  "lat_max_by_op": {
+   "setup": 0.0038,
+   "sh_create": 1.5512,
+   "sh_delete": 0.2476,
+   "mkdir": 0.2552,
+   "rename": 0.4234,
+   "create": 0.7327,
+   "mmap": 1.357,
+   "truncate": 0.8914,
+   "sh_read": 0.9582,
+   "sh_rename": 1.8704,
+   "randwrite": 0.7909,
+   "delete": 0.8272,
+   "readdir": 1.65,
+   "seqwrite": 0.7443,
+   "readback": 0.3148,
+   "sh_list": 0.3817,
+   "dirrename": 0.3221,
+   "rmdir": 0.2671,
+   "verify": 1.0312
+  },
+  "lat_max_s": 1.8704,
+  "slow": [
+   [
+    1.87,
+    "sh_rename"
+   ],
+   [
+    1.65,
+    "readdir"
+   ],
+   [
+    1.551,
+    "sh_create"
+   ],
+   [
+    1.357,
+    "mmap"
+   ],
+   [
+    1.031,
+    "verify"
+   ]
+  ],
+  "mismatches": [],
+  "errors": [],
+  "verifies": 15,
+  "bytes_written": 288937442,
+  "bytes_verified": 368100760,
+  "files": 23,
+  "dirs": 38,
+  "shared_files": 38,
+  "seconds": 1800.642
+ },
+ {
+  "id": 2,
+  "ok": true,
+  "ops": {
+   "setup": 1,
+   "delete": 2675,
+   "seqwrite": 2207,
+   "mmap": 1249,
+   "readback": 859,
+   "sh_create": 2466,
+   "sh_list": 426,
+   "randwrite": 2554,
+   "rename": 1751,
+   "create": 2540,
+   "sh_delete": 1868,
+   "readdir": 603,
+   "sh_rename": 1265,
+   "sh_read": 2220,
+   "truncate": 1848,
+   "rmdir": 631,
+   "mkdir": 899,
+   "dirrename": 403,
+   "verify": 801
+  },
+  "ops_total": 27266,
+  "lat_max_by_op": {
+   "setup": 0.0061,
+   "delete": 0.6072,
+   "seqwrite": 2.4631,
+   "mmap": 0.4573,
+   "readback": 0.3697,
+   "sh_create": 0.7914,
+   "sh_list": 0.9737,
+   "randwrite": 1.7672,
+   "rename": 1.8138,
+   "create": 0.7877,
+   "sh_delete": 0.6562,
+   "readdir": 0.2539,
+   "sh_rename": 0.4872,
+   "sh_read": 1.5208,
+   "truncate": 0.7227,
+   "rmdir": 0.2474,
+   "mkdir": 0.2803,
+   "dirrename": 0.3229,
+   "verify": 0.1445
+  },
+  "lat_max_s": 2.4631,
+  "slow": [
+   [
+    2.463,
+    "seqwrite"
+   ],
+   [
+    1.814,
+    "rename"
+   ],
+   [
+    1.767,
+    "randwrite"
+   ],
+   [
+    1.521,
+    "sh_read"
+   ],
+   [
+    1.063,
+    "seqwrite"
+   ]
+  ],
+  "mismatches": [],
+  "errors": [],
+  "verifies": 15,
+  "bytes_written": 290765394,
+  "bytes_verified": 355859746,
+  "files": 9,
+  "dirs": 34,
+  "shared_files": 30,
+  "seconds": 1800.559
+ },
+ {
+  "id": 3,
+  "ok": true,
+  "ops": {
+   "setup": 1,
+   "delete": 2648,
+   "readdir": 641,
+   "truncate": 1829,
+   "create": 2583,
+   "sh_create": 2448,
+   "randwrite": 2466,
+   "readback": 825,
+   "mkdir": 883,
+   "sh_rename": 1282,
+   "seqwrite": 2071,
+   "sh_read": 2208,
+   "rename": 1771,
+   "mmap": 1215,
+   "sh_list": 460,
+   "sh_delete": 1891,
+   "rmdir": 645,
+   "dirrename": 384,
+   "verify": 832
+  },
+  "ops_total": 27083,
+  "lat_max_by_op": {
+   "setup": 0.0083,
+   "delete": 1.0434,
+   "readdir": 0.2572,
+   "truncate": 1.9479,
+   "create": 0.3986,
+   "sh_create": 0.8145,
+   "randwrite": 0.4875,
+   "readback": 0.486,
+   "mkdir": 0.6554,
+   "sh_rename": 0.3531,
+   "seqwrite": 0.4378,
+   "sh_read": 1.7772,
+   "rename": 1.3563,
+   "mmap": 0.6177,
+   "sh_list": 1.7994,
+   "sh_delete": 0.391,
+   "rmdir": 0.2417,
+   "dirrename": 0.3615,
+   "verify": 0.9904
+  },
+  "lat_max_s": 1.9479,
+  "slow": [
+   [
+    1.948,
+    "truncate"
+   ],
+   [
+    1.799,
+    "sh_list"
+   ],
+   [
+    1.777,
+    "sh_read"
+   ],
+   [
+    1.356,
+    "rename"
+   ],
+   [
+    1.043,
+    "delete"
+   ]
+  ],
+  "mismatches": [],
+  "errors": [],
+  "verifies": 15,
+  "bytes_written": 276128589,
+  "bytes_verified": 340026943,
+  "files": 21,
+  "dirs": 38,
+  "shared_files": 35,
+  "seconds": 1800.635
+ },
+ {
+  "id": 4,
+  "ok": true,
+  "ops": {
+   "setup": 1,
+   "rename": 1758,
+   "sh_create": 2496,
+   "randwrite": 2566,
+   "sh_delete": 1860,
+   "truncate": 1812,
+   "create": 2497,
+   "seqwrite": 2208,
+   "mkdir": 869,
+   "dirrename": 409,
+   "delete": 2622,
+   "sh_read": 2130,
+   "mmap": 1295,
+   "rmdir": 611,
+   "sh_rename": 1315,
+   "readdir": 643,
+   "readback": 804,
+   "sh_list": 453,
+   "verify": 809
+  },
+  "ops_total": 27158,
+  "lat_max_by_op": {
+   "setup": 0.0047,
+   "rename": 1.1251,
+   "sh_create": 1.9459,
+   "randwrite": 0.6496,
+   "sh_delete": 0.3568,
+   "truncate": 0.363,
+   "create": 2.6395,
+   "seqwrite": 1.7684,
+   "mkdir": 0.2905,
+   "dirrename": 0.3146,
+   "delete": 0.3953,
+   "sh_read": 0.7669,
+   "mmap": 0.7866,
+   "rmdir": 0.262,
+   "sh_rename": 0.6658,
+   "readdir": 0.2581,
+   "readback": 0.3956,
+   "sh_list": 0.3961,
+   "verify": 0.1331
+  },
+  "lat_max_s": 2.6395,
+  "slow": [
+   [
+    2.639,
+    "create"
+   ],
+   [
+    1.946,
+    "sh_create"
+   ],
+   [
+    1.768,
+    "seqwrite"
+   ],
+   [
+    1.742,
+    "create"
+   ],
+   [
+    1.398,
+    "sh_create"
+   ]
+  ],
+  "mismatches": [],
+  "errors": [],
+  "verifies": 15,
+  "bytes_written": 287666628,
+  "bytes_verified": 382997757,
+  "files": 12,
+  "dirs": 38,
+  "shared_files": 35,
+  "seconds": 1800.611
+ },
+ {
+  "id": 5,
+  "ok": true,
+  "ops": {
+   "setup": 1,
+   "mmap": 1301,
+   "create": 2584,
+   "randwrite": 2541,
+   "sh_read": 2220,
+   "delete": 2713,
+   "readdir": 640,
+   "sh_create": 2487,
+   "seqwrite": 2070,
+   "sh_rename": 1235,
+   "rename": 1701,
+   "readback": 844,
+   "mkdir": 844,
+   "sh_delete": 1843,
+   "truncate": 1920,
+   "sh_list": 424,
+   "rmdir": 605,
+   "dirrename": 441,
+   "verify": 813
+  },
+  "ops_total": 27227,
+  "lat_max_by_op": {
+   "setup": 0.0082,
+   "mmap": 0.6939,
+   "create": 1.7643,
+   "randwrite": 0.8862,
+   "sh_read": 2.74,
+   "delete": 1.1193,
+   "readdir": 0.2645,
+   "sh_create": 1.2088,
+   "seqwrite": 1.4936,
+   "sh_rename": 0.5009,
+   "rename": 0.51,
+   "readback": 0.3401,
+   "mkdir": 0.5357,
+   "sh_delete": 0.2713,
+   "truncate": 0.3801,
+   "sh_list": 0.391,
+   "rmdir": 0.233,
+   "dirrename": 0.7439,
+   "verify": 0.9086
+  },
+  "lat_max_s": 2.74,
+  "slow": [
+   [
+    2.74,
+    "sh_read"
+   ],
+   [
+    1.764,
+    "create"
+   ],
+   [
+    1.494,
+    "seqwrite"
+   ],
+   [
+    1.209,
+    "sh_create"
+   ],
+   [
+    1.182,
+    "seqwrite"
+   ]
+  ],
+  "mismatches": [],
+  "errors": [],
+  "verifies": 15,
+  "bytes_written": 266041386,
+  "bytes_verified": 333546889,
+  "files": 13,
+  "dirs": 36,
+  "shared_files": 20,
+  "seconds": 1800.545
+ },
+ {
+  "id": 6,
+  "ok": true,
+  "ops": {
+   "setup": 1,
+   "truncate": 1909,
+   "dirrename": 423,
+   "mkdir": 866,
+   "readdir": 613,
+   "randwrite": 2570,
+   "seqwrite": 2105,
+   "readback": 856,
+   "rename": 1721,
+   "sh_create": 2543,
+   "mmap": 1243,
+   "sh_list": 458,
+   "delete": 2607,
+   "sh_delete": 1886,
+   "sh_rename": 1300,
+   "sh_read": 2218,
+   "rmdir": 617,
+   "create": 2505,
+   "verify": 841
+  },
+  "ops_total": 27282,
+  "lat_max_by_op": {
+   "setup": 0.009,
+   "truncate": 0.3914,
+   "dirrename": 0.3084,
+   "mkdir": 0.3982,
+   "readdir": 0.2686,
+   "randwrite": 1.303,
+   "seqwrite": 0.5236,
+   "readback": 0.3633,
+   "rename": 1.3635,
+   "sh_create": 1.7529,
+   "mmap": 0.6975,
+   "sh_list": 0.3581,
+   "delete": 1.2277,
+   "sh_delete": 0.2646,
+   "sh_rename": 0.2687,
+   "sh_read": 1.7664,
+   "rmdir": 0.3503,
+   "create": 1.7243,
+   "verify": 1.3176
+  },
+  "lat_max_s": 1.7664,
+  "slow": [
+   [
+    1.766,
+    "sh_read"
+   ],
+   [
+    1.753,
+    "sh_create"
+   ],
+   [
+    1.724,
+    "create"
+   ],
+   [
+    1.364,
+    "rename"
+   ],
+   [
+    1.318,
+    "verify"
+   ]
+  ],
+  "mismatches": [],
+  "errors": [],
+  "verifies": 15,
+  "bytes_written": 280515226,
+  "bytes_verified": 360397769,
+  "files": 30,
+  "dirs": 39,
+  "shared_files": 39,
+  "seconds": 1800.644
+ },
+ {
+  "id": 7,
+  "ok": true,
+  "ops": {
+   "setup": 1,
+   "sh_delete": 1971,
+   "sh_create": 2523,
+   "delete": 2728,
+   "seqwrite": 2139,
+   "create": 2581,
+   "randwrite": 2596,
+   "readback": 822,
+   "sh_rename": 1296,
+   "mmap": 1232,
+   "readdir": 667,
+   "sh_read": 2161,
+   "truncate": 1935,
+   "rename": 1670,
+   "rmdir": 610,
+   "mkdir": 786,
+   "dirrename": 411,
+   "sh_list": 439,
+   "verify": 786
+  },
+  "ops_total": 27354,
+  "lat_max_by_op": {
+   "setup": 0.0109,
+   "sh_delete": 0.4956,
+   "sh_create": 0.334,
+   "delete": 1.2731,
+   "seqwrite": 1.5396,
+   "create": 0.5272,
+   "randwrite": 0.4979,
+   "readback": 0.5879,
+   "sh_rename": 0.4162,
+   "mmap": 1.8427,
+   "readdir": 0.2414,
+   "sh_read": 0.7952,
+   "truncate": 0.4061,
+   "rename": 1.311,
+   "rmdir": 0.2789,
+   "mkdir": 0.2899,
+   "dirrename": 0.3185,
+   "sh_list": 0.4418,
+   "verify": 1.1954
+  },
+  "lat_max_s": 1.8427,
+  "slow": [
+   [
+    1.843,
+    "mmap"
+   ],
+   [
+    1.54,
+    "seqwrite"
+   ],
+   [
+    1.501,
+    "mmap"
+   ],
+   [
+    1.311,
+    "rename"
+   ],
+   [
+    1.273,
+    "delete"
+   ]
+  ],
+  "mismatches": [],
+  "errors": [],
+  "verifies": 15,
+  "bytes_written": 281930576,
+  "bytes_verified": 348342907,
+  "files": 13,
+  "dirs": 38,
+  "shared_files": 33,
+  "seconds": 1800.605
+ },
+ {
+  "id": 8,
+  "ok": true,
+  "ops": {
+   "setup": 1,
+   "delete": 2722,
+   "sh_rename": 1242,
+   "create": 2588,
+   "seqwrite": 2126,
+   "randwrite": 2560,
+   "rename": 1657,
+   "sh_read": 2185,
+   "sh_create": 2523,
+   "mmap": 1316,
+   "mkdir": 899,
+   "sh_delete": 1861,
+   "readdir": 643,
+   "readback": 849,
+   "truncate": 1902,
+   "dirrename": 401,
+   "rmdir": 612,
+   "sh_list": 445,
+   "verify": 840
+  },
+  "ops_total": 27372,
+  "lat_max_by_op": {
+   "setup": 0.0092,
+   "delete": 0.7064,
+   "sh_rename": 0.387,
+   "create": 2.6809,
+   "seqwrite": 1.8005,
+   "randwrite": 0.3817,
+   "rename": 0.615,
+   "sh_read": 1.7136,
+   "sh_create": 0.4999,
+   "mmap": 0.4442,
+   "mkdir": 0.966,
+   "sh_delete": 0.56,
+   "readdir": 1.7701,
+   "readback": 1.6877,
+   "truncate": 0.4892,
+   "dirrename": 0.2632,
+   "rmdir": 0.264,
+   "sh_list": 0.5587,
+   "verify": 0.1337
+  },
+  "lat_max_s": 2.6809,
+  "slow": [
+   [
+    2.681,
+    "create"
+   ],
+   [
+    1.801,
+    "seqwrite"
+   ],
+   [
+    1.77,
+    "readdir"
+   ],
+   [
+    1.714,
+    "sh_read"
+   ],
+   [
+    1.688,
+    "readback"
+   ]
+  ],
+  "mismatches": [],
+  "errors": [],
+  "verifies": 15,
+  "bytes_written": 283637780,
+  "bytes_verified": 360094597,
+  "files": 14,
+  "dirs": 38,
+  "shared_files": 40,
+  "seconds": 1800.626
+ },
+ {
+  "id": 9,
+  "ok": true,
+  "ops": {
+   "setup": 1,
+   "seqwrite": 2140,
+   "truncate": 1932,
+   "readdir": 654,
+   "sh_create": 2430,
+   "sh_delete": 1949,
+   "sh_list": 408,
+   "readback": 877,
+   "delete": 2764,
+   "rmdir": 628,
+   "create": 2629,
+   "sh_read": 2224,
+   "mmap": 1293,
+   "sh_rename": 1269,
+   "randwrite": 2452,
+   "rename": 1595,
+   "mkdir": 867,
+   "dirrename": 407,
+   "verify": 819
+  },
+  "ops_total": 27338,
+  "lat_max_by_op": {
+   "setup": 0.0119,
+   "seqwrite": 1.7583,
+   "truncate": 1.61,
+   "readdir": 0.3038,
+   "sh_create": 1.5155,
+   "sh_delete": 0.3247,
+   "sh_list": 0.5099,
+   "readback": 0.3782,
+   "delete": 1.3667,
+   "rmdir": 0.6273,
+   "create": 1.4025,
+   "sh_read": 0.4335,
+   "mmap": 0.6083,
+   "sh_rename": 0.268,
+   "randwrite": 0.7958,
+   "rename": 2.0131,
+   "mkdir": 0.2908,
+   "dirrename": 0.3236,
+   "verify": 0.1384
+  },
+  "lat_max_s": 2.0131,
+  "slow": [
+   [
+    2.013,
+    "rename"
+   ],
+   [
+    1.758,
+    "seqwrite"
+   ],
+   [
+    1.61,
+    "truncate"
+   ],
+   [
+    1.515,
+    "sh_create"
+   ],
+   [
+    1.402,
+    "create"
+   ]
+  ],
+  "mismatches": [],
+  "errors": [],
+  "verifies": 15,
+  "bytes_written": 299738557,
+  "bytes_verified": 380256119,
+  "files": 17,
+  "dirs": 39,
+  "shared_files": 37,
+  "seconds": 1800.625
+ },
+ {
+  "id": 10,
+  "ok": true,
+  "ops": {
+   "setup": 1,
+   "readback": 882,
+   "truncate": 1901,
+   "seqwrite": 2175,
+   "sh_rename": 1298,
+   "dirrename": 468,
+   "randwrite": 2501,
+   "delete": 2670,
+   "sh_create": 2535,
+   "readdir": 673,
+   "sh_delete": 1882,
+   "sh_read": 2275,
+   "create": 2487,
+   "mkdir": 826,
+   "rename": 1657,
+   "mmap": 1266,
+   "sh_list": 426,
+   "rmdir": 623,
+   "verify": 832
+  },
+  "ops_total": 27378,
+  "lat_max_by_op": {
+   "setup": 0.0124,
+   "readback": 0.3514,
+   "truncate": 1.0946,
+   "seqwrite": 0.5185,
+   "sh_rename": 0.9106,
+   "dirrename": 0.507,
+   "randwrite": 0.8734,
+   "delete": 0.8031,
+   "sh_create": 1.0285,
+   "readdir": 0.2638,
+   "sh_delete": 0.6553,
+   "sh_read": 2.6657,
+   "create": 0.6511,
+   "mkdir": 0.289,
+   "rename": 1.3252,
+   "mmap": 1.121,
+   "sh_list": 0.7927,
+   "rmdir": 0.4202,
+   "verify": 0.1407
+  },
+  "lat_max_s": 2.6657,
+  "slow": [
+   [
+    2.666,
+    "sh_read"
+   ],
+   [
+    1.325,
+    "rename"
+   ],
+   [
+    1.229,
+    "rename"
+   ],
+   [
+    1.121,
+    "mmap"
+   ],
+   [
+    1.095,
+    "truncate"
+   ]
+  ],
+  "mismatches": [],
+  "errors": [],
+  "verifies": 15,
+  "bytes_written": 282639772,
+  "bytes_verified": 356359164,
+  "files": 12,
+  "dirs": 38,
+  "shared_files": 40,
+  "seconds": 1800.619
+ },
+ {
+  "id": 11,
+  "ok": true,
+  "ops": {
+   "setup": 1,
+   "rename": 1698,
+   "dirrename": 412,
+   "randwrite": 2606,
+   "truncate": 1920,
+   "sh_create": 2548,
+   "mmap": 1275,
+   "create": 2593,
+   "rmdir": 640,
+   "seqwrite": 2112,
+   "sh_rename": 1279,
+   "readback": 842,
+   "sh_delete": 1873,
+   "mkdir": 824,
+   "sh_read": 2162,
+   "delete": 2712,
+   "sh_list": 429,
+   "readdir": 702,
+   "verify": 821
+  },
+  "ops_total": 27449,
+  "lat_max_by_op": {
+   "setup": 0.0115,
+   "rename": 0.8663,
+   "dirrename": 0.2883,
+   "randwrite": 0.6429,
+   "truncate": 0.3993,
+   "sh_create": 0.8546,
+   "mmap": 0.4048,
+   "create": 2.2596,
+   "rmdir": 0.37,
+   "seqwrite": 1.787,
+   "sh_rename": 0.2726,
+   "readback": 0.6898,
+   "sh_delete": 0.5854,
+   "mkdir": 0.3114,
+   "sh_read": 0.4828,
+   "delete": 0.957,
+   "sh_list": 2.0322,
+   "readdir": 0.2529,
+   "verify": 0.1334
+  },
+  "lat_max_s": 2.2596,
+  "slow": [
+   [
+    2.26,
+    "create"
+   ],
+   [
+    2.032,
+    "sh_list"
+   ],
+   [
+    1.787,
+    "seqwrite"
+   ],
+   [
+    1.313,
+    "create"
+   ]
+  ],
+  "mismatches": [],
+  "errors": [],
+  "verifies": 15,
+  "bytes_written": 283126508,
+  "bytes_verified": 369732286,
+  "files": 10,
+  "dirs": 37,
+  "shared_files": 35,
+  "seconds": 1800.588
+ },
+ {
+  "id": 12,
+  "ok": true,
+  "ops": {
+   "setup": 1,
+   "truncate": 1895,
+   "sh_create": 2459,
+   "delete": 2591,
+   "create": 2479,
+   "rename": 1777,
+   "rmdir": 643,
+   "randwrite": 2540,
+   "mkdir": 851,
+   "sh_read": 2238,
+   "seqwrite": 2122,
+   "sh_delete": 1940,
+   "sh_rename": 1286,
+   "readdir": 621,
+   "dirrename": 411,
+   "readback": 845,
+   "sh_list": 436,
+   "mmap": 1235,
+   "verify": 837
+  },
+  "ops_total": 27207,
+  "lat_max_by_op": {
+   "setup": 0.0104,
+   "truncate": 0.3429,
+   "sh_create": 0.7705,
+   "delete": 0.5936,
+   "create": 1.4807,
+   "rename": 1.3118,
+   "rmdir": 0.5548,
+   "randwrite": 0.3577,
+   "mkdir": 0.3701,
+   "sh_read": 1.7657,
+   "seqwrite": 1.8124,
+   "sh_delete": 0.3426,
+   "sh_rename": 0.4908,
+   "readdir": 0.2645,
+   "dirrename": 0.2819,
+   "readback": 1.2293,
+   "sh_list": 1.2097,
+   "mmap": 1.4529,
+   "verify": 1.277
+  },
+  "lat_max_s": 1.8124,
+  "slow": [
+   [
+    1.812,
+    "seqwrite"
+   ],
+   [
+    1.766,
+    "sh_read"
+   ],
+   [
+    1.481,
+    "create"
+   ],
+   [
+    1.453,
+    "mmap"
+   ],
+   [
+    1.312,
+    "rename"
+   ]
+  ],
+  "mismatches": [],
+  "errors": [],
+  "verifies": 15,
+  "bytes_written": 283074546,
+  "bytes_verified": 346600919,
+  "files": 21,
+  "dirs": 37,
+  "shared_files": 37,
+  "seconds": 1800.624
+ },
+ {
+  "id": 13,
+  "ok": true,
+  "ops": {
+   "setup": 1,
+   "sh_delete": 1856,
+   "sh_create": 2494,
+   "mkdir": 911,
+   "rename": 1653,
+   "create": 2545,
+   "randwrite": 2558,
+   "sh_read": 2232,
+   "mmap": 1200,
+   "readdir": 646,
+   "sh_rename": 1306,
+   "delete": 2657,
+   "rmdir": 671,
+   "seqwrite": 2127,
+   "readback": 823,
+   "truncate": 1827,
+   "sh_list": 430,
+   "dirrename": 473,
+   "verify": 823
+  },
+  "ops_total": 27233,
+  "lat_max_by_op": {
+   "setup": 0.0426,
+   "sh_delete": 0.3755,
+   "sh_create": 1.1191,
+   "mkdir": 0.4766,
+   "rename": 0.7317,
+   "create": 1.7442,
+   "randwrite": 1.8893,
+   "sh_read": 0.7246,
+   "mmap": 0.4742,
+   "readdir": 1.3183,
+   "sh_rename": 0.2953,
+   "delete": 0.5347,
+   "rmdir": 0.3498,
+   "seqwrite": 1.1885,
+   "readback": 0.3471,
+   "truncate": 0.358,
+   "sh_list": 0.8932,
+   "dirrename": 1.8708,
+   "verify": 0.7855
+  },
+  "lat_max_s": 1.8893,
+  "slow": [
+   [
+    1.889,
+    "randwrite"
+   ],
+   [
+    1.871,
+    "dirrename"
+   ],
+   [
+    1.744,
+    "create"
+   ],
+   [
+    1.318,
+    "readdir"
+   ],
+   [
+    1.188,
+    "seqwrite"
+   ]
+  ],
+  "mismatches": [],
+  "errors": [],
+  "verifies": 15,
+  "bytes_written": 282933854,
+  "bytes_verified": 361269329,
+  "files": 16,
+  "dirs": 39,
+  "shared_files": 39,
+  "seconds": 1800.613
+ },
+ {
+  "id": 14,
+  "ok": true,
+  "ops": {
+   "setup": 1,
+   "delete": 2703,
+   "sh_create": 2587,
+   "create": 2586,
+   "mmap": 1242,
+   "seqwrite": 2087,
+   "dirrename": 453,
+   "sh_delete": 1861,
+   "sh_read": 2210,
+   "readback": 853,
+   "randwrite": 2546,
+   "rmdir": 646,
+   "sh_list": 420,
+   "rename": 1689,
+   "truncate": 1846,
+   "sh_rename": 1200,
+   "mkdir": 883,
+   "readdir": 620,
+   "verify": 869
+  },
+  "ops_total": 27302,
+  "lat_max_by_op": {
+   "setup": 0.0431,
+   "delete": 0.6118,
+   "sh_create": 1.884,
+   "create": 1.5374,
+   "mmap": 1.002,
+   "seqwrite": 0.4252,
+   "dirrename": 0.3335,
+   "sh_delete": 0.2625,
+   "sh_read": 1.7611,
+   "readback": 0.6436,
+   "randwrite": 0.5182,
+   "rmdir": 0.628,
+   "sh_list": 0.4787,
+   "rename": 1.4982,
+   "truncate": 0.3014,
+   "sh_rename": 0.2969,
+   "mkdir": 1.2987,
+   "readdir": 0.2503,
+   "verify": 0.7446
+  },
+  "lat_max_s": 1.884,
+  "slow": [
+   [
+    1.884,
+    "sh_create"
+   ],
+   [
+    1.761,
+    "sh_read"
+   ],
+   [
+    1.537,
+    "create"
+   ],
+   [
+    1.498,
+    "rename"
+   ],
+   [
+    1.406,
+    "rename"
+   ]
+  ],
+  "mismatches": [],
+  "errors": [],
+  "verifies": 15,
+  "bytes_written": 273251491,
+  "bytes_verified": 339930264,
+  "files": 18,
+  "dirs": 39,
+  "shared_files": 38,
+  "seconds": 1800.622
+ },
+ {
+  "id": 15,
+  "ok": true,
+  "ops": {
+   "setup": 1,
+   "create": 2548,
+   "delete": 2701,
+   "sh_delete": 2008,
+   "randwrite": 2523,
+   "sh_create": 2388,
+   "sh_read": 2175,
+   "mmap": 1317,
+   "readback": 830,
+   "mkdir": 847,
+   "sh_rename": 1274,
+   "truncate": 1943,
+   "seqwrite": 2173,
+   "rename": 1627,
+   "readdir": 674,
+   "rmdir": 669,
+   "sh_list": 404,
+   "dirrename": 451,
+   "verify": 799
+  },
+  "ops_total": 27352,
+  "lat_max_by_op": {
+   "setup": 0.0448,
+   "create": 2.4236,
+   "delete": 1.1931,
+   "sh_delete": 1.09,
+   "randwrite": 0.3872,
+   "sh_create": 0.5145,
+   "sh_read": 1.2754,
+   "mmap": 0.3909,
+   "readback": 0.2873,
+   "mkdir": 0.3051,
+   "sh_rename": 0.3331,
+   "truncate": 0.6682,
+   "seqwrite": 1.1941,
+   "rename": 1.8356,
+   "readdir": 0.231,
+   "rmdir": 0.2571,
+   "sh_list": 0.3213,
+   "dirrename": 0.2803,
+   "verify": 0.1345
+  },
+  "lat_max_s": 2.4236,
+  "slow": [
+   [
+    2.424,
+    "create"
+   ],
+   [
+    1.836,
+    "rename"
+   ],
+   [
+    1.275,
+    "sh_read"
+   ],
+   [
+    1.269,
+    "rename"
+   ],
+   [
+    1.194,
+    "seqwrite"
+   ]
+  ],
+  "mismatches": [],
+  "errors": [],
+  "verifies": 15,
+  "bytes_written": 284652315,
+  "bytes_verified": 369526498,
+  "files": 12,
+  "dirs": 39,
+  "shared_files": 37,
+  "seconds": 1800.594
+ }
+]

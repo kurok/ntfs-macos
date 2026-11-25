@@ -1,0 +1,103 @@
+{
+ "series": [
+  "0003-inherited-device-descriptor.patch",
+  "0004-faultio-device-layer.patch",
+  "0006-session-channel.patch",
+  "0007-device-drive-flush.patch",
+  "0008-creation-time-conversion.patch",
+  "0009-xattr-names-exempt-windows-names.patch",
+  "0010-valid-descr-header-length.patch",
+  "0011-possible-symlink-header-length.patch",
+  "0012-retrievesecurityattr-bounds.patch",
+  "0013-inode-sync-reparse-tag-length.patch",
+  "0014-readdir-offsets.patch",
+  "0015-boot-sector-record-size-limit.patch"
+ ],
+ "scans": [
+  {
+   "leaks": 1,
+   "bytes": 160,
+   "roots": [
+    {
+     "label": "ROOT LEAK: <malloc in fuse_new_common>",
+     "instances": 1,
+     "class": "engine",
+     "reason": "worker image frames only at unpatched lines (innermost mount_fuse ntfs-3g.c:4543)",
+     "site": [
+      "libfuse.2.dylib fuse_new_common",
+      "ntfs-3g mount_fuse ntfs-3g.c:4543",
+      "ntfs-3g main ntfs-3g.c:4828",
+      "dyld start"
+     ]
+    }
+   ],
+   "project_instances": 0,
+   "problems": [],
+   "file": "leaks-worker-scan1.txt"
+  },
+  {
+   "leaks": 1,
+   "bytes": 160,
+   "roots": [
+    {
+     "label": "ROOT LEAK: <malloc in fuse_new_common>",
+     "instances": 1,
+     "class": "engine",
+     "reason": "worker image frames only at unpatched lines (innermost mount_fuse ntfs-3g.c:4543)",
+     "site": [
+      "libfuse.2.dylib fuse_new_common",
+      "ntfs-3g mount_fuse ntfs-3g.c:4543",
+      "ntfs-3g main ntfs-3g.c:4828",
+      "dyld start"
+     ]
+    }
+   ],
+   "project_instances": 0,
+   "problems": [],
+   "file": "leaks-worker-scan2.txt"
+  },
+  {
+   "leaks": 1,
+   "bytes": 160,
+   "roots": [
+    {
+     "label": "ROOT LEAK: <malloc in fuse_new_common>",
+     "instances": 1,
+     "class": "engine",
+     "reason": "worker image frames only at unpatched lines (innermost mount_fuse ntfs-3g.c:4543)",
+     "site": [
+      "libfuse.2.dylib fuse_new_common",
+      "ntfs-3g mount_fuse ntfs-3g.c:4543",
+      "ntfs-3g main ntfs-3g.c:4828",
+      "dyld start"
+     ]
+    }
+   ],
+   "project_instances": 0,
+   "problems": [],
+   "file": "leaks-worker-scan3.txt"
+  }
+ ],
+ "control": {
+  "ok": true,
+  "detail": "leaks found 1 root(s) allocated in ctl_leak_site; classified with no rule: 0 project (expected 0); line rule 'leakctl.c:24 is patched': 1 R1 hit(s) with a parsed frame leakctl.c:19..29 (expected >= 1); function rule 'ctl_leak_site is patched': 1 R2 hit(s) (expected >= 1)"
+ },
+ "meta": {
+  "guest_os": "macOS 27.2 arm64",
+  "macfuse": "5.5.0",
+  "ntfs3g": "2026.9.28",
+  "iterations": "3",
+  "fixture": "clean-64m-4k",
+  "lineinfo": "1",
+  "workload_rc": "0",
+  "worker_exit": "0",
+  "seconds": "15",
+  "host_os": "macOS 27.2.1",
+  "deps_tar": "none",
+  "fixtures_dir": "<tmp>//leaks.DHHRAQ/fixtures",
+  "fixtures_key": "8833f0e75b3a8764b4aadd7f9adab9256c066571c3504bee081ef447a401b4d2",
+  "fixtures_dirty": "0",
+  "fixture.clean-64m-4k.img": "865569e03934280e5e88b539d0ea8cfcf6b075dfc92e7c54d9c2e878284845e6 (67108864 bytes)",
+  "fixtures_manifest_sha256": "276f86d10041a7af26daf0745b656ed4d47f6742a82e9877d3d0808daab3e9cc"
+ }
+}

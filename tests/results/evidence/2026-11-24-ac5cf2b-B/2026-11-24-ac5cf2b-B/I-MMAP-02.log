@@ -1,0 +1,109 @@
+22:39:20 start I-MMAP-02 (env B)
+22:39:20 $ cc -Wall -Wextra -Werror -o <tmp>/ntfsmac-case-li2c_zrq/mmaptool <tmp>/ntfsmac-h.8Ouvgv/integration/mmap/mmaptool.c -> rc=0
+22:39:20 $ cc -Wall -Wextra -Werror -dynamiclib -arch arm64 -arch arm64e -o <tmp>/ntfsmac-case-li2c_zrq/syncspy.dylib <tmp>/ntfsmac-h.8Ouvgv/integration/sync/syncspy.c -> rc=0
+22:39:20 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac <tmp>/ntfsmac-case-li2c_zrq/vol.img -> rc=0
+22:39:20 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:39:20 stderr: <tmp>/ntfsmac-case-li2c_zrq/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-li2c_zrq/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-li2c_zrq/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-li2c_zrq/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-li2c_zrq/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:39:21 mount table clear for <tmp>/ntfsmac-case-li2c_zrq/mnt after 0.00 s, settled 1.0 s
+22:39:21 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug <tmp>/ntfsmac-case-li2c_zrq/vol.img <tmp>/ntfsmac-case-li2c_zrq/mnt
+22:39:24 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-li2c_zrq/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:39:28 tool> open <tmp>/ntfsmac-case-li2c_zrq/mnt/ms-sync-4096.bin rw => ok fd=3
+22:39:28 tool> map 4096 rw => ok
+22:39:28 STEP ms-sync-4096.bin: open+map                   ret=ok 3 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <OPEN n5 +2ms
+22:39:28 tool> mput 0 <tmp>/ntfsmac-case-li2c_zrq/tool-in.bin => ok 4096
+22:39:29 STEP ms-sync-4096.bin: mapped write               ret=ok 4096 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+22:39:29 tool> msync sync => ok
+22:39:30 STEP ms-sync-4096.bin: msync sync                 ret=ok 1 ms | WRITE x1 4096 B (4096 B before return), device writes 3 syncs 0 | <WRITE n5 4096@0 +0ms
+22:39:31 STEP ms-sync-4096.bin: read(2) after msync        ret=True 1 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+22:39:31 tool> munmap => ok
+22:39:32 STEP ms-sync-4096.bin: munmap                     ret=ok 0 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+22:39:32 tool> close => ok
+22:39:33 STEP ms-sync-4096.bin: close                      ret=ok 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <RELEASE n5 +1ms
+22:39:33 tool> quit => EOF
+22:39:34 tool> open <tmp>/ntfsmac-case-li2c_zrq/mnt/ms-sync-1048589.bin rw => ok fd=3
+22:39:34 tool> map 1048589 rw => ok
+22:39:34 STEP ms-sync-1048589.bin: open+map                ret=ok 3 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <OPEN n6 +2ms
+22:39:34 tool> mput 0 <tmp>/ntfsmac-case-li2c_zrq/tool-in.bin => ok 1048589
+22:39:35 STEP ms-sync-1048589.bin: mapped write            ret=ok 1048589 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+22:39:35 tool> msync sync => ok
+22:39:36 STEP ms-sync-1048589.bin: msync sync              ret=ok 4 ms | WRITE x2 1048589 B (1048589 B before return), device writes 6 syncs 0 | <WRITE n6 1048576@0 +2ms <WRITE n6 13@1048576 +3ms
+22:39:37 STEP ms-sync-1048589.bin: read(2) after msync     ret=True 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+22:39:37 tool> munmap => ok
+22:39:38 STEP ms-sync-1048589.bin: munmap                  ret=ok 0 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+22:39:38 tool> close => ok
+22:39:39 STEP ms-sync-1048589.bin: close                   ret=ok 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <RELEASE n6 +1ms
+22:39:39 tool> quit => EOF
+22:39:39 tool> open <tmp>/ntfsmac-case-li2c_zrq/mnt/ms-sync-8388608.bin rw => ok fd=3
+22:39:39 tool> map 8388608 rw => ok
+22:39:40 STEP ms-sync-8388608.bin: open+map                ret=ok 3 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <OPEN n7 +2ms
+22:39:40 tool> mput 0 <tmp>/ntfsmac-case-li2c_zrq/tool-in.bin => ok 8388608
+22:39:41 STEP ms-sync-8388608.bin: mapped write            ret=ok 8388608 8 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+22:39:41 tool> msync sync => ok
+22:39:42 STEP ms-sync-8388608.bin: msync sync              ret=ok 13 ms | WRITE x8 8388608 B (8388608 B before return), device writes 24 syncs 0 | <WRITE n7 1048576@0 +2ms <WRITE n7 1048576@1048576 +4ms <WRITE n7 1048576@2097152 +5ms <WRITE n7 1048576@3145728 +7ms <WRITE n7 1048576@4194304 +9ms <WRITE n7 1048576@5242880 +10ms <WRITE n7 1048576@6291456 +11ms <WRITE n7 1048576@7340032 +13ms
+22:39:43 STEP ms-sync-8388608.bin: read(2) after msync     ret=True 4 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+22:39:43 tool> munmap => ok
+22:39:44 STEP ms-sync-8388608.bin: munmap                  ret=ok 0 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+22:39:44 tool> close => ok
+22:39:45 STEP ms-sync-8388608.bin: close                   ret=ok 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <RELEASE n7 +1ms
+22:39:45 tool> quit => EOF
+22:39:45 tool> open <tmp>/ntfsmac-case-li2c_zrq/mnt/ms-async-4096.bin rw => ok fd=3
+22:39:45 tool> map 4096 rw => ok
+22:39:46 STEP ms-async-4096.bin: open+map                  ret=ok 3 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <OPEN n8 +2ms
+22:39:46 tool> mput 0 <tmp>/ntfsmac-case-li2c_zrq/tool-in.bin => ok 4096
+22:39:47 STEP ms-async-4096.bin: mapped write              ret=ok 4096 1 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+22:39:47 tool> msync async => ok
+22:39:48 STEP ms-async-4096.bin: msync async               ret=ok 1 ms | WRITE x1 4096 B (0 B before return), device writes 3 syncs 0 | >WRITE n8 4096@0 +1ms
+22:39:48 STEP ms-async-4096.bin: read(2) after msync       ret=True 1 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+22:39:48 tool> munmap => ok
+22:39:49 STEP ms-async-4096.bin: munmap                    ret=ok 0 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+22:39:49 tool> close => ok
+22:39:51 STEP ms-async-4096.bin: close                     ret=ok 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <RELEASE n8 +1ms
+22:39:51 tool> quit => EOF
+22:39:51 tool> open <tmp>/ntfsmac-case-li2c_zrq/mnt/ms-async-1048589.bin rw => ok fd=3
+22:39:51 tool> map 1048589 rw => ok
+22:39:52 STEP ms-async-1048589.bin: open+map               ret=ok 3 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <OPEN n9 +2ms
+22:39:52 tool> mput 0 <tmp>/ntfsmac-case-li2c_zrq/tool-in.bin => ok 1048589
+22:39:53 STEP ms-async-1048589.bin: mapped write           ret=ok 1048589 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+22:39:53 tool> msync async => ok
+22:39:54 STEP ms-async-1048589.bin: msync async            ret=ok 0 ms | WRITE x2 1048589 B (0 B before return), device writes 6 syncs 0 | >WRITE n9 1048576@0 +2ms >WRITE n9 13@1048576 +3ms
+22:39:54 STEP ms-async-1048589.bin: read(2) after msync    ret=True 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+22:39:54 tool> munmap => ok
+22:39:55 STEP ms-async-1048589.bin: munmap                 ret=ok 0 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+22:39:55 tool> close => ok
+22:39:56 STEP ms-async-1048589.bin: close                  ret=ok 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <RELEASE n9 +1ms
+22:39:56 tool> quit => EOF
+22:39:57 tool> open <tmp>/ntfsmac-case-li2c_zrq/mnt/ms-async-8388608.bin rw => ok fd=3
+22:39:57 tool> map 8388608 rw => ok
+22:39:58 STEP ms-async-8388608.bin: open+map               ret=ok 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <OPEN n10 +1ms
+22:39:58 tool> mput 0 <tmp>/ntfsmac-case-li2c_zrq/tool-in.bin => ok 8388608
+22:39:59 STEP ms-async-8388608.bin: mapped write           ret=ok 8388608 10 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+22:39:59 tool> msync async => ok
+22:40:00 STEP ms-async-8388608.bin: msync async            ret=ok 2 ms | WRITE x8 8388608 B (0 B before return), device writes 24 syncs 0 | >WRITE n10 1048576@0 +2ms >WRITE n10 1048576@1048576 +3ms >WRITE n10 1048576@2097152 +4ms >WRITE n10 1048576@3145728 +5ms >WRITE n10 1048576@4194304 +6ms >WRITE n10 1048576@5242880 +7ms >WRITE n10 1048576@6291456 +8ms >WRITE n10 1048576@7340032 +9ms
+22:40:00 STEP ms-async-8388608.bin: read(2) after msync    ret=True 4 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+22:40:00 tool> munmap => ok
+22:40:01 STEP ms-async-8388608.bin: munmap                 ret=ok 0 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | 
+22:40:01 tool> close => ok
+22:40:02 STEP ms-async-8388608.bin: close                  ret=ok 2 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 0 | <RELEASE n10 +1ms
+22:40:02 tool> quit => EOF
+22:40:02 /sbin/umount <tmp>/ntfsmac-case-li2c_zrq/mnt -> rc=0 
+22:40:03 STEP clean unmount                                ret=None 52 ms | WRITE x0 0 B (0 B before return), device writes 0 syncs 1 | <DESTROY n1 +18ms
+22:40:03 $ <home>/ntfsmac/deps/bin/ntfsfix -n <tmp>/ntfsmac-case-li2c_zrq/vol.img -> rc=0
+22:40:03 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition <tmp>/ntfsmac-case-li2c_zrq/vol.img was processed successfully.
+22:40:04 mount table clear for <tmp>/ntfsmac-case-li2c_zrq/mnt after 0.01 s, settled 1.0 s
+22:40:04 worker: <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,no_detach,debug,ro <tmp>/ntfsmac-case-li2c_zrq/vol.img <tmp>/ntfsmac-case-li2c_zrq/mnt
+22:40:07 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-li2c_zrq/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+22:40:10 /sbin/umount <tmp>/ntfsmac-case-li2c_zrq/mnt -> rc=0 
+22:40:10 end I-MMAP-02: pass

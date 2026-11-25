@@ -1,0 +1,444 @@
+{
+ "builder_optstr": "backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022",
+ "dump": {
+  ".fseventsd": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134400347939359320,
+    "crtime": 134400347939349429,
+    "ctime": 134400347939389120,
+    "mtime": 134400347939389120
+   },
+   "xattrs": {}
+  },
+  ".fseventsd/fseventsd-uuid": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "9f6a10efb6c5b358beab98744f488e2e8ce68544208c452ce43a7d4dfb55015c",
+   "size": 36,
+   "t": "f",
+   "times": {
+    "atime": 134400347939389060,
+    "crtime": 134400347939387662,
+    "ctime": 134400347939456290,
+    "mtime": 134400347939456290
+   },
+   "xattrs": {}
+  },
+  "a": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134400347940077950,
+    "crtime": 134400347940076061,
+    "ctime": 134400347941430710,
+    "mtime": 134400347941430710
+   },
+   "xattrs": {}
+  },
+  "a/sub": {
+   "attrib": "0x00000020",
+   "blocks": 8192,
+   "group": null,
+   "nlink": 1,
+   "sha": "e07966eb88541e2ed71040294fed4485ff90faabda251124ffea74697317cc16",
+   "size": 5000,
+   "t": "f",
+   "times": {
+    "atime": 134400347940123960,
+    "crtime": 134400347940121918,
+    "ctime": 134400347941430890,
+    "mtime": 134400347940133400
+   },
+   "xattrs": {}
+  },
+  "b": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134400347940090120,
+    "crtime": 134400347940088566,
+    "ctime": 134400347941430900,
+    "mtime": 134400347941430900
+   },
+   "xattrs": {}
+  },
+  "b/empty-target": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134400347940101280,
+    "crtime": 134400347940099793,
+    "ctime": 134400347941182960,
+    "mtime": 134400347940713830
+   },
+   "xattrs": {}
+  },
+  "b/keep": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "9fe9e229dca7f42d0d61163e97fc811e6db4852553257f97cc9c2032c4e3e2aa",
+   "size": 10,
+   "t": "f",
+   "times": {
+    "atime": 134400347941197270,
+    "crtime": 134400347941195661,
+    "ctime": 134400347941271440,
+    "mtime": 134400347941205970
+   },
+   "xattrs": {}
+  },
+  "b/over": {
+   "attrib": "0x00000020",
+   "blocks": 8192,
+   "group": null,
+   "nlink": 1,
+   "sha": "2be23edd83bfb78110657b651fa6858c4f9c7c3a9fdd5b1e1c285114b18efd1d",
+   "size": 4444,
+   "t": "f",
+   "times": {
+    "atime": 134400347940223380,
+    "crtime": 134400347940221957,
+    "ctime": 134400347940231140,
+    "mtime": 134400347940231140
+   },
+   "xattrs": {}
+  },
+  "b/z": {
+   "attrib": "0x00000020",
+   "blocks": 73728,
+   "group": null,
+   "nlink": 1,
+   "sha": "113abf41b34851dd183c2f9e6c8af08caaef27e2294bed6067efd395ac496685",
+   "size": 70000,
+   "t": "f",
+   "times": {
+    "atime": 134400347940147220,
+    "crtime": 134400347940145847,
+    "ctime": 134400347940713830,
+    "mtime": 134400347940188680
+   },
+   "xattrs": {}
+  },
+  "d": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134400347941282210,
+    "crtime": 134400347941280882,
+    "ctime": 134400347941396550,
+    "mtime": 134400347941396550
+   },
+   "xattrs": {}
+  },
+  "d/f1.renamed": {
+   "attrib": "0x00000020",
+   "blocks": 512,
+   "group": null,
+   "nlink": 1,
+   "sha": "7fc93372d10b4c4ae2b7e09680ebf09c2f76bbfa19e579a2e5ebc913b136e324",
+   "size": 200,
+   "t": "f",
+   "times": {
+    "atime": 134400347941291910,
+    "crtime": 134400347941290480,
+    "ctime": 134400347941396550,
+    "mtime": 134400347941299700
+   },
+   "xattrs": {}
+  },
+  "d/f2": {
+   "attrib": "0x00000020",
+   "blocks": 73728,
+   "group": null,
+   "nlink": 1,
+   "sha": "698785bb5951277b7919db6e06f5b1790f8dc0604cdb7432f24d2d21f7a6b7fe",
+   "size": 70000,
+   "t": "f",
+   "times": {
+    "atime": 134400347941312640,
+    "crtime": 134400347941311244,
+    "ctime": 134400347941356600,
+    "mtime": 134400347941356600
+   },
+   "xattrs": {}
+  },
+  "e": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134400347941439930,
+    "crtime": 134400347941438627,
+    "ctime": 134400347941507620,
+    "mtime": 134400347941507620
+   },
+   "xattrs": {}
+  },
+  "e/e1-renamed": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134400347941448390,
+    "crtime": 134400347941447193,
+    "ctime": 134400347941507620,
+    "mtime": 134400347941456970
+   },
+   "xattrs": {}
+  },
+  "e/e1-renamed/e2": {
+   "attrib": "0x00000030",
+   "group": null,
+   "nlink": 1,
+   "t": "d",
+   "times": {
+    "atime": 134400347941456930,
+    "crtime": 134400347941455671,
+    "ctime": 134400347941488930,
+    "mtime": 134400347941488930
+   },
+   "xattrs": {}
+  },
+  "leaf-up": {
+   "attrib": "0x00000020",
+   "blocks": 8192,
+   "group": null,
+   "nlink": 1,
+   "sha": "a887b9080e4a1f6b7e3c21d4254ae714a482d95c4db400fc1be7ac7427c7b72a",
+   "size": 6000,
+   "t": "f",
+   "times": {
+    "atime": 134400347941465290,
+    "crtime": 134400347941463951,
+    "ctime": 134400347941488930,
+    "mtime": 134400347941471970
+   },
+   "xattrs": {}
+  }
+ },
+ "env": "B",
+ "image_sha256": "bf471d4d50208177f38f4cbc2fa198c060de68ba82c2ad2fb29c492960624616",
+ "image_sha256_in": "bf471d4d50208177f38f4cbc2fa198c060de68ba82c2ad2fb29c492960624616",
+ "image_size": 67108864,
+ "macfuse_version": "5.5.0",
+ "ntfs3g_version": "2026.9.28",
+ "ntfsfix": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition <tmp>/refop02/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "ntfsfix_after_replay": {
+  "out": "Mounting volume... OK\nProcessing of $MFT and $MFTMirr completed successfully.\nChecking the alternate boot sector... OK\nNTFS volume version is 3.1.\nNTFS partition <tmp>/ntfsmac-ref.J6An5b/out/vol.img was processed successfully.\n",
+  "rc": 0
+ },
+ "oplog": [
+  {
+   "i": 0,
+   "op": "mkdir",
+   "path": "a",
+   "rc": "ok"
+  },
+  {
+   "i": 1,
+   "op": "mkdir",
+   "path": "b",
+   "rc": "ok"
+  },
+  {
+   "i": 2,
+   "op": "mkdir",
+   "path": "a/sub",
+   "rc": "ok"
+  },
+  {
+   "i": 3,
+   "op": "mkdir",
+   "path": "b/empty-target",
+   "rc": "ok"
+  },
+  {
+   "i": 4,
+   "op": "create",
+   "path": "a/x",
+   "rc": "ok"
+  },
+  {
+   "i": 5,
+   "op": "create",
+   "path": "a/sub/y",
+   "rc": "ok"
+  },
+  {
+   "i": 6,
+   "op": "create",
+   "path": "b/z",
+   "rc": "ok"
+  },
+  {
+   "i": 7,
+   "op": "create",
+   "path": "b/over",
+   "rc": "ok"
+  },
+  {
+   "i": 8,
+   "op": "rename",
+   "path": "b/x",
+   "rc": "ok"
+  },
+  {
+   "i": 9,
+   "op": "rename",
+   "path": "b/z",
+   "rc": "ok"
+  },
+  {
+   "i": 10,
+   "op": "rename",
+   "path": "b/sub2",
+   "rc": "ok"
+  },
+  {
+   "i": 11,
+   "op": "rename",
+   "path": "b/empty-target",
+   "rc": "ok"
+  },
+  {
+   "i": 12,
+   "op": "create",
+   "path": "b/keep",
+   "rc": "ok"
+  },
+  {
+   "i": 13,
+   "op": "rename",
+   "path": "b/keep with space",
+   "rc": "ok"
+  },
+  {
+   "i": 14,
+   "op": "rename",
+   "path": "b/Keep",
+   "rc": "ok"
+  },
+  {
+   "i": 15,
+   "op": "rename",
+   "path": "b/keep",
+   "rc": "ok"
+  },
+  {
+   "i": 16,
+   "op": "mkdir",
+   "path": "c",
+   "rc": "ok"
+  },
+  {
+   "i": 17,
+   "op": "create",
+   "path": "c/f1",
+   "rc": "ok"
+  },
+  {
+   "i": 18,
+   "op": "create",
+   "path": "c/f2",
+   "rc": "ok"
+  },
+  {
+   "i": 19,
+   "op": "rename",
+   "path": "d",
+   "rc": "ok"
+  },
+  {
+   "i": 20,
+   "op": "rename",
+   "path": "d/f1.renamed",
+   "rc": "ok"
+  },
+  {
+   "i": 21,
+   "op": "rename",
+   "path": "b/over",
+   "rc": "ok"
+  },
+  {
+   "i": 22,
+   "op": "rename",
+   "path": "b/nope",
+   "rc": "ENOENT"
+  },
+  {
+   "i": 23,
+   "op": "rename",
+   "path": "b",
+   "rc": "ENOTEMPTY"
+  },
+  {
+   "i": 24,
+   "op": "rename",
+   "path": "a/sub",
+   "rc": "ok"
+  },
+  {
+   "i": 25,
+   "op": "mkdir",
+   "path": "e",
+   "rc": "ok"
+  },
+  {
+   "i": 26,
+   "op": "mkdir",
+   "path": "e/e1",
+   "rc": "ok"
+  },
+  {
+   "i": 27,
+   "op": "mkdir",
+   "path": "e/e1/e2",
+   "rc": "ok"
+  },
+  {
+   "i": 28,
+   "op": "create",
+   "path": "e/e1/e2/leaf",
+   "rc": "ok"
+  },
+  {
+   "i": 29,
+   "op": "rename",
+   "path": "leaf-up",
+   "rc": "ok"
+  },
+  {
+   "i": 30,
+   "op": "rename",
+   "path": "e/e1-renamed",
+   "rc": "ok"
+  }
+ ],
+ "optstr": "backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022",
+ "os": "Debian GNU/Linux 13 (trixie) aarch64",
+ "t_end": 1795561194.207811,
+ "t_start": 1795561191.032374,
+ "treedump": "d\t.fseventsd\nf\t.fseventsd/fseventsd-uuid\t36\t9f6a10efb6c5b358beab98744f488e2e8ce68544208c452ce43a7d4dfb55015c\nd\ta\nf\ta/sub\t5000\te07966eb88541e2ed71040294fed4485ff90faabda251124ffea74697317cc16\nd\tb\nd\tb/empty-target\nf\tb/keep\t10\t9fe9e229dca7f42d0d61163e97fc811e6db4852553257f97cc9c2032c4e3e2aa\nf\tb/over\t4444\t2be23edd83bfb78110657b651fa6858c4f9c7c3a9fdd5b1e1c285114b18efd1d\nf\tb/z\t70000\t113abf41b34851dd183c2f9e6c8af08caaef27e2294bed6067efd395ac496685\nd\td\nf\td/f1.renamed\t200\t7fc93372d10b4c4ae2b7e09680ebf09c2f76bbfa19e579a2e5ebc913b136e324\nf\td/f2\t70000\t698785bb5951277b7919db6e06f5b1790f8dc0604cdb7432f24d2d21f7a6b7fe\nd\te\nd\te/e1-renamed\nd\te/e1-renamed/e2\nf\tleaf-up\t6000\ta887b9080e4a1f6b7e3c21d4254ae714a482d95c4db400fc1be7ac7427c7b72a\n"
+}

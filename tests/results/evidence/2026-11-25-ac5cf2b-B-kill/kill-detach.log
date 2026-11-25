@@ -1,0 +1,562 @@
+== target detach: 20 repetition(s)
+== detach repetition 1/20
+PASS: detach#1: the volume mounts rw (Mounted rw)
+PASS: detach#1: the journal holds the entry of the rw session
+PASS: detach#1: the writer is still writing at the moment of the yank
+NOTE: detach#1: writer pid 35843 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#1: the yank worked
+PASS: detach#1: the volume row goes away within 90 s
+PASS: detach#1: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#1: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#1 after the kill: row ''; modules: 8569 
+PASS: detach#1: no worker is left within 90 s
+PASS: detach#1: no macfuse mount is left within 90 s
+PASS: detach#1: the mount point directory is gone
+PASS: detach#1: the daemon is still the same process and answers
+PASS: detach#1: no process holds /dev/disk4 within 90 s
+PASS: detach#1: the journal entry stays (the session is not reported clean)
+PASS: detach#1: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#1 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#1 next attach: state (Mounted)
+PASS: detach#1 next attach: mode (ro)
+NOTE: detach#1 next attach: reason 'dirty_flag_journal'
+PASS: detach#1 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#1 next attach: the file synced before the failure is intact (synced-before-detach-1-8307)
+PASS: detach#1 next attach: the journal entry is still there
+PASS: detach#1 next attach: the read-only session left the image unchanged (d8f5075fd9bdc9aadb043338948dea0a9718767d8b59146a6f4bdcdbc91b6221)
+PASS: detach#1: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#1: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 1 PASS 14
+== detach repetition 2/20
+PASS: detach#2: the volume mounts rw (Mounted rw)
+PASS: detach#2: the journal holds the entry of the rw session
+PASS: detach#2: the writer is still writing at the moment of the yank
+NOTE: detach#2: writer pid 36245 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#2: the yank worked
+PASS: detach#2: the volume row goes away within 90 s
+PASS: detach#2: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#2: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#2 after the kill: row ''; modules: 8569 
+PASS: detach#2: no worker is left within 90 s
+PASS: detach#2: no macfuse mount is left within 90 s
+PASS: detach#2: the mount point directory is gone
+PASS: detach#2: the daemon is still the same process and answers
+PASS: detach#2: no process holds /dev/disk4 within 90 s
+PASS: detach#2: the journal entry stays (the session is not reported clean)
+PASS: detach#2: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#2 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#2 next attach: state (Mounted)
+PASS: detach#2 next attach: mode (ro)
+NOTE: detach#2 next attach: reason 'dirty_flag_journal'
+PASS: detach#2 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#2 next attach: the file synced before the failure is intact (synced-before-detach-2-8307)
+PASS: detach#2 next attach: the journal entry is still there
+PASS: detach#2 next attach: the read-only session left the image unchanged (a7f177853e53434eb1c2bca118ef5012537cd9e1e668036ea4904959e662702c)
+PASS: detach#2: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#2: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 2 PASS 14
+== detach repetition 3/20
+PASS: detach#3: the volume mounts rw (Mounted rw)
+PASS: detach#3: the journal holds the entry of the rw session
+PASS: detach#3: the writer is still writing at the moment of the yank
+NOTE: detach#3: writer pid 36641 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#3: the yank worked
+PASS: detach#3: the volume row goes away within 90 s
+PASS: detach#3: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#3: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#3 after the kill: row ''; modules: 8569 
+PASS: detach#3: no worker is left within 90 s
+PASS: detach#3: no macfuse mount is left within 90 s
+PASS: detach#3: the mount point directory is gone
+PASS: detach#3: the daemon is still the same process and answers
+PASS: detach#3: no process holds /dev/disk4 within 90 s
+PASS: detach#3: the journal entry stays (the session is not reported clean)
+PASS: detach#3: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#3 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#3 next attach: state (Mounted)
+PASS: detach#3 next attach: mode (ro)
+NOTE: detach#3 next attach: reason 'dirty_flag_journal'
+PASS: detach#3 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#3 next attach: the file synced before the failure is intact (synced-before-detach-3-8307)
+PASS: detach#3 next attach: the journal entry is still there
+PASS: detach#3 next attach: the read-only session left the image unchanged (495cba1f32343ee492d997c8f31858540b9e5bbe762cb87ccb0561eb555ecb24)
+PASS: detach#3: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#3: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 3 PASS 14
+== detach repetition 4/20
+PASS: detach#4: the volume mounts rw (Mounted rw)
+PASS: detach#4: the journal holds the entry of the rw session
+PASS: detach#4: the writer is still writing at the moment of the yank
+NOTE: detach#4: writer pid 37051 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#4: the yank worked
+PASS: detach#4: the volume row goes away within 90 s
+PASS: detach#4: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#4: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#4 after the kill: row ''; modules: 8569 
+PASS: detach#4: no worker is left within 90 s
+PASS: detach#4: no macfuse mount is left within 90 s
+PASS: detach#4: the mount point directory is gone
+PASS: detach#4: the daemon is still the same process and answers
+PASS: detach#4: no process holds /dev/disk4 within 90 s
+PASS: detach#4: the journal entry stays (the session is not reported clean)
+PASS: detach#4: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#4 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#4 next attach: state (Mounted)
+PASS: detach#4 next attach: mode (ro)
+NOTE: detach#4 next attach: reason 'dirty_flag_journal'
+PASS: detach#4 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#4 next attach: the file synced before the failure is intact (synced-before-detach-4-8307)
+PASS: detach#4 next attach: the journal entry is still there
+PASS: detach#4 next attach: the read-only session left the image unchanged (e361c416145a3a402bfc76aecd83c7a2ca98083ce3815b9f7200218c426d7264)
+PASS: detach#4: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#4: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 4 PASS 15
+== detach repetition 5/20
+PASS: detach#5: the volume mounts rw (Mounted rw)
+PASS: detach#5: the journal holds the entry of the rw session
+PASS: detach#5: the writer is still writing at the moment of the yank
+NOTE: detach#5: writer pid 37454 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#5: the yank worked
+PASS: detach#5: the volume row goes away within 90 s
+PASS: detach#5: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#5: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#5 after the kill: row ''; modules: 8569 
+PASS: detach#5: no worker is left within 90 s
+PASS: detach#5: no macfuse mount is left within 90 s
+PASS: detach#5: the mount point directory is gone
+PASS: detach#5: the daemon is still the same process and answers
+PASS: detach#5: no process holds /dev/disk4 within 90 s
+PASS: detach#5: the journal entry stays (the session is not reported clean)
+PASS: detach#5: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#5 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#5 next attach: state (Mounted)
+PASS: detach#5 next attach: mode (ro)
+NOTE: detach#5 next attach: reason 'dirty_flag_journal'
+PASS: detach#5 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#5 next attach: the file synced before the failure is intact (synced-before-detach-5-8307)
+PASS: detach#5 next attach: the journal entry is still there
+PASS: detach#5 next attach: the read-only session left the image unchanged (e44bee384fa032ba83a86459b0dca692c2b8749d477ba1c7fa91cbe9f0b58d53)
+PASS: detach#5: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#5: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 5 PASS 14
+== detach repetition 6/20
+PASS: detach#6: the volume mounts rw (Mounted rw)
+PASS: detach#6: the journal holds the entry of the rw session
+PASS: detach#6: the writer is still writing at the moment of the yank
+NOTE: detach#6: writer pid 37849 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#6: the yank worked
+PASS: detach#6: the volume row goes away within 90 s
+PASS: detach#6: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#6: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#6 after the kill: row ''; modules: 8569 
+PASS: detach#6: no worker is left within 90 s
+PASS: detach#6: no macfuse mount is left within 90 s
+PASS: detach#6: the mount point directory is gone
+PASS: detach#6: the daemon is still the same process and answers
+PASS: detach#6: no process holds /dev/disk4 within 90 s
+PASS: detach#6: the journal entry stays (the session is not reported clean)
+PASS: detach#6: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#6 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#6 next attach: state (Mounted)
+PASS: detach#6 next attach: mode (ro)
+NOTE: detach#6 next attach: reason 'dirty_flag_journal'
+PASS: detach#6 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#6 next attach: the file synced before the failure is intact (synced-before-detach-6-8307)
+PASS: detach#6 next attach: the journal entry is still there
+PASS: detach#6 next attach: the read-only session left the image unchanged (023f3304dfde753b0a80df7db394052bf374d7990731ab0eef794f31eab0e69b)
+PASS: detach#6: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#6: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 6 PASS 13
+== detach repetition 7/20
+PASS: detach#7: the volume mounts rw (Mounted rw)
+PASS: detach#7: the journal holds the entry of the rw session
+PASS: detach#7: the writer is still writing at the moment of the yank
+NOTE: detach#7: writer pid 38244 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#7: the yank worked
+PASS: detach#7: the volume row goes away within 90 s
+PASS: detach#7: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#7: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#7 after the kill: row ''; modules: 8569 
+PASS: detach#7: no worker is left within 90 s
+PASS: detach#7: no macfuse mount is left within 90 s
+PASS: detach#7: the mount point directory is gone
+PASS: detach#7: the daemon is still the same process and answers
+PASS: detach#7: no process holds /dev/disk4 within 90 s
+PASS: detach#7: the journal entry stays (the session is not reported clean)
+PASS: detach#7: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#7 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#7 next attach: state (Mounted)
+PASS: detach#7 next attach: mode (ro)
+NOTE: detach#7 next attach: reason 'dirty_flag_journal'
+PASS: detach#7 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#7 next attach: the file synced before the failure is intact (synced-before-detach-7-8307)
+PASS: detach#7 next attach: the journal entry is still there
+PASS: detach#7 next attach: the read-only session left the image unchanged (139a1410c34acd61b19fdc78f2f4fe9d39e8fe6dfe66e4a5da0ba473d75eb456)
+PASS: detach#7: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#7: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 7 PASS 15
+== detach repetition 8/20
+PASS: detach#8: the volume mounts rw (Mounted rw)
+PASS: detach#8: the journal holds the entry of the rw session
+PASS: detach#8: the writer is still writing at the moment of the yank
+NOTE: detach#8: writer pid 38663 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#8: the yank worked
+PASS: detach#8: the volume row goes away within 90 s
+PASS: detach#8: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#8: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#8 after the kill: row ''; modules: 8569 
+PASS: detach#8: no worker is left within 90 s
+PASS: detach#8: no macfuse mount is left within 90 s
+PASS: detach#8: the mount point directory is gone
+PASS: detach#8: the daemon is still the same process and answers
+PASS: detach#8: no process holds /dev/disk4 within 90 s
+PASS: detach#8: the journal entry stays (the session is not reported clean)
+PASS: detach#8: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#8 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#8 next attach: state (Mounted)
+PASS: detach#8 next attach: mode (ro)
+NOTE: detach#8 next attach: reason 'dirty_flag_journal'
+PASS: detach#8 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#8 next attach: the file synced before the failure is intact (synced-before-detach-8-8307)
+PASS: detach#8 next attach: the journal entry is still there
+PASS: detach#8 next attach: the read-only session left the image unchanged (d2c68720d7ac54e30d3a3596886d962c068835c606401dbae0aad68833c590d8)
+PASS: detach#8: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#8: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 8 PASS 15
+== detach repetition 9/20
+PASS: detach#9: the volume mounts rw (Mounted rw)
+PASS: detach#9: the journal holds the entry of the rw session
+PASS: detach#9: the writer is still writing at the moment of the yank
+NOTE: detach#9: writer pid 39066 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#9: the yank worked
+PASS: detach#9: the volume row goes away within 90 s
+PASS: detach#9: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#9: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#9 after the kill: row ''; modules: 8569 
+PASS: detach#9: no worker is left within 90 s
+PASS: detach#9: no macfuse mount is left within 90 s
+PASS: detach#9: the mount point directory is gone
+PASS: detach#9: the daemon is still the same process and answers
+PASS: detach#9: no process holds /dev/disk4 within 90 s
+PASS: detach#9: the journal entry stays (the session is not reported clean)
+PASS: detach#9: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#9 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#9 next attach: state (Mounted)
+PASS: detach#9 next attach: mode (ro)
+NOTE: detach#9 next attach: reason 'dirty_flag_journal'
+PASS: detach#9 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#9 next attach: the file synced before the failure is intact (synced-before-detach-9-8307)
+PASS: detach#9 next attach: the journal entry is still there
+PASS: detach#9 next attach: the read-only session left the image unchanged (56d4df1ef65297aace39090bfa7179b5d403a5ab8bddccee6804c2ca028870d8)
+PASS: detach#9: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#9: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 9 PASS 15
+== detach repetition 10/20
+PASS: detach#10: the volume mounts rw (Mounted rw)
+PASS: detach#10: the journal holds the entry of the rw session
+PASS: detach#10: the writer is still writing at the moment of the yank
+NOTE: detach#10: writer pid 39470 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#10: the yank worked
+PASS: detach#10: the volume row goes away within 90 s
+PASS: detach#10: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#10: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#10 after the kill: row ''; modules: 8569 
+PASS: detach#10: no worker is left within 90 s
+PASS: detach#10: no macfuse mount is left within 90 s
+PASS: detach#10: the mount point directory is gone
+PASS: detach#10: the daemon is still the same process and answers
+PASS: detach#10: no process holds /dev/disk4 within 90 s
+PASS: detach#10: the journal entry stays (the session is not reported clean)
+PASS: detach#10: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#10 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#10 next attach: state (Mounted)
+PASS: detach#10 next attach: mode (ro)
+NOTE: detach#10 next attach: reason 'dirty_flag_journal'
+PASS: detach#10 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#10 next attach: the file synced before the failure is intact (synced-before-detach-10-8307)
+PASS: detach#10 next attach: the journal entry is still there
+PASS: detach#10 next attach: the read-only session left the image unchanged (86b44837b7af9ff675095793d5f595b08f3fac2a15f5cc930549ebe7145ced0a)
+PASS: detach#10: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#10: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 10 PASS 14
+== detach repetition 11/20
+PASS: detach#11: the volume mounts rw (Mounted rw)
+PASS: detach#11: the journal holds the entry of the rw session
+PASS: detach#11: the writer is still writing at the moment of the yank
+NOTE: detach#11: writer pid 39872 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#11: the yank worked
+PASS: detach#11: the volume row goes away within 90 s
+PASS: detach#11: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#11: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#11 after the kill: row ''; modules: 8569 
+PASS: detach#11: no worker is left within 90 s
+PASS: detach#11: no macfuse mount is left within 90 s
+PASS: detach#11: the mount point directory is gone
+PASS: detach#11: the daemon is still the same process and answers
+PASS: detach#11: no process holds /dev/disk4 within 90 s
+PASS: detach#11: the journal entry stays (the session is not reported clean)
+PASS: detach#11: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#11 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#11 next attach: state (Mounted)
+PASS: detach#11 next attach: mode (ro)
+NOTE: detach#11 next attach: reason 'dirty_flag_journal'
+PASS: detach#11 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#11 next attach: the file synced before the failure is intact (synced-before-detach-11-8307)
+PASS: detach#11 next attach: the journal entry is still there
+PASS: detach#11 next attach: the read-only session left the image unchanged (a07857eec3d16763e5c68e980049abe48a6ab0ba0fe513727d7ab167e70b2925)
+PASS: detach#11: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#11: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 11 PASS 15
+== detach repetition 12/20
+PASS: detach#12: the volume mounts rw (Mounted rw)
+PASS: detach#12: the journal holds the entry of the rw session
+PASS: detach#12: the writer is still writing at the moment of the yank
+NOTE: detach#12: writer pid 40275 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#12: the yank worked
+PASS: detach#12: the volume row goes away within 90 s
+PASS: detach#12: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#12: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#12 after the kill: row ''; modules: 8569 
+PASS: detach#12: no worker is left within 90 s
+PASS: detach#12: no macfuse mount is left within 90 s
+PASS: detach#12: the mount point directory is gone
+PASS: detach#12: the daemon is still the same process and answers
+PASS: detach#12: no process holds /dev/disk4 within 90 s
+PASS: detach#12: the journal entry stays (the session is not reported clean)
+PASS: detach#12: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#12 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#12 next attach: state (Mounted)
+PASS: detach#12 next attach: mode (ro)
+NOTE: detach#12 next attach: reason 'dirty_flag_journal'
+PASS: detach#12 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#12 next attach: the file synced before the failure is intact (synced-before-detach-12-8307)
+PASS: detach#12 next attach: the journal entry is still there
+PASS: detach#12 next attach: the read-only session left the image unchanged (69e7ff14b823aafd4a9f1b5c6637b37a37485ae9a8c5d86551238ee00b1b8259)
+PASS: detach#12: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#12: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 12 PASS 15
+== detach repetition 13/20
+PASS: detach#13: the volume mounts rw (Mounted rw)
+PASS: detach#13: the journal holds the entry of the rw session
+PASS: detach#13: the writer is still writing at the moment of the yank
+NOTE: detach#13: writer pid 40690 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#13: the yank worked
+PASS: detach#13: the volume row goes away within 90 s
+PASS: detach#13: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#13: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#13 after the kill: row ''; modules: 8569 
+PASS: detach#13: no worker is left within 90 s
+PASS: detach#13: no macfuse mount is left within 90 s
+PASS: detach#13: the mount point directory is gone
+PASS: detach#13: the daemon is still the same process and answers
+PASS: detach#13: no process holds /dev/disk4 within 90 s
+PASS: detach#13: the journal entry stays (the session is not reported clean)
+PASS: detach#13: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#13 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#13 next attach: state (Mounted)
+PASS: detach#13 next attach: mode (ro)
+NOTE: detach#13 next attach: reason 'dirty_flag_journal'
+PASS: detach#13 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#13 next attach: the file synced before the failure is intact (synced-before-detach-13-8307)
+PASS: detach#13 next attach: the journal entry is still there
+PASS: detach#13 next attach: the read-only session left the image unchanged (9be62aeedf02548a9bea95af110c29e75d54913661eaed0504a07ce4270400bf)
+PASS: detach#13: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#13: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 13 PASS 15
+== detach repetition 14/20
+PASS: detach#14: the volume mounts rw (Mounted rw)
+PASS: detach#14: the journal holds the entry of the rw session
+PASS: detach#14: the writer is still writing at the moment of the yank
+NOTE: detach#14: writer pid 41093 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#14: the yank worked
+PASS: detach#14: the volume row goes away within 90 s
+PASS: detach#14: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#14: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#14 after the kill: row ''; modules: 8569 
+PASS: detach#14: no worker is left within 90 s
+PASS: detach#14: no macfuse mount is left within 90 s
+PASS: detach#14: the mount point directory is gone
+PASS: detach#14: the daemon is still the same process and answers
+PASS: detach#14: no process holds /dev/disk4 within 90 s
+PASS: detach#14: the journal entry stays (the session is not reported clean)
+PASS: detach#14: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#14 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#14 next attach: state (Mounted)
+PASS: detach#14 next attach: mode (ro)
+NOTE: detach#14 next attach: reason 'dirty_flag_journal'
+PASS: detach#14 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#14 next attach: the file synced before the failure is intact (synced-before-detach-14-8307)
+PASS: detach#14 next attach: the journal entry is still there
+PASS: detach#14 next attach: the read-only session left the image unchanged (2e78d7359767b4ff53d410f271fbfbb00a94d71a340d133a6a88ca150ae9b7f5)
+PASS: detach#14: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#14: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 14 PASS 14
+== detach repetition 15/20
+PASS: detach#15: the volume mounts rw (Mounted rw)
+PASS: detach#15: the journal holds the entry of the rw session
+PASS: detach#15: the writer is still writing at the moment of the yank
+NOTE: detach#15: writer pid 41503 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#15: the yank worked
+PASS: detach#15: the volume row goes away within 90 s
+PASS: detach#15: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#15: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#15 after the kill: row ''; modules: 8569 
+PASS: detach#15: no worker is left within 90 s
+PASS: detach#15: no macfuse mount is left within 90 s
+PASS: detach#15: the mount point directory is gone
+PASS: detach#15: the daemon is still the same process and answers
+PASS: detach#15: no process holds /dev/disk4 within 90 s
+PASS: detach#15: the journal entry stays (the session is not reported clean)
+PASS: detach#15: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#15 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#15 next attach: state (Mounted)
+PASS: detach#15 next attach: mode (ro)
+NOTE: detach#15 next attach: reason 'dirty_flag_journal'
+PASS: detach#15 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#15 next attach: the file synced before the failure is intact (synced-before-detach-15-8307)
+PASS: detach#15 next attach: the journal entry is still there
+PASS: detach#15 next attach: the read-only session left the image unchanged (58df737158dc1c851073e4e44495cd4b5ebb8ea6745eed26637dd03edfd35ce4)
+PASS: detach#15: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#15: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 15 PASS 17
+== detach repetition 16/20
+PASS: detach#16: the volume mounts rw (Mounted rw)
+PASS: detach#16: the journal holds the entry of the rw session
+PASS: detach#16: the writer is still writing at the moment of the yank
+NOTE: detach#16: writer pid 41913 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#16: the yank worked
+PASS: detach#16: the volume row goes away within 90 s
+PASS: detach#16: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#16: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#16 after the kill: row ''; modules: 8569 
+PASS: detach#16: no worker is left within 90 s
+PASS: detach#16: no macfuse mount is left within 90 s
+PASS: detach#16: the mount point directory is gone
+PASS: detach#16: the daemon is still the same process and answers
+PASS: detach#16: no process holds /dev/disk4 within 90 s
+PASS: detach#16: the journal entry stays (the session is not reported clean)
+PASS: detach#16: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#16 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#16 next attach: state (Mounted)
+PASS: detach#16 next attach: mode (ro)
+NOTE: detach#16 next attach: reason 'dirty_flag_journal'
+PASS: detach#16 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#16 next attach: the file synced before the failure is intact (synced-before-detach-16-8307)
+PASS: detach#16 next attach: the journal entry is still there
+PASS: detach#16 next attach: the read-only session left the image unchanged (7b6c55fe26aa4a3267070353cfafa0b4a9f34e786342bfb2d9a6ff8b7f684e53)
+PASS: detach#16: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#16: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 16 PASS 15
+== detach repetition 17/20
+PASS: detach#17: the volume mounts rw (Mounted rw)
+PASS: detach#17: the journal holds the entry of the rw session
+PASS: detach#17: the writer is still writing at the moment of the yank
+NOTE: detach#17: writer pid 42315 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#17: the yank worked
+PASS: detach#17: the volume row goes away within 90 s
+PASS: detach#17: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#17: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#17 after the kill: row ''; modules: 8569 
+PASS: detach#17: no worker is left within 90 s
+PASS: detach#17: no macfuse mount is left within 90 s
+PASS: detach#17: the mount point directory is gone
+PASS: detach#17: the daemon is still the same process and answers
+PASS: detach#17: no process holds /dev/disk4 within 90 s
+PASS: detach#17: the journal entry stays (the session is not reported clean)
+PASS: detach#17: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#17 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#17 next attach: state (Mounted)
+PASS: detach#17 next attach: mode (ro)
+NOTE: detach#17 next attach: reason 'dirty_flag_journal'
+PASS: detach#17 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#17 next attach: the file synced before the failure is intact (synced-before-detach-17-8307)
+PASS: detach#17 next attach: the journal entry is still there
+PASS: detach#17 next attach: the read-only session left the image unchanged (e9dea3c344c4d92742a6caf446de7bfb2ea0b84402dc532dcd55997916dc6363)
+PASS: detach#17: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#17: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 17 PASS 13
+== detach repetition 18/20
+PASS: detach#18: the volume mounts rw (Mounted rw)
+PASS: detach#18: the journal holds the entry of the rw session
+PASS: detach#18: the writer is still writing at the moment of the yank
+NOTE: detach#18: writer pid 42711 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#18: the yank worked
+PASS: detach#18: the volume row goes away within 90 s
+PASS: detach#18: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#18: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#18 after the kill: row ''; modules: 8569 
+PASS: detach#18: no worker is left within 90 s
+PASS: detach#18: no macfuse mount is left within 90 s
+PASS: detach#18: the mount point directory is gone
+PASS: detach#18: the daemon is still the same process and answers
+PASS: detach#18: no process holds /dev/disk4 within 90 s
+PASS: detach#18: the journal entry stays (the session is not reported clean)
+PASS: detach#18: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#18 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#18 next attach: state (Mounted)
+PASS: detach#18 next attach: mode (ro)
+NOTE: detach#18 next attach: reason 'dirty_flag_journal'
+PASS: detach#18 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#18 next attach: the file synced before the failure is intact (synced-before-detach-18-8307)
+PASS: detach#18 next attach: the journal entry is still there
+PASS: detach#18 next attach: the read-only session left the image unchanged (31bcbb1ca1ebbc906bea00faf1982c4c3ed162749b1ec11bb0461d2a676e8383)
+PASS: detach#18: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#18: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 18 PASS 14
+== detach repetition 19/20
+PASS: detach#19: the volume mounts rw (Mounted rw)
+PASS: detach#19: the journal holds the entry of the rw session
+PASS: detach#19: the writer is still writing at the moment of the yank
+NOTE: detach#19: writer pid 43113 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#19: the yank worked
+PASS: detach#19: the volume row goes away within 90 s
+PASS: detach#19: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#19: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#19 after the kill: row ''; modules: 8569 
+PASS: detach#19: no worker is left within 90 s
+PASS: detach#19: no macfuse mount is left within 90 s
+PASS: detach#19: the mount point directory is gone
+PASS: detach#19: the daemon is still the same process and answers
+PASS: detach#19: no process holds /dev/disk4 within 90 s
+PASS: detach#19: the journal entry stays (the session is not reported clean)
+PASS: detach#19: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#19 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#19 next attach: state (Mounted)
+PASS: detach#19 next attach: mode (ro)
+NOTE: detach#19 next attach: reason 'dirty_flag_journal'
+PASS: detach#19 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#19 next attach: the file synced before the failure is intact (synced-before-detach-19-8307)
+PASS: detach#19 next attach: the journal entry is still there
+PASS: detach#19 next attach: the read-only session left the image unchanged (b261f002e447bd9205166c792d61ef92202aca5a88a1fbc43e418591f3c3ed46)
+PASS: detach#19: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#19: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 19 PASS 14
+== detach repetition 20/20
+PASS: detach#20: the volume mounts rw (Mounted rw)
+PASS: detach#20: the journal holds the entry of the rw session
+PASS: detach#20: the writer is still writing at the moment of the yank
+NOTE: detach#20: writer pid 43508 is running; the image is yanked (the process that serves it is killed)
+PASS: detach#20: the yank worked
+PASS: detach#20: the volume row goes away within 90 s
+PASS: detach#20: the writer ended with a write error after the yank (exit 6 = errno)
+PASS: detach#20: the session is settled for the daemon (volume gone or not transient, no volmark running) within 90 s
+-- detach#20 after the kill: row ''; modules: 8569 
+PASS: detach#20: no worker is left within 90 s
+PASS: detach#20: no macfuse mount is left within 90 s
+PASS: detach#20: the mount point directory is gone
+PASS: detach#20: the daemon is still the same process and answers
+PASS: detach#20: no process holds /dev/disk4 within 90 s
+PASS: detach#20: the journal entry stays (the session is not reported clean)
+PASS: detach#20: the dirty flag is still set on the image after the kill (flags_before=0x0001 flags_after=0x0001 mft=0x0001 mirror=0x0001)
+-- detach#20 next attach (disk4): disk4  clean64m4k  Mounted  ro     /Volumes/clean64m4k  dirty_flag_journal
+PASS: detach#20 next attach: state (Mounted)
+PASS: detach#20 next attach: mode (ro)
+NOTE: detach#20 next attach: reason 'dirty_flag_journal'
+PASS: detach#20 next attach: the reason is unclean_session or dirty_flag_journal (the volume was left open by this Mac)
+PASS: detach#20 next attach: the file synced before the failure is intact (synced-before-detach-20-8307)
+PASS: detach#20 next attach: the journal entry is still there
+PASS: detach#20 next attach: the read-only session left the image unchanged (0628623ee29098f7cb463880060c5044c6e9adb7bec2b94440634b4a61cbb997)
+PASS: detach#20: nothing is left behind after the repetition (no worker, no macfuse mount)
+PASS: detach#20: no module instance serves a volume any more, at most one instance remains (now: 8569 )
+REP detach 20 PASS 15
+TARGET detach reps=20 failed=0

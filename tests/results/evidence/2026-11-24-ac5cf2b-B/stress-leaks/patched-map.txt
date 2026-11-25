@@ -1,0 +1,11 @@
+acls.c: 1 changed range(s), functions: ntfs_valid_descr
+bootsect.c: 7 changed range(s), functions: ntfs_boot_sector_parse
+device.h: 1 changed range(s), functions: -
+faultio.h: 1 changed range(s), functions: faultio_drop, faultio_fsync, faultio_init, faultio_number, faultio_power_lost, faultio_publish, faultio_real, faultio_report, faultio_trace, faultio_write
+fuse.c: 1 changed range(s), functions: readdir_fill
+inode.c: 2 changed range(s), functions: ntfs_inode_sync_file_name
+ntfs-3g.c: 30 changed range(s), functions: inherited_blkdev, main, ntfs_close, ntfs_fuse_destroy2, ntfs_fuse_filler, ntfs_fuse_opendir_snap, ntfs_fuse_readdir, ntfs_fuse_releasedir_snap, ntfs_fuse_removexattr, ntfs_fuse_setxattr, ntfs_fuse_snap_add, ntfs_fuse_snap_find, ntfs_fuse_snap_serve, ntfs_macfuse_getxtimes, ntfs_macfuse_setchgtime, ntfs_macfuse_setcrtime
+ntfs-3g_common.c: 1 changed range(s), functions: ntfs_parse_options
+reparse.c: 1 changed range(s), functions: ntfs_possible_symlink
+security.c: 7 changed range(s), functions: retrievesecurityattr, sds_record_within, setsecurityattr
+unix_io.c: 19 changed range(s), functions: ntfs_device_inherited_fd, ntfs_device_unix_io_close, ntfs_device_unix_io_open, ntfs_device_unix_io_pwrite, ntfs_device_unix_io_sync, ntfs_device_unix_io_write, ntfs_fsync, ntfsmac_count, ntfsmac_errfd_error, ntfsmac_errfd_init, ntfsmac_errfd_put, ntfsmac_errfd_rec, ntfsmac_errfd_session, ntfsmac_errfd_unmounted, ntfsmac_errfd_warn, ntfsmac_unix_io_close, ntfsmac_unix_io_pwrite, ntfsmac_unix_io_sync, ntfsmac_unix_io_write

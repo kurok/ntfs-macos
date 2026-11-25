@@ -1,0 +1,33 @@
+22:33:23 start I-FUNC-02 (env B)
+22:33:23 $ <home>/ntfsmac/deps/sbin/mkntfs -F -Q -L ntfsmac <tmp>/ntfsmac-case-c8bq5ds1/vol.img -> rc=0
+22:33:23 Cluster size has been automatically set to 4096 bytes.
+Creating NTFS volume structures.
+mkntfs completed successfully. Have a nice day.
+22:33:23 stderr: <tmp>/ntfsmac-case-c8bq5ds1/vol.img is not a block device.
+mkntfs forced anyway.
+The sector size was not specified for <tmp>/ntfsmac-case-c8bq5ds1/vol.img and it could not be obtained automatically.  It has been set to 512 bytes.
+The partition start sector was not specified for <tmp>/ntfsmac-case-c8bq5ds1/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of sectors per track was not specified for <tmp>/ntfsmac-case-c8bq5ds1/vol.img and it could not be obtained automatically.  It has been set to 0.
+The number of heads was not specified for <tmp>/ntfsmac-case-c8bq5ds1/vol.img and it could not be obtained automatically.  It has been set to 0.
+To boot from a device, Windows needs the 'partition start sector', the 'sectors per track' and the 'number of heads' to be set.
+Windows will not be able to boot from this device.
+22:33:23 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 <tmp>/ntfsmac-case-c8bq5ds1/vol.img <tmp>/ntfsmac-case-c8bq5ds1/mnt -> rc=0
+22:33:26 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-c8bq5ds1/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:33:26 $ sync -> rc=0
+22:33:26 $ /sbin/umount <tmp>/ntfsmac-case-c8bq5ds1/mnt -> rc=0
+22:33:26 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20 <tmp>/ntfsmac-case-c8bq5ds1/vol.img <tmp>/ntfsmac-case-c8bq5ds1/mnt -> rc=0
+22:33:29 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-c8bq5ds1/mnt (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+22:33:29 $ sync -> rc=0
+22:33:29 $ /sbin/umount <tmp>/ntfsmac-case-c8bq5ds1/mnt -> rc=0
+22:33:29 $ <home>/ntfsmac/deps/bin/ntfsfix -n <tmp>/ntfsmac-case-c8bq5ds1/vol.img -> rc=0
+22:33:29 Mounting volume... OK
+Processing of $MFT and $MFTMirr completed successfully.
+Checking the alternate boot sector... OK
+NTFS volume version is 3.1.
+NTFS partition <tmp>/ntfsmac-case-c8bq5ds1/vol.img was processed successfully.
+22:33:29 $ <home>/ntfsmac/deps/bin/ntfs-3g -o backend=fskit,local,norecover,uid=501,gid=20,ro <tmp>/ntfsmac-case-c8bq5ds1/vol.img <tmp>/ntfsmac-case-c8bq5ds1/mnt -> rc=0
+22:33:32 mount: /dev/disk6s1 on <tmp>/ntfsmac-case-c8bq5ds1/mnt (macfuse, local, nodev, nosuid, read-only, noowners, noatime, fskit, mounted by admin)
+22:33:32 $ sync -> rc=0
+22:33:32 $ /sbin/umount <tmp>/ntfsmac-case-c8bq5ds1/mnt -> rc=0
+22:33:32 remount check (I-FUNC-02): 2 files, 0 directories compared, 0 problems
+22:33:32 end I-FUNC-02: pass

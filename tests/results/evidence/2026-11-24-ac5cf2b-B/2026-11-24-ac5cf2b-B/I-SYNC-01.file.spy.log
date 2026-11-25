@@ -1,0 +1,9 @@
+1795560816.408070 open pid=29338 fd=3 path=/dev/null
+1795560816.408222 open pid=29338 fd=3 path=<tmp>/ntfsmac-case-m7jshswv/file.img
+1795560816.408302 open pid=29338 fd=5 path=/dev/null
+1795560816.411676 open pid=29338 fd=5 path=/dev/null
+1795560819.909558 fullfsync pid=29338 fd=3 path=<tmp>/ntfsmac-case-m7jshswv/file.img rc=0 errno=0 us=5175 writes=62 bytes=162810
+1795560823.069053 fullfsync pid=29338 fd=3 path=<tmp>/ntfsmac-case-m7jshswv/file.img rc=0 errno=0 us=10821 writes=18 bytes=45057
+1795560825.652846 fullfsync pid=29338 fd=3 path=<tmp>/ntfsmac-case-m7jshswv/file.img rc=0 errno=0 us=10728 writes=6 bytes=20480
+1795560828.205855 fullfsync pid=29338 fd=3 path=<tmp>/ntfsmac-case-m7jshswv/file.img rc=0 errno=0 us=12062 writes=6 bytes=24576
+1795560832.053080 fullfsync pid=29338 fd=3 path=<tmp>/ntfsmac-case-m7jshswv/file.img rc=0 errno=0 us=10845 writes=6 bytes=28672

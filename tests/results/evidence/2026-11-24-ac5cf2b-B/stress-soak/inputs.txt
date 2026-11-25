@@ -1,0 +1,6 @@
+deps_tar=none
+fixtures_dir=<tmp>//soak.IFrVrp/fixtures
+fixtures_key=8833f0e75b3a8764b4aadd7f9adab9256c066571c3504bee081ef447a401b4d2
+fixtures_dirty=0
+fixture.clean-64m-4k.img=f6ba7fed4604093373876e764d718ae235f38e67b85a0c7e5bf183441918ffdd (67108864 bytes)
+fixtures_manifest_sha256=f7b138fcd0d503af0b18b1fd894d85608d397f7bee69363c24d71de1f88b50ae

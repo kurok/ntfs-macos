@@ -1,0 +1,587 @@
+{
+  "schema": "ntfsmac-test-result/1",
+  "git_sha": "ac5cf2b5dab778a340bde623dbd9f63b298194e3",
+  "dirty_tree": false,
+  "env": "A",
+  "host_os": "macOS 27.2.1 (26B131) arm64",
+  "guest_os": "Debian GNU/Linux 13 (trixie) aarch64",
+  "macfuse_version": null,
+  "ntfs3g_version": "2026.9.28",
+  "started": "2026-11-24T22:05:56Z",
+  "finished": "2026-11-24T22:12:33Z",
+  "cases": [
+    {
+      "id": "STAGE-A-PREFLIGHT",
+      "status": "pass",
+      "duration_s": 1.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/stages/preflight.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "STAGE-A-SELFTEST",
+      "status": "pass",
+      "duration_s": 1.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/stages/selftest.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "STAGE-A-UNIT-PROBE",
+      "status": "pass",
+      "duration_s": 194.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/stages/unit-probe.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-probe/asan.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-probe/ctest-asan.xml",
+        "evidence/2026-11-24-ac5cf2b-A/unit-probe/ctest-release.xml",
+        "evidence/2026-11-24-ac5cf2b-A/unit-probe/deps-asan.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-probe/deps-release.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-probe/environment.txt",
+        "evidence/2026-11-24-ac5cf2b-A/unit-probe/fixtures-clean.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-probe/fixtures-mirror.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-probe/fixtures-names.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-probe/fixtures-unsafe.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-probe/fixtures-vmk.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-probe/mirror-results.txt",
+        "evidence/2026-11-24-ac5cf2b-A/unit-probe/release.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-probe/run.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-probe/summary.txt",
+        "evidence/2026-11-24-ac5cf2b-A/unit-probe/syscall-audit.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-probe/unsafe-results.txt",
+        "evidence/2026-11-24-ac5cf2b-A/unit-probe/vmk-split-clear-record3.txt",
+        "evidence/2026-11-24-ac5cf2b-A/unit-probe/vmk-split-record3.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "STAGE-A-UNIT-VOLMARK",
+      "status": "pass",
+      "duration_s": 111.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/stages/unit-volmark.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/asan.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/build-faultio.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/ctest-asan.xml",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/ctest-release.xml",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/deps-asan.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/deps-faultio-asan.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/deps-faultio.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/deps-release.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/environment.txt",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/fixtures-clean.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/fixtures-mirror.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/fixtures-unsafe.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/release.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/run.log",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/summary.txt",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/syncmirror-evidence.txt",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/vmk-split-record3.txt",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/volmark-evidence.txt",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/vmk/syncmirror-evidence.txt",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/vmk/vmk-split-record3.txt",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/vmk/volmark-evidence.txt",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/vmk-asan/syncmirror-evidence.txt",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/vmk-asan/vmk-split-record3.txt",
+        "evidence/2026-11-24-ac5cf2b-A/unit-volmark/vmk-asan/volmark-evidence.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "STAGE-A-HARNESS",
+      "status": "pass",
+      "duration_s": 71.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/stages/harness.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "STAGE-A-STRESS-CRASHSWEEP",
+      "status": "pass",
+      "duration_s": 19.0,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/stages/stress-crashsweep.log",
+        "evidence/2026-11-24-ac5cf2b-A/stress-crashsweep/build-proof.txt",
+        "evidence/2026-11-24-ac5cf2b-A/stress-crashsweep/results.jsonl",
+        "evidence/2026-11-24-ac5cf2b-A/stress-crashsweep/results.tsv",
+        "evidence/2026-11-24-ac5cf2b-A/stress-crashsweep/summary.json",
+        "evidence/2026-11-24-ac5cf2b-A/stress-crashsweep/sweep.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "STAGE-A-MODE",
+      "status": "pass",
+      "duration_s": 0.0,
+      "evidence": [],
+      "note": "full"
+    },
+    {
+      "id": "I-BIG-01",
+      "status": "pass",
+      "duration_s": 1.614,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-BIG-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-BIG-SPARSE-01",
+      "status": "pass",
+      "duration_s": 3.569,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-BIG-SPARSE-01.log",
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-BIG-SPARSE-01.sparse01_all_hole.ntfsinfo.txt",
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-BIG-SPARSE-01.sparse01_hole_end.ntfsinfo.txt",
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-BIG-SPARSE-01.sparse01_hole_middle.ntfsinfo.txt",
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-BIG-SPARSE-01.sparse01_hole_start.ntfsinfo.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-BIG-SPARSE-02",
+      "status": "pass",
+      "duration_s": 8.221,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-BIG-SPARSE-02.log",
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-BIG-SPARSE-02.sparse02.ntfsinfo.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-01",
+      "status": "pass",
+      "duration_s": 5.288,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-ERR-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-02",
+      "status": "pass",
+      "duration_s": 0.301,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-ERR-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-03",
+      "status": "pass",
+      "duration_s": 11.797,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-ERR-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-04",
+      "status": "pass",
+      "duration_s": 0.575,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-ERR-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-05",
+      "status": "pass",
+      "duration_s": 0.706,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-ERR-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-ERR-07",
+      "status": "pass",
+      "duration_s": 0.794,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-ERR-07.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-01",
+      "status": "pass",
+      "duration_s": 0.494,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-FUNC-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-02",
+      "status": "pass",
+      "duration_s": 0.033,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-FUNC-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-03",
+      "status": "pass",
+      "duration_s": 0.07,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-FUNC-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-04",
+      "status": "pass",
+      "duration_s": 0.049,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-FUNC-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-05",
+      "status": "pass",
+      "duration_s": 0.019,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-FUNC-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-06",
+      "status": "pass",
+      "duration_s": 0.027,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-FUNC-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-07",
+      "status": "pass",
+      "duration_s": 0.234,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-FUNC-07.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-08",
+      "status": "pass",
+      "duration_s": 0.229,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-FUNC-08.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-DIR-01",
+      "status": "pass",
+      "duration_s": 0.056,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-FUNC-DIR-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-DIR-02",
+      "status": "pass",
+      "duration_s": 2.967,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-FUNC-DIR-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-FUNC-DIR-03",
+      "status": "pass",
+      "duration_s": 0.078,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-FUNC-DIR-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-INT-01",
+      "status": "pass",
+      "duration_s": 6.235,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-INT-01.log",
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-INT-01.sha256.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-INT-03",
+      "status": "pass",
+      "duration_s": 0.034,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-INT-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-INT-CYCLE-01",
+      "status": "pass",
+      "duration_s": 8.14,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-INT-CYCLE-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-01",
+      "status": "pass",
+      "duration_s": 1.456,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-META-01.log",
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-META-01.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-02",
+      "status": "pass",
+      "duration_s": 1.359,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-META-02.log",
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-META-02.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-03",
+      "status": "pass",
+      "duration_s": 6.023,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-META-03.log",
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-META-03.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-04",
+      "status": "pass",
+      "duration_s": 0.244,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-META-04.log",
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-META-04.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-05",
+      "status": "pass",
+      "duration_s": 1.457,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-META-05.log",
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-META-05.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-06",
+      "status": "pass",
+      "duration_s": 0.466,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-META-06.log",
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-META-06.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-META-07",
+      "status": "pass",
+      "duration_s": 0.484,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-META-07.log",
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-META-07.observations.json"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-01",
+      "status": "pass",
+      "duration_s": 0.235,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-NAME-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-02",
+      "status": "pass",
+      "duration_s": 0.072,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-NAME-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-04",
+      "status": "pass",
+      "duration_s": 0.232,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-NAME-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-05",
+      "status": "pass",
+      "duration_s": 0.245,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-NAME-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-NAME-06",
+      "status": "pass",
+      "duration_s": 0.242,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-NAME-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-01",
+      "status": "pass",
+      "duration_s": 0.245,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-PERM-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-02",
+      "status": "pass",
+      "duration_s": 0.041,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-PERM-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-03",
+      "status": "pass",
+      "duration_s": 0.265,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-PERM-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-04",
+      "status": "pass",
+      "duration_s": 0.555,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-PERM-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-05",
+      "status": "pass",
+      "duration_s": 0.042,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-PERM-05.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-PERM-06",
+      "status": "pass",
+      "duration_s": 0.312,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-PERM-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-01",
+      "status": "pass",
+      "duration_s": 0.069,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-READ-01.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-02",
+      "status": "pass",
+      "duration_s": 0.475,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-READ-02.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-03",
+      "status": "pass",
+      "duration_s": 0.191,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-READ-03.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-04",
+      "status": "pass",
+      "duration_s": 0.576,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-READ-04.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-06",
+      "status": "pass",
+      "duration_s": 0.28,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-READ-06.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-READ-07",
+      "status": "pass",
+      "duration_s": 0.154,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-READ-07.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "I-XATTR-A1",
+      "status": "pass",
+      "duration_s": 0.227,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/I-XATTR-A1.log"
+      ],
+      "note": null
+    },
+    {
+      "id": "S-NOSPC-01",
+      "status": "pass",
+      "duration_s": 2.237,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/S-NOSPC-01.log",
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/S-NOSPC-01.sha256.txt"
+      ],
+      "note": null
+    },
+    {
+      "id": "S-NOSPC-02",
+      "status": "pass",
+      "duration_s": 1.074,
+      "evidence": [
+        "evidence/2026-11-24-ac5cf2b-A/2026-11-24-ac5cf2b-A/S-NOSPC-02.log"
+      ],
+      "note": null
+    }
+  ]
+}

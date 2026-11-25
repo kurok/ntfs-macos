@@ -3,8 +3,8 @@
 
 This file classifies every crash, oracle failure, leak and sanitizer report that the fuzz campaigns
 produced, and says where each one lives (project code or NTFS-3G), how bad it is, and what was done.
-Per-run statistics and the first findings (F1 to F8) are in `tests/fuzz/TRIAGE.md`; upstream status is
-in `UPSTREAM_REPORTS.md`; the carried fixes are patches 0010 to 0013 and 0015 (ADR-026).
+Per-run statistics and the first findings (F1 to F9) are in `tests/fuzz/TRIAGE.md`; upstream status is
+in `UPSTREAM_REPORTS.md`; the carried fixes are patches 0010 to 0013, 0015 and 0016 (ADR-026).
 
 ## 1. How findings are found and recorded
 
@@ -13,7 +13,7 @@ in `UPSTREAM_REPORTS.md`; the carried fixes are patches 0010 to 0013 and 0015 (A
 | Campaign driver (any budget, Environment A) | `tests/fuzz/campaign/run.sh` (units in `inner.sh`, signatures in `fuzzsig.py`, merge and table in `triage.py`) |
 | Targets | F-PROBE, F-MOUNT-WALK (`tests/fuzz/image/`), F-SANITIZE-01..03 (`tests/fuzz/sanitize/`), F-CTL-01 (`tests/fuzz/ctl/`, new in T-M5-09) |
 | Known findings and how to recognise them | `tests/fuzz/campaign/known.tsv` |
-| Regression inputs (one file per finding) | `tests/fuzz/findings/` for findings of the campaigns of M5 (`M5-NN-<target>.bin`; `run.sh --adopt` writes `N-<hash>-<target>.bin`, named by the signature, and never overwrites); `tests/fuzz/image/findings/` for F1 to F8 |
+| Regression inputs (one file per finding) | `tests/fuzz/findings/` for findings of the campaigns of M5 (`M5-NN-<target>.bin`; `run.sh --adopt` writes `N-<hash>-<target>.bin`, named by the signature, and never overwrites); `tests/fuzz/image/findings/` for F1 to F9 |
 | Triage table of a run | `triage.md` and `triage.tsv` in the run's result directory (`build/fuzz/campaign/<stamp>/`, git-ignored; the table of a recorded campaign is copied into section 4 of this file) |
 
 The oracle of every target is the one in `docs/TEST_STRATEGY.md` section 8. A finding is: a sanitizer report
@@ -93,6 +93,7 @@ engine that is not in the known list also fails the run.
 | F4 `ntfs_possible_symlink()` reads tag without a size check | engine | R1 | information leak or crash (a plain `ls` reaches it) | fixed locally | patch 0011 | GHSA-vp2x-xjmj-x4x2, filed |
 | F6 `ntfs_inode_sync_file_name()` reads tag without a length check | engine | R1 | information leak into the index entries; read-write mounts only | fixed locally | patch 0013 | drafted, not filed; no reproducer |
 | F8 `ntfs_boot_sector_parse()` accepts MFT and INDX record sizes up to 2 GiB; `ntfs_mft_load()` allocates the MFT record size (N-37cd62, campaign of 2026-11-23) | engine | R2 | denial of service (allocation of up to 2 GiB on mount; `1 << 31` overflow) | fixed locally | patch 0015 (limit 4096 bytes) | drafted, not filed |
+| F9 `INDEX_ROOT.index_block_size` is allocated without an upper bound by the directory and index readers (`dir.c`, `index.c`; found in review, follow-up of F8) | engine | R2 | denial of service (allocation of up to 2 GiB per directory open) | fixed locally | patch 0016 (power of two, 512 to 4096; proposed, owner decision pending) | drafted, not filed |
 | F2 `ntfs_mft_load()` leaks the run list | engine | L | no | open | none | public issue drafted |
 | F5 `ntfs_make_symlink()` leaks the attribute | engine | L | no | open | none | public issue drafted |
 | F7 `ntfs_device_mount()` leaks the `$AttrDef` inode | engine | L | no | open | none | public issue drafted |

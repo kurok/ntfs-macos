@@ -84,6 +84,7 @@ upstream report, write the image that `fz_image_build()` makes for the input to 
 | F6 | `inode.c` `ntfs_inode_sync_file_name()` (lines 815 to 822) | heap out-of-bounds read of 4 bytes (reparse tag of a non-resident or short attribute, no resident or length check), written into the index entries of the file's names | low to medium (read-write mounts only) | none (found by code reading in review; no image built) | no |
 | F7 | `volume.c` `ntfs_device_mount()` (line 1240, `ni = ntfs_inode_open(vol, FILE_AttrDef)`) | memory leak, 136 + 4096 bytes: the `$AttrDef` inode is not closed when `ntfs_attr_open(ni, AT_DATA, ...)` (or a later step of the `$AttrDef` load) fails, because `error_exit` calls only `__ntfs_volume_release()` | low | `findings/F7-attrdef-inode-leak.bin` (9 bytes; `fuzz_probe` and `fuzz_mountwalk` with leak detection on) | yes (any failed mount with a bad `$AttrDef`), probe is a short-lived process |
 | F8 | `volume.c` `ntfs_mft_load()` (line 265, `ntfs_malloc(vol->mft_record_size)`), from `ntfs_volume_startup()`; the size is set in `bootsect.c` `ntfs_boot_sector_parse()` | allocation of an on-disk size, up to 2 GiB (libFuzzer: out-of-memory, `malloc(1073741824)`); `1 << 31` overflows `int` | low (resource use; denial of service on mount) | `findings/F8-mft-record-size-alloc.bin` (9 bytes) | yes (every mount), probe is a short-lived process |
+| F9 | `dir.c` `ntfs_inode_lookup_by_name()` (line 380) and `ntfs_readdir()` (line 1283), `ntfs_malloc(index_block_size)`; `index.c` `ntfs_index_lookup()` (`icx->block_size`) and `ntfs_ir_to_ib()`; the size is read from `INDEX_ROOT.index_block_size` | allocation of an on-disk size, up to 2 GiB per directory open (ASan: allocation-size-too-big at 1 GiB under a 512 MB limit) | low (resource use; denial of service) | `image/findings/F9-index-root-block-size-alloc.bin` (12 bytes) | no (a campaign needs a mutation of `index_block_size` of a directory with an index allocation, reached by the walk) |
 | U | `bootsect.c` 229, 231, 237, 275 (236, 238, 244 with patch 0015, which moves them by seven lines); `volume.c` 273, 624, 1094; `runlist.c` 862, 882, 897, 961; `attrib.c` 385, 386, 1040, 1073, 1172; `unistr.c` 183, 188, 345, 376; `reparse.c` (misaligned loads) | undefined behaviour: left shifts of negative or large values, signed overflow, negative shift exponent, misaligned `ntfschar` loads | low (benign on arm64 and x86-64 with the usual compilers) | UBSan reports in `hour*/*/libfuzzer-*.log.sym`, list in `ubsan-engine.txt` | yes (bootsect, volume, runlist, unistr hit by the probe too) |
 
 Why they do not touch the probe: the probe opens the device O_RDONLY, mounts read-only,
@@ -204,10 +205,33 @@ text: *libntfs-3g: ntfs_boot_sector_parse() accepts MFT and INDX record sizes up
 `1` by 31 into the sign bit of an `int`. Suggested fix: refuse record sizes above 4096 bytes in
 `ntfs_boot_sector_parse()`. Version 2026.9.28.
 
-Follow-up, not fixed by 0015: the same family remains for `INDEX_ROOT.index_block_size`, read from disk. It has no
-upper bound and reaches `ntfs_malloc()` at `dir.c:380` and `dir.c:1283`; the checks at `attrib.c:3547` and
-`dir.c:290` only test for at least 512 and a power of two. It is a separate allocation of an on-disk size (up to
-2 GiB per directory open) and is listed here as a follow-up, to be fixed in its own patch and finding.
+Follow-up of F8: the same family for `INDEX_ROOT.index_block_size`, read from disk, is F9 below (fixed by patch 0016).
+
+### F9: INDEX_ROOT index_block_size is allocated without an upper bound
+
+Found as the follow-up of F8 (code review of the users of on-disk sizes, 2026-11-25; not found by a campaign, but reproduced by a
+crafted image). The field `INDEX_ROOT.index_block_size` (offset 8 of the `$INDEX_ROOT` value) was checked only for "at least
+512" and "a power of two" in `ntfs_attr_inconsistent()` (`attrib.c:3547`) and in the two directory readers of `dir.c` (289,
+1196), only for "at least 512" in `ntfs_index_lookup()` (`index.c:829`), and not at all in `ntfs_ir_to_ib()` (`index.c:1138`).
+`ntfs_inode_lookup_by_name()` (`dir.c:380`) and `ntfs_readdir()` (`dir.c:1283`) call `ntfs_malloc(index_block_size)` and
+read blocks of that size; `ntfs_index_lookup()` sizes every index block of the index context with it. A value of 2^30 asks
+for 1 GiB per directory open (up to 2^31). Real volumes: Windows and mkntfs write 4096. Fixed locally by patch 0016 (2026-11-25, ADR-026, proposed, owner decision
+pending): `ntfs_index_block_size_valid()` accepts a power of two from 512 to 4096; it does not compare the size with the boot
+sector INDX record size (upstream never needs them equal, and a mismatch on the root directory would fail the mount). The
+readers reject anything else with `EIO` and an `ntfs_log_error()` before they allocate, and `ntfs_attr_inconsistent()` refuses a
+root above 4096 at the MFT record read. On the patched engine F9 exercises that `attrib.c` MFT-record rejection ("Corrupt
+index root in MFT record 5"; the mount fails): the checks in `dir.c` and `index.c` are defence in depth that a normal read does
+not reach, because a record with a bad root never loads. Reproducer: `tests/fuzz/image/findings/F9-index-root-block-size-alloc.bin` (12 bytes: base `tree`, one edit
+that sets `index_block_size` of the root directory, `$INDEX_ROOT` at byte 0x5550 of the image, to 0x40000000); regression:
+ctest `fuzz.findings.F9` (ASan build of the patched library, allocation limit 512 MB), which fails on the pristine library
+(`ntfs_malloc` called from `ntfs_inode_lookup_by_name` at `dir.c:380`, `ntfs_pathname_to_inode`, `ntfs_open_secure`, during
+the mount: requested allocation size 0x40000000 exceeds the maximum) and passes on the patched one (checked in Environment A,
+2026-11-25). In `known.tsv` row F9 is `fixed` (0016), so the signature on an engine that carries the patch is a REGRESSION; on
+pristine 2026.9.28 it is expected. Not yet reported upstream: drafted, see `docs/UPSTREAM_REPORTS.md`. Draft text:
+*libntfs-3g: INDEX_ROOT.index_block_size is allocated without an upper bound.* A directory whose `$INDEX_ROOT` has
+`index_block_size` = 0x40000000 makes `ntfs_inode_lookup_by_name()` and `ntfs_readdir()` call `ntfs_malloc(1073741824)`
+per open; the checks at `attrib.c:3547` and `dir.c:290` only test for a power of two of at least 512. Suggested fix: refuse
+values above 4096. Version 2026.9.28.
 
 ### U: undefined behaviour in the library
 

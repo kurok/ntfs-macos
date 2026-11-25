@@ -150,6 +150,33 @@ class Sig(unittest.TestCase):
         self.assertEqual(s[1], "oom")
         self.assertEqual(known_id(s), "F8")
 
+    def test_f9_index_block_size_alloc_matches_and_is_pinned(self):
+        """F9: INDEX_ROOT.index_block_size is allocated by the directory readers; fixed by 0016.
+        Reads the live known.tsv (the row is appended after the frozen copy was made and is never edited)."""
+        rows = fuzzsig.load_known(os.path.join(HERE, "known.tsv"))
+        ntfs_hdr = "ntfs_open_secure@security.c:4509 < ntfs_device_mount@volume.c:1279"
+        text = "ntfs_inode_lookup_by_name@dir.c:380 < ntfs_pathname_to_inode@dir.c:767 < " + ntfs_hdr
+        r = fuzzsig.match_known(rows, "", "asan:allocation-size-too-big", text)
+        self.assertEqual((r["id"], r["status"], r["component"], r["fixed_by"], r["klass"]),
+                         ("F9", "fixed", "engine", "0016", "R2"))
+        self.assertEqual(fuzzsig.match_known(rows, "", "oom", text)["id"], "F9")
+        self.assertEqual(fuzzsig.match_known(rows, "", "oom", "ntfs_readdir@dir.c:1283 < x@y.c:1")["id"], "F9")
+        self.assertEqual(fuzzsig.match_known(rows, "", "oom", "ntfs_index_lookup@index.c:874 < x@y.c:1")["id"], "F9")
+        for fn in ("ntfs_ib_alloc", "ntfs_index_rm_leaf", "ntfs_index_next", "ntfs_index_walk_down"):
+            self.assertEqual(fuzzsig.match_known(rows, "", "oom", fn + "@index.c:1 < x@y.c:1")["id"], "F9")
+        # another line, another function or another kind is not F9
+        self.assertIsNone(fuzzsig.match_known(rows, "", "oom", text.replace("dir.c:380", "dir.c:3800")))
+        self.assertIsNone(fuzzsig.match_known(rows, "", "oom", text.replace("dir.c:380", "dir.c:381")))
+        self.assertIsNone(fuzzsig.match_known(rows, "", "oom", "other@x.c:1 < " + text))
+        self.assertIsNone(fuzzsig.match_known(rows, "", "leak", text))
+        # F8 keeps its own row
+        f8 = "ntfs_mft_load@volume.c:265 < ntfs_volume_startup@volume.c:652 < ntfs_device_mount@volume.c:956"
+        self.assertEqual(fuzzsig.match_known(rows, "", "oom", f8)["id"], "F8")
+        # the replay input exists and is a 12 byte unit: base 0 (tree), no truncation, one 4 byte overwrite
+        unit = open(os.path.join(HERE, "..", "image", "findings", "F9-index-root-block-size-alloc.bin"), "rb").read()
+        self.assertEqual(len(unit), 12)
+        self.assertEqual(unit[3:], bytes([0x00, 0x80, 0x50, 0x55, 0x03, 0x00, 0x00, 0x00, 0x40]))
+
     def test_u_attrib_1172_anchored(self):
         """attrib.c:1172 (rl->lcn << cluster_size_bits in ntfs_attr_pread) is benign; 11720 and 117 are not."""
         rows = fuzzsig.load_known(KNOWN)

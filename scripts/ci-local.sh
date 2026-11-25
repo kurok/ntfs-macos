@@ -955,7 +955,7 @@ CLEAN
 		_skipped=
 		for _p in linux asan; do
 			echo "== linux-build-test: preset $_p"
-			echo "NOTE: fuzz.findings.F1/F3/F4/F8 are not run here: the image of Environment A links pristine NTFS-3G, where these replays fail by design (they pass against the patched library in the A-unit asan stage, tests/unit/probe/inner.sh)"
+			echo "NOTE: fuzz.findings.F1/F3/F4/F8/F9 are not run here: the image of Environment A links pristine NTFS-3G, where these replays fail by design (they pass against the patched library in the A-unit asan stage, tests/unit/probe/inner.sh)"
 			_o=$work/A/linux-$_p.out
 			_prc=0
 			sh "$root/vm/linux/run.sh" run -- bash -c \
@@ -971,7 +971,7 @@ CLEAN
 				echo "NOTE: linux build or test FAILED with preset $_p: ${_err:-exit $_prc (see the log)}"
 			fi
 		done
-		[ "$_rc" -ne 0 ] || echo "NOTE: skipped tests, counted from SKIP: lines ($_skipped); fuzz.findings.F1/F3/F4/F8 not run here (pristine NTFS-3G, run in A-unit asan)"
+		[ "$_rc" -ne 0 ] || echo "NOTE: skipped tests, counted from SKIP: lines ($_skipped); fuzz.findings.F1/F3/F4/F8/F9 not run here (pristine NTFS-3G, run in A-unit asan)"
 		return "$_rc"
 	}
 

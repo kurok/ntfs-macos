@@ -1,0 +1,184 @@
+ntfs-3g (ntfs-macos) patch 0016: INDEX_ROOT.index_block_size must be a power of two from 512 to 4096 bytes; a larger or odd value is rejected with EIO
+
+Rationale (follow-up of F8, tests/fuzz/TRIAGE.md, finding F9): in NTFS-3G 2026.9.28 the on-disk field
+INDEX_ROOT.index_block_size (layout.h, offset 8 of the $INDEX_ROOT value) is checked only for "at least 512"
+and "a power of two", and not at all in some places. Every directory or index operation then allocates, reads
+or writes blocks of that size, so a crafted directory makes one allocation of up to 2 GiB per open of the
+directory (a power of two up to 2^31; 2^31 is also a negative int in some uses). Users of the field in the
+library (all of libntfs-3g; the ntfsprogs tools other than ntfsfix and mkntfs are not shipped):
+  - attrib.c:3547 ntfs_attr_inconsistent(): the consistency check of an INDEX_ROOT at the MFT record read
+    (mft.c:289); minimum and power of two, no maximum. It runs once per MFT record read; the users below
+    read the value again from the attribute and check as well.
+  - dir.c:289 ntfs_inode_lookup_by_name() and dir.c:1196 ntfs_readdir() (each does ntfs_malloc(index_block_size),
+    at dir.c:380 and dir.c:1283): minimum and power of two, no maximum. ntfs_readdir() also uses the size as a
+    shift (ffs()) and a mask.
+  - index.c:829 ntfs_index_lookup(): icx->block_size, which sizes every ntfs_malloc() of an index block of
+    the index context (index.c:874, 1555, 1838, 1892, 2127), the block read (index.c:91, 732) and ntfs_ib_alloc();
+    only a minimum is checked.
+  - index.c:1138 ntfs_ir_to_ib(): ntfs_ib_alloc(ib_vcn, ib_size) of the on-disk size when an index root is moved
+    to a new index block; no check.
+  - dir.c:1587 sets a new index root from vol->indx_record_size; it is not a read and needs no change (a
+    volume that passes 0015 has at most 4096 there).
+Resource use (an allocation of up to 2 GiB per directory open of an untrusted volume), not a memory fault.
+Real volumes: Windows and mkntfs write index blocks of 4096 bytes (the INDX record size of the boot sector is
+the same; ntfs-3g mkntfs writes index_block_size = indx_record_size for every index it creates). The Linux
+ntfs3 driver bounds the INDX record size at MAXIMUM_BYTES_PER_INDEX (4096).
+Change (one hunk each in include/ntfs-3g/layout.h, include/ntfs-3g/index.h, libntfs-3g/attrib.c, dir.c, index.c):
+  - New macro NTFS_MACOS_MAX_INDEX_BLOCK_SIZE (4096) in layout.h, the same value as NTFS_MACOS_MAX_RECORD_SIZE of 0015.
+  - New function ntfs_index_block_size_valid(block_size) in index.c (declared in index.h): true when the size is
+    at least NTFS_BLOCK_SIZE (512), at most 4096 and a power of two. It does not compare the size with the INDX
+    record size of the boot sector: upstream never needs the two to be equal, and a mismatch on the root
+    directory would fail the whole mount (ntfs_device_mount() calls ntfs_open_secure(), which looks up the
+    root). The test is done in u32 without shift or arithmetic, so nothing overflows.
+  - ntfs_index_lookup(), ntfs_inode_lookup_by_name() and ntfs_readdir(): the existing minimum and power of two
+    test is replaced (dir.c, in as many lines as before, so that no later line of dir.c moves: the UBSan
+    location dir.c:399 of known.tsv row U stays) or followed (index.c) by the function; an invalid value logs an
+    error with ntfs_log_error() and fails with EIO before any allocation (dir.c goes to the existing EIO exit;
+    index.c sets err = EIO). Callers that map a failed lookup to another errno keep doing so:
+    ntfs_pathname_to_inode() reports ENOENT after ntfs_inode_lookup_by_name() fails, as it does for the
+    existing "Corrupt directory" exits of dir.c.
+  - ntfs_ir_to_ib(): same check; invalid: error log, EIO, NULL.
+  - ntfs_attr_inconsistent(): an index_block_size above 4096 is "Corrupt index root", EIO, at the MFT record
+    read. This is the check that a normal read reaches first: an INDEX_ROOT with a bad size fails to load with
+    EIO, so the dir.c and index.c checks are defence in depth that is not reached once a record has passed
+    this one (they read the same value from the same record). It is the only check that rejects 0 to 511 and
+    non powers of two for every attribute; the three-way test there is unchanged. F9 on the patched engine
+    therefore exercises this MFT record rejection. A bad root of the root directory, $Secure and the like
+    fails the mount (as a corrupt root index record already did); a bad root of another directory makes that
+    directory unreadable. There is no rule tied to the boot sector INDX record size, so a volume whose roots
+    differ from it still mounts as before. No lower bound beyond the existing 512 is added.
+Scope: library-wide and cross-platform (no __APPLE__ guard). It only adds rejections; every volume whose
+index_block_size is a power of two from 512 to 4096 takes the same path as before. A volume with a larger
+value is no longer readable through that index; none is known to exist.
+Upstream status: not yet reported; draft in docs/UPSTREAM_REPORTS.md (F9); carried per ADR-026 until a fixed
+release is pinned, then removed.
+Test: ctest fuzz.findings.F9 replays tests/fuzz/image/findings/F9-index-root-block-size-alloc.bin through
+fuzz_replay_mountwalk, registered only for an ASan build of the patched library (tests/fuzz/image/
+CMakeLists.txt); the replay sets index_block_size of the root directory to 1 GiB and the allocation limit
+set in the test (512 MB) makes the 1 GiB request in dir.c fail on the unpatched library
+(allocation-size-too-big). The campaign classifies the signature as F9 in tests/fuzz/campaign/known.tsv:
+seen on an engine that carries 0016 it is a REGRESSION.
+
+--- a/include/ntfs-3g/index.h
++++ b/include/ntfs-3g/index.h
+@@ -139,6 +139,7 @@
+ extern void ntfs_index_ctx_put(ntfs_index_context *ictx);
+ extern void ntfs_index_ctx_reinit(ntfs_index_context *ictx);
+ 
++extern BOOL ntfs_index_block_size_valid(u32 block_size);
+ extern int ntfs_index_block_inconsistent(const INDEX_BLOCK *ib, u32 block_size,
+ 			u64 inum, VCN vcn);
+ extern int ntfs_index_entry_inconsistent(const INDEX_ENTRY *ie,
+--- a/include/ntfs-3g/layout.h
++++ b/include/ntfs-3g/layout.h
+@@ -2121,6 +2121,14 @@
+  * NOTE: The root directory (FILE_root) contains an entry for itself. Other
+  * directories do not contain entries for themselves, though.
+  */
++
++/*
++ * Largest index_block_size accepted (ntfs-macos 0016). Windows and mkntfs
++ * write 4096 byte index blocks; the same limit as for the boot sector
++ * INDX record size (0015).
++ */
++#define NTFS_MACOS_MAX_INDEX_BLOCK_SIZE 4096
++
+ typedef struct {
+ /*  0*/	ATTR_TYPES type;		/* Type of the indexed attribute. Is
+ 					   $FILE_NAME for directories, zero
+--- a/libntfs-3g/attrib.c
++++ b/libntfs-3g/attrib.c
+@@ -3547,6 +3547,8 @@
+ 			    || (le32_to_cpu(ir->index_block_size)
+ 				< NTFS_BLOCK_SIZE)
+ 			    || (le32_to_cpu(ir->index_block_size)
++				> NTFS_MACOS_MAX_INDEX_BLOCK_SIZE)
++			    || (le32_to_cpu(ir->index_block_size)
+ 				& (le32_to_cpu(ir->index_block_size) - 1))
+ 			    || (le32_to_cpu(ir->index.entries_offset)
+ 				< sizeof(INDEX_HEADER))
+--- a/libntfs-3g/dir.c
++++ b/libntfs-3g/dir.c
+@@ -287,10 +287,10 @@
+ 	ir = (INDEX_ROOT*)((u8*)ctx->attr +
+ 			le16_to_cpu(ctx->attr->value_offset));
+ 	index_block_size = le32_to_cpu(ir->index_block_size);
+-	if (index_block_size < NTFS_BLOCK_SIZE ||
+-			index_block_size & (index_block_size - 1)) {
++	if (!ntfs_index_block_size_valid(index_block_size)) { /* 0016 */
+ 		ntfs_log_error("Index block size %u is invalid.\n",
+ 				(unsigned)index_block_size);
++		/* ntfs-macos 0016: range only, no match with the boot sector */
+ 		goto put_err_out;
+ 	}
+ 		/* Consistency check of ir done while fetching attribute */
+@@ -1194,10 +1194,10 @@
+ 
+ 	/* Determine the size of a vcn in the directory index. */
+ 	index_block_size = le32_to_cpu(ir->index_block_size);
+-	if (index_block_size < NTFS_BLOCK_SIZE ||
+-			index_block_size & (index_block_size - 1)) {
++	if (!ntfs_index_block_size_valid(index_block_size)) { /* 0016 */
+ 		ntfs_log_error("Index block size %u is invalid.\n",
+ 				(unsigned)index_block_size);
++		/* ntfs-macos 0016: range only, no match with the boot sector */
+ 		goto dir_err_out;
+ 	}
+ 	index_block_size_bits = ffs(index_block_size) - 1;
+--- a/libntfs-3g/index.c
++++ b/libntfs-3g/index.c
+@@ -458,6 +458,25 @@
+  *      size(INDEX_HEADER) <= ent_offset < ind_length <= alloc_size < bk_size
+  */
+ 
++/*
++ *		Check the index_block_size read from an INDEX_ROOT
++ *	(ntfs-macos 0016)
++ *
++ *	It must be a power of two between the sector size and
++ *	NTFS_MACOS_MAX_INDEX_BLOCK_SIZE. It is not compared with the INDX
++ *	record size of the boot sector. Every user of an INDEX_ROOT
++ *	allocates, reads or writes blocks of that size.
++ */
++
++BOOL ntfs_index_block_size_valid(u32 block_size)
++{
++	if (block_size < NTFS_BLOCK_SIZE
++	    || block_size > NTFS_MACOS_MAX_INDEX_BLOCK_SIZE
++	    || (block_size & (block_size - 1)))
++		return FALSE;
++	return TRUE;
++}
++
+ int ntfs_index_block_inconsistent(const INDEX_BLOCK *ib, u32 block_size,
+ 			u64 inum, VCN vcn)
+ {
+@@ -833,6 +852,14 @@
+ 				"sector size (%d)", icx->block_size, NTFS_BLOCK_SIZE);
+ 		goto err_out;
+ 	}
++	/* ntfs-macos 0016: a power of two, not above the limit */
++	if (!ntfs_index_block_size_valid(icx->block_size)) {
++		ntfs_log_error("Index block size %u is invalid in inode "
++				"0x%llx.\n", (unsigned)icx->block_size,
++				(unsigned long long)ni->mft_no);
++		err = EIO;
++		goto err_out;
++	}
+ 
+ 	if (ni->vol->cluster_size <= icx->block_size)
+ 		icx->vcn_size_bits = ni->vol->cluster_size_bits;
+@@ -1136,6 +1163,13 @@
+ 	ntfs_log_trace("Entering\n");
+ 
+ 	ib_size = le32_to_cpu(ir->index_block_size);
++	/* ntfs-macos 0016 */
++	if (!ntfs_index_block_size_valid(ib_size)) {
++		ntfs_log_error("Index block size %u is invalid.\n",
++				(unsigned)ib_size);
++		errno = EIO;
++		return NULL;
++	}
+ 	ib = ntfs_ib_alloc(ib_vcn, ib_size, LEAF_NODE);
+ 	if (!ib)
+ 		return NULL;

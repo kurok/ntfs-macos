@@ -853,12 +853,16 @@ if [ "$quick" -eq 0 ]; then
 					cat >"$work/stubclean.sh" <<'CLEAN'
 ev=$1; secs=$2; name=$3; wait_s=$4
 on_term() {
+	# like a real stage, stop the work this stage started itself: a child forked just after the
+	# sweeper's first pass is not in the tree it signalled, and later passes leave descendants alone
+	kill "$bg" 2>/dev/null
 	echo cleaning; echo cleaning >&2; echo after-cleanup
 	sh -c 'sleep "$1"; echo "cleaned $2" >>"$3"' sh "$secs" "$name" "$ev"
 	exit 143
 }
 trap on_term TERM
 sleep "$wait_s" &
+bg=$!
 wait
 CLEAN
 					sh "$work/stubclean.sh" "${CI_LOCAL_TEST_OWN_EVENTS:-/dev/null}" "$_sc" "$_on" "${_ss#*:}" || true

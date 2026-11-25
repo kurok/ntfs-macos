@@ -83,10 +83,12 @@ unmount_diag() {
 	done
 }
 # clean_unmount BSD: through the daemon, then detach; true when the volume left Mounted.
-# The daemon refuses an unmount while the volume is busy: after its short EBUSY retries (about 1.5 s) it logs
-# UNMOUNT_BUSY and the volume stays Mounted, as for a user's eject. Right after a heavy workload something can
-# hold the volume for longer (a 30 min run with 16 writers saw it once), so a refused unmount is asked again
-# every 5 s, within the same 150 s bound; each refusal is noted with what holds files on the volume.
+# The daemon asks the kernel again after EBUSY 4 times, 0.3 s apart (about 1.2 s, bound 6 s). If the holders are
+# all Spotlight or Quick Look, the volume stays Unmounting and the daemon asks again every 2 s for up to 60 s
+# (ADR-028, proposed); with any other holder, or after that time, it logs UNMOUNT_BUSY and the volume returns to
+# Mounted, as for a user's eject. Right after a heavy workload something can hold the volume for longer (a 30 min
+# run with 16 writers saw it once), so a refused unmount is asked again every 5 s, within a 150 s bound; each
+# refusal is noted with what holds files on the volume.
 # A volume in Unmounting for over 20 s is captured once by unmount_diag. Variables: prefix _cu_ (no locals in sh).
 clean_unmount() {
 	_cu_mp=$(mpoint_of "$1")

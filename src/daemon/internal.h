@@ -409,6 +409,83 @@ typedef struct ntfsmac_unmount_opts {
 bool ntfsmac_unmount_seen(bool mount_gone, bool daemon_requested, bool da_volume_gone);
 
 /*
+ * Spotlight and Quick Look hold a volume for a while after heavy writes (an indexer opens the new files;
+ * the M5 soak runs saw a refused eject). The product lets them index (docs/TECHNICAL_DECISIONS.md ADR-028),
+ * so `ntfsmac unmount` asks again while every holder found is one of them, up to a wall-clock deadline.
+ * holder_is_indexer: the process name is mds, mds_*, mdworker*, QuickLook* or quicklook*.
+ * holders: every process that holds the volume (up to `cap`); 0 where the lookup is not available.
+ * classify: counts the indexers among pids[0..n) and names the process to report: the first non-indexer,
+ * else the first holder.
+ * wait_decide (pure): WAIT while all holders are indexers and the deadline is ahead; ABORT at once on force,
+ * a stopping daemon or a volume that is gone; BUSY (report the holder) when any holder is not an indexer,
+ * when no holder is known, or at the deadline.
+ */
+bool ntfsmac_unmount_holder_is_indexer(const char *name);
+bool ntfsmac_unmount_pid_is_indexer(pid_t pid);
+size_t ntfsmac_unmount_holders(const char *path, pid_t *pids, size_t cap);
+size_t ntfsmac_unmount_classify(const pid_t *pids, size_t n, bool (*is_indexer)(pid_t), pid_t *report,
+				size_t *nindexers);
+
+typedef enum ntfsmac_umw_action {
+	NTFSMAC_UMW_WAIT = 0,
+	NTFSMAC_UMW_BUSY,
+	NTFSMAC_UMW_ABORT
+} ntfsmac_umw_action;
+
+typedef struct ntfsmac_umw_in {
+	bool force;                /* a forced unmount was asked for */
+	bool stopping;             /* the daemon is shutting down */
+	bool gone;                 /* the disk is gone, the worker ended, or the volume left Unmounting */
+	size_t nholders, nindexers;
+	uint64_t now_ms, deadline_ms; /* monotonic */
+} ntfsmac_umw_in;
+
+ntfsmac_umw_action ntfsmac_unmount_wait_decide(const ntfsmac_umw_in *in);
+
+/*
+ * The indexer wait of one volume (ADR-028) as a small state machine, so it can be tested with fakes.
+ * Queue of the volume only. `gen` changes on every start and every cancel: a retry job carries the
+ * generation it was queued with, and a job whose generation no longer matches does nothing.
+ */
+typedef struct ntfsmac_umwait {
+	bool waiting;
+	unsigned gen;
+	uint64_t deadline_ms; /* monotonic */
+} ntfsmac_umwait;
+
+typedef struct ntfsmac_umwait_ops {
+	size_t (*holders)(void *ctx, pid_t *pids, size_t cap); /* every holder of the volume */
+	bool (*is_indexer)(void *ctx, pid_t pid);
+	uint64_t (*now_ms)(void *ctx);
+	bool (*stopping)(void *ctx);
+	void (*schedule)(void *ctx, unsigned gen); /* queue um_retry(gen) after the step delay */
+	unsigned wait_ms;                          /* the bound of one wait: the single source of the 60 s */
+	void *ctx;
+} ntfsmac_umwait_ops;
+
+typedef enum ntfsmac_umw_retry {
+	NTFSMAC_UMR_STALE = 0, /* old generation or no wait: do nothing */
+	NTFSMAC_UMR_STOP,      /* shutdown or the volume left: the wait is over, nothing to report */
+	NTFSMAC_UMR_TRY        /* try the plain unmount now, then call ntfsmac_umwait_after() */
+} ntfsmac_umw_retry;
+
+typedef enum ntfsmac_umw_after {
+	NTFSMAC_UMA_DONE = 0, /* unmounted (or not our wait any more) */
+	NTFSMAC_UMA_AGAIN,    /* only indexers hold it: a retry is queued */
+	NTFSMAC_UMA_BUSY,     /* report `*report` as the holder; the wait is over */
+	NTFSMAC_UMA_FAILED    /* another error: the wait is over; log the status, not "busy" */
+} ntfsmac_umw_after;
+
+/* The first refusal. `first_busy` is the pid the unmount call found (0: none). A first holder that is not an
+ * indexer is reported at once with no further scan. Returns true when the wait started. */
+bool ntfsmac_umwait_start(ntfsmac_umwait *w, const ntfsmac_umwait_ops *o, pid_t first_busy, pid_t *report);
+void ntfsmac_umwait_cancel(ntfsmac_umwait *w); /* force, shutdown, teardown */
+ntfsmac_umw_retry ntfsmac_umwait_retry(ntfsmac_umwait *w, const ntfsmac_umwait_ops *o, unsigned gen,
+				       bool volume_ok);
+ntfsmac_umw_after ntfsmac_umwait_after(ntfsmac_umwait *w, const ntfsmac_umwait_ops *o, ntfsmac_dmn_status st,
+				       pid_t first_busy, pid_t *report);
+
+/*
  * What one session knows about its unmount (unmount_ev.c, pure; the caller locks). `requested`:
  * the daemon's own unmount call returned OK and no mount was left (never on a timeout or busy).
  * `fuse_bsd`: macFUSE's disk of THIS session's mount, bound when a `macfuse-local` disk gets the
@@ -604,6 +681,7 @@ typedef struct ntfsmac_session_decision {
 	ntfsmac_policy_result policy;
 	bool evidence_removed; /* path 2 fired now: the entry went to the tombstones; stays ro */
 	bool entry_corrupt;    /* the entry could not be read: treated as an entry that blocks rw */
+	bool serial_live;      /* the entry belongs to a live session: another attached disk has this serial */
 } ntfsmac_session_decision;
 
 /*
@@ -615,6 +693,13 @@ typedef struct ntfsmac_session_decision {
  * `write_error`, so that it blocks rw and rule 2 (section 3.5). A removal that fails leaves the
  * entry in place. The decision is never rw while an entry exists.
  */
+/*
+ * "same_serial" when the entry that led to the decision belongs to a live session (another attached disk
+ * has this serial) and the note is one the entry produced (external_check, unclean_session,
+ * dirty_flag_journal); NULL otherwise, and the policy note's own token stands.
+ */
+const char *ntfsmac_session_serial_token(const ntfsmac_session_decision *d);
+
 ntfsmac_dmn_status ntfsmac_session_decide(const ntfsmac_session_config *cfg, ntfsmac_journal *j,
 					  const ntfsmac_probe_verdict *v, bool automatic,
 					  bool request_ro, int64_t now,

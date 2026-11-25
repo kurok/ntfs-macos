@@ -22,6 +22,7 @@
 
 #include "check.h"
 #include "internal.h"
+#include "report.h"
 
 #define SERIAL UINT64_C(0x1122334455667788)
 #define NOW0 INT64_C(1700000000)
@@ -467,10 +468,12 @@ static void test_bind_table(void)
 }
 
 static uint64_t g_live_id;
+static unsigned g_live_calls;
 
 static bool live_cb(void *ctx, uint64_t id)
 {
 	(void)ctx;
+	g_live_calls++;
 	return g_live_id != 0 && id == g_live_id;
 }
 
@@ -570,12 +573,76 @@ static void test_decide(void)
 	c.evidence_rule_enabled = true;
 	v.logfile_lsn = 0x9999; /* the evidence holds */
 	g_live_id = 4242;
+	g_live_calls = 0;
 	CHECK_EQ_INT(ntfsmac_session_decide(&c, f.j, &v, true, false, NOW0, live_cb, NULL, &d), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(g_live_calls, 1); /* session_live is asked once per decision */
 	CHECK_EQ_INT(d.policy.decision, NTFSMAC_POLICY_RO);
 	CHECK(!d.evidence_removed && entry_exists(&f));
+	CHECK(d.serial_live); /* same serial as a disk that is mounted rw: reported as such, not as a dirty volume */
 	g_live_id = 0; /* the session is over: the rule fires */
 	CHECK_EQ_INT(ntfsmac_session_decide(&c, f.j, &v, true, false, NOW0, live_cb, NULL, &d), NTFSMAC_DMN_OK);
 	CHECK(d.evidence_removed && !entry_exists(&f));
+	CHECK(!d.serial_live);
+	fake_done(&f);
+
+	/* a leftover entry of an ended session (no live session) is not a serial clash */
+	fake_init(&f);
+	memset(&e, 0, sizeof e);
+	e.serial = SERIAL;
+	snprintf(e.label, sizeof e.label, "Vol");
+	e.total_sectors = v.total_sectors;
+	e.session_id = 4243;
+	e.created = e.updated = NOW0;
+	e.logfile_lsn_at_start = 0x1234;
+	e.marker = NTFSMAC_JOURNAL_MARKER_PENDING;
+	CHECK_EQ_INT(ntfsmac_journal_create(f.j, &e), NTFSMAC_JOURNAL_OK);
+	c.evidence_rule_enabled = false;
+	g_live_id = 4242;
+	CHECK_EQ_INT(ntfsmac_session_decide(&c, f.j, &v, true, false, NOW0, live_cb, NULL, &d), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(d.policy.decision, NTFSMAC_POLICY_RO);
+	CHECK(!d.serial_live);
+	g_live_id = 4243;
+	CHECK_EQ_INT(ntfsmac_session_decide(&c, f.j, &v, true, false, NOW0, live_cb, NULL, &d), NTFSMAC_DMN_OK);
+	CHECK(d.serial_live);
+	/* same_serial replaces only the notes that the entry produced; every other note keeps its reason */
+	{
+		static const ntfsmac_policy_note own[] = { NTFSMAC_POLICY_NOTE_EXTERNAL_CHECK,
+							   NTFSMAC_POLICY_NOTE_UNCLEAN_SESSION,
+							   NTFSMAC_POLICY_NOTE_DIRTY_FLAG_JOURNAL };
+		static const ntfsmac_policy_note keep[] = {
+			NTFSMAC_POLICY_NOTE_NONE,        NTFSMAC_POLICY_NOTE_MODE_RO_REQUESTED,
+			NTFSMAC_POLICY_NOTE_DIRTY_FLAG,  NTFSMAC_POLICY_NOTE_UNCLEAN_LOG,
+			NTFSMAC_POLICY_NOTE_HIBERNATED,  NTFSMAC_POLICY_NOTE_UNKNOWN,
+			NTFSMAC_POLICY_NOTE_REFUSED,     NTFSMAC_POLICY_NOTE_MIRROR_SPLIT,
+			NTFSMAC_POLICY_NOTE_NAMES_NOT_NFC
+		};
+		ntfsmac_session_decision sd;
+		size_t i;
+
+		memset(&sd, 0, sizeof sd);
+		sd.serial_live = true;
+		for (i = 0; i < sizeof own / sizeof own[0]; i++) {
+			sd.policy.note = own[i];
+			CHECK(ntfsmac_session_serial_token(&sd) != NULL &&
+			      strcmp(ntfsmac_session_serial_token(&sd), "same_serial") == 0);
+		}
+		for (i = 0; i < sizeof keep / sizeof keep[0]; i++) {
+			sd.policy.note = keep[i];
+			CHECK(ntfsmac_session_serial_token(&sd) == NULL);
+		}
+		sd.serial_live = false;
+		sd.policy.note = NTFSMAC_POLICY_NOTE_UNCLEAN_SESSION;
+		CHECK(ntfsmac_session_serial_token(&sd) == NULL);
+		CHECK(ntfsmac_session_serial_token(NULL) == NULL);
+	}
+	/* the text names the serial, and neither the journal nor hibernation */
+	{
+		const char *t = ntfsmac_report_reason_text("same_serial");
+
+		CHECK(strstr(t, "serial") != NULL && strstr(t, "journal") == NULL && strstr(t, "hibernat") == NULL &&
+		      strstr(t, "chkdsk") == NULL);
+	}
+	g_live_id = 0;
 	fake_done(&f);
 
 	/* arguments */

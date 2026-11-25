@@ -332,6 +332,7 @@ const char *ntfsmac_report_reason_text(const char *token)
 		{"stray_mount", "the program that serves the volume mounted another file system"},
 		{"ro_requested", "read-only was requested"},
 		{"external_check", "checked on another system; re-attach or `ntfsmac mount` for read/write"},
+		{"same_serial", "another attached volume has the same serial number (a clone?); this one is read-only. Detach one of them, or give one a new serial number on Windows"},
 		{"unclean_session", "the last session on this Mac did not end cleanly; run chkdsk on Windows, then attach it again"},
 		{"dirty_flag", "the volume is marked dirty; run chkdsk on Windows"},
 		{"dirty_flag_journal", "this Mac left the volume open and writes from that session may be incomplete; run chkdsk on Windows"},

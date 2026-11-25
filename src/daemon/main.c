@@ -71,6 +71,8 @@
 #define REAP_WAIT_MS 5000u
 #define FORCE_UNMOUNT_MS 10000u
 #define PLAIN_UNMOUNT_MS 6000u /* a plain unmount with its EBUSY retries */
+#define INDEXER_WAIT_MS 60000u /* `ntfsmac unmount` refused only because Spotlight or Quick Look holds files: ask again this long (wall clock) */
+#define INDEXER_STEP_MS 2000u  /* between two tries; each try is its own job on the volume's queue */
 #define UNMOUNT_VERIFY_POLLS 10u   /* after an OK or "not a mount" answer: wait up to 10 x 100 ms for the mount to go */
 #define UNMOUNT_VERIFY_STEP_MS 100u
 #define UNMOUNTING_STUCK_MS 30000u /* a volume Unmounting for longer, with its mount present, goes back to Mounted */
@@ -151,6 +153,7 @@ struct vol {
 	unsigned unmount_tries;
 	unsigned tick_count;
 	uint64_t unmounting_since; /* monotonic ms when the tick first saw Unmounting; 0 otherwise */
+	ntfsmac_umwait um;         /* an `ntfsmac unmount` waits for Spotlight / Quick Look (ADR-028); queue only */
 };
 
 static pthread_mutex_t g_mu = PTHREAD_MUTEX_INITIALIZER;
@@ -1099,6 +1102,10 @@ static void vol_tick(void *p)
 		v->unmounting_since = ext_now_ms();
 	} else if (s != NTFSMAC_VOL_UNMOUNTING) {
 		v->unmounting_since = 0u;
+	} else if (v->um.waiting) {
+		/* An indexer wait is running (ADR-028, up to INDEXER_WAIT_MS, longer than the 30 s bound): it ends
+		 * itself with UNMOUNT_BUSY, so the stuck net is suspended meanwhile and starts over after it. */
+		v->unmounting_since = ext_now_ms();
 	} else if (ntfsmac_unmount_stuck(v->unmounting_since, ext_now_ms(), UNMOUNTING_STUCK_MS)) {
 		bool present = v->mp_valid && mount_present(v->mp.path);
 
@@ -1404,6 +1411,8 @@ static void attach_run(void *arg)
 	copy_str(ro_token, sizeof ro_token, ntfsmac_report_policy_note_token(da.out.policy.note));
 	if (da.out.evidence_removed)
 		copy_str(ro_token, sizeof ro_token, "external_check");
+	if (ntfsmac_session_serial_token(&da.out) != NULL)
+		copy_str(ro_token, sizeof ro_token, ntfsmac_session_serial_token(&da.out));
 
 	/*
 	 * H1 baseline: the FUSE mounts that this user has now are known and never touched. It is taken
@@ -1629,8 +1638,108 @@ typedef struct unmount_req {
 	bool force;
 	ntfsmac_dmn_status st;
 	pid_t busy;
+	bool waiting; /* the volume waits for Spotlight / Quick Look: answer "started" */
 	dispatch_semaphore_t done;
 } unmount_req;
+
+/* The real operations of the indexer wait (ADR-028). */
+typedef struct um_job {
+	vol *v;
+	unsigned gen;
+} um_job;
+
+static void um_retry(void *arg);
+
+static size_t um_holders(void *ctx, pid_t *pids, size_t cap)
+{
+	vol *v = ctx;
+
+	return v->mp_valid ? ntfsmac_unmount_holders(v->mp.path, pids, cap) : 0;
+}
+
+static bool um_is_indexer(void *ctx, pid_t pid)
+{
+	(void)ctx;
+	return ntfsmac_unmount_pid_is_indexer(pid);
+}
+
+static uint64_t um_now(void *ctx)
+{
+	(void)ctx;
+	return ext_now_ms();
+}
+
+static bool um_stopping(void *ctx)
+{
+	(void)ctx;
+	return g_stopping != 0;
+}
+
+static void um_schedule(void *ctx, unsigned gen)
+{
+	um_job *j = malloc(sizeof *j);
+
+	if (j == NULL) {
+		((vol *)ctx)->um.waiting = false; /* no retry can be queued: the wait is over */
+		return;
+	}
+	j->v = ctx;
+	j->gen = gen;
+	dispatch_after_f(dispatch_time(DISPATCH_TIME_NOW, (int64_t)INDEXER_STEP_MS * NSEC_PER_MSEC), j->v->q, j,
+			 um_retry);
+}
+
+static const ntfsmac_umwait_ops um_ops_tmpl = { um_holders, um_is_indexer, um_now, um_stopping, um_schedule, INDEXER_WAIT_MS, NULL };
+
+static ntfsmac_umwait_ops um_ops(vol *v)
+{
+	ntfsmac_umwait_ops o = um_ops_tmpl;
+
+	o.ctx = v;
+	return o;
+}
+
+/* The end of an indexer wait that did not unmount: the volume goes back to Mounted. Queue of the volume. */
+static void um_wait_end(vol *v, ntfsmac_umw_after how, ntfsmac_dmn_status st, pid_t report)
+{
+	if (how == NTFSMAC_UMA_BUSY) {
+		char name[64] = "unknown";
+
+#if defined(__APPLE__)
+		if (report > 0)
+			(void)proc_name(report, name, sizeof name);
+#endif
+		NTFSMAC_LOGW("%s: unmount refused: busy, held by pid %d (%s)", v->bsd, (int)report, name);
+	} else {
+		NTFSMAC_LOGW("%s: unmount did not finish: %s", v->bsd, ntfsmac_dmn_status_name(st));
+	}
+	note_unmount_failed(v);
+	(void)sm_apply(v, NTFSMAC_VEV_UNMOUNT_BUSY, NTFSMAC_VMODE_NONE, NTFSMAC_VREASON_NONE, NULL);
+}
+
+static void um_retry(void *arg)
+{
+	um_job *j = arg;
+	vol *v = j->v;
+	unsigned gen = j->gen;
+	ntfsmac_umwait_ops o = um_ops(v);
+	pid_t busy = 0, report = 0;
+	ntfsmac_dmn_status st;
+	ntfsmac_umw_after how;
+
+	free(j);
+	/* shutdown, the worker's teardown or a gone disk go on from here when the wait stops */
+	if (ntfsmac_umwait_retry(&v->um, &o, gen,
+				 vol_state(v) == NTFSMAC_VOL_UNMOUNTING && v->mp_valid && mount_present(v->mp.path)) !=
+	    NTFSMAC_UMR_TRY)
+		return;
+	st = unmount_checked(v, "cli", false, 4u, PLAIN_UNMOUNT_MS, &busy);
+	if (gen != v->um.gen)
+		return; /* cancelled or restarted while the call ran */
+	how = ntfsmac_umwait_after(&v->um, &o, st, busy, &report);
+	if (how == NTFSMAC_UMA_BUSY || how == NTFSMAC_UMA_FAILED)
+		um_wait_end(v, how, st, report);
+}
 
 static void unmount_run(void *arg)
 {
@@ -1638,6 +1747,23 @@ static void unmount_run(void *arg)
 	vol *v = u->v;
 	ntfsmac_vol_state s = vol_state(v);
 
+	if (s == NTFSMAC_VOL_UNMOUNTING && v->um.waiting) {
+		if (u->force) {
+			/* Force wins over an indexer wait: the wait ends, the forced unmount runs on the volume. */
+			ntfsmac_umwait_cancel(&v->um);
+			u->st = unmount_checked(v, "cli", true, 0u, FORCE_UNMOUNT_MS, &u->busy);
+			if (u->st != NTFSMAC_DMN_OK) {
+				note_unmount_failed(v);
+				(void)sm_apply(v, NTFSMAC_VEV_UNMOUNT_BUSY, NTFSMAC_VMODE_NONE, NTFSMAC_VREASON_NONE,
+					       NULL);
+			}
+		} else {
+			/* A second plain unmount while the wait runs: it is already under way. */
+			u->st = NTFSMAC_DMN_OK;
+			u->waiting = true;
+		}
+		goto out;
+	}
 	if (s != NTFSMAC_VOL_MOUNTED || !v->mp_valid) {
 		u->st = NTFSMAC_DMN_E_STATE;
 		goto out;
@@ -1646,6 +1772,23 @@ static void unmount_run(void *arg)
 	/* 4 retries: the transient EBUSY of T-M2-04 (section 4.5 step 1); a bound on the whole call. */
 	u->st = unmount_checked(v, "cli", u->force, u->force ? 0u : 4u,
 				u->force ? FORCE_UNMOUNT_MS : PLAIN_UNMOUNT_MS, &u->busy);
+	/* Spotlight / Quick Look are allowed on the volume (ADR-028): when every holder is one of them, the
+	 * unmount is asked again by short jobs on this queue (um_retry), so the queue is free in between.
+	 * A holder that is not an indexer is reported at once, as before, without a second scan. */
+	if (!u->force && u->st == NTFSMAC_DMN_E_BUSY) {
+		ntfsmac_umwait_ops o = um_ops(v);
+		pid_t report = u->busy;
+
+		if (ntfsmac_umwait_start(&v->um, &o, u->busy, &report)) {
+			NTFSMAC_LOGI("%s: unmount held only by Spotlight or Quick Look, asking again for up to %u s",
+				     v->bsd, INDEXER_WAIT_MS / 1000u);
+			u->waiting = true;
+			u->st = NTFSMAC_DMN_OK; /* the volume stays Unmounting; the request answers "started" */
+			goto out;
+		}
+		if (report != 0)
+			u->busy = report;
+	}
 	/* OK also covers "not a mount any more" with the mount really gone: the worker is ending. */
 	if (u->st != NTFSMAC_DMN_OK) {
 		note_unmount_failed(v);
@@ -2119,7 +2262,8 @@ static ntfsmac_dmn_status op_unmount(void *ctx, const char *bsd, bool force, cha
 	dispatch_release(u->done);
 	st = u->st;
 	if (st == NTFSMAC_DMN_OK) {
-		snprintf(reply, cap, "{\"ok\":true,\"result\":\"unmounting\"}");
+		snprintf(reply, cap, u->waiting ? "{\"ok\":true,\"result\":\"started\"}"
+						 : "{\"ok\":true,\"result\":\"unmounting\"}");
 	} else if (st == NTFSMAC_DMN_E_BUSY) {
 		snprintf(reply, cap, "{\"ok\":false,\"error\":\"failed\",\"status\":\"busy\",\"busy_pid\":%d}",
 			 (int)u->busy);
@@ -2438,12 +2582,18 @@ static void shutdown_vol(void *arg)
 
 	if (s != NTFSMAC_VOL_MOUNTED && s != NTFSMAC_VOL_UNMOUNTING)
 		return;
-	/* A plain unmount first, so that the worker ends the way section 4.5 describes. */
-	if (v->mp_valid && s == NTFSMAC_VOL_MOUNTED) {
+	/* A plain unmount first, so that the worker ends the way section 4.5 describes. An indexer wait
+	 * (ADR-028) ends here: the plain unmount runs as for Mounted, so a session that can end cleanly does. */
+	if (s == NTFSMAC_VOL_UNMOUNTING && v->um.waiting)
+		ntfsmac_umwait_cancel(&v->um);
+	else if (s == NTFSMAC_VOL_UNMOUNTING)
+		goto settle;
+	if (v->mp_valid && (s == NTFSMAC_VOL_MOUNTED || s == NTFSMAC_VOL_UNMOUNTING)) {
 		pid_t busy;
 
 		(void)unmount_checked(v, "shutdown", false, 3u, PLAIN_UNMOUNT_MS, &busy);
 	}
+settle:
 	memset(&a, 0, sizeof a);
 	while (v->worker.pid > 1 && waited < 8000u) {
 		bool exited = false;

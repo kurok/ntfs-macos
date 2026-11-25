@@ -292,6 +292,20 @@ ntfsmac_journal_status ntfsmac_journal_remove_if(ntfsmac_journal *j,
 /* Decision step (section 4.1 step 5, section 3.5 rule 2)              */
 /* ------------------------------------------------------------------ */
 
+const char *ntfsmac_session_serial_token(const ntfsmac_session_decision *d)
+{
+	if (d == NULL || !d->serial_live)
+		return NULL;
+	switch (d->policy.note) {
+	case NTFSMAC_POLICY_NOTE_EXTERNAL_CHECK:
+	case NTFSMAC_POLICY_NOTE_UNCLEAN_SESSION:
+	case NTFSMAC_POLICY_NOTE_DIRTY_FLAG_JOURNAL:
+		return "same_serial"; /* these notes come from the entry, and the entry is another disk's */
+	default:
+		return NULL; /* hibernation, dirty flag, unclean log, names not NFC ...: the volume's own reason */
+	}
+}
+
 ntfsmac_dmn_status ntfsmac_session_decide(const ntfsmac_session_config *cfg, ntfsmac_journal *j,
 					  const ntfsmac_probe_verdict *v, bool automatic,
 					  bool request_ro, int64_t now,
@@ -302,6 +316,7 @@ ntfsmac_dmn_status ntfsmac_session_decide(const ntfsmac_session_config *cfg, ntf
 	const ntfsmac_journal_entry *ep = NULL;
 	ntfsmac_policy_input in;
 	ntfsmac_journal_status js;
+	bool live;
 
 	if (cfg == NULL || j == NULL || v == NULL || out == NULL)
 		return NTFSMAC_DMN_E_INVAL;
@@ -330,6 +345,11 @@ ntfsmac_dmn_status ntfsmac_session_decide(const ntfsmac_session_config *cfg, ntf
 	in.mode = ntfsmac_session_policy_mode(cfg, automatic, request_ro);
 	in.evidence_rule_enabled = cfg->evidence_rule_enabled;
 	out->policy = ntfsmac_policy_decide(&in);
+	/* An entry of a live session is no leftover of an unclean session: another attached disk has this
+	 * serial (a clone). session_live is asked once. */
+	live = ep != NULL && !out->entry_corrupt && ep->session_id != 0 && session_live != NULL &&
+	       session_live(live_ctx, ep->session_id);
+	out->serial_live = live;
 
 	if (out->policy.journal_action == NTFSMAC_POLICY_JOURNAL_REMOVE && ep != NULL &&
 	    !out->entry_corrupt) {
@@ -337,8 +357,6 @@ ntfsmac_dmn_status ntfsmac_session_decide(const ntfsmac_session_config *cfg, ntf
 		 * Rule 2. It takes effect on the next decision, never on this attach, and never on the
 		 * entry of a live session (a clone of a volume that another disk has mounted rw).
 		 */
-		bool live = ep->session_id != 0 && session_live != NULL && session_live(live_ctx, ep->session_id);
-
 		if (!live)
 			out->evidence_removed =
 				ntfsmac_journal_remove_if(j, ep, NTFSMAC_JOURNAL_REMOVE_EXTERNAL_CHECK,

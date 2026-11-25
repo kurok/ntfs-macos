@@ -15,7 +15,8 @@
 #   integration  tests/harness/run-env-b.sh: the harness cases of env B, run in the guest
 #   compat       tests/harness/run-env-b.sh --orchestrate: the cases of env host that drive the guest
 #                and the Linux container (C-REF-*, I-BIG-COMP-01, I-NAME-U22, I-XATTR-09)
-#   daemon       tests/integration/daemon/dmn_all.sh: the I-DMN-* drivers, attach and Finder suites
+#   daemon       tests/integration/daemon/dmn_all.sh: the I-DMN-* drivers, attach and Finder suites (it is given
+#                --lane-slot-dir, or --lanes 1 with --lanes 1 here; NTFSMAC_DMN_SHARE=0 gives its old one-guest-each order)
 #   stress-NAME  tests/stress/NAME/run.sh for every entry point registered for B
 #                (scripts/test-all.sh --list-stress B)
 #
@@ -562,13 +563,13 @@ st_daemon() {
 		fail_stage daemon "build/release/src/daemon/ntfsmacd is missing: cmake --build --preset release"
 	else
 		NOTE_FILE=$work/artifacts/daemon/summary.txt
-		if [ -n "$deps_tar" ]; then
-			stage daemon "tests/integration/daemon/dmn_all.sh --fixtures DIR (every I-DMN driver, one guest each)" \
-				sh "$root/tests/integration/daemon/dmn_all.sh" --fixtures "$fixtures" --out-dir "$work/artifacts/daemon" --deps-tar "$deps_tar"
-		else
-			stage daemon "tests/integration/daemon/dmn_all.sh --fixtures DIR (every I-DMN driver, one guest each)" \
-				sh "$root/tests/integration/daemon/dmn_all.sh" --fixtures "$fixtures" --out-dir "$work/artifacts/daemon"
-		fi
+		# this run holds the first slot; dmn_all.sh runs a second guest only when another slot of slot_dir is free (with two
+		# lanes both are held by this run in phase 2, so it then shares guests in one; NTFSMAC_DMN_SHARE=0: the old order)
+		set -- --fixtures "$fixtures" --out-dir "$work/artifacts/daemon"
+		[ -z "$deps_tar" ] || set -- "$@" --deps-tar "$deps_tar"
+		if [ "$lanes" -ge 2 ]; then set -- "$@" --lane-slot-dir "$slot_dir"; else set -- "$@" --lanes 1; fi
+		stage daemon "tests/integration/daemon/dmn_all.sh --fixtures DIR (every I-DMN driver; module-level drivers share a guest)" \
+			sh "$root/tests/integration/daemon/dmn_all.sh" "$@"
 	fi
 }
 

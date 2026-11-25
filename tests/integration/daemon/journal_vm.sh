@@ -15,8 +15,11 @@
 # the sandbox profiles in a root-owned directory, copy the output back, always delete the VM.
 # Nothing touches a host disk. Every mount is of an image file inside the guest, with norecover.
 #
-# Usage: tests/integration/daemon/journal_vm.sh [--out FILE] [CASE]
+# Usage: tests/integration/daemon/journal_vm.sh [--out FILE] [--guest NAME] [CASE]
 #   CASE  one of rw, unclean, markfail, bind, evidence, clear, repair (default: all)
+#   --guest NAME  run in that running guest instead of a fresh clone (dmn_all.sh shares one between the
+#                 module-level drivers): it is neither cloned nor deleted here, and NTFS-3G is built only when the
+#                 guest has no build of its own yet (~/ntfsmac/deps-built names the guest)
 # Exit:  the driver's exit code (0 all checks passed), 2 setup error.
 set -eu
 
@@ -24,12 +27,14 @@ here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 root=$(CDPATH='' cd -- "$here/../../.." && pwd)
 tart_sh=$root/vm/macos/tart.sh
 name=ntfsmac-journal-$$
+shared=0 # 1: --guest, a running guest of dmn_all.sh shared with other drivers (not cloned, not deleted here)
 out=
 case_name=
 
 while [ $# -gt 0 ]; do
 	case "$1" in
 	--out) [ $# -ge 2 ] || { echo "journal_vm: --out needs a file" >&2; exit 2; }; out=$2; shift 2 ;;
+	--guest) [ $# -ge 2 ] || { echo "journal_vm: --guest needs a guest name" >&2; exit 2; }; name=$2; shared=1; shift 2 ;;
 	-*) echo "journal_vm: unknown option $1" >&2; exit 2 ;;
 	*) case_name=$1; shift ;;
 	esac
@@ -40,7 +45,7 @@ case "$case_name" in
 esac
 
 cleanup() {
-	"$tart_sh" delete "$name" >&2 || echo "journal_vm: WARNING: could not delete $name" >&2
+	[ "$shared" -eq 1 ] || "$tart_sh" delete "$name" >&2 || echo "journal_vm: WARNING: could not delete $name" >&2
 }
 trap cleanup EXIT
 trap 'exit 130' INT TERM HUP
@@ -49,15 +54,24 @@ tarball=$(awk '$1 == "ntfs-3g" { n = split($3, a, "/"); print a[n] }' "$root/thi
 [ -n "$tarball" ] || { echo "journal_vm: no ntfs-3g entry in third_party/deps.lock" >&2; exit 2; }
 [ -f "$root/third_party/cache/$tarball" ] || { echo "journal_vm: $root/third_party/cache/$tarball is missing; run scripts/fetch-deps.sh ntfs-3g" >&2; exit 2; }
 
-"$tart_sh" clone "$name" --from golden >&2
-"$tart_sh" run "$name" >&2
+if [ "$shared" -eq 0 ]; then
+	"$tart_sh" clone "$name" --from golden >&2
+	"$tart_sh" run "$name" >&2
+fi
 
-echo "journal_vm: building NTFS-3G in the guest" >&2
-(cd "$root" && tar -cf - scripts/build-ntfs3g.sh scripts/fetch-deps.sh third_party/deps.lock \
-	third_party/patches "third_party/cache/$tarball") |
-	tart exec -i "$name" /bin/sh -c 'rm -rf ~/ntfsmac/tree && mkdir -p ~/ntfsmac/tree && tar -xf - -C ~/ntfsmac/tree'
-"$tart_sh" exec "$name" -- 'cd ~/ntfsmac/tree && sh scripts/build-ntfs3g.sh --fuse external --jobs 4 --prefix ~/ntfsmac/deps --build-dir ~/ntfsmac/build 2>&1' >&2 ||
-	{ echo "journal_vm: guest build failed" >&2; exit 2; }
+# In a shared guest the first driver builds NTFS-3G and stamps ~/ntfsmac/deps-built with the guest name; the
+# others use that build (the same command, sources and patches; the drivers only read ~/ntfsmac/deps).
+if [ "$shared" -eq 1 ] && "$tart_sh" exec "$name" -- "test \"\$(cat ~/ntfsmac/deps-built 2>/dev/null)\" = '$name'" 2>/dev/null; then
+	echo "journal_vm: NTFS-3G is already built in the shared guest $name" >&2
+else
+	echo "journal_vm: building NTFS-3G in the guest" >&2
+	(cd "$root" && tar -cf - scripts/build-ntfs3g.sh scripts/fetch-deps.sh third_party/deps.lock \
+		third_party/patches "third_party/cache/$tarball") |
+		tart exec -i "$name" /bin/sh -c 'rm -rf ~/ntfsmac/tree && mkdir -p ~/ntfsmac/tree && tar -xf - -C ~/ntfsmac/tree'
+	"$tart_sh" exec "$name" -- 'cd ~/ntfsmac/tree && sh scripts/build-ntfs3g.sh --fuse external --jobs 4 --prefix ~/ntfsmac/deps --build-dir ~/ntfsmac/build 2>&1' >&2 ||
+		{ echo "journal_vm: guest build failed" >&2; exit 2; }
+	[ "$shared" -eq 0 ] || "$tart_sh" exec "$name" -- "echo '$name' >~/ntfsmac/deps-built" >&2
+fi
 
 echo "journal_vm: copying the sources" >&2
 (cd "$root" && tar -cf - include integration/sandbox src/daemon src/journal src/common src/options \

@@ -79,7 +79,10 @@
 #                    its plain id only when the run had the criterion parameters (6 h soak, 20 kill
 #                    repetitions, ...); every other run writes it with the suffix -SHORT (M5-F04).
 #   --lanes N        (full mode) stage B: 2 (default) runs its VM stages in two lanes, two guests at a time;
-#                    1 runs them strictly one after the other (test-all.sh --lanes, docs/TEST_STRATEGY.md)
+#                    1 runs them strictly one after the other (test-all.sh --lanes, docs/TEST_STRATEGY.md);
+#                    the daemon stage then keeps to one guest too (dmn_all.sh --lanes 1). NTFSMAC_DMN_SHARE=0 in the
+#                    environment (passed down to tests/integration/daemon/dmn_all.sh) gives the daemon stage its old
+#                    order: every driver its own fresh guest, one after the other
 #   --serial         (full mode) no concurrency between the Docker stages (A, linux-build-test, fuzz-short) and
 #                    the VM stages (package, B): every stage runs alone, in the order above, with its output on
 #                    the console. Default: after bootstrap, host, tsan and static-analysis the two groups run at

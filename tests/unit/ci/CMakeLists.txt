@@ -34,6 +34,10 @@ if(NTFSMAC_PYTHON3 AND NTFSMAC_SH)
   add_test(NAME ci.vm_slots
     COMMAND ${_ci_env} ${NTFSMAC_SH} ${_ci_dir}/test_vm_slots.sh)
   set_tests_properties(ci.vm_slots PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 120 LABELS ci)
+  # dmn_all.sh guest sharing and its second guest (CI speedup step 5): stub drivers and a stub tart.sh, no VM
+  add_test(NAME ci.dmn_all
+    COMMAND ${_ci_env} ${NTFSMAC_PYTHON3} -I -B ${_ci_dir}/test_dmn_all.py)
+  set_tests_properties(ci.dmn_all PROPERTIES TIMEOUT 180 LABELS ci)
   # deps-tar and fixtures keys, seals and stamps, with fake tars and a temp git repository (M5-F07)
   add_test(NAME ci.run_inputs
     COMMAND ${_ci_env} ${NTFSMAC_SH} ${_ci_dir}/test_run_inputs.sh)

@@ -18,8 +18,11 @@
 # ntfsfix audit: a sampler in the guest lists every process whose executable is called ntfsfix during
 # the run (there must be none), and the two product binaries are searched for the name.
 #
-# Usage: tests/integration/daemon/dmn_mirror_vm.sh [--out FILE] [--images DIR] [CASE]
+# Usage: tests/integration/daemon/dmn_mirror_vm.sh [--out FILE] [--guest NAME] [--images DIR] [CASE]
 #   CASE          one of refuse, repair, volmark (default: all)
+#   --guest NAME  run in that running guest instead of a fresh clone (dmn_all.sh shares one between the
+#                 module-level drivers): it is neither cloned nor deleted here, and NTFS-3G is built only when the
+#                 guest has no build of its own yet (~/ntfsmac/deps-built names the guest)
 #   --images DIR  a directory with split.img, splitdirty.img, newer.img and splitlog.img (default:
 #                 made with Environment A into a temporary directory)
 # Exit:  the driver's exit code (0 all checks passed), 2 setup error.
@@ -29,6 +32,7 @@ here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 root=$(CDPATH='' cd -- "$here/../../.." && pwd)
 tart_sh=$root/vm/macos/tart.sh
 name=ntfsmac-m416-$$
+shared=0 # 1: --guest, a running guest of dmn_all.sh shared with other drivers (not cloned, not deleted here)
 out=
 case_name=
 images=
@@ -37,6 +41,7 @@ tmpimg=
 while [ $# -gt 0 ]; do
 	case "$1" in
 	--out) [ $# -ge 2 ] || { echo "dmn_mirror_vm: --out needs a file" >&2; exit 2; }; out=$2; shift 2 ;;
+	--guest) [ $# -ge 2 ] || { echo "dmn_mirror_vm: --guest needs a guest name" >&2; exit 2; }; name=$2; shared=1; shift 2 ;;
 	--images) [ $# -ge 2 ] || { echo "dmn_mirror_vm: --images needs a directory" >&2; exit 2; }; images=$2; shift 2 ;;
 	-*) echo "dmn_mirror_vm: unknown option $1" >&2; exit 2 ;;
 	*) case_name=$1; shift ;;
@@ -49,7 +54,7 @@ esac
 
 cleanup() {
 	if [ -n "${vm_started:-}" ]; then
-		"$tart_sh" delete "$name" >&2 || echo "dmn_mirror_vm: WARNING: could not delete $name" >&2
+		[ "$shared" -eq 1 ] || "$tart_sh" delete "$name" >&2 || echo "dmn_mirror_vm: WARNING: could not delete $name" >&2
 	fi
 	[ -z "$tmpimg" ] || rm -rf "$tmpimg"
 }
@@ -81,15 +86,24 @@ for f in split splitdirty newer splitlog; do
 done
 
 vm_started=1
-"$tart_sh" clone "$name" --from golden >&2
-"$tart_sh" run "$name" >&2
+if [ "$shared" -eq 0 ]; then
+	"$tart_sh" clone "$name" --from golden >&2
+	"$tart_sh" run "$name" >&2
+fi
 
-echo "dmn_mirror_vm: building NTFS-3G in the guest" >&2
-(cd "$root" && tar -cf - scripts/build-ntfs3g.sh scripts/fetch-deps.sh third_party/deps.lock \
-	third_party/patches "third_party/cache/$tarball") |
-	tart exec -i "$name" /bin/sh -c 'rm -rf ~/ntfsmac/tree && mkdir -p ~/ntfsmac/tree && tar -xf - -C ~/ntfsmac/tree'
-"$tart_sh" exec "$name" -- 'cd ~/ntfsmac/tree && sh scripts/build-ntfs3g.sh --fuse external --jobs 4 --prefix ~/ntfsmac/deps --build-dir ~/ntfsmac/build 2>&1' >&2 ||
-	{ echo "dmn_mirror_vm: guest build failed" >&2; exit 2; }
+# In a shared guest the first driver builds NTFS-3G and stamps ~/ntfsmac/deps-built with the guest name; the
+# others use that build (the same command, sources and patches; the drivers only read ~/ntfsmac/deps).
+if [ "$shared" -eq 1 ] && "$tart_sh" exec "$name" -- "test \"\$(cat ~/ntfsmac/deps-built 2>/dev/null)\" = '$name'" 2>/dev/null; then
+	echo "dmn_mirror_vm: NTFS-3G is already built in the shared guest $name" >&2
+else
+	echo "dmn_mirror_vm: building NTFS-3G in the guest" >&2
+	(cd "$root" && tar -cf - scripts/build-ntfs3g.sh scripts/fetch-deps.sh third_party/deps.lock \
+		third_party/patches "third_party/cache/$tarball") |
+		tart exec -i "$name" /bin/sh -c 'rm -rf ~/ntfsmac/tree && mkdir -p ~/ntfsmac/tree && tar -xf - -C ~/ntfsmac/tree'
+	"$tart_sh" exec "$name" -- 'cd ~/ntfsmac/tree && sh scripts/build-ntfs3g.sh --fuse external --jobs 4 --prefix ~/ntfsmac/deps --build-dir ~/ntfsmac/build 2>&1' >&2 ||
+		{ echo "dmn_mirror_vm: guest build failed" >&2; exit 2; }
+	[ "$shared" -eq 0 ] || "$tart_sh" exec "$name" -- "echo '$name' >~/ntfsmac/deps-built" >&2
+fi
 
 echo "dmn_mirror_vm: copying the sources and the images" >&2
 (cd "$root" && tar -cf - include integration/sandbox src/daemon src/journal src/common src/options \

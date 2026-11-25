@@ -895,6 +895,7 @@ trap 'exit 143' TERM
 ls "$g" | wc -l | tr -d ' ' >>"$STUB_DIR/counts"
 now() { perl -MTime::HiRes=time -e 'printf "%.3f\n", time'; }
 echo "$name start $(now)" >>"$STUB_DIR/events"
+echo "$name $*" >>"$STUB_DIR/args"
 s=$(val "${STUB_SLEEP:-}" "$name")
 if [ -n "$s" ]; then sleep "$s" & wait $!; fi
 echo "$name end $(now)" >>"$STUB_DIR/events"
@@ -1066,6 +1067,25 @@ class RunSuiteLanesTest(unittest.TestCase):
         self.assertEqual(self.max_guests(), 1)
         self.assertEqual([p[0] for p in self.stages()], PLAN)
         self.assertEqual(os.listdir(self.slots), ["slot-2"])  # the other holder's lock is untouched
+
+    def stage_args(self, name):
+        with open(os.path.join(self.sd, "args")) as f:
+            return [ln.split()[1:] for ln in f if ln.split()[0] == name]
+
+    def test_daemon_stage_gets_the_slot_dir_for_its_second_guest(self):
+        # dmn_all.sh (CI speedup step 5): with two lanes it may take a free slot of this run's slot dir, never wait;
+        # with --lanes 1 it is told to keep to one guest
+        r = self.run_suite(STUB_SLEEP="integration=0.1")
+        self.assertEqual(r.returncode, 0, r.stderr.decode())
+        a = self.stage_args("daemon")[0]
+        self.assertEqual(a[a.index("--lane-slot-dir") + 1], self.slots)
+        self.assertNotIn("--lanes", a)
+        os.remove(os.path.join(self.sd, "args"))
+        r = self.run_suite("--lanes", "1", STUB_SLEEP="integration=0.1")
+        self.assertEqual(r.returncode, 0, r.stderr.decode())
+        a = self.stage_args("daemon")[0]
+        self.assertEqual(a[a.index("--lanes") + 1], "1")
+        self.assertNotIn("--lane-slot-dir", a)
 
     def test_quick_uses_one_lane(self):
         r = self.run_suite("--quick", STUB_SLEEP="integration=0.3")

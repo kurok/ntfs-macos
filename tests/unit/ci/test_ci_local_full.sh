@@ -902,11 +902,14 @@ if grep -qx 'cpus fuzz-short none' "$ev"; then r=0; else r=1; cat "$ev" | tr '\n
 check "G8: --serial has no cap (the old behaviour)" "$r"
 unset CI_LOCAL_TEST_OWN_EVENTS
 
-# INT/TERM to ci-local stops both groups, waits for their cleanup (which writes through the pipes), prints the summary
+# INT/TERM to ci-local stops both groups, waits for their cleanup (which writes through the pipes), prints the summary.
+# The stubs sleep for a duration only this run uses (the pid of this script as the fraction), so that the check for
+# leftovers sees the processes of this test and not a `sleep 60` of any other job on the host.
+slp=60.$$
 slots=$work/slots
 mkdir -p "$slots"
 : >"$ev"
-export STUB_SLEEP="A:60" STUB_CLEANUP="A:3" STUB_EVENTS=$ev CI_LOCAL_TEST_OWN_SLEEP="package:60" CI_LOCAL_TEST_OWN_CLEANUP="package:3" CI_LOCAL_TEST_OWN_EVENTS=$ev CI_LOCAL_TEST_OWN=1 CI_LOCAL_TEST_OWN_TAKE_SLOT=package
+export STUB_SLEEP="A:$slp" STUB_CLEANUP="A:3" STUB_EVENTS=$ev CI_LOCAL_TEST_OWN_SLEEP="package:$slp" CI_LOCAL_TEST_OWN_CLEANUP="package:3" CI_LOCAL_TEST_OWN_EVENTS=$ev CI_LOCAL_TEST_OWN=1 CI_LOCAL_TEST_OWN_TAKE_SLOT=package
 : >"$STUB_LOG"
 rc=0
 "$work/r/scripts/ci-local.sh" --results-dir "$work/ressig" --slot-dir "$slots" >"$work/out" 2>&1 &
@@ -927,14 +930,14 @@ check "G7: TERM to ci-local stops both groups (TERM reaches the stage processes)
 # the stubs cleaned up while writing to stdout and stderr (the pipe to tee of an own stage stays open), and ci-local waited for it
 if [ "$(evn "$ev" "cleaned A")" -gt 0 ] && [ "$(evn "$ev" "cleaned package")" -gt 0 ] && [ "$((t1 - t0))" -ge 3 ]; then r=0; else r=1; cat "$ev" | tr '\n' ';'; fi
 check "G7: ci-local exits only after the cleanups (a process the trap starts, written through the pipe) have finished: no TERM to tee, none to the cleanup" "$r"
-if ! ps -A -o command= | grep -q '^sleep 6[0]$'; then r=0; else r=1; ps -A -o pid=,command= | grep '^ *[0-9]* sleep 6[0]$'; fi
+if ! ps -A -o command= | grep -q "^sleep $slp\$"; then r=0; else r=1; ps -A -o pid,ppid,lstart,command | grep "sleep $slp\$"; fi
 check "G7: no stub process is left behind" "$r"
 n=0; for d in "$slots"/slot-*; do [ ! -e "$d" ] || n=$((n + 1)); done
 check "G7: no VM slot is left behind (package held one under the pid of ci-local: $held before the signal)" "$([ "$n" -eq 0 ] && [ "$held" -eq 1 ] && echo 0 || echo 1)"
 
 # a signal in the window between the start of the two groups: the second group runs no stage
 : >"$ev"
-export STUB_SLEEP="A:60" STUB_CLEANUP="A:1" STUB_EVENTS=$ev CI_LOCAL_TEST_OWN_EVENTS=$ev CI_LOCAL_TEST_OWN=1 CI_LOCAL_TEST_FORK_DELAY=4
+export STUB_SLEEP="A:$slp" STUB_CLEANUP="A:1" STUB_EVENTS=$ev CI_LOCAL_TEST_OWN_EVENTS=$ev CI_LOCAL_TEST_OWN=1 CI_LOCAL_TEST_FORK_DELAY=4
 rc=0
 "$work/r/scripts/ci-local.sh" --results-dir "$work/ressig2" --slot-dir "$slots" >"$work/out" 2>&1 &
 cpid=$!

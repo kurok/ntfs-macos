@@ -51,8 +51,9 @@ leave_entry() {
 	[ "$(state_of "$_b") $(mount_of "$_b")" = "Mounted rw" ] || failf "leave_entry: not mounted rw: $(row "$_b")"
 	echo x >"$(mpoint_of "$_b")/x.txt" && sync
 	sudo -n kill -9 "$(worker_pids | head -1)"
-	wait_for 60 sh -c "[ \"\$(mount | grep -cF macfuse)\" = 0 ]" || true
-	sleep 2
+	# the daemon closes the device before it applies Appeared: wait for the state, then for the last holder
+	wait_for 90 has_state "$_b" Appeared || true
+	wait_for 60 no_device_holder "$_b" || true
 	detach_image "$_b"
 }
 unmount_wait() { "$CLI" unmount "$1" >/dev/null 2>&1; wait_for 90 has_state "$1" Appeared || true; }
@@ -65,6 +66,7 @@ echo "== I-DMN-19: journal-clear over the real XPC service"
 reset_journal
 img=$(fresh_image clean-64m-4k)
 leave_entry "$img"
+note "journal_count $(journal_count), flags_of $(flags_of "$img")"
 check "the killed session left the entry and the flag on the image" sh -c "[ '$(journal_count)' = 1 ] && [ '$(flags_of "$img")' = 0x0001 ]"
 # 19.a the volume is not clean (the marker flag is still set): refused by the probe gate
 bsd=$(attach_settle "$img")

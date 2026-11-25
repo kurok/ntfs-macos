@@ -144,10 +144,17 @@ yank_image() {
 # cannot detach a disk whose device the worker holds, and an image left attached would be found
 # again by the next daemon start)
 detach_image() {
-	if [ "$(state_of "$1" 2>/dev/null)" = Mounted ]; then
+	_ds=$(state_of "$1" 2>/dev/null)
+	if [ "$_ds" = Mounted ]; then
 		"$CLI" unmount "$1" >/dev/null 2>&1
-		wait_for 60 has_state "$1" Appeared || true
+		_ds=$(state_of "$1" 2>/dev/null)
 	fi
+	# the daemon closes the device before it applies Appeared: wait for the state, then for the last holder
+	if [ "$_ds" = Mounted ] || transient "$_ds"; then
+		wait_for 90 has_state "$1" Appeared || true
+	fi
+	_dl=$(($(date +%s) + 60)) # wall-clock bound: a slow lsof must not stretch it
+	while [ -n "$(dev_holders "$1")" ] && [ "$(date +%s)" -lt "$_dl" ]; do sleep 1; done
 	_detach_raw "$1"
 }
 # _detach_raw BSD: detach, then force-detach. On failure the answers of hdiutil, what `hdiutil info` lists for the

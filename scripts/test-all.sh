@@ -11,7 +11,7 @@
 # container) and --env B (macOS VM). Each writes its own result file.
 #
 # Usage: scripts/test-all.sh --env A|B|host [--quick] [--out FILE] [--cases GLOB] [--dry-run]
-#                            [--fixtures DIR] [--slot-dir DIR] [--keep-work] [--update-readme]
+#                            [--fixtures DIR] [--slot-dir DIR] [--lanes 1|2] [--keep-work] [--update-readme]
 #   --env host   build and unit tests on this Mac (release, product, ASan): never a mount
 #   --env A      Linux container: selftest, probe and volmark suites, harness cases of
 #                Environment A, stress entries registered for A
@@ -30,6 +30,10 @@
 #                .fixtures-key; the key and a manifest of the images go into the fixtures stage note and evidence)
 #   --slot-dir DIR  env B: directory of the VM slot locks, taken with mkdir around the VMs
 #                (default: ${NTFSMAC_VM_SLOT_DIR:-${TMPDIR:-/tmp}/ntfsmac-vm-slots})
+#   --lanes N    env B: 2 (default): after guest-build the stages run in two lanes, two guests at a time (integration and
+#                compat || daemon; soak || kill and leaks; parallel || disconnect); 1: strictly one stage after the
+#                other in plan order (debugging, timing comparisons). Same stages, same result either way; NTFSMAC_LANES
+#                is the default. See vm/macos/run-suite.sh and docs/TEST_STRATEGY.md.
 #   --keep-work  keep the temporary work directory (stage logs, partial results)
 #   --update-readme  after the run, regenerate the README status table (report.py readme)
 #   --list-stress ENV  print the stress entry points registered for ENV and exit
@@ -65,7 +69,7 @@ die() {
 }
 
 usage() {
-	sed -n '4,50p' "$0" | sed 's/^# \{0,1\}//' >&2
+	sed -n '4,56p' "$0" | sed 's/^# \{0,1\}//' >&2
 }
 
 # stress_entries ENV: names of the registered tests/stress/* entry points for ENV
@@ -89,6 +93,7 @@ cases=
 dry=0
 fixtures=
 slot_dir=
+lanes=
 keep=0
 update_readme=0
 while [ $# -gt 0 ]; do
@@ -100,6 +105,7 @@ while [ $# -gt 0 ]; do
 	--dry-run) dry=1 ;;
 	--fixtures) [ $# -ge 2 ] || die "--fixtures needs a directory"; fixtures=$2; shift ;;
 	--slot-dir) [ $# -ge 2 ] || die "--slot-dir needs a directory"; slot_dir=$2; shift ;;
+	--lanes) [ $# -ge 2 ] || die "--lanes needs 1 or 2"; lanes=$2; shift ;;
 	--keep-work) keep=1 ;;
 	--update-readme) update_readme=1 ;;
 	--list-stress) [ $# -ge 2 ] || die "--list-stress needs an environment"; stress_entries "$2"; exit 0 ;;
@@ -112,6 +118,7 @@ case $env_name in
 A | B | host) ;;
 *) usage; die "--env A, B or host is required" ;;
 esac
+case $lanes in '' | 1 | 2) ;; *) die "--lanes needs 1 or 2, not $lanes" ;; esac
 case $out in '' | /*) ;; *) out=$(pwd)/$out ;; esac
 case $fixtures in '' | /*) ;; *) fixtures=$(pwd)/$fixtures ;; esac
 case $slot_dir in '' | /*) ;; *) slot_dir=$(pwd)/$slot_dir ;; esac
@@ -306,8 +313,19 @@ finish() {
 	exit "$_rc"
 }
 
+suite_job=
 interrupted() {
 	trap '' INT TERM HUP
+	# env B: run-suite.sh runs in the background (so that this trap runs at once); it stops every stage of both lanes and
+	# deletes every guest when it gets TERM, and this shell waits for it to be done before it writes the result
+	if [ -n "$suite_job" ]; then
+		_i=0
+		while [ ! -s "$work/b/suite.pid" ] && [ "$_i" -lt 20 ]; do sleep 0.5; _i=$((_i + 1)); done
+		_sp=$(cat "$work/b/suite.pid" 2>/dev/null) || _sp=
+		[ -z "$_sp" ] || kill -TERM "$_sp" 2>/dev/null || true
+		wait "$suite_job" 2>/dev/null || true
+		suite_job=
+	fi
 	record interrupted fail 0 "interrupted by a signal" ""
 	finish
 }
@@ -429,6 +447,7 @@ plan_b() {
 	[ -z "$cases" ] || set -- "$@" --cases "$cases"
 	[ "$fx_ok" -eq 0 ] || set -- "$@" --fixtures "$fixtures"
 	set -- "$@" --slot-dir "$slot_dir"
+	[ -z "$lanes" ] || set -- "$@" --lanes "$lanes"
 	if [ "$dry" -eq 1 ]; then
 		printf '    -- vm/macos/run-suite.sh (clones the golden VM, runs, deletes the clone):\n'
 		sh "$root/vm/macos/run-suite.sh" --dry-run "$@" | sed 's/^/    /'
@@ -436,7 +455,10 @@ plan_b() {
 	fi
 	mkdir -p "$work/b"
 	rm -f "$work/b/suite.rc"
-	sh "$root/vm/macos/run-suite.sh" "$@" 2>&1 </dev/null | tee "$work/logs/vm-suite.log" >&2 || true
+	sh "$root/vm/macos/run-suite.sh" "$@" 2>&1 </dev/null | tee "$work/logs/vm-suite.log" >&2 &
+	suite_job=$!
+	wait "$suite_job" || true
+	suite_job=
 	# the exit status of the pipeline's first command is not available in sh: run-suite.sh leaves it in a file
 	_rc=$(cat "$work/b/suite.rc" 2>/dev/null) || _rc=
 	case $_rc in '' | *[!0-9]*) _rc=2 ;; esac

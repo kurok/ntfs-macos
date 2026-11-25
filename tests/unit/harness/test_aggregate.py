@@ -9,10 +9,12 @@ import json
 import os
 import re
 import shutil
+import signal
 import stat
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 
 sys.dont_write_bytecode = True
@@ -879,6 +881,327 @@ class RunSuiteTest(unittest.TestCase):
     def test_slot_default_directory_is_used(self):
         with open(os.path.join(REPO, "vm", "macos", "run-suite.sh")) as f:
             self.assertIn("ntfsmac-vm-slots", f.read())
+
+
+STAGE_STUB = r'''# a fake stage: one "guest" (a directory) for its whole run, an event log with times, and the exit status and the
+# duration the test asks for (STUB_SLEEP="name=seconds,..." and STUB_RC="name=status,...")
+name=$1
+val() { printf '%s\n' "$1" | tr ',' '\n' | sed -n "s/^$2=//p" | tail -n 1; }
+g=$STUB_DIR/guests
+mkdir -p "$g"
+mkdir "$g/$name-$$"
+trap 'rmdir "$g/$name-$$"' EXIT
+trap 'exit 143' TERM
+ls "$g" | wc -l | tr -d ' ' >>"$STUB_DIR/counts"
+now() { perl -MTime::HiRes=time -e 'printf "%.3f\n", time'; }
+echo "$name start $(now)" >>"$STUB_DIR/events"
+s=$(val "${STUB_SLEEP:-}" "$name")
+if [ -n "$s" ]; then sleep "$s" & wait $!; fi
+echo "$name end $(now)" >>"$STUB_DIR/events"
+rc=$(val "${STUB_RC:-}" "$name")
+exit "${rc:-0}"
+'''
+
+PLAN = ["guest-build", "integration", "compat", "daemon", "stress-disconnect", "stress-kill", "stress-leaks",
+        "stress-parallel", "stress-soak"]
+
+
+class RunSuiteLanesTest(unittest.TestCase):
+    """vm/macos/run-suite.sh, a full run, with stub stages that sleep: the two lanes (CI speedup, phase 2).
+    A "guest" is a directory a stub holds for its whole run, so the number of directories is the number of guests."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        d = self.tmp.name
+        self.fake = os.path.join(d, "repo")
+        self.sd = os.path.join(d, "stub")  # events, counts and the fake guests
+        os.makedirs(self.sd)
+        for rel in ("vm/macos/run-suite.sh", "scripts/test-all.sh"):
+            os.makedirs(os.path.dirname(os.path.join(self.fake, rel)), exist_ok=True)
+            shutil.copy(os.path.join(REPO, rel), os.path.join(self.fake, rel))
+        put(os.path.join(self.fake, "vm", "macos", "stage.sh"), STAGE_STUB)
+        for rel, name in (("vm/macos/guest-build.sh", "guest-build"), ("tests/integration/daemon/dmn_all.sh", "daemon")):
+            put(os.path.join(self.fake, rel), 'exec sh "%s/vm/macos/stage.sh" %s "$@"\n' % (self.fake, name))
+        put(os.path.join(self.fake, "tests", "harness", "run-env-b.sh"),
+            'case " $* " in *" --orchestrate "*) n=compat ;; *) n=integration ;; esac\n'
+            'exec sh "%s/vm/macos/stage.sh" $n "$@"\n' % self.fake)
+        for e in ("disconnect", "kill", "leaks", "parallel", "soak"):
+            put(os.path.join(self.fake, "tests", "stress", e, "ENVS"), "B\n")
+            put(os.path.join(self.fake, "tests", "stress", e, "run.sh"),
+                'exec sh "%s/vm/macos/stage.sh" stress-%s "$@"\n' % (self.fake, e))
+        put(os.path.join(self.fake, "build", "release", "src", "daemon", "ntfsmacd"), "")
+        put(os.path.join(self.fake, "tests", "harness", "run.py"),
+            "import sys\nif '--list' in sys.argv:\n    print('I-INT-01\\tB\\tt')\nsys.exit(0)\n")
+        self.fx = os.path.join(d, "fixtures")
+        os.makedirs(self.fx)
+        self.work = os.path.join(d, "work")
+        self.slots = os.path.join(d, "slots")
+        self.stubs = {"tart": "echo ntfsmac-golden", "docker": "exit 0"}
+
+    def env(self, **env):
+        bindir = make_stubs(self.tmp.name, self.stubs)
+        e = dict(os.environ, PATH=bindir + os.pathsep + os.environ["PATH"], STUB_DIR=self.sd)
+        e.update(env)
+        return e
+
+    def argv(self, *args):
+        return ["sh", os.path.join(self.fake, "vm", "macos", "run-suite.sh"), "--work", self.work, "--slot-dir",
+                self.slots, "--fixtures", self.fx] + list(args)
+
+    def run_suite(self, *args, **env):
+        return subprocess.run(self.argv(*args), env=self.env(**env), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                              timeout=120)
+
+    def stages(self):
+        with open(os.path.join(self.work, "stages.tsv")) as f:
+            return [line.rstrip("\n").split("\t") for line in f]
+
+    def times(self):
+        """{stage: (start, end)} from the events of the stubs"""
+        out = {}
+        with open(os.path.join(self.sd, "events")) as f:
+            for line in f:
+                n, what, t = line.split()
+                s, e = out.get(n, (None, None))
+                out[n] = (float(t), e) if what == "start" else (s, float(t))
+        return out
+
+    def overlap(self, a, b):
+        t = self.times()
+        return min(t[a][1], t[b][1]) - max(t[a][0], t[b][0]) > 0
+
+    def max_guests(self):
+        with open(os.path.join(self.sd, "counts")) as f:
+            return max(int(x) for x in f.read().split())
+
+    SLEEP = ("guest-build=0.2,integration=1.5,compat=1,daemon=2,stress-soak=2.5,stress-kill=1,stress-leaks=0.5,"
+             "stress-parallel=1.5,stress-disconnect=1")
+
+    def test_two_lanes_run_at_the_same_time_and_never_more_than_two_guests(self):
+        r = self.run_suite(STUB_SLEEP=self.SLEEP)
+        self.assertEqual(r.returncode, 0, r.stderr.decode())
+        self.assertEqual(self.max_guests(), 2)  # two at once, never three
+        # phase 2: integration then compat in lane 1, daemon in lane 2
+        self.assertTrue(self.overlap("integration", "daemon"))
+        self.assertTrue(self.overlap("compat", "daemon"))
+        self.assertFalse(self.overlap("integration", "compat"))
+        # the stress suites in pairs: the heavy ones are never together, nor are kill and disconnect
+        self.assertTrue(self.overlap("stress-soak", "stress-kill"))
+        self.assertTrue(self.overlap("stress-parallel", "stress-disconnect"))
+        self.assertFalse(self.overlap("stress-soak", "stress-parallel"))
+        self.assertFalse(self.overlap("stress-kill", "stress-disconnect"))
+        self.assertFalse(self.overlap("guest-build", "integration"))  # guest-build runs alone
+        self.assertEqual(os.listdir(self.slots), [])  # both slots released
+        self.assertEqual(os.listdir(os.path.join(self.sd, "guests")), [])
+        # wall time is below the sum of the stages (the whole point)
+        t = self.times()
+        total = sum(e - s for s, e in t.values())
+        self.assertLess(max(e for _, e in t.values()) - min(s for s, _ in t.values()), total - 3)
+
+    def test_records_are_in_plan_order_not_completion_order(self):
+        r = self.run_suite(STUB_SLEEP=self.SLEEP)
+        self.assertEqual(r.returncode, 0, r.stderr.decode())
+        self.assertEqual([p[0] for p in self.stages()], PLAN)
+        for p in self.stages():
+            self.assertEqual(p[1], "pass")
+            self.assertEqual(p[4], "logs/%s.log" % p[0])
+        t = self.times()
+        done = sorted(t, key=lambda n: t[n][1])
+        self.assertNotEqual(done, PLAN)  # the stubs really finish in another order
+        for n in PLAN:  # every stage its own log
+            self.assertTrue(os.path.exists(os.path.join(self.work, "logs", n + ".log")))
+
+    def test_lanes_one_is_the_old_sequential_order(self):
+        r = self.run_suite("--lanes", "1", STUB_SLEEP=self.SLEEP)
+        self.assertEqual(r.returncode, 0, r.stderr.decode())
+        self.assertEqual(self.max_guests(), 1)
+        self.assertEqual([p[0] for p in self.stages()], PLAN)
+        t = self.times()
+        self.assertEqual(sorted(t, key=lambda n: t[n][0]), PLAN)  # started one after the other in plan order
+        for a, b in zip(PLAN, PLAN[1:]):
+            self.assertLessEqual(t[a][1], t[b][0])
+        self.assertNotIn("(lane", r.stderr.decode())
+        self.assertEqual(os.listdir(self.slots), [])
+
+    def test_a_failing_stage_does_not_stop_the_other_lane(self):
+        # daemon (lane 2) fails early; integration and compat (lane 1) go on and pass; a failing soak leaves its partner
+        r = self.run_suite(STUB_SLEEP=self.SLEEP + ",daemon=0.3", STUB_RC="daemon=1,stress-soak=3")
+        self.assertEqual(r.returncode, 1)
+        st = {p[0]: p for p in self.stages()}
+        self.assertEqual([p[0] for p in self.stages()], PLAN)
+        self.assertEqual(st["daemon"][1], "fail")
+        self.assertIn("exit 1", st["daemon"][3])
+        self.assertEqual(st["integration"][1], "pass")
+        self.assertEqual(st["compat"][1], "pass")
+        self.assertEqual(st["stress-soak"][1], "fail")
+        self.assertEqual(st["stress-kill"][1], "pass")
+        self.assertEqual(st["stress-leaks"][1], "pass")
+        self.assertEqual(st["stress-parallel"][1], "pass")  # and the next phase still runs
+        with open(os.path.join(self.work, "suite.rc")) as f:
+            self.assertEqual(f.read().strip(), "1")
+        self.assertGreater(self.times()["compat"][1], self.times()["daemon"][1])  # compat ended after the failure
+
+    def test_a_guest_build_failure_blocks_both_lanes(self):
+        r = self.run_suite(STUB_RC="guest-build=1")
+        self.assertEqual(r.returncode, 1)
+        st = {p[0]: p for p in self.stages()}
+        self.assertEqual([p[0] for p in self.stages()], PLAN)
+        self.assertEqual(st["guest-build"][1], "fail")
+        for n in PLAN[1:]:
+            self.assertEqual((st[n][1], st[n][3]), ("skip", "guest-build failed"), n)
+        self.assertNotIn("integration", self.times())  # nothing of the lanes started
+        self.assertNotIn("daemon", self.times())
+
+    def test_without_a_second_free_slot_the_lanes_run_one_after_the_other(self):
+        os.makedirs(os.path.join(self.slots, "slot-2"))
+        holder = subprocess.Popen(["sleep", "60"])
+        self.addCleanup(holder.wait)
+        self.addCleanup(holder.kill)
+        with open(os.path.join(self.slots, "slot-2", "pid"), "w") as f:
+            f.write("%d\n" % holder.pid)
+        r = self.run_suite(STUB_SLEEP="integration=0.3,daemon=0.3,compat=0.3")
+        self.assertEqual(r.returncode, 0, r.stderr.decode())
+        self.assertIn("no second VM slot is free", r.stderr.decode())
+        self.assertEqual(self.max_guests(), 1)
+        self.assertEqual([p[0] for p in self.stages()], PLAN)
+        self.assertEqual(os.listdir(self.slots), ["slot-2"])  # the other holder's lock is untouched
+
+    def test_quick_uses_one_lane(self):
+        r = self.run_suite("--quick", STUB_SLEEP="integration=0.3")
+        self.assertEqual(r.returncode, 0, r.stderr.decode())
+        self.assertEqual(self.max_guests(), 1)
+        self.assertNotIn("== lanes:", r.stderr.decode())
+
+    def test_lanes_option_is_validated(self):
+        self.assertEqual(self.run_suite("--lanes", "3").returncode, 2)
+        self.assertEqual(self.run_suite("--lanes", "x").returncode, 2)
+
+    def test_dry_run_plan_is_the_same_for_one_and_two_lanes(self):
+        a = subprocess.run(self.argv("--dry-run"), env=self.env(), stdout=subprocess.PIPE).stdout
+        b = subprocess.run(self.argv("--dry-run", "--lanes", "1"), env=self.env(), stdout=subprocess.PIPE).stdout
+        self.assertEqual(a, b)
+        self.assertEqual([n for n, _ in plan_lines(a.decode())], PLAN)
+
+    def test_a_signal_stops_both_lanes_and_deletes_every_guest(self):
+        p = subprocess.Popen(self.argv(), env=self.env(STUB_SLEEP="guest-build=0.1,integration=60,daemon=60"),
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.addCleanup(p.kill)
+        guests = os.path.join(self.sd, "guests")
+        deadline = time.time() + 30
+        while time.time() < deadline:
+            if os.path.isdir(guests) and len(os.listdir(guests)) == 2:
+                break
+            time.sleep(0.1)
+        self.assertEqual(len(os.listdir(guests)), 2, "both lanes should hold a guest")
+        p.send_signal(signal.SIGTERM)
+        out, err = p.communicate(timeout=60)
+        self.assertEqual(p.returncode, 130, err.decode())
+        self.assertEqual(os.listdir(guests), [])  # the cleanup of both stages ran
+        self.assertEqual(os.listdir(self.slots), [])
+        st = {x[0]: x for x in self.stages()}
+        self.assertEqual(st["integration"][1], "fail")
+        self.assertEqual(st["daemon"][1], "fail")
+        self.assertNotIn("compat", self.times())  # nothing started after the signal
+        with open(os.path.join(self.work, "suite.rc")) as f:
+            self.assertEqual(f.read().strip(), "130")
+        self.assertEqual(os.listdir(os.path.join(self.work, "pid")), [])
+
+    DATE_STUB = (
+        'if [ "$1" = +%s ]; then\n'
+        '  [ ! -e "$STUB_DIR/crash-date" ] || exit 1\n'
+        '  if [ -e "$STUB_DIR/slow-date" ]; then\n'
+        '    n=$(cat "$STUB_DIR/datecount" 2>/dev/null || echo 0); n=$((n + 1)); echo $n >"$STUB_DIR/datecount"\n'
+        '    [ "$n" != "$(cat "$STUB_DIR/slow-date")" ] || sleep 3\n'
+        '  fi\n'
+        'fi\n'
+        'exec /bin/date "$@"')
+
+    def wait_guests(self, n):
+        guests = os.path.join(self.sd, "guests")
+        deadline = time.time() + 30
+        while time.time() < deadline:
+            if os.path.isdir(guests) and len(os.listdir(guests)) == n:
+                return
+            time.sleep(0.02)
+        self.fail("%d guests did not appear" % n)
+
+    def test_a_stage_that_is_being_prepared_when_the_signal_comes_is_failed_not_run(self):
+        self.stubs["date"] = self.DATE_STUB
+        p = subprocess.Popen(self.argv(), env=self.env(STUB_SLEEP="integration=1,daemon=60"),
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.addCleanup(p.wait)
+        self.addCleanup(p.kill)
+        self.wait_guests(2)
+        put(os.path.join(self.sd, "slow-date"), "2")  # the 2nd `date +%s` from now (compat's start) takes 3 s
+        time.sleep(2.5)  # integration ended after 1 s, compat is in its slow date
+        p.send_signal(signal.SIGTERM)
+        out, err = p.communicate(timeout=60)
+        self.assertEqual(p.returncode, 130, err.decode())
+        st = {x[0]: x for x in self.stages()}
+        self.assertEqual(st["integration"][1], "pass")
+        self.assertEqual(st["compat"][1], "fail")
+        self.assertIn("before it started", st["compat"][3])
+        self.assertNotIn("compat", self.times())  # it never ran
+        self.assertEqual(os.listdir(os.path.join(self.sd, "guests")), [])
+
+    def test_a_crashing_lane_is_a_failure_and_its_missing_stages_are_recorded(self):
+        self.stubs["date"] = self.DATE_STUB
+        p = subprocess.Popen(self.argv(), env=self.env(STUB_SLEEP="guest-build=0.1,integration=4,compat=0.3,daemon=1"),
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.addCleanup(p.wait)
+        self.addCleanup(p.kill)
+        self.wait_guests(2)
+        put(os.path.join(self.sd, "crash-date"), "")  # daemon's `date +%s` after its stage ends fails: lane 2 dies under set -e
+        time.sleep(2.5)
+        os.unlink(os.path.join(self.sd, "crash-date"))
+        out, err = p.communicate(timeout=120)
+        self.assertEqual(p.returncode, 1, err.decode())
+        st = {x[0]: x for x in self.stages()}
+        self.assertEqual(st["daemon"][1], "fail")
+        self.assertIn("not run", st["daemon"][3])
+        self.assertEqual(st["lane-2"][1], "fail")
+        self.assertEqual(st["integration"][1], "pass")
+        self.assertEqual(st["compat"][1], "pass")
+        for n in PLAN[4:]:  # the later phases still ran
+            self.assertEqual(st[n][1], "pass", n)
+        with open(os.path.join(self.work, "suite.rc")) as f:
+            self.assertEqual(f.read().strip(), "1")
+
+    def test_a_signal_to_test_all_reaches_run_suite_and_the_guests_are_gone(self):
+        """scripts/test-all.sh --env B (quick, in a fake tree): TERM stops the stage, deletes its guest, writes a result."""
+        shutil.copytree(os.path.join(REPO, "tests", "harness"), os.path.join(self.fake, "tests", "harness"),
+                        dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__"))
+        put(os.path.join(self.fake, "tests", "harness", "run-env-b.sh"),
+            'exec sh "%s/vm/macos/stage.sh" integration "$@"\n' % self.fake)
+        put(os.path.join(self.fake, "tests", "harness", "run.py"),
+            "import sys\nif '--list' in sys.argv:\n    print('I-INT-01\\tB\\tt')\nsys.exit(0)\n")
+        put(os.path.join(self.fake, "third_party", "deps.lock"), "ntfs-3g 1 http://x/ntfs-3g.tar sum\n")
+        put(os.path.join(self.fake, "third_party", "cache", "ntfs-3g.tar"), "")
+        self.stubs.update({"cmake": "exit 0", "git": GIT_STUB})
+        out = os.path.join(self.tmp.name, "res", "r.json")
+        tmpdir = os.path.join(self.tmp.name, "tmp")
+        os.makedirs(tmpdir)
+        p = subprocess.Popen(["sh", os.path.join(self.fake, "scripts", "test-all.sh"), "--env", "B", "--quick", "--out",
+                              out, "--slot-dir", self.slots], cwd=self.fake,
+                             env=self.env(STUB_SLEEP="integration=60", TMPDIR=tmpdir),
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.addCleanup(p.wait)
+        self.addCleanup(p.kill)
+        guests = os.path.join(self.sd, "guests")
+        deadline = time.time() + 30
+        while time.time() < deadline and not (os.path.isdir(guests) and os.listdir(guests)):
+            time.sleep(0.1)
+        self.assertEqual(len(os.listdir(guests)), 1, "the stage should hold a guest")
+        p.send_signal(signal.SIGTERM)
+        so, err = p.communicate(timeout=90)
+        self.assertEqual(p.returncode, 1, err.decode())
+        self.assertEqual(os.listdir(guests), [])
+        self.assertEqual(os.listdir(self.slots), [])
+        with open(out) as f:
+            by = {c["id"]: c for c in json.load(f)["cases"]}
+        self.assertEqual(by["STAGE-B-INTERRUPTED"]["status"], "fail")
+        self.assertEqual(by.get("STAGE-B-INTEGRATION", {}).get("status"), "fail", sorted(by))
 
 
 if __name__ == "__main__":

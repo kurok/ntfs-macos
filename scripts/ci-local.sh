@@ -5,7 +5,7 @@
 #
 # Usage: scripts/ci-local.sh --quick [--preset NAME] [--build-dir DIR]
 #        scripts/ci-local.sh [--only LIST] [--fuzz-seconds N] [--results-dir DIR] [--slot-dir DIR]
-#                            [--fixtures DIR] [--allow-dirty] [--dry-run]
+#                            [--fixtures DIR] [--lanes 1|2] [--allow-dirty] [--dry-run]
 #        scripts/ci-local.sh --verify-result FILE [--verify-result FILE]... [--commit REV]
 #                            [--require-env LIST] [--require-case ID]... [--milestone NAME]
 #
@@ -77,6 +77,8 @@
 #                    the parameters of the run: the parameters are in the case ids. A criterion case has
 #                    its plain id only when the run had the criterion parameters (6 h soak, 20 kill
 #                    repetitions, ...); every other run writes it with the suffix -SHORT (M5-F04).
+#   --lanes N        (full mode) stage B: 2 (default) runs its VM stages in two lanes, two guests at a time;
+#                    1 runs them strictly one after the other (test-all.sh --lanes, docs/TEST_STRATEGY.md)
 #   --fixtures DIR   (full mode) reuse fixture images. The run records the skip "reusing DIR", which the
 #                    gate rejects: such a run cannot pass the gate, and ci-local prints a warning at the
 #                    start. test-all.sh refuses a DIR whose images are not stamped (.fixtures-key, written by
@@ -127,6 +129,7 @@ fuzz_seconds=300
 results_dir=
 slot_dir=
 fixtures=
+lanes=
 allow_dirty=0
 dry=0
 # options that belong to one mode only (checked after parsing)
@@ -181,6 +184,10 @@ while [ $# -gt 0 ]; do
 		[ $# -ge 2 ] || { usage; die "--fixtures needs a directory"; }
 		fixtures=$2; full_opts="$full_opts $1"; shift
 		;;
+	--lanes)
+		[ $# -ge 2 ] || { usage; die "--lanes needs 1 or 2"; }
+		lanes=$2; full_opts="$full_opts $1"; shift
+		;;
 	--allow-dirty) allow_dirty=1; full_opts="$full_opts $1" ;;
 	--dry-run) dry=1; full_opts="$full_opts $1" ;;
 	--preset)
@@ -198,6 +205,7 @@ while [ $# -gt 0 ]; do
 done
 
 case $fuzz_seconds in '' | *[!0-9]*) die "--fuzz-seconds needs a whole number" ;; esac
+case $lanes in '' | 1 | 2) ;; *) die "--lanes needs 1 or 2, not $lanes" ;; esac
 if [ -n "$verify_files" ]; then
 	[ "$quick" -eq 0 ] || die "--verify-result and --quick cannot be combined"
 	[ -z "$full_opts" ] || die "options of full mode do not apply to --verify-result:$full_opts"
@@ -735,6 +743,7 @@ if [ "$quick" -eq 0 ]; then
 		set -- --env "$_env" --out "$_out"
 		[ "$_env" != B ] || set -- "$@" --slot-dir "$slot_dir"
 		[ "$_env" != B ] || [ -z "$fixtures" ] || set -- "$@" --fixtures "$fixtures"
+		[ "$_env" != B ] || [ -z "$lanes" ] || set -- "$@" --lanes "$lanes"
 		_t0=$(date +%s)
 		_rc=0
 		"$test_all" "$@" || _rc=$?

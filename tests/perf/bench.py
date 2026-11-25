@@ -8,7 +8,7 @@ Python 3.6+, standard library only. Never run it on a physical disk: it writes i
 
 Usage: bench.py --out FILE (--hook CMD | --dir DIR) [--label TEXT] [--reps N] [--seq-mib N] [--block-kib N]
                 [--rnd-mib N] [--rnd-ops N] [--small-files N] [--small-kib N] [--dir-entries N,N] [--seed N]
-                [--fault corrupt-read|short-read|drop-entry]
+                [--fault corrupt-read|short-read|drop-entry|dir-setup]
 
 The hook is a command line, called as `CMD VERB`:
   mount     make sure the volume is mounted read-write, print the mount point (last line of stdout)
@@ -31,6 +31,9 @@ Phases and units (every phase is repeated --reps times; median, min and max are 
   small_delete unlink of every file, fsync of the directory                          files/s
   dir_N_list   cold readdir of a directory with N empty files, names checked          entries/s
   dir_N_stat   cold readdir plus stat of every entry                                  entries/s
+The N files of a directory phase are made (with an fsync of the directory) and removed outside the timed phases;
+their rate is printed (`dirN setup`, `dirN teardown`), and an error there names the step, the file and whether
+the volume is still mounted (--fault dir-setup fails the last create of the first directory, for the self-test).
 Resources per phase: CPU seconds (user+sys) and peak resident set of the worker (and, in the macOS guest, the
 sum of all macFUSE FSKit module processes), sampled while the phase runs. CPU of a process that starts during
 the phase counts from its first sample.
@@ -38,6 +41,7 @@ Every read is verified (a checksum or a name list), so a phase that returns wron
 Exit: 0 every phase of every repetition finished, 1 otherwise (the output file is written either way), 2 usage.
 """
 import argparse
+import errno
 import json
 import os
 import platform
@@ -304,6 +308,33 @@ class Bench(object):
         self.results.append(rec)
         self.errors.append("rep %d %s: %s" % (rep, name, rec["error"]))
 
+    def dirsync(self, d):
+        fd = os.open(d, os.O_RDONLY)
+        try:
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+
+    def mount_state(self):
+        """For an error message: whether the volume below the bench directory is still mounted."""
+        if self.env.plain or not self.root:
+            return ""
+        mp = os.path.dirname(self.root)
+        return "; %s is %s" % (mp, "still mounted" if os.path.ismount(mp) else "NOT mounted any more")
+
+    def untimed(self, what, fn):
+        """A step around a timed phase (making or removing its files): an OSError names the step and the mount
+        state, not only the errno (`[Errno 2] No such file or directory` alone does not say which call failed)."""
+        try:
+            return fn()
+        except OSError as e:
+            raise PhaseError("%s: %s%s" % (what, e, self.mount_state()))
+
+    def note(self, rep, what, count, secs):
+        """The rate of an untimed step on stderr (not a phase of the result)."""
+        sys.stderr.write("perf: rep %d %s in %.3f s, %.1f per second\n" % (
+            rep, what, secs, count / secs if secs > 0 else float("inf")))
+
     # ---- phases
     def seq(self, rep):
         a = self.a
@@ -475,15 +506,19 @@ class Bench(object):
     def dirs(self, rep, n):
         a = self.a
         d = self.path("dir%d" % n)
-        os.makedirs(d, exist_ok=True)
         names = ["e%07d" % i for i in range(n)]
-        for nm in names:
+        t0 = time.perf_counter()
+        self.untimed("dir%d setup: mkdir" % n, lambda: os.makedirs(d, exist_ok=True))
+
+        def mk(nm):
+            if a.fault == "dir-setup" and n == a.dir_entries[0] and nm == names[-1]:
+                raise OSError(errno.ENOENT, os.strerror(errno.ENOENT))
             os.close(os.open(os.path.join(d, nm), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644))
-        fd = os.open(d, os.O_RDONLY)
-        try:
-            os.fsync(fd)
-        finally:
-            os.close(fd)
+
+        for i, nm in enumerate(names):
+            self.untimed("dir%d setup: create %s (%d of %d)" % (n, nm, i + 1, n), lambda: mk(nm))
+        self.untimed("dir%d setup: fsync of the directory" % n, lambda: self.dirsync(d))
+        self.note(rep, "dir%d setup: %d files made" % (n, n), n, time.perf_counter() - t0)
         want = sorted(names)
 
         def lst():
@@ -508,9 +543,12 @@ class Bench(object):
         self.mount_root(True)
         d = self.path("dir%d" % n)
         ok2 = self.timed(rep, "dir_%d_stat" % n, "entries/s", n, lst_stat)
-        for nm in names:
-            os.unlink(os.path.join(d, nm))
-        os.rmdir(d)
+        t0 = time.perf_counter()
+        for i, nm in enumerate(names):
+            self.untimed("dir%d teardown: unlink %s (%d of %d)" % (n, nm, i + 1, n),
+                         lambda: os.unlink(os.path.join(d, nm)))
+        self.untimed("dir%d teardown: rmdir" % n, lambda: os.rmdir(d))
+        self.note(rep, "dir%d teardown: %d files removed" % (n, n), n, time.perf_counter() - t0)
         return ok and ok2
 
     def clean_root(self):
@@ -711,7 +749,7 @@ def parse_args(argv):
     ap.add_argument("--meta", action="append", default=[], help="KEY=VALUE recorded in the result (versions, image hash)")
     ap.add_argument("--max-wall", type=int, default=0, help="stop after a repetition when the next would pass this many seconds")
     ap.add_argument("--emit-json", action="store_true", help="print `PERF-JSON {...}` on stdout after every repetition")
-    ap.add_argument("--fault", choices=("corrupt-read", "short-read", "drop-entry"))
+    ap.add_argument("--fault", choices=("corrupt-read", "short-read", "drop-entry", "dir-setup"))
     a = ap.parse_args(argv)
     if bool(a.hook) == bool(a.dir):
         ap.error("exactly one of --hook and --dir")

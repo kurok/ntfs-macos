@@ -36,6 +36,7 @@ Filing is an owner action, as above.
 |---|---|---|---|---|---|
 | `diskutil unmount` of an FSKit-backend mount answers "failed to unmount" (FSKit access check error 45), macFUSE 5.5.0 on macOS 27.2 | T-M4-11, `tests/results/evidence/m4-11/diskutil_unmount-without-daemon.txt` | bug | public issue | Drafted 2026-11-19, not filed | none: `ntfsmac unmount`, `umount` and Finder eject work (R-37) |
 | FSKit backend: readdir fails with `EINVAL` (and the module can crash) for a libfuse high-level file system whose readdir ignores the offset; enumerations of one directory share one handle position, so a reader that deletes while another process lists misses entries | S-PAR-01 `EINVAL` (2026-11-21), investigation 2026-11-22 | bug | public issue | Draft, not posted (text below) | patch 0014 (ADR-027); the shared position (item 4) has no local fix, known limit |
+| FSKit backend: once other clients hold directory handles, every request is followed by a synchronize that sends one FSYNCDIR per held handle; after a mass delete the synchronize can fail with `ENOENT` about five times a second for minutes and the writer makes no progress | criterion 5.6 investigation, `docs/spikes/M5-perf.md`, `tests/results/evidence/perf-macfuse/2026-11-25-686bffe/` | performance bug | public issue | Drafted 2026-11-25, not posted | none in NTFS-3G (an engine change was tried once and did not help); test diagnostics only |
 
 ### Draft: FSKit backend directory enumeration (draft, not posted)
 
@@ -81,3 +82,26 @@ offset 0 (libfuse's filled-buffer mode, used for example by NTFS-3G) shows these
 The same file system with an offset-honouring readdir (stable per-entry offsets passed to the
 filler) shows none of 1 to 3. Reproducer: an in-memory libfuse2 file system of about 250 lines and a
 getdirentries64 loop; available on request.
+
+### Draft: FSKit backend: synchronize after every request, and failing with ENOENT (draft, not posted)
+
+Title: FSKit backend: synchronize sends FSYNCDIR for every held directory handle after every request, and can fail
+with ENOENT for minutes after a mass delete
+
+macFUSE 5.5.0, FSKit backend, macOS 27.2 arm64, libfuse2 high-level API (NTFS-3G). One directory, files made and
+removed in it with `open(O_CREAT|O_EXCL)` and `unlink` from one process. Evidence:
+`tests/results/evidence/perf-macfuse/2026-11-25-686bffe/summary.txt`.
+
+1. Once other clients have opened directories of the volume (in our trace `/`, a subdirectory and the directory
+   being filled, never released), the module keeps those FUSE directory handles and sends one FSYNCDIR per held
+   handle after every request: 115,252 FSYNCDIR in one session of about 20,000 creates and 28,000 unlinks, none
+   in the sessions where no handle was held. Samples of the busy module show `Volume.synchronize` and
+   `Item.withLocks` at the top.
+2. After 10,000 files of a directory were removed, `-[FSVolumeConnector synchronize:replyHandler:]` logged
+   `error:2` 3696 times in 12 minutes (about five times a second) and the process creating files made no progress.
+   Seen in 2 of 4 runs. In the traced runs the file system answered no FSYNC/FSYNCDIR with an error; the traced
+   runs were the ones without the error storm, so the request behind the error is not known.
+3. After tens of thousands of files, unmount did not complete within 90 s.
+
+Expected: synchronize only for items with pending state, not after every request; one failing item should not fail
+every later synchronize.

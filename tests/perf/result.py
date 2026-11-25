@@ -178,6 +178,15 @@ def selftest():
                 assert cs[i]["status"] == "fail", (fault, i, cs[i])
             assert cs["P-RUN-01"]["status"] == "fail", fault
             assert cs["P-SEQ-01"]["status"] == "pass", fault  # the write phase is not what the fault touches
+        # an error while a directory phase makes its files (perf B at ac5cf2b: `dir100000: [Errno 2] No such file or
+        # directory`, which named neither the call nor the file) names the step and the file; the next directory runs
+        rc, doc = run(["--fault", "dir-setup"])
+        assert rc == 1, rc
+        msg = [e for e in doc["errors"] if "dir30" in e]
+        assert msg and "dir30 setup: create e0000029 (30 of 30): [Errno 2]" in msg[0], doc["errors"]
+        cs = {c["id"]: c for c in build_cases(doc, rc)}
+        assert cs["P-DIR-01"]["status"] == "fail" and cs["P-DIR-03"]["status"] == "pass", (cs["P-DIR-01"], cs["P-DIR-03"])
+        assert cs["P-RUN-01"]["status"] == "fail"
         # a partial result (killed run) must fail P-RUN-01
         doc["complete"] = False
         assert {c["id"]: c for c in build_cases(doc)}["P-RUN-01"]["status"] == "fail"

@@ -97,3 +97,74 @@ The whole B smoke run (clone, setup, every phase, deletion) took 2.5 minutes.
   module and the worker (random 4 KiB read 2.7x slower than the node). That is macFUSE FSKit and FUSE round trips,
   not the device path; no change is proposed here.
 - The criterion run (`tests/perf/run.sh --env A` and `--env B` with the default parameters) has not been made.
+
+## Criterion 5.6 at ac5cf2b: `dir100000: [Errno 2]` and deletes at about 10 per second (2026-11-25)
+
+Question: the criterion run `perf B` at ac5cf2b stopped with `perf: rep 1 dir100000: [Errno 2] No such file or
+directory` right after `dir_10000_stat`, and deletes in that run went at about 10 per second. Is it the test, the
+readdir offsets of patch 0014, the FUSE layer or the engine?
+
+Answer: as far as the evidence goes, the FUSE layer, in the macFUSE 5.5.0 FSKit module
+(`io.macfuse.app.fsmodule.macfuse-local`), not our code. Once clients other than the bench hold directories of the
+volume open, every request is followed by a volume-wide synchronize that sends one FSYNCDIR per held handle and runs
+as a barrier over the module's cached items (`Volume.synchronize`, `Item.withLocks` in the samples). In 2 of 4 B
+reruns that synchronize began to fail with `ENOENT` (error 2), about five times a second, right after the 10,000
+files of `dir10000` were removed; the bench's next call in the directory setup got that error. The test did not say
+which call failed: `dirs()` makes and removes its files outside `timed()`, so the error reached `run()`
+(`tests/perf/bench.py:640` at ac5cf2b) as a bare errno.
+
+Evidence: one guest at a time (clones of `ntfsmac-golden`), the bench with `--reps 1 --seq-mib 16 --rnd-ops 100
+--small-files 10000` and the directory sizes below. Every number here is in `tests/results/evidence/perf-macfuse/2026-11-25-686bffe/summary.txt` (excerpt: bench rate
+lines, FSKit error counts, FUSE request counts, the module sample).
+
+| Run | What it shows |
+|---|---|
+| A, criterion sizes (Docker, 1 repetition) | every phase passes: small delete 8597 files/s, `dir_100000_stat` 10389 entries/s. The engine, the bench and the image size are fine |
+| R1: B, the product as at ac5cf2b (rerun at 686bffe, which changes only CI scripts), 10,000 and 100,000 entries | small delete 148.9 files/s with 210.5 s of system CPU in 67.2 s (the original run: 150.2 files/s, 210.2 s); `dir_10000_stat` 1882 entries/s. From the end of the `dir10000` teardown, during the `dir100000` setup, the FSKit log shows `-[FSVolumeConnector synchronize:replyHandler:]_block_invoke:error:2` 3696 times in 12 minutes; the bench made no progress |
+| R2: R1 with an experimental engine change (`flag_nullpath_ok`, so that libfuse would pass FSYNC/FSYNCDIR of a removed node to `ntfs_fuse_fsync` instead of answering `ENOENT`) | the same message from the end of the `dir10000` teardown (count not saved); teardown 123.9 per second |
+| R3: a worker that writes the FUSE trace, 10,000 and 20,000 entries | no error storm. In the session after the `dir10000` remount, `/`, `/perfbench` and `/perfbench/dir20000` were opened by other clients and never released; from then on each request is followed by one FSYNCDIR per held handle (115,252 FSYNCDIR in that session, none in the small-file sessions). The trace has 98,597 `LOOKUP` answered `ENOENT` (lookups of names that do not exist yet), but no FSYNC or FSYNCDIR answered with an error. The remount after the 20,000 entries did not complete: the volume stayed Mounted for the hook's 90 s, so the bench's cold-cache step failed |
+| R4: R3 with the R2 change, 10,000 and 100,000 entries | no error storm; the `dir100000` setup slowed down until it was stopped; the module sample shows `Volume.synchronize` and `Item.withLocks` at the top |
+| ntfs-3g run directly in the guest with the FUSE trace (no daemon, mount below `/private/tmp`), 10,000 files | no directory handle held, 5 FSYNC/FSYNCDIR in all, none answered with an error; unlink 162/s |
+
+Not the cause:
+
+- The engine: A passes with the same bench and sizes, and no FSYNC/FSYNCDIR was answered with an error in the traced
+  runs.
+- Patch 0014 (readdir offsets): no listing runs when the error comes (it is the setup of the next directory);
+  every listing of the runs above was complete and verified by name.
+- A path or a race in the test: the directory exists and the volume stays mounted (the bench's error message now says
+  so).
+- libfuse answering `ENOENT` for FSYNC/FSYNCDIR of a removed node: not excluded, only made unlikely. It rests on one
+  run of the experimental change (R2), which failed the same way, and no trace shows that an FSYNC of a removed node
+  reached `ntfs_fuse_fsync` in that run; the traced runs (R3, R4) are the ones without the error storm.
+- The daemon's unmount bound: a consequence, not the cause. In the original run the remount before `dir_10000_stat`
+  succeeded and the `ENOENT` came afterwards, in the `dir100000` setup, which has no remount. The failed remount of R3
+  comes from the same slow module, after the error-free part.
+
+What changed (test only; no product change):
+
+- `tests/perf/bench.py` `dirs()`: every step around the timed phases (mkdir, each create, the fsync of the directory,
+  each unlink, the rmdir) goes through `untimed()`, so an error names the step, the file and whether the volume is
+  still mounted (`dir100000 setup: create e0012345 (12346 of 100000): [Errno 2] ...; /Volumes/perf is still mounted`);
+  the rate of the setup and of the teardown is printed (`dir10000 teardown: 10000 files removed in 66.114 s, 151.3 per
+  second`), so a slow delete is visible.
+- `--fault dir-setup` and the `perf.result` self-test (`tests/perf/result.py`): a failing create in the setup must
+  produce that message, fail `P-DIR-01` and `P-RUN-01`, and let the next directory run.
+
+Delete rate, measured: Environment A 8597 files/s (small files). Environment B, before and after this change (the
+change is diagnostic, so the rate is the same): small files 149 to 164 per second; the 10,000-entry teardown 124 to 151
+per second. The original run's about 10 per second was not reproduced with a number; it matches the state in which the
+synchronize fails or the module holds tens of thousands of items.
+
+What remains:
+
+- The `dir_100000` phases cannot pass in Environment B with macFUSE 5.5.0 as measured: making 100,000 entries through
+  the module slows down until it stalls, and the cold-cache remount after many entries did not complete in R3.
+  On main (647c18f) a plain unmount refused with `EBUSY` asks again for up to 60 s while every holder is Spotlight or
+  Quick Look (proposed ADR-028); `fseventsd` is not on that list, the R3 trace does not name the holders of the directory
+  handles, and a module still busy in its synchronize is not covered by that wait. Options for the owner: pre-populate
+  the directories in the image in Environment A (both environments then list the same on-disk directory and only the
+  listing goes through the module), record the 100,000-entry case as not runnable on this macFUSE version, or extend
+  the daemon's unmount wait to a module that is still unmounting (a product decision beyond ADR-028). None is done here.
+- Report to macFUSE (draft in `docs/UPSTREAM_REPORTS.md`): synchronize as a barrier with one FSYNCDIR per held
+  directory handle after every request, and synchronize failing with `ENOENT` after a mass delete.

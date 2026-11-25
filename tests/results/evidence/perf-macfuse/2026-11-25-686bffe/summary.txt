@@ -1,0 +1,90 @@
+Criterion 5.6 investigation (perf B, dir100000 ENOENT), 2026-11-25, tree 686bffe (product as at ac5cf2b).
+Guest: clone of ntfsmac-golden, macOS 27.2 arm64, macFUSE 5.5.0 (FSKit backend), NTFS-3G 2026.9.28 + series.
+Bench: tests/perf/bench.py --reps 1 --seq-mib 16 --rnd-ops 100 --small-files 10000 --dir-entries D
+Runs: R1 product worker, D=10000,100000. R2 worker with an experimental flag_nullpath_ok patch (dropped), D=10000,100000.
+     R3 worker that writes the FUSE trace (diagnostic build), D=10000,20000. R4 same as R3 with the R2 patch, D=10000,100000.
+     R2 to R4 ran the bench of this change (setup/teardown rate lines); R1 ran the bench as at 686bffe.
+
+== 0. the original criterion run at ac5cf2b (guest.log of perf B, the lines of the failing step)
+R0  perf: rep 1 small_delete           66.562 s (fsync 0.000203 s), 150.236 files/s,
+        worker cpu 3.11 s, sys cpu 210.17 s
+R0  perf: rep 1 dir_10000_list         0.022 s (fsync None s), 445854.673 entries/s,
+        worker cpu 0.01 s, sys cpu 0.09 s
+R0  perf: rep 1 dir_10000_stat         3.672 s (fsync None s), 2723.179 entries/s,
+        worker cpu 0.7 s, sys cpu 8.75 s
+R0  perf: rep 1 dir100000: [Errno 2] No such file or directory
+
+== 1. bench rate lines (stderr of bench.py)
+R1  perf: rep 1 small_delete           67.170 s (fsync 0.000162 s), 148.876 files/s,
+        worker cpu 3.82 s, sys cpu 210.46 s
+R1  perf: rep 1 dir_10000_list         0.026 s (fsync None s), 388857.929 entries/s,
+        worker cpu 0.0 s, sys cpu 0.05 s
+R1  perf: rep 1 dir_10000_stat         5.314 s (fsync None s), 1881.945 entries/s,
+        worker cpu 0.96 s, sys cpu 11.54 s
+R2  perf: rep 1 small_delete           65.441 s (fsync 0.000187 s), 152.81 files/s,
+        worker cpu 3.6 s, sys cpu 210.66 s
+R2  perf: rep 1 dir10000 setup: 10000 files made in 19.521 s, 512.3 per second
+R2  perf: rep 1 dir_10000_list         0.023 s (fsync None s), 434485.081 entries/s,
+        worker cpu 0.01 s, sys cpu 0.03 s
+R2  perf: rep 1 dir_10000_stat         3.777 s (fsync None s), 2647.8 entries/s,
+        worker cpu 0.72 s, sys cpu 6.76 s
+R2  perf: rep 1 dir10000 teardown: 10000 files removed in 80.708 s, 123.9 per second
+R3  perf: rep 1 small_delete           61.069 s (fsync 0.000286 s), 163.75 files/s,
+        worker cpu 4.16 s, sys cpu 194.89 s
+R3  perf: rep 1 dir10000 setup: 10000 files made in 18.614 s, 537.2 per second
+R3  perf: rep 1 dir_10000_list         0.023 s (fsync None s), 426708.377 entries/s,
+        worker cpu 0.01 s, sys cpu 0.03 s
+R3  perf: rep 1 dir_10000_stat         3.810 s (fsync None s), 2624.675 entries/s,
+        worker cpu 0.92 s, sys cpu 4.7 s
+R3  perf: rep 1 dir10000 teardown: 10000 files removed in 67.020 s, 149.2 per second
+R3  perf: rep 1 dir20000 setup: 20000 files made in 39.966 s, 500.4 per second
+R3  hook: not Appeared after 90 s (state Mounted)
+R3  perf: rep 1 dir20000: hook remount failed with status 1
+R4  perf: rep 1 small_delete           62.271 s (fsync 0.000173 s), 160.587 files/s,
+        worker cpu 4.22 s, sys cpu 193.6 s
+R4  perf: rep 1 dir10000 setup: 10000 files made in 18.732 s, 533.8 per second
+R4  perf: rep 1 dir_10000_list         0.025 s (fsync None s), 392882.293 entries/s,
+        worker cpu 0.01 s, sys cpu 0.03 s
+R4  perf: rep 1 dir_10000_stat         3.797 s (fsync None s), 2633.847 entries/s,
+        worker cpu 0.93 s, sys cpu 4.69 s
+R4  perf: rep 1 dir10000 teardown: 10000 files removed in 66.114 s, 151.3 per second
+
+== 2. FSKit log of R1: '-[FSVolumeConnector synchronize:replyHandler:]_block_invoke:error:2' (log show, process macfuse)
+first 18:26:28.105, last 18:38:27.313 (guest clock), count 3696 (about 5 per second).
+R1 began right after the dir10000 teardown, during the dir100000 setup. R2 showed the same message from the end of
+its dir10000 teardown (seen in the guest, count not saved). R3 and R4: count 0 (no error storm in the traced runs).
+
+== 3. FUSE trace of R3 (worker -o debug), requests and replies with an error, per worker session (remount = new session)
+session 1: CREATE 2 UNLINK 0 FSYNCDIR 0 FSYNC 1 OPENDIR 2 RELEASEDIR 2; errors {'ACCESS -78': 2, 'FLUSH -78': 1, 'GETXATTR -93': 25, 'LOOKUP -2': 27}
+session 2: CREATE 3 UNLINK 1 FSYNCDIR 0 FSYNC 1 OPENDIR 1 RELEASEDIR 1; errors {'ACCESS -78': 2, 'FLUSH -78': 1, 'GETXATTR -93': 26, 'LOOKUP -2': 24}
+session 3: CREATE 10003 UNLINK 4 FSYNCDIR 0 FSYNC 0 OPENDIR 1 RELEASEDIR 1; errors {'ACCESS -78': 2, 'FLUSH -78': 1, 'GETXATTR -93': 26, 'LOOKUP -2': 10026}
+session 4: CREATE 10007 UNLINK 10003 FSYNCDIR 0 FSYNC 1 OPENDIR 2 RELEASEDIR 2; errors {'ACCESS -78': 2, 'FLUSH -78': 1, 'GETXATTR -93': 26, 'LOOKUP -2': 30029}
+session 5: CREATE 1 UNLINK 7 FSYNCDIR 0 FSYNC 0 OPENDIR 2 RELEASEDIR 2; errors {'ACCESS -78': 2, 'FLUSH -78': 1, 'GETXATTR -93': 21, 'LOOKUP -2': 22}
+session 6: CREATE 20018 UNLINK 28399 FSYNCDIR 115252 FSYNC 5 OPENDIR 5 RELEASEDIR 2; errors {'ACCESS -78': 2, 'FLUSH -78': 1, 'GETXATTR -93': 26, 'LOOKUP -2': 58469}
+all sessions, replies with an error: {'ACCESS -78': 12, 'FLUSH -78': 6, 'GETXATTR -93': 150, 'LOOKUP -2': 98597}
+session 6 opendir paths, in order: ['/.fseventsd', '/perfbench/dir10000', '/', '/perfbench', '/perfbench/dir20000']; releasedir: 2 (the first two)
+No FSYNC or FSYNCDIR was answered with an error in any session.
+Session 6 = dir10000 stat, its teardown, dir20000 setup, then the cleanup (rmtree) after the failed remount; '/', '/perfbench'
+and '/perfbench/dir20000' were opened by clients other than the bench (the trace has pid 0) and never released;
+from then on each request is followed by one FSYNCDIR per held handle. Sessions 3 and 4 (small files): no FSYNCDIR.
+
+== 4. sample of the FSKit module during the R4 dir100000 setup (sample(1) for 3 s; frames of the module, top 8)
+60 <deduplicated_symbol> + 1 
+12 specialized static Item.withLocks<A>(for:operation:) + 1 
+7 specialized closure #1 in GoldenGateVolume.perform<A, B>(context:requestedAttributes:operation:resultConverter:replyHa
+6 specialized static Item.withLocks<A>(for:operation:) + 208 
+6 specialized run #1 <A>(upgrade:handler:) in static Item.withLocks<A>(for:operation:) + 1300 
+6 specialized Volume.synchronize(flags:resultHandler:) + 224 
+6 closure #1 in Volume.synchronize(flags:resultHandler:) + 1 
+5 closure #1 in Volume.synchronize(flags:resultHandler:) + 232 
+
+== 5. ntfs-3g run directly in the guest (no daemon, mount below /private/tmp, FUSE trace), 10000 files made, listed, stat, unlinked, dir removed
+unlink 10000: 162/s
+fsync(dir): ok ok ok ok ok ok ok ok ok ok ok ok ok ok ok ok ok ok ok ok
+FSYNC/FSYNCDIR requests 5, answered ENOENT 0
+
+== 6. Environment A (Docker), criterion sizes, 1 repetition (summary.txt)
+P-SMALL-04 PASS  small files delete: median 8597.336 files/s (min 8597.336, max 8597.336, n=1), 1.163 s per run
+P-DIR-03 PASS  directory of 100000 entries, readdir (cold): median 5944669.866 entries/s (min 5944669.866, max 5944669.866, n=1), 0.017 s per run
+P-DIR-04 PASS  directory of 100000 entries, readdir + stat (cold): median 10388.781 entries/s (min 10388.781, max 10388.781, n=1), 9.626 s per run
+P-RUN-01 PASS  every phase of every repetition finished with verified data

@@ -18,6 +18,7 @@
 #include "unmount_impl.h"
 
 #include <errno.h>
+#include <limits.h>
 #include <grp.h>
 #include <pthread.h>
 #include <signal.h>
@@ -32,7 +33,16 @@
 #include <sys/param.h>
 #endif
 
-#define MW_COUNT_MAX 4096u
+#define MW_COUNT_MAX 4096u /* workers and baseline ids the decision takes */
+/*
+ * The largest mount table that is read. Each row costs one struct statfs (about 2 KiB) while it is
+ * read, so this keeps the buffer near 140 MiB at most. A larger table cannot be judged: it is not
+ * a read failure but fails closed at once (every live worker is stopped, no attach, the teardown's
+ * last look counts it as found). The trade-off: a user able to push the whole table over 65536
+ * rows stops every session; the alternative, a window in which no stray mount is seen, is worse.
+ * The decision takes as many rows as this.
+ */
+#define MW_LIST_ROWS_MAX ((size_t)NTFSMAC_MW_LIST_ROWS_MAX)
 
 #if defined(__APPLE__)
 _Static_assert(sizeof(fsid_t) == sizeof(uint64_t), "f_fsid is one 64-bit identifier");
@@ -67,6 +77,215 @@ static bool in_baseline(const uint64_t *baseline, size_t n, uint64_t id)
 	return false;
 }
 
+static bool uid_wanted(uid_t uid, const ntfsmac_mw_worker *workers, size_t n_workers, long extra_uid)
+{
+	size_t j;
+
+	if (extra_uid >= 0 && (long)uid == extra_uid)
+		return true;
+	for (j = 0; j < n_workers; j++)
+		if (workers[j].uid == uid)
+			return true;
+	return false;
+}
+
+size_t ntfsmac_mw_filter(ntfsmac_mw_mount *m, size_t n, const ntfsmac_mw_worker *workers,
+			 size_t n_workers, long extra_uid, const uint64_t *baseline, size_t n_baseline)
+{
+	size_t i, kept = 0;
+
+	if (m == NULL || (n_workers > 0 && workers == NULL) || (n_baseline > 0 && baseline == NULL))
+		return 0;
+	for (i = 0; i < n; i++) {
+		if (!m[i].fuse)
+			continue;
+		if (!uid_wanted(m[i].owner, workers, n_workers, extra_uid) &&
+		    !in_baseline(baseline, n_baseline, m[i].id))
+			continue;
+		if (kept != i)
+			m[kept] = m[i];
+		kept++;
+	}
+	return kept;
+}
+
+uint64_t ntfsmac_mw_now_ms(void)
+{
+	struct timespec ts;
+
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return (uint64_t)ts.tv_sec * 1000u + (uint64_t)ts.tv_nsec / 1000000u;
+}
+
+static void prune_baseline(ntfsmac_mw_watch *s, const ntfsmac_mw_mount *m, size_t n)
+{
+	size_t i, j, keep = 0;
+
+	for (i = 0; i < s->nbase; i++) {
+		for (j = 0; j < n; j++)
+			if (m[j].id == s->base[i])
+				break;
+		if (j < n)
+			s->base[keep++] = s->base[i];
+	}
+	s->nbase = keep;
+}
+
+/* Rows of FUSE mounts owned by `uid` among m[0..n). */
+static size_t rows_of(const ntfsmac_mw_mount *m, size_t n, uid_t uid)
+{
+	size_t i, c = 0;
+
+	for (i = 0; i < n; i++)
+		c += m[i].fuse && m[i].owner == uid;
+	return c;
+}
+
+/*
+ * A uid with more than NTFSMAC_MW_RELEVANT_MAX FUSE mounts cannot be judged, and that is fail closed
+ * at once and for that uid alone (T-M7-10 review): every live worker of the uid is marked in kill[],
+ * its rows leave the list (they are not judged), and an attach of that uid is refused. Workers of
+ * other users are judged as usual, so one user's flood never stops another user's session. Returns
+ * the number of rows left.
+ */
+static size_t drop_overflow(ntfsmac_mw_mount *m, size_t n, const ntfsmac_mw_worker *workers,
+			    size_t n_workers, long uid_to_baseline, bool *kill,
+			    ntfsmac_mw_step_out *out)
+{
+	size_t j, k, i, kept;
+
+	for (j = 0; j <= n_workers; j++) {
+		uid_t u;
+		bool seen = false;
+
+		if (j == n_workers) {
+			if (uid_to_baseline < 0)
+				break;
+			u = (uid_t)uid_to_baseline;
+		} else {
+			u = workers[j].uid;
+		}
+		for (k = 0; k < j && k < n_workers; k++)
+			if (workers[k].uid == u)
+				seen = true;
+		if (seen || rows_of(m, n, u) <= NTFSMAC_MW_RELEVANT_MAX)
+			continue;
+		out->overflow_uids++;
+		if (uid_to_baseline >= 0 && (long)u == uid_to_baseline)
+			out->base_overflow = true;
+		for (k = 0; k < n_workers; k++)
+			if (workers[k].uid == u && workers[k].live && !kill[k]) {
+				kill[k] = true;
+				out->nstray++;
+			}
+		for (i = 0, kept = 0; i < n; i++) {
+			if (m[i].fuse && m[i].owner == u)
+				continue;
+			if (kept != i)
+				m[kept] = m[i];
+			kept++;
+		}
+		n = kept;
+	}
+	return n;
+}
+
+bool ntfsmac_mw_step(ntfsmac_mw_watch *s, ntfsmac_mw_read rd, ntfsmac_mw_mount *m, size_t n_mounts,
+		     const ntfsmac_mw_worker *workers, size_t n_workers, long uid_to_baseline,
+		     uint64_t now_ms, bool *stray, bool *kill, ntfsmac_mw_step_out *out)
+{
+	size_t i, j, kept = 0;
+	bool *kd;
+
+	memset(out, 0, sizeof *out);
+	if (rd == NTFSMAC_MW_READ_OK && n_mounts > MW_LIST_ROWS_MAX)
+		rd = NTFSMAC_MW_READ_TOO_BIG; /* also judged by size here: every check judges or counts */
+	if (s == NULL || n_workers > MW_COUNT_MAX || (n_workers > 0 && (workers == NULL || kill == NULL)) ||
+	    (rd == NTFSMAC_MW_READ_OK && n_mounts > 0 && (m == NULL || stray == NULL)))
+		return false;
+	for (j = 0; j < n_workers; j++)
+		kill[j] = false;
+	if (rd == NTFSMAC_MW_READ_TOO_BIG) {
+		/* Larger than the table that is read: nothing can be judged, and that is no transient
+		 * read failure. Fail closed at once for every user; baseline and failure run unchanged. */
+		out->too_big = true;
+		out->stop_all = true;
+		for (j = 0; j < n_workers; j++)
+			if (workers[j].live) {
+				kill[j] = true;
+				out->nstray++;
+			}
+		return false;
+	}
+	if (rd != NTFSMAC_MW_READ_OK) {
+		/* The table could not be read. One failure stops no worker; a failure that lasts does. The
+		 * tolerance is for read failures only: a table that was read is judged at once. */
+		if (s->fail_streak == 0)
+			s->fail_since_ms = now_ms;
+		if (s->fail_streak < UINT_MAX)
+			s->fail_streak++;
+		out->stop_all = s->fail_streak >= NTFSMAC_MW_FAIL_CHECKS &&
+				now_ms - s->fail_since_ms >= NTFSMAC_MW_FAIL_MIN_MS;
+		for (j = 0; out->stop_all && j < n_workers; j++)
+			if (workers[j].live) {
+				kill[j] = true;
+				out->nstray++;
+			}
+		return false;
+	}
+	s->fail_streak = 0;
+	s->fail_since_ms = 0;
+	out->judged = true;
+	kept = ntfsmac_mw_filter(m, n_mounts, workers, n_workers, uid_to_baseline, s->base, s->nbase);
+	/* the baseline keeps every id still in the table, also those of a uid that overflows below */
+	prune_baseline(s, m, kept);
+	kept = drop_overflow(m, kept, workers, n_workers, uid_to_baseline, kill, out);
+	out->kept = kept;
+	kd = calloc(n_workers > 0 ? n_workers : 1, sizeof *kd);
+	if (kd == NULL) {
+		/* no memory to judge with: every live worker is stopped, as for a lasting failure */
+		out->judged = false;
+		out->stop_all = true;
+		for (j = 0; j < n_workers; j++)
+			if (workers[j].live && !kill[j]) {
+				kill[j] = true;
+				out->nstray++;
+			}
+		return false;
+	}
+	out->nstray += ntfsmac_mw_decide(m, kept, workers, n_workers, s->base, s->nbase, stray, kd);
+	for (j = 0; j < n_workers; j++)
+		kill[j] = kill[j] || kd[j];
+	free(kd);
+	if (out->base_overflow)
+		return false;
+	if (uid_to_baseline < 0)
+		return true;
+	for (i = 0; i < kept; i++) {
+		bool own = false;
+
+		if (!m[i].fuse || stray[i] || (long)m[i].owner != uid_to_baseline)
+			continue;
+		for (j = 0; j < n_workers; j++)
+			if (workers[j].mount_point[0] != '\0' &&
+			    strncmp(workers[j].mount_point, m[i].path, NTFSMAC_MW_MOUNT_POINT_MAX) == 0)
+				own = true;
+		if (own || in_baseline(s->base, s->nbase, m[i].id))
+			continue;
+		if (s->nbase >= NTFSMAC_MW_BASELINE_MAX) {
+			out->base_full = true;
+			return false;
+		}
+		s->base[s->nbase++] = m[i].id;
+	}
+	return true;
+}
+
+bool ntfsmac_mw_self_found(const ntfsmac_mw_step_out *out, bool self_killed)
+{
+	return out == NULL || !out->judged || self_killed;
+}
+
 size_t ntfsmac_mw_decide(const ntfsmac_mw_mount *mounts, size_t n_mounts,
 			 const ntfsmac_mw_worker *workers, size_t n_workers,
 			 const uint64_t *baseline, size_t n_baseline,
@@ -74,7 +293,7 @@ size_t ntfsmac_mw_decide(const ntfsmac_mw_mount *mounts, size_t n_mounts,
 {
 	size_t i, j, count = 0;
 
-	if (n_mounts > MW_COUNT_MAX || n_workers > MW_COUNT_MAX || n_baseline > MW_COUNT_MAX)
+	if (n_mounts > MW_LIST_ROWS_MAX || n_workers > MW_COUNT_MAX || n_baseline > MW_COUNT_MAX)
 		return 0;
 	if ((n_mounts > 0 && (mounts == NULL || stray == NULL)) ||
 	    (n_workers > 0 && (workers == NULL || kill == NULL)) ||
@@ -118,34 +337,49 @@ size_t ntfsmac_mw_decide(const ntfsmac_mw_mount *mounts, size_t n_mounts,
 
 ntfsmac_dmn_status ntfsmac_mw_list(ntfsmac_mw_mount **out, size_t *n)
 {
-	struct statfs *fs;
+	struct statfs *fs = NULL;
 	ntfsmac_mw_mount *v;
-	int count, got, i;
+	int count = 0, got = -1, i;
+	unsigned tries;
 	size_t used = 0;
 
 	if (out == NULL || n == NULL)
 		return NTFSMAC_DMN_E_INVAL;
 	*out = NULL;
 	*n = 0;
-	/* The table can grow between the two calls; ask for room for 8 more. */
-	count = getfsstat(NULL, 0, MNT_NOWAIT);
-	if (count < 0)
-		return NTFSMAC_DMN_E_IO;
-	count += 8;
-	fs = calloc((size_t)count, sizeof *fs);
-	v = calloc((size_t)count, sizeof *v);
-	if (fs == NULL || v == NULL) {
+	for (tries = 0; tries < NTFSMAC_MW_LIST_TRIES; tries++) {
+		int need = getfsstat(NULL, 0, MNT_NOWAIT);
+
+		if (need < 0)
+			continue;
+		if ((size_t)need > MW_LIST_ROWS_MAX)
+			return NTFSMAC_DMN_E_RANGE; /* not a read failure: the caller fails closed */
+		/* The table can grow between the two calls: room for more, and a full buffer is read
+		 * again with a larger one, since it cannot tell whether rows were left out. */
+		count = need + need / 8 + 16;
+		fs = calloc((size_t)count, sizeof *fs);
+		if (fs == NULL)
+			return NTFSMAC_DMN_E_IO;
+		got = getfsstat(fs, (int)((size_t)count * sizeof *fs), MNT_NOWAIT);
+		if (got >= 0 && got < count)
+			break;
 		free(fs);
-		free(v);
+		fs = NULL;
+		got = -1;
+	}
+	if (fs == NULL)
+		return NTFSMAC_DMN_E_IO;
+	if ((size_t)got > MW_LIST_ROWS_MAX) {
+		/* the headroom of the buffer let the table grow past the bound between the two calls */
+		free(fs);
+		return NTFSMAC_DMN_E_RANGE;
+	}
+	v = calloc(got > 0 ? (size_t)got : 1, sizeof *v);
+	if (v == NULL) {
+		free(fs);
 		return NTFSMAC_DMN_E_IO;
 	}
-	got = getfsstat(fs, (int)((size_t)count * sizeof *fs), MNT_NOWAIT);
-	if (got < 0) {
-		free(fs);
-		free(v);
-		return NTFSMAC_DMN_E_IO;
-	}
-	for (i = 0; i < got && i < count; i++) {
+	for (i = 0; i < got; i++) {
 		size_t len = strnlen(fs[i].f_mntonname, sizeof fs[i].f_mntonname);
 
 		if (len == 0 || len >= sizeof v[used].path)

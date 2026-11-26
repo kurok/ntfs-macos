@@ -13,6 +13,7 @@ const char *ntfsmac_dmn_status_name(ntfsmac_dmn_status s)
 	case NTFSMAC_DMN_E_IO: return "I/O error";
 	case NTFSMAC_DMN_E_TIMEOUT: return "timeout";
 	case NTFSMAC_DMN_E_DENIED: return "denied";
+	case NTFSMAC_DMN_E_RANGE: return "over a bound";
 	}
 	return "?";
 }

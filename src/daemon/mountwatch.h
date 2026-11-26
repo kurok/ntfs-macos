@@ -64,7 +64,7 @@ typedef struct ntfsmac_mw_worker {
  *   kill[j]   set to true for each live worker j whose uid owns a stray mount, false for the
  *             others (a dead worker is never marked)
  * The two arrays must have n_mounts and n_workers elements. Returns the number of stray mounts.
- * A NULL array that is needed, or a count above 4096, marks nothing and returns 0 (the caller
+ * A NULL array that is needed, more than 65536 mounts, or more than 4096 workers or baseline ids, marks nothing and returns 0 (the caller
  * has nothing safe to act on). The strings are compared as given: the function does not touch
  * any path.
  */
@@ -73,13 +73,111 @@ size_t ntfsmac_mw_decide(const ntfsmac_mw_mount *mounts, size_t n_mounts,
 			 const uint64_t *baseline, size_t n_baseline,
 			 bool *stray, bool *kill);
 
+/*
+ * The table is read in full up to NTFSMAC_MW_LIST_ROWS_MAX rows (ntfsmac_mw_list), and then filtered down to the
+ * rows the rule can use (ntfsmac_mw_filter): FUSE mounts whose owner is the uid of a worker of the
+ * daemon (or of the user whose baseline is being taken), plus the FUSE mounts named in the
+ * baseline. The bound NTFSMAC_MW_RELEVANT_MAX is per uid of that list: mounts of other users or of
+ * other file system types never count against a user's limit, and a user over it fails closed
+ * for that user alone (T-M7-10).
+ */
+#define NTFSMAC_MW_RELEVANT_MAX 4096u
+#define NTFSMAC_MW_BASELINE_MAX 256u
+
+/*
+ * Keep, in place and in order, the rows of `m[0..n)` that the rule needs: FUSE mounts whose owner
+ * is the uid of one of `workers[0..n_workers)` or is `extra_uid` (-1: none), and FUSE mounts whose
+ * id is in `baseline[0..n_baseline)` (so that the baseline can be pruned). Returns the number of
+ * rows kept; the rows after it are left in an unspecified state. Pure.
+ */
+size_t ntfsmac_mw_filter(ntfsmac_mw_mount *m, size_t n, const ntfsmac_mw_worker *workers,
+			 size_t n_workers, long extra_uid, const uint64_t *baseline, size_t n_baseline);
+
+/*
+ * State of the watcher between checks: the baseline (ids of FUSE mounts that were there before the
+ * first worker of their user was started) and the run of failed reads. Zero is the initial state.
+ */
+#define NTFSMAC_MW_FAIL_CHECKS 3u    /* failed checks in a row before live workers are stopped */
+#define NTFSMAC_MW_FAIL_MIN_MS 4000u /* and the first of them at least this long ago (2 polls) */
+
+typedef struct ntfsmac_mw_watch {
+	uint64_t base[NTFSMAC_MW_BASELINE_MAX];
+	size_t nbase;
+	unsigned fail_streak;   /* checks in a row whose table could not be judged */
+	uint64_t fail_since_ms; /* monotonic time of the first of them */
+} ntfsmac_mw_watch;
+
+/*
+ * The largest mount table that is read (rows of getfsstat()). A larger table is not a read
+ * failure: it cannot be judged, and that fails closed at once (NTFSMAC_MW_READ_TOO_BIG).
+ */
+#define NTFSMAC_MW_LIST_ROWS_MAX 65536u
+
+/* What ntfsmac_mw_step() is given: the outcome of ntfsmac_mw_list(). */
+typedef enum ntfsmac_mw_read {
+	NTFSMAC_MW_READ_FAILED = 0,  /* getfsstat() failed (E_IO): tolerated while it is short */
+	NTFSMAC_MW_READ_OK = 1,      /* m[0..n_mounts) is the table */
+	NTFSMAC_MW_READ_TOO_BIG = 2  /* more than NTFSMAC_MW_LIST_ROWS_MAX rows (E_RANGE): fail closed */
+} ntfsmac_mw_read;
+
+typedef struct ntfsmac_mw_step_out {
+	bool judged;    /* the table was read and judged: stray[] and kill[] are the rule's */
+	bool stop_all;  /* not judged and fail closed for every user: the table was larger than
+			 * NTFSMAC_MW_LIST_ROWS_MAX (`too_big`, at once), or it could not be read for
+			 * NTFSMAC_MW_FAIL_CHECKS checks over NTFSMAC_MW_FAIL_MIN_MS; kill[] marks every
+			 * live worker */
+	bool too_big;   /* the table had more than NTFSMAC_MW_LIST_ROWS_MAX rows */
+	bool base_full; /* the baseline had no room for a mount of `uid_to_baseline` */
+	bool base_overflow;     /* `uid_to_baseline` has more than NTFSMAC_MW_RELEVANT_MAX FUSE mounts */
+	unsigned overflow_uids; /* uids over NTFSMAC_MW_RELEVANT_MAX: their live workers are in kill[] */
+	size_t kept;    /* rows judged: stray[] covers m[0..kept) */
+	size_t nstray;  /* stray mounts plus workers marked for an overflow or a lasting failure */
+} ntfsmac_mw_step_out;
+
+/*
+ * One check of the table, without any I/O. `rd` NTFSMAC_MW_READ_FAILED: the table could not be
+ * read (ntfsmac_mw_list gave E_IO); then `m` is not looked at. A failed read changes nothing but
+ * the run of failures: the baseline is not pruned, no stray mount is reported, and a worker is
+ * marked in kill[] only once the failure has persisted (`stop_all`); the tolerance is for read
+ * failures only. NTFSMAC_MW_READ_TOO_BIG (ntfsmac_mw_list gave E_RANGE), or NTFSMAC_MW_READ_OK
+ * with more than NTFSMAC_MW_LIST_ROWS_MAX rows: the table cannot be judged and that fails closed
+ * at once: every live worker is marked in kill[] (`stop_all`, `too_big`), `m` is not looked at,
+ * the baseline and the run of failures are left as they are, and false is returned (no attach).
+ * Otherwise `m[0..n_mounts)` is the table; it is filtered in place (ntfsmac_mw_filter), the
+ * baseline is pruned to the ids still in it, and a uid with more than NTFSMAC_MW_RELEVANT_MAX FUSE
+ * mounts fails closed at once for itself alone: its live workers are marked in kill[] and its rows
+ * are not judged. The rest is decided (ntfsmac_mw_decide), and with `uid_to_baseline` >= 0 every
+ * FUSE mount of that user that is neither stray, nor a volume of the daemon, nor known is added to
+ * the baseline. `stray` must have `n_mounts` elements (only the first `out->kept` are meaningful)
+ * and `kill` `n_workers`. Returns true when the check was judged, `uid_to_baseline` did not
+ * overflow and the baseline had room: the caller may start a worker.
+ */
+bool ntfsmac_mw_step(ntfsmac_mw_watch *s, ntfsmac_mw_read rd, ntfsmac_mw_mount *m, size_t n_mounts,
+		     const ntfsmac_mw_worker *workers, size_t n_workers, long uid_to_baseline,
+		     uint64_t now_ms, bool *stray, bool *kill, ntfsmac_mw_step_out *out);
+
+/*
+ * Is the volume whose teardown asked for this check to be treated as if its worker made a stray
+ * mount? Yes when the check was not judged (fail closed: the session is failed and the user told,
+ * as for a table that cannot be read) or when its worker was marked in kill[].
+ */
+bool ntfsmac_mw_self_found(const ntfsmac_mw_step_out *out, bool self_killed);
+
+/* Monotonic milliseconds, the clock of ntfsmac_mw_step(). */
+uint64_t ntfsmac_mw_now_ms(void);
+
 /* True if a file system type name is one of macFUSE's (reconcile.c uses the same list). */
 bool ntfsmac_mw_fstype_is_fuse(const char *fstypename);
 
 /*
- * Platform lister: getfsstat(MNT_NOWAIT) into a new array that the caller frees with free().
- * Mounts whose path is longer than the field are skipped. Not implemented off macOS (E_NOTIMPL).
+ * Platform lister: getfsstat(MNT_NOWAIT) into a new array that the caller frees with free(). The
+ * buffer is sized from a first call that counts the mounts and is grown when the table grew in
+ * between; a failed call is tried again, at most NTFSMAC_MW_LIST_TRIES times in all, before the
+ * lister gives up (E_IO). A table with more than NTFSMAC_MW_LIST_ROWS_MAX rows, counted or read,
+ * gives E_RANGE at once (not retried, not a read failure: the caller fails closed). Mounts whose
+ * path is longer than the field are skipped. Not implemented off macOS (E_NOTIMPL).
  */
+#define NTFSMAC_MW_LIST_TRIES 4u
 ntfsmac_dmn_status ntfsmac_mw_list(ntfsmac_mw_mount **out, size_t *n);
 
 /*

@@ -127,6 +127,9 @@ static const struct {
 	const char *text;
 } gate_text[] = {
 	{"no_volume", "The daemon does not know this volume. Check the name with `ntfsmac list`."},
+	{NTFSMAC_CTL_REASON_JOURNAL_BUSY,
+	 "The daemon is busy with the session journal (a repair or a mount is running). Try again in a "
+	 "moment."},
 	{"probe_failed", "The volume could not be checked just now (is it mounted by another driver?)."},
 	{"invalid_input", "The request was not valid."},
 	{"no_entry", "There is no session journal entry for this volume, so there is nothing to clear."},

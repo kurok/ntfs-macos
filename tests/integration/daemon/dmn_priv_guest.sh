@@ -38,7 +38,7 @@ cc -std=c17 -O2 -o "$work/bin/jstub" tests/integration/daemon/journal_stub.c || 
 ln -sf "$work/bin/jstub" "$work/bin/jstub-exit1"
 ln -sf "$work/bin/jstub" "$work/bin/jstub-sector0"
 
-serial8() { "$CLI" status "$1" 2>&1 | sed -n 's/^  serial: 0x//p' | head -1 | cut -c9-16; }
+serial8() { status_of "$1" | sed -n 's/^  serial: 0x//p' | head -1 | cut -c9-16; }
 flags_of() { "$work/bin/setvolflags" "$1" --show 2>&1 | sed -n 's/.*flags_after=\(0x[0-9a-fA-F]*\).*/\1/p'; }
 settle() { wait_for 120 settled_row "$1" || true; sleep 1; }
 attach_settle() { _b=$(attach_image "$1"); settle "$_b"; mount_diag "$_b" >&2; echo "$_b"; }

@@ -212,9 +212,24 @@ list
 echo "-- journal"
 sudo -n ls -la /var/db/ntfs-macos/journal 2>&1 | sed -n '1,10p'
 
+# `ntfsmac status BSD`, asked again (up to 10 times, 1 s apart) while the daemon answers that the
+# session journal is busy (reason journal_busy, T-M7-14: status waits at most 1 s for the journal).
+status_of() {
+	_n=0
+	while :; do
+		_o=$("$CLI" status "$1" 2>&1) || true
+		case $_o in
+		*"busy with the session journal"*) ;;
+		*) printf '%s\n' "$_o"; return 0 ;;
+		esac
+		_n=$((_n + 1))
+		[ "$_n" -lt 10 ] || { printf '%s\n' "$_o"; return 0; }
+		sleep 1
+	done
+}
 # ---- 5. the privileged request reaches the daemon (ROOT_PEER: sudo) ----
 echo "== 5. sudo ntfsmac journal-clear reaches the daemon"
-serial=$("$CLI" status "$cb" 2>&1 | sed -n 's/^  serial: 0x//p')
+serial=$(status_of "$cb" | sed -n 's/^  serial: 0x//p')
 serial=${serial#????????} # the CLI asks for the last 8 hex digits
 note "serial of the clean volume: $serial"
 check "the journal still holds the entry of the killed session" [ "$(journal_count)" = 1 ]

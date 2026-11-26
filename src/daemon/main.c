@@ -521,6 +521,20 @@ static void jq_note_error(void *p)
 	(void)ntfsmac_session_note_write_error(p);
 }
 
+/* T-M7-12: the mount identity of a session, recorded on the journal queue. */
+typedef struct jq_mount_arg {
+	ntfsmac_session *sess;
+	const ntfsmac_mw_mount *m;
+	ntfsmac_dmn_status st;
+} jq_mount_arg;
+
+static void jq_note_mount(void *p)
+{
+	jq_mount_arg *a = p;
+
+	a->st = ntfsmac_session_note_mount(a->sess, (uint32_t)a->m->owner, a->m->id, a->m->from);
+}
+
 typedef struct jq_peek_arg {
 	uint64_t serial;
 	uint64_t total_sectors; /* with the serial, the volume's identity (T-M7-13) */
@@ -1422,6 +1436,43 @@ static void notify_refused(vol *v, const ntfsmac_probe_verdict *pv, ntfsmac_poli
 	notify(v, NTFSMAC_NOTIFY_REFUSED, refuse_reason_for(pv, note));
 }
 
+/*
+ * T-M7-12: once the worker's mount is there, the journal entry of a rw session records what the
+ * mount table says about it (owner, f_fsid, f_mntfromname), so that a restart can tell this mount
+ * from another one with the same name. Exactly one FUSE mount of the worker's user at the mount
+ * point, or nothing is recorded (and a restart then leaves the mount alone).
+ */
+static void note_mount_identity(vol *v, uid_t uid)
+{
+	ntfsmac_mw_mount *m = NULL;
+	size_t n = 0, i, hit = 0, found = 0;
+	jq_mount_arg a;
+
+	if (!ntfsmac_session_owns_entry(v->session) || !v->mp_valid)
+		return;
+	if (ntfsmac_mw_list(&m, &n) != NTFSMAC_DMN_OK) {
+		NTFSMAC_LOGW("%s: the mount table could not be read; the mount is not recorded", v->bsd);
+		return;
+	}
+	for (i = 0; i < n; i++)
+		if (m[i].fuse && m[i].owner == uid && strcmp(m[i].path, v->mp.path) == 0) {
+			hit = i;
+			found++;
+		}
+	if (found == 1) {
+		memset(&a, 0, sizeof a);
+		a.sess = v->session;
+		a.m = &m[hit];
+		dispatch_sync_f(g_journal_q, &a, jq_note_mount);
+		if (a.st != NTFSMAC_DMN_OK)
+			NTFSMAC_LOGW("%s: the mount was not recorded in the journal (%s)", v->bsd,
+				     ntfsmac_dmn_status_name(a.st));
+	} else {
+		NTFSMAC_LOGW("%s: %zu mounts of the worker at the mount point; none recorded", v->bsd, found);
+	}
+	free(m);
+}
+
 /* The claim of section 4.1 step 3 (claim.c) on the real Disk Arbitration session. */
 static ntfsmac_dmn_status claim_unmount(void *ctx, const char *bsd)
 {
@@ -1804,6 +1855,7 @@ static void attach_run(void *arg)
 	}
 	(void)sm_apply(v, NTFSMAC_VEV_MOUNTED, ro_final ? NTFSMAC_VMODE_RO : NTFSMAC_VMODE_RW,
 		       NTFSMAC_VREASON_NONE, ro_final ? ro_token : "");
+	note_mount_identity(v, cuid);
 	timer_start(v);
 
 	/* Step 9: say it. */
@@ -2414,7 +2466,8 @@ static ntfsmac_dmn_status op_status(void *ctx, const char *bsd, char *reply, siz
 			have_entry = false;
 	}
 	rv_of(&view, &rv);
-	n = ntfsmac_report_status(&rv, have_pv ? &pv : NULL, have_entry ? &pk.e : NULL, reply, cap);
+	n = ntfsmac_report_status_ex(&rv, have_pv ? &pv : NULL, have_entry ? &pk.e : NULL,
+				     ntfsmac_reconcile_left_mounted(), reply, cap);
 	pthread_mutex_unlock(&mu);
 	return n > 0 ? NTFSMAC_DMN_OK : NTFSMAC_DMN_E_IO;
 }
@@ -2862,6 +2915,13 @@ static int reconcile_cb(const ntfsmac_journal_entry *e, ntfsmac_reconcile_action
 	return 0;
 }
 
+/* #9: the banner may wait for its helper, so it is not shown on the start path. */
+static void notify_left_mounted(void *arg)
+{
+	(void)arg;
+	(void)ntfsmac_notify_post(NTFSMAC_NOTIFY_LEFT_MOUNTED, NULL, NULL);
+}
+
 static void shutdown_vol(void *arg)
 {
 	vol *v = arg;
@@ -3048,6 +3108,11 @@ int main(int argc, char **argv)
 	st = ntfsmac_reconcile_run(g_journal, reconcile_cb, NULL);
 	if (st != NTFSMAC_DMN_OK)
 		NTFSMAC_LOGW("restart reconciliation: %s", ntfsmac_dmn_status_name(st));
+	/* Owner decision 2026-11-26 (#9): such a mount stays; doctor and status show it, and the
+	 * user is told once. */
+	if (ntfsmac_reconcile_left_mounted() > 0)
+		dispatch_async_f(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), NULL,
+				 notify_left_mounted);
 
 	/* The session facts. `da` is filled in below, before the first callback is let through. */
 	ntfsmac_session_sys_real_init(&g_real, NULL);

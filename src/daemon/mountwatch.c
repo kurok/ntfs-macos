@@ -389,6 +389,8 @@ ntfsmac_dmn_status ntfsmac_mw_list(ntfsmac_mw_mount **out, size_t *n)
 		v[used].owner = fs[i].f_owner;
 		v[used].fuse = ntfsmac_mw_fstype_is_fuse(fs[i].f_fstypename);
 		memcpy(&v[used].id, &fs[i].f_fsid, sizeof v[used].id);
+		ntfsmac_mount_from_copy(v[used].from, sizeof v[used].from, fs[i].f_mntfromname,
+					sizeof fs[i].f_mntfromname);
 		used++;
 	}
 	free(fs);

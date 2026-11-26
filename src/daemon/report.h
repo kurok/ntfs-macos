@@ -44,6 +44,15 @@ size_t ntfsmac_report_list(const ntfsmac_report_vol *vols, size_t n, char *buf, 
 size_t ntfsmac_report_status(const ntfsmac_report_vol *vol, const ntfsmac_probe_verdict *last,
 			     const ntfsmac_journal_entry *je, char *buf, size_t cap);
 
+/*
+ * The same, plus "restart_left_mounted":N when N > 0: the writable mounts that the restart left
+ * mounted because they have a journal entry's name and are no entry's recorded mount (#9, owner
+ * decision 2026-11-26; ntfsmac_reconcile_left_mounted()). The member is daemon wide.
+ */
+size_t ntfsmac_report_status_ex(const ntfsmac_report_vol *vol, const ntfsmac_probe_verdict *last,
+				const ntfsmac_journal_entry *je, size_t left_mounted, char *buf,
+				size_t cap);
+
 /* {"ok":true,"findings":[{"code":N,"ok":bool,"value":N},..]} from the doctor findings. */
 size_t ntfsmac_report_doctor(const ntfsmac_doctor_finding *f, size_t n, char *buf, size_t cap);
 

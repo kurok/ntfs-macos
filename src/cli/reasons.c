@@ -283,6 +283,16 @@ const char *ntfsmac_cli_doctor_text(int code, bool ok, long value, char *buf, si
 		default:
 			return "The state of the last notification banner is not known to this program.";
 		}
+	case NTFSMAC_CLI_DOCTOR_RECONCILE_LEFT_MOUNTED:
+		/* #9, owner decision 2026-11-26 */
+		if (ok)
+			return "No read/write volume was left mounted since the last daemon start.";
+		snprintf(buf, cap,
+			 "%ld read/write volume(s) were left mounted since the last daemon start: each has the "
+			 "name of a volume left open by this Mac, but may not be it. Eject it before you "
+			 "unplug its disk.",
+			 value);
+		return buf;
 	default:
 		return NULL;
 	}

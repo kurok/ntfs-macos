@@ -219,6 +219,13 @@ static void put_probe(jw *w, const ntfsmac_probe_verdict *v, size_t room_for_tai
 size_t ntfsmac_report_status(const ntfsmac_report_vol *vol, const ntfsmac_probe_verdict *last,
 			     const ntfsmac_journal_entry *je, char *buf, size_t cap)
 {
+	return ntfsmac_report_status_ex(vol, last, je, 0, buf, cap);
+}
+
+size_t ntfsmac_report_status_ex(const ntfsmac_report_vol *vol, const ntfsmac_probe_verdict *last,
+				const ntfsmac_journal_entry *je, size_t left_mounted, char *buf,
+				size_t cap)
+{
 	jw w;
 	char jm[256];
 
@@ -236,6 +243,8 @@ size_t ntfsmac_report_status(const ntfsmac_report_vol *vol, const ntfsmac_probe_
 		jw_raw(&w, ",");
 		jw_raw(&w, jm);
 	}
+	if (left_mounted > 0) /* #9: a count only, never a path */
+		jw_fmt(&w, ",\"restart_left_mounted\":%zu", left_mounted);
 	jw_raw(&w, "}");
 	return jw_done(&w);
 }

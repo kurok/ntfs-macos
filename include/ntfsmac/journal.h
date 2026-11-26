@@ -54,6 +54,9 @@ extern "C" {
 /* ".<16 hex>-<16 hex>.tmp" plus NUL. */
 #define NTFSMAC_JOURNAL_IDTMPNAME_SIZE 39u
 
+/* f_mntfromname of the worker's mount kept in an entry: at most this many bytes (T-M7-12). */
+#define NTFSMAC_JOURNAL_MOUNT_FROM_MAX 127u
+
 /* "<16 hex>-<YYYYMMDDTHHMMSSZ>" is 16 + 1 + 16 = 33 characters plus NUL. */
 #define NTFSMAC_JOURNAL_TOMBNAME_SIZE 34u
 
@@ -91,6 +94,18 @@ typedef struct ntfsmac_journal_entry {
 	uint64_t logfile_lsn_at_start;
 	ntfsmac_journal_marker marker;
 	ntfsmac_journal_state state;
+	/*
+	 * The mount the session's worker made (T-M7-12), from the mount table (getfsstat, no path
+	 * walk) once the mount appeared: its owner (f_owner), its file system id (f_fsid) and its
+	 * source (f_mntfromname, bytes 0x20..0x7E, at most NTFSMAC_JOURNAL_MOUNT_FROM_MAX).
+	 * has_mount is false until it was recorded, and always for format 1; restart
+	 * reconciliation never unmounts a mount it cannot match with all three. Format 2 only;
+	 * set once by update (false -> true), never changed afterwards.
+	 */
+	bool has_mount;
+	uint32_t mount_owner;
+	uint64_t mount_fsid;
+	char mount_from[NTFSMAC_JOURNAL_MOUNT_FROM_MAX + 1];
 	/*
 	 * Not a stored field: true when the entry was read from format 1 (named by the serial
 	 * alone, written before the identity rule). Its identity is unknown, so it applies to every
@@ -195,7 +210,8 @@ ntfsmac_journal_status ntfsmac_journal_get(ntfsmac_journal *j, uint64_t serial,
  * Checked against the stored entry: marker and state must pass the transition
  * helpers (ERR_TRANSITION) and serial, label, total_sectors, session_id,
  * created and logfile_lsn_at_start must be unchanged (ERR_IMMUTABLE); only
- * `updated`, `marker` and `state` may change. NOT_FOUND if absent.
+ * `updated`, `marker` and `state` may change, and the mount fields may be set
+ * once (has_mount false -> true; a format-1 entry cannot have them). NOT_FOUND if absent.
  * The format of the stored entry is kept.
  */
 ntfsmac_journal_status ntfsmac_journal_update(ntfsmac_journal *j,

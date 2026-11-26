@@ -1649,9 +1649,46 @@ static void test_decide_identity(void)
 	fake_done(&f);
 }
 
+/* U-DMN-SESS-MNT (T-M7-12): the mount identity of a rw session goes into its entry, once. */
+static void test_note_mount(void)
+{
+	fake f;
+	ntfsmac_session_config c = cfg0();
+	ntfsmac_journal_entry e;
+	begun b;
+
+	fake_init(&f);
+	b = rw_session(&f, &c);
+	CHECK_EQ_INT(ntfsmac_session_note_mount(b.s, 501, 0xAF5, ""), NTFSMAC_DMN_E_INVAL);
+	CHECK_EQ_INT(ntfsmac_session_note_mount(b.s, 501, 0xAF5, NULL), NTFSMAC_DMN_E_INVAL);
+	CHECK_EQ_INT(ntfsmac_session_note_mount(b.s, 501, 0xAF5, "bad\tsource"), NTFSMAC_DMN_E_IO);
+	CHECK(ntfsmac_journal_get(f.j, SERIAL, 131072, &e) == NTFSMAC_JOURNAL_OK && !e.has_mount);
+	CHECK_EQ_INT(ntfsmac_session_note_mount(b.s, 501, 0xAF5, "ntfs-3g@macfuse0"), NTFSMAC_DMN_OK);
+	CHECK(ntfsmac_journal_get(f.j, SERIAL, 131072, &e) == NTFSMAC_JOURNAL_OK && e.has_mount &&
+	      e.mount_owner == 501 && e.mount_fsid == 0xAF5 && strcmp(e.mount_from, "ntfs-3g@macfuse0") == 0);
+	/* once: a second call changes nothing */
+	CHECK_EQ_INT(ntfsmac_session_note_mount(b.s, 502, 0xAF6, "other"), NTFSMAC_DMN_OK);
+	CHECK(ntfsmac_journal_get(f.j, SERIAL, 131072, &e) == NTFSMAC_JOURNAL_OK && e.mount_owner == 501);
+	/* later changes of the session keep it */
+	CHECK_EQ_INT(ntfsmac_session_note_write_error(b.s), NTFSMAC_DMN_OK);
+	CHECK(ntfsmac_journal_get(f.j, SERIAL, 131072, &e) == NTFSMAC_JOURNAL_OK && e.has_mount &&
+	      e.state == NTFSMAC_JOURNAL_STATE_WRITE_ERROR);
+	ntfsmac_session_free(b.s);
+	fake_done(&f);
+	/* a read-only session has no entry: nothing to record */
+	fake_init(&f);
+	b = do_begin(&f, &c, NTFSMAC_POLICY_RO);
+	CHECK_EQ_INT(ntfsmac_session_note_mount(b.s, 501, 0xAF5, "ntfs-3g@macfuse0"), NTFSMAC_DMN_OK);
+	CHECK(!entry_exists(&f));
+	ntfsmac_session_free(b.s);
+	fake_done(&f);
+	CHECK_EQ_INT(ntfsmac_session_note_mount(NULL, 501, 1, "x"), NTFSMAC_DMN_E_INVAL);
+}
+
 int main(void)
 {
 	make_dir();
+	test_note_mount();
 	test_decide_identity();
 	test_policy_mode();
 	test_bind_table();

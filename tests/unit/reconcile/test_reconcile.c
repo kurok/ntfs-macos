@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * T-M4-05: restart reconciliation (U-DMN-RC-01..06).
+ * T-M4-05: restart reconciliation (U-DMN-RC-01..05; T-M7-15: 06; T-M7-12 and #9: 07..09).
  *   01  which mount point belongs to which entry
  *   02  decision matrix: every marker, every state, every kind of live mount
  *   03  ambiguity: several entries or several mounts for one label
@@ -14,6 +14,10 @@
 
 #include "internal.h"
 
+#define OWNER 501u
+#define FSID 0x1000000AF5ull
+#define FROM "ntfs-3g@macfuse0"
+
 static ntfsmac_journal_entry mk_entry(uint64_t serial, const char *label,
 				      ntfsmac_journal_marker marker,
 				      ntfsmac_journal_state state)
@@ -23,6 +27,11 @@ static ntfsmac_journal_entry mk_entry(uint64_t serial, const char *label,
 	snprintf(e.label, sizeof e.label, "%s", label);
 	e.marker = marker;
 	e.state = state;
+	/* the mount the session's worker made, as recorded at mount time (T-M7-12) */
+	e.has_mount = true;
+	e.mount_owner = OWNER;
+	e.mount_fsid = FSID;
+	snprintf(e.mount_from, sizeof e.mount_from, "%s", FROM);
 	return e;
 }
 
@@ -34,6 +43,9 @@ static ntfsmac_live_mount mk_mount(const char *path, bool ro, pid_t pid)
 	snprintf(m.mount_point, sizeof m.mount_point, "%s", path);
 	m.read_only = ro;
 	m.worker_pid = pid;
+	m.owner = OWNER; /* the same mount as mk_entry() recorded */
+	m.fsid = FSID;
+	snprintf(m.from, sizeof m.from, "%s", FROM);
 	return m;
 }
 
@@ -45,51 +57,51 @@ static void test_match(void)
 					   NTFSMAC_JOURNAL_STATE_OPEN);
 	char big[200];
 
-	CHECK(ntfsmac_reconcile_mount_matches(&e, "/Volumes/DATA"));
-	CHECK(ntfsmac_reconcile_mount_matches(&e, "/Volumes/DATA 2"));
-	CHECK(ntfsmac_reconcile_mount_matches(&e, "/Volumes/DATA 9"));
-	CHECK(ntfsmac_reconcile_mount_matches(&e, "/Volumes/DATA 10"));
-	CHECK(ntfsmac_reconcile_mount_matches(&e, "/Volumes/DATA 99"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "/Volumes/DATA 1"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "/Volumes/DATA 0"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "/Volumes/DATA 02"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "/Volumes/DATA 100"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "/Volumes/DATA 2x"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "/Volumes/DATA "));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "/Volumes/DATA2"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "/Volumes/DATAX"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "/Volumes/DAT"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "/Volumes/data"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "/Volumes/"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "/Volumes/DATA/sub"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "/Volumes/DATA 2/sub"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "/Volumes/../DATA"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "/Volumes"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "/tmp/DATA"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "Volumes/DATA"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "//Volumes/DATA"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, ""));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, NULL));
-	CHECK(!ntfsmac_reconcile_mount_matches(NULL, "/Volumes/DATA"));
+	CHECK(ntfsmac_reconcile_name_matches(&e, "/Volumes/DATA"));
+	CHECK(ntfsmac_reconcile_name_matches(&e, "/Volumes/DATA 2"));
+	CHECK(ntfsmac_reconcile_name_matches(&e, "/Volumes/DATA 9"));
+	CHECK(ntfsmac_reconcile_name_matches(&e, "/Volumes/DATA 10"));
+	CHECK(ntfsmac_reconcile_name_matches(&e, "/Volumes/DATA 99"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "/Volumes/DATA 1"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "/Volumes/DATA 0"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "/Volumes/DATA 02"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "/Volumes/DATA 100"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "/Volumes/DATA 2x"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "/Volumes/DATA "));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "/Volumes/DATA2"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "/Volumes/DATAX"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "/Volumes/DAT"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "/Volumes/data"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "/Volumes/"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "/Volumes/DATA/sub"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "/Volumes/DATA 2/sub"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "/Volumes/../DATA"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "/Volumes"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "/tmp/DATA"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "Volumes/DATA"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "//Volumes/DATA"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, ""));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, NULL));
+	CHECK(!ntfsmac_reconcile_name_matches(NULL, "/Volumes/DATA"));
 
 	/* A label with a space inside is matched whole. */
 	e = mk_entry(1, "MY DATA", NTFSMAC_JOURNAL_MARKER_SET, NTFSMAC_JOURNAL_STATE_OPEN);
-	CHECK(ntfsmac_reconcile_mount_matches(&e, "/Volumes/MY DATA"));
-	CHECK(ntfsmac_reconcile_mount_matches(&e, "/Volumes/MY DATA 3"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "/Volumes/MY"));
+	CHECK(ntfsmac_reconcile_name_matches(&e, "/Volumes/MY DATA"));
+	CHECK(ntfsmac_reconcile_name_matches(&e, "/Volumes/MY DATA 3"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "/Volumes/MY"));
 
 	/* An empty label gets the fallback leaf of ADR-016 (last 8 hex digits). */
 	e = mk_entry(0x1122334455667788ull, "", NTFSMAC_JOURNAL_MARKER_SET,
 		     NTFSMAC_JOURNAL_STATE_OPEN);
-	CHECK(ntfsmac_reconcile_mount_matches(&e, "/Volumes/NTFS-55667788"));
-	CHECK(ntfsmac_reconcile_mount_matches(&e, "/Volumes/NTFS-55667788 2"));
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, "/Volumes/NTFS-55667789"));
+	CHECK(ntfsmac_reconcile_name_matches(&e, "/Volumes/NTFS-55667788"));
+	CHECK(ntfsmac_reconcile_name_matches(&e, "/Volumes/NTFS-55667788 2"));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, "/Volumes/NTFS-55667789"));
 
 	/* A path that is too long for any leaf never matches and never overflows. */
 	memset(big, 'A', sizeof big);
 	memcpy(big, "/Volumes/", 9);
 	big[sizeof big - 1] = '\0';
-	CHECK(!ntfsmac_reconcile_mount_matches(&e, big));
+	CHECK(!ntfsmac_reconcile_name_matches(&e, big));
 
 	/* A 64-byte label (the cap) with the longest suffix. */
 	{
@@ -99,9 +111,9 @@ static void test_match(void)
 		label[64] = '\0';
 		e = mk_entry(2, label, NTFSMAC_JOURNAL_MARKER_SET, NTFSMAC_JOURNAL_STATE_OPEN);
 		snprintf(path, sizeof path, "/Volumes/%s 99", label);
-		CHECK(ntfsmac_reconcile_mount_matches(&e, path));
+		CHECK(ntfsmac_reconcile_name_matches(&e, path));
 		snprintf(path, sizeof path, "/Volumes/%s", label);
-		CHECK(ntfsmac_reconcile_mount_matches(&e, path));
+		CHECK(ntfsmac_reconcile_name_matches(&e, path));
 	}
 }
 
@@ -464,13 +476,146 @@ static void test_run(void)
 	jt_rmrf(base);
 }
 
+/*
+ * U-DMN-RC-07 (T-M7-12): a macFUSE mount with the entry's name is that session's mount only when
+ * owner, f_fsid and source are the ones recorded. Any one different, or nothing recorded
+ * (format 1, or no record yet), and it is not unmounted; a fully matching one still is.
+ */
+static void test_identity(void)
+{
+	ntfsmac_journal_entry e = mk_entry(1, "DATA", NTFSMAC_JOURNAL_MARKER_SET, NTFSMAC_JOURNAL_STATE_OPEN);
+	ntfsmac_live_mount m[1], ok = mk_mount("/Volumes/DATA", false, 0);
+	ntfsmac_reconcile_item it[2];
+	int k;
+
+	CHECK(ntfsmac_reconcile_mount_matches(&e, &ok));
+	CHECK(ntfsmac_reconcile_plan(&e, 1, &ok, 1, it, 2) == 1);
+	CHECK(it[0].action == NTFSMAC_RECONCILE_FORCE_UNMOUNT && it[0].mount_index == 0);
+	ok.worker_pid = 77;
+	CHECK(ntfsmac_reconcile_plan(&e, 1, &ok, 1, it, 2) == 1);
+	CHECK(it[0].action == NTFSMAC_RECONCILE_READOPT);
+	ok.worker_pid = 0;
+
+	for (k = 0; k < 7; k++) {
+		ntfsmac_journal_entry x = e;
+
+		m[0] = ok;
+		switch (k) {
+		case 0: m[0].owner = OWNER + 1; break;          /* another user's mount */
+		case 1: m[0].fsid = FSID + 1; break;            /* another mount instance */
+		case 2: snprintf(m[0].from, sizeof m[0].from, "sshfs@host"); break; /* another source */
+		case 3: m[0].from[0] = '\0'; break;             /* source not readable */
+		case 4: x.has_mount = false; break;             /* nothing recorded */
+		case 5: x.legacy = true; break;                 /* format 1 */
+		default: snprintf(m[0].mount_point, sizeof m[0].mount_point, "/Volumes/OTHER"); break;
+		}
+		CHECK(!ntfsmac_reconcile_mount_matches(&x, &m[0]));
+		CHECK(ntfsmac_reconcile_plan(&x, 1, m, 1, it, 2) == 1);
+		CHECK(it[0].action == NTFSMAC_RECONCILE_KEEP_ENTRY && it[0].mount_index == -1);
+		/* U-DMN-RC-09 (#9): left mounted, and counted, only when it has the entry's name */
+		CHECK(ntfsmac_reconcile_left_alone(&x, 1, &m[0]) == (k != 6));
+		CHECK(ntfsmac_reconcile_count_left(&x, 1, m, 1) == (k != 6 ? 1u : 0u));
+		m[0].read_only = true; /* a read-only mount is never a warning */
+		CHECK(!ntfsmac_reconcile_left_alone(&x, 1, &m[0]));
+	}
+	/* U-DMN-RC-09: the session's own mount is acted on, not left; nor when another entry
+	 * without a record has the same name */
+	CHECK(!ntfsmac_reconcile_left_alone(&e, 1, &ok));
+	{
+		ntfsmac_journal_entry two[2];
+
+		two[0] = e;
+		two[0].has_mount = false;
+		two[1] = e;
+		CHECK(!ntfsmac_reconcile_left_alone(two, 2, &ok));
+		CHECK(ntfsmac_reconcile_count_left(two, 2, &ok, 1) == 0);
+	}
+	CHECK(!ntfsmac_reconcile_left_alone(&e, 1, NULL));
+	CHECK(ntfsmac_reconcile_count_left(&e, 1, NULL, 3) == 0);
+	CHECK(!ntfsmac_reconcile_mount_matches(NULL, &ok));
+	CHECK(!ntfsmac_reconcile_mount_matches(&e, NULL));
+
+	/* the source copy of the lister: printable and short only */
+	{
+		char d[8], src[16];
+
+		ntfsmac_mount_from_copy(d, sizeof d, "abc", 4);
+		CHECK(strcmp(d, "abc") == 0);
+		ntfsmac_mount_from_copy(d, sizeof d, "abcdefgh", 9); /* does not fit */
+		CHECK(d[0] == '\0');
+		memcpy(src, "a\tb", 4);
+		ntfsmac_mount_from_copy(d, sizeof d, src, 4);
+		CHECK(d[0] == '\0');
+		ntfsmac_mount_from_copy(d, sizeof d, "", 1);
+		CHECK(d[0] == '\0');
+		ntfsmac_mount_from_copy(d, sizeof d, NULL, 0);
+		CHECK(d[0] == '\0');
+	}
+}
+
+/*
+ * U-DMN-RC-08 (T-M7-12): over a real journal. An entry of format 1 (no record) whose label is
+ * the name of a writable macFUSE mount: the mount stays, the entry stays and still applies to
+ * every volume of its serial (the next mount is read-only, U-POL-IDENT). The recorded fields
+ * survive the journal (format 2) and match the mount they were taken from.
+ */
+static void test_run_identity(void)
+{
+	char base[PATH_MAX_T], jdir[PATH_MAX_T], path[PATH_MAX_T + 32];
+	ntfsmac_journal *j = NULL;
+	ntfsmac_journal_entry e = mk_entry(0xB1, "VAULT", NTFSMAC_JOURNAL_MARKER_SET, NTFSMAC_JOURNAL_STATE_OPEN),
+			      g;
+	ntfsmac_live_mount m[2];
+	seen s;
+	FILE *fp;
+
+	jt_jdir(base, sizeof base, jdir, sizeof jdir);
+	CHECK_ST(ntfsmac_journal_open(jdir, &j), NTFSMAC_JOURNAL_OK);
+	put_entry(j, &e);
+	CHECK_ST(ntfsmac_journal_get(j, 0xB1, JT_TS, &g), NTFSMAC_JOURNAL_OK);
+	CHECK(g.has_mount && g.mount_owner == OWNER && g.mount_fsid == FSID && strcmp(g.mount_from, FROM) == 0);
+	/* the record cannot be changed once written */
+	g.mount_fsid++;
+	CHECK_ST(ntfsmac_journal_update(j, &g), NTFSMAC_JOURNAL_ERR_IMMUTABLE);
+
+	snprintf(path, sizeof path, "%s/%016llX", jdir, 0xB2ull);
+	fp = fopen(path, "w");
+	CHECK(fp != NULL);
+	if (fp != NULL) {
+		fputs("ntfsmac-journal 1\nserial 00000000000000B2\nlabel 7363616e\ntotal_sectors 2048\n"
+		      "session_id 5\ncreated 1\nupdated 1\nlogfile_lsn_at_start 1\nmarker set\n"
+		      "state open\nend\n", fp);
+		fclose(fp);
+		chmod(path, 0600);
+	}
+	m[0] = mk_mount("/Volumes/scan", false, 0);  /* a FUSE volume of the user named like the label */
+	m[1] = mk_mount("/Volumes/VAULT", false, 0); /* the session's own mount */
+	memset(&s, 0, sizeof s);
+	CHECK(ntfsmac_reconcile_run_with(j, m, 2, record, &s) == NTFSMAC_DMN_OK);
+	CHECK(s.n == 2);
+	CHECK(s.action[find_serial(&s, 0xB2)] == NTFSMAC_RECONCILE_KEEP_ENTRY);
+	CHECK(s.action[find_serial(&s, 0xB1)] == NTFSMAC_RECONCILE_FORCE_UNMOUNT);
+	CHECK(strcmp(s.mount[find_serial(&s, 0xB1)], "/Volumes/VAULT") == 0);
+	/* U-DMN-RC-09: the mount of the user is counted for doctor and status; a run without it is 0 */
+	CHECK(ntfsmac_reconcile_left_mounted() == 1);
+	memset(&s, 0, sizeof s);
+	CHECK(ntfsmac_reconcile_run_with(j, &m[1], 1, record, &s) == NTFSMAC_DMN_OK);
+	CHECK(ntfsmac_reconcile_left_mounted() == 0);
+	CHECK_ST(ntfsmac_journal_get(j, 0xB2, 4096, &g), NTFSMAC_JOURNAL_OK);
+	CHECK(g.legacy && !g.has_mount);
+	ntfsmac_journal_close(j);
+	jt_rmrf(base);
+}
+
 int main(void)
 {
 	test_match();
+	test_identity();
 	test_matrix();
 	test_ambiguity();
 	test_args();
 	test_run();
+	test_run_identity();
 	puts("ok");
 	return 0;
 }

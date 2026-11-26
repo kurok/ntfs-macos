@@ -146,6 +146,13 @@ size_t ntfsmac_notify_text(ntfsmac_notify_kind kind, const char *label, const ch
 			     "It was stopped and the volume was detached.",
 			     vol);
 		break;
+	case NTFSMAC_NOTIFY_LEFT_MOUNTED:
+		/* #9, owner decision 2026-11-26: no label, the mount is not known to be ours */
+		n = snprintf(buf, cap,
+			     "A read/write volume was left mounted when ntfsmac restarted: it has the "
+			     "name of a volume that was left open, but ntfsmac cannot prove that it is "
+			     "that volume. Eject it before you unplug its disk; `ntfsmac doctor` says more.");
+		break;
 	default:
 		n = -1;
 		break;

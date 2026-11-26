@@ -1177,14 +1177,28 @@ static int count_cb(const ntfsmac_journal_entry *e, void *ctx)
 	return 0;
 }
 
-/* Rewrite the first line of an entry file ("ntfsmac-journal N") to `head`; same length. */
+/*
+ * Rewrite the first line of an entry file ("ntfsmac-journal N") to `head`; same length. For
+ * format 1 the `mount` line of format 2 is dropped as well, so the text is a format-1 entry.
+ */
 static void set_version(const char *path, const char *head, const char *out_path)
 {
 	char text[2048];
 	size_t n = jt_read_file(path, text, sizeof(text));
+	char *m;
 
-	CHECK(n > 17 && strlen(head) == 17);
+	CHECK(n > 17 && n < sizeof(text) && strlen(head) == 17);
+	text[n] = '\0';
 	memcpy(text, head, 17);
+	if (head[16] == '1' && (m = strstr(text, "\nmount ")) != NULL) {
+		char *eol = strchr(m + 1, '\n');
+
+		CHECK(eol != NULL);
+		if (eol != NULL) {
+			memmove(m, eol, strlen(eol) + 1);
+			n = strlen(text);
+		}
+	}
 	jt_write_file(out_path, text, n, 0600);
 }
 
@@ -1325,9 +1339,94 @@ static void test_identity(void)
 	jt_rmrf(base);
 }
 
+/*
+ * U-JRN-MNT-01 (T-M7-12): the mount record of an entry. Set once by update and read back;
+ * never changed or dropped afterwards; never on a format-1 entry; the `mount` line is parsed
+ * strictly.
+ */
+static void test_mount_record(void)
+{
+	char base[PATH_MAX_T], jdir[PATH_MAX_T], p[PATH_MAX_T], good[2048], text[2048];
+	ntfsmac_journal *j = open_fresh(base, sizeof(base), jdir, sizeof(jdir));
+	ntfsmac_journal_entry e = jt_entry(0xD0), g, x;
+	size_t glen;
+	static const char *const bad[] = {
+		"mount",
+		"mount ",
+		"mount  -",
+		"mount 501",
+		"mount 501 0000000000000AF5",
+		"mount 501 0000000000000AF5 ",
+		"mount 501 0000000000000af5 6162",
+		"mount 0501 0000000000000AF5 6162",
+		"mount 4294967296 0000000000000AF5 6162",
+		"mount 501 0000000000000AF5 616",
+		"mount 501 0000000000000AF5 6109",
+		"mount 501 0000000000000AF5 6G62",
+		"mount 501  0000000000000AF5 6162",
+		"mount 501 0000000000000AF5 6162 ",
+	};
+
+	CHECK_ST(ntfsmac_journal_create(j, &e), NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_get(j, 0xD0, JT_TS, &g), NTFSMAC_JOURNAL_OK);
+	CHECK(!g.has_mount);
+	x = g;
+	x.has_mount = true;
+	x.mount_owner = 501;
+	x.mount_fsid = 0xAF5;
+	snprintf(x.mount_from, sizeof(x.mount_from), "ntfs-3g@macfuse0");
+	CHECK_ST(ntfsmac_journal_update(j, &x), NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_get(j, 0xD0, JT_TS, &g), NTFSMAC_JOURNAL_OK);
+	CHECK(g.has_mount && g.mount_owner == 501 && g.mount_fsid == 0xAF5 &&
+	      strcmp(g.mount_from, "ntfs-3g@macfuse0") == 0);
+	/* kept by later changes, never changed or dropped */
+	g.marker = NTFSMAC_JOURNAL_MARKER_SET;
+	CHECK_ST(ntfsmac_journal_update(j, &g), NTFSMAC_JOURNAL_OK);
+	x = g;
+	x.mount_owner = 502;
+	CHECK_ST(ntfsmac_journal_update(j, &x), NTFSMAC_JOURNAL_ERR_IMMUTABLE);
+	x = g;
+	snprintf(x.mount_from, sizeof(x.mount_from), "other");
+	CHECK_ST(ntfsmac_journal_update(j, &x), NTFSMAC_JOURNAL_ERR_IMMUTABLE);
+	x = g;
+	x.has_mount = false;
+	CHECK_ST(ntfsmac_journal_update(j, &x), NTFSMAC_JOURNAL_ERR_IMMUTABLE);
+	/* an unprintable or empty source is refused */
+	x = g;
+	x.mount_from[0] = '\t';
+	CHECK_ST(ntfsmac_journal_update(j, &x), NTFSMAC_JOURNAL_ERR_INVALID);
+	x.mount_from[0] = '\0';
+	CHECK_ST(ntfsmac_journal_update(j, &x), NTFSMAC_JOURNAL_ERR_INVALID);
+	/* a format-1 entry has no record */
+	x = g;
+	x.legacy = true;
+	CHECK_ST(ntfsmac_journal_update(j, &x), NTFSMAC_JOURNAL_ERR_INVALID);
+
+	/* strict parsing of the line */
+	entry_path(p, sizeof(p), jdir, 0xD0);
+	glen = jt_read_file(p, good, sizeof(good));
+	CHECK(glen > 0 && strstr(good, "\nmount 501 0000000000000AF5 6e7466732d3367406d61636675736530\n") != NULL);
+	for (size_t i = 0; i < sizeof(bad) / sizeof(bad[0]); i++) {
+		size_t n;
+
+		memcpy(text, good, glen);
+		n = set_line(text, glen, sizeof(text), "mount", bad[i]);
+		jt_write_file(p, text, n, 0600);
+		if (ntfsmac_journal_get(j, 0xD0, JT_TS, &g) != NTFSMAC_JOURNAL_ERR_CORRUPT) {
+			fprintf(stderr, "FAIL: accepted: %s\n", bad[i]);
+			exit(1);
+		}
+	}
+	jt_write_file(p, good, glen, 0600);
+	CHECK_ST(ntfsmac_journal_get(j, 0xD0, JT_TS, &g), NTFSMAC_JOURNAL_OK);
+	ntfsmac_journal_close(j);
+	jt_rmrf(base);
+}
+
 int main(void)
 {
 	ntfsmac_log_set_level(NTFSMAC_LOG_NONE);
+	RUN(test_mount_record);
 	RUN(test_identity);
 	RUN(test_names);
 	RUN(test_transitions);

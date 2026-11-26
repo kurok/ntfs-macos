@@ -22,20 +22,25 @@
  * This module never removes or changes a journal entry. Only the four paths
  * of section 3.5 remove entries, and none of them is a restart.
  *
- * How a mount is tied to an entry: the daemon created the mount point
- * /Volumes/<leaf> from the sanitised label (section 4.1 step 7), and the
- * entry holds the same sanitised label. A mount belongs to an entry when its
- * leaf is the label, or the label followed by " 2" to " 99". The kernel does
- * not give the serial, and root must not look inside the served file system
- * (section 4.1 step 8), so the name is the only safe link. Two volumes with
- * one label are therefore ambiguous. Ambiguity is resolved towards safety:
- * a writable mount that cannot be told apart is force-unmounted, never
- * re-adopted. The entry stays in every case, so the volume is read-only on
- * the next mount.
+ * How a mount is tied to an entry (T-M7-12): the daemon created the mount
+ * point /Volumes/<leaf> from the sanitised label (section 4.1 step 7), and the
+ * entry holds the same sanitised label, so the leaf must be the label, or the
+ * label followed by " 2" to " 99". A label is chosen by whoever made the disk,
+ * so the name alone proves nothing: once the worker's mount appeared, the
+ * daemon recorded in the entry what the kernel says about it in struct statfs
+ * (owner, f_fsid, f_mntfromname; no path walk, root never looks inside the
+ * served file system, section 4.1 step 8), and a live mount belongs to the
+ * entry only when all three are the same now. An entry without that record
+ * (format 1, or a daemon that stopped before writing it) matches no mount: its
+ * mount is left alone and logged. Two entries that claim one mount remain
+ * ambiguous; ambiguity is resolved towards safety: such a writable mount is
+ * force-unmounted, never re-adopted. The entry stays in every case, so the
+ * volume is read-only on the next mount.
  *
  * The decision code is pure. Only ntfsmac_reconcile_list_mounts() calls the
- * system, and only on macOS.
+ * system, and only on macOS; ntfsmac_reconcile_run_with() logs.
  */
+#include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -76,7 +81,7 @@ static bool suffix_2_to_99(const char *s)
 	return s[0] != '0';
 }
 
-bool ntfsmac_reconcile_mount_matches(const ntfsmac_journal_entry *e, const char *mount_point)
+bool ntfsmac_reconcile_name_matches(const ntfsmac_journal_entry *e, const char *mount_point)
 {
 	char base[NTFSMAC_LABEL_PART_SIZE];
 	size_t base_len;
@@ -97,6 +102,84 @@ bool ntfsmac_reconcile_mount_matches(const ntfsmac_journal_entry *e, const char 
 	if (leaf[base_len] == '\0')
 		return true;
 	return leaf[base_len] == ' ' && suffix_2_to_99(leaf + base_len + 1);
+}
+
+bool ntfsmac_reconcile_mount_matches(const ntfsmac_journal_entry *e, const ntfsmac_live_mount *m)
+{
+	if (e == NULL || m == NULL || !ntfsmac_reconcile_name_matches(e, m->mount_point))
+		return false;
+	/* The name is steered by a disk label; only what the kernel says about the mount counts. */
+	return e->has_mount && !e->legacy && m->owner == e->mount_owner && m->fsid == e->mount_fsid &&
+	       m->from[0] != '\0' && strcmp(m->from, e->mount_from) == 0;
+}
+
+bool ntfsmac_reconcile_left_alone(const ntfsmac_journal_entry *entries, size_t n_entries,
+				  const ntfsmac_live_mount *m)
+{
+	size_t i;
+	bool named = false;
+
+	if (m == NULL || m->read_only || (n_entries != 0 && entries == NULL))
+		return false;
+	for (i = 0; i < n_entries; i++) {
+		if (ntfsmac_reconcile_mount_matches(&entries[i], m))
+			return false; /* the session's own mount: the plan acts on it */
+		if (ntfsmac_reconcile_name_matches(&entries[i], m->mount_point))
+			named = true;
+	}
+	return named;
+}
+
+size_t ntfsmac_reconcile_count_left(const ntfsmac_journal_entry *entries, size_t n_entries,
+				    const ntfsmac_live_mount *mounts, size_t n_mounts)
+{
+	size_t i, n = 0;
+
+	if (mounts == NULL)
+		return 0;
+	for (i = 0; i < n_mounts; i++)
+		if (ntfsmac_reconcile_left_alone(entries, n_entries, &mounts[i]))
+			n++;
+	return n;
+}
+
+static pthread_mutex_t g_left_mu = PTHREAD_MUTEX_INITIALIZER;
+static size_t g_left_mounted;
+
+void ntfsmac_reconcile_set_left_mounted(size_t n)
+{
+	pthread_mutex_lock(&g_left_mu);
+	g_left_mounted = n;
+	pthread_mutex_unlock(&g_left_mu);
+}
+
+size_t ntfsmac_reconcile_left_mounted(void)
+{
+	size_t n;
+
+	pthread_mutex_lock(&g_left_mu);
+	n = g_left_mounted;
+	pthread_mutex_unlock(&g_left_mu);
+	return n;
+}
+
+void ntfsmac_mount_from_copy(char *dst, size_t cap, const char *src, size_t srcsize)
+{
+	size_t n, i;
+
+	if (dst == NULL || cap == 0)
+		return;
+	dst[0] = '\0';
+	if (src == NULL)
+		return;
+	n = strnlen(src, srcsize);
+	if (n == 0 || n >= cap)
+		return;
+	for (i = 0; i < n; i++)
+		if ((unsigned char)src[i] < 0x20 || (unsigned char)src[i] > 0x7e)
+			return;
+	memcpy(dst, src, n);
+	dst[n] = '\0';
 }
 
 /*
@@ -145,7 +228,7 @@ size_t ntfsmac_reconcile_plan(const ntfsmac_journal_entry *entries, size_t n_ent
 	/* How many entries claim each mount. */
 	for (i = 0; i < n_entries; i++)
 		for (m = 0; m < n_mounts; m++)
-			if (ntfsmac_reconcile_mount_matches(&entries[i], mounts[m].mount_point))
+			if (ntfsmac_reconcile_mount_matches(&entries[i], &mounts[m]))
 				claims[m]++;
 
 	for (i = 0; i < n_entries; i++) {
@@ -153,7 +236,7 @@ size_t ntfsmac_reconcile_plan(const ntfsmac_journal_entry *entries, size_t n_ent
 		size_t before = out;
 
 		for (m = 0; m < n_mounts; m++) {
-			if (!ntfsmac_reconcile_mount_matches(&entries[i], mounts[m].mount_point))
+			if (!ntfsmac_reconcile_mount_matches(&entries[i], &mounts[m]))
 				continue;
 			candidates++;
 			if (!mounts[m].read_only) {
@@ -178,7 +261,7 @@ size_t ntfsmac_reconcile_plan(const ntfsmac_journal_entry *entries, size_t n_ent
 
 		for (m = 0; m < n_mounts; m++) {
 			if (mounts[m].read_only || emitted[m] ||
-			    !ntfsmac_reconcile_mount_matches(&entries[i], mounts[m].mount_point))
+			    !ntfsmac_reconcile_mount_matches(&entries[i], &mounts[m]))
 				continue;
 			put_item(&items[out++], i, NTFSMAC_RECONCILE_FORCE_UNMOUNT, (long)m);
 			emitted[m] = 1;
@@ -255,7 +338,7 @@ ntfsmac_dmn_status ntfsmac_reconcile_run_limit(ntfsmac_journal *j,
 		return NTFSMAC_DMN_E_IO;
 	}
 	if (info.unlisted != 0) {
-		/* Reconcile what was read; the rest keep their entries and are decided per serial. */
+		/* Reconcile what was read; the rest keep their entries and are decided by their identity. */
 		NTFSMAC_LOGW("restart reconciliation: the journal has %zu entries, %zu were not listed "
 			     "(over the bound of one listing); reconciling the %zu that were. "
 			     "`ntfsmac doctor` names `journal-clear`",
@@ -265,6 +348,7 @@ ntfsmac_dmn_status ntfsmac_reconcile_run_limit(ntfsmac_journal *j,
 	}
 	if (c.n == 0) {
 		free(c.v);
+		ntfsmac_reconcile_set_left_mounted(0);
 		return NTFSMAC_DMN_OK;
 	}
 
@@ -273,6 +357,18 @@ ntfsmac_dmn_status ntfsmac_reconcile_run_limit(ntfsmac_journal *j,
 		free(c.v);
 		return NTFSMAC_DMN_E_IO;
 	}
+	/*
+	 * A writable mount that has an entry's name and is no entry's session mount: say why it
+	 * stays, and keep the count for `doctor`, `status` and the notification (owner decision
+	 * 2026-11-26: it is left mounted, with a warning).
+	 */
+	for (i = 0; i < n_mounts; i++)
+		if (ntfsmac_reconcile_left_alone(c.v, c.n, &mounts[i]))
+			NTFSMAC_LOGW("reconcile: %s has the name of a journal entry but is not that "
+				     "session's mount (owner, id or source differ, or none was "
+				     "recorded): left mounted; the entry stays",
+				     mounts[i].mount_point);
+	ntfsmac_reconcile_set_left_mounted(ntfsmac_reconcile_count_left(c.v, c.n, mounts, n_mounts));
 	n_items = ntfsmac_reconcile_plan(c.v, c.n, mounts, n_mounts, items, c.n + n_mounts);
 	/*
 	 * A cut listing does not show every entry, so a mount that looks claimed by one entry only may
@@ -381,6 +477,10 @@ ntfsmac_dmn_status ntfsmac_reconcile_list_mounts(ntfsmac_live_mount **out, size_
 		memcpy(v[used].mount_point, fs[i].f_mntonname, len);
 		v[used].mount_point[len] = '\0';
 		v[used].read_only = (fs[i].f_flags & MNT_RDONLY) != 0;
+		v[used].owner = (uint32_t)fs[i].f_owner;
+		memcpy(&v[used].fsid, &fs[i].f_fsid, sizeof v[used].fsid);
+		ntfsmac_mount_from_copy(v[used].from, sizeof v[used].from, fs[i].f_mntfromname,
+					sizeof fs[i].f_mntfromname);
 		/*
 		 * No worker is looked up. Finding the process that serves a mount
 		 * needs the process table and the worker's arguments, and a wrong

@@ -84,6 +84,14 @@ bsd=$(rw_mount "$img")
 eq "I-DMN-14 b: the volume mounts rw" "$(state_of "$bsd") $(mount_of "$bsd")" "Mounted rw"
 mp=$(mpoint_of "$bsd")
 durable_write "$mp/keep.txt" synced-before-the-daemon-kill
+# #9 (T-M7-12): under real macFUSE the entry records the mount: owner (f_owner) is the console
+# user the worker runs as, then f_fsid and the source, both hex
+cu=$(stat -f %u /dev/console)
+[ "$cu" = 0 ] && cu=$(id -u)
+mline=$(sudo -n sh -c "cat $JDIR/*" 2>/dev/null | grep '^mount ' | head -1)
+note "journal mount line: '$mline' (console uid $cu)"
+check "#9: the entry records the mount with owner = console uid $cu" sh -c "printf '%s\n' '$mline' | grep -Eq '^mount $cu [0-9A-F]{16} [0-9a-f]+\$'"
+loglines=$(logcat | wc -l | tr -d ' ')
 dp=$(daemon_pid)
 oldw=$(worker_pids | tr '\n' ' ')
 note "daemon pid $dp, killed with SIGKILL; worker pids: $oldw"
@@ -106,6 +114,12 @@ check "the restarted daemon holds no read/write mount: its volume is ro" wait_fo
 check "the journal entry is still there" [ "$(journal_count)" = 1 ]
 rwleft=$(mount | grep -F macfuse | grep -vc read-only)
 eq "no read/write macfuse mount of the image is left after the restart" "$rwleft" 0
+# #9: the recorded mount was the earlier session's, so the restart force-unmounted it (and left
+# nothing mounted with a warning)
+newlog=$(logcat | tail -n +"$((loglines + 1))")
+check "#9: reconcile force-unmounted the recorded mount of the earlier daemon" contains "$newlog" "restart: forced unmount of a mount of the earlier daemon: ok"
+check "#9: reconcile left no writable mount mounted" sh -c "! printf '%s' \"\$1\" | grep -q 'left mounted; the entry stays'" _ "$newlog"
+check "#9: doctor reports no mount left mounted at the restart" sh -c "'$CLI' doctor 2>&1 | grep -q 'No read/write volume was left mounted'"
 echo "-- daemon log after the restart"
 logcat | tail -25
 # bring the system to a known state: stop the job, detach, start again

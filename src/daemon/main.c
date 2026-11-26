@@ -131,7 +131,7 @@ struct vol {
 	char mountpoint[128];                 /* (m) while a mount point exists */
 	uint64_t session_id;                  /* (m) 0 without an entry */
 	char reason_token[32];                /* (m) why ro, or why Failed */
-	ntfsmac_probe_verdict *verdict;       /* (m) the last probe, NULL until the first */
+	ntfsmac_volrec rec;                   /* (m) this disk's last verdict (T-M7-16) */
 	bool apple_mounted;                   /* (m) some driver has the disk mounted */
 	bool dissent;                         /* (m) we hold the dissent for this disk */
 	bool wk_live;                         /* (m) a worker process is running */
@@ -140,6 +140,7 @@ struct vol {
 	bool stray_pending;                   /* (m) a stray-mount action is queued */
 	unsigned holds;                       /* (m) appearances queued, requests holding it (T-M7-15) */
 	uint64_t gone_seq;                    /* (m) when it last went Gone (a counter) */
+	bool gone_not_ntfs;                   /* (m) the disk that last went was not NTFS (T-M7-15) */
 	bool recycled;                        /* (m) taken over by `next_bsd`; appeared_run renames it */
 	char next_bsd[32];                    /* (m) the new name while `recycled` */
 	ntfsmac_unmount_ev uev;               /* (m) this session's evidence of its unmount (rule 3) */
@@ -281,7 +282,7 @@ static vol *vol_reuse_locked(const char *bsd)
 		slots[n].state = v->sm.state;
 		slots[n].worker_live = v->wk_live;
 		slots[n].pending = v->holds != 0 || v->stray_pending || v->recycled;
-		slots[n].not_ntfs = v->verdict != NULL && !v->verdict->is_ntfs;
+		slots[n].not_ntfs = v->gone_not_ntfs;
 		slots[n].gone_seq = v->gone_seq;
 		recs[n++] = v;
 	}
@@ -297,8 +298,8 @@ static vol *vol_reuse_locked(const char *bsd)
 	v->mountpoint[0] = '\0';
 	v->session_id = 0;
 	v->reason_token[0] = '\0';
-	free(v->verdict); /* the last probe was of another disk */
-	v->verdict = NULL;
+	ntfsmac_volrec_reset(&v->rec); /* the last probe was of another disk (T-M7-16) */
+	v->gone_not_ntfs = false;
 	v->apple_mounted = false;
 	v->dissent = false;
 	ntfsmac_uev_reset(&v->uev);
@@ -402,8 +403,12 @@ static ntfsmac_dmn_status sm_apply(vol *v, ntfsmac_vol_event ev, ntfsmac_vol_mod
 	pthread_mutex_lock(&g_mu);
 	before = v->sm.state;
 	r = ntfsmac_volume_apply(&v->sm, ev, &arg);
-	if (r == NTFSMAC_VRES_OK && v->sm.state == NTFSMAC_VOL_GONE && before != NTFSMAC_VOL_GONE)
+	if (r == NTFSMAC_VRES_OK && v->sm.state == NTFSMAC_VOL_GONE && before != NTFSMAC_VOL_GONE) {
 		v->gone_seq = ++g_gone_seq; /* the order of reuse (T-M7-15) */
+		/* taken now: the record forgets the verdict of a disk that went (T-M7-16) */
+		v->gone_not_ntfs = ntfsmac_volrec_verdict(&v->rec) != NULL &&
+				   !ntfsmac_volrec_verdict(&v->rec)->is_ntfs;
+	}
 	if (r == NTFSMAC_VRES_OK) {
 		if (token != NULL)
 			copy_str(v->reason_token, sizeof v->reason_token, token);
@@ -1474,10 +1479,7 @@ static void attach_run(void *arg)
 	else
 		label[0] = '\0';
 	pthread_mutex_lock(&g_mu);
-	if (v->verdict == NULL)
-		v->verdict = calloc(1, sizeof *v->verdict);
-	if (v->verdict != NULL)
-		memcpy(v->verdict, pv, sizeof *pv);
+	(void)ntfsmac_volrec_set_verdict(&v->rec, pv); /* the one place a verdict is stored */
 	copy_str(v->label, sizeof v->label, label);
 	pthread_mutex_unlock(&g_mu);
 
@@ -1728,6 +1730,7 @@ static void disk_gone_run(void *arg)
 		v->reason_token[0] = '\0';
 		v->dissent = false;
 		v->apple_mounted = false;
+		ntfsmac_volrec_reset(&v->rec);
 	}
 	pthread_mutex_unlock(&g_mu);
 	if (vol_state(v) == NTFSMAC_VOL_GONE)
@@ -1949,6 +1952,22 @@ typedef struct appeared_arg {
 	uint64_t size_bytes;
 } appeared_arg;
 
+/*
+ * A disk appeared under the name of this record: it is a new disk, whatever the name had before
+ * (T-M7-16). Every field that describes a disk is reset here, in one place. Caller holds g_mu.
+ */
+static void vol_reset_for_appearance(vol *v, const appeared_arg *ap)
+{
+	ntfsmac_volume_init(&v->sm);
+	v->label[0] = '\0';
+	v->mountpoint[0] = '\0';
+	v->reason_token[0] = '\0';
+	v->session_id = 0;
+	v->apple_mounted = ap->has_volume_path;
+	v->dissent = ap->dissent;
+	ntfsmac_volrec_reset(&v->rec);
+}
+
 /* On the volume's queue, so that it runs after the handling of an earlier disappearance. */
 static void appeared_run(void *p)
 {
@@ -1964,13 +1983,7 @@ static void appeared_run(void *p)
 		vol_release(v); /* the hold of cb_disk_appeared() */
 		return; /* already known: nothing to restart */
 	}
-	ntfsmac_volume_init(&v->sm);
-	v->label[0] = '\0';
-	v->mountpoint[0] = '\0';
-	v->reason_token[0] = '\0';
-	v->session_id = 0;
-	v->apple_mounted = ap->has_volume_path;
-	v->dissent = ap->dissent;
+	vol_reset_for_appearance(v, ap);
 	pthread_mutex_unlock(&g_mu);
 	NTFSMAC_LOGI("%s: appeared (%llu bytes%s%s)", v->bsd, (unsigned long long)ap->size_bytes,
 		     ap->has_volume_path ? ", mounted by another driver" : "",
@@ -2203,8 +2216,8 @@ static ntfsmac_dmn_status op_list(void *ctx, char *reply, size_t cap)
 		 * FSKit backend makes small disk-image devices of its own, for one): not listed, as
 		 * no notification is made for it. BitLocker stays visible.
 		 */
-		if (v->verdict != NULL && !v->verdict->is_ntfs && !v->verdict->bitlocker &&
-		    v->sm.state == NTFSMAC_VOL_FAILED)
+		if (ntfsmac_volrec_verdict(&v->rec) != NULL && !ntfsmac_volrec_verdict(&v->rec)->is_ntfs &&
+		    !ntfsmac_volrec_verdict(&v->rec)->bitlocker && v->sm.state == NTFSMAC_VOL_FAILED)
 			continue;
 		view_locked(v, &views[n]);
 		n++;
@@ -2245,8 +2258,8 @@ static ntfsmac_dmn_status op_status(void *ctx, const char *bsd, char *reply, siz
 		return no_volume(reply, cap);
 	}
 	view_locked(v, &view);
-	if (v->verdict != NULL) {
-		memcpy(&pv, v->verdict, sizeof pv);
+	if (ntfsmac_volrec_verdict(&v->rec) != NULL) { /* none: the disk has no verdict yet (T-M7-16) */
+		memcpy(&pv, ntfsmac_volrec_verdict(&v->rec), sizeof pv);
 		have_pv = true;
 		serial = pv.serial;
 	}

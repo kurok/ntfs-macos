@@ -17,6 +17,12 @@ foreach(t mountpoint unmount unmount_ev unmount_verify errwatch session privops 
   add_test(NAME daemon.${t} COMMAND ${t}_test)
 endforeach()
 
+# T-M7-16: what a volume record keeps of one disk; the status reply built from it.
+add_executable(volrec_test volrec_test.c)
+target_include_directories(volrec_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(volrec_test PRIVATE ntfsmac_daemon ntfsmac_options)
+add_test(NAME daemon.volrec COMMAND volrec_test)
+
 # T-M4-08: replies of list, status and doctor, parsed back with the CLI's reader.
 add_executable(report_test report_test.c)
 target_include_directories(report_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

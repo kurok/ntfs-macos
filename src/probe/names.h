@@ -28,6 +28,8 @@ typedef struct names_result {
 	bool complete;
 	/* what the walk saw: directories listed and names compared (for the debug log) */
 	uint64_t dirs_listed, names_seen;
+	/* records in the root with a name that is hiberfil.sys, any case and namespace (debug log) */
+	unsigned hiber_records;
 } names_result;
 
 /*

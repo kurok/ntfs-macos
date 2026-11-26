@@ -46,11 +46,12 @@ MOUNTED_ON_NT4 = 0x0008
 MODIFIED_BY_CHKDSK = 0x8000
 
 # Expected exit of `set` on a fixture whose probe state is not clean (section 3.6 steps 1 and 3,
-# U-VMK-02, U-VMK-03). hiber-wake and hiber-case: exit 0 is expected (U-VMK-03: volmark applies the
-# engine's rules; the probe is what refuses them).
+# U-VMK-02, U-VMK-03). hiber-wake, hiber-case and hiber-dos: exit 0 is expected (U-VMK-03: volmark
+# applies the engine's rules, whose hiberfil.sys lookup is case sensitive; the probe is what refuses
+# them).
 SET_EXIT_BY_STATE = {"clean": 0, "dirty_flag": 11, "unclean_log": 10, "fast_startup": 10, "hibernated": 10,
                      "corrupt": 10, "unsupported": 10, "mirror_split": 10}
-SET_EXIT_OVERRIDE = {"hiber-wake": 0, "hiber-unknown": 0, "hiber-case": 0}
+SET_EXIT_OVERRIDE = {"hiber-wake": 0, "hiber-unknown": 0, "hiber-case": 0, "hiber-dos": 0}
 
 
 def sha256(path):

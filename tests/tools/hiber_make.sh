@@ -19,7 +19,14 @@
 #                                                            case sensitive)
 #   subdir      /sub/hiberfil.sys       8 KiB  "hibr"        neither (not in the root)
 #   inactive    /hiberfil.sys           8 KiB  zeros         clean (Windows wrote zeros)
-# The file body after the first four bytes is zeros.
+#   dos         /hibernation-data.sys   8 KiB  "hibr"        probe only (T-M7-18): its DOS
+#               DOS name HIBERFIL.SYS                        name is its only hiberfil.sys name;
+#                                                            the engine lookup is case sensitive
+#   pair        /hiberfil.sys and the   8 KiB  "hibr"        hibernated (both): one record
+#               hard link /HIBERFIL.SYS                      with two matching names; the probe
+#                                                            test makes them Win32 and DOS
+# The file body after the first four bytes is zeros. The DOS name is set through the
+# system.ntfs_dos_name attribute of ntfs-3g (python3, os.setxattr).
 #
 # Exit status: 0 success, 1 failure, 2 usage error.
 set -eu
@@ -27,7 +34,7 @@ set -eu
 die() { printf 'hiber_make: error: %s\n' "$*" >&2; exit 1; }
 
 [ $# -ge 2 ] && [ $# -le 3 ] || {
-	echo "usage: hiber_make.sh IMAGE lower|upper|short|wake|unknown|case|subdir|inactive [MOUNTPOINT]" >&2
+	echo "usage: hiber_make.sh IMAGE lower|upper|short|wake|unknown|case|subdir|inactive|dos|pair [MOUNTPOINT]" >&2
 	exit 2
 }
 img=$1
@@ -50,6 +57,8 @@ unknown) sig=link ;;
 case) name=HiberFil.sys ;;
 subdir) dir=sub ;;
 inactive) sig= ;;
+dos) name=hibernation-data.sys ;;
+pair) ;;
 *) echo "hiber_make: unknown variant: $variant" >&2; exit 2 ;;
 esac
 
@@ -71,6 +80,13 @@ fi
 	if [ -n "$sig" ]; then printf '%s' "$sig"; fi
 	head -c "$((size - ${#sig}))" /dev/zero
 } >"$target/$name" || die "writing $name failed"
+case $variant in
+dos)
+	python3 -I -c 'import os, sys; os.setxattr(sys.argv[1], "system.ntfs_dos_name", b"HIBERFIL.SYS")' \
+		"$target/$name" || die "setting the DOS name failed"
+	;;
+pair) ln "$target/$name" "$target/HIBERFIL.SYS" || die "the hard link failed" ;;
+esac
 sync
 umount "$mnt" || die "umount failed"
 mounted=0

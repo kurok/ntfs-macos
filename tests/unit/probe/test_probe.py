@@ -30,7 +30,7 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ntfsrec import (damage_directory_record, damage_index_block, find_attr, geometry,  # noqa: E402
-                    mutate_record, set_volume_flags, set_volume_version, synth_split)
+                    mutate_record, set_name_type, set_volume_flags, set_volume_version, synth_split)
 
 ARGS = None
 FIX = {}        # fixture name -> image path
@@ -192,6 +192,42 @@ class Probe(unittest.TestCase):
         self.assertVerdict(self.verdict("hiber-inactive"), "clean", [], hiberfile="inactive")
         self.assertVerdict(self.verdict("hiber-lower"), "hibernated", ["HIBER_SIGNATURE"])
         self.assertVerdict(self.verdict("hiber-upper"), "hibernated", ["HIBER_SIGNATURE"])
+
+    def hiber_records(self, img):
+        """The number of root records with a hiberfil.sys name, from the probe's debug line."""
+        r = run_raw(img, extra=["--debug"], stderr_ok=True)
+        self.assertEqual(r.returncode, 0, r.stderr[:200])
+        m = re.search(r"name scan: \d+ directories, \d+ names, (\d+) hiberfil\.sys records, complete",
+                      r.stderr.decode())
+        self.assertIsNotNone(m, r.stderr[:400])
+        return int(m.group(1))
+
+    def test_hibernation_dos_namespace(self):
+        # T-M7-18: a hiberfil.sys that is only a DOS (8.3) name counts, as it does for
+        # ntfs_volume_check_hiberfile() (the engine and volmark look the name up by collation).
+        self.assertVerdict(self.verdict("hiber-dos"), "hibernated", ["HIBER_SIGNATURE"], hiberfile="hibernated")
+        self.assertEqual(self.hiber_records(fx("hiber-dos")), 1)
+        # the only name of hiber-lower's file made a DOS name (attribute and index key)
+        img = os.path.join(TMP, "hiber-dosonly.img")
+        shutil.copy(fx("hiber-lower"), img)
+        self.assertEqual(set_name_type(img, "hiberfil.sys", "dos"), 2)
+        self.assertVerdict(run_probe(img), "hibernated", ["HIBER_SIGNATURE"], hiberfile="hibernated")
+        self.assertEqual(self.hiber_records(img), 1)
+        os.unlink(img)
+
+    def test_hibernation_win32_and_dos_names_are_one_record(self):
+        # T-M7-18: one record with a Win32 and a DOS name: both entries match, one candidate
+        self.assertVerdict(self.verdict("hiber-pair"), "hibernated", ["HIBER_SIGNATURE"], hiberfile="hibernated")
+        img = os.path.join(TMP, "hiber-win32dos.img")
+        shutil.copy(fx("hiber-pair"), img)
+        self.assertEqual(set_name_type(img, "hiberfil.sys", "win32"), 2)
+        self.assertEqual(set_name_type(img, "HIBERFIL.SYS", "dos"), 2)
+        self.assertVerdict(run_probe(img), "hibernated", ["HIBER_SIGNATURE"], hiberfile="hibernated")
+        self.assertEqual(self.hiber_records(img), 1)
+        os.unlink(img)
+        self.assertEqual(self.hiber_records(fx("hiber-lower")), 1)
+        self.assertEqual(self.hiber_records(fx("hiber-inactive")), 1)
+        self.assertEqual(self.hiber_records(fx("hiber-subdir")), 0)
 
     def test_truncated_images(self):
         # truncated-60 mounts in the engine; the device-size part of check 2 makes it corrupt,

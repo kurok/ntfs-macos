@@ -320,9 +320,9 @@ static void checks_on_volume(probe *p, ntfs_volume *vol)
 	}
 	names_scan(vol, scan_budget(p->opts), nr);
 	if (p->opts->debug)
-		fprintf(stderr, "ntfsmac-probe: name scan: %llu directories, %llu names, %s\n",
+		fprintf(stderr, "ntfsmac-probe: name scan: %llu directories, %llu names, %u hiberfil.sys records, %s\n",
 			(unsigned long long)nr->dirs_listed, (unsigned long long)nr->names_seen,
-			nr->complete ? "complete" : "not complete");
+			nr->hiber_records, nr->complete ? "complete" : "not complete");
 	v->hiberfile = nr->hiberfile;
 	v->reason_codes |= nr->hiber_reasons;
 	if (!nr->complete) {

@@ -40,6 +40,7 @@
 #include <string.h>
 
 #include "internal.h"
+#include "ntfsmac/log.h"
 #include "sanitize.h"
 
 #define VOLUMES_PREFIX "/Volumes/"
@@ -228,18 +229,39 @@ ntfsmac_dmn_status ntfsmac_reconcile_run_with(ntfsmac_journal *j,
 					      size_t n_mounts, ntfsmac_reconcile_cb cb,
 					      void *ctx)
 {
+	return ntfsmac_reconcile_run_limit(j, mounts, n_mounts, 0, cb, ctx, NULL);
+}
+
+ntfsmac_dmn_status ntfsmac_reconcile_run_limit(ntfsmac_journal *j,
+					       const ntfsmac_live_mount *mounts,
+					       size_t n_mounts, size_t max_items,
+					       ntfsmac_reconcile_cb cb, void *ctx,
+					       size_t *unlisted)
+{
 	collect c = {NULL, 0, 0, false};
 	ntfsmac_reconcile_item *items;
 	size_t n_items, i;
 	ntfsmac_journal_status js;
+	ntfsmac_journal_list_info info;
 
+	if (unlisted != NULL)
+		*unlisted = 0;
 	if (j == NULL || cb == NULL || (n_mounts != 0 && mounts == NULL))
 		return NTFSMAC_DMN_E_INVAL;
 
-	js = ntfsmac_journal_list(j, collect_entry, &c, NULL);
+	js = ntfsmac_journal_list_ex(j, max_items, collect_entry, &c, &info);
 	if (c.oom || js != NTFSMAC_JOURNAL_OK) {
 		free(c.v);
 		return NTFSMAC_DMN_E_IO;
+	}
+	if (info.unlisted != 0) {
+		/* Reconcile what was read; the rest keep their entries and are decided per serial. */
+		NTFSMAC_LOGW("restart reconciliation: the journal has %zu entries, %zu were not listed "
+			     "(over the bound of one listing); reconciling the %zu that were. "
+			     "`ntfsmac doctor` names `journal-clear`",
+			     info.found, info.unlisted, c.n);
+		if (unlisted != NULL)
+			*unlisted = info.unlisted;
 	}
 	if (c.n == 0) {
 		free(c.v);
@@ -252,6 +274,14 @@ ntfsmac_dmn_status ntfsmac_reconcile_run_with(ntfsmac_journal *j,
 		return NTFSMAC_DMN_E_IO;
 	}
 	n_items = ntfsmac_reconcile_plan(c.v, c.n, mounts, n_mounts, items, c.n + n_mounts);
+	/*
+	 * A cut listing does not show every entry, so a mount that looks claimed by one entry only may
+	 * be claimed by an unlisted one too (the "only one claim" rule of the plan cannot be checked).
+	 * No mount is adopted then: each READOPT becomes FORCE_UNMOUNT, the fail-closed choice.
+	 */
+	for (i = 0; info.unlisted != 0 && i < n_items; i++)
+		if (items[i].action == NTFSMAC_RECONCILE_READOPT)
+			items[i].action = NTFSMAC_RECONCILE_FORCE_UNMOUNT;
 	for (i = 0; i < n_items; i++) {
 		const ntfsmac_reconcile_item *it = &items[i];
 		const ntfsmac_live_mount *m = it->mount_index >= 0 ? &mounts[it->mount_index] : NULL;

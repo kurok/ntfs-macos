@@ -138,6 +138,10 @@ struct vol {
 	uid_t wk_uid;                         /* (m) the user it runs as */
 	gid_t wk_gid;                         /* (m) and its group */
 	bool stray_pending;                   /* (m) a stray-mount action is queued */
+	unsigned holds;                       /* (m) appearances queued, requests holding it (T-M7-15) */
+	uint64_t gone_seq;                    /* (m) when it last went Gone (a counter) */
+	bool recycled;                        /* (m) taken over by `next_bsd`; appeared_run renames it */
+	char next_bsd[32];                    /* (m) the new name while `recycled` */
 	ntfsmac_unmount_ev uev;               /* (m) this session's evidence of its unmount (rule 3) */
 
 	ntfsmac_mountpoint mp;
@@ -154,11 +158,13 @@ struct vol {
 	unsigned tick_count;
 	uint64_t unmounting_since; /* monotonic ms when the tick first saw Unmounting; 0 otherwise */
 	ntfsmac_umwait um;         /* an `ntfsmac unmount` waits for Spotlight / Quick Look (ADR-028); queue only */
+	unsigned life;             /* queue only: +1 at each takeover by a new name; deferred jobs check it */
 };
 
 static pthread_mutex_t g_mu = PTHREAD_MUTEX_INITIALIZER;
 static vol *g_vols;
 static size_t g_nvols;
+static uint64_t g_gone_seq; /* (m) */
 
 static ntfsmac_journal *g_journal;
 static ntfsmac_da *g_da;
@@ -236,7 +242,7 @@ static vol *vol_find_locked(const char *bsd)
 	vol *v;
 
 	for (v = g_vols; v != NULL; v = v->next)
-		if (strcmp(v->bsd, bsd) == 0)
+		if (v->recycled ? strcmp(v->next_bsd, bsd) == 0 : strcmp(v->bsd, bsd) == 0)
 			return v;
 	return NULL;
 }
@@ -252,8 +258,81 @@ static vol *vol_find(const char *bsd)
 }
 
 /*
+ * Take over a Gone record for `bsd` when the table is full (T-M7-15; ntfsmac_vol_reuse_pick()).
+ * The memory is reused in place and never freed, so a pointer that a block or a request still
+ * holds stays valid. A record is taken only when nothing can act on it any more (no live worker,
+ * no appearance or stray action queued, no request holding it); a block queued for the old name
+ * before this point runs before the new appearance (same serial queue) and sees state Gone, which
+ * every block treats as "nothing to do". The record is found by the new name at once; the name
+ * itself (`bsd`, read by the queue's blocks without the lock) and the fields the queue owns are
+ * changed by appeared_run(), on that queue (vol_recycled_reset). The queue keeps its first label.
+ * Caller holds g_mu.
+ */
+static vol *vol_reuse_locked(const char *bsd)
+{
+	ntfsmac_vol_slot slots[MAX_VOLS];
+	vol *recs[MAX_VOLS];
+	size_t n = 0;
+	long k;
+	vol *v;
+
+	for (v = g_vols; v != NULL && n < MAX_VOLS; v = v->next) {
+		memset(&slots[n], 0, sizeof slots[n]);
+		slots[n].state = v->sm.state;
+		slots[n].worker_live = v->wk_live;
+		slots[n].pending = v->holds != 0 || v->stray_pending || v->recycled;
+		slots[n].not_ntfs = v->verdict != NULL && !v->verdict->is_ntfs;
+		slots[n].gone_seq = v->gone_seq;
+		recs[n++] = v;
+	}
+	k = ntfsmac_vol_reuse_pick(slots, n);
+	if (k < 0)
+		return NULL;
+	v = recs[k];
+	NTFSMAC_LOGI("%s: the volume table is full; the record of %s (gone) is reused", bsd, v->bsd);
+	copy_str(v->next_bsd, sizeof v->next_bsd, bsd);
+	ntfsmac_volume_init(&v->sm);
+	v->sm.state = NTFSMAC_VOL_GONE; /* until the first appearance */
+	v->label[0] = '\0';
+	v->mountpoint[0] = '\0';
+	v->session_id = 0;
+	v->reason_token[0] = '\0';
+	free(v->verdict); /* the last probe was of another disk */
+	v->verdict = NULL;
+	v->apple_mounted = false;
+	v->dissent = false;
+	ntfsmac_uev_reset(&v->uev);
+	v->recycled = true;
+	return v;
+}
+
+/* On the volume's queue: the fields the queue owns, after a takeover by a new name. */
+static void vol_recycled_reset(vol *v)
+{
+	bool recycled;
+
+	pthread_mutex_lock(&g_mu);
+	recycled = v->recycled;
+	if (recycled)
+		copy_str(v->bsd, sizeof v->bsd, v->next_bsd);
+	v->recycled = false;
+	pthread_mutex_unlock(&g_mu);
+	if (!recycled)
+		return;
+	v->life++; /* a deferred job of the old name (um_retry) sees it and does nothing */
+	ntfsmac_umwait_cancel(&v->um);
+	v->write_error_noted = false;
+	v->want_unmount = false;
+	v->unmount_tries = 0;
+	v->tick_count = 0;
+	v->unmounting_since = 0;
+}
+
+/*
  * The record of a BSD name lives as long as the daemon: a name that comes back (names are reused)
- * gets the same record, so a queued block never points at freed memory.
+ * gets the same record, so a queued block never points at freed memory. With the table full, a
+ * Gone record that nothing holds is taken over (vol_reuse_locked). The record is returned held
+ * (`holds`): the caller queues the appearance and appeared_run() lets go of it.
  */
 static vol *vol_get_or_create(const char *bsd)
 {
@@ -281,9 +360,34 @@ static vol *vol_get_or_create(const char *bsd)
 				g_nvols++;
 			}
 		}
+	} else if (v == NULL) {
+		v = vol_reuse_locked(bsd);
 	}
+	if (v != NULL)
+		v->holds++;
 	pthread_mutex_unlock(&g_mu);
 	return v;
+}
+
+/* A control request's hold on a record, so that it is not taken over while the request runs. */
+static vol *vol_hold(const char *bsd)
+{
+	vol *v;
+
+	pthread_mutex_lock(&g_mu);
+	v = vol_find_locked(bsd);
+	if (v != NULL)
+		v->holds++;
+	pthread_mutex_unlock(&g_mu);
+	return v;
+}
+
+static void vol_release(vol *v)
+{
+	pthread_mutex_lock(&g_mu);
+	if (v->holds > 0)
+		v->holds--;
+	pthread_mutex_unlock(&g_mu);
 }
 
 static ntfsmac_dmn_status sm_apply(vol *v, ntfsmac_vol_event ev, ntfsmac_vol_mode mode,
@@ -298,6 +402,8 @@ static ntfsmac_dmn_status sm_apply(vol *v, ntfsmac_vol_event ev, ntfsmac_vol_mod
 	pthread_mutex_lock(&g_mu);
 	before = v->sm.state;
 	r = ntfsmac_volume_apply(&v->sm, ev, &arg);
+	if (r == NTFSMAC_VRES_OK && v->sm.state == NTFSMAC_VOL_GONE && before != NTFSMAC_VOL_GONE)
+		v->gone_seq = ++g_gone_seq; /* the order of reuse (T-M7-15) */
 	if (r == NTFSMAC_VRES_OK) {
 		if (token != NULL)
 			copy_str(v->reason_token, sizeof v->reason_token, token);
@@ -1624,6 +1730,8 @@ static void disk_gone_run(void *arg)
 		v->apple_mounted = false;
 	}
 	pthread_mutex_unlock(&g_mu);
+	if (vol_state(v) == NTFSMAC_VOL_GONE)
+		ntfsmac_umwait_cancel(&v->um); /* no unmount wait outlives the disk (on this queue) */
 }
 
 typedef struct unmount_req {
@@ -1639,6 +1747,7 @@ typedef struct unmount_req {
 typedef struct um_job {
 	vol *v;
 	unsigned gen;
+	unsigned life; /* v->life when it was scheduled: a record taken over since is not this volume */
 } um_job;
 
 static void um_retry(void *arg);
@@ -1678,6 +1787,7 @@ static void um_schedule(void *ctx, unsigned gen)
 	}
 	j->v = ctx;
 	j->gen = gen;
+	j->life = j->v->life; /* on the volume's queue, like every write of `life` */
 	dispatch_after_f(dispatch_time(DISPATCH_TIME_NOW, (int64_t)INDEXER_STEP_MS * NSEC_PER_MSEC), j->v->q, j,
 			 um_retry);
 }
@@ -1719,6 +1829,13 @@ static void um_retry(void *arg)
 	pid_t busy = 0, report = 0;
 	ntfsmac_dmn_status st;
 	ntfsmac_umw_after how;
+
+	if (j->life != v->life) {
+		/* a dispatch_after job runs outside the FIFO order of the queue: the record was taken over
+		 * by another name since it was scheduled (T-M7-15) */
+		free(j);
+		return;
+	}
 
 	free(j);
 	/* shutdown, the worker's teardown or a gone disk go on from here when the wait stops */
@@ -1839,10 +1956,12 @@ static void appeared_run(void *p)
 	vol *v = ap->v;
 	attach_req *rq;
 
+	vol_recycled_reset(v);
 	pthread_mutex_lock(&g_mu);
 	if (v->sm.state != NTFSMAC_VOL_GONE) {
 		pthread_mutex_unlock(&g_mu);
 		free(ap);
+		vol_release(v); /* the hold of cb_disk_appeared() */
 		return; /* already known: nothing to restart */
 	}
 	ntfsmac_volume_init(&v->sm);
@@ -1865,6 +1984,7 @@ static void appeared_run(void *p)
 		}
 	}
 	free(ap);
+	vol_release(v); /* the hold of cb_disk_appeared() */
 }
 
 static void cb_disk_appeared(const ntfsmac_disk_info *d, void *ctx)
@@ -1877,14 +1997,16 @@ static void cb_disk_appeared(const ntfsmac_disk_info *d, void *ctx)
 	wait_da_ready();
 	if (!d->is_ntfs_candidate)
 		return;
-	v = vol_get_or_create(d->bsd_name);
+	v = vol_get_or_create(d->bsd_name); /* held until appeared_run() */
 	if (v == NULL) {
-		NTFSMAC_LOGE("%s: too many volumes; the disk is not handled", d->bsd_name);
+		NTFSMAC_LOGE("%s: too many volumes in use; the disk is not handled", d->bsd_name);
 		return;
 	}
 	ap = calloc(1, sizeof *ap);
-	if (ap == NULL)
+	if (ap == NULL) {
+		vol_release(v);
 		return;
+	}
 	pthread_mutex_lock(&g_conflict_mu);
 	(void)ntfsmac_conflict_detect(&g_conflict);
 	allow_dissent = ntfsmac_passive_allows_dissent(&g_conflict);
@@ -2181,17 +2303,30 @@ static bool wait_sem(dispatch_semaphore_t s, unsigned ms)
  * `mount`: the attach flow takes 20 s and more, the socket answers in 5, so the request starts the
  * flow and waits a short time. A reply with result "started" means: look at `list`.
  */
+static ntfsmac_dmn_status op_mount_held(vol *v, const char *bsd, bool read_only, char *reply,
+					size_t cap);
+
 static ntfsmac_dmn_status op_mount(void *ctx, const char *bsd, bool read_only, char *reply, size_t cap)
 {
-	vol *v = vol_find(bsd);
+	vol *v = vol_hold(bsd); /* not taken over by another name while the request runs (T-M7-15) */
+	ntfsmac_dmn_status st;
+
+	(void)ctx;
+	if (v == NULL)
+		return no_volume(reply, cap);
+	st = op_mount_held(v, bsd, read_only, reply, cap);
+	vol_release(v);
+	return st;
+}
+
+static ntfsmac_dmn_status op_mount_held(vol *v, const char *bsd, bool read_only, char *reply,
+					size_t cap)
+{
 	dispatch_semaphore_t done;
 	ntfsmac_dmn_status st;
 	bool accepts, apple;
 	ntfsmac_conflict_report cr;
 
-	(void)ctx;
-	if (v == NULL)
-		return no_volume(reply, cap);
 	pthread_mutex_lock(&g_mu);
 	accepts = ntfsmac_volume_accepts_mount(&v->sm);
 	apple = v->apple_mounted;
@@ -2228,16 +2363,27 @@ static ntfsmac_dmn_status op_mount(void *ctx, const char *bsd, bool read_only, c
 	return NTFSMAC_DMN_OK;
 }
 
+static ntfsmac_dmn_status op_unmount_held(vol *v, bool force, char *reply, size_t cap);
+
 static ntfsmac_dmn_status op_unmount(void *ctx, const char *bsd, bool force, char *reply, size_t cap)
 {
-	vol *v = vol_find(bsd);
-	unmount_req *u;
-	bool seen;
+	vol *v = vol_hold(bsd); /* not taken over by another name while the request runs (T-M7-15) */
 	ntfsmac_dmn_status st;
 
 	(void)ctx;
 	if (v == NULL)
 		return no_volume(reply, cap);
+	st = op_unmount_held(v, force, reply, cap);
+	vol_release(v);
+	return st;
+}
+
+static ntfsmac_dmn_status op_unmount_held(vol *v, bool force, char *reply, size_t cap)
+{
+	unmount_req *u;
+	bool seen;
+	ntfsmac_dmn_status st;
+
 	u = calloc(1, sizeof *u);
 	if (u == NULL)
 		return NTFSMAC_DMN_E_IO;

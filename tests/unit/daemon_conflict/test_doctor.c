@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * U-DMN-DOC-01..09: version and plist helpers (pure), and each doctor check
+ * U-DMN-DOC-01..10: version and plist helpers (pure), and each doctor check
  * against temporary directories.
  */
 #include "tmpdir.h"
@@ -118,7 +118,7 @@ static void test_no_macfuse_no_journal(void)
 	char fs[PATH_MAX], jd[PATH_MAX];
 	char base[PATH_MAX];
 	collected c = {.n = 0};
-	ntfsmac_doctor_env env = {fs, jd, NULL, NULL};
+	ntfsmac_doctor_env env = {fs, jd, NULL, NULL, 0, 0};
 	struct stat st;
 
 	tmp_make(base, sizeof base);
@@ -146,7 +146,7 @@ static void test_no_macfuse_no_journal(void)
 static void test_notify_delivery(void)
 {
 	char fs[PATH_MAX], jd[PATH_MAX], base[PATH_MAX];
-	ntfsmac_doctor_env env = {fs, jd, NULL, NULL};
+	ntfsmac_doctor_env env = {fs, jd, NULL, NULL, 0, 0};
 	ntfsmac_banner_outcome ok = {NTFSMAC_BANNER_OK, 0};
 	ntfsmac_banner_outcome sr = {NTFSMAC_BANNER_SUDO_REFUSED, 1};
 	ntfsmac_banner_outcome to = {NTFSMAC_BANNER_TIMEOUT, 0};
@@ -177,7 +177,7 @@ static void test_notify_delivery(void)
 static void test_macfuse(void)
 {
 	char fs[PATH_MAX], jd[PATH_MAX], base[PATH_MAX], p[PATH_MAX];
-	ntfsmac_doctor_env env = {fs, jd, ext_enabled, NULL};
+	ntfsmac_doctor_env env = {fs, jd, ext_enabled, NULL, 0, 0};
 	collected c;
 
 	tmp_make(base, sizeof base);
@@ -294,7 +294,7 @@ static void test_ext_parse(void)
 static void test_conflicts(void)
 {
 	char fs[PATH_MAX], jd[PATH_MAX], base[PATH_MAX];
-	ntfsmac_doctor_env env = {fs, jd, NULL, NULL};
+	ntfsmac_doctor_env env = {fs, jd, NULL, NULL, 0, 0};
 	collected c;
 
 	tmp_make(base, sizeof base);
@@ -347,7 +347,7 @@ static void make_journal_entry(ntfsmac_journal *j, uint64_t serial)
 static void test_journal(void)
 {
 	char fs[PATH_MAX], jd[PATH_MAX], base[PATH_MAX], name[NTFSMAC_JOURNAL_NAME_SIZE];
-	ntfsmac_doctor_env env = {fs, jd, NULL, NULL};
+	ntfsmac_doctor_env env = {fs, jd, NULL, NULL, 0, 0};
 	ntfsmac_journal *j = NULL;
 	collected c;
 
@@ -374,6 +374,28 @@ static void test_journal(void)
 	EXPECT(c, NTFSMAC_DOCTOR_JOURNAL_CORRUPT, false, 1);
 	EXPECT(c, NTFSMAC_DOCTOR_JOURNAL_CLEARED, true, 1);
 
+	/* No warning about the size of a small journal. */
+	CHECK(find(&c, NTFSMAC_DOCTOR_JOURNAL_LARGE) == NULL);
+
+	/*
+	 * U-DMN-DOC-10 (T-M7-15): more entries than one listing holds (a bound of 1 here) is not
+	 * "unreadable": the entries listed are counted and a fixed warning names journal-clear.
+	 */
+	env.journal_list_max = 1;
+	memset(&c, 0, sizeof c);
+	CHECK_EQ_INT(ntfsmac_doctor_run_env(&env, collect, &c), NTFSMAC_DMN_OK);
+	CHECK(find(&c, NTFSMAC_DOCTOR_JOURNAL_UNREADABLE) == NULL);
+	CHECK(find(&c, NTFSMAC_DOCTOR_JOURNAL_ENTRIES) != NULL);
+	EXPECT(c, NTFSMAC_DOCTOR_JOURNAL_LARGE, false, 3); /* 2 entries and the unreadable one */
+	env.journal_list_max = 0;
+	/* The soft limit (2 here) warns even when everything was listed. */
+	env.journal_soft_max = 2;
+	memset(&c, 0, sizeof c);
+	CHECK_EQ_INT(ntfsmac_doctor_run_env(&env, collect, &c), NTFSMAC_DMN_OK);
+	EXPECT(c, NTFSMAC_DOCTOR_JOURNAL_ENTRIES, false, 2);
+	EXPECT(c, NTFSMAC_DOCTOR_JOURNAL_LARGE, false, 3);
+	env.journal_soft_max = 0;
+
 	/* A journal path that is a file: unreadable, reported. */
 	tmp_write(base, "jfile", "x");
 	PATHF(jd, "%s/jfile", base);
@@ -387,7 +409,7 @@ static void test_journal(void)
 static void test_run_control(void)
 {
 	char fs[PATH_MAX], jd[PATH_MAX], base[PATH_MAX];
-	ntfsmac_doctor_env env = {fs, jd, NULL, NULL};
+	ntfsmac_doctor_env env = {fs, jd, NULL, NULL, 0, 0};
 	collected c;
 
 	tmp_make(base, sizeof base);

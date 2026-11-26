@@ -56,7 +56,7 @@
 #endif
 
 #define ENTRY_MAX_BYTES 1024u
-#define LIST_MAX_ITEMS 65536u
+#define LIST_MAX_ITEMS NTFSMAC_JOURNAL_LIST_MAX
 #define CLEARED_DIR "cleared"
 
 struct ntfsmac_journal {
@@ -621,15 +621,57 @@ struct item {
 struct vec {
 	struct item *v;
 	size_t n, cap;
+	size_t max;   /* 0: LIST_MAX_ITEMS */
+	size_t found; /* names that matched, kept or not */
+	int heap;     /* the kept items are a max-heap on the serial (the vector is full) */
 	int failed;
 };
 
+/* Max-heap on the serial, used once the vector is full. */
+static void heap_down(struct item *v, size_t n, size_t i)
+{
+	for (;;) {
+		size_t l = 2 * i + 1, r = l + 1, big = i;
+		struct item t;
+
+		if (l < n && v[l].serial > v[big].serial)
+			big = l;
+		if (r < n && v[r].serial > v[big].serial)
+			big = r;
+		if (big == i)
+			return;
+		t = v[i];
+		v[i] = v[big];
+		v[big] = t;
+		i = big;
+	}
+}
+
+/*
+ * Past `max` a name is counted and the listing is cut, it does not fail (T-M7-15). The names kept
+ * are the `max` lowest serials, whatever the order of the directory, so a cut listing is the same
+ * every time (a max-heap on the serial replaces the highest one kept).
+ */
 static void vec_push(struct vec *vec, uint64_t serial, int64_t when)
 {
+	size_t max = vec->max != 0 ? vec->max : LIST_MAX_ITEMS;
+
 	if (vec->failed)
 		return;
-	if (vec->n >= LIST_MAX_ITEMS) {
-		vec->failed = 1;
+	vec->found++;
+	if (vec->n >= max) {
+		size_t i;
+
+		if (!vec->heap) {
+			for (i = vec->n / 2; i-- > 0;)
+				heap_down(vec->v, vec->n, i);
+			vec->heap = 1;
+		}
+		if (serial < vec->v[0].serial) {
+			vec->v[0].serial = serial;
+			vec->v[0].when = when;
+			heap_down(vec->v, vec->n, 0);
+		}
 		return;
 	}
 	if (vec->n == vec->cap) {
@@ -651,13 +693,14 @@ static void vec_push(struct vec *vec, uint64_t serial, int64_t when)
 enum kind { KIND_ENTRY, KIND_TMP, KIND_TOMB };
 
 /* Collect the parsed values of all names of one grammar in a directory. */
-static int collect(int fd, enum kind kind, struct vec *out)
+static int collect(int fd, enum kind kind, size_t max, struct vec *out)
 {
 	DIR *d;
 	struct dirent *de;
 	int dupfd = fcntl(fd, F_DUPFD_CLOEXEC, 0);
 
 	memset(out, 0, sizeof(*out));
+	out->max = max;
 	if (dupfd < 0)
 		return -1;
 	d = fdopendir(dupfd);
@@ -717,7 +760,7 @@ static void remove_stray_temporaries(ntfsmac_journal *j)
 {
 	struct vec v;
 
-	if (collect(j->dirfd, KIND_TMP, &v) != 0)
+	if (collect(j->dirfd, KIND_TMP, 0, &v) != 0)
 		return;
 	for (size_t i = 0; i < v.n; i++) {
 		char name[NTFSMAC_JOURNAL_TMPNAME_SIZE];
@@ -1012,7 +1055,7 @@ static void prune_tombstones(ntfsmac_journal *j, uint64_t new_serial,
 	struct vec v;
 	size_t excess, cand = 0;
 
-	if (collect(j->clrfd, KIND_TOMB, &v) != 0) {
+	if (collect(j->clrfd, KIND_TOMB, 0, &v) != 0) {
 		NTFSMAC_LOGW("journal: cannot list cleared/ for pruning");
 		return;
 	}
@@ -1116,14 +1159,32 @@ ntfsmac_journal_status ntfsmac_journal_list(ntfsmac_journal *j,
 					    ntfsmac_journal_entry_cb cb, void *ctx,
 					    unsigned *skipped)
 {
-	struct vec v;
+	ntfsmac_journal_list_info info;
+	ntfsmac_journal_status st = ntfsmac_journal_list_ex(j, 0, cb, ctx, &info);
 
 	if (skipped != NULL)
-		*skipped = 0;
+		*skipped = info.skipped;
+	return st;
+}
+
+ntfsmac_journal_status ntfsmac_journal_list_ex(ntfsmac_journal *j, size_t max_items,
+					       ntfsmac_journal_entry_cb cb, void *ctx,
+					       ntfsmac_journal_list_info *info)
+{
+	struct vec v;
+	unsigned skipped_n = 0;
+	unsigned *skipped = &skipped_n;
+
+	if (info != NULL)
+		memset(info, 0, sizeof(*info));
 	if (j == NULL || cb == NULL)
 		return NTFSMAC_JOURNAL_ERR_INVALID;
-	if (collect(j->dirfd, KIND_ENTRY, &v) != 0)
+	if (collect(j->dirfd, KIND_ENTRY, max_items, &v) != 0)
 		return NTFSMAC_JOURNAL_ERR_IO;
+	if (info != NULL) {
+		info->found = v.found;
+		info->unlisted = v.found - v.n;
+	}
 	/* Collected first so a callback may change the directory. */
 	if (v.n > 1)
 		qsort(v.v, v.n, sizeof(*v.v), cmp_item_asc);
@@ -1134,14 +1195,15 @@ ntfsmac_journal_status ntfsmac_journal_list(ntfsmac_journal *j,
 		if (st == NTFSMAC_JOURNAL_ERR_NOT_FOUND)
 			continue; /* removed meanwhile */
 		if (st != NTFSMAC_JOURNAL_OK) {
-			if (skipped != NULL)
-				(*skipped)++;
+			(*skipped)++;
 			continue;
 		}
 		if (cb(&e, ctx) != 0)
 			break;
 	}
 	free(v.v);
+	if (info != NULL)
+		info->skipped = skipped_n;
 	return NTFSMAC_JOURNAL_OK;
 }
 
@@ -1153,7 +1215,7 @@ ntfsmac_journal_status ntfsmac_journal_list_tombstones(ntfsmac_journal *j,
 
 	if (j == NULL || cb == NULL)
 		return NTFSMAC_JOURNAL_ERR_INVALID;
-	if (collect(j->clrfd, KIND_TOMB, &v) != 0)
+	if (collect(j->clrfd, KIND_TOMB, 0, &v) != 0)
 		return NTFSMAC_JOURNAL_ERR_IO;
 	if (v.n > 1)
 		qsort(v.v, v.n, sizeof(*v.v), cmp_item_desc);

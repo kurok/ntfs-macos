@@ -304,12 +304,15 @@ static int count_tomb(uint64_t serial, int64_t when, void *ctx)
 	return 0;
 }
 
-static int check_journal(const char *dir, ntfsmac_doctor_cb cb, void *ctx)
+static int check_journal(const ntfsmac_doctor_env *env, const char *dir, ntfsmac_doctor_cb cb,
+			 void *ctx)
 {
 	struct stat st;
 	ntfsmac_journal *j = NULL;
 	unsigned long entries = 0, tombs = 0;
 	unsigned skipped = 0;
+	ntfsmac_journal_list_info info;
+	size_t soft = env->journal_soft_max != 0 ? env->journal_soft_max : NTFSMAC_JOURNAL_SOFT_MAX;
 
 	/* ntfsmac_journal_open() creates a missing directory; doctor must not. */
 	if (lstat(dir, &st) != 0) {
@@ -321,15 +324,23 @@ static int check_journal(const char *dir, ntfsmac_doctor_cb cb, void *ctx)
 	}
 	if (ntfsmac_journal_open(dir, &j) != NTFSMAC_JOURNAL_OK)
 		return emit(cb, ctx, NTFSMAC_DOCTOR_JOURNAL_UNREADABLE, false, 0);
-	if (ntfsmac_journal_list(j, count_entry, &entries, &skipped) != NTFSMAC_JOURNAL_OK ||
+	/* A journal with more entries than one listing holds is not "unreadable" (T-M7-15). */
+	if (ntfsmac_journal_list_ex(j, env->journal_list_max, count_entry, &entries, &info) !=
+		    NTFSMAC_JOURNAL_OK ||
 	    ntfsmac_journal_list_tombstones(j, count_tomb, &tombs) != NTFSMAC_JOURNAL_OK) {
 		ntfsmac_journal_close(j);
 		return emit(cb, ctx, NTFSMAC_DOCTOR_JOURNAL_UNREADABLE, false, 0);
 	}
+	skipped = info.skipped;
 	ntfsmac_journal_close(j);
-	return emit(cb, ctx, NTFSMAC_DOCTOR_JOURNAL_ENTRIES, entries == 0, (long)entries) ||
-	       emit(cb, ctx, NTFSMAC_DOCTOR_JOURNAL_CORRUPT, skipped == 0, (long)skipped) ||
-	       emit(cb, ctx, NTFSMAC_DOCTOR_JOURNAL_CLEARED, true, (long)tombs);
+	if (emit(cb, ctx, NTFSMAC_DOCTOR_JOURNAL_ENTRIES, entries == 0, (long)entries) ||
+	    emit(cb, ctx, NTFSMAC_DOCTOR_JOURNAL_CORRUPT, skipped == 0, (long)skipped) ||
+	    emit(cb, ctx, NTFSMAC_DOCTOR_JOURNAL_CLEARED, true, (long)tombs))
+		return 1;
+	if (info.unlisted != 0 || info.found >= soft)
+		return emit(cb, ctx, NTFSMAC_DOCTOR_JOURNAL_LARGE, false,
+			    info.found > (size_t)LONG_MAX ? LONG_MAX : (long)info.found);
+	return 0;
 }
 
 /* The last banner (T-M7-06): never sent is "unknown" (ok), not a failure. */
@@ -344,7 +355,7 @@ static int check_notify(ntfsmac_doctor_cb cb, void *ctx)
 ntfsmac_dmn_status ntfsmac_doctor_run_env(const ntfsmac_doctor_env *env, ntfsmac_doctor_cb cb,
 					  void *ctx)
 {
-	static const ntfsmac_doctor_env defaults = {NULL, NULL, NULL, NULL};
+	static const ntfsmac_doctor_env defaults = {NULL, NULL, NULL, NULL, 0, 0};
 	const char *fs_dir, *journal_dir;
 
 	if (cb == NULL)
@@ -355,7 +366,7 @@ ntfsmac_dmn_status ntfsmac_doctor_run_env(const ntfsmac_doctor_env *env, ntfsmac
 	journal_dir = env->journal_dir != NULL ? env->journal_dir : NTFSMAC_JOURNAL_DEFAULT_DIR;
 
 	if (check_macfuse(env, fs_dir, cb, ctx) || check_conflicts(fs_dir, cb, ctx) ||
-	    check_journal(journal_dir, cb, ctx) || check_notify(cb, ctx))
+	    check_journal(env, journal_dir, cb, ctx) || check_notify(cb, ctx))
 		return NTFSMAC_DMN_OK; /* the callback stopped the run */
 	return NTFSMAC_DMN_OK;
 }

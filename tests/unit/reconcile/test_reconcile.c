@@ -1,11 +1,12 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * T-M4-05: restart reconciliation (U-DMN-RC-01..05).
+ * T-M4-05: restart reconciliation (U-DMN-RC-01..06).
  *   01  which mount point belongs to which entry
  *   02  decision matrix: every marker, every state, every kind of live mount
  *   03  ambiguity: several entries or several mounts for one label
  *   04  bad arguments and capacity
  *   05  run over a real journal in a temporary directory; entries unchanged
+ *   06  more entries than one listing holds: the run goes on with those read (T-M7-15)
  *
  * The CHECK macro of jtest.h stops the test at the first failure.
  */
@@ -420,6 +421,29 @@ static void test_run(void)
 	CHECK(jt_entry_eq(&g1, &e1));
 	CHECK(jt_entry_eq(&g2, &e2));
 	CHECK(jt_entry_eq(&g3, &e3));
+
+	/*
+	 * U-DMN-RC-06 (T-M7-15): more entries than the bound of one listing (2 here): the run still
+	 * goes on, on the entries it read, and says how many it left out; the journal is untouched.
+	 */
+	{
+		size_t unlisted = 99;
+
+		memset(&s, 0, sizeof s);
+		CHECK(ntfsmac_reconcile_run_limit(j, m, 2, 2, record, &s, &unlisted) == NTFSMAC_DMN_OK);
+		CHECK(s.n == 2);
+		CHECK(unlisted == 1);
+		/* the two lowest serials are read; a cut listing adopts nothing: ONE (writable, worker
+		 * alive, re-adopted with the full listing) is force-unmounted instead */
+		CHECK(s.action[find_serial(&s, 0xA1)] == NTFSMAC_RECONCILE_FORCE_UNMOUNT);
+		CHECK(s.action[find_serial(&s, 0xA2)] == NTFSMAC_RECONCILE_FORCE_UNMOUNT);
+		memset(&s, 0, sizeof s);
+		CHECK(ntfsmac_reconcile_run_limit(j, m, 2, 0, record, &s, &unlisted) == NTFSMAC_DMN_OK);
+		CHECK(s.n == 3 && unlisted == 0);
+		CHECK(s.action[find_serial(&s, 0xA1)] == NTFSMAC_RECONCILE_READOPT); /* full listing: adopted */
+		CHECK_ST(ntfsmac_journal_get(j, 0xA3, &g3), NTFSMAC_JOURNAL_OK);
+		CHECK(jt_entry_eq(&g3, &e3));
+	}
 
 	/* The real lister (macOS) works and finds no mount of these names;
 	 * elsewhere it reports "not implemented". */

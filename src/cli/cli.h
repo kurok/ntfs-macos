@@ -103,6 +103,7 @@ enum {
 	NTFSMAC_CLI_DOCTOR_JOURNAL_CLEARED,
 	NTFSMAC_CLI_DOCTOR_JOURNAL_UNREADABLE,
 	NTFSMAC_CLI_DOCTOR_NOTIFY_DELIVERY, /* value = state * 1000 + exit status, see ntfsmac_banner_value() */
+	NTFSMAC_CLI_DOCTOR_JOURNAL_LARGE,   /* value = entries in the journal directory */
 	NTFSMAC_CLI_DOCTOR_EXT_NOT_APPROVED = 2 /* the `value` of EXTENSION: ntfsmac_doctor_ext_state */
 };
 #define NTFSMAC_CLI_BANNER_WAIT_S 10 /* NTFSMAC_BANNER_WAIT_MS / 1000, asserted in tests/unit/ctl/ctl_cli.c */

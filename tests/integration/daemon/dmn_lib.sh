@@ -115,7 +115,8 @@ logcat() { sudo -n cat "$LOG" 2>/dev/null; }
 # but a case that leaves an entry (a refused marker, a kill) must still not decide the next case on the
 # same image.
 reset_journal() { sudo -n sh -c "rm -f $JDIR/* $JDIR/cleared/* 2>/dev/null"; }
-journal_count() { sudo -n sh -c "ls $JDIR 2>/dev/null | grep -c '^[0-9A-F]\{16\}\$'" || true; }
+# entries of format 2 (<serial>-<total_sectors>, T-M7-13) and of format 1 (<serial>)
+journal_count() { sudo -n sh -c "ls $JDIR 2>/dev/null | grep -cE '^[0-9A-F]{16}(-[0-9A-F]{16})?\$'" || true; }
 worker_pids() { ps -axo pid=,comm= | awk -v c="$INSTALL/ntfsmac-worker" '$2 == c { print $1 }'; }
 workers() { worker_pids | wc -l | tr -d ' '; }
 daemon_pid() { sudo -n launchctl print system/$LABEL 2>/dev/null | sed -n 's/^[[:space:]]*pid = //p'; }

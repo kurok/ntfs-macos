@@ -167,7 +167,7 @@ static void *kill_reader_main(void *arg)
 	while (!atomic_load(&g_stop_readers)) {
 		ntfsmac_journal_entry e;
 		unsigned skipped = 0;
-		ntfsmac_journal_status st = ntfsmac_journal_get(g_j, KILL_SERIAL, &e);
+		ntfsmac_journal_status st = ntfsmac_journal_get(g_j, KILL_SERIAL, 976773167u, &e);
 
 		CHECK(st == NTFSMAC_JOURNAL_OK || st == NTFSMAC_JOURNAL_ERR_NOT_FOUND);
 		if (st == NTFSMAC_JOURNAL_OK)
@@ -200,7 +200,7 @@ static void kill_child(int round)
 		e.updated++;
 		if (ntfsmac_journal_update(j, &e) != NTFSMAC_JOURNAL_OK)
 			_exit(6);
-		if (ntfsmac_journal_remove(j, KILL_SERIAL, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR,
+		if (ntfsmac_journal_remove(j, KILL_SERIAL, 976773167u, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR,
 					   ++t) != NTFSMAC_JOURNAL_OK)
 			_exit(7);
 	}
@@ -240,13 +240,13 @@ static void phase_kill(void)
 		/* After the kill, the entry is either whole or absent. */
 		{
 			ntfsmac_journal_entry e;
-			ntfsmac_journal_status st = ntfsmac_journal_get(g_j, KILL_SERIAL, &e);
+			ntfsmac_journal_status st = ntfsmac_journal_get(g_j, KILL_SERIAL, 976773167u, &e);
 
 			CHECK(st == NTFSMAC_JOURNAL_OK || st == NTFSMAC_JOURNAL_ERR_NOT_FOUND);
 			if (st == NTFSMAC_JOURNAL_OK) {
 				check_entry_whole(&e);
 				/* the next child must start clean */
-				CHECK(ntfsmac_journal_remove(g_j, KILL_SERIAL,
+				CHECK(ntfsmac_journal_remove(g_j, KILL_SERIAL, 976773167u,
 							     NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR,
 							     next_time()) == NTFSMAC_JOURNAL_OK);
 			}
@@ -322,7 +322,7 @@ static ntfsmac_dmn_status op_status(void *ctx, const char *bsd, char *reply, siz
 		snprintf(reply, cap, "{\"ok\":false,\"error\":\"no_such_volume\"}");
 		return NTFSMAC_DMN_OK;
 	}
-	st = ntfsmac_journal_get(g_j, VOL_SERIAL(n), &e);
+	st = ntfsmac_journal_get(g_j, VOL_SERIAL(n), 976773167u, &e);
 	CHECK(st == NTFSMAC_JOURNAL_OK || st == NTFSMAC_JOURNAL_ERR_NOT_FOUND);
 	if (st == NTFSMAC_JOURNAL_OK)
 		check_entry_whole(&e);
@@ -377,7 +377,7 @@ static ntfsmac_dmn_status op_journal_clear(void *ctx, const ntfsmac_ctl_peer *pe
 		pthread_mutex_unlock(&g_ops.mu);
 	}
 	/* The same journal the volume threads are updating. */
-	st = ntfsmac_journal_remove(g_j, s, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR, next_time());
+	st = ntfsmac_journal_remove(g_j, s, 976773167u, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR, next_time());
 	CHECK(st == NTFSMAC_JOURNAL_OK || st == NTFSMAC_JOURNAL_ERR_NOT_FOUND);
 	snprintf(reply, cap, "{\"ok\":true,\"removed\":%d}", st == NTFSMAC_JOURNAL_OK ? 1 : 0);
 	return NTFSMAC_DMN_OK;
@@ -685,7 +685,7 @@ static void *vol_main(void *arg)
 
 		/* A leftover from an earlier round, or a clear that raced us: start clean. */
 		if (st == NTFSMAC_JOURNAL_ERR_EXISTS) {
-			st = ntfsmac_journal_remove(g_j, serial, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR,
+			st = ntfsmac_journal_remove(g_j, serial, 976773167u, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR,
 						    next_time());
 			CHECK(st == NTFSMAC_JOURNAL_OK || st == NTFSMAC_JOURNAL_ERR_NOT_FOUND);
 			continue;
@@ -706,7 +706,7 @@ static void *vol_main(void *arg)
 			CHECK(st == NTFSMAC_JOURNAL_OK || st == NTFSMAC_JOURNAL_ERR_NOT_FOUND);
 			continue; /* left for a clear, as after a real write error */
 		}
-		st = ntfsmac_journal_remove(g_j, serial, NTFSMAC_JOURNAL_REMOVE_CLEAN_SESSION,
+		st = ntfsmac_journal_remove(g_j, serial, 976773167u, NTFSMAC_JOURNAL_REMOVE_CLEAN_SESSION,
 					    next_time());
 		CHECK(st == NTFSMAC_JOURNAL_OK || st == NTFSMAC_JOURNAL_ERR_NOT_FOUND);
 	}

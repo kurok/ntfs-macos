@@ -31,7 +31,17 @@ static ntfsmac_journal *open_fresh(char *base, size_t bsize, char *jdir,
 	return j;
 }
 
+/* The format-2 entry of (serial, JT_TS), the one create() writes for jt_entry(serial). */
 static void entry_path(char *out, size_t size, const char *jdir, uint64_t serial)
+{
+	char name[NTFSMAC_JOURNAL_IDNAME_SIZE];
+
+	CHECK(ntfsmac_journal_format_idname(name, sizeof(name), serial, JT_TS) == 0);
+	jt_path(out, size, jdir, name, NULL);
+}
+
+/* The format-1 entry of `serial` (written before the identity rule, T-M7-13). */
+static void legacy_path(char *out, size_t size, const char *jdir, uint64_t serial)
 {
 	char name[NTFSMAC_JOURNAL_NAME_SIZE];
 
@@ -206,9 +216,9 @@ static void test_create_get(void)
 	struct stat st;
 	const uint64_t serials[] = { 0, 1, 2, UINT64_MAX, 0x8000000000000000ull };
 
-	CHECK_ST(ntfsmac_journal_get(j, 0xAB, &g), NTFSMAC_JOURNAL_ERR_NOT_FOUND);
+	CHECK_ST(ntfsmac_journal_get(j, 0xAB, JT_TS, &g), NTFSMAC_JOURNAL_ERR_NOT_FOUND);
 	CHECK_ST(ntfsmac_journal_create(j, &e), NTFSMAC_JOURNAL_OK);
-	CHECK_ST(ntfsmac_journal_get(j, 0xAB, &g), NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_get(j, 0xAB, JT_TS, &g), NTFSMAC_JOURNAL_OK);
 	CHECK(jt_entry_eq(&e, &g));
 	entry_path(p, sizeof(p), jdir, 0xAB);
 	CHECK(stat(p, &st) == 0 && S_ISREG(st.st_mode) && (st.st_mode & 0777) == 0600);
@@ -217,7 +227,7 @@ static void test_create_get(void)
 	/* Create never replaces. */
 	e.label[0] = 'X';
 	CHECK_ST(ntfsmac_journal_create(j, &e), NTFSMAC_JOURNAL_ERR_EXISTS);
-	CHECK_ST(ntfsmac_journal_get(j, 0xAB, &g), NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_get(j, 0xAB, JT_TS, &g), NTFSMAC_JOURNAL_OK);
 	CHECK(strcmp(g.label, "TESTVOL") == 0);
 	CHECK(jt_count_names(jdir, jt_is_tmp) == 0);
 
@@ -232,7 +242,7 @@ static void test_create_get(void)
 		x.logfile_lsn_at_start = UINT64_MAX;
 		x.marker = (i & 1) ? NTFSMAC_JOURNAL_MARKER_NONE : NTFSMAC_JOURNAL_MARKER_PENDING;
 		CHECK_ST(ntfsmac_journal_create(j, &x), NTFSMAC_JOURNAL_OK);
-		CHECK_ST(ntfsmac_journal_get(j, serials[i], &g), NTFSMAC_JOURNAL_OK);
+		CHECK_ST(ntfsmac_journal_get(j, serials[i], x.total_sectors, &g), NTFSMAC_JOURNAL_OK);
 		CHECK(jt_entry_eq(&x, &g));
 	}
 	{ /* Empty label, 64-byte label with UTF-8. */
@@ -240,7 +250,7 @@ static void test_create_get(void)
 
 		x.label[0] = '\0';
 		CHECK_ST(ntfsmac_journal_create(j, &x), NTFSMAC_JOURNAL_OK);
-		CHECK_ST(ntfsmac_journal_get(j, 0x77, &g), NTFSMAC_JOURNAL_OK);
+		CHECK_ST(ntfsmac_journal_get(j, 0x77, JT_TS, &g), NTFSMAC_JOURNAL_OK);
 		CHECK(jt_entry_eq(&x, &g));
 		x = jt_entry(0x78);
 		memset(x.label, 'a', 62);
@@ -248,7 +258,7 @@ static void test_create_get(void)
 		x.label[63] = (char)0xA9; /* 64 bytes */
 		x.label[64] = '\0';
 		CHECK_ST(ntfsmac_journal_create(j, &x), NTFSMAC_JOURNAL_OK);
-		CHECK_ST(ntfsmac_journal_get(j, 0x78, &g), NTFSMAC_JOURNAL_OK);
+		CHECK_ST(ntfsmac_journal_get(j, 0x78, JT_TS, &g), NTFSMAC_JOURNAL_OK);
 		CHECK(jt_entry_eq(&x, &g));
 	}
 
@@ -283,10 +293,10 @@ static void test_create_get(void)
 	CHECK_ST(ntfsmac_journal_create(j, &bad), NTFSMAC_JOURNAL_ERR_INVALID);
 	bad.marker = NTFSMAC_JOURNAL_MARKER_FAILED;
 	CHECK_ST(ntfsmac_journal_create(j, &bad), NTFSMAC_JOURNAL_ERR_INVALID);
-	CHECK_ST(ntfsmac_journal_get(j, 0x90, &g), NTFSMAC_JOURNAL_ERR_NOT_FOUND);
+	CHECK_ST(ntfsmac_journal_get(j, 0x90, JT_TS, &g), NTFSMAC_JOURNAL_ERR_NOT_FOUND);
 	CHECK_ST(ntfsmac_journal_create(NULL, &e), NTFSMAC_JOURNAL_ERR_INVALID);
 	CHECK_ST(ntfsmac_journal_create(j, NULL), NTFSMAC_JOURNAL_ERR_INVALID);
-	CHECK_ST(ntfsmac_journal_get(j, 1, NULL), NTFSMAC_JOURNAL_ERR_INVALID);
+	CHECK_ST(ntfsmac_journal_get(j, 1, JT_TS, NULL), NTFSMAC_JOURNAL_ERR_INVALID);
 	CHECK(jt_count_names(jdir, jt_is_tmp) == 0);
 
 	ntfsmac_journal_close(j);
@@ -306,7 +316,7 @@ static void test_update(void)
 	u = e;
 	u.updated = e.updated + 5;
 	CHECK_ST(ntfsmac_journal_update(j, &u), NTFSMAC_JOURNAL_OK);
-	CHECK_ST(ntfsmac_journal_get(j, 0xC1, &g), NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_get(j, 0xC1, JT_TS, &g), NTFSMAC_JOURNAL_OK);
 	CHECK(jt_entry_eq(&u, &g));
 
 	/* Each immutable field. */
@@ -320,9 +330,14 @@ static void test_update(void)
 		m[2].session_id++;
 		m[3].created++;
 		m[4].logfile_lsn_at_start++;
+		/* total_sectors is part of the key (T-M7-13): another value names another entry */
 		for (int i = 0; i < 5; i++)
-			CHECK_ST(ntfsmac_journal_update(j, &m[i]), NTFSMAC_JOURNAL_ERR_IMMUTABLE);
-		CHECK_ST(ntfsmac_journal_get(j, 0xC1, &g), NTFSMAC_JOURNAL_OK);
+			CHECK_ST(ntfsmac_journal_update(j, &m[i]), i == 1 ? NTFSMAC_JOURNAL_ERR_NOT_FOUND
+								    : NTFSMAC_JOURNAL_ERR_IMMUTABLE);
+		m[1] = u;
+		m[1].legacy = true; /* the format-1 entry of the serial: there is none */
+		CHECK_ST(ntfsmac_journal_update(j, &m[1]), NTFSMAC_JOURNAL_ERR_NOT_FOUND);
+		CHECK_ST(ntfsmac_journal_get(j, 0xC1, JT_TS, &g), NTFSMAC_JOURNAL_OK);
 		CHECK(jt_entry_eq(&u, &g));
 	}
 
@@ -353,7 +368,7 @@ static void test_update(void)
 		b.state = NTFSMAC_JOURNAL_STATE_OPEN;
 		CHECK_ST(ntfsmac_journal_update(j, &b), NTFSMAC_JOURNAL_ERR_TRANSITION);
 	}
-	CHECK_ST(ntfsmac_journal_get(j, 0xC1, &g), NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_get(j, 0xC1, JT_TS, &g), NTFSMAC_JOURNAL_OK);
 	CHECK(jt_entry_eq(&u, &g));
 
 	/* pending -> failed is final; none is final. */
@@ -485,23 +500,23 @@ static void test_removal_paths(void)
 				serial++;
 				now += 10;
 				make_entry(j, serial, M[m], S[s]);
-				CHECK_ST(ntfsmac_journal_get(j, serial, &before), NTFSMAC_JOURNAL_OK);
+				CHECK_ST(ntfsmac_journal_get(j, serial, JT_TS, &before), NTFSMAC_JOURNAL_OK);
 				tombs(j, &t);
 				{
 					unsigned t0 = t.n;
 					ntfsmac_journal_status st =
-						ntfsmac_journal_remove(j, serial, P[p], now);
+						ntfsmac_journal_remove(j, serial, JT_TS, P[p], now);
 
 					if (ok) {
 						CHECK(st == NTFSMAC_JOURNAL_OK);
-						CHECK_ST(ntfsmac_journal_get(j, serial, &after),
+						CHECK_ST(ntfsmac_journal_get(j, serial, JT_TS, &after),
 							 NTFSMAC_JOURNAL_ERR_NOT_FOUND);
 						tombs(j, &t);
 						CHECK(t.n == t0 + 1 && has_tomb(&t, serial, now));
 						allowed++;
 					} else {
 						CHECK(st == NTFSMAC_JOURNAL_ERR_PATH_CONDITION);
-						CHECK_ST(ntfsmac_journal_get(j, serial, &after),
+						CHECK_ST(ntfsmac_journal_get(j, serial, JT_TS, &after),
 							 NTFSMAC_JOURNAL_OK);
 						CHECK(jt_entry_eq(&before, &after));
 						tombs(j, &t);
@@ -515,28 +530,28 @@ static void test_removal_paths(void)
 	CHECK(allowed == 20 && refused == 12);
 
 	/* Not found, invalid arguments. */
-	CHECK_ST(ntfsmac_journal_remove(j, 0xDEAD, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR, now),
+	CHECK_ST(ntfsmac_journal_remove(j, 0xDEAD, JT_TS, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR, now),
 		 NTFSMAC_JOURNAL_ERR_NOT_FOUND);
 	make_entry(j, 0xBEEF, NTFSMAC_JOURNAL_MARKER_NONE, NTFSMAC_JOURNAL_STATE_OPEN);
-	CHECK_ST(ntfsmac_journal_remove(j, 0xBEEF, (ntfsmac_journal_removal)0, now),
+	CHECK_ST(ntfsmac_journal_remove(j, 0xBEEF, JT_TS, (ntfsmac_journal_removal)0, now),
 		 NTFSMAC_JOURNAL_ERR_INVALID);
-	CHECK_ST(ntfsmac_journal_remove(j, 0xBEEF, (ntfsmac_journal_removal)5, now),
+	CHECK_ST(ntfsmac_journal_remove(j, 0xBEEF, JT_TS, (ntfsmac_journal_removal)5, now),
 		 NTFSMAC_JOURNAL_ERR_INVALID);
-	CHECK_ST(ntfsmac_journal_remove(j, 0xBEEF, NTFSMAC_JOURNAL_REMOVE_REPAIR, INT64_MAX),
+	CHECK_ST(ntfsmac_journal_remove(j, 0xBEEF, JT_TS, NTFSMAC_JOURNAL_REMOVE_REPAIR, INT64_MAX),
 		 NTFSMAC_JOURNAL_ERR_INVALID);
-	CHECK_ST(ntfsmac_journal_remove(NULL, 0xBEEF, NTFSMAC_JOURNAL_REMOVE_REPAIR, now),
+	CHECK_ST(ntfsmac_journal_remove(NULL, 0xBEEF, JT_TS, NTFSMAC_JOURNAL_REMOVE_REPAIR, now),
 		 NTFSMAC_JOURNAL_ERR_INVALID);
 	{
 		ntfsmac_journal_entry g;
 
-		CHECK_ST(ntfsmac_journal_get(j, 0xBEEF, &g), NTFSMAC_JOURNAL_OK);
+		CHECK_ST(ntfsmac_journal_get(j, 0xBEEF, JT_TS, &g), NTFSMAC_JOURNAL_OK);
 	}
 
 	/* The removal is logged with the path. */
 	ntfsmac_log_set_sink(log_capture, NULL);
 	ntfsmac_log_set_level(NTFSMAC_LOG_INFO);
 	g_log[0] = '\0';
-	CHECK_ST(ntfsmac_journal_remove(j, 0xBEEF, NTFSMAC_JOURNAL_REMOVE_REPAIR, now + 1000),
+	CHECK_ST(ntfsmac_journal_remove(j, 0xBEEF, JT_TS, NTFSMAC_JOURNAL_REMOVE_REPAIR, now + 1000),
 		 NTFSMAC_JOURNAL_OK);
 	ntfsmac_log_set_level(NTFSMAC_LOG_NONE);
 	ntfsmac_log_set_sink(NULL, NULL);
@@ -557,15 +572,15 @@ static void test_tombstones(void)
 
 	/* Same-second collision: ERR_EXISTS, entry stays; one second later OK. */
 	make_entry(j, 0x42, NTFSMAC_JOURNAL_MARKER_NONE, NTFSMAC_JOURNAL_STATE_OPEN);
-	CHECK_ST(ntfsmac_journal_remove(j, 0x42, NTFSMAC_JOURNAL_REMOVE_CLEAN_SESSION, t0),
+	CHECK_ST(ntfsmac_journal_remove(j, 0x42, JT_TS, NTFSMAC_JOURNAL_REMOVE_CLEAN_SESSION, t0),
 		 NTFSMAC_JOURNAL_OK);
 	make_entry(j, 0x42, NTFSMAC_JOURNAL_MARKER_NONE, NTFSMAC_JOURNAL_STATE_OPEN);
-	CHECK_ST(ntfsmac_journal_remove(j, 0x42, NTFSMAC_JOURNAL_REMOVE_CLEAN_SESSION, t0),
+	CHECK_ST(ntfsmac_journal_remove(j, 0x42, JT_TS, NTFSMAC_JOURNAL_REMOVE_CLEAN_SESSION, t0),
 		 NTFSMAC_JOURNAL_ERR_EXISTS);
-	CHECK_ST(ntfsmac_journal_get(j, 0x42, &g), NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_get(j, 0x42, JT_TS, &g), NTFSMAC_JOURNAL_OK);
 	tombs(j, &t);
 	CHECK(t.n == 1);
-	CHECK_ST(ntfsmac_journal_remove(j, 0x42, NTFSMAC_JOURNAL_REMOVE_CLEAN_SESSION, t0 + 1),
+	CHECK_ST(ntfsmac_journal_remove(j, 0x42, JT_TS, NTFSMAC_JOURNAL_REMOVE_CLEAN_SESSION, t0 + 1),
 		 NTFSMAC_JOURNAL_OK);
 	tombs(j, &t);
 	CHECK(t.n == 2 && t.when[0] == t0 + 1 && t.when[1] == t0); /* newest first */
@@ -583,7 +598,7 @@ static void test_tombstones(void)
 	for (int i = 0; i < 40; i++) {
 		make_entry(j, 100 + (uint64_t)i, NTFSMAC_JOURNAL_MARKER_NONE,
 			   NTFSMAC_JOURNAL_STATE_OPEN);
-		CHECK_ST(ntfsmac_journal_remove(j, 100 + (uint64_t)i,
+		CHECK_ST(ntfsmac_journal_remove(j, 100 + (uint64_t)i, JT_TS,
 						NTFSMAC_JOURNAL_REMOVE_CLEAN_SESSION,
 						t0 + i * 10),
 			 NTFSMAC_JOURNAL_OK);
@@ -606,7 +621,7 @@ static void test_tombstones(void)
 	/* A removal older than every tombstone still leaves its own tombstone;
 	 * the oldest of the others goes. */
 	make_entry(j, 500, NTFSMAC_JOURNAL_MARKER_NONE, NTFSMAC_JOURNAL_STATE_OPEN);
-	CHECK_ST(ntfsmac_journal_remove(j, 500, NTFSMAC_JOURNAL_REMOVE_CLEAN_SESSION, 1000),
+	CHECK_ST(ntfsmac_journal_remove(j, 500, JT_TS, NTFSMAC_JOURNAL_REMOVE_CLEAN_SESSION, 1000),
 		 NTFSMAC_JOURNAL_OK);
 	tombs(j, &t);
 	CHECK(t.n == 32);
@@ -630,18 +645,18 @@ static void test_removal_of_damaged_entries(void)
 	 * and 4 have no precondition and clear it. */
 	entry_path(p, sizeof(p), jdir, 0x55);
 	jt_write_file(p, "garbage", 7, 0600);
-	CHECK_ST(ntfsmac_journal_get(j, 0x55, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
-	CHECK_ST(ntfsmac_journal_remove(j, 0x55, NTFSMAC_JOURNAL_REMOVE_CLEAN_SESSION, 5000),
+	CHECK_ST(ntfsmac_journal_get(j, 0x55, JT_TS, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
+	CHECK_ST(ntfsmac_journal_remove(j, 0x55, JT_TS, NTFSMAC_JOURNAL_REMOVE_CLEAN_SESSION, 5000),
 		 NTFSMAC_JOURNAL_ERR_CORRUPT);
-	CHECK_ST(ntfsmac_journal_remove(j, 0x55, NTFSMAC_JOURNAL_REMOVE_EXTERNAL_CHECK, 5000),
+	CHECK_ST(ntfsmac_journal_remove(j, 0x55, JT_TS, NTFSMAC_JOURNAL_REMOVE_EXTERNAL_CHECK, 5000),
 		 NTFSMAC_JOURNAL_ERR_CORRUPT);
 	CHECK(access(p, F_OK) == 0);
-	CHECK_ST(ntfsmac_journal_remove(j, 0x55, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR, 5000),
+	CHECK_ST(ntfsmac_journal_remove(j, 0x55, JT_TS, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR, 5000),
 		 NTFSMAC_JOURNAL_OK);
 	CHECK(access(p, F_OK) != 0);
 	entry_path(p, sizeof(p), jdir, 0x56);
 	jt_write_file(p, "garbage", 7, 0600);
-	CHECK_ST(ntfsmac_journal_remove(j, 0x56, NTFSMAC_JOURNAL_REMOVE_REPAIR, 5000),
+	CHECK_ST(ntfsmac_journal_remove(j, 0x56, JT_TS, NTFSMAC_JOURNAL_REMOVE_REPAIR, 5000),
 		 NTFSMAC_JOURNAL_OK);
 
 	/* A symlink at the entry name is moved, never followed. */
@@ -649,7 +664,7 @@ static void test_removal_of_damaged_entries(void)
 	jt_write_file(victim, "VICTIM", 6, 0600);
 	entry_path(p, sizeof(p), jdir, 0x57);
 	CHECK(symlink(victim, p) == 0);
-	CHECK_ST(ntfsmac_journal_remove(j, 0x57, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR, 5000),
+	CHECK_ST(ntfsmac_journal_remove(j, 0x57, JT_TS, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR, 5000),
 		 NTFSMAC_JOURNAL_OK);
 	CHECK(lstat(p, &st) != 0);
 	CHECK(ntfsmac_journal_format_tombstone(tomb, sizeof(tomb), 0x57, 5000) == 0);
@@ -660,7 +675,7 @@ static void test_removal_of_damaged_entries(void)
 	/* A directory at the name stays. */
 	entry_path(p, sizeof(p), jdir, 0x58);
 	CHECK(mkdir(p, 0700) == 0);
-	CHECK_ST(ntfsmac_journal_remove(j, 0x58, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR, 5000),
+	CHECK_ST(ntfsmac_journal_remove(j, 0x58, JT_TS, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR, 5000),
 		 NTFSMAC_JOURNAL_ERR_CORRUPT);
 	CHECK(access(p, F_OK) == 0);
 
@@ -715,9 +730,10 @@ static void test_strict_parsing(void)
 	char good[2048], text[2048];
 	size_t glen;
 	struct { const char *key, *line; } cases[] = {
-		{ "ntfsmac-journal", "ntfsmac-journal 2" },
-		{ "ntfsmac-journal", "ntfsmac-journal  1" },
-		{ "ntfsmac-journal", "Ntfsmac-journal 1" },
+		{ "ntfsmac-journal", "ntfsmac-journal 1" }, /* format 1 under a format-2 name */
+		{ "ntfsmac-journal", "ntfsmac-journal 3" },
+		{ "ntfsmac-journal", "ntfsmac-journal  2" },
+		{ "ntfsmac-journal", "Ntfsmac-journal 2" },
 		{ "serial", "serial 00000000000000ab" },
 		{ "serial", "serial 0000000000000AB" },
 		{ "serial", "serial 000000000000000AB" },
@@ -780,10 +796,10 @@ static void test_strict_parsing(void)
 	/* Every proper prefix fails closed. */
 	for (size_t n = 0; n < glen; n++) {
 		jt_write_file(p, good, n, 0600);
-		CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
+		CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, JT_TS, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
 	}
 	jt_write_file(p, good, glen, 0600);
-	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, &g), NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, JT_TS, &g), NTFSMAC_JOURNAL_OK);
 
 	for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); i++) {
 		size_t n;
@@ -791,7 +807,7 @@ static void test_strict_parsing(void)
 		memcpy(text, good, glen);
 		n = set_line(text, glen, sizeof(text), cases[i].key, cases[i].line);
 		jt_write_file(p, text, n, 0600);
-		if (ntfsmac_journal_get(j, BASE_SERIAL, &g) != NTFSMAC_JOURNAL_ERR_CORRUPT) {
+		if (ntfsmac_journal_get(j, BASE_SERIAL, JT_TS, &g) != NTFSMAC_JOURNAL_ERR_CORRUPT) {
 			fprintf(stderr, "FAIL: accepted: %s\n", cases[i].line);
 			exit(1);
 		}
@@ -801,14 +817,14 @@ static void test_strict_parsing(void)
 	memcpy(text, good, glen);
 	text[glen] = 'x';
 	jt_write_file(p, text, glen + 1, 0600);
-	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
+	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, JT_TS, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
 	text[glen] = '\n';
 	jt_write_file(p, text, glen + 1, 0600);
-	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
+	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, JT_TS, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
 	memcpy(text, good, glen);
 	memcpy(text + glen, good, glen);
 	jt_write_file(p, text, 2 * glen, 0600);
-	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
+	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, JT_TS, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
 	{ /* CRLF */
 		size_t o = 0;
 
@@ -818,12 +834,12 @@ static void test_strict_parsing(void)
 			text[o++] = good[i];
 		}
 		jt_write_file(p, text, o, 0600);
-		CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
+		CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, JT_TS, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
 	}
 	memcpy(text, good, glen);
 	text[10] = '\0';
 	jt_write_file(p, text, glen, 0600);
-	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
+	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, JT_TS, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
 	{ /* swapped lines */
 		const char *a = strstr(good, "created ");
 		const char *b = strstr(good, "updated ");
@@ -835,7 +851,7 @@ static void test_strict_parsing(void)
 		memcpy(text + o + lb, a, la);
 		memcpy(text + o + lb + la, good + o + la + lb, glen - o - la - lb);
 		jt_write_file(p, text, glen, 0600);
-		CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
+		CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, JT_TS, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
 	}
 	/* Entry of another serial under this name. */
 	{
@@ -847,7 +863,7 @@ static void test_strict_parsing(void)
 		entry_path(op, sizeof(op), jdir, 0xAC);
 		n = jt_read_file(op, ot, sizeof(ot));
 		jt_write_file(p, ot, n, 0600);
-		CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
+		CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, JT_TS, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
 	}
 	/* A corrupt entry is never repaired by update, and create sees it as existing. */
 	e.marker = NTFSMAC_JOURNAL_MARKER_SET;
@@ -857,29 +873,29 @@ static void test_strict_parsing(void)
 
 	/* Restore: valid again. */
 	jt_write_file(p, good, glen, 0600);
-	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, &g), NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, JT_TS, &g), NTFSMAC_JOURNAL_OK);
 
 	/* File properties: mode, size, type. */
 	CHECK(chmod(p, 0666) == 0);
-	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
+	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, JT_TS, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
 	CHECK(chmod(p, 0620) == 0);
-	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
+	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, JT_TS, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
 	CHECK(chmod(p, 0600) == 0);
-	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, &g), NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, JT_TS, &g), NTFSMAC_JOURNAL_OK);
 	{
 		char big[4096];
 
 		memset(big, 'a', sizeof(big));
 		memcpy(big, good, glen);
 		jt_write_file(p, big, sizeof(big), 0600);
-		CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
+		CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, JT_TS, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
 	}
 	CHECK(unlink(p) == 0);
 	CHECK(mkfifo(p, 0600) == 0); /* must not hang the open */
-	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
+	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, JT_TS, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
 	CHECK(unlink(p) == 0);
 	CHECK(mkdir(p, 0700) == 0);
-	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
+	CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, JT_TS, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
 	CHECK(rmdir(p) == 0);
 	{ /* symlink at the name to a perfectly valid entry file */
 		char target[PATH_MAX_T];
@@ -887,7 +903,7 @@ static void test_strict_parsing(void)
 		jt_path(target, sizeof(target), base, "valid-copy", NULL);
 		jt_write_file(target, good, glen, 0600);
 		CHECK(symlink(target, p) == 0);
-		CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
+		CHECK_ST(ntfsmac_journal_get(j, BASE_SERIAL, JT_TS, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
 	}
 
 	ntfsmac_journal_close(j);
@@ -897,6 +913,7 @@ static void test_strict_parsing(void)
 struct list_ctx {
 	unsigned n;
 	uint64_t serial[16];
+	uint64_t ts[16];
 	unsigned stop_after;
 };
 
@@ -904,8 +921,10 @@ static int list_cb(const ntfsmac_journal_entry *e, void *ctx)
 {
 	struct list_ctx *c = ctx;
 
-	if (c->n < 16)
+	if (c->n < 16) {
 		c->serial[c->n] = e->serial;
+		c->ts[c->n] = e->total_sectors;
+	}
 	c->n++;
 	return c->stop_after != 0 && c->n >= c->stop_after;
 }
@@ -969,7 +988,35 @@ static void test_list_bound(void)
 	CHECK_ST(ntfsmac_journal_list_ex(j, 3, NULL, &c, &info), NTFSMAC_JOURNAL_ERR_INVALID);
 	/* nothing was removed by a cut listing */
 	for (uint64_t s = 1; s <= 7; s++)
-		CHECK_ST(ntfsmac_journal_get(j, s, &g), NTFSMAC_JOURNAL_OK);
+		CHECK_ST(ntfsmac_journal_get(j, s, JT_TS, &g), NTFSMAC_JOURNAL_OK);
+	/*
+	 * T-M7-13: format-2 identities share a serial; the cut keeps the lowest identities, ordered
+	 * by serial and then total_sectors, whatever the order of creation (so of the directory).
+	 */
+	{
+		static const uint64_t ts[] = {JT_TS + 5, JT_TS + 2, JT_TS + 9, JT_TS + 1};
+		ntfsmac_journal_entry e;
+		struct list_ctx d;
+		unsigned k, got = 0;
+
+		for (k = 0; k < 4; k++) {
+			e = jt_entry(1);
+			e.total_sectors = ts[k];
+			e.session_id = 100 + k;
+			CHECK_ST(ntfsmac_journal_create(j, &e), NTFSMAC_JOURNAL_OK);
+		}
+		/* 11 entries: serial 1 with five sizes, then serials 2..7; keep 3 */
+		memset(&d, 0, sizeof(d));
+		CHECK_ST(ntfsmac_journal_list_ex(j, 3, list_cb, &d, &info), NTFSMAC_JOURNAL_OK);
+		CHECK(d.n == 3 && info.found == 11 && info.unlisted == 8);
+		for (k = 0; k < 3; k++)
+			got += d.serial[k] == 1;
+		CHECK(got == 3); /* three identities of serial 1, none of a higher serial */
+		CHECK(d.ts[0] == JT_TS && d.ts[1] == JT_TS + 1 && d.ts[2] == JT_TS + 2);
+		memset(&d, 0, sizeof(d));
+		CHECK_ST(ntfsmac_journal_list_ex(j, 6, list_cb, &d, &info), NTFSMAC_JOURNAL_OK);
+		CHECK(d.n == 6 && d.serial[4] == 1 && d.ts[4] == JT_TS + 9 && d.serial[5] == 2);
+	}
 	ntfsmac_journal_close(j);
 	jt_rmrf(base);
 }
@@ -988,11 +1035,27 @@ static int is_hex16_upper(const char *s)
 	return 1;
 }
 
+/* <16 hex> (format 1) or <16 hex>-<16 hex> (format 2, T-M7-13) */
+static int is_entry_name(const char *name)
+{
+	char a[17], b[17];
+
+	if (strlen(name) == 16)
+		return is_hex16_upper(name);
+	if (strlen(name) != 33 || name[16] != '-')
+		return 0;
+	memcpy(a, name, 16);
+	a[16] = '\0';
+	memcpy(b, name + 17, 16);
+	b[16] = '\0';
+	return is_hex16_upper(a) && is_hex16_upper(b);
+}
+
 static int is_entry_or_cleared(const char *name)
 {
 	if (!jt_is_any(name))
 		return 1;
-	return strcmp(name, "cleared") == 0 || is_hex16_upper(name);
+	return strcmp(name, "cleared") == 0 || is_entry_name(name);
 }
 
 static int not_entry_or_cleared(const char *name)
@@ -1033,12 +1096,12 @@ static void test_naming_u_jrn_name_01(void)
 	for (size_t i = 0; i < sizeof(weird) / sizeof(weird[0]); i++) {
 		e = jt_entry(weird[i]);
 		CHECK_ST(ntfsmac_journal_create(j, &e), NTFSMAC_JOURNAL_OK);
-		CHECK_ST(ntfsmac_journal_get(j, weird[i], &g), NTFSMAC_JOURNAL_OK);
+		CHECK_ST(ntfsmac_journal_get(j, weird[i], JT_TS, &g), NTFSMAC_JOURNAL_OK);
 	}
 	CHECK(jt_count_names(jdir, jt_is_any) == (int)(sizeof(weird) / sizeof(weird[0])) + 1);
 	CHECK(jt_count_names(jdir, not_entry_or_cleared) == 0);
 	for (size_t i = 0; i < sizeof(weird) / sizeof(weird[0]); i++) {
-		CHECK_ST(ntfsmac_journal_remove(j, weird[i], NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR,
+		CHECK_ST(ntfsmac_journal_remove(j, weird[i], JT_TS, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR,
 						1700000000 + (int64_t)i),
 			 NTFSMAC_JOURNAL_OK);
 	}
@@ -1060,7 +1123,7 @@ static void test_naming_u_jrn_name_01(void)
 	CHECK_ST(ntfsmac_journal_create(j, &e), NTFSMAC_JOURNAL_ERR_EXISTS);
 	CHECK(lstat(p, &st) == 0 && S_ISLNK(st.st_mode));
 	CHECK(jt_read_file(victim, buf, sizeof(buf)) == 6 && memcmp(buf, "VICTIM", 6) == 0);
-	CHECK_ST(ntfsmac_journal_get(j, 0xA1, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
+	CHECK_ST(ntfsmac_journal_get(j, 0xA1, JT_TS, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
 	CHECK_ST(ntfsmac_journal_update(j, &e), NTFSMAC_JOURNAL_ERR_CORRUPT);
 	CHECK(jt_read_file(victim, buf, sizeof(buf)) == 6 && memcmp(buf, "VICTIM", 6) == 0);
 	/* Dangling symlink at the entry name: also "exists", target not created. */
@@ -1073,8 +1136,11 @@ static void test_naming_u_jrn_name_01(void)
 
 	/* Pre-planted symlink at the temporary name: not followed, create works. */
 	for (int round = 0; round < 2; round++) {
+		char tname[NTFSMAC_JOURNAL_IDTMPNAME_SIZE];
+
 		e = jt_entry(0xA3);
-		jt_path(p, sizeof(p), jdir, ".00000000000000A3.tmp", NULL);
+		CHECK(ntfsmac_journal_format_idtmpname(tname, sizeof(tname), 0xA3, JT_TS) == 0);
+		jt_path(p, sizeof(p), jdir, tname, NULL);
 		CHECK(symlink(victim, p) == 0);
 		if (round == 0) {
 			CHECK_ST(ntfsmac_journal_create(j, &e), NTFSMAC_JOURNAL_OK);
@@ -1087,7 +1153,7 @@ static void test_naming_u_jrn_name_01(void)
 		CHECK(lstat(p, &st) != 0); /* the planted name was removed, not written through */
 		entry_path(p, sizeof(p), jdir, 0xA3);
 		CHECK(lstat(p, &st) == 0 && S_ISREG(st.st_mode));
-		CHECK_ST(ntfsmac_journal_get(j, 0xA3, &g), NTFSMAC_JOURNAL_OK);
+		CHECK_ST(ntfsmac_journal_get(j, 0xA3, JT_TS, &g), NTFSMAC_JOURNAL_OK);
 		CHECK(jt_entry_eq(&e, &g));
 	}
 	/* A planted tombstone name that is a symlink counts as a collision. */
@@ -1095,11 +1161,166 @@ static void test_naming_u_jrn_name_01(void)
 	CHECK(ntfsmac_journal_format_tombstone(tomb, sizeof(tomb), 0xA4, 1800000000) == 0);
 	jt_path(p, sizeof(p), jdir, "cleared", tomb);
 	CHECK(symlink(victim, p) == 0);
-	CHECK_ST(ntfsmac_journal_remove(j, 0xA4, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR, 1800000000),
+	CHECK_ST(ntfsmac_journal_remove(j, 0xA4, JT_TS, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR, 1800000000),
 		 NTFSMAC_JOURNAL_ERR_EXISTS);
-	CHECK_ST(ntfsmac_journal_get(j, 0xA4, &g), NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_get(j, 0xA4, JT_TS, &g), NTFSMAC_JOURNAL_OK);
 	CHECK(jt_read_file(victim, buf, sizeof(buf)) == 6 && memcmp(buf, "VICTIM", 6) == 0);
 
+	ntfsmac_journal_close(j);
+	jt_rmrf(base);
+}
+
+static int count_cb(const ntfsmac_journal_entry *e, void *ctx)
+{
+	(void)e;
+	(*(int *)ctx)++;
+	return 0;
+}
+
+/* Rewrite the first line of an entry file ("ntfsmac-journal N") to `head`; same length. */
+static void set_version(const char *path, const char *head, const char *out_path)
+{
+	char text[2048];
+	size_t n = jt_read_file(path, text, sizeof(text));
+
+	CHECK(n > 17 && strlen(head) == 17);
+	memcpy(text, head, 17);
+	jt_write_file(out_path, text, n, 0600);
+}
+
+/*
+ * U-JRN-ID-01..04 (T-M7-13): the journal is keyed by the volume identity (serial and
+ * total_sectors). Two volumes with one serial have an entry each; a lookup, an update and a
+ * removal address the right one; an entry of format 1 (by serial alone) is read, applies to
+ * every volume of its serial, blocks a new entry of that serial, is updated in format 1 and can
+ * be removed; the version line must match the kind of name.
+ */
+static void test_identity(void)
+{
+	char base[PATH_MAX_T], jdir[PATH_MAX_T], p[PATH_MAX_T], lp[PATH_MAX_T];
+	char n[NTFSMAC_JOURNAL_IDNAME_SIZE], t[NTFSMAC_JOURNAL_IDTMPNAME_SIZE];
+	ntfsmac_journal *j = open_fresh(base, sizeof(base), jdir, sizeof(jdir));
+	ntfsmac_journal_entry a = jt_entry(0xC0), b = jt_entry(0xC0), g;
+
+	/* names */
+	CHECK(ntfsmac_journal_format_idname(n, sizeof(n), 0xAB, 0x10) == 0);
+	CHECK(strcmp(n, "00000000000000AB-0000000000000010") == 0);
+	CHECK(ntfsmac_journal_format_idname(n, sizeof(n) - 1, 0xAB, 0x10) == -1);
+	CHECK(ntfsmac_journal_format_idname(NULL, sizeof(n), 0xAB, 0x10) == -1);
+	CHECK(ntfsmac_journal_format_idtmpname(t, sizeof(t), UINT64_MAX, 1) == 0);
+	CHECK(strcmp(t, ".FFFFFFFFFFFFFFFF-0000000000000001.tmp") == 0);
+	CHECK(ntfsmac_journal_format_idtmpname(t, sizeof(t) - 1, 1, 1) == -1);
+
+	/* U-JRN-ID-01: two volumes with one serial, each its own entry */
+	b.total_sectors = JT_TS + 1;
+	b.session_id = 2;
+	CHECK_ST(ntfsmac_journal_create(j, &a), NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_create(j, &b), NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_create(j, &b), NTFSMAC_JOURNAL_ERR_EXISTS);
+	CHECK_ST(ntfsmac_journal_get(j, 0xC0, JT_TS, &g), NTFSMAC_JOURNAL_OK);
+	CHECK(jt_entry_eq(&a, &g) && !g.legacy);
+	CHECK_ST(ntfsmac_journal_get(j, 0xC0, JT_TS + 1, &g), NTFSMAC_JOURNAL_OK);
+	CHECK(jt_entry_eq(&b, &g));
+	CHECK_ST(ntfsmac_journal_get(j, 0xC0, JT_TS + 2, &g), NTFSMAC_JOURNAL_ERR_NOT_FOUND);
+	CHECK_ST(ntfsmac_journal_get(j, 0xC0, 0, &g), NTFSMAC_JOURNAL_ERR_NOT_FOUND);
+	b.marker = NTFSMAC_JOURNAL_MARKER_SET;
+	CHECK_ST(ntfsmac_journal_update(j, &b), NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_get(j, 0xC0, JT_TS, &g), NTFSMAC_JOURNAL_OK);
+	CHECK(g.marker == NTFSMAC_JOURNAL_MARKER_PENDING); /* a's entry did not change */
+	CHECK_ST(ntfsmac_journal_remove(j, 0xC0, JT_TS + 1, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR, 7000),
+		 NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_get(j, 0xC0, JT_TS + 1, &g), NTFSMAC_JOURNAL_ERR_NOT_FOUND);
+	CHECK_ST(ntfsmac_journal_get(j, 0xC0, JT_TS, &g), NTFSMAC_JOURNAL_OK);
+	CHECK(jt_entry_eq(&a, &g)); /* the other volume's entry stays */
+	/* a file under a format-2 name whose total_sectors is not the name's: corrupt */
+	entry_path(p, sizeof(p), jdir, 0xC0);
+	CHECK(ntfsmac_journal_format_idname(n, sizeof(n), 0xC0, JT_TS + 5) == 0);
+	jt_path(lp, sizeof(lp), jdir, n, NULL);
+	{
+		char text[2048];
+		size_t len = jt_read_file(p, text, sizeof(text));
+
+		jt_write_file(lp, text, len, 0600);
+	}
+	CHECK_ST(ntfsmac_journal_get(j, 0xC0, JT_TS + 5, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
+
+	/* U-JRN-ID-02: format 1 is read; it applies to every volume of its serial */
+	a = jt_entry(0xC1);
+	CHECK_ST(ntfsmac_journal_create(j, &a), NTFSMAC_JOURNAL_OK);
+	entry_path(p, sizeof(p), jdir, 0xC1);
+	legacy_path(lp, sizeof(lp), jdir, 0xC1);
+	set_version(p, "ntfsmac-journal 1", lp);
+	CHECK(unlink(p) == 0);
+	CHECK_ST(ntfsmac_journal_get(j, 0xC1, JT_TS, &g), NTFSMAC_JOURNAL_OK);
+	CHECK(g.legacy && g.session_id == a.session_id);
+	CHECK_ST(ntfsmac_journal_get(j, 0xC1, 12345, &g), NTFSMAC_JOURNAL_OK);
+	CHECK(g.legacy);
+	CHECK_ST(ntfsmac_journal_get(j, 0xC1, 0, &g), NTFSMAC_JOURNAL_OK);
+	/* it blocks a new entry of the serial, whatever its size */
+	CHECK_ST(ntfsmac_journal_create(j, &a), NTFSMAC_JOURNAL_ERR_EXISTS);
+	b = jt_entry(0xC1);
+	b.total_sectors = 77;
+	CHECK_ST(ntfsmac_journal_create(j, &b), NTFSMAC_JOURNAL_ERR_EXISTS);
+	/* create never writes format 1 */
+	b.legacy = true;
+	CHECK_ST(ntfsmac_journal_create(j, &b), NTFSMAC_JOURNAL_ERR_INVALID);
+	/* updated in place, in format 1 */
+	g.marker = NTFSMAC_JOURNAL_MARKER_SET;
+	CHECK_ST(ntfsmac_journal_update(j, &g), NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_get(j, 0xC1, 99, &g), NTFSMAC_JOURNAL_OK);
+	CHECK(g.legacy && g.marker == NTFSMAC_JOURNAL_MARKER_SET);
+	{
+		char text[32];
+
+		CHECK(jt_read_file(lp, text, sizeof(text)) > 17 && memcmp(text, "ntfsmac-journal 1\n", 18) == 0);
+	}
+	CHECK(access(p, F_OK) != 0); /* no format-2 file appeared */
+	/* the version line must match the name */
+	set_version(lp, "ntfsmac-journal 2", lp);
+	CHECK_ST(ntfsmac_journal_get(j, 0xC1, JT_TS, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
+	set_version(lp, "ntfsmac-journal 1", lp);
+	CHECK_ST(ntfsmac_journal_get(j, 0xC1, JT_TS, &g), NTFSMAC_JOURNAL_OK);
+	a = jt_entry(0xC2);
+	CHECK_ST(ntfsmac_journal_create(j, &a), NTFSMAC_JOURNAL_OK);
+	entry_path(p, sizeof(p), jdir, 0xC2);
+	set_version(p, "ntfsmac-journal 1", p);
+	CHECK_ST(ntfsmac_journal_get(j, 0xC2, JT_TS, &g), NTFSMAC_JOURNAL_ERR_CORRUPT);
+	CHECK_ST(ntfsmac_journal_remove(j, 0xC2, JT_TS, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR, 7001),
+		 NTFSMAC_JOURNAL_OK);
+
+	/* U-JRN-ID-03: a volume's own entry comes first; format 1 is the fall-back */
+	a = jt_entry(0xC3);
+	CHECK_ST(ntfsmac_journal_create(j, &a), NTFSMAC_JOURNAL_OK);
+	entry_path(p, sizeof(p), jdir, 0xC3);
+	legacy_path(lp, sizeof(lp), jdir, 0xC3);
+	set_version(p, "ntfsmac-journal 1", lp); /* planted: both exist */
+	CHECK_ST(ntfsmac_journal_get(j, 0xC3, JT_TS, &g), NTFSMAC_JOURNAL_OK);
+	CHECK(!g.legacy);
+	CHECK_ST(ntfsmac_journal_get(j, 0xC3, JT_TS + 1, &g), NTFSMAC_JOURNAL_OK);
+	CHECK(g.legacy);
+	CHECK_ST(ntfsmac_journal_remove(j, 0xC3, JT_TS, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR, 7002),
+		 NTFSMAC_JOURNAL_OK);
+	CHECK(access(p, F_OK) != 0 && access(lp, F_OK) == 0);
+	CHECK_ST(ntfsmac_journal_remove(j, 0xC3, JT_TS, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR, 7003),
+		 NTFSMAC_JOURNAL_OK);
+	CHECK(access(lp, F_OK) != 0);
+
+	/* U-JRN-ID-04: list gives both kinds; open removes stray temporaries of both kinds */
+	{
+		int count = 0;
+		unsigned skipped = 0;
+
+		CHECK_ST(ntfsmac_journal_list(j, count_cb, &count, &skipped), NTFSMAC_JOURNAL_OK);
+		CHECK(count == 2);   /* 0xC0 of size JT_TS, 0xC1 of format 1 */
+		CHECK(skipped == 1); /* 0xC0 of size JT_TS + 5: corrupt */
+	}
+	ntfsmac_journal_close(j);
+	jt_path(p, sizeof(p), jdir, ".00000000000000C0-0000000000000001.tmp", NULL);
+	jt_write_file(p, "partial", 7, 0600);
+	jt_path(p, sizeof(p), jdir, ".00000000000000C0-0000000000000000.tmp", NULL); /* size 0: not a name */
+	jt_write_file(p, "keep", 4, 0600);
+	CHECK_ST(ntfsmac_journal_open(jdir, &j), NTFSMAC_JOURNAL_OK);
+	CHECK(jt_count_names(jdir, jt_is_tmp) == 1);
 	ntfsmac_journal_close(j);
 	jt_rmrf(base);
 }
@@ -1107,6 +1328,7 @@ static void test_naming_u_jrn_name_01(void)
 int main(void)
 {
 	ntfsmac_log_set_level(NTFSMAC_LOG_NONE);
+	RUN(test_identity);
 	RUN(test_names);
 	RUN(test_transitions);
 	RUN(test_open);

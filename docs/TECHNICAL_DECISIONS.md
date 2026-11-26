@@ -10,7 +10,7 @@ Status values: **Accepted**, **Accepted, gated** (a named task can overturn it),
 | 003 | Disk Arbitration integration | Root daemon with DA callbacks | Accepted; dissent verified on macOS 27.2 (T-M4-02, `docs/spikes/M4-da.md`) |
 | 004 | Privilege model | Root broker passes a device fd to unprivileged sandboxed workers | Accepted, gated by T-M4-01 (T-M2-05 passed with patch 0003) |
 | 005 | Unsafe volume states | Own read-only probe; `norecover` always; never `remove_hiberfile` | Accepted |
-| 006 | Unclean-session marker | Host journal plus on-disk dirty flag set by `ntfsmac-volmark` around every read/write session (default plan); `FORENSIC` library mount so only the `$Volume` record is written; stated crash outcome per write | Accepted; flag enabled when T-M3-12 passes |
+| 006 | Unclean-session marker | Host journal plus on-disk dirty flag set by `ntfsmac-volmark` around every read/write session (default plan); `FORENSIC` library mount so only the `$Volume` record is written; stated crash outcome per write | Accepted; flag enabled when T-M3-12 passes; amended 2026-11-26: journal entries keyed by the volume identity, serial and `total_sectors` (T-M7-13) |
 | 007 | Build system | CMake + Ninja for our code; upstream autotools for NTFS-3G; C11 only | Accepted |
 | 008 | Test VM tooling | tart for macOS guests; Docker or Podman for Linux | Accepted, gated by T-M1-04 |
 | 009 | Intel support | Not supported; arm64 only | Accepted |
@@ -176,6 +176,17 @@ T-M3-12 (senior engineer) implements it with the kill-at-every-step tests; until
 **Interaction with Windows.** A volume with `VOLUME_IS_DIRTY` set makes Windows run `autochk` at boot (fixed disk) or offer "Scan and fix" (removable disk). Because the flag is set for the whole read/write session, this happens after every session that did not end with a clean eject on the Mac. This is the intended behaviour, and it is the only way a Windows user learns that the volume may be inconsistent.
 
 **Consequences.** After any unclean detach the volume is read-only on this product, on any Mac, until Windows `chkdsk` (or `ntfsmac repair --clear-dirty`, ADR-017) clears the flag and the journal entry is cleared (ADR-017). Documented prominently.
+
+**Amendment 2026-11-26 (T-M7-13, audit of 2026-11-21).** The host journal was keyed by the volume serial alone, which is 8 bytes of the boot sector that whoever made the disk chooses. A volume that carries another volume's serial and ends a session uncleanly (or makes `volmark set` refuse) left an entry that made the other volume read-only until `journal-clear`. Decision: an entry belongs to a **volume identity**, the serial together with `total_sectors`, both parsed integers of the strict verdict parser; the label is not part of it (Windows may rename a volume), and the MFT and `$MFTMirr` cluster numbers are not in the verdict. Rules (ARCHITECTURE.md section 3.5):
+
+1. New entries are format 2, named `<serial>-<total_sectors>` (16 upper-case hex digits each, formatted from the integers; same `openat`/`O_NOFOLLOW` rules), so two volumes with one serial each have their own entry.
+2. The lookup for a probed volume takes its own entry. An entry of another identity is not read, not changed and not removed: it still protects the volume it was written for, and the probed volume is decided as if it had no entry. The policy checks the same rule a second time (`ntfsmac_policy_entry_applies()`).
+3. Entries of format 1 (named by the serial alone) have no identity. They apply to every volume of their serial, exactly as before, and a new entry of that serial is not created while one exists. They are still updated in place and removed by the four paths.
+4. Equal identity is the same volume: the behaviour is exactly as before, including the `same_serial` reason for a clone (same serial and size) of a volume whose session is live.
+
+Safety: no unclean session of a volume turns read/write by this rule, because its entry has its own identity. What it gives up is the case where the same volume changes `total_sectors` between an unclean session here and the next attach (a resize in Windows): the volume is then decided as one without an entry. The on-disk marker (`VOLUME_IS_DIRTY`, set for every read/write session) still makes the probe answer `dirty_flag` unless Windows checked the volume, and a resize runs on a mounted, checked volume. Two entries of one serial removed within the same second still collide on the tombstone name (section 3.5); the second removal fails and its entry stays (read-only), as before.
+
+**Owner decision 2026-11-26 (issue #10).** The identity of serial and `total_sectors` is accepted as described, with its one trade-off: a volume resized between an unclean session here and the next attach counts as a volume without an entry, and the on-disk dirty flag still covers it. Format 2 is the released format of this amendment together with the `mount` line of T-M7-12 (ARCHITECTURE.md section 3.5).
 
 ## ADR-007 Build system and language
 

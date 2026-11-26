@@ -319,9 +319,10 @@ static const char *probe_state_now(void)
 	return state_name(&v);
 }
 
-static bool entry_get(ntfsmac_journal *j, uint64_t serial, ntfsmac_journal_entry *e)
+/* The entry of the volume a verdict describes: serial and total_sectors (T-M7-13). */
+static bool entry_get(ntfsmac_journal *j, const ntfsmac_probe_verdict *v, ntfsmac_journal_entry *e)
 {
-	return ntfsmac_journal_get(j, serial, e) == NTFSMAC_JOURNAL_OK;
+	return ntfsmac_journal_get(j, v->serial, v->total_sectors, e) == NTFSMAC_JOURNAL_OK;
 }
 
 /* ---------------- mount, workload, end (the daemon's sequence of section 4.5) ---------------- */
@@ -532,8 +533,6 @@ static void settle(mnt *m, ntfsmac_session *s, const char *tag, bool kill_it, bo
 
 /* ---------------- cases ---------------- */
 
-#define ENTRY_SERIAL(v) ((v).serial)
-
 /* A rw attach: probe, decide, begin; returns the session or NULL. */
 static ntfsmac_session *rw_attach(ntfsmac_journal *j, const ntfsmac_session_config *cfg,
 				  attach *at, ntfsmac_session_start *res, ntfsmac_dmn_status *st)
@@ -586,7 +585,7 @@ static void case_rw(void)
 		ntfsmac_journal_close(j);
 		return;
 	}
-	CHECK(entry_get(j, ENTRY_SERIAL(at.v), &e) && e.marker == NTFSMAC_JOURNAL_MARKER_SET &&
+	CHECK(entry_get(j, &at.v, &e) && e.marker == NTFSMAC_JOURNAL_MARKER_SET &&
 		      e.state == NTFSMAC_JOURNAL_STATE_OPEN,
 	      "the journal says marker=set, state=open before the worker starts");
 	/* the flag is on the disk now: a fresh probe through another descriptor sees it */
@@ -597,7 +596,7 @@ static void case_rw(void)
 		CHECK(ntfsmac_session_end(s, &m.w, um, xs, false, &er) == NTFSMAC_DMN_OK, "session_end ran");
 		CHECK(er.report == NTFSMAC_SREPORT_CLEAN || er.report == NTFSMAC_SREPORT_CLEAN_NO_FLUSH,
 		      "the report is a clean end (%d)", (int)er.report);
-		CHECK(er.entry_removed && !entry_get(j, ENTRY_SERIAL(at.v), &e), "the entry was removed (path 1)");
+		CHECK(er.entry_removed && !entry_get(j, &at.v, &e), "the entry was removed (path 1)");
 	}
 	/* freed once, whether or not the worker mounted (the failure path freed it twice: a segmentation fault) */
 	ntfsmac_session_free(s);
@@ -640,7 +639,7 @@ static void case_unclean(void)
 		settle(&m, s, "unclean", true, false, &um, &xs);
 		CHECK(ntfsmac_session_end(s, &m.w, um, xs, false, &er) == NTFSMAC_DMN_OK && er.report == NTFSMAC_SREPORT_UNCLEAN,
 		      "the end is unclean (report %d)", (int)er.report);
-		CHECK(!er.entry_removed && entry_get(j, ENTRY_SERIAL(at.v), &e) && e.marker == NTFSMAC_JOURNAL_MARKER_SET,
+		CHECK(!er.entry_removed && entry_get(j, &at.v, &e) && e.marker == NTFSMAC_JOURNAL_MARKER_SET,
 		      "the entry and marker=set stay");
 	}
 	ntfsmac_session_free(s);
@@ -696,7 +695,7 @@ static void case_markfail(void)
 			ntfsmac_journal_close(j);
 			continue;
 		}
-		CHECK(entry_get(j, ENTRY_SERIAL(at.v), &e) && e.marker == NTFSMAC_JOURNAL_MARKER_FAILED,
+		CHECK(entry_get(j, &at.v, &e) && e.marker == NTFSMAC_JOURNAL_MARKER_FAILED,
 		      "%s: the entry says marker=failed", cases[i].what);
 		CHECK(!ntfsmac_session_owns_entry(s) || ntfsmac_session_mode(s) == NTFSMAC_VMODE_RO, "%s: no rw descriptor", cases[i].what);
 		if (mount_session(&m, s, "markfail")) {
@@ -783,7 +782,7 @@ static void case_bind(void)
 		ntfsmac_journal_entry e;
 
 		CHECK(s == NULL || ntfsmac_session_mode(s) != NTFSMAC_VMODE_RW, "(c) no rw descriptor kept");
-		CHECK(entry_get(j, ENTRY_SERIAL(at.v), &e) && e.marker == NTFSMAC_JOURNAL_MARKER_FAILED, "(c) the entry says marker=failed");
+		CHECK(entry_get(j, &at.v, &e) && e.marker == NTFSMAC_JOURNAL_MARKER_FAILED, "(c) the entry says marker=failed");
 		ntfsmac_session_free(s);
 	}
 	ntfsmac_journal_close(j);
@@ -924,12 +923,12 @@ static void case_evidence(void)
 			      d.policy.decision == NTFSMAC_POLICY_RO,
 		      "%s: this attach is ro", what);
 		if (variant == 0) {
-			CHECK(d.evidence_removed && !entry_get(j, ENTRY_SERIAL(at2.v), &e), "%s: the entry was removed", what);
+			CHECK(d.evidence_removed && !entry_get(j, &at2.v, &e), "%s: the entry was removed", what);
 			CHECK(ntfsmac_session_decide(&cfg, j, &at2.v, false, false, (int64_t)time(NULL) + 2, NULL, NULL, &d) == NTFSMAC_DMN_OK &&
 				      d.policy.decision == NTFSMAC_POLICY_RW,
 			      "%s: the next mount is rw", what);
 		} else {
-			CHECK(!d.evidence_removed && entry_get(j, ENTRY_SERIAL(at2.v), &e), "%s: the entry is kept", what);
+			CHECK(!d.evidence_removed && entry_get(j, &at2.v, &e), "%s: the entry is kept", what);
 		}
 		g_sys.close_fd(g_sys.ctx, at2.a);
 		ntfsmac_journal_close(j);
@@ -968,15 +967,15 @@ static void case_clear(void)
 	      "refused while mounted read/write");
 	g_vol_rw = false; /* mounted read-only is fine */
 	g_live = true;
-	CHECK(entry_get(j, at.v.serial, &e), "the entry is still there");
+	CHECK(entry_get(j, &at.v, &e), "the entry is still there");
 	g_live_id = e.session_id;
 	CHECK(priv_jc(label, ser, reply, sizeof(reply)) == NTFSMAC_DMN_E_DENIED && strstr(reply, "live_session") != NULL,
 	      "refused while a live session (a clone on another disk) owns the entry");
 	g_live = false;
-	CHECK(entry_get(j, at.v.serial, &e), "every refusal left the entry");
+	CHECK(entry_get(j, &at.v, &e), "every refusal left the entry");
 	CHECK(priv_jc(label, ser, reply, sizeof(reply)) == NTFSMAC_DMN_OK && strstr(reply, "lost_flush") != NULL,
 	      "accepted on a clean probe, with the lost-flush warning (LSN unchanged): %s", reply);
-	CHECK(!entry_get(j, at.v.serial, &e), "the entry moved to the tombstones");
+	CHECK(!entry_get(j, &at.v, &e), "the entry moved to the tombstones");
 	g_vol_mounted = false;
 	memset(&cfg, 0, sizeof(cfg));
 	CHECK(attach_prepare(&at2, j), "probe");
@@ -1076,11 +1075,11 @@ static void case_repair(void)
 	CHECK(ntfsmac_journal_open(g_jdir, &j) == NTFSMAC_JOURNAL_OK, "the journal opens again");
 	priv_init(j);
 	CHECK(make_unclean(j, &at), "an unclean session (entry, flag set)");
-	CHECK(entry_get(j, at.v.serial, &e), "the entry exists");
+	CHECK(entry_get(j, &at.v, &e), "the entry exists");
 	CHECK(priv_rp(label, ser, reply, sizeof(reply)) == NTFSMAC_DMN_OK && strstr(reply, "\"journal_entry\":\"removed\"") != NULL &&
 		      strstr(reply, "\"warning\":\"journal_entry\"") != NULL,
 	      "accepted, the entry is removed and the warning is there (%s)", reply);
-	CHECK(!entry_get(j, at.v.serial, &e), "the entry is gone");
+	CHECK(!entry_get(j, &at.v, &e), "the entry is gone");
 	ntfsmac_journal_close(j);
 	run("rm -f '%s.pre'", g_image);
 }

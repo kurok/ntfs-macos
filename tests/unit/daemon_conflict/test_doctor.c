@@ -361,7 +361,7 @@ static void test_journal(void)
 	make_journal_entry(j, 0x11);
 	make_journal_entry(j, 0x22);
 	make_journal_entry(j, 0x33);
-	CHECK_EQ_INT(ntfsmac_journal_remove(j, 0x33, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR,
+	CHECK_EQ_INT(ntfsmac_journal_remove(j, 0x33, 2048, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR,
 					    1700000100),
 		     NTFSMAC_JOURNAL_OK);
 	CHECK_EQ_INT(ntfsmac_journal_format_name(name, sizeof name, 0x44), 0);

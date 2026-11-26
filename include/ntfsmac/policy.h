@@ -15,7 +15,8 @@
  * src/policy/ (T-M3-03). Declarations only.
  *
  * Invariant (unit-tested): rw is produced only for verdict state `clean`, no
- * journal entry for the serial, and `mode=auto`. `recover` and
+ * journal entry that applies to the volume (ntfsmac_policy_entry_applies()),
+ * and `mode=auto`. `recover` and
  * `remove_hiberfile` are not representable here.
  */
 
@@ -74,8 +75,10 @@ typedef enum ntfsmac_policy_note {
 /*
  * Inputs of the decision.
  *
- * `journal` is the entry for the verdict's serial, or NULL if none (the
- * "Journal entry for this serial" column). `evidence_rule_enabled` is the
+ * `journal` is the entry for the verdict's volume, or NULL if none (the
+ * "Journal entry for this serial" column). An entry that belongs to another
+ * volume with the same serial (ntfsmac_policy_entry_applies() false) counts as
+ * none: it does not downgrade this volume (T-M7-13). `evidence_rule_enabled` is the
  * configuration switch of section 3.5 ("compiled in but disabled by
  * configuration" until U12 is resolved; U13 was confirmed by T-M3-01); when false the evidence rule
  * never holds. The evidence itself is computed here, from the verdict and the
@@ -93,6 +96,15 @@ typedef struct ntfsmac_policy_result {
 	ntfsmac_policy_journal_action journal_action;
 	ntfsmac_policy_note note;
 } ntfsmac_policy_result;
+
+/*
+ * Volume identity (section 3.5, T-M7-13): true if the journal entry `e` belongs to
+ * the probed volume `v`. An entry of format 1 (`legacy`) has no identity and
+ * applies to every volume, as does an entry without total_sectors (a stand-in
+ * for a corrupt one); any other entry applies only when its serial and
+ * total_sectors are the verdict's. False for a NULL argument.
+ */
+bool ntfsmac_policy_entry_applies(const ntfsmac_probe_verdict *v, const ntfsmac_journal_entry *e);
 
 /*
  * The external-check evidence rule (section 3.5 removal path 2), conditions

@@ -99,7 +99,8 @@ bool ntfsmac_priv_confirmation_ok(const ntfsmac_probe_verdict *v, const char *la
 static const ntfsmac_journal_entry *load_entry(ntfsmac_journal *j, const ntfsmac_probe_verdict *v,
 					       ntfsmac_journal_entry *buf, bool *present)
 {
-	ntfsmac_journal_status js = ntfsmac_journal_get(j, v->serial, buf);
+	/* the entry of the probed volume (serial and total_sectors, T-M7-13), or a format-1 one */
+	ntfsmac_journal_status js = ntfsmac_journal_get(j, v->serial, v->total_sectors, buf);
 
 	*present = true;
 	if (js == NTFSMAC_JOURNAL_OK)
@@ -110,6 +111,7 @@ static const ntfsmac_journal_entry *load_entry(ntfsmac_journal *j, const ntfsmac
 	}
 	memset(buf, 0, sizeof *buf);
 	buf->serial = v->serial;
+	buf->total_sectors = v->total_sectors;
 	buf->marker = NTFSMAC_JOURNAL_MARKER_FAILED;
 	buf->state = NTFSMAC_JOURNAL_STATE_WRITE_ERROR;
 	return buf;

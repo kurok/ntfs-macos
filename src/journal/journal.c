@@ -10,8 +10,17 @@
  *    was opened with O_DIRECTORY | O_NOFOLLOW, and no path is concatenated;
  *  - every stored entry is parsed strictly and anything else is CORRUPT.
  *
+ * Names (T-M7-13): format 2, written by this version, is
+ *   <16 hex serial>-<16 hex total_sectors>   (temporary: .<that>.tmp)
+ * so every volume identity has its own entry. Format 1, written before, is
+ *   <16 hex serial>                         (temporary: .<16 hex>.tmp)
+ * and is still read, updated in place and removed; it is never created. A
+ * lookup for a volume takes its format-2 name when it exists, else the format-1
+ * name of the serial (whose identity is unknown, so it applies to every volume
+ * of that serial).
+ *
  * On-disk entry (private; LF line endings, fixed order, canonical numbers):
- *   ntfsmac-journal 1
+ *   ntfsmac-journal 1          (2 under a format-2 name; 1 under a format-1 name)
  *   serial <16 upper-case hex>
  *   label <lower-case hex of the label bytes, may be empty>
  *   total_sectors <decimal>
@@ -136,6 +145,30 @@ int ntfsmac_journal_format_tmpname(char *out, size_t size, uint64_t serial)
 	return 0;
 }
 
+int ntfsmac_journal_format_idname(char *out, size_t size, uint64_t serial, uint64_t total_sectors)
+{
+	if (out == NULL || size < NTFSMAC_JOURNAL_IDNAME_SIZE)
+		return -1;
+	put_hex16(out, serial);
+	out[16] = '-';
+	put_hex16(out + 17, total_sectors);
+	out[33] = '\0';
+	return 0;
+}
+
+int ntfsmac_journal_format_idtmpname(char *out, size_t size, uint64_t serial,
+				     uint64_t total_sectors)
+{
+	if (out == NULL || size < NTFSMAC_JOURNAL_IDTMPNAME_SIZE)
+		return -1;
+	out[0] = '.';
+	put_hex16(out + 1, serial);
+	out[17] = '-';
+	put_hex16(out + 18, total_sectors);
+	memcpy(out + 34, ".tmp", 5); /* with NUL */
+	return 0;
+}
+
 int ntfsmac_journal_format_tombstone(char *out, size_t size, uint64_t serial,
 				     int64_t when_utc)
 {
@@ -191,16 +224,49 @@ static int parse_hex16(const char *s, uint64_t *out)
 	return 0;
 }
 
-static int parse_entry_name(const char *name, uint64_t *serial)
+/* Format 1: <16 hex>, total_sectors 0. Format 2: <16 hex>-<16 hex>, total_sectors not 0. */
+static int parse_entry_name(const char *name, uint64_t *serial, uint64_t *total_sectors)
 {
-	return strlen(name) == 16 ? parse_hex16(name, serial) : -1;
+	size_t n = strlen(name);
+
+	*total_sectors = 0;
+	if (n == 16)
+		return parse_hex16(name, serial);
+	if (n != 33 || name[16] != '-' || parse_hex16(name, serial) != 0 ||
+	    parse_hex16(name + 17, total_sectors) != 0 || *total_sectors == 0)
+		return -1;
+	return 0;
 }
 
-static int parse_tmp_name(const char *name, uint64_t *serial)
+static int parse_tmp_name(const char *name, uint64_t *serial, uint64_t *total_sectors)
 {
-	if (strlen(name) != 21 || name[0] != '.' || strcmp(name + 17, ".tmp") != 0)
+	char inner[34];
+	size_t n = strlen(name);
+
+	if ((n != 21 && n != 38) || name[0] != '.' || strcmp(name + n - 4, ".tmp") != 0)
 		return -1;
-	return parse_hex16(name + 1, serial);
+	memcpy(inner, name + 1, n - 5);
+	inner[n - 5] = '\0';
+	return parse_entry_name(inner, serial, total_sectors);
+}
+
+/*
+ * The names of one key: total_sectors 0 is the format-1 entry of the serial, any other value
+ * the format-2 entry of (serial, total_sectors).
+ */
+static int key_names(uint64_t serial, uint64_t total_sectors, char *name, size_t nsize,
+		     char *tmp, size_t tsize)
+{
+	if (total_sectors == 0)
+		return (ntfsmac_journal_format_name(name, nsize, serial) != 0 ||
+			(tmp != NULL && ntfsmac_journal_format_tmpname(tmp, tsize, serial) != 0))
+			       ? -1
+			       : 0;
+	return (ntfsmac_journal_format_idname(name, nsize, serial, total_sectors) != 0 ||
+		(tmp != NULL &&
+		 ntfsmac_journal_format_idtmpname(tmp, tsize, serial, total_sectors) != 0))
+		       ? -1
+		       : 0;
 }
 
 static int digits_ok(const char *s, int n)
@@ -353,7 +419,7 @@ static int serialise(const ntfsmac_journal_entry *e, char *buf, size_t size,
 	}
 	label_hex[n] = '\0';
 	w = snprintf(buf, size,
-		     "ntfsmac-journal 1\n"
+		     "ntfsmac-journal %d\n"
 		     "serial %s\n"
 		     "label %s\n"
 		     "total_sectors %" PRIu64 "\n"
@@ -364,7 +430,7 @@ static int serialise(const ntfsmac_journal_entry *e, char *buf, size_t size,
 		     "marker %s\n"
 		     "state %s\n"
 		     "end\n",
-		     serial, label_hex, e->total_sectors, e->session_id,
+		     e->legacy ? 1 : 2, serial, label_hex, e->total_sectors, e->session_id,
 		     e->created, e->updated, e->logfile_lsn_at_start,
 		     marker_text(e->marker), state_text(e->state));
 	if (w < 0 || (size_t)w >= size)
@@ -456,7 +522,8 @@ static int hexval_lower(char c)
 	return -1;
 }
 
-static int parse_entry_text(const char *buf, size_t len, ntfsmac_journal_entry *e)
+/* `legacy`: the name was of format 1, so the text must be format 1; else format 2. */
+static int parse_entry_text(const char *buf, size_t len, bool legacy, ntfsmac_journal_entry *e)
 {
 	struct cursor c = { buf, buf + len };
 	const char *line, *v;
@@ -465,8 +532,9 @@ static int parse_entry_text(const char *buf, size_t len, ntfsmac_journal_entry *
 	ntfsmac_journal_entry t;
 
 	memset(&t, 0, sizeof(t));
+	t.legacy = legacy;
 	if (next_line(&c, &line, &ll) != 0 || ll != 17 ||
-	    memcmp(line, "ntfsmac-journal 1", 17) != 0)
+	    memcmp(line, legacy ? "ntfsmac-journal 1" : "ntfsmac-journal 2", 17) != 0)
 		return -1;
 	if (line_value(&c, "serial", &v, &vl) != 0 || vl != 16)
 		return -1;
@@ -615,6 +683,7 @@ static int rename_noreplace(int ofd, const char *o, int nfd, const char *n)
 
 struct item {
 	uint64_t serial;
+	uint64_t total_sectors; /* entries and temporaries: 0 for format 1 */
 	int64_t when;
 };
 
@@ -623,20 +692,33 @@ struct vec {
 	size_t n, cap;
 	size_t max;   /* 0: LIST_MAX_ITEMS */
 	size_t found; /* names that matched, kept or not */
-	int heap;     /* the kept items are a max-heap on the serial (the vector is full) */
+	int heap;     /* the kept items are a max-heap in item_less order (the vector is full) */
 	int failed;
 };
 
-/* Max-heap on the serial, used once the vector is full. */
+/*
+ * The order of the cut: serial, then total_sectors (format 2 identities share a serial), then the
+ * time (tombstones), so that every kept set is the same whatever the order of the directory.
+ */
+static int item_less(const struct item *x, const struct item *y)
+{
+	if (x->serial != y->serial)
+		return x->serial < y->serial;
+	if (x->total_sectors != y->total_sectors)
+		return x->total_sectors < y->total_sectors;
+	return x->when < y->when;
+}
+
+/* Max-heap in item_less order, used once the vector is full. */
 static void heap_down(struct item *v, size_t n, size_t i)
 {
 	for (;;) {
 		size_t l = 2 * i + 1, r = l + 1, big = i;
 		struct item t;
 
-		if (l < n && v[l].serial > v[big].serial)
+		if (l < n && item_less(&v[big], &v[l]))
 			big = l;
-		if (r < n && v[r].serial > v[big].serial)
+		if (r < n && item_less(&v[big], &v[r]))
 			big = r;
 		if (big == i)
 			return;
@@ -649,10 +731,11 @@ static void heap_down(struct item *v, size_t n, size_t i)
 
 /*
  * Past `max` a name is counted and the listing is cut, it does not fail (T-M7-15). The names kept
- * are the `max` lowest serials, whatever the order of the directory, so a cut listing is the same
- * every time (a max-heap on the serial replaces the highest one kept).
+ * are the `max` lowest identities (serial, then total_sectors, then time; item_less), whatever the
+ * order of the directory, so a cut listing is the same every time (a max-heap replaces the highest
+ * one kept).
  */
-static void vec_push(struct vec *vec, uint64_t serial, int64_t when)
+static void vec_push(struct vec *vec, uint64_t serial, uint64_t total_sectors, int64_t when)
 {
 	size_t max = vec->max != 0 ? vec->max : LIST_MAX_ITEMS;
 
@@ -661,15 +744,18 @@ static void vec_push(struct vec *vec, uint64_t serial, int64_t when)
 	vec->found++;
 	if (vec->n >= max) {
 		size_t i;
+		struct item it;
 
 		if (!vec->heap) {
 			for (i = vec->n / 2; i-- > 0;)
 				heap_down(vec->v, vec->n, i);
 			vec->heap = 1;
 		}
-		if (serial < vec->v[0].serial) {
-			vec->v[0].serial = serial;
-			vec->v[0].when = when;
+		it.serial = serial;
+		it.total_sectors = total_sectors;
+		it.when = when;
+		if (item_less(&it, &vec->v[0])) {
+			vec->v[0] = it;
 			heap_down(vec->v, vec->n, 0);
 		}
 		return;
@@ -686,6 +772,7 @@ static void vec_push(struct vec *vec, uint64_t serial, int64_t when)
 		vec->cap = cap;
 	}
 	vec->v[vec->n].serial = serial;
+	vec->v[vec->n].total_sectors = total_sectors;
 	vec->v[vec->n].when = when;
 	vec->n++;
 }
@@ -711,19 +798,19 @@ static int collect(int fd, enum kind kind, size_t max, struct vec *out)
 	rewinddir(d);
 	errno = 0;
 	while ((de = readdir(d)) != NULL) {
-		uint64_t serial;
+		uint64_t serial, ts = 0;
 		int64_t when = 0;
 		int ok;
 
 		switch (kind) {
-		case KIND_ENTRY: ok = parse_entry_name(de->d_name, &serial) == 0; break;
-		case KIND_TMP:   ok = parse_tmp_name(de->d_name, &serial) == 0; break;
+		case KIND_ENTRY: ok = parse_entry_name(de->d_name, &serial, &ts) == 0; break;
+		case KIND_TMP:   ok = parse_tmp_name(de->d_name, &serial, &ts) == 0; break;
 		default:
 			ok = parse_tombstone_name(de->d_name, &serial, &when) == 0;
 			break;
 		}
 		if (ok)
-			vec_push(out, serial, when);
+			vec_push(out, serial, ts, when);
 		errno = 0;
 	}
 	if (errno != 0 || out->failed) {
@@ -744,6 +831,8 @@ static int cmp_item_asc(const void *a, const void *b)
 		return x->when < y->when ? -1 : 1;
 	if (x->serial != y->serial)
 		return x->serial < y->serial ? -1 : 1;
+	if (x->total_sectors != y->total_sectors)
+		return x->total_sectors < y->total_sectors ? -1 : 1;
 	return 0;
 }
 
@@ -763,10 +852,11 @@ static void remove_stray_temporaries(ntfsmac_journal *j)
 	if (collect(j->dirfd, KIND_TMP, 0, &v) != 0)
 		return;
 	for (size_t i = 0; i < v.n; i++) {
-		char name[NTFSMAC_JOURNAL_TMPNAME_SIZE];
+		char name[NTFSMAC_JOURNAL_IDNAME_SIZE], tmp[NTFSMAC_JOURNAL_IDTMPNAME_SIZE];
 
-		if (ntfsmac_journal_format_tmpname(name, sizeof(name), v.v[i].serial) == 0)
-			(void)unlinkat(j->dirfd, name, 0); /* a symlink is removed, not followed */
+		if (key_names(v.v[i].serial, v.v[i].total_sectors, name, sizeof(name), tmp,
+			      sizeof(tmp)) == 0)
+			(void)unlinkat(j->dirfd, tmp, 0); /* a symlink is removed, not followed */
 	}
 	free(v.v);
 }
@@ -840,19 +930,18 @@ void ntfsmac_journal_close(ntfsmac_journal *j)
 /* Read                                                               */
 /* ------------------------------------------------------------------ */
 
-ntfsmac_journal_status ntfsmac_journal_get(ntfsmac_journal *j, uint64_t serial,
-					   ntfsmac_journal_entry *out)
+/* Read the entry of one key exactly (total_sectors 0: format 1). */
+static ntfsmac_journal_status read_key(ntfsmac_journal *j, uint64_t serial, uint64_t total_sectors,
+				       ntfsmac_journal_entry *out)
 {
-	char name[NTFSMAC_JOURNAL_NAME_SIZE];
+	char name[NTFSMAC_JOURNAL_IDNAME_SIZE];
 	char buf[ENTRY_MAX_BYTES + 1];
 	ntfsmac_journal_entry e;
 	struct stat st;
 	size_t got = 0;
 	int fd;
 
-	if (j == NULL || out == NULL)
-		return NTFSMAC_JOURNAL_ERR_INVALID;
-	if (ntfsmac_journal_format_name(name, sizeof(name), serial) != 0)
+	if (key_names(serial, total_sectors, name, sizeof(name), NULL, 0) != 0)
 		return NTFSMAC_JOURNAL_ERR_INVALID;
 
 	/* O_NONBLOCK: a FIFO planted at the name must not hang the open. */
@@ -892,10 +981,55 @@ ntfsmac_journal_status ntfsmac_journal_get(ntfsmac_journal *j, uint64_t serial,
 	close(fd);
 	if (got == 0 || got > ENTRY_MAX_BYTES || got != (size_t)st.st_size)
 		return NTFSMAC_JOURNAL_ERR_CORRUPT;
-	if (parse_entry_text(buf, got, &e) != 0 || e.serial != serial)
+	if (parse_entry_text(buf, got, total_sectors == 0, &e) != 0 || e.serial != serial ||
+	    (total_sectors != 0 && e.total_sectors != total_sectors))
 		return NTFSMAC_JOURNAL_ERR_CORRUPT;
 	*out = e;
 	return NTFSMAC_JOURNAL_OK;
+}
+
+/*
+ * The key of the entry that applies to the volume (serial, total_sectors): its own format-2 name
+ * if anything is there, else the format-1 name of the serial. *found_ts is 0 for format 1.
+ * NOT_FOUND when neither name exists.
+ */
+static ntfsmac_journal_status locate(ntfsmac_journal *j, uint64_t serial, uint64_t total_sectors,
+				     uint64_t *found_ts)
+{
+	char name[NTFSMAC_JOURNAL_IDNAME_SIZE];
+	struct stat st;
+
+	if (total_sectors != 0) {
+		if (key_names(serial, total_sectors, name, sizeof(name), NULL, 0) != 0)
+			return NTFSMAC_JOURNAL_ERR_INVALID;
+		if (fstatat(j->dirfd, name, &st, AT_SYMLINK_NOFOLLOW) == 0) {
+			*found_ts = total_sectors;
+			return NTFSMAC_JOURNAL_OK;
+		}
+		if (errno != ENOENT)
+			return NTFSMAC_JOURNAL_ERR_IO;
+	}
+	if (key_names(serial, 0, name, sizeof(name), NULL, 0) != 0)
+		return NTFSMAC_JOURNAL_ERR_INVALID;
+	if (fstatat(j->dirfd, name, &st, AT_SYMLINK_NOFOLLOW) == 0) {
+		*found_ts = 0;
+		return NTFSMAC_JOURNAL_OK;
+	}
+	return errno == ENOENT ? NTFSMAC_JOURNAL_ERR_NOT_FOUND : NTFSMAC_JOURNAL_ERR_IO;
+}
+
+ntfsmac_journal_status ntfsmac_journal_get(ntfsmac_journal *j, uint64_t serial,
+					   uint64_t total_sectors, ntfsmac_journal_entry *out)
+{
+	ntfsmac_journal_status st;
+	uint64_t ts = 0;
+
+	if (j == NULL || out == NULL)
+		return NTFSMAC_JOURNAL_ERR_INVALID;
+	st = locate(j, serial, total_sectors, &ts);
+	if (st != NTFSMAC_JOURNAL_OK)
+		return st;
+	return read_key(j, serial, ts, out); /* NOT_FOUND if it went in between */
 }
 
 /* ------------------------------------------------------------------ */
@@ -911,14 +1045,14 @@ static ntfsmac_journal_status write_entry(ntfsmac_journal *j,
 					  const ntfsmac_journal_entry *e,
 					  bool noreplace)
 {
-	char name[NTFSMAC_JOURNAL_NAME_SIZE];
-	char tmp[NTFSMAC_JOURNAL_TMPNAME_SIZE];
+	char name[NTFSMAC_JOURNAL_IDNAME_SIZE];
+	char tmp[NTFSMAC_JOURNAL_IDTMPNAME_SIZE];
 	char buf[ENTRY_MAX_BYTES];
 	size_t len;
 	int fd = -1, rc;
 
-	if (ntfsmac_journal_format_name(name, sizeof(name), e->serial) != 0 ||
-	    ntfsmac_journal_format_tmpname(tmp, sizeof(tmp), e->serial) != 0 ||
+	if (key_names(e->serial, e->legacy ? 0 : e->total_sectors, name, sizeof(name), tmp,
+		      sizeof(tmp)) != 0 ||
 	    serialise(e, buf, sizeof(buf), &len) != 0)
 		return NTFSMAC_JOURNAL_ERR_INVALID;
 
@@ -974,23 +1108,28 @@ fail:
 ntfsmac_journal_status ntfsmac_journal_create(ntfsmac_journal *j,
 					      const ntfsmac_journal_entry *e)
 {
-	char name[NTFSMAC_JOURNAL_NAME_SIZE];
+	char name[NTFSMAC_JOURNAL_IDNAME_SIZE];
 	struct stat st;
 
-	if (j == NULL || e == NULL || !fields_valid(e))
+	if (j == NULL || e == NULL || !fields_valid(e) || e->legacy)
 		return NTFSMAC_JOURNAL_ERR_INVALID;
 	/* Section 3.5: created with state=open and marker pending (or none). */
 	if (e->state != NTFSMAC_JOURNAL_STATE_OPEN ||
 	    (e->marker != NTFSMAC_JOURNAL_MARKER_PENDING &&
 	     e->marker != NTFSMAC_JOURNAL_MARKER_NONE))
 		return NTFSMAC_JOURNAL_ERR_INVALID;
-	if (ntfsmac_journal_format_name(name, sizeof(name), e->serial) != 0)
-		return NTFSMAC_JOURNAL_ERR_INVALID;
-	/* Anything at the name, even a dangling symlink, counts as existing. */
-	if (fstatat(j->dirfd, name, &st, AT_SYMLINK_NOFOLLOW) == 0)
-		return NTFSMAC_JOURNAL_ERR_EXISTS;
-	if (errno != ENOENT)
-		return NTFSMAC_JOURNAL_ERR_IO;
+	/*
+	 * Anything at the name, even a dangling symlink, counts as existing; so does anything at the
+	 * format-1 name of the serial, which applies to this volume too.
+	 */
+	for (int k = 0; k < 2; k++) {
+		if (key_names(e->serial, k == 0 ? e->total_sectors : 0, name, sizeof(name), NULL, 0) != 0)
+			return NTFSMAC_JOURNAL_ERR_INVALID;
+		if (fstatat(j->dirfd, name, &st, AT_SYMLINK_NOFOLLOW) == 0)
+			return NTFSMAC_JOURNAL_ERR_EXISTS;
+		if (errno != ENOENT)
+			return NTFSMAC_JOURNAL_ERR_IO;
+	}
 	return write_entry(j, e, true);
 }
 
@@ -1002,7 +1141,7 @@ ntfsmac_journal_status ntfsmac_journal_update(ntfsmac_journal *j,
 
 	if (j == NULL || e == NULL || !fields_valid(e))
 		return NTFSMAC_JOURNAL_ERR_INVALID;
-	st = ntfsmac_journal_get(j, e->serial, &old);
+	st = read_key(j, e->serial, e->legacy ? 0 : e->total_sectors, &old);
 	if (st != NTFSMAC_JOURNAL_OK)
 		return st; /* NOT_FOUND, CORRUPT (never repaired silently) or IO */
 	if (old.serial != e->serial || strcmp(old.label, e->label) != 0 ||
@@ -1091,23 +1230,29 @@ static void prune_tombstones(ntfsmac_journal *j, uint64_t new_serial,
 }
 
 ntfsmac_journal_status ntfsmac_journal_remove(ntfsmac_journal *j, uint64_t serial,
+					      uint64_t total_sectors,
 					      ntfsmac_journal_removal path,
 					      int64_t now_utc)
 {
-	char name[NTFSMAC_JOURNAL_NAME_SIZE];
+	char name[NTFSMAC_JOURNAL_IDNAME_SIZE];
 	char tomb[NTFSMAC_JOURNAL_TOMBNAME_SIZE];
 	ntfsmac_journal_entry e;
 	ntfsmac_journal_status st;
 	struct stat sb;
+	uint64_t ts = 0;
 
 	if (j == NULL || removal_text(path) == NULL)
 		return NTFSMAC_JOURNAL_ERR_INVALID;
-	if (ntfsmac_journal_format_name(name, sizeof(name), serial) != 0 ||
-	    ntfsmac_journal_format_tombstone(tomb, sizeof(tomb), serial, now_utc) != 0)
+	if (ntfsmac_journal_format_tombstone(tomb, sizeof(tomb), serial, now_utc) != 0)
 		return NTFSMAC_JOURNAL_ERR_INVALID;
 
 	JRN_POINT("remove.begin");
-	st = ntfsmac_journal_get(j, serial, &e);
+	st = locate(j, serial, total_sectors, &ts);
+	if (st != NTFSMAC_JOURNAL_OK)
+		return st;
+	if (key_names(serial, ts, name, sizeof(name), NULL, 0) != 0)
+		return NTFSMAC_JOURNAL_ERR_INVALID;
+	st = read_key(j, serial, ts, &e);
 	if (st == NTFSMAC_JOURNAL_OK) {
 		if (!removal_precondition(path, &e))
 			return NTFSMAC_JOURNAL_ERR_PATH_CONDITION;
@@ -1190,7 +1335,7 @@ ntfsmac_journal_status ntfsmac_journal_list_ex(ntfsmac_journal *j, size_t max_it
 		qsort(v.v, v.n, sizeof(*v.v), cmp_item_asc);
 	for (size_t i = 0; i < v.n; i++) {
 		ntfsmac_journal_entry e;
-		ntfsmac_journal_status st = ntfsmac_journal_get(j, v.v[i].serial, &e);
+		ntfsmac_journal_status st = read_key(j, v.v[i].serial, v.v[i].total_sectors, &e);
 
 		if (st == NTFSMAC_JOURNAL_ERR_NOT_FOUND)
 			continue; /* removed meanwhile */

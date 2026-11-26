@@ -70,6 +70,15 @@ bool ntfsmac_policy_evidence_holds(const ntfsmac_probe_verdict *v,
 	return true;
 }
 
+bool ntfsmac_policy_entry_applies(const ntfsmac_probe_verdict *v, const ntfsmac_journal_entry *e)
+{
+	if (v == NULL || e == NULL)
+		return false;
+	if (e->legacy || e->total_sectors == 0)
+		return true; /* identity unknown: fail closed, as before the identity rule */
+	return e->serial == v->serial && e->total_sectors == v->total_sectors;
+}
+
 ntfsmac_policy_result ntfsmac_policy_decide(const ntfsmac_policy_input *in)
 {
 	const ntfsmac_probe_verdict *v;
@@ -84,6 +93,13 @@ ntfsmac_policy_result ntfsmac_policy_decide(const ntfsmac_policy_input *in)
 	e = in->journal;
 	if (!verdict_in_range(v))
 		goto unknown;
+	/*
+	 * Another volume's entry (same serial, other identity) is not this volume's: it does not
+	 * make it read-only. The daemon never passes one (the journal is keyed by the identity);
+	 * this is the second check. Equal identity, or none known, keeps the entry.
+	 */
+	if (e != NULL && !ntfsmac_policy_entry_applies(v, e))
+		e = NULL;
 	auto_mode = in->mode == NTFSMAC_POLICY_MODE_AUTO;
 
 	switch (v->state) {

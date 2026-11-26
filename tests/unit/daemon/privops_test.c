@@ -45,6 +45,7 @@ typedef struct fake {
 	ntfsmac_probe_verdict after_verdict;
 	char sync_bsd[32];
 	uint64_t sync_serial;
+	int64_t later; /* seconds added to the clock */
 } fake;
 
 static bool f_volume(void *ctx, const char *bsd, ntfsmac_priv_volume *out)
@@ -121,7 +122,7 @@ static void swap_entry(fake *f)
 	if (f->swapped)
 		return;
 	f->swapped = true;
-	CHECK_EQ_INT(ntfsmac_journal_remove(f->swap_j, SERIAL, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR, NOW0 - 500),
+	CHECK_EQ_INT(ntfsmac_journal_remove(f->swap_j, SERIAL, 131072, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR, NOW0 - 500),
 		     NTFSMAC_JOURNAL_OK);
 	memset(&e, 0, sizeof e);
 	e.serial = SERIAL;
@@ -136,8 +137,7 @@ static void swap_entry(fake *f)
 
 static int64_t f_now(void *ctx)
 {
-	(void)ctx;
-	return NOW0;
+	return NOW0 + ((fake *)ctx)->later;
 }
 
 static char g_dir[160];
@@ -243,7 +243,7 @@ static bool entry_exists(rig *r)
 {
 	ntfsmac_journal_entry e;
 
-	return ntfsmac_journal_get(r->j, SERIAL, &e) == NTFSMAC_JOURNAL_OK;
+	return ntfsmac_journal_get(r->j, SERIAL, 131072, &e) == NTFSMAC_JOURNAL_OK;
 }
 
 static bool has(const rig *r, const char *s)
@@ -485,7 +485,7 @@ static void test_entry_race(void)
 	make_entry(&r, NTFSMAC_JOURNAL_MARKER_SET, NTFSMAC_JOURNAL_STATE_OPEN, 0x1000, 9);
 	r.f.swap_on_live = true; /* the registry is asked between the gate and the removal */
 	refused(&r, jc(&r, GOOD_LABEL, GOOD_SERIAL), "entry_changed");
-	CHECK(ntfsmac_journal_get(r.j, SERIAL, &e) == NTFSMAC_JOURNAL_OK && e.session_id == 99);
+	CHECK(ntfsmac_journal_get(r.j, SERIAL, 131072, &e) == NTFSMAC_JOURNAL_OK && e.session_id == 99);
 	rig_done(&r);
 
 	/* repair: the entry is swapped while volmark runs; the repair stands, the new entry stays */
@@ -495,13 +495,13 @@ static void test_entry_race(void)
 	r.f.swap_in_clear = true;
 	CHECK_EQ_INT(rp(&r, "clear_dirty", GOOD_LABEL, GOOD_SERIAL), NTFSMAC_DMN_OK);
 	CHECK(has(&r, "\"journal_entry\":\"kept\""));
-	CHECK(ntfsmac_journal_get(r.j, SERIAL, &e) == NTFSMAC_JOURNAL_OK && e.session_id == 99);
+	CHECK(ntfsmac_journal_get(r.j, SERIAL, 131072, &e) == NTFSMAC_JOURNAL_OK && e.session_id == 99);
 	rig_done(&r);
 
 	/* ntfsmac_journal_remove_if directly: same session and creation time only */
 	rig_init(&r);
 	make_entry(&r, NTFSMAC_JOURNAL_MARKER_SET, NTFSMAC_JOURNAL_STATE_OPEN, 0x1000, 9);
-	CHECK(ntfsmac_journal_get(r.j, SERIAL, &e) == NTFSMAC_JOURNAL_OK);
+	CHECK(ntfsmac_journal_get(r.j, SERIAL, 131072, &e) == NTFSMAC_JOURNAL_OK);
 	e.session_id = 10;
 	CHECK_EQ_INT(ntfsmac_journal_remove_if(r.j, &e, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR, NOW0),
 		     NTFSMAC_JOURNAL_ERR_PATH_CONDITION);
@@ -871,6 +871,46 @@ static void test_names_and_args(void)
 	rig_done(&r);
 }
 
+/*
+ * U-DMN-PRV-ID (T-M7-13): two volumes with one serial and different total_sectors each have their
+ * entry; journal-clear of one clears that one and leaves the other; a volume whose only entry with
+ * its serial is another volume's has nothing to clear.
+ */
+static void test_identity(void)
+{
+	rig r;
+	ntfsmac_journal_entry e;
+	const uint64_t other = 262144;
+
+	rig_init(&r);
+	make_entry(&r, NTFSMAC_JOURNAL_MARKER_SET, NTFSMAC_JOURNAL_STATE_OPEN, 0x1000, 9);
+	memset(&e, 0, sizeof e);
+	e.serial = SERIAL;
+	snprintf(e.label, sizeof e.label, "My Disk");
+	e.total_sectors = other;
+	e.session_id = 10;
+	e.created = e.updated = NOW0 - 900;
+	e.logfile_lsn_at_start = 0x1000;
+	e.marker = NTFSMAC_JOURNAL_MARKER_PENDING;
+	CHECK_EQ_INT(ntfsmac_journal_create(r.j, &e), NTFSMAC_JOURNAL_OK);
+	/* the probed volume is (SERIAL, 131072): its entry goes, the other one stays */
+	CHECK_EQ_INT(jc(&r, GOOD_LABEL, GOOD_SERIAL), NTFSMAC_DMN_OK);
+	CHECK(has(&r, "\"result\":\"cleared\""));
+	CHECK(!entry_exists(&r));
+	CHECK(ntfsmac_journal_get(r.j, SERIAL, other, &e) == NTFSMAC_JOURNAL_OK && e.session_id == 10);
+	/* again for the same volume: no entry of its own, the other volume's is not touched */
+	CHECK_EQ_INT(jc(&r, GOOD_LABEL, GOOD_SERIAL), NTFSMAC_DMN_E_DENIED);
+	CHECK(has(&r, "no_entry"));
+	CHECK(ntfsmac_journal_get(r.j, SERIAL, other, &e) == NTFSMAC_JOURNAL_OK && e.session_id == 10);
+	/* the other volume clears its own (a second later: tombstones are named by the second) */
+	r.f.verdict.total_sectors = other;
+	r.f.later = 1;
+	CHECK_EQ_INT(jc(&r, GOOD_LABEL, GOOD_SERIAL), NTFSMAC_DMN_OK);
+	CHECK(ntfsmac_journal_get(r.j, SERIAL, other, &e) == NTFSMAC_JOURNAL_ERR_NOT_FOUND);
+	CHECK_EQ_INT(tombstones(&r), 2);
+	rig_done(&r);
+}
+
 int main(void)
 {
 	const char *t = getenv("TMPDIR");
@@ -880,6 +920,7 @@ int main(void)
 	CHECK(mkdtemp(g_dir) != NULL);
 	test_clear_refusals();
 	test_clear_accept();
+	test_identity();
 	test_clone();
 	test_entry_race();
 	test_repair();

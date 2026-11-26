@@ -236,6 +236,18 @@ static int wait_readable(int fd, uint64_t ms)
 	return r;
 }
 
+static void trace_step(const ntfsmac_spawn_config *cfg, pid_t pid, char step)
+{
+#if defined(NTFSMAC_TEST_SEAMS)
+	if (cfg->reap_trace != NULL)
+		cfg->reap_trace(pid, step);
+#else
+	(void)cfg;
+	(void)pid;
+	(void)step;
+#endif
+}
+
 /*
  * Has `pid` exited or been killed? Looks without reaping, so that the leader
  * stays a zombie and the group id stays reserved while the caller kills the
@@ -250,6 +262,36 @@ static bool child_has_exited(pid_t pid)
 		return false;
 	return si.si_pid == pid
 	       && (si.si_code == CLD_EXITED || si.si_code == CLD_KILLED || si.si_code == CLD_DUMPED);
+}
+
+/*
+ * The end of a child that exited by itself. The rule (T-M7-19): no kill(-pid, ...) may follow a
+ * wait call that reaped `pid`, because the reap frees the pid and the group id, and another
+ * process could take them. So: look without reaping (the leader stays a zombie and keeps the
+ * group id reserved), kill the group while it is reserved, then reap. Returns 1 when the child had
+ * exited (the group was killed and the child reaped; `*status` is its wait status), 0 while it
+ * still runs, and -1 when `pid` is not a child of this process.
+ */
+static int reap_after_group_kill(const ntfsmac_spawn_config *cfg, pid_t pid, int *status)
+{
+	siginfo_t si;
+	pid_t r;
+
+	if (pid <= 1)
+		return -1;
+	memset(&si, 0, sizeof(si));
+	if (waitid(P_PID, (id_t)pid, &si, WEXITED | WNOHANG | WNOWAIT) != 0)
+		return errno == EINTR ? 0 : -1;
+	if (si.si_pid != pid)
+		return 0;
+	trace_step(cfg, pid, 'p');
+	(void)kill(-pid, SIGKILL);
+	trace_step(cfg, pid, 'k');
+	do
+		r = waitpid(pid, status, 0); /* a zombie: this returns at once */
+	while (r < 0 && errno == EINTR);
+	trace_step(cfg, pid, 'r');
+	return r == pid ? 1 : -1;
 }
 
 /* Reap `pid` within `ms`. True if it was reaped; `*status` is the wait status. */
@@ -1360,14 +1402,15 @@ ntfsmac_dmn_status ntfsmac_spawn_probe(const ntfsmac_probe_run *run,
 		free(buf);
 		return NTFSMAC_DMN_E_IO;
 	}
-	/* End of output: the probe is about to exit. Wait for it within the deadline. */
+	/* End of output: the probe is about to exit. Wait for it within the deadline. Nothing may
+	 * outlive the probe: its group is killed before the reap (reap_after_group_kill). */
 	exited = false;
 	while (!exited) {
-		pid_t r = waitpid(pid, &wst, WNOHANG);
+		int e = reap_after_group_kill(&cfg, pid, &wst);
 
-		if (r == pid) {
+		if (e == 1) {
 			exited = true;
-		} else if (r < 0 && errno != EINTR) {
+		} else if (e < 0) {
 			free(buf);
 			return NTFSMAC_DMN_E_IO;
 		} else if (now_ms() >= deadline) {
@@ -1379,8 +1422,6 @@ ntfsmac_dmn_status ntfsmac_spawn_probe(const ntfsmac_probe_run *run,
 			sleep_ms(5);
 		}
 	}
-	/* Nothing may outlive the probe. */
-	(void)kill(-pid, SIGKILL);
 	if (!WIFEXITED(wst) || WEXITSTATUS(wst) != 0) {
 		free(buf);
 		return NTFSMAC_DMN_E_IO;
@@ -1491,14 +1532,13 @@ ntfsmac_dmn_status ntfsmac_spawn_volmark_op(const ntfsmac_volmark_run *run,
 	if (rc == 0) {
 		/* End of output: wait for the exit within the same deadline. */
 		for (;;) {
-			pid_t r = waitpid(pid, &wst, WNOHANG);
+			int e = reap_after_group_kill(&cfg, pid, &wst);
 
-			if (r == pid) {
-				(void)kill(-pid, SIGKILL);
+			if (e == 1) {
 				*exit_code = exit_code_of(wst);
 				return *exit_code == 0 ? NTFSMAC_DMN_OK : NTFSMAC_DMN_E_IO;
 			}
-			if (r < 0 && errno != EINTR)
+			if (e < 0)
 				return NTFSMAC_DMN_E_IO;
 			if (now_ms() >= deadline) {
 				rc = 2;
@@ -1923,27 +1963,33 @@ rebuild:
 
 ntfsmac_dmn_status ntfsmac_child_poll(ntfsmac_child *child, bool *exited, int *exit_status)
 {
-	int wst;
+	ntfsmac_spawn_config cfg;
+	int wst = 0, e;
 
 	if (child == NULL || exited == NULL || exit_status == NULL)
 		return NTFSMAC_DMN_E_INVAL;
 	*exited = false;
 	if (child->pid <= 1)
 		return NTFSMAC_DMN_E_STATE;
-	if (!child_has_exited(child->pid)) {
+	/*
+	 * When the leader has exited it is a zombie and its group id is still reserved: the group is
+	 * cleared, then the leader reaped (reap_after_group_kill). A descendant that left the group
+	 * is an orphan now and cannot be found through the tree; it is found by the descriptor it
+	 * still holds on the device.
+	 */
+	config_get(&cfg);
+	e = reap_after_group_kill(&cfg, child->pid, &wst);
+	if (e == 0) {
 		/* Still running, or stopped; a pid that is not our child is an error. */
 		if (kill(child->pid, 0) != 0 && errno == ESRCH)
 			return NTFSMAC_DMN_E_IO;
 		return NTFSMAC_DMN_OK;
 	}
-	/*
-	 * The leader is a zombie: its group id is still reserved. Clear the group, then reap. A
-	 * descendant that left the group is an orphan now and cannot be found through the tree; it
-	 * is found by the descriptor it still holds on the device.
-	 */
-	(void)kill(-child->pid, SIGKILL);
-	if (waitpid(child->pid, &wst, 0) != child->pid)
-		return NTFSMAC_DMN_E_IO;
+	if (e < 0) {
+		if (kill(child->pid, 0) != 0 && errno == ESRCH)
+			return NTFSMAC_DMN_E_IO;
+		return NTFSMAC_DMN_OK; /* as before: a failed look is not an exit */
+	}
 	*exited = true;
 	*exit_status = exit_code_of(wst);
 	child->pid = -1;

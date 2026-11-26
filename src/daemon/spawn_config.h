@@ -109,6 +109,13 @@ typedef ntfsmac_dmn_status (*ntfsmac_mount_lookup_fn)(const char *mount_point,
 typedef void (*ntfsmac_vector_hook_fn)(ntfsmac_worker_argv *av);
 
 /*
+ * Test seam (NTFSMAC_TEST_SEAMS): told each step of the end of a child that exited by itself, in
+ * the order they happen: 'p' its exit was seen without reaping it, 'k' its process group got
+ * SIGKILL, 'r' it was reaped. Called on the thread of the spawn call.
+ */
+typedef void (*ntfsmac_reap_trace_fn)(pid_t pid, char step);
+
+/*
  * The strings are not copied and must outlive the calls. The daemon sets this
  * once before its first spawn; a call to ntfsmac_spawn_config_set() while a
  * spawn runs on another thread is not supported.
@@ -141,6 +148,7 @@ typedef struct ntfsmac_spawn_config {
 	ntfsmac_mount_lookup_fn mount_lookup;      /* NULL: the system table */
 #if defined(NTFSMAC_TEST_SEAMS)
 	ntfsmac_vector_hook_fn after_check_hook;   /* NULL: none */
+	ntfsmac_reap_trace_fn reap_trace;          /* NULL: none */
 #endif
 } ntfsmac_spawn_config;
 

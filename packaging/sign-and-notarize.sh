@@ -233,7 +233,7 @@ else
 fi
 
 # The installed BUILD-INFO names the signature of the package.
-run sed -i '' 's/^signature .*/signature    Developer ID, notarized, stapled; cli and daemon with hardened runtime/' \
+run sed -i '' 's/^signature .*/signature    Developer ID, notarized, stapled; every program with hardened runtime, libfuse users with disable-library-validation/' \
 	"$comp/Payload/Library/Application Support/ntfs-macos/doc/BUILD-INFO"
 
 # Build the component and the product again. Identifier and version come from the original.
@@ -299,7 +299,7 @@ if [ "$dry" = 1 ]; then
 	printf '+ (cd %s && shasum -a 256 %s uninstall.sh manifest.txt > SHA256SUMS)\n' "$outdir" "$name"
 	printf '# dry run done; the result would be in %s\n' "$outdir"
 else
-	sed 's/^signature .*/signature    Developer ID, notarized, stapled; cli and daemon with hardened runtime/' "$indir/BUILD-INFO" >"$outdir/BUILD-INFO"
+	sed 's/^signature .*/signature    Developer ID, notarized, stapled; every program with hardened runtime, libfuse users with disable-library-validation/' "$indir/BUILD-INFO" >"$outdir/BUILD-INFO"
 	(cd "$outdir" && shasum -a 256 "$name" uninstall.sh manifest.txt >SHA256SUMS)
 	printf '%s: wrote %s\n' "$prog" "$outdir"
 fi

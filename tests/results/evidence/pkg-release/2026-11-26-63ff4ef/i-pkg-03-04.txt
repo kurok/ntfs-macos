@@ -1,0 +1,201 @@
+guest: 27.2 arm64, user admin uid 501, console owner admin
+package: ntfs-macos-0.1.0-dev.20261126.g63ff4ef1254b.dirty.pkg (1278910 bytes); manifest 27 entries
+-- macFUSE: 5.5.0
+-- disks
+/dev/disk0 on /Volumes/clean64m4k (ntfs, local, nodev, nosuid, read-only, noowners, noatime, fskit)
+NOTE: before the install: 133 files below /usr/local, the launchd, file system, extension and support directories
+== I-PKG-03: install from the package
+quarantine attribute on the package: 0083;6b08202d;Safari;0DF4329F-7E10-45C2-8016-7EC76C016031
+  Package "ntfs-macos-0.1.0-dev.20261126.g63ff4ef1254b.dirty.pkg":
+     Status: no signature
+installer: Package name is ntfs-macos 0.1.0-dev.20261126.g63ff4ef1254b.dirty
+installer: Installing at base path /
+installer: The install was successful.
+NOTE: QUARANTINE: sudo installer -pkg accepts the quarantined, unsigned package on macOS 27.2 (exit 0)
+PASS: installer -pkg of the quarantined package exits 0
+  ntfs-macos preinstall: macFUSE 5.5.0 found
+  ntfs-macos preinstall: preflight passed
+  ntfs-macos postinstall: authorization right org.ntfs-macos.journal-modify installed
+  ntfs-macos postinstall: recorded the requirement of /usr/local/libexec/ntfs-macos/ntfsmac: cdhash f899b429042a0b1dcdb474ff6d04a95310e78d6d
+  ntfs-macos postinstall: linked /usr/local/bin/ntfsmac -> /usr/local/libexec/ntfs-macos/ntfsmac
+  ntfs-macos postinstall: the daemon org.ntfs-macos.ntfsmacd is running (/var/run/ntfsmacd.sock)
+  ntfs-macos postinstall: done. Check the setup with: /usr/local/libexec/ntfs-macos/ntfsmac doctor (macFUSE's file system extension must be on in System Settings)
+PASS: the preflight passed (install log)
+PASS: postinstall recorded the CLI requirement and started the daemon (install log)
+package-id: org.ntfs-macos.pkg
+version: 0.1.0
+volume: /
+location: 
+install-time: 1795694639
+-- the receipt, the manifest and the installed files
+PASS: pkgutil --files org.ntfs-macos.pkg matches the manifest (29 receipt paths)
+PASS: every dir and file of the manifest is installed with its owner, group and mode (23 paths)
+PASS: the installed set below the owned directories equals the manifest (nothing extra)
+drwxr-xr-x root wheel /Library/Application Support/ntfs-macos
+-rw-r--r-- root wheel /Library/Application Support/ntfs-macos/cli-requirement
+drwxr-xr-x root wheel /Library/Application Support/ntfs-macos/doc
+drwxr-xr-x root wheel /Library/Application Support/ntfs-macos/doc
+-rw-r--r-- root wheel /Library/Application Support/ntfs-macos/doc/BUILD-INFO
+-rw-r--r-- root wheel /Library/Application Support/ntfs-macos/doc/COPYING
+-rw-r--r-- root wheel /Library/Application Support/ntfs-macos/doc/README.md
+drwxr-xr-x root wheel /Library/Application Support/ntfs-macos/sandbox
+-rw-r--r-- root wheel /Library/Application Support/ntfs-macos/sandbox/probe.sb
+-rw-r--r-- root wheel /Library/Application Support/ntfs-macos/sandbox/volmark.sb
+-rw-r--r-- root wheel /Library/Application Support/ntfs-macos/sandbox/worker.sb
+-rw-r--r-- root wheel /Library/LaunchDaemons/org.ntfs-macos.ntfsmacd.plist
+lrwxr-xr-x root wheel /usr/local/bin/ntfsmac -> /usr/local/libexec/ntfs-macos/ntfsmac
+drwxr-xr-x root wheel /usr/local/libexec/ntfs-macos
+-rw-r--r-- root wheel /usr/local/libexec/ntfs-macos/manifest.txt
+-rwxr-xr-x root wheel /usr/local/libexec/ntfs-macos/mkntfs
+-rwxr-xr-x root wheel /usr/local/libexec/ntfs-macos/ntfsfix
+-rwxr-xr-x root wheel /usr/local/libexec/ntfs-macos/ntfsinfo
+-rwxr-xr-x root wheel /usr/local/libexec/ntfs-macos/ntfslabel
+-rwxr-xr-x root wheel /usr/local/libexec/ntfs-macos/ntfsmac
+-rwxr-xr-x root wheel /usr/local/libexec/ntfs-macos/ntfsmac
+-rwxr-xr-x root wheel /usr/local/libexec/ntfs-macos/ntfsmac-probe
+-rwxr-xr-x root wheel /usr/local/libexec/ntfs-macos/ntfsmac-volmark
+-rwxr-xr-x root wheel /usr/local/libexec/ntfs-macos/ntfsmac-worker
+-rwxr-xr-x root wheel /usr/local/libexec/ntfs-macos/ntfsmacd
+-rwxr-xr-x root wheel /usr/local/libexec/ntfs-macos/uninstall.sh
+PASS: the installed manifest and uninstaller are the tree's
+PASS: the installed plist is the shipped one
+PASS: the installed daemon has none of the test-seam options
+PASS: BUILD-INFO says preset product
+PASS: postinstall made the link /usr/local/bin/ntfsmac -> /usr/local/libexec/ntfs-macos/ntfsmac (/usr/local/bin is root-only in the guest)
+PASS: the link works: ntfsmac by its name on PATH runs the installed CLI
+PASS: every directory that existed below /usr/local, /Library/LaunchDaemons and /Library/Application Support kept its owner and mode
+-- the CLI requirement (ADR-019 check 3), recorded by postinstall
+recorded: cdhash H"f899b429042a0b1dcdb474ff6d04a95310e78d6d"
+PASS: cli-requirement is the cdhash of the installed CLI
+PASS: the installed CLI has the hardened runtime
+PASS: no temporary requirement file is left
+-- the authorization right (ADR-019)
+PASS: right org.ntfs-macos.journal-modify: class user, group admin, shared false, timeout 0
+-- the launchd job
+PASS: the job is loaded
+PASS: the control socket is there
+PASS: the privileged XPC service is registered
+PASS: the job runs the installed daemon
+-- every installed program runs (exit below 126: no dyld or signature failure)
+PASS: runs: ntfsmac-worker (exit 9)
+PASS: runs: ntfsmac-probe (exit 0)
+PASS: runs: ntfsmac-volmark (exit 2)
+PASS: runs: mkntfs (exit 0)
+PASS: runs: ntfsfix (exit 0)
+PASS: runs: ntfsinfo (exit 0)
+PASS: runs: ntfslabel (exit 0)
+-- ntfsmac doctor
+ok: macFUSE is installed.
+ok: macFUSE version 5.5.0 is supported.
+ok: The macFUSE file system extension is enabled.
+ok: No other NTFS driver is installed.
+ok: No session journal entries: no volume was left open by this Mac.
+ok: No unreadable journal entries.
+ok: 0 cleared journal entries are kept as tombstones.
+ok: No notification banner has been sent since the daemon started, so banner delivery is unknown.
+PASS: ntfsmac doctor exits 0 with no problem
+PASS: sudo ntfsmac journal-clear is answered by the daemon (the privileged door accepts the installed CLI)
+-- the fixture volume: attached and mounted by the daemon
+PASS: clean64m4k is Mounted rw by the daemon (macfuse, /Volumes/clean64m4k)
+BSD    LABEL       STATE    MOUNT  MOUNTPOINT           REASON
+disk0  clean64m4k  Mounted  rw     /Volumes/clean64m4k  -
+/dev/disk7s1 on /Volumes/clean64m4k (macfuse, local, nodev, nosuid, noowners, noatime, fskit, mounted by admin)
+  worker: /usr/local/libexec/ntfs-macos/ntfsmac-worker /dev/fd/11 /Volumes/clean64m4k -o backend=fskit,local,norecover,noatime,windows_names,nocompression,no_detach,streams_interface=openxattr,uid=501,gid=20,fmask=0133,dmask=0022
+PASS: a worker serves the volume with norecover
+PASS: ...and with no recover and no remove_hiberfile option
+PASS: a file written on the volume reads back
+NOTE: ntfsmac list names the volume disk0; the kernel mount table names disk7s1
+/dev/disk0 (internal, physical):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:                            clean64m4k             *67.1 MB    disk0
+
+/dev/disk1 (internal, physical):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      GUID_partition_scheme                        *50.0 GB    disk1
+   1:             Apple_APFS_ISC Container disk2         524.3 MB   disk1s1
+   2:                 Apple_APFS Container disk4         44.1 GB    disk1s2
+   3:        Apple_APFS_Recovery Container disk3         5.4 GB     disk1s3
+
+/dev/disk4 (synthesized):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      APFS Container Scheme -                      +44.1 GB    disk4
+                                 Physical Store disk1s2
+   1:                APFS Volume Macintosh HD            13.8 GB    disk4s1
+   2:              APFS Snapshot com.apple.os.update-... 13.8 GB    disk4s1s1
+   3:                APFS Volume Preboot                 9.5 GB     disk4s2
+   4:                APFS Volume Recovery                1.5 GB     disk4s3
+   5:                APFS Volume Data                    12.0 GB    disk4s5
+   6:                APFS Volume VM                      20.5 KB    disk4s6
+
+/dev/disk7 (disk image):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      GUID_partition_scheme                        +8.4 MB     disk7
+   1: E7B57692-6901-4734-AFFA-3ECD935F5C4E               8.3 MB     disk7s1
+
+volume:
+  bsd: disk0
+  label: clean64m4k
+  state: Mounted
+  mount: rw
+  mountpoint: /Volumes/clean64m4k
+  reason: 
+probe:
+  state: clean
+  serial: 0xA8D4029792CA7301
+  reason_codes: none
+  logfile: clean
+  hiberfile: absent
+  volume_flags: none
+  nonnfc_count: 0
+  nonnfc_paths: none
+ntfsmac unmount disk0 (exit 0): result: unmounting 
+PASS: ntfsmac unmount disk0: the volume is unmounted
+PASS: ...and the daemon has settled it (state Appeared)
+BSD    LABEL       STATE     MOUNT  MOUNTPOINT  REASON
+disk0  clean64m4k  Appeared  none   -           -
+ntfsmac mount disk0 (exit 0): result: started volume:   bsd: disk0   label: clean64m4k   state: Mounting   mount: none   mountpoint: /Volumes/clean64m4k   reason:  
+PASS: ntfsmac mount disk0: mounted rw again
+PASS: the file is still there
+PASS: the new worker has norecover too
+-- installing the package again: an upgrade of our own install, with the volume mounted
+installer: Package name is ntfs-macos 0.1.0-dev.20261126.g63ff4ef1254b.dirty
+installer: Upgrading at base path /
+installer: The upgrade was successful.
+  ntfs-macos preinstall: macFUSE 5.5.0 found
+  ntfs-macos preinstall: preflight passed (upgrading the package 0.1.0)
+  ntfs-macos preinstall: stopping the running daemon of the earlier install
+  ntfs-macos postinstall: authorization right org.ntfs-macos.journal-modify installed
+  ntfs-macos postinstall: recorded the requirement of /usr/local/libexec/ntfs-macos/ntfsmac: cdhash f899b429042a0b1dcdb474ff6d04a95310e78d6d
+  ntfs-macos postinstall: the link /usr/local/bin/ntfsmac -> /usr/local/libexec/ntfs-macos/ntfsmac is in place
+  ntfs-macos postinstall: the daemon org.ntfs-macos.ntfsmacd is running (/var/run/ntfsmacd.sock)
+  ntfs-macos postinstall: done. Check the setup with: /usr/local/libexec/ntfs-macos/ntfsmac doctor (macFUSE's file system extension must be on in System Settings)
+PASS: the second install exits 0
+PASS: the preflight saw the earlier package and stopped its daemon
+PASS: the same installed state after the upgrade
+PASS: the receipt still matches the manifest
+PASS: the daemon is up again
+PASS: the requirement is still the installed CLI's
+PASS: the right is still ours
+PASS: clean64m4k is mounted rw again by the new daemon
+PASS: the file written before the upgrade is there
+== I-PKG-04: packaging/uninstall.sh (the installed copy)
+uninstall: kept state /var/db/ntfs-macos (--purge-state removes it)
+uninstall: kept state /var/log/ntfsmacd.log (--purge-state removes it)
+uninstall: removed ntfs-macos
+PASS: uninstall.sh exits 0
+PASS: the job is unloaded
+PASS: the control socket is gone
+PASS: no macFUSE mount is left (the daemon unmounted the volume when it stopped)
+PASS: the right is removed
+PASS: the receipt is forgotten
+PASS: the link /usr/local/bin/ntfsmac is gone
+PASS: every dir and file of the manifest is gone
+PASS: nothing else was touched: the files below /usr/local, /Library/LaunchDaemons, /Library/Filesystems, /Library/Extensions and the support directory equal those before the install
+PASS: every directory that existed before the install is still there with its owner and mode (empty shared parents included)
+NOTE: directory made by the install and kept (shared, never removed): /usr/local/libexec root:wheel 755
+PASS: the state is kept without --purge-state
+uninstall: removed ntfs-macos
+PASS: uninstall.sh --purge-state exits 0
+PASS: after --purge-state the files equal those before the install (state included)
+NOTE: the fixture disk is not listed as NTFS
+result: 0 failure(s)

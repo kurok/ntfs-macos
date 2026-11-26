@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# T-M4-10, T-M6-01: host-side checks of the install manifest (packaging/manifest.txt). They read files only.
-# The installer and the uninstaller run in a disposable macOS guest (I-PKG-01..02,
-# tests/integration/packaging/pkg_vm.sh), never on the host.
+# T-M4-10, T-M6-01, T-M6-02: host-side checks of the packaging: the manifest and payload lints, the
+# rules of the root-run package scripts, shellcheck, and the dry run of the signing script. They read
+# files or run scripts in dry-run or plan mode only; nothing is installed or signed on the host. The
+# installers and the uninstaller run in a disposable macOS guest (I-PKG-01..06, tests/integration/packaging).
 
 find_program(NTFSMAC_SH sh)
 if(NTFSMAC_SH)

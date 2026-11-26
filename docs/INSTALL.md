@@ -49,7 +49,8 @@ damaged.
 The supported way to install it is the `installer` tool in Terminal. `installer` does not run the
 Gatekeeper check that a double-click does: `sudo installer -pkg ... -target /` installed the unsigned
 package with the `com.apple.quarantine` attribute set (exit 0, checked in a virtual machine on
-macOS 27.2, test I-PKG-03).
+macOS 27.2, test I-PKG-03; log in
+`tests/results/evidence/pkg-release/2026-11-26-63ff4ef/i-pkg-03-04.txt`).
 Check the download first (previous section), then:
 
 ```sh

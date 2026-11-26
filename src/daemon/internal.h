@@ -48,7 +48,8 @@ typedef enum ntfsmac_dmn_status {
 	NTFSMAC_DMN_E_BUSY,     /* a retry later may work (unmount with open files) */
 	NTFSMAC_DMN_E_IO,       /* system call failed; errno in the caller's out field */
 	NTFSMAC_DMN_E_TIMEOUT,  /* a deadline of section 4.1 passed */
-	NTFSMAC_DMN_E_DENIED    /* refused by a gate, a peer check or the policy */
+	NTFSMAC_DMN_E_DENIED,   /* refused by a gate, a peer check or the policy */
+	NTFSMAC_DMN_E_RANGE     /* larger than a bound of the daemon (a mount table over its rows) */
 } ntfsmac_dmn_status;
 
 /* Fixed name of the status, for logs. Never NULL. */

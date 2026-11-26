@@ -80,9 +80,7 @@
 #define SHUTDOWN_WAIT_MS 50000u /* all volumes at SIGTERM; the plist's ExitTimeOut is 60 s */
 #define REQUEST_WAIT_MS 3000u
 #define MW_POLL_S 2u
-#define MW_BASELINE_MAX 256u
 #define MW_STRAY_PATHS_MAX 8u
-#define MW_MOUNTS_MAX 4096u /* the decision handles no more (mountwatch.c) */
 #define JOURNAL_PARENT "/var/db/ntfs-macos"
 
 /* ------------------------------------------------------------------ */
@@ -449,12 +447,12 @@ static bool mount_present(const char *path)
 }
 
 /*
- * H1 mount-table watcher (mountwatch.h). `g_mw_mu` serialises the checks; the baseline is the set
- * of FUSE mounts that were there before the first worker of their user was started.
+ * H1 mount-table watcher (mountwatch.h). `g_mw_mu` serialises the checks; `g_mw` holds the baseline
+ * (the FUSE mounts that were there before the first worker of their user was started) and the run
+ * of failed reads.
  */
 static pthread_mutex_t g_mw_mu = PTHREAD_MUTEX_INITIALIZER;
-static uint64_t g_base[MW_BASELINE_MAX];
-static size_t g_nbase;
+static ntfsmac_mw_watch g_mw;
 
 typedef struct stray_arg {
 	vol *v;
@@ -467,51 +465,53 @@ typedef struct stray_arg {
 
 static void stray_run(void *p);
 
-static void mw_prune_baseline(const ntfsmac_mw_mount *m, size_t n)
-{
-	size_t i, j, keep = 0;
-
-	for (i = 0; i < g_nbase; i++) {
-		for (j = 0; j < n; j++)
-			if (m[j].id == g_base[i])
-				break;
-		if (j < n)
-			g_base[keep++] = g_base[i];
-	}
-	g_nbase = keep;
-}
-
 /*
- * One look at the table. `uid_to_baseline` != -1: before a worker of that user is started, also
- * record every FUSE mount of that user that is there now (and is not a stray one) as known, so
- * that a mount the user made earlier (sshfs, another macFUSE volume) is never touched. The caller
- * takes this baseline BEFORE the new worker is marked live (review item 2).
+ * One look at the table (ntfsmac_mw_step). `uid_to_baseline` != -1: before a worker of that user is
+ * started, also record every FUSE mount of that user that is there now (and is not a stray one) as
+ * known, so that a mount the user made earlier (sshfs, another macFUSE volume) is never touched.
+ * The caller takes this baseline BEFORE the new worker is marked live (review item 2).
  *
- * Returns false when the table could not be read completely (a failure, or more mounts than the
- * decision handles): the check is then failed closed, which means that every live worker is
- * stopped as if it had made a stray mount, and the caller must not start a new worker.
+ * Returns false when the table could not be read, `uid_to_baseline` has more FUSE mounts than can
+ * be judged, or the baseline had no room: the caller must not start a new worker. A user over that
+ * limit has its live workers stopped in the same check, and no other user's. After a failed read,
+ * live workers are stopped only when the failure lasts (NTFSMAC_MW_FAIL_CHECKS checks over
+ * NTFSMAC_MW_FAIL_MIN_MS); a single failed read stops none and leaves the baseline as it was
+ * (T-M7-10). A table larger than NTFSMAC_MW_LIST_ROWS_MAX rows is no read failure: every live
+ * worker is stopped in the same check. With `self_out`, a check that was not judged sets
+ * `self_out->found` (fail closed).
  */
 static bool mw_check(long uid_to_baseline, vol *self, stray_arg *self_out)
 {
 	ntfsmac_mw_mount *m = NULL;
-	size_t nm = 0, nw = 0, i, nstray = 0;
+	size_t nm = 0, nw = 0, i;
 	ntfsmac_mw_worker w[MAX_VOLS];
 	vol *wv[MAX_VOLS];
 	bool *stray = NULL, kill_w[MAX_VOLS];
-	bool ok = true;
+	bool ok;
+	ntfsmac_dmn_status lst;
+	ntfsmac_mw_read rd;
+	ntfsmac_mw_step_out so;
 	vol *v;
 
 	(void)ntfsmac_mw_reap_pending(); /* killed unmount children that were stuck in the kernel */
 	pthread_mutex_lock(&g_mw_mu);
-	if (ntfsmac_mw_list(&m, &nm) != NTFSMAC_DMN_OK || nm > MW_MOUNTS_MAX) {
-		NTFSMAC_LOGE("the mount table could not be read in full (%zu mounts): failing closed", nm);
-		ok = false;
+	lst = ntfsmac_mw_list(&m, &nm);
+	rd = lst == NTFSMAC_DMN_OK      ? NTFSMAC_MW_READ_OK
+	     : lst == NTFSMAC_DMN_E_RANGE ? NTFSMAC_MW_READ_TOO_BIG
+					  : NTFSMAC_MW_READ_FAILED;
+	if (rd != NTFSMAC_MW_READ_OK)
 		nm = 0;
-	}
 	stray = calloc(nm > 0 ? nm : 1, sizeof *stray);
 	if (stray == NULL) {
 		free(m);
 		pthread_mutex_unlock(&g_mw_mu);
+		if (self_out != NULL && self != NULL) {
+			/* not judged: the teardown's last look fails closed */
+			self_out->found = true;
+			pthread_mutex_lock(&g_mu);
+			self_out->uid = self->wk_uid;
+			pthread_mutex_unlock(&g_mu);
+		}
 		return false;
 	}
 	pthread_mutex_lock(&g_mu);
@@ -526,15 +526,30 @@ static bool mw_check(long uid_to_baseline, vol *self, stray_arg *self_out)
 	}
 	pthread_mutex_unlock(&g_mu);
 
-	mw_prune_baseline(m, nm);
-	nstray = ntfsmac_mw_decide(m, nm, w, nw, g_base, g_nbase, stray, kill_w);
-	if (!ok) {
-		/* Nothing can be judged: stop every live worker, without a mount to remove. */
-		for (i = 0; i < nw; i++)
-			kill_w[i] = w[i].live;
-		nstray = nw;
+	ok = ntfsmac_mw_step(&g_mw, rd, m, nm, w, nw, uid_to_baseline, ntfsmac_mw_now_ms(), stray,
+			     kill_w, &so);
+	if (so.too_big)
+		NTFSMAC_LOGE("the mount table has more than %u rows: failing closed, every live worker is "
+			     "stopped and no new worker starts", NTFSMAC_MW_LIST_ROWS_MAX);
+	else if (!so.judged && so.stop_all)
+		NTFSMAC_LOGE("the mount table could not be read %u times in a row: failing closed, "
+			     "every live worker is stopped", g_mw.fail_streak);
+	else if (!so.judged)
+		NTFSMAC_LOGW("the mount table could not be read (%u in a row): no new worker starts",
+			     g_mw.fail_streak);
+	if (so.overflow_uids != 0)
+		NTFSMAC_LOGE("%u user(s) have more FUSE mounts than can be judged: failing closed for "
+			     "them, their workers are stopped and their attaches refused", so.overflow_uids);
+	if (so.base_full)
+		NTFSMAC_LOGE("too many FUSE mounts to remember: failing closed");
+	if (self_out != NULL && self != NULL && !so.judged) {
+		/* The teardown's last look could not judge: fail closed, as a stray mount (review of T-M7-10). */
+		self_out->found = ntfsmac_mw_self_found(&so, false);
+		pthread_mutex_lock(&g_mu);
+		self_out->uid = self->wk_uid;
+		pthread_mutex_unlock(&g_mu);
 	}
-	for (i = 0; nstray > 0 && i < nw; i++) {
+	for (i = 0; so.nstray > 0 && i < nw; i++) {
 		stray_arg *sa;
 		size_t k;
 		bool queue = false;
@@ -543,9 +558,9 @@ static bool mw_check(long uid_to_baseline, vol *self, stray_arg *self_out)
 			continue;
 		if (self_out != NULL && wv[i] == self) {
 			/* The caller is that volume's teardown: it acts itself, nothing is queued. */
-			self_out->found = true;
+			self_out->found = ntfsmac_mw_self_found(&so, true);
 			self_out->uid = w[i].uid;
-			for (k = 0; k < nm && self_out->npaths < MW_STRAY_PATHS_MAX; k++)
+			for (k = 0; so.judged && k < so.kept && self_out->npaths < MW_STRAY_PATHS_MAX; k++)
 				if (stray[k] && m[k].owner == w[i].uid) {
 					copy_str(self_out->paths[self_out->npaths], sizeof self_out->paths[0],
 						 m[k].path);
@@ -569,39 +584,15 @@ static bool mw_check(long uid_to_baseline, vol *self, stray_arg *self_out)
 		pthread_mutex_lock(&g_mu);
 		sa->gid = wv[i]->wk_gid;
 		pthread_mutex_unlock(&g_mu);
-		for (k = 0; k < nm && sa->npaths < MW_STRAY_PATHS_MAX; k++)
+		for (k = 0; so.judged && k < so.kept && sa->npaths < MW_STRAY_PATHS_MAX; k++)
 			if (stray[k] && m[k].owner == w[i].uid) {
 				copy_str(sa->paths[sa->npaths], sizeof sa->paths[0], m[k].path);
 				sa->npaths++;
 			}
 		NTFSMAC_LOGE("%s: a FUSE mount owned by the user of the worker is not a volume of "
 			     "this daemon (%zu stray); stopping the worker",
-			     wv[i]->bsd, nstray);
+			     wv[i]->bsd, so.nstray);
 		dispatch_async_f(wv[i]->q, sa, stray_run);
-	}
-	if (ok && uid_to_baseline >= 0) {
-		for (i = 0; i < nm; i++) {
-			size_t k;
-			bool own = false, known = false;
-
-			if (!m[i].fuse || stray[i] || (long)m[i].owner != uid_to_baseline)
-				continue;
-			for (k = 0; k < nw; k++)
-				if (w[k].mount_point[0] != '\0' &&
-				    strcmp(w[k].mount_point, m[i].path) == 0)
-					own = true;
-			for (k = 0; k < g_nbase; k++)
-				if (g_base[k] == m[i].id)
-					known = true;
-			if (own || known)
-				continue;
-			if (g_nbase >= MW_BASELINE_MAX) {
-				NTFSMAC_LOGE("too many FUSE mounts to remember: failing closed");
-				ok = false;
-				break;
-			}
-			g_base[g_nbase++] = m[i].id;
-		}
 	}
 	free(stray);
 	free(m);

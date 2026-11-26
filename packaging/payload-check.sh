@@ -20,12 +20,15 @@ manifest=${1:-}
 list=${2:-}
 [ -n "$manifest" ] && [ -n "$list" ] || { echo "usage: payload-check.sh MANIFEST LIST" >&2; exit 2; }
 [ -f "$manifest" ] || { echo "payload-check: no manifest: $manifest" >&2; exit 2; }
+# an empty manifest would make awk read the list as the manifest
+[ -s "$manifest" ] || { echo "payload-check: the manifest is empty: $manifest" >&2; exit 1; }
 [ -f "$list" ] || { echo "payload-check: no list: $list" >&2; exit 2; }
 
 awk -v m="$manifest" '
 FNR == NR {
 	if ($0 ~ /^[ \t]*(#|$)/) next
 	if ($1 != "dir" && $1 != "file") next
+	entries++
 	p = $0
 	for (i = 0; i < 4; i++) sub(/^[ \t]*[^ \t]+/, "", p)
 	sub(/^[ \t]+/, "", p); sub(/[ \t]+$/, "", p)
@@ -48,6 +51,7 @@ FNR == NR {
 	rc = 1
 }
 END {
+	if (entries == 0) { print "the manifest has no dir or file entry"; exit 1 }
 	for (p in want) if (!(p in have)) { printf "missing from the package (%s of the manifest): %s\n", want[p], p; rc = 1 }
 	exit rc
 }' "$manifest" "$list"

@@ -11,6 +11,8 @@
 #   documents (in /Library/Application Support/ntfs-macos), the launchd plist, the uninstaller and
 #   the manifest. The manifest's `link` /usr/local/bin/ntfsmac is not in the payload: postinstall
 #   makes it when /usr/local/bin is root-only.
+# packaging/payload-check.sh compares the path list of the staged tree and of the component with the
+# manifest, and packaging/bom-check.sh the owners and modes of the component's bill of materials.
 # The package scripts packaging/scripts/preinstall (preflight: macFUSE version, other NTFS drivers,
 # files in the way, an earlier install of ours) and packaging/scripts/postinstall (the
 # authorization right, the CLI requirement of ADR-019 check 3, the launchd job) run as root.
@@ -352,6 +354,14 @@ pkgbuild --root "$payload" --scripts "$scripts" --identifier "$pkg_id" --version
 	"$work/component.pkg"
 pkgutil --payload-files "$work/component.pkg" >"$stage/payload.list"
 sh "$here/payload-check.sh" "$manifest" "$stage/payload.list" || die "the package payload differs from the manifest"
+# the owners and modes in the component's bill of materials are the manifest's (audit M6-F07): a
+# regression in the staging (install -d -m, chmod) or in pkgbuild --ownership stops the build here,
+# not only in a VM install
+rm -rf "$stage/component"
+pkgutil --expand "$work/component.pkg" "$stage/component"
+lsbom -p MUGf "$stage/component/Bom" >"$stage/bom.list"
+sh "$here/bom-check.sh" "$manifest" "$stage/bom.list" || die "the owners or modes in the package differ from the manifest"
+rm -rf "$stage/component"
 sed -e "s/@VERSION@/$version/g" -e "s/@LABEL@/$label/g" -e "s/@PKG_ID@/$pkg_id/g" \
 	"$here/distribution.xml" >"$work/distribution.xml"
 rm -f "$out/$name.pkg"

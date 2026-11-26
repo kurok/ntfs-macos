@@ -78,6 +78,13 @@ mutant "a licence directory the manifest does not list" "" "./Library/Applicatio
 mutant "the CLI as a file in the shared bin directory" "" "./usr/local/bin/ntfsmac"
 mutant "documents in the user-writable /usr/local/share" "" "./usr/local/share/doc/ntfs-macos/COPYING"
 mutant "a file outside the project" "" "./etc/hosts"
+: >"$tmp/empty.manifest"
+printf '# comments only\nright - - - org.ntfs-macos.journal-modify\n' >"$tmp/nodir.manifest"
+for m in empty nodir; do
+	if sh "$root/packaging/payload-check.sh" "$tmp/$m.manifest" "$tmp/payload.list" >"$tmp/pc.out" 2>&1 || ! grep -q -e 'no dir or file entry' -e 'the manifest is empty' "$tmp/pc.out"; then bad "payload-check accepted a manifest with no dir or file entry ($m)"; else pass "payload-check refuses a manifest with no dir or file entry ($m: $(head -n 1 "$tmp/pc.out"))"; fi
+done
+: >"$tmp/empty.list"
+if sh "$root/packaging/payload-check.sh" "$tmp/nodir.manifest" "$tmp/empty.list" >"$tmp/pc.out" 2>&1; then bad "payload-check accepted an empty list against a manifest with no dir or file entry"; else pass "payload-check refuses an empty list against a manifest with no dir or file entry ($(head -n 1 "$tmp/pc.out"))"; fi
 
 # ---- c. the path list of preinstall ----
 sed -n "/^paths='/,/'\$/p" "$pre" | sed -e "s/^paths='//" -e "s/'\$//" >"$tmp/pre.paths"

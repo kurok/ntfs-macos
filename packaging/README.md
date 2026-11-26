@@ -376,4 +376,6 @@ the package `tests/integration/packaging/pkg_release_vm.sh --pkg-dir dist/<label
 `pkg_preflight_vm.sh --pkg-dir dist/<label> --case oldrel --old-pkg FILE` (I-PKG-06, the published
 pre-release first; FILE is a local copy, refused unless its sha256 is the published one). Each
 starts one VM; run them through the VM slot protocol when other runs use the VMs. Host-side
-checks: `ctest -R packaging` (U-PKG-01..08).
+checks: `ctest -R packaging` (U-PKG-01..09; U-PKG-09 `packaging.bom_check` tests
+`packaging/bom-check.sh`, which `build-pkg.sh` runs on the owners and modes of the component's
+bill of materials after `pkgbuild`, audit M6-F07).

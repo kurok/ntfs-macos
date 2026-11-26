@@ -3,7 +3,7 @@
 #
 # Usage: vm/macos/tart.sh pull
 #        vm/macos/tart.sh clone NAME [--from SRC]   (SRC e.g. golden, the macFUSE-approved VM)
-#        vm/macos/tart.sh run NAME [--graphics] [--disk FILE[:opts]]...   (opts: ro, sync=none, comma-separated)
+#        vm/macos/tart.sh run NAME [--graphics] [--no-network] [--disk FILE[:opts]]...   (opts: ro, sync=none, comma-separated)
 #        vm/macos/tart.sh exec NAME -- CMD...   (alias: ssh; transport from NTFSMAC_TRANSPORT=exec|ssh)
 #        vm/macos/tart.sh stop NAME
 #        vm/macos/tart.sh delete NAME
@@ -122,9 +122,38 @@ cmd_clone() { # clone NAME [--from SRC]  (SRC: another ntfsmac- VM, e.g. golden;
     log "cloned $src -> $vm"
 }
 
+# blackhole_pl: perl -e PROGRAM CMD...: runs CMD with fd 3 one end of an AF_UNIX datagram socket pair and
+# reads and drops every datagram (Ethernet frame) that arrives on the other end, until CMD exits; exits with
+# CMD's status. TERM, INT and HUP are passed on to CMD.
+# shellcheck disable=SC2016 # perl code
+blackhole_pl='
+use strict; use warnings; use Socket; use POSIX ();
+socketpair(my $h, my $g, AF_UNIX, SOCK_DGRAM, 0) or die "blackhole: socketpair: $!\n";
+my $pid = fork() // die "blackhole: fork: $!\n";
+if ($pid == 0) {
+    close $h;
+    my $fd = fileno($g);
+    if ($fd != 3) { POSIX::dup2($fd, 3) // die "blackhole: dup2: $!\n"; close $g; }
+    open(my $f3, "+<&=", 3) or die "blackhole: fd 3: $!\n";
+    fcntl($f3, POSIX::F_SETFD(), 0) or die "blackhole: fcntl: $!\n";
+    exec { $ARGV[0] } @ARGV or die "blackhole: exec $ARGV[0]: $!\n";
+}
+close $g;
+$SIG{$_} = sub { kill "TERM", $pid } for qw(TERM INT HUP);
+my ($buf, $n) = ("", 0);
+while (1) {
+    my $w = waitpid($pid, POSIX::WNOHANG());
+    last if $w == $pid || $w < 0;
+    my $rin = ""; vec($rin, fileno($h), 1) = 1;
+    if (select(my $r = $rin, undef, undef, 1) > 0) { $n++ if defined recv($h, $buf, 65536, 0); }
+}
+print STDERR "blackhole: dropped $n frames from the guest\n";
+exit(($? & 127) ? 128 + ($? & 127) : $? >> 8);
+'
+
 cmd_run() {
     local vm; vm=$(vmname "${1:-}"); shift || true
-    local args=() gfx=(--no-graphics)
+    local args=() gfx=(--no-graphics) nonet=0
     while [ $# -gt 0 ]; do
         case $1 in
             --disk) [ $# -ge 2 ] || die "--disk needs FILE[:opts]"
@@ -133,15 +162,25 @@ cmd_run() {
                     [ -f "$f" ] || die "disk image not found: $f"
                     args+=(--disk "$2"); shift 2 ;;
             --graphics) gfx=(); shift ;;  # open a VM window (needed for one-time GUI approvals, H3)
+            --no-network) nonet=1; shift ;;
             *) die "unknown option: $1" ;;
         esac
     done
+    # --no-network (T-M7-17): the guest's only network interface is wired to a socket pair whose other end
+    # this host process holds and drains (tart run --net-fd); every frame the guest sends is dropped and none
+    # ever reaches it. The guest gets no address and nothing on the host or the shared NAT network (vmnet
+    # bridge) can connect to it. `tart exec` still works: the guest agent talks over virtio, not the network.
+    local runner=()
+    if [ "${nonet:-0}" -eq 1 ]; then
+        args+=(--net-fd=3)
+        runner=(perl -e "$blackhole_pl")
+    fi
     vm_present "$vm" || die "$vm does not exist (clone first)"
     local pidf=$STATE/$vm.pid logf=$STATE/$vm.log
     if [ -f "$pidf" ] && kill -0 "$(cat "$pidf")" 2>/dev/null; then die "$vm already running"; fi
     local attempt=1 retry_wait=${NTFSMAC_START_RETRY_WAIT:-10}
     while :; do
-        nohup tart run "${gfx[@]+"${gfx[@]}"}" --no-audio --no-clipboard "${args[@]+"${args[@]}"}" "$vm" \
+        nohup "${runner[@]+"${runner[@]}"}" tart run "${gfx[@]+"${gfx[@]}"}" --no-audio --no-clipboard "${args[@]+"${args[@]}"}" "$vm" \
             >"$logf" 2>&1 </dev/null &
         echo $! > "$pidf"
         log "started $vm (pid $(cat "$pidf"), log $logf); waiting for guest ($TRANSPORT)"

@@ -85,6 +85,17 @@ EOF
 	log "macFUSE enabled; hello mount works"
 fi
 
+# T-M7-17 (for the next golden rebuild; the current ntfsmac-golden predates it): the base image's public login
+# admin/admin is reachable over Remote Login (TCP 22) and Screen Sharing (TCP 5900). Test VMs use tart exec,
+# which needs neither, so both are turned off in the golden image. NTFSMAC_TRANSPORT=ssh then needs
+# `sudo launchctl enable system/com.openssh.sshd` and a bootstrap in that clone first.
+log "turning Remote Login, Screen Sharing, Remote Management and the Kerberos KDC off in the golden image"
+# shellcheck disable=SC2016 # expanded in the guest
+g 'for s in com.openssh.sshd com.apple.screensharing com.apple.RemoteDesktop.agent com.apple.Kerberos.kdc; do
+	sudo -n /bin/launchctl disable "system/$s" || exit 1
+	sudo -n /bin/launchctl bootout "system/$s" >/dev/null 2>&1 || true
+done' || die "could not turn the network logins off"
+"$here/guest-login-check.sh" "ntfsmac-$VM" || die "the golden VM still accepts a network login"
 g 'rm -rf /tmp/mf /tmp/hm; sync'
 "$tart_sh" stop "$VM"
 log "golden VM ready: clone test VMs with: vm/macos/tart.sh clone NAME --from $VM"

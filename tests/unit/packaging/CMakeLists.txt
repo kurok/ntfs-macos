@@ -62,6 +62,10 @@ if(NTFSMAC_SH)
     add_test(NAME packaging.release_signing
              COMMAND ${NTFSMAC_SH} ${CMAKE_CURRENT_SOURCE_DIR}/release_signing_test.sh ${PROJECT_SOURCE_DIR})
   endif()
+  # U-PKG-11 (T-M7-17): the build guest's network-login check against a stub tart (the real guest is
+  # I-REL-01): a failing or empty guest command is an error, never a pass; any non-loopback listener fails.
+  add_test(NAME packaging.guest_login_check
+           COMMAND ${NTFSMAC_SH} ${CMAKE_CURRENT_SOURCE_DIR}/guest_login_check_test.sh ${PROJECT_SOURCE_DIR})
 endif()
 
 # U-PKG-04 (T-M6-01): shellcheck. Every check (style level) on the scripts that run as root (the
@@ -78,9 +82,11 @@ if(NTFSMAC_SHELLCHECK)
                    packaging/sign-and-notarize.sh tests/unit/packaging/sign_and_notarize_test.sh
                    scripts/make-source-release.sh scripts/lib/label.sh scripts/lib/tree.sh scripts/release-local.sh tests/unit/packaging/source_release_test.sh
                    scripts/repro-check.sh tests/unit/packaging/repro_check_test.sh
-                   scripts/sign-release.sh tests/unit/packaging/release_signing_test.sh
+                   scripts/sign-release.sh tests/unit/packaging/release_signing_test.sh vm/macos/guest-login-check.sh
+                   tests/unit/packaging/guest_login_check_test.sh
                    tests/integration/packaging/pkg_release_vm.sh tests/integration/packaging/pkg_release_vm_guest.sh
                    tests/integration/packaging/pkg_preflight_vm.sh tests/integration/packaging/pkg_preflight_vm_guest.sh
+                   tests/integration/packaging/release_guest_login_vm.sh
            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
   add_test(NAME packaging.shellcheck_errors
            COMMAND ${NTFSMAC_SHELLCHECK} -x -S error

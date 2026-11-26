@@ -5,7 +5,10 @@
 #
 #   1. ci        scripts/ci-local.sh --quick on the host
 #   2. build     packaging/build-pkg.sh in a disposable clone of the golden VM (macOS 27 +
-#                macFUSE, which the engine links); the package is copied back to dist/<label>/
+#                macFUSE, which the engine links); the package is copied back to dist/<label>/.
+#                The clone has no network and its network logins are off and checked (T-M7-17,
+#                vm/macos/guest-login-check.sh); SHA256SUMS is computed on the host from the copied
+#                files, and the guest's own SHA256SUMS must agree
 #      source   scripts/make-source-release.sh on the host, after the build: ntfs-macos-<label>-source.tar.gz,
 #                the GPL source of exactly the tree that was built: one tree id, made before the build (the
 #                commit's tree, or with --allow-dirty and on the host the working-tree file set of scripts/lib/tree.sh),
@@ -40,6 +43,7 @@ set -eu
 here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 root=$(CDPATH='' cd -- "$here/.." && pwd)
 tart_sh=$root/vm/macos/tart.sh
+login_check=$root/vm/macos/guest-login-check.sh
 # shellcheck source=lib/label.sh
 . "$here/lib/label.sh"
 # shellcheck source=lib/tree.sh
@@ -195,7 +199,13 @@ gexec() { # vm command-string: run in the guest with Homebrew on PATH
 
 log "build in VM $build_vm"
 "$tart_sh" clone "$build_vm" --from golden >&2
-"$tart_sh" run "$build_vm" >&2
+# T-M7-17: the build guest has no network (tart.sh run --no-network: its interface ends in a socket this host
+# drains, so it gets no address and nothing can connect to it); it needs none, the tree and the verified
+# tarball are sent over tart exec. The base image's Remote Login and Screen Sharing (public login admin/admin)
+# are turned off in this clone, and the build stops if the guest still listens for or accepts a network login.
+"$tart_sh" run "$build_vm" --no-network >&2
+sh "$login_check" --close --isolated "$build_vm" >&2 ||
+	die "the build guest $build_vm accepts a network login or has a network (vm/macos/guest-login-check.sh); no package built"
 # The tree made above plus the verified tarball (equal to HEAD unless --allow-dirty; with --allow-dirty
 # also the files not yet tracked and not ignored, as tests/integration/packaging/pkg_vm.sh sends them).
 git_tree_tar >"$rl_tmp/tree.tar" || die "git archive of the tree failed"
@@ -203,14 +213,48 @@ tart exec -i "$build_vm" /bin/sh -c 'rm -rf ~/ntfsmac && mkdir -p ~/ntfsmac/tree
 gexec "$build_vm" 'test -f ~/ntfsmac/tree/packaging/build-pkg.sh' || die "the tree in the VM has no packaging/build-pkg.sh"
 gexec "$build_vm" "cd ~/ntfsmac/tree && NTFSMAC_SOURCE_REV='$rev$dirty' SOURCE_DATE_EPOCH='$sde' sh packaging/build-pkg.sh --label '$label' --out ~/ntfsmac/dist --work ~/ntfsmac/work 2>&1" ||
 	die "package build in the VM failed"
+sh "$login_check" --isolated "$build_vm" >&2 ||
+	die "the build guest $build_vm accepted a network login or got a network during the build; the package is not used"
 gexec "$build_vm" 'cd ~/ntfsmac/dist && tar -cf - .' | tar -xf - -C "$out"
-(cd "$out" && shasum -a 256 -c SHA256SUMS) || die "copied package does not match its checksums"
+# T-M7-17: the host computes the checksums of what it received, and uses those. The guest's SHA256SUMS is
+# only a second check: it proves the copy is intact, not that the build is honest (that rests on the
+# isolated, closed guest above). Only plain files with plain names are accepted from the guest.
+odd=$(find "$out" -mindepth 1 \( ! -type f -o -name '.*' \) -print)
+[ -z "$odd" ] || die "the build guest sent something other than plain files: $odd"
+[ -f "$out/SHA256SUMS" ] || die "the build guest sent no SHA256SUMS"
+mv "$out/SHA256SUMS" "$rl_tmp/SHA256SUMS.guest"
+pkg=ntfs-macos-$label.pkg
+# the names the guest listed: plain file names only, each once, the package, uninstall.sh and manifest.txt among them
+names=$(awk '{ n = $0; sub(/^[0-9a-f]{64}  /, "", n); if (n == $0 || n !~ /^[A-Za-z0-9][A-Za-z0-9._+-]*$/ || seen[n]++) { bad = 1; exit } print n }
+	END { exit bad }' "$rl_tmp/SHA256SUMS.guest") || die "the build guest's SHA256SUMS has a malformed line, a path or a repeated name"
+for f in "$pkg" uninstall.sh manifest.txt; do
+	printf '%s\n' "$names" | grep -qxF "$f" || die "the build guest's SHA256SUMS does not list $f"
+done
+# every file copied from the guest is one it listed, or BUILD-INFO; BUILD-INFO must be there
+[ -f "$out/BUILD-INFO" ] || die "the build guest sent no BUILD-INFO"
+for f in "$out"/*; do
+	f=${f##*/}
+	[ "$f" = BUILD-INFO ] || printf '%s\n' "$names" | grep -qxF "$f" ||
+		die "the build guest sent $f, which its SHA256SUMS does not list"
+done
+# shellcheck disable=SC2086 # names: checked plain file names, one per line
+(cd "$out" && set -f && IFS='
+' && shasum -a 256 $names) >"$rl_tmp/SHA256SUMS.host" || die "a file the build guest listed is missing"
+cmp -s "$rl_tmp/SHA256SUMS.host" "$rl_tmp/SHA256SUMS.guest" ||
+	die "the checksums the build guest wrote do not match the ones computed on the host from the copied files"
+# the published SHA256SUMS: the release label (bound into the signed content, T-M7-08), the host's lines,
+# and BUILD-INFO
+{
+	printf '# release %s\n' "$label"
+	cat "$rl_tmp/SHA256SUMS.host"
+	printf '%s\n' "$names" | grep -qxF BUILD-INFO || (cd "$out" && shasum -a 256 BUILD-INFO)
+} >"$out/SHA256SUMS"
+printf 'release-local: checksums computed on the host; the guest'"'"'s SHA256SUMS agrees\n'
 [ "$keep_vm" -eq 1 ] || "$tart_sh" delete "$build_vm" >/dev/null 2>&1 || true
 
 log "source release archive"
 srcrel
 
-pkg=ntfs-macos-$label.pkg
 if [ "$verify" -eq 0 ]; then
 	signrel
 	log "done (not verified): $out/$pkg and the source archive"

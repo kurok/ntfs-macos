@@ -14,7 +14,7 @@ scripts/release-local.sh --unsigned                                      # a tes
 | Stage | What happens |
 |---|---|
 | ci | `scripts/ci-local.sh --quick` on the host |
-| build | `packaging/build-pkg.sh` in a disposable clone of the golden VM (macOS 27 + macFUSE) |
+| build | `packaging/build-pkg.sh` in a disposable clone of the golden VM (macOS 27 + macFUSE), started without network; the build stops if the guest accepts a network login (see "Build guest" below). The host computes `SHA256SUMS` from the files it copied; the guest's own `SHA256SUMS` must agree |
 | verify | a second fresh clone installs the package (preflight and postinstall run), checks that the daemon runs and `ntfsmac doctor`, runs each installed program, runs `uninstall.sh` and checks that nothing is left |
 | sign | on the host, after every check: `scripts/sign-release.sh` signs `SHA256SUMS` into `SHA256SUMS.sig` and checks it against `packaging/release-signers` (see "Release signature" below). Skipped only with `--unsigned` |
 
@@ -103,6 +103,32 @@ either, so a stolen GitHub login cannot replace it).
 
 A key change (a new or lost key) is a commit to `release-signers` and a note in the next release;
 remove the old line only when no supported release is signed with it.
+
+## Build guest (T-M7-17)
+
+The golden VM is the base image with its public login `admin`/`admin`, passwordless `sudo`, and
+Remote Login (TCP 22) and Screen Sharing (TCP 5900) on. `release-local.sh` therefore:
+
+- starts the build clone with `vm/macos/tart.sh run --no-network`: its network interface is wired to
+  a socket that a host process drains (`tart run --net-fd`), so the guest gets no address and nothing
+  on this Mac or the shared NAT network can connect to it. The build needs no network: the tree and
+  the verified NTFS-3G tarball are sent over `tart exec`;
+- turns Remote Login, Screen Sharing, Remote Management and the Kerberos KDC off in that clone and
+  checks, before the build and again before copying the result, that no TCP socket in the guest
+  listens beyond loopback (any port), that the host cannot connect to TCP 22, 5900 or 3283, and that
+  the guest has no address and no default route over a real interface
+  (`vm/macos/guest-login-check.sh --close --isolated`); otherwise it stops with no package;
+- computes `SHA256SUMS` on the host from the copied files and requires the guest's `SHA256SUMS` to
+  agree. The checksum proves the copy, not the build: the build is trusted because the guest was
+  closed and isolated, and the host signs only after these checks;
+- accepts only plain files from the guest (no links, directories or dot files), and only those its
+  `SHA256SUMS` lists plus `BUILD-INFO`; the published `SHA256SUMS` is the host's: the label line, the
+  guest-listed files and `BUILD-INFO`. A guest command that fails or prints nothing is an error,
+  never a pass.
+
+The verify clone keeps the shared network (it is a test VM: it only installs the package that was
+already checksummed on the host; nothing it does reaches `dist/`). The golden VM is never changed
+here; provisioning a new one turns the logins off (`vm/macos/provision-golden.sh`, docs/VM_SETUP.md).
 
 ## Source release archive (T-M6-05)
 

@@ -20,8 +20,9 @@
 #   4. a path the package installs that exists although no install of ours is recorded (no receipt
 #      org.ntfs-macos.pkg and no /usr/local/libexec/ntfs-macos/manifest.txt of a developer
 #      install), a path of ours that is a symbolic link or of the wrong type
-#   5. a directory above an installed path that is not a real directory owned by root and not
-#      writable by group or others. Every installed path is one that root runs or reads
+#   5. a directory above an installed path that is a symbolic link, or is not a real directory
+#      owned by root and not writable by group or others; the path is walked from / down and no
+#      link is followed (M6-F01). Every installed path is one that root runs or reads
 #      (/usr/local/libexec/ntfs-macos, /Library/Application Support/ntfs-macos,
 #      /Library/LaunchDaemons); a user-owned /usr/local/bin or /usr/local/share (Homebrew) does
 #      not matter, because the package puts nothing there (postinstall makes the optional link
@@ -30,8 +31,9 @@
 #
 # Root-safe by construction: absolute program paths, a fixed PATH, no environment variable is
 # read, no argument but the target volume ($3, compared with "/") is used, no string from outside
-# is executed, no temporary file. A file is removed only when its directory is reached without a
-# symbolic link and it and every directory above it are root-only.
+# is executed, no temporary file. A file is removed only when every directory from / down to its
+# directory is a real directory (no symbolic link) and root-only. A path in a message is quoted for
+# reading only and is never part of a suggested command.
 set -eu
 umask 022
 PATH=/usr/bin:/bin:/usr/sbin:/sbin
@@ -93,20 +95,73 @@ conflict() {
 	esac
 }
 
-# root_only_dir DIR: 0 when DIR is a directory whose physical path is DIR (no symbolic link on the
-# way) and it and every directory above it are owned by root and not writable by group or others
-root_only_dir() {
-	[ -d "$1" ] || return 1
-	_r=$(CDPATH='' cd -P -- "$1" 2>/dev/null && /bin/pwd -P) || return 1
-	[ "$_r" = "$1" ] || return 1
+# >>> root-only check (M6-F01). The same text in packaging/scripts/preinstall,
+# packaging/scripts/postinstall, packaging/uninstall.sh and packaging/dev-install.sh: a package
+# script cannot source a file of the repository, so each carries a copy, and the unit test
+# packaging.root_only (tests/unit/packaging/root_only_test.sh) keeps the copies equal.
+#
+# root_only_chain PATH: 0 when every component of the absolute PATH that exists, from / down to
+# PATH itself, is a real directory owned by root, not writable by group or others and without an
+# access control entry that allows anything (`ls -lde` shows "allow"; a deny-only list is fine,
+# audit M6 review). PATH must not hold an empty, "." or ".." component. A symbolic link is never
+# followed: a link at any component fails, so the directory that holds a link is
+# always checked as well (a user-owned /usr/local with /usr/local/libexec a link to a root-only
+# directory fails at /usr/local). The components below the first missing one do not exist yet,
+# which is allowed. On failure ro_bad is the component that failed and ro_why the reason.
+root_only_chain() {
+	ro_bad=
+	ro_why=
+	case $1 in
+	/*) ;;
+	*) ro_bad=$1; ro_why='is not an absolute path'; return 1 ;;
+	esac
+	if [ "$1" != / ]; then
+		case "$1/" in
+		*/../* | */./* | *//*) ro_bad=$1; ro_why='has an empty component or a component that is a dot or two dots'; return 1 ;;
+		esac
+	fi
+	ro_rest=${1#/}
+	ro_p=/
 	while :; do
-		_st=$(/usr/bin/stat -f '%Su %Lp' "$_r") || return 1
-		[ "${_st% *}" = root ] && [ $((0${_st#* } & 022)) -eq 0 ] || return 1
-		[ "$_r" != / ] || return 0
-		_r=${_r%/*}
-		[ -n "$_r" ] || _r=/
+		if [ -L "$ro_p" ]; then ro_bad=$ro_p; ro_why='is a symbolic link'; return 1; fi
+		[ -e "$ro_p" ] || return 0
+		if [ ! -d "$ro_p" ]; then ro_bad=$ro_p; ro_why='is not a directory'; return 1; fi
+		ro_st=$(/usr/bin/stat -f '%Su %Lp' "$ro_p") || { ro_bad=$ro_p; ro_why='cannot be read'; return 1; }
+		if [ "${ro_st% *}" != root ] || [ $((0${ro_st#* } & 022)) -ne 0 ]; then
+			ro_bad=$ro_p
+			ro_why="is owned by ${ro_st% *} with mode ${ro_st#* }"
+			return 1
+		fi
+		ro_acl=$(/bin/ls -lde "$ro_p") || { ro_bad=$ro_p; ro_why='cannot be read'; return 1; }
+		case $ro_acl in
+		*"
+"*" allow "*)
+			ro_bad=$ro_p
+			ro_why='has an access control entry that allows changes to it (ls -le shows it)'
+			return 1
+			;;
+		esac
+		[ -n "$ro_rest" ] || return 0
+		ro_c=${ro_rest%%/*}
+		case $ro_rest in */*) ro_rest=${ro_rest#*/} ;; *) ro_rest= ;; esac
+		case $ro_c in '' | '.' | '..') ro_bad=$1; ro_why='has an empty component or a component that is a dot or two dots'; return 1 ;; esac
+		if [ "$ro_p" = / ]; then ro_p=/$ro_c; else ro_p=$ro_p/$ro_c; fi
 	done
 }
+# root_only_dir DIR: 0 when DIR exists and root_only_chain accepts it (DIR included)
+root_only_dir() {
+	ro_bad=
+	ro_why=
+	[ -d "$1" ] || { ro_bad=$1; ro_why='is missing'; return 1; }
+	root_only_chain "$1"
+}
+# ro_show PATH: PATH for a message, in double quotes, for reading only. Each character other than
+# a letter, a digit, a space or / . _ , : @ + = - is shown as ?, so a name that a user chose
+# cannot end the quotes or add a command or a line to the log.
+ro_show() {
+	/usr/bin/printf '"%s"' "$(/usr/bin/printf '%s' "$1" | LC_ALL=C /usr/bin/tr -c 'A-Za-z0-9 /._,:@+=-' '?')"
+}
+# <<< root-only check
 
 # ---- 1. target and system ----
 [ "${3:-}" = / ] || refuse "ntfs-macos installs only on the startup volume /"
@@ -174,26 +229,20 @@ $paths
 EOF
 
 # ---- 5. every directory above an installed path is root-only ----
+# root_only_chain walks each path from / down without following a symbolic link, so a link at
+# /usr/local/libexec is refused, and so is a user-owned /usr/local that holds it (M6-F01).
 checked=
 while IFS= read -r line; do
 	p=${line#* }
 	d=${p%/*}
 	[ -n "$d" ] || d=/
-	until [ -d "$d" ]; do d=${d%/*}; [ -n "$d" ] || d=/; done
-	r=$(CDPATH='' cd -P -- "$d" && /bin/pwd -P) || refuse "cannot resolve $d"
-	while :; do
-		case $checked in *"$nl$r$nl"*) break ;; esac
-		checked="$checked$nl$r$nl"
-		st=$(/usr/bin/stat -f '%Su %Lp' "$r") || refuse "cannot read the owner of $r"
-		o=${st% *}
-		m=${st#* }
-		if [ "$o" != root ] || [ $((0$m & 022)) -ne 0 ]; then
-			refuse "$r (above $p) is owned by $o with mode $m; it must be owned by root and not writable by group or others, or another user could replace a program that runs as root. Fix it first: sudo chown root '$r' && sudo chmod go-w '$r'"
-		fi
-		[ "$r" != / ] || break
-		r=${r%/*}
-		[ -n "$r" ] || r=/
-	done
+	case $checked in *"$nl$d$nl"*) continue ;; esac
+	checked="$checked$nl$d$nl"
+	if ! root_only_chain "$d"; then
+		b=$(ro_show "$ro_bad")
+		s=$(ro_show "$p")
+		refuse "the directory $b above $s $ro_why. Every directory above a path that this package installs must be a real directory (not a symbolic link), owned by root and not writable by group or others; otherwise another user could replace a program that runs as root. Replace a symbolic link by a real directory, or give the directory to root and remove the write permission of group and others, then run this installer again."
+	fi
 done <<EOF
 $paths
 EOF
@@ -262,4 +311,5 @@ old_manifest=/usr/local/libexec/ntfs-macos/manifest.txt
 } | /usr/bin/sort -u | while IFS= read -r f; do
 	remove_old "$f"
 done
+
 exit 0

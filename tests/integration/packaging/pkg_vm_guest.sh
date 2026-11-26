@@ -12,7 +12,9 @@
 #           loaded and the daemon answers; `ntfsmac doctor` runs; the privileged door accepts the
 #           CLI; a second install over the first leaves the same state.
 #           It refuses (before building anything) when a directory above an installed path is
-#           user-owned or group-writable, and when the daemon of the build tree has test seams.
+#           user-owned or group-writable, or is a symbolic link (also to a root-only directory,
+#           with a root-owned or a user-owned /usr/local; audit M6-F01), and when the daemon of
+#           the build tree has test seams.
 # I-PKG-02: packaging/uninstall.sh refuses manifests that name paths outside the project and
 #           removes nothing then; --dry-run removes nothing; a real run removes exactly the manifest
 #           (the job, the right, the link, every file, every empty directory) and leaves foreign files, their
@@ -22,7 +24,9 @@
 #           follows the rule of the link: a regular file (earlier layout) is kept and named, a link to
 #           exactly the CLI is removed, the same link in a user-owned /usr/local/bin is kept and named,
 #           and the shared /usr/local/bin is never removed; a receipt with a path outside the project
-#           is refused.
+#           is refused. With a user-owned /usr/local/libexec it removes nothing (also not in a dry
+#           run) and names the directory; with --allow-unsafe-ancestors it removes the rest, keeps
+#           and names every path below that directory, and exits 1 (audit M6-F05, issue #6).
 #
 # Prints PASS, FAIL and NOTE lines; exit 0 only if no FAIL.
 set -u
@@ -171,6 +175,30 @@ if [ "$rc" -ne 0 ] && grep -q "mode 775" "$work/anc2.out"; then pass "a group-wr
 check "...before anything was built or installed (no build tree, no install)" sh -c "[ ! -e build/product ] && [ ! -e $LIBEXEC ] && [ ! -e $PLIST ]"
 restore_anc
 echo "ancestor restored: $(stat -f '%Su:%Sg %Lp' "$ANC" 2>/dev/null || echo removed)"
+echo "-- /usr/local/libexec a symbolic link to a root-only directory: the install is refused (audit M6-F01)"
+TARGET=/private/var/db/ntfsmac-f01-target
+had_anc=0
+if [ -e "$ANC" ] || [ -L "$ANC" ]; then had_anc=1; sudo -n mv "$ANC" "$ANC.pkgvm-aside"; fi
+sudo -n mkdir -m 755 "$TARGET"
+sudo -n ln -s "$TARGET" "$ANC"
+lorig=$(stat -f '%Su:%Sg %Lp' /usr/local)
+sh packaging/dev-install.sh >"$work/anc3.out" 2>&1
+rc=$?
+tail -n 1 "$work/anc3.out" | cut -c1-260
+if [ "$rc" -ne 0 ] && grep -q 'the directory "/usr/local/libexec" above "/usr/local/libexec/ntfs-macos" is a symbolic link' "$work/anc3.out"; then pass "a link at $ANC (root-owned /usr/local) is refused (exit $rc)"; else failf "link at $ANC: exit $rc"; fi
+sudo -n chown "$(id -un)" /usr/local
+sh packaging/dev-install.sh >"$work/anc4.out" 2>&1
+rc=$?
+tail -n 1 "$work/anc4.out" | cut -c1-260
+if [ "$rc" -ne 0 ] && grep -q "the directory \"/usr/local\" above \"/usr/local/libexec/ntfs-macos\" is owned by $(id -un)" "$work/anc4.out"; then pass "a user-owned /usr/local holding that link is refused (exit $rc)"; else failf "user-owned /usr/local with the link: exit $rc"; fi
+check "...nothing was built or installed, and nothing appeared in the link's target" sh -c "[ ! -e build/product ] && [ ! -e $PLIST ] && [ -z \"\$(ls -A $TARGET)\" ]"
+check "...and no refusal suggests a command (audit M6-F06)" sh -c "! grep -q 'sudo chown' '$work/anc3.out' '$work/anc4.out' '$work/anc1.out' '$work/anc2.out'"
+sudo -n chown "${lorig%%:*}" /usr/local
+sudo -n chmod "${lorig#* }" /usr/local
+sudo -n rm -f "$ANC"
+sudo -n rmdir "$TARGET"
+[ "$had_anc" -eq 0 ] || sudo -n mv "$ANC.pkgvm-aside" "$ANC"
+check "/usr/local is back ($lorig)" [ "$(stat -f '%Su:%Sg %Lp' /usr/local)" = "$lorig" ]
 
 sh packaging/dev-install.sh --jobs 4 >"$work/install1.log" 2>&1
 rc=$?
@@ -355,11 +383,27 @@ sudo -n rm "$SUPPORT/sandbox"
 sudo -n mv "$work/sandbox.moved" "$SUPPORT/sandbox"
 check "the install is whole again" installed_ok
 
-echo "-- an ancestor that is not root-only: the uninstaller warns"
+echo "-- an ancestor that is not root-only: the uninstaller refuses and removes nothing (audit M6-F05, issue #6)"
 sudo -n chown "$(id -un)" /usr/local/libexec
 sudo -n sh "$LIBEXEC/uninstall.sh" --dry-run >"$work/warn.out" 2>&1
+rc=$?
+cat "$work/warn.out"
+if [ "$rc" -ne 0 ] && grep -q "the directory \"/usr/local/libexec\" above .* is owned by $(id -un)" "$work/warn.out" && grep -q 'nothing was removed' "$work/warn.out"; then pass "the dry run refuses (exit $rc) and names /usr/local/libexec"; else failf "the dry run with a user-owned /usr/local/libexec: exit $rc"; fi
+sudo -n sh "$LIBEXEC/uninstall.sh" >"$work/unsafe1.out" 2>&1
+rc=$?
+if [ "$rc" -ne 0 ] && grep -q 'nothing was removed' "$work/unsafe1.out"; then pass "the real run refuses (exit $rc)"; else failf "the real run with a user-owned /usr/local/libexec: exit $rc"; cat "$work/unsafe1.out"; fi
+if installed_ok >/dev/null 2>&1 && job_loaded && right_is_ours; then pass "...and removed nothing: files, job and right are all still there"; else failf "the refused run changed something"; fi
+check "...and suggests no command (audit M6-F06)" sh -c "! grep -q 'sudo chown' '$work/unsafe1.out'"
+sudo -n sh "$LIBEXEC/uninstall.sh" --allow-unsafe-ancestors >"$work/unsafe2.out" 2>&1
+rc=$?
+cat "$work/unsafe2.out"
+if [ "$rc" -eq 1 ]; then pass "--allow-unsafe-ancestors exits 1 (paths kept)"; else failf "--allow-unsafe-ancestors exits $rc"; fi
+check "...it kept and named the files below /usr/local/libexec" sh -c "[ -f $CLI ] && [ -f $LIBEXEC/ntfsmacd ] && [ -f $LIBEXEC/foreign.txt ] && grep -q 'kept \"$CLI\": the directory \"/usr/local/libexec\" is owned by $(id -un)' '$work/unsafe2.out'"
+check "...and removed the rest (job, plist, support directory)" sh -c "! sudo -n launchctl print system/$LABEL >/dev/null 2>&1 && [ ! -e $PLIST ] && [ ! -e '$SUPPORT' ]"
 sudo -n chown root:wheel /usr/local/libexec
-check "the dry run warns that /usr/local/libexec is not root-only" grep -q "WARNING: /usr/local/libexec is owned by $(id -un)" "$work/warn.out"
+sh packaging/dev-install.sh --no-build >"$work/install-again.log" 2>&1 || { failf "the reinstall after the unsafe-ancestor case"; tail -n 10 "$work/install-again.log"; }
+if out=$(installed_ok); then pass "the install is whole again"; else failf "the reinstall differs"; echo "$out"; fi
+check "the daemon is up again" wait_for 30 test -S "$SOCK"
 echo "-- --dry-run"
 sudo -n sh "$LIBEXEC/uninstall.sh" --dry-run >"$work/dry.out" 2>&1
 rc=$?

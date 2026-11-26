@@ -353,7 +353,7 @@ echo "-- images"; hdiutil info 2>/dev/null | grep "^image-path" | sort
 echo "-- processes"; ps -axo comm= | grep -E "ntfs-3g|ntfsmac|fuse|_vm\$|sandbox_|jstub|spawn_stub" |
 	grep -v -e "/io\.macfuse\.app\.fsmodule\.macfuse-local\$" -e "^/Library/PrivilegedHelperTools/io\.macfuse\.app\.launchservice\.daemon\$" | sort
 echo "-- launchd"; sudo -n /bin/launchctl print system 2>/dev/null | grep -o "org\.ntfs-macos[A-Za-z0-9._-]*" | sort -u
-echo "-- installed"; ls -d /Library/LaunchDaemons/org.ntfs-macos.* /usr/local/libexec/ntfs-macos "/Library/Application Support/ntfs-macos" /var/db/ntfs-macos /usr/local/bin/ntfsmac 2>/dev/null
+echo "-- installed"; ls -d /Library/LaunchDaemons/org.ntfs-macos.* /usr/local/libexec/ntfs-macos "/Library/Application Support/ntfs-macos" /var/db/ntfs-macos /usr/local/libexec/ntfs-macos/ntfsmac 2>/dev/null
 echo "-- work"; ls -d /tmp/spawnvm.* /tmp/errwatchvm.* /tmp/journalvm.* /tmp/dmnmirror.* /tmp/sandboxvm.* /tmp/xpcvm.* 2>/dev/null
 echo "-- macfuse"; ps -axo pid=,stat=,comm= | grep -E "/io\.macfuse\.app\.fsmodule\.macfuse-local\$|^ *[0-9]+ +[A-Za-z+<>]+ +/Library/PrivilegedHelperTools/io\.macfuse\.app\.launchservice\.daemon\$" |
 	awk "{ print \$1, \$3, (\$2 ~ /^[TZ]/ ? \"wedged:\" \$2 : \"ok\") }" | sort -k2

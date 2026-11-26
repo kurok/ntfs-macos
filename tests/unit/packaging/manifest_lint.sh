@@ -28,13 +28,19 @@ function bad(msg) { printf "FAIL: %s:%d: %s\n", m, NR, msg; rc = 1 }
 	for (i = 0; i < 4; i++) sub(/^[ \t]*[^ \t]+/, "", path)
 	sub(/^[ \t]+/, "", path); sub(/[ \t]+$/, "", path)
 	if (path == "") { bad("malformed entry"); next }
-	if (kind !~ /^(dir|file|statedir|statefile|right)$/) { bad("unknown type " kind); next }
+	if (kind !~ /^(dir|file|statedir|statefile|right|link)$/) { bad("unknown type " kind); next }
 	if (path in seen) bad("duplicate " path)
 	seen[path] = 1
 	if (kind == "right") {
 		if (mode != "-" || owner != "-" || group != "-") bad("a right has - for mode, owner and group")
 		if (path != "org.ntfs-macos.journal-modify") bad("unexpected right " path)
 		nright++
+		next
+	}
+	if (kind == "link") {
+		if (mode != "-" || owner != "-" || group != "-") bad("a link has - for mode, owner and group")
+		if (path != "/usr/local/bin/ntfsmac") bad("unexpected link " path)
+		nlink++
 		next
 	}
 	if (path !~ /^\//) bad("path is not absolute: " path)
@@ -46,9 +52,8 @@ function bad(msg) { printf "FAIL: %s:%d: %s\n", m, NR, msg; rc = 1 }
 	ok = 0
 	if (kind == "dir" || kind == "file") {
 		if (path ~ /^\/usr\/local\/libexec\/ntfs-macos(\/|$)/) ok = 1
-		if (path ~ /^\/usr\/local\/share\/doc\/ntfs-macos(\/|$)/) ok = 1
 		if (path ~ /^\/Library\/Application Support\/ntfs-macos(\/|$)/) ok = 1
-		if (kind == "file" && (path == "/usr/local/bin/ntfsmac" || path == "/Library/LaunchDaemons/org.ntfs-macos.ntfsmacd.plist")) ok = 1
+		if (kind == "file" && path == "/Library/LaunchDaemons/org.ntfs-macos.ntfsmacd.plist") ok = 1
 	}
 	if (kind == "statedir" && path == "/var/db/ntfs-macos") ok = 1
 	if (kind == "statefile" && path == "/var/log/ntfsmacd.log") ok = 1
@@ -64,6 +69,7 @@ function bad(msg) { printf "FAIL: %s:%d: %s\n", m, NR, msg; rc = 1 }
 }
 END {
 	if (nright != 1) { printf "FAIL: %s: exactly one right expected, found %d\n", m, nright; rc = 1 }
+	if (nlink != 1) { printf "FAIL: %s: exactly one link expected, found %d\n", m, nlink; rc = 1 }
 	for (d in needdir) {
 		if (d == "/usr/local/bin" || d == "/Library/LaunchDaemons") continue
 		if (!(d in isdir)) { printf "FAIL: %s: the directory of %s is not listed as a dir\n", m, needdir[d]; rc = 1 }
@@ -111,7 +117,8 @@ case $jd in
 esac
 prog=$(sed -n 's|.*<string>\(/usr/local/libexec/ntfs-macos/ntfsmacd\)</string>.*|\1|p' "$root/integration/launchd/org.ntfs-macos.ntfsmacd.plist" | head -n 1)
 if [ -z "$prog" ] || ! listed file "$prog"; then bad "the program of the launchd plist is not a file of the manifest"; fi
-listed file /usr/local/bin/ntfsmac || bad "the CLI is not in the manifest"
+listed file /usr/local/libexec/ntfs-macos/ntfsmac || bad "the CLI is not in the manifest (/usr/local/libexec/ntfs-macos/ntfsmac)"
+listed link /usr/local/bin/ntfsmac || bad "the link /usr/local/bin/ntfsmac is not in the manifest"
 
 # ---- the two scripts keep one allow-list, and the installer has a source for every file ----
 a1=$(sed -n '/^allowed()/,/^}/p' "$root/packaging/dev-install.sh")

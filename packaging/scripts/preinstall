@@ -1,0 +1,265 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# preinstall of the ntfs-macos package (T-M6-01). Run as root by the Installer before any file is
+# copied; a non-zero exit stops the install. Its output goes to the Installer log
+# (/var/log/install.log). Every check comes first and changes nothing; only an upgrade of our own
+# install changes something afterwards: the running daemon is stopped, and files that an earlier
+# install of ours had and this package does not ship are removed.
+#
+# Refused (each with the reason in the log):
+#   1. a target other than the startup volume; macOS older than 27; a Mac that is not arm64
+#   2. macFUSE missing (/Library/Filesystems/macfuse.fs) or older than 5.5.0 (ADR-013; the version
+#      is CFBundleShortVersionString, else CFBundleVersion, as distribution.xml reads it; the
+#      worker links macFUSE's libfuse at /usr/local/lib/libfuse.2.dylib, which must be there too)
+#   3. another NTFS driver (owner decision 2026-11-26; the earlier design warned, installed
+#      and set passive mode): a bundle in /Library/Filesystems that src/daemon/conflict.c calls a
+#      conflict (ufsd_NTFS.fs of Paragon, tuxera_ntfs.fs of Tuxera, any other *.fs with "ntfs" in
+#      the name except Apple's ntfs.fs and our own ntfsmac*), or a kernel extension in
+#      /Library/Extensions with "ntfs" in its name (ARCHITECTURE.md section 8.4, R-17)
+#   4. a path the package installs that exists although no install of ours is recorded (no receipt
+#      org.ntfs-macos.pkg and no /usr/local/libexec/ntfs-macos/manifest.txt of a developer
+#      install), a path of ours that is a symbolic link or of the wrong type
+#   5. a directory above an installed path that is not a real directory owned by root and not
+#      writable by group or others. Every installed path is one that root runs or reads
+#      (/usr/local/libexec/ntfs-macos, /Library/Application Support/ntfs-macos,
+#      /Library/LaunchDaemons); a user-owned /usr/local/bin or /usr/local/share (Homebrew) does
+#      not matter, because the package puts nothing there (postinstall makes the optional link
+#      /usr/local/bin/ntfsmac only when /usr/local/bin is root-only).
+# An install of ours (an earlier package, or dev-install.sh) is upgraded.
+#
+# Root-safe by construction: absolute program paths, a fixed PATH, no environment variable is
+# read, no argument but the target volume ($3, compared with "/") is used, no string from outside
+# is executed, no temporary file. A file is removed only when its directory is reached without a
+# symbolic link and it and every directory above it are root-only.
+set -eu
+umask 022
+PATH=/usr/bin:/bin:/usr/sbin:/sbin
+export PATH
+
+tag='ntfs-macos preinstall'
+say() { /usr/bin/printf '%s: %s\n' "$tag" "$*"; }
+refuse() {
+	/usr/bin/printf '%s: REFUSED: %s\n' "$tag" "$*"
+	/usr/bin/printf '%s: REFUSED: %s\n' "$tag" "$*" >&2
+	exit 1
+}
+
+pkg_id=org.ntfs-macos.pkg
+job=org.ntfs-macos.ntfsmacd
+fs_dir=/Library/Filesystems
+macfuse=$fs_dir/macfuse.fs
+libfuse=/usr/local/lib/libfuse.2.dylib
+# NTFSMAC_MACFUSE_MIN_* of src/daemon/internal.h (the unit test U-PKG-03 keeps them equal)
+min_major=5
+min_minor=5
+min_patch=0
+
+# The dir and file entries of packaging/manifest.txt, in its order (U-PKG-03 keeps them equal).
+paths='dir /usr/local/libexec/ntfs-macos
+file /usr/local/libexec/ntfs-macos/ntfsmacd
+file /usr/local/libexec/ntfs-macos/ntfsmac-worker
+file /usr/local/libexec/ntfs-macos/ntfsmac-probe
+file /usr/local/libexec/ntfs-macos/ntfsmac-volmark
+file /usr/local/libexec/ntfs-macos/mkntfs
+file /usr/local/libexec/ntfs-macos/ntfsfix
+file /usr/local/libexec/ntfs-macos/ntfsinfo
+file /usr/local/libexec/ntfs-macos/ntfslabel
+file /usr/local/libexec/ntfs-macos/uninstall.sh
+file /usr/local/libexec/ntfs-macos/manifest.txt
+file /usr/local/libexec/ntfs-macos/ntfsmac
+dir /Library/Application Support/ntfs-macos
+file /Library/Application Support/ntfs-macos/cli-requirement
+dir /Library/Application Support/ntfs-macos/sandbox
+file /Library/Application Support/ntfs-macos/sandbox/probe.sb
+file /Library/Application Support/ntfs-macos/sandbox/volmark.sb
+file /Library/Application Support/ntfs-macos/sandbox/worker.sb
+dir /Library/Application Support/ntfs-macos/doc
+file /Library/Application Support/ntfs-macos/doc/COPYING
+file /Library/Application Support/ntfs-macos/doc/README.md
+file /Library/Application Support/ntfs-macos/doc/BUILD-INFO
+file /Library/LaunchDaemons/org.ntfs-macos.ntfsmacd.plist'
+
+# conflict NAME: the kind of driver a bundle name in /Library/Filesystems is (src/daemon/conflict.c
+# ntfsmac_conflict_classify, case-insensitive), empty when it is none
+conflict() {
+	_n=$(/usr/bin/printf '%s' "$1" | /usr/bin/tr '[:upper:]' '[:lower:]')
+	case $_n in
+	'') ;;
+	ufsd_ntfs.fs) /usr/bin/printf 'Paragon NTFS' ;;
+	tuxera_ntfs.fs) /usr/bin/printf 'Tuxera NTFS' ;;
+	ntfs.fs | ntfsmac*) ;;
+	*ntfs*.fs) /usr/bin/printf 'another NTFS driver' ;;
+	esac
+}
+
+# root_only_dir DIR: 0 when DIR is a directory whose physical path is DIR (no symbolic link on the
+# way) and it and every directory above it are owned by root and not writable by group or others
+root_only_dir() {
+	[ -d "$1" ] || return 1
+	_r=$(CDPATH='' cd -P -- "$1" 2>/dev/null && /bin/pwd -P) || return 1
+	[ "$_r" = "$1" ] || return 1
+	while :; do
+		_st=$(/usr/bin/stat -f '%Su %Lp' "$_r") || return 1
+		[ "${_st% *}" = root ] && [ $((0${_st#* } & 022)) -eq 0 ] || return 1
+		[ "$_r" != / ] || return 0
+		_r=${_r%/*}
+		[ -n "$_r" ] || _r=/
+	done
+}
+
+# ---- 1. target and system ----
+[ "${3:-}" = / ] || refuse "ntfs-macos installs only on the startup volume /"
+[ "$(/usr/bin/uname -m)" = arm64 ] || refuse "ntfs-macos runs only on Apple silicon (arm64)"
+osv=$(/usr/bin/sw_vers -productVersion)
+case $osv in [0-9]*) ;; *) refuse "cannot read the macOS version" ;; esac
+[ "${osv%%.*}" -ge 27 ] || refuse "macOS 27 or newer is required; this Mac has macOS $osv"
+
+# ---- 2. macFUSE ----
+if [ -L "$macfuse" ] || [ ! -d "$macfuse" ]; then
+	refuse "macFUSE is not installed ($macfuse is missing). Install macFUSE $min_major.$min_minor.$min_patch or newer from https://macfuse.github.io and turn its file system extension on in System Settings, then run this installer again. ntfs-macos does not include macFUSE."
+fi
+fv=$(/usr/bin/plutil -extract CFBundleShortVersionString raw -o - "$macfuse/Contents/Info.plist" 2>/dev/null) ||
+	fv=$(/usr/bin/plutil -extract CFBundleVersion raw -o - "$macfuse/Contents/Info.plist" 2>/dev/null) || fv=
+# "5.5.0", "5.5" or "5.5.1-beta" as the daemon reads it: the text after the digits is ignored
+fv_num=$(/usr/bin/printf '%s\n' "$fv" | /usr/bin/sed -n 's/^\([0-9][0-9]*\(\.[0-9][0-9]*\)\{0,2\}\).*/\1/p')
+[ -n "$fv_num" ] || refuse "cannot read the version of macFUSE ($macfuse/Contents/Info.plist); reinstall macFUSE $min_major.$min_minor.$min_patch or newer"
+if ! /usr/bin/printf '%s\n' "$fv_num" | /usr/bin/awk -F. -v a="$min_major" -v b="$min_minor" -v c="$min_patch" \
+	'{ x = $1 * 1000000 + $2 * 1000 + $3; exit (x >= a * 1000000 + b * 1000 + c) ? 0 : 1 }'; then
+	refuse "macFUSE $fv is too old; ntfs-macos needs macFUSE $min_major.$min_minor.$min_patch or newer. Update macFUSE, then run this installer again."
+fi
+[ -f "$libfuse" ] || refuse "macFUSE $fv is installed but its library $libfuse is missing; reinstall macFUSE"
+say "macFUSE $fv found"
+
+# ---- 3. other NTFS drivers ----
+found=
+for e in "$fs_dir"/*; do
+	[ -e "$e" ] || [ -L "$e" ] || continue
+	k=$(conflict "${e##*/}")
+	[ -z "$k" ] || found="$found $k ($e);"
+done
+for e in /Library/Extensions/*; do
+	[ -e "$e" ] || [ -L "$e" ] || continue
+	n=$(/usr/bin/printf '%s' "${e##*/}" | /usr/bin/tr '[:upper:]' '[:lower:]')
+	case $n in *ntfs*.kext) found="$found an NTFS kernel extension ($e);" ;; esac
+done
+if [ -n "$found" ]; then
+	refuse "another NTFS driver is installed:$found ntfs-macos does not install next to another NTFS driver, because two drivers could write to one volume. Remove the other driver with its own uninstaller first."
+fi
+
+# ---- 4. files in the way, and an earlier install of ours ----
+ours=
+if /usr/sbin/pkgutil --pkg-info "$pkg_id" >/dev/null 2>&1; then
+	ours="package $(/usr/sbin/pkgutil --pkg-info "$pkg_id" | /usr/bin/sed -n 's/^version: //p')"
+elif [ -f /usr/local/libexec/ntfs-macos/manifest.txt ] && [ ! -L /usr/local/libexec/ntfs-macos/manifest.txt ] &&
+	[ "$(/usr/bin/stat -f %Su /usr/local/libexec/ntfs-macos/manifest.txt)" = root ]; then
+	ours="developer install"
+fi
+nl='
+'
+while IFS= read -r line; do
+	kind=${line%% *}
+	p=${line#* }
+	if [ -L "$p" ]; then
+		refuse "$p is a symbolic link; ntfs-macos installs a real file or directory there. Remove the link first."
+	fi
+	[ -e "$p" ] || continue
+	[ -n "$ours" ] || refuse "$p exists, but no install of ntfs-macos is recorded on this Mac (no receipt $pkg_id, no developer install). It may belong to other software; move it away, then run this installer again."
+	case $kind in
+	dir) [ -d "$p" ] || refuse "$p is not a directory" ;;
+	file) [ -f "$p" ] || refuse "$p is not a regular file" ;;
+	esac
+done <<EOF
+$paths
+EOF
+
+# ---- 5. every directory above an installed path is root-only ----
+checked=
+while IFS= read -r line; do
+	p=${line#* }
+	d=${p%/*}
+	[ -n "$d" ] || d=/
+	until [ -d "$d" ]; do d=${d%/*}; [ -n "$d" ] || d=/; done
+	r=$(CDPATH='' cd -P -- "$d" && /bin/pwd -P) || refuse "cannot resolve $d"
+	while :; do
+		case $checked in *"$nl$r$nl"*) break ;; esac
+		checked="$checked$nl$r$nl"
+		st=$(/usr/bin/stat -f '%Su %Lp' "$r") || refuse "cannot read the owner of $r"
+		o=${st% *}
+		m=${st#* }
+		if [ "$o" != root ] || [ $((0$m & 022)) -ne 0 ]; then
+			refuse "$r (above $p) is owned by $o with mode $m; it must be owned by root and not writable by group or others, or another user could replace a program that runs as root. Fix it first: sudo chown root '$r' && sudo chmod go-w '$r'"
+		fi
+		[ "$r" != / ] || break
+		r=${r%/*}
+		[ -n "$r" ] || r=/
+	done
+done <<EOF
+$paths
+EOF
+
+say "preflight passed${ours:+ (upgrading the $ours)}"
+
+# ---- upgrade: stop the daemon of the earlier install ----
+# On SIGTERM it unmounts the volumes it serves and settles their sessions (ExitTimeOut 60).
+if /bin/launchctl print "system/$job" >/dev/null 2>&1; then
+	say "stopping the running daemon of the earlier install"
+	/bin/launchctl bootout "system/$job" >/dev/null 2>&1 || true
+	i=0
+	while /bin/launchctl print "system/$job" >/dev/null 2>&1 && [ "$i" -lt 70 ]; do
+		/bin/sleep 1
+		i=$((i + 1))
+	done
+	if /bin/launchctl print "system/$job" >/dev/null 2>&1; then
+		refuse "the running daemon $job was asked to stop but did not stop within 70 s; no file was installed or removed. It may still be stopping or may be stopped now. Unmount the NTFS volumes and run this installer again; to restart the earlier daemon instead: sudo launchctl bootstrap system /Library/LaunchDaemons/$job.plist"
+	fi
+fi
+
+# ---- upgrade: files of an earlier install of ours that this package does not ship ----
+# The candidates are the files of the earlier receipt and of the earlier installed manifest (a
+# developer install has no receipt). Only below the directories the project owns or owned
+# (/usr/local/libexec/ntfs-macos, /Library/Application Support/ntfs-macos, the earlier
+# /usr/local/share/doc/ntfs-macos) and the earlier CLI file /usr/local/bin/ntfsmac; never a path
+# with "..". A file is removed (rm -f: a link is removed, not followed) only when root_only_dir
+# accepts its directory; else it is left and named in the log.
+legacy() { # path: 0 when the path is a candidate region
+	case $1 in
+	*..* | *[[:cntrl:]]*) return 1 ;;
+	/usr/local/libexec/ntfs-macos/* | "/Library/Application Support/ntfs-macos/"* | /usr/local/share/doc/ntfs-macos/* | /usr/local/bin/ntfsmac) return 0 ;;
+	esac
+	return 1
+}
+remove_old() { # path
+	case "$nl$paths$nl" in *" $1$nl"*) return 0 ;; esac
+	legacy "$1" || return 0
+	[ -L "$1" ] || [ -f "$1" ] || return 0
+	if ! root_only_dir "${1%/*}"; then
+		say "left $1 of the earlier install: ${1%/*} is not root-only or is reached through a symbolic link; remove it yourself"
+		return 0
+	fi
+	say "removing $1 (the earlier install had it; this package does not)"
+	/bin/rm -f "$1"
+	_d=${1%/*}
+	while :; do
+		case $_d in
+		/usr/local/libexec/ntfs-macos/* | "/Library/Application Support/ntfs-macos/"* | /usr/local/share/doc/ntfs-macos | /usr/local/share/doc/ntfs-macos/*) ;;
+		*) break ;;
+		esac
+		case "$nl$paths$nl" in *"${nl}dir $_d$nl"*) break ;; esac
+		root_only_dir "$_d" || break
+		/bin/rmdir "$_d" 2>/dev/null || break
+		_d=${_d%/*}
+	done
+}
+old_manifest=/usr/local/libexec/ntfs-macos/manifest.txt
+{
+	if /usr/sbin/pkgutil --pkg-info "$pkg_id" >/dev/null 2>&1; then
+		/usr/sbin/pkgutil --only-files --files "$pkg_id" | /usr/bin/sed 's|^|/|'
+	fi
+	if [ -f "$old_manifest" ] && [ ! -L "$old_manifest" ] && [ "$(/usr/bin/stat -f %Su "$old_manifest")" = root ]; then
+		/usr/bin/awk '/^[ \t]*(#|$)/ { next } $1 == "file" { p = $0; for (i = 0; i < 4; i++) sub(/^[ \t]*[^ \t]+/, "", p); sub(/^[ \t]+/, "", p); sub(/[ \t]+$/, "", p); print p }' "$old_manifest"
+	fi
+} | /usr/bin/sort -u | while IFS= read -r f; do
+	remove_old "$f"
+done
+exit 0

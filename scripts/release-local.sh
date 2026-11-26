@@ -6,8 +6,11 @@
 #   1. ci        scripts/ci-local.sh --quick on the host
 #   2. build     packaging/build-pkg.sh in a disposable clone of the golden VM (macOS 27 +
 #                macFUSE, which the engine links); the package is copied back to dist/<label>/
-#   3. verify    a second, fresh clone installs the package with installer(8), runs every
-#                installed binary once, runs uninstall.sh and checks that nothing is left
+#   3. verify    a second, fresh clone installs the package with installer(8) (preflight and
+#                postinstall run), checks that the daemon serves its socket, runs every installed
+#                program once, runs uninstall.sh and checks that nothing is left (the full checks
+#                are I-PKG-03..05, tests/integration/packaging/pkg_release_vm.sh and
+#                pkg_preflight_vm.sh)
 #
 # Both VMs are always deleted, also on failure or interrupt (unless --keep-vm).
 # --host builds on this Mac instead of a VM; it needs macFUSE installed here and skips verify.
@@ -103,8 +106,12 @@ gexec() { # vm command-string: run in the guest with Homebrew on PATH
 log "build in VM $build_vm"
 "$tart_sh" clone "$build_vm" --from golden >&2
 "$tart_sh" run "$build_vm" >&2
-# Tracked files from the working tree (equal to HEAD unless --allow-dirty) plus the verified tarball.
-{ git ls-files -z; printf '%s\0' "third_party/cache/$tarball"; } |
+# Tracked files from the working tree (equal to HEAD unless --allow-dirty; with --allow-dirty also the
+# files not yet tracked and not ignored, as tests/integration/packaging/pkg_vm.sh sends them) plus the
+# verified tarball.
+if [ "$allow_dirty" -eq 1 ]; then ls_opts='--cached --others --exclude-standard'; else ls_opts=--cached; fi
+# shellcheck disable=SC2086 # the options
+{ git ls-files -z $ls_opts -- . ':!third_party/cache'; printf '%s\0' "third_party/cache/$tarball"; } |
 	tar --null -T - -cf - |
 	tart exec -i "$build_vm" /bin/sh -c 'rm -rf ~/ntfsmac && mkdir -p ~/ntfsmac/tree && tar -xf - -C ~/ntfsmac/tree'
 gexec "$build_vm" "cd ~/ntfsmac/tree && NTFSMAC_SOURCE_REV='$rev$dirty' sh packaging/build-pkg.sh --label '$label' --out ~/ntfsmac/dist --work ~/ntfsmac/work 2>&1" ||
@@ -138,6 +145,11 @@ check() { # name args...: the binary must load and run (exit < 126; dyld or sign
 	set +e; "$d/$_n" "$@" >/dev/null 2>&1; _rc=$?; set -e
 	if [ "$_rc" -ge 126 ]; then echo "FAIL $_n (exit $_rc)"; fail=1; else echo "ok   $_n (exit $_rc)"; fi
 }
+if [ -S /var/run/ntfsmacd.sock ] && sudo -n launchctl print system/org.ntfs-macos.ntfsmacd >/dev/null 2>&1; then echo "ok   the daemon runs"; else echo "FAIL the daemon does not run"; fail=1; fi
+set +e; "$d/ntfsmac" doctor; _rc=$?; set -e
+if [ "$(readlink /usr/local/bin/ntfsmac 2>/dev/null)" = "$d/ntfsmac" ]; then echo "ok   the link /usr/local/bin/ntfsmac"; else echo "NOTE no link /usr/local/bin/ntfsmac (/usr/local/bin is not root-only here?)"; fi
+if [ "$_rc" -eq 0 ]; then echo "ok   ntfsmac doctor"; else echo "FAIL ntfsmac doctor (exit $_rc)"; fail=1; fi
+check ntfsmac --version
 check ntfsmac-worker --help
 check ntfsmac-probe --version
 check ntfsmac-volmark
@@ -148,7 +160,8 @@ check ntfslabel --version
 for f in "$d"/*; do codesign --verify "$f" 2>/dev/null || case $f in *.sh | */manifest.txt) ;; *) echo "FAIL signature $f"; fail=1 ;; esac; done
 sudo -n sh ./uninstall.sh
 if pkgutil --pkg-info org.ntfs-macos.pkg >/dev/null 2>&1; then echo "FAIL receipt still present"; fail=1; fi
-if [ -e "$d" ] || [ -e /usr/local/share/doc/ntfs-macos ]; then echo "FAIL files left after uninstall"; fail=1; fi
+if [ -e "$d" ] || [ -e /usr/local/bin/ntfsmac ] || [ -L /usr/local/bin/ntfsmac ] || [ -e /Library/LaunchDaemons/org.ntfs-macos.ntfsmacd.plist ] || [ -e "/Library/Application Support/ntfs-macos" ]; then echo "FAIL files left after uninstall"; fail=1; fi
+if sudo -n launchctl print system/org.ntfs-macos.ntfsmacd >/dev/null 2>&1; then echo "FAIL the daemon is still loaded"; fail=1; fi
 [ "$fail" -eq 0 ] && echo "verify: PASSED"
 exit "$fail"
 ' || die "install verification failed"

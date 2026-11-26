@@ -117,11 +117,11 @@ allowed() { # kind path
 	dir | file)
 		case $2 in
 		/usr/local/libexec/ntfs-macos | /usr/local/libexec/ntfs-macos/*) return 0 ;;
-		/usr/local/share/doc/ntfs-macos | /usr/local/share/doc/ntfs-macos/*) return 0 ;;
 		"/Library/Application Support/ntfs-macos" | "/Library/Application Support/ntfs-macos/"*) return 0 ;;
-		/usr/local/bin/ntfsmac | /Library/LaunchDaemons/$job.plist) [ "$1" = file ] && return 0 ;;
+		/Library/LaunchDaemons/$job.plist) [ "$1" = file ] && return 0 ;;
 		esac
 		;;
+	link) [ "$2" = /usr/local/bin/ntfsmac ] && return 0 ;;
 	statedir) [ "$2" = /var/db/ntfs-macos ] && return 0 ;;
 	statefile) [ "$2" = /var/log/ntfsmacd.log ] && return 0 ;;
 	right) [ "$2" = "$right" ] && return 0 ;;
@@ -152,6 +152,23 @@ check_ancestors() { # path
 	done
 }
 
+# root_only_dir DIR: 0 when DIR is a directory reached without a symbolic link (its physical path
+# is DIR) and it and every directory above it are owned by root and not writable by group or
+# others. Used for the optional link and the paths of the earlier layout, where a user-owned
+# directory (a Homebrew /usr/local/bin) means: leave it alone.
+root_only_dir() {
+	[ -d "$1" ] || return 1
+	_r=$(CDPATH='' cd -P -- "$1" 2>/dev/null && pwd -P) || return 1
+	[ "$_r" = "$1" ] || return 1
+	while :; do
+		_st=$(stat -f '%Su %Lp' "$_r") || return 1
+		[ "${_st% *}" = root ] && [ $((0${_st#* } & 022)) -eq 0 ] || return 1
+		[ "$_r" != / ] || return 0
+		_r=${_r%/*}
+		[ -n "$_r" ] || _r=/
+	done
+}
+
 entries=
 nl='
 '
@@ -160,7 +177,7 @@ while read -r kind mode owner group path || [ -n "$kind" ]; do
 	n=$((n + 1))
 	case $kind in '' | '#'*) continue ;; esac
 	[ -n "$path" ] || die "$manifest:$n: malformed entry"
-	case $kind in dir | file | statedir | statefile | right) ;; *) die "$manifest:$n: unknown entry type: $kind" ;; esac
+	case $kind in dir | file | statedir | statefile | right | link) ;; *) die "$manifest:$n: unknown entry type: $kind" ;; esac
 	[ "$kind" = right ] || case $path in /*) ;; *) die "$manifest:$n: path is not absolute: $path" ;; esac
 	case $path in *..* | *//* | */ | *[[:cntrl:]]*) die "$manifest:$n: refusing path: $path" ;; esac
 	allowed "$kind" "$path" || die "$manifest:$n: refusing $kind outside the paths of ntfs-macos: $path"
@@ -171,7 +188,8 @@ while read -r kind mode owner group path || [ -n "$kind" ]; do
 		{ [ "$owner" = root ] && [ "$group" = wheel ]; } || die "$manifest:$n: owner and group must be root wheel: $path"
 		;;
 	esac
-	[ "$kind" = right ] || check_ancestors "$path"
+	# root runs or reads every dir and file; the optional link is checked when it is made (step 6)
+	case $kind in right | link) ;; *) check_ancestors "$path" ;; esac
 	entries="$entries$kind $mode $owner $group $path$nl"
 done <"$manifest"
 
@@ -301,13 +319,13 @@ source_of() { # installed path: where the file comes from
 		find_tool "${1##*/}" ;;
 	/usr/local/libexec/ntfs-macos/uninstall.sh) echo "$here/uninstall.sh" ;;
 	/usr/local/libexec/ntfs-macos/manifest.txt) echo "$manifest" ;;
-	/usr/local/bin/ntfsmac) echo "$stage/ntfsmac" ;;
+	/usr/local/libexec/ntfs-macos/ntfsmac) echo "$stage/ntfsmac" ;;
 	"/Library/Application Support/ntfs-macos/cli-requirement") echo "$stage/cli-requirement" ;;
 	"/Library/Application Support/ntfs-macos/sandbox/"*.sb) echo "$root/integration/sandbox/${1##*/}" ;;
 	/Library/LaunchDaemons/$job.plist) echo "$job_plist" ;;
-	/usr/local/share/doc/ntfs-macos/COPYING) echo "$root/COPYING" ;;
-	/usr/local/share/doc/ntfs-macos/README.md) echo "$root/README.md" ;;
-	/usr/local/share/doc/ntfs-macos/BUILD-INFO) echo "$stage/BUILD-INFO" ;;
+	"/Library/Application Support/ntfs-macos/doc/COPYING") echo "$root/COPYING" ;;
+	"/Library/Application Support/ntfs-macos/doc/README.md") echo "$root/README.md" ;;
+	"/Library/Application Support/ntfs-macos/doc/BUILD-INFO") echo "$stage/BUILD-INFO" ;;
 	*) return 1 ;;
 	esac
 }
@@ -325,6 +343,25 @@ EOF
 if launchctl print "system/$job" >/dev/null 2>&1; then
 	log "booting out the loaded job $job"
 	priv launchctl bootout "system/$job" || die "could not boot out $job"
+fi
+
+# Paths of the earlier layout (the CLI as a file in /usr/local/bin, the documents in
+# /usr/local/share/doc/ntfs-macos) that the installed manifest of an earlier install lists: removed
+# when their directory is root-only, else left with a note (root does not delete in a directory a
+# user can change).
+old_manifest=/usr/local/libexec/ntfs-macos/manifest.txt
+if [ -f "$old_manifest" ] && [ ! -L "$old_manifest" ] && [ "$(stat -f %Su "$old_manifest")" = root ]; then
+	for lp in /usr/local/bin/ntfsmac /usr/local/share/doc/ntfs-macos/COPYING /usr/local/share/doc/ntfs-macos/README.md /usr/local/share/doc/ntfs-macos/BUILD-INFO; do
+		grep -q -E "^file[[:space:]]+[0-7]+[[:space:]]+root[[:space:]]+wheel[[:space:]]+$lp\$" "$old_manifest" || continue
+		{ [ -f "$lp" ] && [ ! -L "$lp" ]; } || continue
+		if root_only_dir "${lp%/*}"; then
+			priv rm -f "$lp"
+			log "removed $lp (earlier layout)"
+		else
+			log "NOTE: left $lp of the earlier layout: ${lp%/*} is not root-only; remove it yourself"
+		fi
+	done
+	if root_only_dir /usr/local/share/doc/ntfs-macos; then priv rmdir /usr/local/share/doc/ntfs-macos 2>/dev/null || true; fi
 fi
 
 log "installing the files of $(basename "$manifest")"
@@ -359,7 +396,27 @@ for kv in allow-root=false session-owner=false authenticate-user=true; do
 	[ -z "$got" ] || [ "$got" = "${kv#*=}" ] || die "the stored right $right has ${kv%%=*}='$got', not '${kv#*=}'"
 done
 
-# ---- 6. the launchd job ----
+# ---- 6. the convenience link /usr/local/bin/ntfsmac (manifest kind `link`) ----
+link=/usr/local/bin/ntfsmac
+target=/usr/local/libexec/ntfs-macos/ntfsmac
+if root_only_dir /usr/local/bin; then
+	if [ -L "$link" ]; then
+		if [ "$(readlink "$link")" = "$target" ]; then
+			log "the link $link -> $target is in place"
+		else
+			log "NOTE: $link points to $(readlink "$link"), not to $target; left as it is"
+		fi
+	elif [ -e "$link" ]; then
+		log "NOTE: $link exists and is not ours; left as it is. Run the CLI as $target"
+	else
+		priv ln -s "$target" "$link"
+		log "linked $link -> $target"
+	fi
+else
+	log "NOTE: /usr/local/bin is missing or not root-only (a Homebrew directory?): no link. Run the CLI as $target, or add /usr/local/libexec/ntfs-macos to PATH"
+fi
+
+# ---- 7. the launchd job ----
 if [ "$do_load" -eq 1 ]; then
 	plutil -lint "$plist" >/dev/null || die "the installed plist is not valid"
 	log "loading $job"
@@ -376,5 +433,5 @@ else
 	log "the job is not loaded (--no-load): sudo launchctl bootstrap system $plist"
 fi
 
-log "done. Check it with: ntfsmac doctor"
+log "done. Check it with: $target doctor"
 log "remove it with:     sudo /usr/local/libexec/ntfs-macos/uninstall.sh"

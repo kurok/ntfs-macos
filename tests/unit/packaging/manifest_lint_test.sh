@@ -41,7 +41,11 @@ added() {
 mutant "a profile of the tree is missing" '/sandbox\/worker.sb$/d'
 mutant "the plist is missing" '/org.ntfs-macos.ntfsmacd.plist$/d'
 mutant "the worker is missing" '/ntfsmac-worker$/d'
-mutant "the CLI is missing" '/usr\/local\/bin\/ntfsmac$/d'
+mutant "the CLI is missing" '/ntfs-macos\/ntfsmac$/d'
+mutant "the CLI link is missing" '/^link .*\/usr\/local\/bin\/ntfsmac$/d'
+mutant "the CLI is a file in the shared bin directory" 's|^link - - - /usr/local/bin/ntfsmac$|file 0755 root wheel /usr/local/bin/ntfsmac|'
+mutant "the documents in a user-writable directory" 's|/Library/Application Support/ntfs-macos/doc/COPYING$|/usr/local/share/doc/ntfs-macos/COPYING|'
+mutant "a link with a mode" 's|^link - - - |link 0755 root wheel |'
 mutant "the right is missing" '/^right /d'
 mutant "the sandbox directory is missing" '/^dir .*\/sandbox$/d'
 mutant "a program is not executable" 's|^file 0755 \(root wheel /usr/local/libexec/ntfs-macos/ntfsmac-probe\)|file 0644 \1|'
@@ -58,6 +62,7 @@ added "a relative path" "file 0644 root wheel usr/local/libexec/ntfs-macos/x"
 added "a double slash" "file 0644 root wheel /usr/local/libexec/ntfs-macos//x"
 added "a duplicate" "file 0755 root wheel /usr/local/libexec/ntfs-macos/ntfsmacd"
 added "a second right" "right - - - org.ntfs-macos.other"
+added "a second link" "link - - - /usr/local/bin/ntfsmac-other"
 added "a state path elsewhere" "statedir 0755 root wheel /var/db"
 added "a system launchd plist" "file 0644 root wheel /Library/LaunchDaemons/com.apple.something.plist"
 added "a file with no source in the installer" "file 0644 root wheel /usr/local/libexec/ntfs-macos/extra.bin"

@@ -16,7 +16,7 @@ export PATH
 d=${1:?directory}
 fail=0
 INSTALL=/usr/local/libexec/ntfs-macos
-CLI=/usr/local/bin/ntfsmac
+CLI=$INSTALL/ntfsmac
 LABEL=org.ntfs-macos.ntfsmacd
 PLIST=/Library/LaunchDaemons/$LABEL.plist
 LOG=/var/log/ntfsmacd.log
@@ -84,7 +84,7 @@ cc -std=c17 -O2 -I include -I src/volmark -I src/common $ntfs -o "$work/ntfsmac-
 	src/common/mftmirr.c $nlibs -framework CoreFoundation || { echo "FAIL: volmark did not build"; exit 2; }
 
 # ---- install at the manifest paths, root-owned ----
-sudo -n install -d -m 755 -o root -g wheel "$INSTALL" /usr/local/bin "/Library/Application Support/ntfs-macos/sandbox"
+sudo -n install -d -m 755 -o root -g wheel "$INSTALL" "/Library/Application Support/ntfs-macos/sandbox"
 sudo -n install -m 755 -o root -g wheel bin/ntfsmacd "$INSTALL/ntfsmacd"
 # The privileged XPC service accepts only the CLI that the installer recorded (ADR-019 check 3):
 # the CLI is signed ad hoc with the hardened runtime, and its cdhash is the recorded requirement.

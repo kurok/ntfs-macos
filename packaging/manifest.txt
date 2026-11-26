@@ -21,6 +21,18 @@
 #   right      an authorization right (Authorization Services database, not a file); MODE,
 #              OWNER and GROUP are `-`, PATH is the right name. The definition is in
 #              dev-install.sh (class user, group admin, shared false, timeout 0; ADR-019)
+#   link       an optional convenience symbolic link; MODE, OWNER and GROUP are `-`. The only one
+#              is /usr/local/bin/ntfsmac -> /usr/local/libexec/ntfs-macos/ntfsmac. The installers
+#              make it only when /usr/local/bin exists and is root-only (owned by root, not
+#              writable by group or others, no symbolic link on the way); otherwise they skip it
+#              and the CLI is run by its full path. The uninstaller removes it only when it is a
+#              symbolic link to exactly that target.
+#
+# Everything root runs or reads lies below root-only directories: the programs and the CLI in
+# /usr/local/libexec/ntfs-macos, the profiles, the CLI requirement and the documents in
+# /Library/Application Support/ntfs-macos, the plist in /Library/LaunchDaemons. Nothing is put in
+# a directory that may belong to a user (a Homebrew /usr/local/bin or /usr/local/share), except
+# the optional link above.
 #
 # The launchd job org.ntfs-macos.ntfsmacd is loaded from the plist below and booted out by the
 # uninstaller. /usr/local/bin, /Library/LaunchDaemons and /var/log are shared directories: they
@@ -39,8 +51,7 @@ file 0755 root wheel /usr/local/libexec/ntfs-macos/ntfsinfo
 file 0755 root wheel /usr/local/libexec/ntfs-macos/ntfslabel
 file 0755 root wheel /usr/local/libexec/ntfs-macos/uninstall.sh
 file 0644 root wheel /usr/local/libexec/ntfs-macos/manifest.txt
-
-file 0755 root wheel /usr/local/bin/ntfsmac
+file 0755 root wheel /usr/local/libexec/ntfs-macos/ntfsmac
 
 dir  0755 root wheel /Library/Application Support/ntfs-macos
 file 0644 root wheel /Library/Application Support/ntfs-macos/cli-requirement
@@ -48,13 +59,14 @@ dir  0755 root wheel /Library/Application Support/ntfs-macos/sandbox
 file 0644 root wheel /Library/Application Support/ntfs-macos/sandbox/probe.sb
 file 0644 root wheel /Library/Application Support/ntfs-macos/sandbox/volmark.sb
 file 0644 root wheel /Library/Application Support/ntfs-macos/sandbox/worker.sb
+dir  0755 root wheel /Library/Application Support/ntfs-macos/doc
+file 0644 root wheel /Library/Application Support/ntfs-macos/doc/COPYING
+file 0644 root wheel /Library/Application Support/ntfs-macos/doc/README.md
+file 0644 root wheel /Library/Application Support/ntfs-macos/doc/BUILD-INFO
 
 file 0644 root wheel /Library/LaunchDaemons/org.ntfs-macos.ntfsmacd.plist
 
-dir  0755 root wheel /usr/local/share/doc/ntfs-macos
-file 0644 root wheel /usr/local/share/doc/ntfs-macos/COPYING
-file 0644 root wheel /usr/local/share/doc/ntfs-macos/README.md
-file 0644 root wheel /usr/local/share/doc/ntfs-macos/BUILD-INFO
+link - - - /usr/local/bin/ntfsmac
 
 right - - - org.ntfs-macos.journal-modify
 

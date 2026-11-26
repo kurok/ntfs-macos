@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
-<!-- Template for packaging/build-pkg.sh: @VERSION@, @LABEL@ and @PKG_ID@ are replaced. -->
+<!-- Template for packaging/build-pkg.sh: @VERSION@, @LABEL@ and @PKG_ID@ are replaced.
+     The installation check below gives the Installer window and installer(8) a clear message for
+     the common refusals (macOS, arm64, macFUSE missing or too old, Paragon or Tuxera installed).
+     The component package @PKG_ID@ carries the scripts preinstall (the full preflight, the
+     authoritative one: it also refuses other NTFS bundles and kernel extensions, files in the way
+     and root-unsafe directories) and postinstall (authorization right, CLI requirement, launchd
+     job); see packaging/scripts/. -->
 <installer-gui-script minSpecVersion="2">
-    <title>ntfs-macos @LABEL@ (unsigned developer build)</title>
+    <title>ntfs-macos @LABEL@</title>
     <options customize="never" require-scripts="false" hostArchitectures="arm64"/>
     <domains enable_anywhere="false" enable_currentUserHome="false" enable_localSystem="true"/>
     <volume-check>
@@ -13,12 +19,32 @@
     <installation-check script="ntfsmacCheck()"/>
     <script>
     <![CDATA[
+    var MACFUSE = '/Library/Filesystems/macfuse.fs';
+    var MACFUSE_MIN = '5.5.0'; // NTFSMAC_MACFUSE_MIN_* of src/daemon/internal.h
+    function refuse(title, message) {
+        my.result.type = 'Fatal';
+        my.result.title = title;
+        my.result.message = message;
+        return false;
+    }
     function ntfsmacCheck() {
-        if (!system.files.fileExistsAtPath('/Library/Filesystems/macfuse.fs')) {
-            my.result.type = 'Fatal';
-            my.result.title = 'macFUSE is required';
-            my.result.message = 'Install macFUSE 5.5.0 or newer and turn it on in System Settings, then run this installer again. ntfs-macos does not bundle macFUSE.';
-            return false;
+        if (!system.files.fileExistsAtPath(MACFUSE)) {
+            return refuse('macFUSE is required',
+                'Install macFUSE ' + MACFUSE_MIN + ' or newer and turn its file system extension on in System Settings, then run this installer again. ntfs-macos does not include macFUSE.');
+        }
+        var b = system.files.bundleAtPath(MACFUSE);
+        var v = b ? (b.CFBundleShortVersionString || b.CFBundleVersion) : null;
+        if (!v || system.compareVersions(v, MACFUSE_MIN) < 0) {
+            return refuse('macFUSE is too old',
+                'ntfs-macos needs macFUSE ' + MACFUSE_MIN + ' or newer; this Mac has ' + (v || 'an unknown version') + '. Update macFUSE, then run this installer again.');
+        }
+        var others = [['/Library/Filesystems/ufsd_NTFS.fs', 'Paragon NTFS'],
+                      ['/Library/Filesystems/tuxera_ntfs.fs', 'Tuxera NTFS']];
+        for (var i = 0; i < others.length; i++) {
+            if (system.files.fileExistsAtPath(others[i][0])) {
+                return refuse('Another NTFS driver is installed',
+                    others[i][1] + ' (' + others[i][0] + ') is installed. ntfs-macos does not install next to another NTFS driver, because two drivers could write to one volume. Remove it with its own uninstaller first.');
+            }
         }
         return true;
     }

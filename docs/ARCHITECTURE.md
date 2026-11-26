@@ -592,7 +592,7 @@ Finder writes `.DS_Store`, `._*` companions or xattrs. With `streams_interface=o
 
 | Situation | Behaviour |
 |---|---|
-| Installer finds `/Library/Filesystems/ufsd_NTFS.fs`, `tuxera_ntfs.fs`, or another non-Apple NTFS bundle | Warns, installs, sets passive mode. |
+| Installer finds `/Library/Filesystems/ufsd_NTFS.fs`, `tuxera_ntfs.fs`, another non-Apple NTFS bundle (the rule of `conflict.c`), or an `*ntfs*.kext` in `/Library/Extensions` | The installer refuses when another NTFS driver is present (owner decision 2026-11-26; the earlier design warned, installed and set passive mode). (T-M6-01: `packaging/scripts/preinstall`, `distribution.xml`.) A driver installed later is met by passive mode (next row): the daemon scans `/Library/Filesystems` again at every disk appearance and before every `ntfsmac mount`. **Known gap:** `src/daemon/conflict.c` looks only at `/Library/Filesystems` bundles, not at kernel extensions, so a kext-only NTFS driver (an `*ntfs*.kext` in `/Library/Extensions`) installed after our package is not met by passive mode; the installer refuses such a kext only at install time. |
 | Passive mode | No mount-approval dissent, no automount. `ntfsmac mount` works only on a volume that is currently unmounted, and refuses if the other driver has it mounted. |
 | fuse-t present (as on this host) | No conflict: fuse-t registers its own FSKit module and is not an NTFS claimant [V:S17]. Our worker links macFUSE's `libfuse` by absolute path, never fuse-t's. |
 | Tests | Never run mount tests on the developer host. All mount tests run in the macOS VM, which has no Paragon driver (TEST_STRATEGY.md section 2). |
@@ -658,7 +658,7 @@ User-facing documentation must carry N1 to N5 and N9 to N22 verbatim in a "Limit
 | Artifact | Built by | Installed at |
 |---|---|---|
 | `ntfsmac-worker`, `mkntfs`, `ntfsfix`, `ntfsinfo`, `ntfslabel` | NTFS-3G autotools build driven by `scripts/build-ntfs3g.sh`, `--with-fuse=external`, static `libntfs-3g`, patch series applied (ADR-002). `lowntfs-3g` is built by the same tarball but never installed: patch 0003 does not cover it | `/usr/local/libexec/ntfs-macos/` |
-| `ntfsmac-probe`, `ntfsmacd`, `ntfsmac` | CMake + Ninja (ADR-007) | `/usr/local/libexec/ntfs-macos/`, `/usr/local/bin/ntfsmac` |
+| `ntfsmac-probe`, `ntfsmacd`, `ntfsmac` | CMake + Ninja (ADR-007) | `/usr/local/libexec/ntfs-macos/` (the CLI too, T-M6-01); `/usr/local/bin/ntfsmac` is an optional symbolic link, made only when `/usr/local/bin` is root-only |
 | `org.ntfs-macos.ntfsmacd.plist` | static file | `/Library/LaunchDaemons/` |
 | sandbox profiles, default config | static files | `/Library/Application Support/ntfs-macos/` |
 | `manifest.txt` (`packaging/`) | static file; the one list of every installed path, with owner, group and mode, that `packaging/dev-install.sh` installs from (preset `product`, T-M4-10) and `uninstall.sh` removes from; also installed as `/usr/local/libexec/ntfs-macos/manifest.txt` | `/usr/local/libexec/ntfs-macos/` |

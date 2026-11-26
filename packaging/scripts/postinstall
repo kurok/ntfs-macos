@@ -1,0 +1,166 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# postinstall of the ntfs-macos package (T-M6-01). Run as root by the Installer after the files of
+# the payload are in place; its output goes to the Installer log (/var/log/install.log). A
+# non-zero exit makes the Installer report the install as failed.
+#
+#   1. installs the authorization right org.ntfs-macos.journal-modify (ADR-019: class user, group
+#      admin, not shared, timeout 0; the same definition as packaging/dev-install.sh) and reads it
+#      back
+#   2. records the code requirement of the installed CLI (ADR-019 check 3): `cdhash H"<cdhash>"`
+#      of /usr/local/libexec/ntfs-macos/ntfsmac as it is on disk now, so a re-signed payload is
+#      recorded as signed; the CLI must carry the hardened runtime
+#   3. makes the convenience link /usr/local/bin/ntfsmac -> /usr/local/libexec/ntfs-macos/ntfsmac
+#      (the manifest's `link`), only when /usr/local/bin exists, is reached without a symbolic link
+#      and it and every directory above it are owned by root and not writable by group or others,
+#      and only when nothing is at that path yet (or our link is). Otherwise the link is skipped and
+#      the log says how to run the CLI. A user-owned /usr/local/bin (Homebrew) is never written to.
+#   4. loads the launchd job org.ntfs-macos.ntfsmacd and waits until the daemon serves its control
+#      socket
+#
+# Root-safe by construction: absolute program paths, a fixed PATH, no environment variable is
+# read, no argument but the target volume ($3, compared with "/") is used, no string from outside
+# is executed. The only file written is the requirement, through a new file in its root-only
+# directory (made by mktemp there) renamed over the old one.
+set -eu
+umask 022
+PATH=/usr/bin:/bin:/usr/sbin:/sbin
+export PATH
+
+tag='ntfs-macos postinstall'
+say() { /usr/bin/printf '%s: %s\n' "$tag" "$*"; }
+fail() {
+	/usr/bin/printf '%s: FAILED: %s\n' "$tag" "$*"
+	/usr/bin/printf '%s: FAILED: %s\n' "$tag" "$*" >&2
+	exit 1
+}
+
+job=org.ntfs-macos.ntfsmacd
+plist=/Library/LaunchDaemons/org.ntfs-macos.ntfsmacd.plist
+right=org.ntfs-macos.journal-modify
+cli=/usr/local/libexec/ntfs-macos/ntfsmac
+bin=/usr/local/bin
+link=/usr/local/bin/ntfsmac
+support='/Library/Application Support/ntfs-macos'
+req=$support/cli-requirement
+sock=/var/run/ntfsmacd.sock
+
+tmp=
+trap '[ -z "$tmp" ] || /bin/rm -f "$tmp"' EXIT
+
+[ "${3:-}" = / ] || fail "ntfs-macos installs only on the startup volume /"
+
+# ---- 1. the authorization right ----
+right_def='<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+	<key>class</key><string>user</string>
+	<key>comment</key><string>Clear a session journal entry or repair an NTFS volume with ntfsmac.</string>
+	<key>group</key><string>admin</string>
+	<key>shared</key><false/>
+	<key>timeout</key><integer>0</integer>
+	<key>authenticate-user</key><true/>
+	<key>version</key><integer>1</integer>
+</dict></plist>'
+/usr/bin/printf '%s\n' "$right_def" | /usr/bin/security authorizationdb write "$right" >/dev/null 2>&1 ||
+	fail "could not install the authorization right $right"
+stored=$(/usr/bin/security authorizationdb read "$right" 2>/dev/null) || fail "cannot read back the right $right"
+key() { /usr/bin/printf '%s\n' "$stored" | /usr/bin/plutil -extract "$1" raw -o - - 2>/dev/null || true; }
+for kv in class=user group=admin shared=false timeout=0; do
+	[ "$(key "${kv%%=*}")" = "${kv#*=}" ] || fail "the stored right $right has ${kv%%=*}='$(key "${kv%%=*}")', not '${kv#*=}'"
+done
+if /usr/bin/printf '%s\n' "$stored" | /usr/bin/plutil -extract rule raw -o - - >/dev/null 2>&1; then
+	fail "the stored right $right has a rule key"
+fi
+for kv in allow-root=false session-owner=false authenticate-user=true; do
+	v=$(key "${kv%%=*}")
+	[ -z "$v" ] || [ "$v" = "${kv#*=}" ] || fail "the stored right $right has ${kv%%=*}='$v', not '${kv#*=}'"
+done
+say "authorization right $right installed"
+
+# ---- 2. the requirement of the installed CLI ----
+[ -f "$cli" ] && [ ! -L "$cli" ] || fail "$cli is missing"
+[ -d "$support" ] && [ ! -L "$support" ] || fail "$support is missing"
+sig=$(/usr/bin/codesign -d -vvv "$cli" 2>&1) || fail "$cli is not signed"
+hash=$(/usr/bin/printf '%s\n' "$sig" | /usr/bin/sed -n 's/^CDHash=//p')
+case $hash in
+'' | *[!0-9a-f]*) fail "no cdhash for $cli" ;;
+esac
+[ "${#hash}" -eq 40 ] || fail "unexpected cdhash length for $cli"
+/usr/bin/printf '%s\n' "$sig" | /usr/bin/grep -q '^CodeDirectory .*flags=.*runtime' ||
+	fail "$cli has no hardened runtime; the daemon would refuse it"
+tmp=$(/usr/bin/mktemp "$support/.cli-requirement.XXXXXX") || fail "cannot write in $support"
+/usr/bin/printf 'cdhash H"%s"\n' "$hash" >"$tmp"
+/usr/sbin/chown root:wheel "$tmp"
+/bin/chmod 0644 "$tmp"
+/bin/mv -f "$tmp" "$req"
+say "recorded the requirement of $cli: cdhash $hash"
+
+# ---- 3. the convenience link ----
+# root_only_dir DIR: 0 when DIR is a directory whose physical path is DIR (no symbolic link on the
+# way) and it and every directory above it are owned by root and not writable by group or others
+root_only_dir() {
+	[ -d "$1" ] || return 1
+	_r=$(CDPATH='' cd -P -- "$1" 2>/dev/null && /bin/pwd -P) || return 1
+	[ "$_r" = "$1" ] || return 1
+	while :; do
+		_st=$(/usr/bin/stat -f '%Su %Lp' "$_r") || return 1
+		[ "${_st% *}" = root ] && [ $((0${_st#* } & 022)) -eq 0 ] || return 1
+		[ "$_r" != / ] || return 0
+		_r=${_r%/*}
+		[ -n "$_r" ] || _r=/
+	done
+}
+howto="run the CLI as $cli, or add /usr/local/libexec/ntfs-macos to PATH (for example: echo 'export PATH=\"\$PATH:/usr/local/libexec/ntfs-macos\"' >> ~/.zprofile)"
+if ! root_only_dir "$bin"; then
+	say "no link $link: $bin is missing, or is not owned by root and protected from other users (a Homebrew directory?); $howto"
+elif [ -L "$link" ]; then
+	if [ "$(/usr/bin/readlink "$link")" = "$cli" ]; then
+		say "the link $link -> $cli is in place"
+	else
+		say "no link: $link is a symbolic link to something else and is left as it is; $howto"
+	fi
+elif [ -e "$link" ]; then
+	say "no link: $link exists and is not ours; it is left as it is; $howto"
+else
+	/bin/ln -s "$cli" "$link"
+	say "linked $link -> $cli"
+fi
+
+# ---- 4. the launchd job ----
+/usr/bin/plutil -lint "$plist" >/dev/null || fail "$plist is not a valid property list"
+if /bin/launchctl print "system/$job" >/dev/null 2>&1; then
+	/bin/launchctl bootout "system/$job" >/dev/null 2>&1 || true
+	i=0
+	while /bin/launchctl print "system/$job" >/dev/null 2>&1 && [ "$i" -lt 70 ]; do
+		/bin/sleep 1
+		i=$((i + 1))
+	done
+fi
+/bin/launchctl bootstrap system "$plist" || fail "could not load $job from $plist"
+i=0
+while [ "$i" -lt 30 ]; do
+	if [ -S "$sock" ] && /bin/launchctl print "system/$job" 2>/dev/null | /usr/bin/grep -q '^[[:space:]]*state = running'; then
+		break
+	fi
+	/bin/sleep 1
+	i=$((i + 1))
+done
+if [ "$i" -ge 30 ]; then
+	/usr/bin/tail -n 20 /var/log/ntfsmacd.log 2>/dev/null || true
+	fail "the daemon $job did not start in 30 s (its log is /var/log/ntfsmacd.log)"
+fi
+say "the daemon $job is running ($sock)"
+say "done. Check the setup with: $cli doctor (macFUSE's file system extension must be on in System Settings)"
+# Last, so that it is the final word of the log: an ntfsmac in /usr/local/bin that is not our link
+# (the CLI file of an earlier install, left by preinstall because /usr/local/bin is not root-only,
+# or another program) would run instead of the installed CLI when `ntfsmac` is typed.
+if { [ -e "$link" ] || [ -L "$link" ]; } && ! { [ -L "$link" ] && [ "$(/usr/bin/readlink "$link")" = "$cli" ]; }; then
+	what="is not the installed CLI"
+	if [ -f "$link" ] && [ ! -L "$link" ] && /usr/bin/codesign -d -v "$link" 2>&1 | /usr/bin/grep -qx 'Identifier=ntfsmac'; then
+		what="looks like the CLI of an earlier ntfs-macos install (it was left there because $bin is not root-only, or it was copied by hand)"
+	fi
+	say "WARNING: $link $what. Typing ntfsmac may run it instead of $cli, and an earlier CLI is refused by the daemon for journal-clear and repair. Remove it by hand (sudo rm $link) or run $cli by its full path."
+fi
+exit 0

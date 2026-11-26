@@ -11,8 +11,8 @@
 # device baselines are separate commands in the protocol.
 #
 # Environment: HW_SLICE (required, for example disk4s1), HW_SERIAL (required: the USB serial of the disposable disk;
-# tests/hardware/identify.sh is run with it at every mount), NTFSMAC_CLI (default /usr/local/bin/ntfsmac).
-CLI=${NTFSMAC_CLI:-/usr/local/bin/ntfsmac}
+# tests/hardware/identify.sh is run with it at every mount), NTFSMAC_CLI (default /usr/local/libexec/ntfs-macos/ntfsmac).
+CLI=${NTFSMAC_CLI:-/usr/local/libexec/ntfs-macos/ntfsmac}
 PATH=/sbin:/usr/sbin:/usr/bin:/bin:$PATH
 export PATH
 case ${HW_SLICE:-} in

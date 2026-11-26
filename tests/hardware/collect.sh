@@ -33,7 +33,7 @@ export PATH
 here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 repo=$(dirname "$(dirname "$here")")
 PROBE=${NTFSMAC_PROBE:-/usr/local/libexec/ntfs-macos/ntfsmac-probe}
-CLI=${NTFSMAC_CLI:-/usr/local/bin/ntfsmac}
+CLI=${NTFSMAC_CLI:-/usr/local/libexec/ntfs-macos/ntfsmac}
 JOURNAL=/var/db/ntfs-macos/journal
 
 usage() { printf 'usage: %s --disk DISK --slice SLICE --tag TAG --out DIR [--serial TEXT] [--copy [--copy-dir DIR]]\n' "$0" >&2; exit 2; }

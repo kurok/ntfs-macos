@@ -21,7 +21,7 @@ export PATH
 fail=0
 INSTALL=/usr/local/libexec/ntfs-macos
 SBX="/Library/Application Support/ntfs-macos/sandbox"
-CLI=/usr/local/bin/ntfsmac
+CLI=$INSTALL/ntfsmac
 LABEL=org.ntfs-macos.ntfsmacd
 PLIST=/Library/LaunchDaemons/$LABEL.plist
 LOG=/var/log/ntfsmacd.log
@@ -248,7 +248,7 @@ build_tools() {
 # install_daemon: the manifest paths, root-owned; the CLI signed ad hoc with the hardened runtime
 # and its cdhash recorded as the requirement (ADR-019 check 3), as the installer does.
 install_daemon() {
-	sudo -n install -d -m 755 -o root -g wheel "$INSTALL" /usr/local/bin "$SBX"
+	sudo -n install -d -m 755 -o root -g wheel "$INSTALL" "$SBX"
 	sudo -n install -m 755 -o root -g wheel bin/ntfsmacd "$INSTALL/ntfsmacd"
 	cp bin/ntfsmac "$work/ntfsmac"
 	codesign --force -s - -o runtime "$work/ntfsmac" >/dev/null 2>&1 || failf "codesign of the CLI"

@@ -15,10 +15,14 @@
 #           user-owned or group-writable, and when the daemon of the build tree has test seams.
 # I-PKG-02: packaging/uninstall.sh refuses manifests that name paths outside the project and
 #           removes nothing then; --dry-run removes nothing; a real run removes exactly the manifest
-#           (the job, the right, every file, every empty directory) and leaves foreign files, their
+#           (the job, the right, the link, every file, every empty directory) and leaves foreign files, their
 #           directory, the shared directories and the state alone; --purge-state removes the state;
 #           the files left on the Mac equal those before the install; a package receipt of the older
-#           kind is removed, and one with a path outside the project is refused.
+#           kind is removed; a receipt path /usr/local/bin/ntfsmac (the only entry of /usr/local/bin)
+#           follows the rule of the link: a regular file (earlier layout) is kept and named, a link to
+#           exactly the CLI is removed, the same link in a user-owned /usr/local/bin is kept and named,
+#           and the shared /usr/local/bin is never removed; a receipt with a path outside the project
+#           is refused.
 #
 # Prints PASS, FAIL and NOTE lines; exit 0 only if no FAIL.
 set -u
@@ -29,7 +33,9 @@ d=${1:?directory}
 cd "$d" || exit 2
 fail=0
 LIBEXEC=/usr/local/libexec/ntfs-macos
-CLI=/usr/local/bin/ntfsmac
+CLI=$LIBEXEC/ntfsmac
+LINK=/usr/local/bin/ntfsmac
+DOC="/Library/Application Support/ntfs-macos/doc"
 LABEL=org.ntfs-macos.ntfsmacd
 PLIST=/Library/LaunchDaemons/$LABEL.plist
 RIGHT=org.ntfs-macos.journal-modify
@@ -92,8 +98,8 @@ entries_match() {
 # the set of paths below the owned directories (and the two single files) equals the manifest's
 installed_set() {
 	{
-		find "$LIBEXEC" /usr/local/share/doc/ntfs-macos "$SUPPORT" \( -type f -o -type d -o -type l \) -print 2>/dev/null
-		ls -d "$CLI" "$PLIST" 2>/dev/null
+		find "$LIBEXEC" "$SUPPORT" \( -type f -o -type d -o -type l \) -print 2>/dev/null
+		ls -d "$PLIST" 2>/dev/null
 	} | sort
 }
 set_equal() {
@@ -110,6 +116,7 @@ nothing_left() {
 	manifest_paths dir file | while IFS= read -r p; do
 		if [ -e "$p" ] || [ -L "$p" ]; then echo "  left: $p"; exit 1; fi
 	done || bad=1
+	{ [ -e "$LINK" ] || [ -L "$LINK" ]; } && { echo "  the link $LINK is still there"; bad=1; }
 	job_loaded && { echo "  the job is still loaded"; bad=1; }
 	right_is_ours && { echo "  the right is still there"; bad=1; }
 	[ -S "$SOCK" ] && { echo "  the control socket is still there"; bad=1; }
@@ -138,15 +145,14 @@ note "before the install: $(wc -l <"$work/snap.before" | tr -d ' ') files below 
 echo "== I-PKG-01: dev-install.sh"
 # =====================================================================================
 echo "-- a directory above an installed path that is not root-only: the install is refused"
-ANC=/usr/local/share/doc
+ANC=/usr/local/libexec
 made=
-[ -d /usr/local/share ] || made="$made /usr/local/share"
 [ -d "$ANC" ] || made="$made $ANC"
 sudo -n mkdir -p "$ANC"
 orig=$(stat -f '%Su:%Sg %Lp' "$ANC")
 restore_anc() {
 	if [ -n "$made" ]; then
-		for m in $ANC /usr/local/share; do case "$made" in *" $m"*) sudo -n rmdir "$m" 2>/dev/null ;; esac; done
+		for m in $ANC; do case "$made" in *" $m"*) sudo -n rmdir "$m" 2>/dev/null ;; esac; done
 	else
 		sudo -n chown "${orig% *}" "$ANC"
 		sudo -n chmod "${orig#* }" "$ANC"
@@ -185,7 +191,8 @@ check "the plist is valid" plutil -lint "$PLIST"
 
 echo "-- the product has no test seams"
 nocheck "the installed daemon has none of --console-uid, --child-log, --journal-dir" sh -c "strings $LIBEXEC/ntfsmacd | grep -q -e '--console-uid' -e '--child-log' -e '--journal-dir'"
-check "BUILD-INFO says preset product" grep -q '^preset .*product' /usr/local/share/doc/ntfs-macos/BUILD-INFO
+check "BUILD-INFO says preset product" grep -q '^preset .*product' "$DOC/BUILD-INFO"
+check "the link $LINK points to the CLI (/usr/local/bin is root-only in the guest)" [ "$(readlink "$LINK")" = "$CLI" ]
 
 echo "-- the CLI and its recorded code requirement (ADR-019 check 3)"
 req=$(cat "$SUPPORT/cli-requirement" 2>/dev/null)
@@ -349,10 +356,10 @@ sudo -n mv "$work/sandbox.moved" "$SUPPORT/sandbox"
 check "the install is whole again" installed_ok
 
 echo "-- an ancestor that is not root-only: the uninstaller warns"
-sudo -n chown "$(id -un)" /usr/local/share/doc
+sudo -n chown "$(id -un)" /usr/local/libexec
 sudo -n sh "$LIBEXEC/uninstall.sh" --dry-run >"$work/warn.out" 2>&1
-sudo -n chown root:wheel /usr/local/share/doc
-check "the dry run warns that /usr/local/share/doc is not root-only" grep -q "WARNING: /usr/local/share/doc is owned by $(id -un)" "$work/warn.out"
+sudo -n chown root:wheel /usr/local/libexec
+check "the dry run warns that /usr/local/libexec is not root-only" grep -q "WARNING: /usr/local/libexec is owned by $(id -un)" "$work/warn.out"
 echo "-- --dry-run"
 sudo -n sh "$LIBEXEC/uninstall.sh" --dry-run >"$work/dry.out" 2>&1
 rc=$?
@@ -370,12 +377,13 @@ if [ "$rc" -eq 0 ]; then pass "uninstall.sh exits 0"; else failf "uninstall.sh e
 check "the job is unloaded" sh -c "! sudo -n launchctl print system/$LABEL >/dev/null 2>&1"
 check "the authorization right is removed" sh -c "! [ \"\$(sudo -n security authorizationdb read $RIGHT 2>/dev/null | plutil -extract group raw -o - - 2>/dev/null)\" = admin ]"
 check "the control socket is gone" wait_for 20 sh -c "! [ -S $SOCK ]"
-for p in "$CLI" "$PLIST" "$LIBEXEC/ntfsmacd" "$LIBEXEC/ntfsmac-worker" "$LIBEXEC/ntfsmac-probe" "$LIBEXEC/ntfsmac-volmark" "$LIBEXEC/mkntfs" "$LIBEXEC/uninstall.sh" "$LIBEXEC/manifest.txt" "$SUPPORT/cli-requirement" "$SUPPORT/sandbox/worker.sb" /usr/local/share/doc/ntfs-macos/COPYING; do
+for p in "$CLI" "$PLIST" "$LIBEXEC/ntfsmacd" "$LIBEXEC/ntfsmac-worker" "$LIBEXEC/ntfsmac-probe" "$LIBEXEC/ntfsmac-volmark" "$LIBEXEC/mkntfs" "$LIBEXEC/uninstall.sh" "$LIBEXEC/manifest.txt" "$SUPPORT/cli-requirement" "$SUPPORT/sandbox/worker.sb" "$DOC/COPYING" "$LINK"; do
 	[ ! -e "$p" ] && [ ! -L "$p" ] || failf "still there: $p"
 done
 nothing_left_out=$(manifest_paths file | while IFS= read -r p; do [ -e "$p" ] && echo "  left: $p"; done)
 if [ -z "$nothing_left_out" ]; then pass "every file of the manifest is gone"; else failf "files left"; echo "$nothing_left_out"; fi
-check "the empty project directories are gone (sandbox, support, doc)" sh -c "[ ! -e '$SUPPORT' ] && [ ! -e /usr/local/share/doc/ntfs-macos ]"
+check "the empty project directories are gone (sandbox, doc, support)" sh -c "[ ! -e '$SUPPORT' ]"
+check "the link $LINK is gone" sh -c "[ ! -e $LINK ] && [ ! -L $LINK ]"
 check "the directory with a foreign file is kept, with the file unchanged" sh -c "[ -d $LIBEXEC ] && [ \"\$(shasum -a 256 $LIBEXEC/foreign.txt | awk '{print \$1}')\" = $sum_foreign ]"
 check "nothing else is in the kept directory" sh -c "[ \"\$(ls $LIBEXEC)\" = foreign.txt ]"
 check "the decoy in /usr/local/bin is untouched" [ -f /usr/local/bin/ntfsmac-other ]
@@ -413,12 +421,12 @@ if cmp -s "$work/snap.before" "$work/snap.after"; then pass "the files on the gu
 # =====================================================================================
 echo "== I-PKG-02: a package receipt of the developer package (build-pkg.sh kind)"
 # =====================================================================================
-mkdir -p "$work/pkgroot$LIBEXEC" "$work/pkgroot/usr/local/share/doc/ntfs-macos/LICENSES"
+mkdir -p "$work/pkgroot$LIBEXEC" "$work/pkgroot$DOC/LICENSES"
 printf '#!/bin/sh\necho tool\n' >"$work/pkgroot$LIBEXEC/ntfsmac-probe"
 chmod 755 "$work/pkgroot$LIBEXEC/ntfsmac-probe"
 cp packaging/uninstall.sh packaging/manifest.txt "$work/pkgroot$LIBEXEC/"
-echo licence >"$work/pkgroot/usr/local/share/doc/ntfs-macos/LICENSES/GPL"
-echo text >"$work/pkgroot/usr/local/share/doc/ntfs-macos/COPYING"
+echo licence >"$work/pkgroot$DOC/LICENSES/GPL"
+echo text >"$work/pkgroot$DOC/COPYING"
 pkgbuild --root "$work/pkgroot" --identifier org.ntfs-macos.pkg --version 0.0.1 --install-location / "$work/ok.pkg" >/dev/null 2>&1 || failf "pkgbuild of the test package"
 sudo -n /usr/sbin/installer -pkg "$work/ok.pkg" -target / >"$work/pkg.out" 2>&1 || { failf "installer of the test package"; cat "$work/pkg.out"; }
 check "the test package is installed with a receipt" pkgutil --pkg-info org.ntfs-macos.pkg
@@ -427,7 +435,58 @@ rc=$?
 cat "$work/un4.out"
 if [ "$rc" -eq 0 ]; then pass "uninstall.sh removes a package install (exit 0)"; else failf "uninstall.sh on a package install exits $rc"; fi
 check "the receipt is forgotten" sh -c "! pkgutil --pkg-info org.ntfs-macos.pkg >/dev/null 2>&1"
-check "its files and directories (LICENSES included) are gone" sh -c "[ ! -e $LIBEXEC ] && [ ! -e /usr/local/share/doc/ntfs-macos ]"
+check "its files and directories (LICENSES included) are gone" sh -c "[ ! -e $LIBEXEC ] && [ ! -e '$SUPPORT' ]"
+
+echo "-- receipts that name /usr/local/bin/ntfsmac follow the rule of the link"
+# /usr/local/bin is moved aside, so that the package makes it with ntfsmac as its only entry
+had_bin=0
+if [ -d /usr/local/bin ]; then had_bin=1; sudo -n mv /usr/local/bin /usr/local/bin.pkgvm-aside; fi
+# rpkg NAME: build and install a package whose receipt holds $LIBEXEC/ntfsmac-probe and usr/local/bin/ntfsmac
+# as made in $work/NAME by the caller
+rpkg() {
+	mkdir -p "$work/$1$LIBEXEC"
+	printf '#!/bin/sh\necho tool\n' >"$work/$1$LIBEXEC/ntfsmac-probe"
+	chmod 755 "$work/$1$LIBEXEC/ntfsmac-probe"
+	pkgbuild --root "$work/$1" --identifier org.ntfs-macos.pkg --version 0.0.1 --install-location / "$work/$1.pkg" >/dev/null 2>&1 || failf "pkgbuild of $1"
+	sudo -n /usr/sbin/installer -pkg "$work/$1.pkg" -target / >/dev/null 2>&1 || failf "installer of $1"
+}
+# a) the earlier layout: the CLI as a regular file
+mkdir -p "$work/r_file/usr/local/bin"
+printf '#!/bin/sh\necho old cli\n' >"$work/r_file/usr/local/bin/ntfsmac"
+chmod 755 "$work/r_file/usr/local/bin/ntfsmac"
+rpkg r_file
+check "a) /usr/local/bin holds only ntfsmac, a regular file of the receipt" sh -c "[ \"\$(ls -A /usr/local/bin)\" = ntfsmac ] && [ -f /usr/local/bin/ntfsmac ] && [ ! -L /usr/local/bin/ntfsmac ]"
+sudo -n sh packaging/uninstall.sh >"$work/un6.out" 2>&1
+rc=$?
+cat "$work/un6.out"
+if [ "$rc" -eq 0 ]; then pass "a) uninstall.sh exits 0"; else failf "a) uninstall.sh exits $rc"; fi
+check "a) the regular file /usr/local/bin/ntfsmac is kept (not our link) and named" sh -c "[ -f /usr/local/bin/ntfsmac ] && grep -q 'kept /usr/local/bin/ntfsmac: it is not a symbolic link' '$work/un6.out'"
+check "a) the rest of the receipt is gone and the receipt is forgotten" sh -c "[ ! -e $LIBEXEC ] && ! pkgutil --pkg-info org.ntfs-macos.pkg >/dev/null 2>&1"
+check "a) the shared /usr/local/bin is kept" [ -d /usr/local/bin ]
+sudo -n rm -f /usr/local/bin/ntfsmac
+# b) a symbolic link to exactly the CLI, in a root-only /usr/local/bin: removed; the directory, empty now, is kept
+mkdir -p "$work/r_link/usr/local/bin"
+ln -s "$LIBEXEC/ntfsmac" "$work/r_link/usr/local/bin/ntfsmac"
+rpkg r_link
+check "b) the receipt installed the link" [ "$(readlink /usr/local/bin/ntfsmac)" = "$LIBEXEC/ntfsmac" ]
+sudo -n sh packaging/uninstall.sh >"$work/un7.out" 2>&1
+rc=$?
+cat "$work/un7.out"
+if [ "$rc" -eq 0 ]; then pass "b) uninstall.sh exits 0"; else failf "b) uninstall.sh exits $rc"; fi
+check "b) the link is removed" sh -c "[ ! -e /usr/local/bin/ntfsmac ] && [ ! -L /usr/local/bin/ntfsmac ]"
+check "b) the shared /usr/local/bin is kept although it is empty now" sh -c "[ -d /usr/local/bin ] && [ -z \"\$(ls -A /usr/local/bin)\" ]"
+# c) the same link, but /usr/local/bin belongs to the user: kept and named
+rpkg r_link
+sudo -n chown "$(id -un)" /usr/local/bin
+sudo -n sh packaging/uninstall.sh >"$work/un8.out" 2>&1
+rc=$?
+cat "$work/un8.out"
+if [ "$rc" -eq 0 ]; then pass "c) uninstall.sh exits 0"; else failf "c) uninstall.sh exits $rc"; fi
+check "c) the link in a user-owned /usr/local/bin is kept and named" sh -c "[ -L /usr/local/bin/ntfsmac ] && grep -q 'kept /usr/local/bin/ntfsmac: /usr/local/bin is not root-only' '$work/un8.out'"
+check "c) the receipt is forgotten" sh -c "! pkgutil --pkg-info org.ntfs-macos.pkg >/dev/null 2>&1"
+sudo -n rm -f /usr/local/bin/ntfsmac
+sudo -n rmdir /usr/local/bin 2>/dev/null
+[ "$had_bin" -eq 0 ] || sudo -n mv /usr/local/bin.pkgvm-aside /usr/local/bin
 
 # a receipt that lists a path outside the directories of the manifest: refused, nothing removed
 mkdir -p "$work/evilroot/usr/local/share/ntfs-macos-outside" "$work/evilroot$LIBEXEC"

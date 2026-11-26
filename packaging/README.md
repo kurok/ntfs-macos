@@ -7,7 +7,8 @@ amended 2026-11-16); user instructions are in [docs/INSTALL.md](../docs/INSTALL.
 ## Build a package
 
 ```sh
-scripts/release-local.sh
+scripts/release-local.sh --sign-key ~/path/outside/the/repo/release_key   # a release
+scripts/release-local.sh --unsigned                                      # a test build, not published
 ```
 
 | Stage | What happens |
@@ -15,14 +16,93 @@ scripts/release-local.sh
 | ci | `scripts/ci-local.sh --quick` on the host |
 | build | `packaging/build-pkg.sh` in a disposable clone of the golden VM (macOS 27 + macFUSE) |
 | verify | a second fresh clone installs the package (preflight and postinstall run), checks that the daemon runs and `ntfsmac doctor`, runs each installed program, runs `uninstall.sh` and checks that nothing is left |
+| sign | on the host, after every check: `scripts/sign-release.sh` signs `SHA256SUMS` into `SHA256SUMS.sig` and checks it against `packaging/release-signers` (see "Release signature" below). Skipped only with `--unsigned` |
 
-Result: `dist/<label>/` with `ntfs-macos-<label>.pkg`, `uninstall.sh`, `BUILD-INFO` and
-`SHA256SUMS`. The label is `<version>` when `HEAD` carries the tag `v<version>`, else
+Result: `dist/<label>/` with `ntfs-macos-<label>.pkg`, `uninstall.sh`, `BUILD-INFO`,
+`SHA256SUMS` and, for a signed release, `SHA256SUMS.sig`. The label is `<version>` when `HEAD` carries the tag `v<version>`, else
 `<version>-dev.<date>.g<commit>`. The working tree must be clean (`--allow-dirty` adds `.dirty` and
 also sends the files that are not yet tracked and not ignored).
 
-Options: `--no-ci`, `--no-verify`, `--keep-vm`, and `--host` to build on this Mac when macFUSE is
-installed here (no verify stage).
+Options: `--sign-key FILE` or `--unsigned` (one is required; there is no default key), `--no-ci`,
+`--no-verify`, `--keep-vm`, and `--host` to build on this Mac when macFUSE is installed here (no
+verify stage). `ci-local.sh` (stage `package`) passes `--unsigned`.
+
+## Release signature (T-M7-08, ADR-011 amendment 2026-11-26)
+
+`SHA256SUMS` next to the package on the release page proves only that a download is intact: whoever
+can replace the package there (a stolen GitHub token or account) replaces `SHA256SUMS` with it. So
+`SHA256SUMS` is signed with an SSH key that the owner keeps off GitHub, and users check the signature
+against the public key committed in [release-signers](release-signers), from a clone of the
+repository (docs/INSTALL.md):
+
+```sh
+ssh-keygen -Y verify -f release-signers -I ntfs-macos-release -n ntfs-macos-release -s SHA256SUMS.sig < SHA256SUMS
+shasum -a 256 -c SHA256SUMS --ignore-missing
+head -1 SHA256SUMS
+```
+
+The `Good ... with ED25519 key SHA256:...` line of the first command names the key fingerprint;
+the last prints `# release <label>`. What this proves and does not prove (trust on first use, a
+"frozen latest"): docs/INSTALL.md, "What the signature proves".
+
+```text
+scripts/sign-release.sh --key FILE [--label L] [--signers FILE] DIR   # sign DIR/SHA256SUMS (release-local.sh does this)
+scripts/sign-release.sh --verify [--signers FILE] DIR                 # check a release directory
+```
+
+`SHA256SUMS` of a release from `release-local.sh` has a first line `# release <label>` (shasum skips
+it; it binds the label into the signed content, so an older signed release cannot be renamed) and
+the lines of the package, `uninstall.sh`, `manifest.txt`, `BUILD-INFO` and the source archive, all
+computed on the host. `sign-release.sh` requires exactly one label line and the line of
+`ntfs-macos-<label>.pkg`, checks every file against `SHA256SUMS` (plain names only, each once),
+signs with `ssh-keygen -Y sign -n ntfs-macos-release`, verifies the result against
+`release-signers` and prints the label and the fingerprint of the key that made the signature (from
+the `ssh-keygen -Y verify` output) for the release notes. `--key` is the private key file, or the
+public key file of a key held in `ssh-agent`. There is no default; a private key inside the
+repository is refused. Exit 3 means `release-signers` has no key yet. `--signers` is for tests only.
+A package signed and notarized by `sign-and-notarize.sh` gets a new `SHA256SUMS` without the label
+line and without `BUILD-INFO`: run `scripts/sign-release.sh --key FILE --label LABEL signed/` on that
+directory before publishing it (`--label` adds the label line). `release-local.sh --sign-key` refuses
+`--host`, `--no-verify` and `--allow-dirty`: a signed release is built in the isolated VM from a
+committed tree and verified. Unit test: U-PKG-10 (`ctest -R packaging.release_signing`), with a
+throw-away key in a temporary directory; it also runs every command of this section and of
+docs/INSTALL.md "Download and check" as written.
+
+### Release signing key (owner, once)
+
+Proposed (owner decision pending): an Ed25519 SSH key, made and kept only by the owner, ideally on a
+hardware key or at least with a passphrase, on the release Mac or in `ssh-agent`, never in the
+repository, a VM, a script default or GitHub (not as an SSH or signing key of the GitHub account
+either, so a stolen GitHub login cannot replace it).
+
+1. Make the key, outside the repository (the owner runs this; no script does):
+
+   ```sh
+   ssh-keygen -t ed25519 -C ntfs-macos-release -f ~/.ssh/ntfs-macos-release
+   ```
+
+   (`-t ed25519-sk` for a FIDO hardware key.)
+2. Add its public key to `packaging/release-signers` as one line, and commit it with a signed commit
+   or tag if you sign commits:
+
+   ```sh
+   printf 'ntfs-macos-release namespaces="ntfs-macos-release" %s\n' "$(cut -d' ' -f1,2 ~/.ssh/ntfs-macos-release.pub)" >>packaging/release-signers
+   ssh-keygen -lf ~/.ssh/ntfs-macos-release.pub
+   ```
+
+   The second command prints the fingerprint (`SHA256:...`). (`ssh-keygen -lf` does not read the
+   allowed-signers format of `release-signers` itself.)
+3. Publish the fingerprint in every release's notes ("Signing key fingerprint",
+   [docs/releases/TEMPLATE.md](../docs/releases/TEMPLATE.md)) and, so that a first-time user does not
+   have to trust GitHub alone, at a place that the GitHub account does not control. Where, and
+   whether to also publish a statement of the current version there (the only way to detect a
+   "frozen latest"), is the owner's decision, pending. Until then the signature protects only users
+   who already have an earlier copy of the key (docs/INSTALL.md).
+4. Release with `scripts/release-local.sh --sign-key ~/.ssh/ntfs-macos-release`, or with the key in
+   `ssh-agent`: `--sign-key ~/.ssh/ntfs-macos-release.pub`.
+
+A key change (a new or lost key) is a commit to `release-signers` and a note in the next release;
+remove the old line only when no supported release is signed with it.
 
 ## Source release archive (T-M6-05)
 

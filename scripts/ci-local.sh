@@ -24,7 +24,7 @@
 #                      A                 scripts/test-all.sh --env A    (container: Linux suites, crash sweep)
 #                      linux-build-test  project build and ctest in the container (presets linux and asan)
 #                      fuzz-short        tests/fuzz/{image,sanitize}/run.sh --known-ok, --fuzz-seconds each (default 300)
-#                      package           scripts/release-local.sh --no-ci: unsigned package built in a golden-VM
+#                      package           scripts/release-local.sh --no-ci --unsigned: unsigned package built in a golden-VM
 #                                        clone and installed in a second clone (takes a VM slot)
 #                      B                 scripts/test-all.sh --env B    (macOS VM; takes a VM slot lock)
 #                    Result files go to --results-dir (default tests/results): one per test-all run
@@ -711,7 +711,7 @@ if [ "$quick" -eq 0 ]; then
 			static-analysis) _d="shellcheck (-S error), clang-tidy, cppcheck on project code, on the host, recorded in env host" ;;
 			linux-build-test) _d="project build and ctest in the container (presets linux, asan), recorded in env A" ;;
 			fuzz-short) _d="tests/fuzz/{image,sanitize}/run.sh --known-ok --skip-security --seconds $fuzz_seconds (container), recorded in env A" ;;
-			package) _d="scripts/release-local.sh --no-ci in golden-VM clones (VM slot), recorded in env B" ;;
+			package) _d="scripts/release-local.sh --no-ci --unsigned in golden-VM clones (VM slot), recorded in env B" ;;
 			esac
 			printf '%2d  %-16s %s\n' "$n" "$_s" "$_d"
 			case $_s in
@@ -1107,7 +1107,7 @@ CLEAN
 		[ "$allow_dirty" -eq 0 ] || set -- --allow-dirty
 		take_slot
 		_rc=0
-		sh "$here/release-local.sh" --no-ci "$@" || _rc=$?
+		sh "$here/release-local.sh" --no-ci --unsigned "$@" || _rc=$?
 		release_slot
 		[ "$_rc" -ne 0 ] || echo "NOTE: package built and installed in a VM clone; output in dist/ (git-ignored)"
 		return "$_rc"

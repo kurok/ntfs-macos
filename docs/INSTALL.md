@@ -25,16 +25,65 @@ approved (see "First use"). An upgrade over an install of this package works.
 ## Download and check
 
 1. Open the [Releases](https://github.com/kurok/ntfs-macos/releases) page and download, from the
-   release you want:
+   release you want, into one folder:
    - `ntfs-macos-<label>.pkg`
    - `SHA256SUMS`
-2. Check the download in Terminal, in the folder that holds both files:
+   - `SHA256SUMS.sig`
+2. Get the project's release key, `packaging/release-signers`, from a clone of the repository, not
+   from the release page (a release from before 2026-11-26 has no `SHA256SUMS.sig`; see below). If
+   you already have a clone or a copy of the file from an earlier release, use that copy instead: it
+   is the stronger check (see "What the signature proves" below).
 
    ```sh
-   shasum -a 256 -c SHA256SUMS --ignore-missing
+   git clone https://github.com/kurok/ntfs-macos.git
+   cp ntfs-macos/packaging/release-signers .
    ```
 
-   The line for the `.pkg` must end with `OK`. If it does not, delete the file and do not install it.
+3. Check the signature, then the checksums, in Terminal, in the folder that holds the files:
+
+   ```sh
+   ssh-keygen -Y verify -f release-signers -I ntfs-macos-release -n ntfs-macos-release -s SHA256SUMS.sig < SHA256SUMS
+   shasum -a 256 -c SHA256SUMS --ignore-missing
+   head -1 SHA256SUMS
+   ```
+
+   - The first command must print
+     `Good "ntfs-macos-release" signature for ntfs-macos-release with ED25519 key SHA256:...`. The
+     `SHA256:...` part is the key fingerprint: it must be the one the release notes name under
+     "Signing key fingerprint", and the same as for the releases you checked before.
+   - The line for the `.pkg` must end with `OK`.
+   - The last command prints `# release <label>`. That label, and the `<label>` in the name of the
+     `.pkg` line, must be the release you chose to install (the version on the release page and in
+     its notes). The label is part of the signed file, so an older signed release cannot be passed
+     off as a newer one under another name.
+
+   If any of this fails, delete the files and do not install.
+
+### What the signature proves
+
+| Check | Proves | Does not prove |
+|---|---|---|
+| `shasum -c SHA256SUMS` alone | the download is complete and not damaged | anything about who made it: whoever can replace the package on the release page can replace `SHA256SUMS` with it |
+| the signature of `SHA256SUMS` | `SHA256SUMS`, and so every file it lists (the package, `uninstall.sh`, `manifest.txt`, `BUILD-INFO` and the source archive), and its release label were signed with the key in your `release-signers` | that this key is the owner's; see below |
+| `pkgutil --check-signature` / `spctl` | only for a release that says it is signed with an Apple Developer ID (see below) | |
+
+**Where the key comes from (trust on first use).** The owner keeps the private key off GitHub, but
+the public key and the release notes that name its fingerprint are both on GitHub. Whoever controls
+the GitHub account could change both together, and a first-time user who takes the key from a fresh
+clone cannot tell. The owner has not yet published the fingerprint at a place that the GitHub account
+does not control (owner decision pending: ADR-011, amendment 2026-11-26, and packaging/README.md
+"Release signing key"). Until then the check protects you only if you already have an earlier copy
+of `release-signers` (or noted its fingerprint) and the key has not changed since; on a first
+download it proves no more than that the files belong together.
+
+**What no check here can detect:** an attacker who controls the release page can keep showing an
+older, genuinely signed release as the newest one ("frozen latest"). Each file checks out; only a
+statement of the current version from a place off GitHub could show that a newer one exists, and
+there is none yet (same owner decision).
+
+The package is still not signed with an Apple Developer ID; the signature above is a separate check
+that needs no Apple account. A release without `SHA256SUMS.sig` (the pre-release `v0.1.0-dev.20261116`)
+can be checked only with `shasum`, which proves no more than the first row.
 
 ## Install
 

@@ -32,8 +32,12 @@ if(NTFSMAC_SH)
   # path without following a link, and its mutants fail.
   add_test(NAME packaging.root_only
            COMMAND ${NTFSMAC_SH} ${CMAKE_CURRENT_SOURCE_DIR}/root_only_test.sh ${PROJECT_SOURCE_DIR})
+  # U-PKG-09 (audit M6-F07): bom-check.sh compares the owners and modes of a built component's Bom
+  # with the manifest (small packages made by pkgbuild here; nothing is installed).
+  add_test(NAME packaging.bom_check
+           COMMAND ${NTFSMAC_SH} ${CMAKE_CURRENT_SOURCE_DIR}/bom_check_test.sh ${PROJECT_SOURCE_DIR})
   # The scripts at least parse (they are run only in the guest).
-  foreach(s dev-install uninstall build-pkg payload-check sign-and-notarize)
+  foreach(s dev-install uninstall build-pkg payload-check bom-check sign-and-notarize)
     add_test(NAME packaging.syntax_${s}
              COMMAND ${NTFSMAC_SH} -n ${PROJECT_SOURCE_DIR}/packaging/${s}.sh)
   endforeach()
@@ -62,7 +66,7 @@ if(NTFSMAC_SHELLCHECK)
                    packaging/scripts/preinstall packaging/scripts/postinstall packaging/build-pkg.sh
                    packaging/uninstall.sh packaging/dev-install.sh
                    packaging/payload-check.sh tests/unit/packaging/payload_lint.sh
-                   tests/unit/packaging/root_only_test.sh
+                   packaging/bom-check.sh tests/unit/packaging/bom_check_test.sh tests/unit/packaging/root_only_test.sh
                    packaging/sign-and-notarize.sh tests/unit/packaging/sign_and_notarize_test.sh
                    scripts/make-source-release.sh scripts/lib/label.sh scripts/lib/tree.sh scripts/release-local.sh tests/unit/packaging/source_release_test.sh
                    scripts/repro-check.sh tests/unit/packaging/repro_check_test.sh

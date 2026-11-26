@@ -29,13 +29,17 @@ if(NTFSMAC_SH)
   add_test(NAME packaging.source_release
            COMMAND ${NTFSMAC_SH} ${CMAKE_CURRENT_SOURCE_DIR}/source_release_test.sh ${PROJECT_SOURCE_DIR})
   # U-PKG-08 (audit M6-F01): the root-only check is one text in the four root-run scripts, walks the
-  # path without following a link, and its mutants fail.
+  # path without following a link, and its mutants fail (the cases on a real tree and the mutants run on
+  # macOS only; the identity lint of the four copies and the caller checks run everywhere).
   add_test(NAME packaging.root_only
            COMMAND ${NTFSMAC_SH} ${CMAKE_CURRENT_SOURCE_DIR}/root_only_test.sh ${PROJECT_SOURCE_DIR})
   # U-PKG-09 (audit M6-F07): bom-check.sh compares the owners and modes of a built component's Bom
-  # with the manifest (small packages made by pkgbuild here; nothing is installed).
-  add_test(NAME packaging.bom_check
-           COMMAND ${NTFSMAC_SH} ${CMAKE_CURRENT_SOURCE_DIR}/bom_check_test.sh ${PROJECT_SOURCE_DIR})
+  # with the manifest (small packages made by pkgbuild here; nothing is installed). macOS only:
+  # pkgbuild and lsbom exist nowhere else.
+  if(APPLE)
+    add_test(NAME packaging.bom_check
+             COMMAND ${NTFSMAC_SH} ${CMAKE_CURRENT_SOURCE_DIR}/bom_check_test.sh ${PROJECT_SOURCE_DIR})
+  endif()
   # The scripts at least parse (they are run only in the guest).
   foreach(s dev-install uninstall build-pkg payload-check bom-check sign-and-notarize)
     add_test(NAME packaging.syntax_${s}

@@ -93,8 +93,10 @@ if [ -f "$arc" ]; then
 	grep -q 'GPL-2.0-or-later' "$tmp/x/$top/SOURCES.txt" && grep -q 'Corresponding-source statement' "$tmp/x/$top/SOURCES.txt" &&
 		grep -q "$sha" "$tmp/x/$top/SOURCES.txt" && grep -q '^  dirty  *no' "$tmp/x/$top/SOURCES.txt" && ok || bad "SOURCES.txt lacks the licence, the statement, the digest or the dirty line"
 	# owner 0/0 and the commit time on every entry
-	tar -tzvf "$arc" | awk '{ if ($3 != "root" || $4 != "root") n++ } END { exit n > 0 }' && ok || bad "an entry is not owned by root:root"
-	tar -tzvf "$arc" | grep -v 'Jan  2  *\(03:04\|2026\)' | grep -q . && bad "an entry has another time than the commit time" || ok
+	# The listing differs by tar: bsdtar "-rw-r--r--  0 root root 12 Jan  2 03:04 name", GNU tar
+	# "-rw-r--r-- root/root 12 2026-01-02 03:04 name". TZ=UTC: both print the time in local time.
+	TZ=UTC tar -tzvf "$arc" | awk '{ o = ($2 ~ /\//) ? $2 : $3 "/" $4; if (o != "root/root") n++ } END { exit n > 0 }' && ok || bad "an entry is not owned by root:root"
+	TZ=UTC tar -tzvf "$arc" | grep -v -e 'Jan  2  *\(03:04\|2026\)' -e ' 2026-01-02 03:04 ' | grep -q . && bad "an entry has another time than the commit time" || ok
 	# gzip -n: no name, no time in the header (bytes 4..8 = mtime = 0, flags 0)
 	[ "$(od -An -tx1 -j3 -N5 "$arc" | tr -d ' \n')" = 0000000000 ] && ok || bad "gzip header carries a name or time"
 	# modes: umask 022 (no group write), as the header promises

@@ -103,6 +103,36 @@ static void um_hook(ntfsmac_worker_argv *av)
 	g_um_seen = strstr(av->optstr, "usermapping=") != NULL;
 }
 
+/*
+ * U-SPN-40 (T-M7-19): the steps of the end of a child that exited by itself, as the spawn module
+ * reports them. At the group kill the leader must still be an unreaped zombie, so that its group
+ * id cannot have been taken by another process.
+ */
+static char g_trace[16];
+static unsigned g_ntrace;
+static int g_zombie_at_kill = -1;
+
+static void reap_trace(pid_t pid, char step)
+{
+	if (g_ntrace + 1 < sizeof g_trace)
+		g_trace[g_ntrace++] = step;
+	g_trace[g_ntrace] = '\0';
+	if (step == 'k') {
+		siginfo_t si;
+
+		memset(&si, 0, sizeof si);
+		g_zombie_at_kill = waitid(P_PID, (id_t)pid, &si, WEXITED | WNOHANG | WNOWAIT) == 0 &&
+				   si.si_pid == pid;
+	}
+}
+
+static void trace_reset(void)
+{
+	g_ntrace = 0;
+	g_trace[0] = '\0';
+	g_zombie_at_kill = -1;
+}
+
 static ntfsmac_spawn_config base_config(void)
 {
 	ntfsmac_spawn_config c;
@@ -253,6 +283,16 @@ static void test_probe(void)
 	CHECK(v.serial == UINT64_C(0x1A2B3C4D5E6F7788));
 	CHECK_EQ_INT(v.total_sectors, 131071);
 
+	/* U-SPN-40: a probe that exits normally ends as "peek, group kill, reap". */
+	c.reap_trace = reap_trace;
+	ntfsmac_spawn_config_set(&c);
+	trace_reset();
+	CHECK_EQ_INT(ntfsmac_spawn_probe(&run, &v), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(v.state, NTFSMAC_PROBE_STATE_CLEAN);
+	CHECK(strcmp(g_trace, "pkr") == 0);
+	CHECK_EQ_INT(g_zombie_at_kill, 1);
+	c.reap_trace = NULL;
+
 	/* U-SPN-02: a probe that hangs is killed at its deadline; the verdict is `unknown`. */
 	c.probe_path = path_of("probe-hang");
 	ntfsmac_spawn_config_set(&c);
@@ -343,6 +383,18 @@ static void test_volmark(void)
 	ntfsmac_spawn_config_set(&c);
 	CHECK_EQ_INT(ntfsmac_spawn_volmark(&run, false, &code), NTFSMAC_DMN_OK);
 	CHECK_EQ_INT(code, 0);
+
+	/* U-SPN-40: a volmark run that exits normally ends as "peek, group kill, reap". */
+	c.reap_trace = reap_trace;
+	ntfsmac_spawn_config_set(&c);
+	trace_reset();
+	code = 99;
+	CHECK_EQ_INT(ntfsmac_spawn_volmark(&run, false, &code), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(code, 0);
+	CHECK(strcmp(g_trace, "pkr") == 0);
+	CHECK_EQ_INT(g_zombie_at_kill, 1);
+	c.reap_trace = NULL;
+	ntfsmac_spawn_config_set(&c);
 
 	/* U-SPN-10b (T-M4-14): the third command, `clear-repair`, and no other, gets that name. */
 	c.volmark_path = path_of("volmark-clearrepair");

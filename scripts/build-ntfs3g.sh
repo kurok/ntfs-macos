@@ -189,8 +189,16 @@ series_hash=$(
 	done | sha256_stdin
 )
 
-stamp_key=$(printf 'tarball=%s\nseries=%s\nconfigure=%s\nCFLAGS=%s\nLDFLAGS=%s\n' \
-	"$want" "$series_hash" "$configure_line" "${CFLAGS:-}" "${LDFLAGS:-}")
+# Reproducible archive and link dates (T-M6-04, criterion 6.2): with ZERO_AR_DATE=1 the Apple ar,
+# ranlib and libtool write 0 as the member dates of libntfs-3g.a, and ld writes 0 as the timestamp of
+# the debug-map entries (N_OSO) of ntfs-3g and the ntfsprogs (NTFS-3G builds with -g). Otherwise the
+# build time ends up in the binaries and changes their LC_UUID and cdhash from build to build. GNU ar
+# ignores the variable (it is deterministic by default). It is part of the stamp, so a tree built
+# before this line is built again once; it is not part of --print-key (the code is the same).
+ZERO_AR_DATE=1
+export ZERO_AR_DATE
+stamp_key=$(printf 'tarball=%s\nseries=%s\nconfigure=%s\nCFLAGS=%s\nLDFLAGS=%s\nZERO_AR_DATE=%s\n' \
+	"$want" "$series_hash" "$configure_line" "${CFLAGS:-}" "${LDFLAGS:-}" "$ZERO_AR_DATE")
 if [ "$print_key" = 1 ]; then
 	key_flags=
 	for _a in $configure_args; do

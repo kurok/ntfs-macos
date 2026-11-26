@@ -80,6 +80,9 @@ git rev-parse --git-dir >/dev/null 2>&1 || die "not a git checkout" 2
 version=$(ntfsmac_project_version)
 [ -n "$version" ] || die "cannot read the project version from CMakeLists.txt" 2
 rev=$(git rev-parse HEAD)
+# the commit time: build-pkg.sh puts it into BUILD-INFO and the package times (reproducible builds,
+# T-M6-04); the same value for the VM and the host build, neither of whose extracted trees has a .git
+sde=$(git log -1 --format=%ct "$rev")
 dirty=
 if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
 	[ "$allow_dirty" -eq 1 ] || die "uncommitted changes to tracked files; commit them or pass --allow-dirty" 2
@@ -126,7 +129,7 @@ if [ "$on_host" -eq 1 ]; then
 	git_tree_tar >"$rl_tmp/tree.tar" || die "git archive of the tree failed"
 	tar -xf "$rl_tmp/tree.tar" -C "$rl_tmp/src"
 	[ -f "$rl_tmp/src/packaging/build-pkg.sh" ] || die "the extracted tree has no packaging/build-pkg.sh"
-	NTFSMAC_SOURCE_REV=$rev$dirty sh "$rl_tmp/src/packaging/build-pkg.sh" --label "$label" --out "$out" --work "$rl_tmp/src/build/pkg"
+	NTFSMAC_SOURCE_REV=$rev$dirty SOURCE_DATE_EPOCH=$sde sh "$rl_tmp/src/packaging/build-pkg.sh" --label "$label" --out "$out" --work "$rl_tmp/src/build/pkg"
 	log "source release archive"
 	srcrel
 	log "done: $out"
@@ -161,7 +164,7 @@ log "build in VM $build_vm"
 git_tree_tar >"$rl_tmp/tree.tar" || die "git archive of the tree failed"
 tart exec -i "$build_vm" /bin/sh -c 'rm -rf ~/ntfsmac && mkdir -p ~/ntfsmac/tree && tar -xf - -C ~/ntfsmac/tree' <"$rl_tmp/tree.tar"
 gexec "$build_vm" 'test -f ~/ntfsmac/tree/packaging/build-pkg.sh' || die "the tree in the VM has no packaging/build-pkg.sh"
-gexec "$build_vm" "cd ~/ntfsmac/tree && NTFSMAC_SOURCE_REV='$rev$dirty' sh packaging/build-pkg.sh --label '$label' --out ~/ntfsmac/dist --work ~/ntfsmac/work 2>&1" ||
+gexec "$build_vm" "cd ~/ntfsmac/tree && NTFSMAC_SOURCE_REV='$rev$dirty' SOURCE_DATE_EPOCH='$sde' sh packaging/build-pkg.sh --label '$label' --out ~/ntfsmac/dist --work ~/ntfsmac/work 2>&1" ||
 	die "package build in the VM failed"
 gexec "$build_vm" 'cd ~/ntfsmac/dist && tar -cf - .' | tar -xf - -C "$out"
 (cd "$out" && shasum -a 256 -c SHA256SUMS) || die "copied package does not match its checksums"

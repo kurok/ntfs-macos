@@ -236,12 +236,18 @@ it too. The same tree and the same git version give the same bytes. To build fro
 tar -xzf ntfs-macos-<label>-source.tar.gz
 cd ntfs-macos-<label>-source
 shasum -a 256 third_party/cache/ntfs-3g_ntfsprogs-*.tgz      # equals the pin in third_party/deps.lock
-# base commit and label are in SOURCES.txt; the label names the package
-NTFSMAC_SOURCE_REV=<base commit> packaging/build-pkg.sh --label <label>
+# base commit, its time and the label are in SOURCES.txt; the label names the package
+NTFSMAC_SOURCE_REV=<base commit> SOURCE_DATE_EPOCH=<commit time> packaging/build-pkg.sh --label <label>
 ```
 
 The archive is not a git clone; `NTFSMAC_SOURCE_REV` makes `BUILD-INFO` of the package name the base
-commit. `packaging/dev-install.sh` reads the commit from git and records `unknown` here, so use
+commit, and `SOURCE_DATE_EPOCH` (the commit time) is its date and the time of every file in the
+package. Without the two variables `build-pkg.sh` reads both from `SOURCES.txt`; it never takes them
+from a git repository that merely contains the extracted directory. A build from the archive gives the
+same bytes as the released package only with the same work directory and user (the absolute build
+path is in the debug map of the programs that link NTFS-3G) and the same toolchain image (the golden
+VM: Xcode tools, SDK, macFUSE headers); see "Reproducibility" in
+[packaging/README.md](../packaging/README.md). `packaging/dev-install.sh` reads the commit from git and records `unknown` here, so use
 `build-pkg.sh` for a build from the archive.
 
 ## Problems

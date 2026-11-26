@@ -101,6 +101,9 @@ if [ -f "$arc" ]; then
 	tar -tzvf "$arc" | grep -q '^[-d]rw[x-]rw' && bad "an entry is group-writable" || ok
 	# the tree of a clean run is the tree of HEAD; the base commit and the git version are recorded
 	grep -q "^  tree  *$base_tree\$" "$tmp/x/$top/SOURCES.txt" && grep -q "^  base commit  *$base\$" "$tmp/x/$top/SOURCES.txt" && ok || bad "SOURCES.txt lacks the tree or the base commit"
+	# the build section names the commit and its time, as build-pkg.sh reads them (T-M6-04)
+	grep -q "^  NTFSMAC_SOURCE_REV=$base\$" "$tmp/x/$top/SOURCES.txt" &&
+		grep -q "^  SOURCE_DATE_EPOCH=$(git -C "$repo" log -1 --format=%ct "$base")\$" "$tmp/x/$top/SOURCES.txt" && ok || bad "SOURCES.txt lacks NTFSMAC_SOURCE_REV or SOURCE_DATE_EPOCH (the commit time)"
 	grep -q '^  git  *git version' "$tmp/x/$top/SOURCES.txt" && grep -q "^  gzip  *git's built-in" "$tmp/x/$top/SOURCES.txt" && ok || bad "SOURCES.txt lacks the git or gzip version"
 	grep -q 'https://macfuse.github.io/' "$tmp/x/$top/SOURCES.txt" && grep -q 'system prerequisite' "$tmp/x/$top/SOURCES.txt" && ok || bad "SOURCES.txt lacks the macFUSE note"
 	# a clean archive holds exactly the files of the commit's tree, plus the tarball and SOURCES.txt

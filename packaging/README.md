@@ -65,6 +65,72 @@ scripts/make-source-release.sh [--label L] [--out DIR] [--rev COMMIT] [--tree TR
   A default label has the current date; pass `--label` for a reproducible name.
 - Test: U-PKG-06 (`ctest -R packaging.source_release`).
 
+## Reproducibility (T-M6-04, criterion 6.2)
+
+```sh
+scripts/repro-check.sh                       # builds HEAD twice; the tree must be clean
+scripts/repro-check.sh --allow-dirty         # the working tree instead (label ends in .dirty)
+scripts/repro-check.sh --compare DIR_A DIR_B # only compare two outputs of build-pkg.sh (host, no VM)
+```
+
+The check packs the commit once on the host as `release-local.sh` packs it (`git archive` of the
+commit's tree, or with `--allow-dirty` of the `scripts/lib/tree.sh` file set, with `tar.umask=022`,
+`core.autocrlf=false`, `core.eol=lf`, plus the pinned NTFS-3G tarball; nothing is downloaded) and
+builds that tar twice with `build-pkg.sh`, each time in a FRESH clone of the golden VM, as
+`release-local.sh` does: same guest paths (`~/ntfsmac/tree`, `~/ntfsmac/work`),
+same label `<version>-repro.g<commit>`, same `NTFSMAC_SOURCE_REV` and `SOURCE_DATE_EPOCH`. The two
+builds run one after the other in one VM slot; each clone is deleted after its build. It then
+compares, on the host, the `.pkg` files, the members of the product archive (`pkgutil --expand`)
+and its xar table of contents, every payload file (`pkgutil --expand-full`: type, mode, sha256; a
+Mach-O file that differs is compared again without its code signature, with `LC_UUID` zeroed, by its
+debug-map entries together with every segment but `__LINKEDIT`, and by its strings, to name the cause;
+another differing non-text file is `binary-content`), the Bom with and without times, the
+package scripts, and `BUILD-INFO`, `uninstall.sh`, `manifest.txt` and `SHA256SUMS`. It prints one
+row per item and exits 0 only when every difference has a cause of the allow-list in the script
+(each rule has a comment there). Unit test: U-PKG-07 (`ctest -R packaging.repro_check`); the check
+itself is I-PKG-07 in [docs/TEST_STRATEGY.md](../docs/TEST_STRATEGY.md).
+
+What the build does for it (`build-pkg.sh`, `build-ntfs3g.sh`):
+
+| Choice | Why |
+|---|---|
+| `SOURCE_DATE_EPOCH` = commit time of the built commit. `release-local.sh` (VM and host build) and `repro-check.sh` pass it with `NTFSMAC_SOURCE_REV`, since the extracted trees have no `.git`. Otherwise `build-pkg.sh` takes both from git only when the tree is the top of its own repository (an archive extracted inside another repository never borrows its commit), else from the `NTFSMAC_SOURCE_REV=` and `SOURCE_DATE_EPOCH=` lines of a source archive's `SOURCES.txt`, else the revision is `unknown` and the date is the current time, which `BUILD-INFO` then calls the build time. `--source-info` prints what it would use | one date for everything below; the compilers use it for `__DATE__`/`__TIME__` (not used by the product or NTFS-3G today) |
+| `BUILD-INFO` line `source-date` (the commit time) instead of `built` (the build time) | the build time made `BUILD-INFO`, its Bom entry and the Payload differ |
+| every payload file and both scripts get the time `SOURCE_DATE_EPOCH` (`touch -h -t`) before `pkgbuild` | `pkgbuild` copies modification times into the Bom and the cpio headers of Payload and Scripts (it writes 0 for device and inode numbers itself) |
+| `ZERO_AR_DATE=1` (exported by both scripts; part of the `build-ntfs3g.sh` stamp, not of `--print-key`) | NTFS-3G builds with `-g`; ld writes the modification time of each object into the debug map (`N_OSO` stabs) of `ntfs-3g`, the ntfsprogs, the probe and volmark (these link libntfs-3g objects). Those dates changed the binary, so its `LC_UUID`, its signing identifier (derived from the UUID) and its cdhash |
+| no linker option for the UUID | ld already makes `LC_UUID` a hash of the output; with equal input it is equal |
+| no `-ffile-prefix-map`/`-fdebug-prefix-map`, no `-oso_prefix` | the build directory is the same in every clone; for NTFS-3G a `CFLAGS` value would replace its default `-g -O2` and change the deps key (`--print-key`) of `run-inputs.sh` |
+| no sorting of the payload | `pkgbuild` has no option for the order; equal trees give the same order |
+
+Result, 2026-11-26, commit d64f32d with these changes (`--allow-dirty`), golden VM macOS 27.2 with
+macFUSE 5.5.0 (libfuse 2.9.9): 28 items identical, 3 differ, all allowed, exit 0. Identical: every
+payload file (`ntfsmacd`, `ntfsmac`, `ntfsmac-worker`, `ntfsmac-probe`, `ntfsmac-volmark`, `mkntfs`,
+`ntfsfix`, `ntfsinfo`, `ntfslabel`, the sandbox profiles, the plist, `cli-requirement`,
+`BUILD-INFO`, `COPYING`, `README.md`, `manifest.txt`, `uninstall.sh`), so every `LC_UUID` and cdhash;
+the Bom, PackageInfo, Payload and Scripts archives, `Distribution`, and `BUILD-INFO`,
+`uninstall.sh` and `manifest.txt` of the output directory. The differences:
+
+| Item | Cause (rule) |
+|---|---|
+| xar table of contents of the `.pkg` | `xar-toc-times`: productbuild records the archive creation time and, per member, the inode, device, atime, mtime, ctime and Finder creation time of its own scratch files; there is no option to fix them. It also records the uid, user, gid and group that ran the build (the same in every clone; a build by another user differs there too). Every member is byte-identical and the tables are equal without these fields |
+| the `.pkg` file | the same (`xar-toc-times`); the table of contents is compressed and checksummed at the start of the file |
+| `SHA256SUMS` | `sums-follow-pkg`: only the line of the `.pkg` |
+
+Before these changes (same check, run at e7fc055, whose build-pkg.sh and build-ntfs3g.sh are those of
+d64f32d; T-M6-05 changed only how release-local.sh packs the tree): 17 identical, 14 differ, none
+allowed. The four ntfsprogs, the worker, the probe and volmark differed in 26 to 31 debug-map
+timestamps each, and with them in `LC_UUID`, signing identifier and cdhash (`macho-oso-mtime`);
+`BUILD-INFO` in the payload and in the output directory differed in the `built` line
+(`buildinfo-date`); so did the Bom, the Payload, the xar table of contents, the `.pkg` and
+`SHA256SUMS`. `ntfsmacd` and `ntfsmac` were already identical (no `-g` objects).
+
+Limits: the absolute build directory (`/Users/admin/ntfsmac/work/...`) is in the debug map of the
+programs that link NTFS-3G objects, so a build with another `--work` or user (or `--host`) differs
+there. The toolchain is an input: equal results need the same golden VM (Xcode tools, SDK, macFUSE
+headers). `release-local.sh` puts the UTC date into its label (`-dev.<date>.`), so two of its runs on
+different days differ in the file name, `Distribution` and `BUILD-INFO`; `repro-check.sh` uses a
+label without a date.
+
 ## Install
 
 Prerequisite: macFUSE 5.5.0 or newer, installed and turned on in System Settings.
@@ -245,4 +311,4 @@ the package `tests/integration/packaging/pkg_release_vm.sh --pkg-dir dist/<label
 (I-PKG-03..04), `pkg_preflight_vm.sh --pkg-dir dist/<label>` (I-PKG-05) and
 `pkg_preflight_vm.sh --pkg-dir dist/<label> --case userlocal` (I-PKG-06). Each starts one VM;
 run them through the VM slot protocol when other runs use the VMs. Host-side checks:
-`ctest -R packaging` (U-PKG-01..05).
+`ctest -R packaging` (U-PKG-01..07).

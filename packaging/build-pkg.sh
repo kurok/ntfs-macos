@@ -30,13 +30,17 @@
 #
 # Usage: packaging/build-pkg.sh [--label LABEL] [--out DIR] [--work DIR] [--jobs N] [--no-test]
 #        packaging/build-pkg.sh --plan
+#        packaging/build-pkg.sh --source-info
 #   --label  version label used in the file name (default: CMake project version)
 #   --out    output directory (default: dist/<label>)
 #   --work   scratch directory for deps, build and payload (default: build/pkg)
 #   --no-test  skip the smoke run of the built binaries
 #   --plan   print "TYPE MODE PATH <- SOURCE" for every payload entry and exit; builds nothing
 #            and runs on any system (the unit test U-PKG-03 compares it with the manifest)
-# Env:   MACFUSE_PREFIX (default /usr/local)
+#   --source-info  print the "source" and "source-date" lines BUILD-INFO would get and the
+#            SOURCE_DATE_EPOCH, and exit; builds nothing, runs on any system (U-PKG-07)
+# Env:   MACFUSE_PREFIX (default /usr/local), NTFSMAC_SOURCE_REV (the source line of BUILD-INFO),
+#        SOURCE_DATE_EPOCH (the commit time; default: see "source and date" below)
 # Exit:  0 package built, 1 error, 2 usage error.
 set -eu
 umask 022
@@ -46,7 +50,7 @@ root=$(CDPATH='' cd -- "$here/.." && pwd)
 
 die() { printf 'build-pkg: error: %s\n' "$1" >&2; exit "${2:-1}"; }
 log() { printf 'build-pkg: %s\n' "$*"; }
-usage() { printf 'usage: %s [--label LABEL] [--out DIR] [--work DIR] [--jobs N] [--no-test] | --plan\n' "$0" >&2; }
+usage() { printf 'usage: %s [--label LABEL] [--out DIR] [--work DIR] [--jobs N] [--no-test] | --plan | --source-info\n' "$0" >&2; }
 
 label=
 out=
@@ -54,6 +58,7 @@ work=
 jobs=4
 run_tests=1
 plan=0
+source_info=0
 while [ $# -gt 0 ]; do
 	case "$1" in
 	--label) [ $# -ge 2 ] || { usage; die "--label needs a value" 2; }; label=$2; shift ;;
@@ -62,6 +67,7 @@ while [ $# -gt 0 ]; do
 	--jobs) [ $# -ge 2 ] || { usage; die "--jobs needs a value" 2; }; jobs=$2; shift ;;
 	--no-test) run_tests=0 ;;
 	--plan) plan=1 ;;
+	--source-info) source_info=1 ;;
 	-h | --help) usage; exit 0 ;;
 	*) usage; die "unknown option: $1" 2 ;;
 	esac
@@ -128,6 +134,56 @@ EOF
 	exit "$rc"
 fi
 
+# --- source and date (T-M6-04, criterion 6.2; scripts/repro-check.sh, packaging/README.md) ---
+# The commit and its time are read, in this order, from:
+#   1. NTFSMAC_SOURCE_REV and SOURCE_DATE_EPOCH (release-local.sh and repro-check.sh pass both; the
+#      tree they send has no .git). SOURCE_DATE_EPOCH must then be the commit time.
+#   2. git, but only when this tree is the top of its own repository (`rev-parse --show-toplevel` is
+#      $root): a source archive extracted inside another repository never borrows that one's commit.
+#   3. SOURCES.txt of a source archive (make-source-release.sh), lines NTFSMAC_SOURCE_REV=<commit>
+#      and SOURCE_DATE_EPOCH=<commit time> of its build section.
+#   4. otherwise the revision is "unknown" and the date is the current time, BUILD-INFO says so, and
+#      the build is not reproducible.
+# SOURCE_DATE_EPOCH is the date in BUILD-INFO and the modification time of every payload file and
+# package script, so two builds of one commit give the same Bom and Payload. The compilers read it too
+# (__DATE__ and __TIME__; neither the product nor NTFS-3G uses them today).
+own_git=0
+if _top=$(git -C "$root" rev-parse --show-toplevel 2>/dev/null) &&
+	[ "$(CDPATH='' cd -- "$_top" 2>/dev/null && pwd -P)" = "$(CDPATH='' cd -- "$root" && pwd -P)" ]; then
+	own_git=1
+fi
+sources_txt=$root/SOURCES.txt
+from_sources() { # NAME: the value of the line "  NAME=value" of SOURCES.txt
+	[ "$own_git" -eq 0 ] && [ -f "$sources_txt" ] || return 0
+	sed -n "s/^ *$1=\([0-9A-Za-z.]*\)\$/\1/p" "$sources_txt" | head -n 1
+}
+source_rev=${NTFSMAC_SOURCE_REV:-}
+if [ -z "$source_rev" ]; then
+	if [ "$own_git" -eq 1 ]; then source_rev=$(git -C "$root" rev-parse HEAD 2>/dev/null || true); fi
+	[ -n "$source_rev" ] || source_rev=$(from_sources NTFSMAC_SOURCE_REV)
+	[ -n "$source_rev" ] || source_rev=unknown
+fi
+date_note='SOURCE_DATE_EPOCH, the commit time; the build time is not recorded'
+if [ -z "${SOURCE_DATE_EPOCH:-}" ]; then
+	SOURCE_DATE_EPOCH=
+	if [ "$own_git" -eq 1 ]; then SOURCE_DATE_EPOCH=$(git -C "$root" log -1 --format=%ct 2>/dev/null || true); fi
+	[ -n "$SOURCE_DATE_EPOCH" ] || SOURCE_DATE_EPOCH=$(from_sources SOURCE_DATE_EPOCH)
+	if [ -z "$SOURCE_DATE_EPOCH" ]; then
+		SOURCE_DATE_EPOCH=$(date +%s)
+		date_note='build time (no commit time available)'
+		log "no SOURCE_DATE_EPOCH, no own git repository and no SOURCES.txt: using the current time; the build is not reproducible" >&2
+	fi
+fi
+case $SOURCE_DATE_EPOCH in '' | *[!0-9]*) die "SOURCE_DATE_EPOCH must be seconds since 1970: $SOURCE_DATE_EPOCH" ;; esac
+export SOURCE_DATE_EPOCH
+source_date=$(date -u -r "$SOURCE_DATE_EPOCH" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u -d "@$SOURCE_DATE_EPOCH" +%Y-%m-%dT%H:%M:%SZ)
+if [ "$source_info" -eq 1 ]; then
+	printf 'source       %s\n' "$source_rev"
+	printf 'source-date  %s (%s)\n' "$source_date" "$date_note"
+	printf 'SOURCE_DATE_EPOCH=%s\n' "$SOURCE_DATE_EPOCH"
+	exit 0
+fi
+
 # --- preflight ---
 [ "$(uname -s)" = Darwin ] || die "packages are built on macOS only"
 [ "$(uname -m)" = arm64 ] || die "the product target is arm64 (ARCHITECTURE.md section 10)"
@@ -141,6 +197,15 @@ macfuse_prefix=${MACFUSE_PREFIX:-/usr/local}
 version=$(sed -n 's/^project(ntfs-macos VERSION \([0-9][0-9.]*\).*/\1/p' "$root/CMakeLists.txt")
 [ -n "$version" ] || die "cannot read the project version from CMakeLists.txt"
 [ -n "$label" ] || label=$version
+
+# --- reproducibility (T-M6-04): SOURCE_DATE_EPOCH is set above ("source and date") ---
+# ZERO_AR_DATE=1: ar, ranlib and libtool write 0 as the member date of libntfs-3g.a, and ld writes 0
+# as the timestamp of each debug-map entry (N_OSO stab) of the programs that link objects built with
+# -g (the NTFS-3G programs and the libntfs-3g part of the probe and volmark). Without it those dates
+# are the build time; they change the binary, so its LC_UUID (a hash of the output), its signing
+# identifier (derived from the UUID) and its cdhash. Nothing reads these dates at run time.
+ZERO_AR_DATE=1
+export ZERO_AR_DATE
 case $label in *[!A-Za-z0-9._+-]*) die "label has characters outside [A-Za-z0-9._+-]: $label" 2 ;; esac
 [ -n "$work" ] || work=$root/build/pkg
 [ -n "$out" ] || out=$root/dist/$label
@@ -209,8 +274,8 @@ ntfs3g_ver=$(awk '$1 == "ntfs-3g" { print $2 }' "$root/third_party/deps.lock")
 	printf 'package      %s\n' "$name"
 	printf 'identifier   %s\n' "$pkg_id"
 	printf 'version      %s\n' "$version"
-	printf 'source       %s\n' "${NTFSMAC_SOURCE_REV:-$(git -C "$root" rev-parse HEAD 2>/dev/null || echo unknown)}"
-	printf 'built        %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+	printf 'source       %s\n' "$source_rev"
+	printf 'source-date  %s (%s)\n' "$source_date" "$date_note"
 	printf 'build-host   macOS %s %s\n' "$(sw_vers -productVersion)" "$(uname -m)"
 	printf 'ntfs-3g      %s (patch series third_party/patches/ntfs-3g)\n' "${ntfs3g_ver:-unknown}"
 	printf 'libfuse      %s (macFUSE, not bundled)\n' "$macfuse_ver"
@@ -271,6 +336,11 @@ sh "$here/payload-check.sh" "$manifest" "$stage/staged.list" || die "the staged 
 # --- 5. component package with the scripts, and the product archive ---
 install -m 0755 "$here/scripts/preinstall" "$scripts/preinstall"
 install -m 0755 "$here/scripts/postinstall" "$scripts/postinstall"
+# Every payload entry and script gets the time SOURCE_DATE_EPOCH: pkgbuild copies the modification
+# times into the Bom and the cpio headers of Payload and Scripts (it writes 0 for the device and inode
+# numbers itself). The order of the entries is pkgbuild's own walk of the tree; it has no option for
+# it, and two trees with the same names give the same order.
+(TZ=UTC0 && export TZ && find "$payload" "$scripts" -exec touch -h -t "$(date -u -r "$SOURCE_DATE_EPOCH" +%Y%m%d%H%M.%S)" {} +)
 log "building $name.pkg"
 pkgbuild --root "$payload" --scripts "$scripts" --identifier "$pkg_id" --version "$version" \
 	--install-location / --ownership recommended --filter '\.DS_Store$' \

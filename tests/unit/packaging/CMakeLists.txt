@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# T-M4-10, T-M6-01, T-M6-02, T-M6-05: host-side checks of the packaging: the manifest and payload lints, the
-# rules of the root-run package scripts, shellcheck, and the dry run of the signing script. They read
-# files or run scripts in dry-run or plan mode only; nothing is installed or signed on the host. The
-# installers and the uninstaller run in a disposable macOS guest (I-PKG-01..06, tests/integration/packaging).
+# T-M4-10, T-M6-01, T-M6-02, T-M6-04, T-M6-05: host-side checks of the packaging: the manifest and
+# payload lints, the rules of the root-run package scripts, shellcheck, the dry run of the signing script,
+# the source release and the comparison of the reproducibility check. They read files, run scripts in
+# dry-run or plan mode, or build throw-away packages or repositories in a temporary directory; nothing
+# is installed or signed on the host. The installers and the uninstaller run in a disposable macOS guest
+# (I-PKG-01..07, tests/integration/packaging; I-PKG-07 is scripts/repro-check.sh).
 
 find_program(NTFSMAC_SH sh)
 if(NTFSMAC_SH)
@@ -37,6 +39,13 @@ if(NTFSMAC_SH)
     add_test(NAME packaging.syntax_${s}
              COMMAND ${NTFSMAC_SH} -n ${PROJECT_SOURCE_DIR}/packaging/scripts/${s})
   endforeach()
+  # U-PKG-07 (T-M6-04): the comparison and allow-list of the reproducibility check, with small packages
+  # made by pkgbuild here (the real check builds in two guest clones).
+  add_test(NAME packaging.repro_check
+           COMMAND ${NTFSMAC_SH} ${CMAKE_CURRENT_SOURCE_DIR}/repro_check_test.sh
+                   ${PROJECT_SOURCE_DIR}/scripts/repro-check.sh ${PROJECT_SOURCE_DIR}/packaging/build-pkg.sh)
+  add_test(NAME packaging.syntax_repro-check
+           COMMAND ${NTFSMAC_SH} -n ${PROJECT_SOURCE_DIR}/scripts/repro-check.sh)
 endif()
 
 # U-PKG-04 (T-M6-01): shellcheck. Every check (style level) on the scripts that run as root from the
@@ -49,6 +58,7 @@ if(NTFSMAC_SHELLCHECK)
                    packaging/payload-check.sh tests/unit/packaging/payload_lint.sh
                    packaging/sign-and-notarize.sh tests/unit/packaging/sign_and_notarize_test.sh
                    scripts/make-source-release.sh scripts/lib/label.sh scripts/lib/tree.sh scripts/release-local.sh tests/unit/packaging/source_release_test.sh
+                   scripts/repro-check.sh tests/unit/packaging/repro_check_test.sh
                    tests/integration/packaging/pkg_release_vm.sh tests/integration/packaging/pkg_release_vm_guest.sh
                    tests/integration/packaging/pkg_preflight_vm.sh tests/integration/packaging/pkg_preflight_vm_guest.sh
            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})

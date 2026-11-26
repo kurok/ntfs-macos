@@ -230,10 +230,13 @@ Build
   scripts/fetch-deps.sh ntfs-3g       finds the tarball above in third_party/cache and checks it
                                       against third_party/deps.lock; no download is needed
   NTFSMAC_SOURCE_REV=$rev
+  SOURCE_DATE_EPOCH=$ctime
   packaging/build-pkg.sh --label $label
-                                      builds the package; the variable makes BUILD-INFO name the base
-                                      commit (this archive is not a git clone); docs/INSTALL.md and
-                                      packaging/README.md describe the build
+                                      builds the package; the variables make BUILD-INFO name the base
+                                      commit and its time (this archive is not a git clone), and the
+                                      time is the date of every payload file (reproducible builds);
+                                      build-pkg.sh reads both lines from this file when they are not
+                                      set; docs/INSTALL.md and packaging/README.md describe the build
 EOT
 } >"$tmp/SOURCES.txt"
 chmod 0644 "$tmp/SOURCES.txt"

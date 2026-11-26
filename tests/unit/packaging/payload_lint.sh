@@ -19,6 +19,9 @@
 #   h. the package identifier is org.ntfs-macos.pkg.v2 in build-pkg.sh, preinstall, uninstall.sh,
 #      release-local.sh and the VM tests, and the earlier layout's org.ntfs-macos.pkg is named as
 #      old_pkg_id in preinstall and uninstall.sh (owner decision 2026-11-26, audit M6-F02)
+#   i. preinstall refuses a downgrade (owner decision 2026-11-26, issue #10): build-pkg.sh writes the
+#      package version into its placeholder, ver_older orders versions numerically and rejects what
+#      it cannot read, and the check comes before the running daemon is stopped
 #
 # Usage: payload_lint.sh ROOT
 # Exit: 0 all checks passed, 1 a check failed, 2 usage error.
@@ -175,6 +178,40 @@ done
 if grep -n 'org\.ntfs-macos\.pkg\([^.]\|$\)' "$root/scripts/release-local.sh"; then bad "release-local.sh names the receipt of the earlier layout"; id_bad=1; fi
 grep -q "pkgutil --pkg-info $want_id" "$root/scripts/release-local.sh" || { bad "release-local.sh does not check the receipt $want_id"; id_bad=1; }
 [ "$id_bad" -eq 1 ] || pass "the package identifier is $want_id everywhere, and preinstall and uninstall.sh know the earlier $old_id"
+
+# ---- i. no downgrade ----
+dg=0
+[ "$(grep -c "^new_version='@VERSION@'\$" "$pre")" = 1 ] || { bad "preinstall has no single new_version='@VERSION@' line"; dg=1; }
+grep -q "^sed \"s/^new_version='@VERSION@'" "$root/packaging/build-pkg.sh" || { bad "build-pkg.sh does not write the version into preinstall"; dg=1; }
+# the substitution of build-pkg.sh, as it runs there
+pv=$(sed -n 's/^project(ntfs-macos VERSION \([0-9][0-9.]*\).*/\1/p' "$root/CMakeLists.txt")
+sed "s/^new_version='@VERSION@'\$/new_version='$pv'/" "$pre" >"$tmp/pre.sub"
+if grep -qx "new_version='$pv'" "$tmp/pre.sub" && ! grep -q '@VERSION@' "$tmp/pre.sub" && sh -n "$tmp/pre.sub"; then :; else
+	bad "the version $pv is not written into preinstall as build-pkg.sh does it"; dg=1
+fi
+sed -n '/^ver_older() {$/,/^}$/p' "$pre" >"$tmp/ver.sh"
+# shellcheck disable=SC1091
+. "$tmp/ver.sh"
+for t in "0.1.0 0.2.0 0" "0.2.0 0.1.0 1" "0.1.0 0.1.0 1" "0.1 0.1.0 1" "0.1.0 0.1 1" "0.9 0.10 0" "0.10 0.9 1" \
+	"1.0.0 0.99.99.99 1" "0.99.99.99 1.0.0 0" "1.2.3.4 1.2.3.5 0" "x 0.1 2" "0.1 x 2" "0.1.0- 0.1.0 2" "0.1.0-dev 0.1.0 2" \
+	"1.2.3.4.5 1 2" "1234567890 1 2" ".1 1 2" "1. 1 2" "1..2 1 2"; do
+	# shellcheck disable=SC2086 # the three words of the case
+	set -- $t
+	ver_older "$1" "$2"
+	g=$?
+	[ "$g" = "$3" ] || { bad "ver_older $1 $2: $g, expected $3"; dg=1; }
+done
+ver_older "" 0.1
+[ $? = 2 ] || { bad "ver_older of an empty version is not 2"; dg=1; }
+ln_dg=$(grep -n '^# ---- 6. no downgrade' "$pre" | cut -d: -f1)
+ln_stop=$(grep -n 'launchctl bootout' "$pre" | head -n 1 | cut -d: -f1)
+ln_pass=$(grep -n '^say "preflight passed' "$pre" | cut -d: -f1)
+if [ -n "$ln_dg" ] && [ -n "$ln_stop" ] && [ -n "$ln_pass" ] && [ "$ln_dg" -lt "$ln_pass" ] && [ "$ln_pass" -lt "$ln_stop" ]; then :; else
+	bad "the downgrade check is not before 'preflight passed' and the stop of the daemon"; dg=1
+fi
+# shellcheck disable=SC2016 # the text of the script, not an expansion
+grep -q 'refuse "this package is ntfs-macos $new_version, older than the installed $inst_ver' "$pre" || { bad "preinstall has no downgrade refusal text"; dg=1; }
+[ "$dg" -eq 1 ] || pass "preinstall refuses a downgrade: version $pv written by build-pkg.sh, ver_older (20 cases), before the daemon is stopped"
 
 [ "$fail" -eq 0 ] && echo "PASS: payload and package scripts agree with the manifest"
 exit "$fail"

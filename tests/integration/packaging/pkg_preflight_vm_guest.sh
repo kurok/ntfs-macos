@@ -24,7 +24,11 @@
 # in the earlier layout (receipt 0.0.1: the CLI as the file /usr/local/bin/ntfsmac, documents and
 # LICENSES in /usr/local/share/doc/ntfs-macos, a file this package does not ship): it passes the
 # preflight as an upgrade, removes those files, replaces the old CLI file by the link, and leaves
-# exactly the manifest's set and receipt with a running daemon.
+# exactly the manifest's set and receipt with a running daemon. Then a downgrade is refused (owner
+# decision 2026-11-26, issue #10): with the receipt's version, and without a receipt with the
+# installed BUILD-INFO's version, set to 99.0.0, the install changes nothing and the daemon keeps
+# running; one patch above the real version is refused too, the earlier 0.1.0 is upgraded, and
+# the same version installs again.
 #
 # userlocal, I-PKG-06: with a user-owned /usr/local/bin and /usr/local/share (a Homebrew moved from
 # an Intel Mac) the install succeeds, postinstall skips the link and logs how to run the CLI,
@@ -440,6 +444,72 @@ if out=$(sh tree/packaging/payload-check.sh "$MANIFEST" "$work/receipt.list"); t
 if set_ok; then pass "exactly the manifest's set is installed"; else failf "the installed set differs"; fi
 check "the probe is the new one, not the old script" sh -c "! grep -q 'echo old' $LIBEXEC/ntfsmac-probe"
 check "the daemon runs" wait_for 30 test -S /var/run/ntfsmacd.sock
+
+# =====================================================================================
+echo "== I-PKG-05: a downgrade is refused (owner decision 2026-11-26, issue #10)"
+# =====================================================================================
+# The installed version is made newer than this package: first in the receipt (what pkgutil
+# --pkg-info reads), then, with the receipt moved aside, in the installed BUILD-INFO (a developer
+# install has no receipt). Each time the install is refused before anything changes.
+RCPT=/var/db/receipts/$PKGID
+BI="/Library/Application Support/ntfs-macos/doc/BUILD-INFO"
+newv=$(pkgutil --pkg-info "$PKGID" | sed -n 's/^version: //p')
+check "the package's preinstall carries its version $newv" grep -qx "new_version='$newv'" "$PRE"
+have_set >"$work/dg.before"
+dpid=$(sudo -n launchctl print "system/$LABEL" 2>/dev/null | sed -n 's/^[[:space:]]*pid = //p' | head -n 1)
+sudo -n cp "$RCPT.plist" "$work/rcpt.plist"
+sudo -n plutil -replace PackageVersion -string 99.0.0 "$RCPT.plist"
+check "the receipt now says 99.0.0" sh -c "pkgutil --pkg-info $PKGID | grep -qx 'version: 99.0.0'"
+logmark=$(sudo -n wc -l </var/log/install.log | tr -d ' ')
+sudo -n /usr/sbin/installer -pkg "$pkg" -target / >"$work/dg.out" 2>&1
+rc=$?
+install_log "$work/dg.log"
+want="this package is ntfs-macos $newv, older than the installed 99.0.0 (the receipt $PKGID)"
+if [ "$rc" -ne 0 ] && grep -q -F -- "$want" "$work/dg.log"; then pass "installer refuses the downgrade: $want"; else failf "downgrade: installer exit $rc, reason '$want' not found"; fi
+check "...the receipt still says 99.0.0" sh -c "pkgutil --pkg-info $PKGID | grep -qx 'version: 99.0.0'"
+have_set >"$work/dg.after"
+check "...the installed set is unchanged" cmp -s "$work/dg.before" "$work/dg.after"
+check "...the daemon was not stopped (pid $dpid)" sh -c "[ -n '$dpid' ] && [ \"\$(sudo -n launchctl print system/$LABEL 2>/dev/null | sed -n 's/^[[:space:]]*pid = //p' | head -n 1)\" = '$dpid' ]"
+check "...the install log has no line of a stop or a removal" sh -c "! grep -q -e 'stopping the running daemon' -e 'removing ' '$work/dg.log'"
+sudo -n /bin/sh "$PRE" "$pkg" / / / >"$work/pre.out" 2>&1
+rc=$?
+if [ "$rc" -ne 0 ] && grep -q -F -- "$want" "$work/pre.out"; then pass "preinstall alone refuses the downgrade"; else failf "downgrade: preinstall alone exit $rc"; fi
+sudo -n cp "$work/rcpt.plist" "$RCPT.plist"
+check "the receipt says $newv again" sh -c "pkgutil --pkg-info $PKGID | grep -qx 'version: $newv'"
+echo "-- without a receipt: the installed BUILD-INFO"
+sudo -n mkdir "$work/rcpt.aside"
+sudo -n mv "$RCPT.plist" "$RCPT.bom" "$work/rcpt.aside/"
+sudo -n cp "$BI" "$work/bi.orig"
+sudo -n sed -i '' 's/^version .*/version      99.0.0/' "$BI"
+check "no receipt, BUILD-INFO says 99.0.0" sh -c "! pkgutil --pkg-info $PKGID >/dev/null 2>&1 && grep -qx 'version      99.0.0' '$BI'"
+sudo -n /bin/sh "$PRE" "$pkg" / / / >"$work/pre.out" 2>&1
+rc=$?
+want="this package is ntfs-macos $newv, older than the installed 99.0.0 (the installed BUILD-INFO)"
+echo "  preinstall alone (exit $rc): $(grep -m1 REFUSED "$work/pre.out" | cut -c1-200)"
+if [ "$rc" -ne 0 ] && grep -q -F -- "$want" "$work/pre.out"; then pass "preinstall refuses the downgrade of a developer install: $want"; else failf "BUILD-INFO downgrade: preinstall exit $rc, reason '$want' not found"; fi
+sudo -n cp "$work/bi.orig" "$BI"
+sudo -n mv "$work/rcpt.aside/$PKGID.plist" "$work/rcpt.aside/$PKGID.bom" /var/db/receipts/
+check "receipt and BUILD-INFO are back ($newv)" sh -c "pkgutil --pkg-info $PKGID | grep -qx 'version: $newv' && grep -qx 'version      $newv' '$BI'"
+echo "-- the real version next to this one: one patch newer is refused, the earlier 0.1.0 is upgraded"
+nextv=$(printf '%s\n' "$newv" | awk -F. '{ $NF = $NF + 1; print }' OFS=.)
+sudo -n plutil -replace PackageVersion -string "$nextv" "$RCPT.plist"
+sudo -n /bin/sh "$PRE" "$pkg" / / / >"$work/pre.out" 2>&1
+rc=$?
+want="this package is ntfs-macos $newv, older than the installed $nextv (the receipt $PKGID)"
+if [ "$rc" -ne 0 ] && grep -q -F -- "$want" "$work/pre.out"; then pass "preinstall refuses $newv over $nextv"; else failf "preinstall exit $rc over $nextv, reason '$want' not found"; fi
+sudo -n plutil -replace PackageVersion -string 0.1.0 "$RCPT.plist"
+pkg_install "$work/up01.out"
+rc=$?
+if [ "$rc" -eq 0 ]; then pass "$newv installs over an installed 0.1.0 (exit 0)"; else failf "the upgrade from 0.1.0 exits $rc"; fi
+check "...the log names the installed 0.1.0 and this package $newv" grep -q "installed version 0.1.0 (the receipt $PKGID); this package is $newv" "$work/up01.out.log"
+check "...the receipt says $newv again" sh -c "pkgutil --pkg-info $PKGID | grep -qx 'version: $newv'"
+echo "-- the same version again: installed (a reinstall is not a downgrade)"
+pkg_install "$work/re.out"
+rc=$?
+if [ "$rc" -eq 0 ]; then pass "the same version installs again (exit 0)"; else failf "the reinstall exits $rc"; fi
+check "...the log names the installed version $newv" grep -q "installed version $newv (the receipt $PKGID); this package is $newv" "$work/re.out.log"
+if set_ok; then pass "...exactly the manifest's set is installed"; else failf "the installed set differs after the reinstall"; fi
+check "...the daemon runs" wait_for 30 test -S /var/run/ntfsmacd.sock
 
 sudo -n rm -rf "$work"
 echo "result: $fail failure(s)"

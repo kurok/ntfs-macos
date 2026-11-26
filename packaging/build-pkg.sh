@@ -341,7 +341,10 @@ fi
 sh "$here/payload-check.sh" "$manifest" "$stage/staged.list" || die "the staged payload differs from the manifest"
 
 # --- 5. component package with the scripts, and the product archive ---
-install -m 0755 "$here/scripts/preinstall" "$scripts/preinstall"
+# preinstall refuses a downgrade (owner decision 2026-11-26, issue #10): it gets this package's version
+sed "s/^new_version='@VERSION@'\$/new_version='$version'/" "$here/scripts/preinstall" >"$scripts/preinstall"
+chmod 0755 "$scripts/preinstall"
+grep -qx "new_version='$version'" "$scripts/preinstall" || die "the version was not written into preinstall"
 install -m 0755 "$here/scripts/postinstall" "$scripts/postinstall"
 # Every payload entry and script gets the time SOURCE_DATE_EPOCH: pkgbuild copies the modification
 # times into the Bom and the cpio headers of Payload and Scripts (it writes 0 for the device and inode

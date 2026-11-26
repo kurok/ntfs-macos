@@ -250,3 +250,23 @@ const char *ntfsmac_vol_result_name(ntfsmac_vol_result r)
 	}
 	return "?";
 }
+
+long ntfsmac_vol_reuse_pick(const ntfsmac_vol_slot *slots, size_t n)
+{
+	long best = -1;
+	size_t i;
+
+	if (slots == NULL)
+		return -1;
+	for (i = 0; i < n; i++) {
+		const ntfsmac_vol_slot *s = &slots[i];
+		const ntfsmac_vol_slot *b = best >= 0 ? &slots[best] : NULL;
+
+		if (s->state != NTFSMAC_VOL_GONE || s->worker_live || s->pending)
+			continue;
+		if (b == NULL || (s->not_ntfs && !b->not_ntfs) ||
+		    (s->not_ntfs == b->not_ntfs && s->gone_seq < b->gone_seq))
+			best = (long)i;
+	}
+	return best;
+}

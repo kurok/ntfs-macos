@@ -941,6 +941,39 @@ static void test_list(void)
 	jt_rmrf(base);
 }
 
+/*
+ * U-JRN-LIST-02 (T-M7-15): more entries than the bound of one listing (a small bound through the
+ * parameter of ntfsmac_journal_list_ex): the listing is cut, not failed; it says how many it left
+ * out; no entry is removed; every entry is still found by serial.
+ */
+static void test_list_bound(void)
+{
+	char base[PATH_MAX_T], jdir[PATH_MAX_T];
+	ntfsmac_journal *j = open_fresh(base, sizeof(base), jdir, sizeof(jdir));
+	ntfsmac_journal_list_info info;
+	ntfsmac_journal_entry g;
+	struct list_ctx c;
+
+	for (uint64_t s = 1; s <= 7; s++)
+		make_entry(j, s, NTFSMAC_JOURNAL_MARKER_NONE, NTFSMAC_JOURNAL_STATE_OPEN);
+	memset(&c, 0, sizeof(c));
+	CHECK_ST(ntfsmac_journal_list_ex(j, 3, list_cb, &c, &info), NTFSMAC_JOURNAL_OK);
+	CHECK(c.n == 3);
+	CHECK(info.found == 7 && info.unlisted == 4 && info.skipped == 0);
+	CHECK(c.serial[0] == 1 && c.serial[1] == 2 && c.serial[2] == 3); /* the lowest, sorted */
+	/* the default bound lists them all */
+	memset(&c, 0, sizeof(c));
+	CHECK_ST(ntfsmac_journal_list_ex(j, 0, list_cb, &c, &info), NTFSMAC_JOURNAL_OK);
+	CHECK(c.n == 7 && info.found == 7 && info.unlisted == 0);
+	CHECK_ST(ntfsmac_journal_list_ex(j, 3, list_cb, &c, NULL), NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_list_ex(j, 3, NULL, &c, &info), NTFSMAC_JOURNAL_ERR_INVALID);
+	/* nothing was removed by a cut listing */
+	for (uint64_t s = 1; s <= 7; s++)
+		CHECK_ST(ntfsmac_journal_get(j, s, &g), NTFSMAC_JOURNAL_OK);
+	ntfsmac_journal_close(j);
+	jt_rmrf(base);
+}
+
 /* ------------------------------------------------------------------ */
 /* U-JRN-NAME-01                                                      */
 /* ------------------------------------------------------------------ */
@@ -1085,6 +1118,7 @@ int main(void)
 	RUN(test_removal_of_damaged_entries);
 	RUN(test_strict_parsing);
 	RUN(test_list);
+	RUN(test_list_bound);
 	RUN(test_naming_u_jrn_name_01);
 	printf("journal.unit: %d test groups passed\n", g_tests);
 	return 0;

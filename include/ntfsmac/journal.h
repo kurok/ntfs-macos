@@ -197,6 +197,31 @@ ntfsmac_journal_status ntfsmac_journal_list(ntfsmac_journal *j,
 					    ntfsmac_journal_entry_cb cb, void *ctx,
 					    unsigned *skipped);
 
+/*
+ * Bound of a listing (T-M7-15). Live entries are never pruned (only `journal_clear`, a clean
+ * session, external-check evidence or a repair remove one), so the directory can hold more than
+ * a listing keeps in memory. Past NTFSMAC_JOURNAL_LIST_MAX names the listing is cut, not failed:
+ * the lowest serials are listed (sorted) and the rest are counted in `unlisted`. The
+ * per-serial lookup (ntfsmac_journal_get) is not affected, so every mount decision still sees its
+ * own entry. `doctor` warns from NTFSMAC_JOURNAL_SOFT_MAX entries on and names `journal-clear`.
+ */
+#define NTFSMAC_JOURNAL_LIST_MAX 65536u
+#define NTFSMAC_JOURNAL_SOFT_MAX 1024u
+
+typedef struct ntfsmac_journal_list_info {
+	size_t found;     /* entry names in the directory */
+	size_t unlisted;  /* of those, not listed because of the bound */
+	unsigned skipped; /* listed names whose file could not be read */
+} ntfsmac_journal_list_info;
+
+/*
+ * As ntfsmac_journal_list(), with the bound `max_items` (0: NTFSMAC_JOURNAL_LIST_MAX; a test uses
+ * a small one) and the counts in `info` (may be NULL). A cut listing returns OK.
+ */
+ntfsmac_journal_status ntfsmac_journal_list_ex(ntfsmac_journal *j, size_t max_items,
+					       ntfsmac_journal_entry_cb cb, void *ctx,
+					       ntfsmac_journal_list_info *info);
+
 /* Tombstones, newest first (for `doctor`). Names that do not match the tombstone grammar are skipped. */
 ntfsmac_journal_status ntfsmac_journal_list_tombstones(ntfsmac_journal *j,
 						       ntfsmac_journal_tombstone_cb cb,

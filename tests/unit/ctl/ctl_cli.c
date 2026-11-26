@@ -33,6 +33,7 @@ _Static_assert((int)NTFSMAC_CLI_DOCTOR_JOURNAL_CORRUPT == (int)NTFSMAC_DOCTOR_JO
 _Static_assert((int)NTFSMAC_CLI_DOCTOR_JOURNAL_CLEARED == (int)NTFSMAC_DOCTOR_JOURNAL_CLEARED, "doctor code");
 _Static_assert((int)NTFSMAC_CLI_DOCTOR_JOURNAL_UNREADABLE == (int)NTFSMAC_DOCTOR_JOURNAL_UNREADABLE, "doctor code");
 _Static_assert((int)NTFSMAC_CLI_DOCTOR_NOTIFY_DELIVERY == (int)NTFSMAC_DOCTOR_NOTIFY_DELIVERY, "doctor code");
+_Static_assert((int)NTFSMAC_CLI_DOCTOR_JOURNAL_LARGE == (int)NTFSMAC_DOCTOR_JOURNAL_LARGE, "doctor code");
 _Static_assert(NTFSMAC_CLI_BANNER_WAIT_S * 1000 == (int)NTFSMAC_BANNER_WAIT_MS, "banner wait");
 _Static_assert((int)NTFSMAC_CLI_DOCTOR_EXT_NOT_APPROVED == (int)NTFSMAC_EXT_NOT_APPROVED, "ext state");
 _Static_assert(NTFSMAC_CLI_MACFUSE_MIN_MAJOR == NTFSMAC_MACFUSE_MIN_MAJOR, "macFUSE minimum");
@@ -337,10 +338,14 @@ static void test_render(void)
 		CHECK(strstr(ntfsmac_cli_doctor_text(2, false, 50300, b, sizeof b), "5.3.0 is not supported; install 5.5 or newer") != NULL);
 		CHECK(strstr(ntfsmac_cli_doctor_text(2, false, -7, b, sizeof b), "could not be read") != NULL); /* negative */
 		CHECK(strstr(ntfsmac_cli_doctor_text(9, false, -3, b, sizeof b), "0 volume(s)") != NULL);       /* negative count */
+		CHECK(strstr(ntfsmac_cli_doctor_text(NTFSMAC_CLI_DOCTOR_JOURNAL_LARGE, false, 70000, b, sizeof b),
+			      "70000 entries") != NULL); /* T-M7-15 */
+		CHECK(strstr(ntfsmac_cli_doctor_text(NTFSMAC_CLI_DOCTOR_JOURNAL_LARGE, false, 70000, b, sizeof b),
+			      "journal-clear") != NULL);
 		CHECK(ntfsmac_cli_doctor_text(0, true, 0, b, sizeof b) == NULL);
 		CHECK(ntfsmac_cli_doctor_text(-1, true, 0, b, sizeof b) == NULL);
 		CHECK(ntfsmac_cli_doctor_text(1001, true, 0, b, sizeof b) == NULL);
-		CHECK(ntfsmac_cli_doctor_text(14, true, 0, b, sizeof b) == NULL);
+		CHECK(ntfsmac_cli_doctor_text(NTFSMAC_CLI_DOCTOR_JOURNAL_LARGE + 1, true, 0, b, sizeof b) == NULL);
 		/* T-M7-06: the banner finding, one text per state; value = state * 1000 + status */
 		CHECK(strstr(ntfsmac_cli_doctor_text(13, true, 0, b, sizeof b), "delivery is unknown") != NULL);
 		CHECK(strstr(ntfsmac_cli_doctor_text(13, true, 1000, b, sizeof b), "was delivered") != NULL);

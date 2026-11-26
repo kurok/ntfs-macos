@@ -170,6 +170,25 @@ ntfsmac_vol_result ntfsmac_volume_apply(ntfsmac_volume *v,
 /* True if a `mount` request is accepted now (state Appeared or Failed; section 5). */
 bool ntfsmac_volume_accepts_mount(const ntfsmac_volume *v);
 
+/*
+ * Reuse of volume records (T-M7-15). The daemon keeps one record per BSD name, in a table of
+ * fixed size, and never frees one (queued blocks and control requests hold plain pointers). When
+ * the table is full, a new BSD name may take over a record in place, if the record is Gone and
+ * nothing can still act on it: no live worker, and nothing pending (an appearance queued for it, a
+ * stray-mount action queued, a control request that holds the pointer). Of those, a record whose
+ * last probe found no NTFS volume goes first, then the one that went Gone first.
+ */
+typedef struct ntfsmac_vol_slot {
+	ntfsmac_vol_state state;
+	bool worker_live;   /* a worker process is running */
+	bool pending;       /* something queued or a request holds the record */
+	bool not_ntfs;      /* the last probe found no NTFS volume */
+	uint64_t gone_seq;  /* when it went Gone, as a counter: smaller is older */
+} ntfsmac_vol_slot;
+
+/* Index of the record a new name may take, or -1 if none may be reused. Pure. */
+long ntfsmac_vol_reuse_pick(const ntfsmac_vol_slot *slots, size_t n);
+
 const char *ntfsmac_vol_state_name(ntfsmac_vol_state s);
 const char *ntfsmac_vol_event_name(ntfsmac_vol_event e);
 const char *ntfsmac_vol_result_name(ntfsmac_vol_result r);
@@ -916,6 +935,20 @@ ntfsmac_dmn_status ntfsmac_reconcile_run_with(ntfsmac_journal *j,
 					      void *ctx);
 
 /*
+ * As ntfsmac_reconcile_run_with, with the bound of the journal listing (`max_items`, 0: the
+ * default NTFSMAC_JOURNAL_LIST_MAX; tests use a small one). A journal with more entries than the
+ * bound is reconciled on the entries that were listed; the run logs how many were left out and
+ * sets `*unlisted` (may be NULL) to that number. Entries left out stay as they are: a mount of
+ * such a volume still finds its entry by serial and is decided from it (T-M7-15). A cut listing
+ * adopts no mount: every READOPT of the plan is turned into FORCE_UNMOUNT.
+ */
+ntfsmac_dmn_status ntfsmac_reconcile_run_limit(ntfsmac_journal *j,
+					       const ntfsmac_live_mount *mounts,
+					       size_t n_mounts, size_t max_items,
+					       ntfsmac_reconcile_cb cb, void *ctx,
+					       size_t *unlisted);
+
+/*
  * Platform lister (macOS: getfsstat(MNT_NOWAIT), no call into the served file
  * system). Fills a new array; the caller frees it with free(). Not
  * implemented off macOS (E_NOTIMPL).
@@ -1016,7 +1049,13 @@ typedef enum ntfsmac_doctor_code {
 	NTFSMAC_DOCTOR_JOURNAL_CORRUPT,       /* value = unreadable entries; not ok if any */
 	NTFSMAC_DOCTOR_JOURNAL_CLEARED,       /* value = tombstones kept; always ok */
 	NTFSMAC_DOCTOR_JOURNAL_UNREADABLE,    /* the journal directory could not be opened */
-	NTFSMAC_DOCTOR_NOTIFY_DELIVERY        /* value = ntfsmac_banner_value(); ok when no banner yet */
+	NTFSMAC_DOCTOR_NOTIFY_DELIVERY,       /* value = ntfsmac_banner_value(); ok when no banner yet */
+	/*
+	 * value = entries in the journal directory; only sent (not ok) when they are
+	 * NTFSMAC_JOURNAL_SOFT_MAX or more, or more than one listing holds (then JOURNAL_ENTRIES counts
+	 * only the listed ones). The text names `journal-clear` (T-M7-15).
+	 */
+	NTFSMAC_DOCTOR_JOURNAL_LARGE
 } ntfsmac_doctor_code;
 
 typedef enum ntfsmac_doctor_ext_state {
@@ -1054,6 +1093,8 @@ typedef struct ntfsmac_doctor_env {
 	const char *journal_dir;  /* NULL: NTFSMAC_JOURNAL_DEFAULT_DIR */
 	ntfsmac_doctor_ext_fn ext_fn;
 	void *ext_ctx;
+	size_t journal_list_max;  /* tests: the bound of the journal listing; 0: the default */
+	size_t journal_soft_max;  /* tests: the warning limit of JOURNAL_LARGE; 0: NTFSMAC_JOURNAL_SOFT_MAX */
 } ntfsmac_doctor_env;
 
 /*

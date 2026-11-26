@@ -121,7 +121,7 @@ Hard rules for every task: no mount on the host; no write to a physical device; 
 | T-M6-03 | `INSTALL.md`, `LIMITATIONS.md`, uninstall instructions | C | I | T-M6-01 | `docs/INSTALL.md`, `docs/LIMITATIONS.md` | Criterion 6.6 | S | b | none |
 | T-M6-04 | Reproducibility check | D | I | T-M6-01 | `scripts/repro-check.sh` | Criterion 6.2 | S | b | B |
 | T-M6-05 | GPL source release archive | C | I | T-M6-01 | `scripts/make-source-release.sh` | Criterion 6.5 | S | b | H |
-| T-M6-06 | M6 audit: root-run `preinstall`/`postinstall` scripts, package contents, uninstall manifest; no path from outside input to a root-executed string (senior review only if a privilege finding needs it) | E | I | T-M6-01..05 | `docs/audits/M6.md` | Criterion 6.7; signed note or defect list | S | c | B |
+| T-M6-06 | **Audited, defect list** (`docs/audits/M6.md`, 2026-11-26 at `a258428`: High 1 / Medium 2 / Low 5; M6-F01 (preinstall root-only check skips the parent of a symbolic link) and M6-F02 (Installer deletes old-receipt files in a user-controlled `/usr/local/share/doc`) need fixes, and the I-PKG and reproducibility evidence must be re-made at a clean commit). M6 audit: root-run `preinstall`/`postinstall` scripts, package contents, uninstall manifest; no path from outside input to a root-executed string (senior review only if a privilege finding needs it) | E | I | T-M6-01..05 | `docs/audits/M6.md` | Criterion 6.7; signed note or defect list | S | c | B |
 
 ## M7 Release readiness
 

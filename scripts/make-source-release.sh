@@ -84,10 +84,10 @@ fi
 
 cd "$root"
 git rev-parse --git-dir >/dev/null 2>&1 || die "not a git checkout"
-# Probe the feature by using it (on git's built-in empty tree), not through --help: --help needs a
+# Probe the feature by using it (on the empty tree, SHA-1 or SHA-256), not through --help: --help needs a
 # manual viewer, which a minimal container lacks.
 srcrel_probe=$(mktemp "${TMPDIR:-/tmp}/srcrel-probe.XXXXXX") || die "mktemp failed"
-if ! git archive --format=tar --add-file="$srcrel_probe" 4b825dc642cb6eb9a060e54bf8d69288fbee4904 >/dev/null 2>&1; then
+if ! git archive --format=tar --add-file="$srcrel_probe" "$(git hash-object -t tree /dev/null)" >/dev/null 2>&1; then
 	rm -f "$srcrel_probe"
 	die "this git has no 'git archive --add-file' (need git 2.32 or newer)"
 fi

@@ -352,6 +352,17 @@ static int check_notify(ntfsmac_doctor_cb cb, void *ctx)
 	return emit(cb, ctx, NTFSMAC_DOCTOR_NOTIFY_DELIVERY, f.ok, f.value);
 }
 
+/*
+ * #9, owner decision 2026-11-26: writable mounts that the last restart left mounted because they
+ * have a journal entry's name and are no entry's recorded mount. A count only: no path.
+ */
+static int check_left_mounted(ntfsmac_doctor_cb cb, void *ctx)
+{
+	size_t n = ntfsmac_reconcile_left_mounted();
+
+	return emit(cb, ctx, NTFSMAC_DOCTOR_RECONCILE_LEFT_MOUNTED, n == 0, (long)n);
+}
+
 ntfsmac_dmn_status ntfsmac_doctor_run_env(const ntfsmac_doctor_env *env, ntfsmac_doctor_cb cb,
 					  void *ctx)
 {
@@ -366,7 +377,8 @@ ntfsmac_dmn_status ntfsmac_doctor_run_env(const ntfsmac_doctor_env *env, ntfsmac
 	journal_dir = env->journal_dir != NULL ? env->journal_dir : NTFSMAC_JOURNAL_DEFAULT_DIR;
 
 	if (check_macfuse(env, fs_dir, cb, ctx) || check_conflicts(fs_dir, cb, ctx) ||
-	    check_journal(env, journal_dir, cb, ctx) || check_notify(cb, ctx))
+	    check_journal(env, journal_dir, cb, ctx) || check_notify(cb, ctx) ||
+	    check_left_mounted(cb, ctx))
 		return NTFSMAC_DMN_OK; /* the callback stopped the run */
 	return NTFSMAC_DMN_OK;
 }

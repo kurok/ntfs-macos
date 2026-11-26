@@ -944,6 +944,15 @@ bool ntfsmac_session_owns_entry(const ntfsmac_session *s);
  * Idempotent; a ro session has no entry and does nothing.
  */
 ntfsmac_dmn_status ntfsmac_session_note_write_error(ntfsmac_session *s);
+/*
+ * Record in the session's journal entry the mount its worker made (T-M7-12): owner, f_fsid and
+ * f_mntfromname from the mount table, so that a restart can tell this mount from any other with
+ * the same name. Once per session; OK without an entry (a read-only session) or when it is
+ * recorded already; E_INVAL for an empty or unprintable source; E_IO when the journal update
+ * failed (the entry then stays without it, and a restart leaves the mount alone).
+ */
+ntfsmac_dmn_status ntfsmac_session_note_mount(ntfsmac_session *s, uint32_t owner, uint64_t fsid,
+					      const char *from);
 
 typedef enum ntfsmac_session_report {
 	NTFSMAC_SREPORT_RO_CLOSED = 0,  /* ro session: nothing to settle */
@@ -1018,6 +1027,10 @@ typedef struct ntfsmac_live_mount {
 	char mount_point[128];   /* same size as ntfsmac_mountpoint.path */
 	bool read_only;           /* MNT_RDONLY */
 	pid_t worker_pid;
+	/* T-M7-12: what the entry recorded at mount time is compared with these (struct statfs) */
+	uint32_t owner;           /* f_owner */
+	uint64_t fsid;            /* f_fsid */
+	char from[NTFSMAC_JOURNAL_MOUNT_FROM_MAX + 1]; /* f_mntfromname; "" if longer or not printable */
 } ntfsmac_live_mount;
 
 /*
@@ -1050,7 +1063,36 @@ size_t ntfsmac_reconcile_plan(const ntfsmac_journal_entry *entries, size_t n_ent
 
 /* True if `mount_point` is /Volumes/<leaf> where <leaf> is the entry's label, or
  * the label followed by " 2" to " 99" (section 4.1 step 7). Pure. */
-bool ntfsmac_reconcile_mount_matches(const ntfsmac_journal_entry *e, const char *mount_point);
+bool ntfsmac_reconcile_name_matches(const ntfsmac_journal_entry *e, const char *mount_point);
+
+/*
+ * True if `m` is the mount of the entry's session (T-M7-12): the name matches, and the entry
+ * recorded the mount (has_mount) with the owner, f_fsid and source that `m` has now. An entry
+ * without the record (format 1, or a daemon that stopped before it was written) matches nothing:
+ * its mount is never unmounted or adopted, and the entry stays (the next mount is read-only).
+ * Pure.
+ */
+bool ntfsmac_reconcile_mount_matches(const ntfsmac_journal_entry *e, const ntfsmac_live_mount *m);
+
+/*
+ * Owner decision 2026-11-26 (#9): a writable mount that has the name of a journal entry and is
+ * the recorded mount of no entry is left mounted, with a warning. True for such a mount. Pure.
+ */
+bool ntfsmac_reconcile_left_alone(const ntfsmac_journal_entry *entries, size_t n_entries,
+				  const ntfsmac_live_mount *m);
+/* The number of mounts of `mounts` for which ntfsmac_reconcile_left_alone() is true. Pure. */
+size_t ntfsmac_reconcile_count_left(const ntfsmac_journal_entry *entries, size_t n_entries,
+				    const ntfsmac_live_mount *mounts, size_t n_mounts);
+/*
+ * The count of the last reconciliation run (ntfsmac_reconcile_run_with() sets it; 0 before the
+ * first run). `doctor` reports it (NTFSMAC_DOCTOR_RECONCILE_LEFT_MOUNTED) and `status` shows it.
+ * Thread safe.
+ */
+void ntfsmac_reconcile_set_left_mounted(size_t n);
+size_t ntfsmac_reconcile_left_mounted(void);
+
+/* Copy f_mntfromname (`src`, `srcsize` bytes) when it fits `cap` and is printable ASCII; else "". */
+void ntfsmac_mount_from_copy(char *dst, size_t cap, const char *src, size_t srcsize);
 
 /* Same as ntfsmac_reconcile_run with the live mounts given by the caller (tests). */
 ntfsmac_dmn_status ntfsmac_reconcile_run_with(ntfsmac_journal *j,
@@ -1179,7 +1221,9 @@ typedef enum ntfsmac_doctor_code {
 	 * NTFSMAC_JOURNAL_SOFT_MAX or more, or more than one listing holds (then JOURNAL_ENTRIES counts
 	 * only the listed ones). The text names `journal-clear` (T-M7-15).
 	 */
-	NTFSMAC_DOCTOR_JOURNAL_LARGE
+	NTFSMAC_DOCTOR_JOURNAL_LARGE,
+	NTFSMAC_DOCTOR_RECONCILE_LEFT_MOUNTED /* value = writable mounts left mounted at the restart
+					       * (ntfsmac_reconcile_left_mounted()); not ok if any */
 } ntfsmac_doctor_code;
 
 typedef enum ntfsmac_doctor_ext_state {
@@ -1435,7 +1479,8 @@ typedef enum ntfsmac_notify_kind {
 	NTFSMAC_NOTIFY_REFUSED,
 	NTFSMAC_NOTIFY_VOLMARK_INTERRUPTED,
 	NTFSMAC_NOTIFY_MIRROR_SPLIT,
-	NTFSMAC_NOTIFY_STRAY_MOUNT /* T-M4-08: the worker mounted another file system (H1) */
+	NTFSMAC_NOTIFY_STRAY_MOUNT, /* T-M4-08: the worker mounted another file system (H1) */
+	NTFSMAC_NOTIFY_LEFT_MOUNTED /* #9: a writable mount with a journal entry's name was left mounted */
 } ntfsmac_notify_kind;
 
 /* `label` is the sanitised label only; `reason` is a fixed daemon text, not disk-derived. */

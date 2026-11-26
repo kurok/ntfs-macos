@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * U-DMN-DOC-01..10: version and plist helpers (pure), and each doctor check
+ * U-DMN-DOC-01..11: version and plist helpers (pure), and each doctor check
  * against temporary directories.
  */
 #include "tmpdir.h"
@@ -137,6 +137,8 @@ static void test_no_macfuse_no_journal(void)
 	EXPECT(c, NTFSMAC_DOCTOR_JOURNAL_CLEARED, true, 0);
 	/* T-M7-06: no banner was ever sent: "unknown", reported as ok, never as a failure. */
 	EXPECT(c, NTFSMAC_DOCTOR_NOTIFY_DELIVERY, true, 0);
+	/* #9: no restart left a writable mount mounted. */
+	EXPECT(c, NTFSMAC_DOCTOR_RECONCILE_LEFT_MOUNTED, true, 0);
 	/* Doctor only reads: it must not create the journal directory. */
 	CHECK(lstat(jd, &st) != 0 && errno == ENOENT);
 	tmp_rmrf(base);
@@ -171,6 +173,28 @@ static void test_notify_delivery(void)
 	CHECK_EQ_INT(ntfsmac_doctor_run_env(&env, collect, &c), NTFSMAC_DMN_OK);
 	EXPECT(c, NTFSMAC_DOCTOR_NOTIFY_DELIVERY, true, 1000);
 	ntfsmac_banner_record(&never);
+	tmp_rmrf(base);
+}
+
+/* U-DMN-DOC-11 (#9, owner decision 2026-11-26): a restart left writable mounts mounted. */
+static void test_left_mounted(void)
+{
+	char fs[PATH_MAX], jd[PATH_MAX], base[PATH_MAX];
+	ntfsmac_doctor_env env = {fs, jd, NULL, NULL, 0, 0};
+	collected c;
+
+	tmp_make(base, sizeof base);
+	PATHF(fs, "%s/fs", base);
+	PATHF(jd, "%s/journal", base);
+	tmp_mkdir(base, "fs");
+	memset(&c, 0, sizeof c);
+	ntfsmac_reconcile_set_left_mounted(2);
+	CHECK_EQ_INT(ntfsmac_doctor_run_env(&env, collect, &c), NTFSMAC_DMN_OK);
+	EXPECT(c, NTFSMAC_DOCTOR_RECONCILE_LEFT_MOUNTED, false, 2);
+	memset(&c, 0, sizeof c);
+	ntfsmac_reconcile_set_left_mounted(0);
+	CHECK_EQ_INT(ntfsmac_doctor_run_env(&env, collect, &c), NTFSMAC_DMN_OK);
+	EXPECT(c, NTFSMAC_DOCTOR_RECONCILE_LEFT_MOUNTED, true, 0);
 	tmp_rmrf(base);
 }
 
@@ -432,6 +456,7 @@ int main(void)
 	test_version();
 	test_no_macfuse_no_journal();
 	test_notify_delivery();
+	test_left_mounted();
 	test_macfuse();
 	test_ext_parse();
 	test_conflicts();

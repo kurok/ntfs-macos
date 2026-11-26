@@ -48,6 +48,7 @@ typedef struct ntfsmac_mw_mount {
 	uid_t owner;                    /* f_owner: the user that made the mount */
 	bool fuse;                      /* f_fstypename is a macFUSE type */
 	uint64_t id;                    /* f_fsid: names this mount, not its path */
+	char from[NTFSMAC_JOURNAL_MOUNT_FROM_MAX + 1]; /* f_mntfromname; "" if longer or not printable */
 } ntfsmac_mw_mount;
 
 /* One volume that the daemon knows a mount point for. */

@@ -34,6 +34,8 @@ _Static_assert((int)NTFSMAC_CLI_DOCTOR_JOURNAL_CLEARED == (int)NTFSMAC_DOCTOR_JO
 _Static_assert((int)NTFSMAC_CLI_DOCTOR_JOURNAL_UNREADABLE == (int)NTFSMAC_DOCTOR_JOURNAL_UNREADABLE, "doctor code");
 _Static_assert((int)NTFSMAC_CLI_DOCTOR_NOTIFY_DELIVERY == (int)NTFSMAC_DOCTOR_NOTIFY_DELIVERY, "doctor code");
 _Static_assert((int)NTFSMAC_CLI_DOCTOR_JOURNAL_LARGE == (int)NTFSMAC_DOCTOR_JOURNAL_LARGE, "doctor code");
+_Static_assert((int)NTFSMAC_CLI_DOCTOR_RECONCILE_LEFT_MOUNTED == (int)NTFSMAC_DOCTOR_RECONCILE_LEFT_MOUNTED,
+	       "doctor code");
 _Static_assert(NTFSMAC_CLI_BANNER_WAIT_S * 1000 == (int)NTFSMAC_BANNER_WAIT_MS, "banner wait");
 _Static_assert((int)NTFSMAC_CLI_DOCTOR_EXT_NOT_APPROVED == (int)NTFSMAC_EXT_NOT_APPROVED, "ext state");
 _Static_assert(NTFSMAC_CLI_MACFUSE_MIN_MAJOR == NTFSMAC_MACFUSE_MIN_MAJOR, "macFUSE minimum");
@@ -304,6 +306,20 @@ static void test_render(void)
 	CHECK(strcmp(c.out, "No NTFS volumes.\n") == 0);
 	cap_free(&c);
 
+	/* #9: status says when a restart left writable mounts mounted */
+	cap_open(&c);
+	rc = ntfsmac_cli_render(&c.ctx, NTFSMAC_CTL_CMD_STATUS,
+		"{\"ok\":true,\"volume\":{\"bsd\":\"disk4s1\"},\"restart_left_mounted\":2}");
+	cap_close(&c);
+	CHECK_EQ_INT(rc, 0);
+	CHECK(strstr(c.out, "warning: 2 read/write volume(s) were left mounted since the last daemon start") != NULL);
+	cap_free(&c);
+	cap_open(&c);
+	rc = ntfsmac_cli_render(&c.ctx, NTFSMAC_CTL_CMD_STATUS, "{\"ok\":true,\"volume\":{\"bsd\":\"disk4s1\"}}");
+	cap_close(&c);
+	CHECK(strstr(c.out, "left mounted") == NULL);
+	cap_free(&c);
+
 	/* status while the journal is busy (T-M7-14): a fixed text, not the raw code */
 	cap_open(&c);
 	rc = ntfsmac_cli_render(&c.ctx, NTFSMAC_CTL_CMD_STATUS,
@@ -345,7 +361,11 @@ static void test_render(void)
 		CHECK(ntfsmac_cli_doctor_text(0, true, 0, b, sizeof b) == NULL);
 		CHECK(ntfsmac_cli_doctor_text(-1, true, 0, b, sizeof b) == NULL);
 		CHECK(ntfsmac_cli_doctor_text(1001, true, 0, b, sizeof b) == NULL);
-		CHECK(ntfsmac_cli_doctor_text(NTFSMAC_CLI_DOCTOR_JOURNAL_LARGE + 1, true, 0, b, sizeof b) == NULL);
+		/* #9: a restart left writable mounts mounted */
+		CHECK(strstr(ntfsmac_cli_doctor_text(NTFSMAC_CLI_DOCTOR_RECONCILE_LEFT_MOUNTED, true, 0, b, sizeof b), "No read/write volume was left mounted") != NULL);
+		CHECK(strstr(ntfsmac_cli_doctor_text(NTFSMAC_CLI_DOCTOR_RECONCILE_LEFT_MOUNTED, false, 2, b, sizeof b), "2 read/write volume(s) were left mounted since the last daemon start") != NULL);
+		CHECK(strstr(ntfsmac_cli_doctor_text(NTFSMAC_CLI_DOCTOR_RECONCILE_LEFT_MOUNTED, false, 2, b, sizeof b), "before you unplug its disk.") != NULL);
+		CHECK(ntfsmac_cli_doctor_text(NTFSMAC_CLI_DOCTOR_RECONCILE_LEFT_MOUNTED + 1, true, 0, b, sizeof b) == NULL);
 		/* T-M7-06: the banner finding, one text per state; value = state * 1000 + status */
 		CHECK(strstr(ntfsmac_cli_doctor_text(13, true, 0, b, sizeof b), "delivery is unknown") != NULL);
 		CHECK(strstr(ntfsmac_cli_doctor_text(13, true, 1000, b, sizeof b), "was delivered") != NULL);

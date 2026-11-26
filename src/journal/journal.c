@@ -30,6 +30,8 @@
  *   logfile_lsn_at_start <decimal>
  *   marker pending|set|failed|none
  *   state open|write_error
+ *   mount -  |  mount <owner decimal> <fsid 16 upper-case hex> <source lower-case hex>
+ *            (format 2 only, T-M7-12)
  *   end
  *
  * One process owns a journal directory (the root daemon); update and remove
@@ -400,7 +402,24 @@ static bool fields_valid(const ntfsmac_journal_entry *e)
 			return false;
 	if (!marker_valid(e->marker) || !state_valid(e->state))
 		return false;
+	if (e->has_mount) {
+		const char *end = memchr(e->mount_from, '\0', sizeof(e->mount_from));
+
+		if (e->legacy || end == NULL || end == e->mount_from)
+			return false;
+		for (const unsigned char *p = (const unsigned char *)e->mount_from; *p; p++)
+			if (*p < 0x20 || *p > 0x7e)
+				return false;
+	}
 	return e->session_id != 0 && e->total_sectors != 0;
+}
+
+static bool mount_equal(const ntfsmac_journal_entry *a, const ntfsmac_journal_entry *b)
+{
+	if (a->has_mount != b->has_mount)
+		return false;
+	return !a->has_mount || (a->mount_owner == b->mount_owner && a->mount_fsid == b->mount_fsid &&
+				 strcmp(a->mount_from, b->mount_from) == 0);
 }
 
 static int serialise(const ntfsmac_journal_entry *e, char *buf, size_t size,
@@ -408,6 +427,7 @@ static int serialise(const ntfsmac_journal_entry *e, char *buf, size_t size,
 {
 	char serial[NTFSMAC_JOURNAL_NAME_SIZE];
 	char label_hex[2 * NTFSMAC_JOURNAL_LABEL_MAX_BYTES + 1];
+	char mount[32 + 2 * NTFSMAC_JOURNAL_MOUNT_FROM_MAX + 40];
 	size_t n = 0;
 	int w;
 
@@ -418,6 +438,26 @@ static int serialise(const ntfsmac_journal_entry *e, char *buf, size_t size,
 		label_hex[n++] = HEX_LOWER[*p & 0xf];
 	}
 	label_hex[n] = '\0';
+	mount[0] = '\0';
+	if (!e->legacy) {
+		char fsid[NTFSMAC_JOURNAL_NAME_SIZE];
+		size_t m;
+
+		if (!e->has_mount) {
+			snprintf(mount, sizeof(mount), "mount -\n");
+		} else {
+			if (ntfsmac_journal_format_name(fsid, sizeof(fsid), e->mount_fsid) != 0)
+				return -1;
+			m = (size_t)snprintf(mount, sizeof(mount), "mount %" PRIu32 " %s ", e->mount_owner,
+					     fsid);
+			for (const unsigned char *p = (const unsigned char *)e->mount_from; *p; p++) {
+				mount[m++] = HEX_LOWER[*p >> 4];
+				mount[m++] = HEX_LOWER[*p & 0xf];
+			}
+			mount[m++] = '\n';
+			mount[m] = '\0';
+		}
+	}
 	w = snprintf(buf, size,
 		     "ntfsmac-journal %d\n"
 		     "serial %s\n"
@@ -429,10 +469,11 @@ static int serialise(const ntfsmac_journal_entry *e, char *buf, size_t size,
 		     "logfile_lsn_at_start %" PRIu64 "\n"
 		     "marker %s\n"
 		     "state %s\n"
+		     "%s"
 		     "end\n",
 		     e->legacy ? 1 : 2, serial, label_hex, e->total_sectors, e->session_id,
 		     e->created, e->updated, e->logfile_lsn_at_start,
-		     marker_text(e->marker), state_text(e->state));
+		     marker_text(e->marker), state_text(e->state), mount);
 	if (w < 0 || (size_t)w >= size)
 		return -1;
 	*len = (size_t)w;
@@ -522,6 +563,50 @@ static int hexval_lower(char c)
 	return -1;
 }
 
+/* "mount -" or "mount <owner> <fsid hex16> <source hex>" (format 2, T-M7-12). */
+static int parse_mount_line(struct cursor *c, ntfsmac_journal_entry *t)
+{
+	const char *v, *sp;
+	size_t vl, ol, hl;
+	uint64_t owner;
+	char fsid[17];
+
+	if (line_value(c, "mount", &v, &vl) != 0)
+		return -1;
+	if (vl == 1 && v[0] == '-')
+		return 0;
+	sp = memchr(v, ' ', vl);
+	if (sp == NULL)
+		return -1;
+	ol = (size_t)(sp - v);
+	if (dec_u64(v, ol, &owner) != 0 || owner > UINT32_MAX)
+		return -1;
+	if (vl < ol + 1 + 16 + 1 || sp[17] != ' ')
+		return -1;
+	memcpy(fsid, sp + 1, 16);
+	fsid[16] = '\0';
+	if (parse_hex16(fsid, &t->mount_fsid) != 0)
+		return -1;
+	hl = vl - (ol + 18);
+	if (hl == 0 || (hl & 1u) != 0 || hl > 2 * NTFSMAC_JOURNAL_MOUNT_FROM_MAX)
+		return -1;
+	for (size_t i = 0; i < hl; i += 2) {
+		int hi = hexval_lower(sp[18 + i]), lo = hexval_lower(sp[18 + i + 1]);
+		unsigned char b;
+
+		if (hi < 0 || lo < 0)
+			return -1;
+		b = (unsigned char)(hi << 4 | lo);
+		if (b < 0x20 || b > 0x7e)
+			return -1;
+		t->mount_from[i / 2] = (char)b;
+	}
+	t->mount_from[hl / 2] = '\0';
+	t->mount_owner = (uint32_t)owner;
+	t->has_mount = true;
+	return 0;
+}
+
 /* `legacy`: the name was of format 1, so the text must be format 1; else format 2. */
 static int parse_entry_text(const char *buf, size_t len, bool legacy, ntfsmac_journal_entry *e)
 {
@@ -595,6 +680,8 @@ static int parse_entry_text(const char *buf, size_t len, bool legacy, ntfsmac_jo
 	else if (vl == 11 && memcmp(v, "write_error", 11) == 0)
 		t.state = NTFSMAC_JOURNAL_STATE_WRITE_ERROR;
 	else
+		return -1;
+	if (!legacy && parse_mount_line(&c, &t) != 0)
 		return -1;
 	if (next_line(&c, &line, &ll) != 0 || ll != 3 || memcmp(line, "end", 3) != 0)
 		return -1;
@@ -1148,6 +1235,9 @@ ntfsmac_journal_status ntfsmac_journal_update(ntfsmac_journal *j,
 	    old.total_sectors != e->total_sectors ||
 	    old.session_id != e->session_id || old.created != e->created ||
 	    old.logfile_lsn_at_start != e->logfile_lsn_at_start)
+		return NTFSMAC_JOURNAL_ERR_IMMUTABLE;
+	/* the mount identity is recorded once and then kept (T-M7-12) */
+	if (old.has_mount && !mount_equal(&old, e))
 		return NTFSMAC_JOURNAL_ERR_IMMUTABLE;
 	if (!ntfsmac_journal_marker_transition_ok(old.marker, e->marker) ||
 	    !ntfsmac_journal_state_transition_ok(old.state, e->state))

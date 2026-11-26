@@ -59,6 +59,10 @@ static void test_wording(void)
 	CHECK(has(NTFSMAC_NOTIFY_MOUNTED_RO, "Disk", NULL, "Disk is mounted read-only."));
 	CHECK(has(NTFSMAC_NOTIFY_REFUSED, "Disk", "damaged", "was not mounted: damaged."));
 	CHECK(has(NTFSMAC_NOTIFY_STRAY_MOUNT, "Disk", NULL, "mounted another file system"));
+	/* #9: a writable mount left mounted at the restart; no label, never a disk-derived name */
+	CHECK(has(NTFSMAC_NOTIFY_LEFT_MOUNTED, NULL, NULL, "was left mounted when ntfsmac restarted"));
+	CHECK(has(NTFSMAC_NOTIFY_LEFT_MOUNTED, "Disk", NULL, "Eject it before you unplug its disk"));
+	CHECK(!has(NTFSMAC_NOTIFY_LEFT_MOUNTED, "Disk", NULL, "Disk"));
 }
 
 /* U-DMN-NT-02: no label, control bytes, limits. */
@@ -83,7 +87,7 @@ static void test_all_kinds(void)
 	char buf[512];
 	int k;
 
-	for (k = 0; k <= (int)NTFSMAC_NOTIFY_STRAY_MOUNT; k++) {
+	for (k = 0; k <= (int)NTFSMAC_NOTIFY_LEFT_MOUNTED; k++) {
 		CHECK(ntfsmac_notify_text((ntfsmac_notify_kind)k, "Disk", "x", buf, sizeof buf) > 0);
 		CHECK(!strstr(buf, "(null)"));
 	}

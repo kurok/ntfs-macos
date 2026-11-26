@@ -713,6 +713,32 @@ ntfsmac_dmn_status ntfsmac_session_note_write_error(ntfsmac_session *s)
 		       : NTFSMAC_DMN_E_IO;
 }
 
+ntfsmac_dmn_status ntfsmac_session_note_mount(ntfsmac_session *s, uint32_t owner, uint64_t fsid,
+					      const char *from)
+{
+	ntfsmac_journal_entry e;
+	size_t n;
+
+	if (s == NULL || from == NULL)
+		return NTFSMAC_DMN_E_INVAL;
+	n = strnlen(from, sizeof e.mount_from);
+	if (n == 0 || n >= sizeof e.mount_from)
+		return NTFSMAC_DMN_E_INVAL;
+	if (!s->has_entry || s->entry.has_mount || s->entry.legacy)
+		return NTFSMAC_DMN_OK;
+	e = s->entry;
+	e.has_mount = true;
+	e.mount_owner = owner;
+	e.mount_fsid = fsid;
+	memcpy(e.mount_from, from, n);
+	e.mount_from[n] = '\0';
+	e.updated = s->sys->now(s->sys->ctx);
+	if (ntfsmac_journal_update(s->j, &e) != NTFSMAC_JOURNAL_OK)
+		return NTFSMAC_DMN_E_IO; /* unprintable bytes come back as INVALID: also no record */
+	s->entry = e;
+	return NTFSMAC_DMN_OK;
+}
+
 ntfsmac_dmn_status ntfsmac_session_end(ntfsmac_session *s, const ntfsmac_errwatch *w,
 				       bool unmount_seen_first, int worker_exit_status, bool force_unclean,
 				       ntfsmac_session_end_result *res)

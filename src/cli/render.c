@@ -384,6 +384,12 @@ int ntfsmac_cli_render(const ntfsmac_cli_ctx *ctx, ntfsmac_ctl_cmd cmd, const ch
 			; /* printed */
 		else
 			dump(ctx->out, root, 0);
+		if (cmd == NTFSMAC_CTL_CMD_STATUS && number_of(root, "restart_left_mounted") > 0)
+			fprintf(ctx->out,
+				"warning: %ld read/write volume(s) were left mounted since the last daemon "
+				"start, because the daemon cannot prove they are its own; `ntfsmac doctor` says "
+				"more.\n",
+				number_of(root, "restart_left_mounted"));
 		rc = NTFSMAC_CLI_EXIT_OK;
 	}
 	json_free(doc);

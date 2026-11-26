@@ -99,7 +99,21 @@ static void test_status(void)
 	/* No probe, no entry: only the volume. */
 	CHECK(ntfsmac_report_status(&v, NULL, NULL, buf, sizeof buf) > 0);
 	CHECK(strstr(buf, "\"probe\"") == NULL && strstr(buf, "\"journal\"") == NULL);
+	CHECK(strstr(buf, "restart_left_mounted") == NULL);
 	CHECK_EQ_INT(ntfsmac_report_status(NULL, NULL, NULL, buf, sizeof buf), 0);
+
+	/* #9: the restart left writable mounts mounted: a daemon-wide count, valid JSON. */
+	CHECK(ntfsmac_report_status_ex(&v, NULL, NULL, 2, buf, sizeof buf) > 0);
+	d = json_parse(buf, strlen(buf));
+	CHECK(d != NULL && json_root(d) != NULL);
+	{
+		const json_node *n = json_member(json_root(d), "restart_left_mounted");
+
+		CHECK(n != NULL && n->type == JSON_NUMBER && strcmp(n->text, "2") == 0);
+	}
+	json_free(d);
+	CHECK(ntfsmac_report_status_ex(&v, NULL, NULL, 0, buf, sizeof buf) > 0);
+	CHECK(strstr(buf, "restart_left_mounted") == NULL);
 }
 
 /* U-DMN-RP-03: a path list that does not fit is cut at a whole path; the reply stays valid. */

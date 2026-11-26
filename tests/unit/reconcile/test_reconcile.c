@@ -415,9 +415,9 @@ static void test_run(void)
 	CHECK(s.n == 1);
 
 	/* The journal is untouched by reconciliation, whatever the actions. */
-	CHECK_ST(ntfsmac_journal_get(j, 0xA1, &g1), NTFSMAC_JOURNAL_OK);
-	CHECK_ST(ntfsmac_journal_get(j, 0xA2, &g2), NTFSMAC_JOURNAL_OK);
-	CHECK_ST(ntfsmac_journal_get(j, 0xA3, &g3), NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_get(j, 0xA1, JT_TS, &g1), NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_get(j, 0xA2, JT_TS, &g2), NTFSMAC_JOURNAL_OK);
+	CHECK_ST(ntfsmac_journal_get(j, 0xA3, JT_TS, &g3), NTFSMAC_JOURNAL_OK);
 	CHECK(jt_entry_eq(&g1, &e1));
 	CHECK(jt_entry_eq(&g2, &e2));
 	CHECK(jt_entry_eq(&g3, &e3));
@@ -441,7 +441,7 @@ static void test_run(void)
 		CHECK(ntfsmac_reconcile_run_limit(j, m, 2, 0, record, &s, &unlisted) == NTFSMAC_DMN_OK);
 		CHECK(s.n == 3 && unlisted == 0);
 		CHECK(s.action[find_serial(&s, 0xA1)] == NTFSMAC_RECONCILE_READOPT); /* full listing: adopted */
-		CHECK_ST(ntfsmac_journal_get(j, 0xA3, &g3), NTFSMAC_JOURNAL_OK);
+		CHECK_ST(ntfsmac_journal_get(j, 0xA3, JT_TS, &g3), NTFSMAC_JOURNAL_OK);
 		CHECK(jt_entry_eq(&g3, &e3));
 	}
 

@@ -267,20 +267,25 @@ ntfsmac_journal_status ntfsmac_journal_remove_if(ntfsmac_journal *j,
 {
 	ntfsmac_journal_entry cur;
 	ntfsmac_journal_status js;
+	uint64_t ts;
 
 	if (j == NULL || expected == NULL)
 		return NTFSMAC_JOURNAL_ERR_INVALID;
+	/* the key of the entry the caller looked at: format 1 has no identity (T-M7-13) */
+	ts = expected->legacy ? 0 : expected->total_sectors;
 	pthread_mutex_lock(&g_entry_mu);
-	js = ntfsmac_journal_get(j, expected->serial, &cur);
+	js = ntfsmac_journal_get(j, expected->serial, ts, &cur);
 	if (js == NTFSMAC_JOURNAL_OK) {
-		/* the entry the caller looked at: same session and same creation time */
-		if (cur.session_id != expected->session_id || cur.created != expected->created)
+		/* the entry the caller looked at: same session, same creation time, same format */
+		if (cur.session_id != expected->session_id || cur.created != expected->created ||
+		    cur.legacy != expected->legacy)
 			js = NTFSMAC_JOURNAL_ERR_PATH_CONDITION;
 		else
-			js = ntfsmac_journal_remove(j, expected->serial, path, now);
+			js = ntfsmac_journal_remove(j, expected->serial, ts, path, now);
 	} else if (js == NTFSMAC_JOURNAL_ERR_CORRUPT && expected->session_id == 0 &&
 		   expected->created == 0) {
-		js = ntfsmac_journal_remove(j, expected->serial, path, now); /* the stand-in of a corrupt entry */
+		/* the stand-in of a corrupt entry: the file that the same lookup found */
+		js = ntfsmac_journal_remove(j, expected->serial, ts, path, now);
 	} else if (js == NTFSMAC_JOURNAL_ERR_CORRUPT) {
 		js = NTFSMAC_JOURNAL_ERR_PATH_CONDITION;
 	}
@@ -322,7 +327,12 @@ ntfsmac_dmn_status ntfsmac_session_decide(const ntfsmac_session_config *cfg, ntf
 		return NTFSMAC_DMN_E_INVAL;
 	memset(out, 0, sizeof *out);
 
-	js = ntfsmac_journal_get(j, v->serial, &e);
+	/*
+	 * The entry of this volume: serial and total_sectors (T-M7-13). An entry of another volume
+	 * with the same serial is not looked at and not touched; a format-1 entry of the serial has
+	 * no identity and applies, as before.
+	 */
+	js = ntfsmac_journal_get(j, v->serial, v->total_sectors, &e);
 	if (js == NTFSMAC_JOURNAL_OK) {
 		ep = &e;
 	} else if (js != NTFSMAC_JOURNAL_ERR_NOT_FOUND) {
@@ -333,6 +343,7 @@ ntfsmac_dmn_status ntfsmac_session_decide(const ntfsmac_session_config *cfg, ntf
 		 */
 		memset(&synth, 0, sizeof synth);
 		synth.serial = v->serial;
+		synth.total_sectors = v->total_sectors; /* it stands in for this volume's entry */
 		synth.marker = NTFSMAC_JOURNAL_MARKER_FAILED;
 		synth.state = NTFSMAC_JOURNAL_STATE_WRITE_ERROR;
 		ep = &synth;

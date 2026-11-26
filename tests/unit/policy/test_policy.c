@@ -299,13 +299,15 @@ static void test_fail_closed(void)
 
 /*
  * U-POL-PROP: exhaustive enumeration over the enums (and a few field
- * variants). rw only for clean + no entry + auto; remove only on the
- * evidence row in auto; refuse only for corrupt, unsupported and mirror_split.
+ * variants). rw only for clean + no entry of this volume + auto; remove only
+ * on the evidence row in auto; refuse only for corrupt, unsupported and
+ * mirror_split. An entry applies when it is of format 1 (`legacy`) or has the
+ * verdict's serial and total_sectors (T-M7-13).
  */
 static void test_property(void)
 {
 	long cases = 0;
-	int st, mode, ev, jc, mk, js, lsn, ser, sec, hasl, rc;
+	int st, mode, ev, jc, mk, js, lsn, ser, sec, hasl, rc, leg;
 
 	for (st = -1; st <= (int)NTFSMAC_PROBE_STATE_COUNT_ + 1; st++)
 	for (mode = -1; mode <= 2; mode++)
@@ -317,6 +319,7 @@ static void test_property(void)
 	for (ser = 0; ser < 2; ser++)
 	for (sec = 0; sec < 2; sec++)
 	for (hasl = 0; hasl < 2; hasl++)
+	for (leg = 0; leg < 2; leg++)
 	for (rc = 0; rc < 2; rc++) {
 		ntfsmac_probe_verdict v;
 		ntfsmac_journal_entry e;
@@ -324,6 +327,7 @@ static void test_property(void)
 		ntfsmac_policy_result r;
 		bool valid_mode = mode == 0 || mode == 1;
 		bool is_clean = st == (int)NTFSMAC_PROBE_STATE_CLEAN && rc == 0;
+		bool own = jc && (leg || (!ser && !sec)); /* an entry that applies */
 		bool holds;
 
 		make_verdict(&v, NTFSMAC_PROBE_STATE_CLEAN);
@@ -336,6 +340,7 @@ static void test_property(void)
 		make_entry(&e);
 		e.marker = (ntfsmac_journal_marker)mk;
 		e.state = (ntfsmac_journal_state)js;
+		e.legacy = leg != 0;
 		in.verdict = &v;
 		in.journal = jc ? &e : NULL;
 		in.mode = (ntfsmac_policy_mode)mode;
@@ -346,10 +351,10 @@ static void test_property(void)
 
 		/* Invariant of policy.h. */
 		if (r.decision == NTFSMAC_POLICY_RW) {
-			CHECK(is_clean && valid_mode && !jc && mode == 0);
+			CHECK(is_clean && valid_mode && !own && mode == 0);
 			CHECK_EQ_INT(r.journal_action, NTFSMAC_POLICY_JOURNAL_KEEP);
 		}
-		if (is_clean && valid_mode && !jc && mode == 0)
+		if (is_clean && valid_mode && !own && mode == 0)
 			CHECK_EQ_INT(r.decision, NTFSMAC_POLICY_RW);
 		if (r.journal_action == NTFSMAC_POLICY_JOURNAL_REMOVE) {
 			CHECK(is_clean && mode == 0 && ev && holds);
@@ -874,8 +879,81 @@ static void test_warning(void)
 	CHECK(ntfsmac_policy_decision_name((ntfsmac_policy_decision)9) == NULL);
 }
 
+/*
+ * U-POL-IDENT (T-M7-13): an entry applies only to the volume it was written for. Serial S with
+ * total_sectors A in the entry, a clean probed volume S with B: the decision of "no entry". Same
+ * identity, or an entry of format 1 (identity unknown), or a stand-in without total_sectors:
+ * read-only with UNCLEAN_SESSION, as before.
+ */
+static void test_identity(void)
+{
+	ntfsmac_probe_verdict v;
+	ntfsmac_journal_entry e;
+	ntfsmac_policy_input in;
+	ntfsmac_policy_result r;
+	int mode;
+
+	make_verdict(&v, NTFSMAC_PROBE_STATE_CLEAN);
+	for (mode = 0; mode < 2; mode++) {
+		ntfsmac_policy_result none;
+
+		memset(&in, 0, sizeof(in));
+		in.verdict = &v;
+		in.mode = (ntfsmac_policy_mode)mode;
+		none = ntfsmac_policy_decide(&in);
+
+		/* another volume with the same serial: as if there were no entry */
+		make_entry(&e);
+		e.total_sectors = SECTORS + 1;
+		CHECK(!ntfsmac_policy_entry_applies(&v, &e));
+		in.journal = &e;
+		r = ntfsmac_policy_decide(&in);
+		CHECK_EQ_INT(r.decision, none.decision);
+		CHECK_EQ_INT(r.note, none.note);
+		CHECK_EQ_INT(r.journal_action, NTFSMAC_POLICY_JOURNAL_KEEP);
+		CHECK_EQ_INT(r.decision, mode == 0 ? NTFSMAC_POLICY_RW : NTFSMAC_POLICY_RO);
+
+		/* same identity: read-only, unclean session */
+		make_entry(&e);
+		CHECK(ntfsmac_policy_entry_applies(&v, &e));
+		r = ntfsmac_policy_decide(&in);
+		CHECK_EQ_INT(r.decision, NTFSMAC_POLICY_RO);
+		CHECK_EQ_INT(r.note, NTFSMAC_POLICY_NOTE_UNCLEAN_SESSION);
+
+		/* format 1 (no identity), even with another total_sectors: read-only as before */
+		make_entry(&e);
+		e.legacy = true;
+		e.total_sectors = SECTORS + 1;
+		CHECK(ntfsmac_policy_entry_applies(&v, &e));
+		r = ntfsmac_policy_decide(&in);
+		CHECK_EQ_INT(r.decision, NTFSMAC_POLICY_RO);
+		CHECK_EQ_INT(r.note, NTFSMAC_POLICY_NOTE_UNCLEAN_SESSION);
+
+		/* the stand-in of a corrupt entry (no total_sectors): applies */
+		make_entry(&e);
+		e.total_sectors = 0;
+		CHECK(ntfsmac_policy_entry_applies(&v, &e));
+		r = ntfsmac_policy_decide(&in);
+		CHECK_EQ_INT(r.decision, NTFSMAC_POLICY_RO);
+	}
+	/* a foreign entry does not change the note of an unsafe state either */
+	make_verdict(&v, NTFSMAC_PROBE_STATE_DIRTY_FLAG);
+	v.reason_codes = NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_FLAG_DIRTY);
+	make_entry(&e);
+	e.total_sectors = SECTORS + 1;
+	memset(&in, 0, sizeof(in));
+	in.verdict = &v;
+	in.journal = &e;
+	r = ntfsmac_policy_decide(&in);
+	CHECK_EQ_INT(r.decision, NTFSMAC_POLICY_RO);
+	CHECK_EQ_INT(r.note, NTFSMAC_POLICY_NOTE_DIRTY_FLAG);
+	CHECK(!ntfsmac_policy_entry_applies(NULL, &e));
+	CHECK(!ntfsmac_policy_entry_applies(&v, NULL));
+}
+
 int main(void)
 {
+	test_identity();
 	test_table();
 	test_evidence();
 	test_fail_closed();

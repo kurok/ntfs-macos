@@ -55,7 +55,7 @@ settled() {
 }
 mnt_line() { mount | grep -F "/Volumes/$1 " || true; }
 logcat() { sudo -n cat "$LOG" 2>/dev/null; }
-journal_count() { sudo -n sh -c 'ls /var/db/ntfs-macos/journal 2>/dev/null | grep -c "^[0-9A-F]\{16\}$"' || true; }
+journal_count() { sudo -n sh -c 'ls /var/db/ntfs-macos/journal 2>/dev/null | grep -cE "^[0-9A-F]{16}(-[0-9A-F]{16})?$"' || true; }
 # Exact: a process whose executable is the worker (`ps` shows proc_pidpath), not any command line
 # that mentions it (launchctl asuser and the --exec-as step carry the path in their arguments).
 worker_pids() { ps -axo pid=,comm= | awk -v c="$INSTALL/ntfsmac-worker" '$2 == c { print $1 }'; }

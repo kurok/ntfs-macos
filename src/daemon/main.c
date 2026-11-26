@@ -476,7 +476,7 @@ static void jq_decide(void *p)
 	jq_decide_arg *a = p;
 	ntfsmac_journal_status js;
 
-	js = ntfsmac_journal_get(g_journal, a->verdict->serial, &a->entry);
+	js = ntfsmac_journal_get(g_journal, a->verdict->serial, a->verdict->total_sectors, &a->entry);
 	a->have_entry = js == NTFSMAC_JOURNAL_OK;
 	a->st = ntfsmac_session_decide(&g_scfg, g_journal, a->verdict, a->automatic, a->request_ro,
 				       now_s(), session_live_cb, NULL, &a->out);
@@ -523,6 +523,7 @@ static void jq_note_error(void *p)
 
 typedef struct jq_peek_arg {
 	uint64_t serial;
+	uint64_t total_sectors; /* with the serial, the volume's identity (T-M7-13) */
 	bool present;
 	ntfsmac_journal_entry e;
 } jq_peek_arg;
@@ -531,7 +532,7 @@ static void jq_peek(void *p)
 {
 	jq_peek_arg *a = p;
 
-	a->present = ntfsmac_journal_get(g_journal, a->serial, &a->e) == NTFSMAC_JOURNAL_OK;
+	a->present = ntfsmac_journal_get(g_journal, a->serial, a->total_sectors, &a->e) == NTFSMAC_JOURNAL_OK;
 }
 
 /* ------------------------------------------------------------------ */
@@ -2395,6 +2396,7 @@ static ntfsmac_dmn_status op_status(void *ctx, const char *bsd, char *reply, siz
 	memset(&pk, 0, sizeof pk);
 	if (have_pv && serial != 0) {
 		pk.serial = serial;
+		pk.total_sectors = pv.total_sectors;
 		/* Bounded: a repair or a mount can hold the journal queue (control socket bound, 3.4). */
 		if (!ntfsmac_queue_call_bounded(g_journal_q, &pk, sizeof pk, jq_peek, STATUS_JOURNAL_WAIT_MS)) {
 			pthread_mutex_unlock(&mu);

@@ -391,7 +391,7 @@ static void case_repair(void)
 	CHECK(ntfsmac_journal_create(j, &e) == NTFSMAC_JOURNAL_OK, "a journal entry exists");
 	e.marker = NTFSMAC_JOURNAL_MARKER_SET;
 	CHECK(ntfsmac_journal_update(j, &e) == NTFSMAC_JOURNAL_OK, "the entry is marked set, as after an unclean session");
-	CHECK(ntfsmac_journal_get(j, v.serial, &e) == NTFSMAC_JOURNAL_OK, "the entry reads back");
+	CHECK(ntfsmac_journal_get(j, v.serial, v.total_sectors, &e) == NTFSMAC_JOURNAL_OK, "the entry reads back");
 
 	CHECK(priv_mirror(label, ser, reply, sizeof(reply)) == NTFSMAC_DMN_OK && strstr(reply, "\"result\":\"repaired\"") != NULL &&
 		      strstr(reply, "\"state\":\"clean\"") != NULL && strstr(reply, "\"journal_entry\":\"untouched\"") != NULL,
@@ -399,7 +399,7 @@ static void case_repair(void)
 	CHECK(diff_report(&changed, &outside, &eq0) && changed > 0 && outside == 0,
 	      "only bytes inside the $MFTMirr records changed (%ld changed, %ld outside)", changed, outside);
 	CHECK(eq0, "the $MFTMirr record 0 equals the $MFT record 0 byte for byte");
-	CHECK(ntfsmac_journal_get(j, v.serial, &e2) == NTFSMAC_JOURNAL_OK && memcmp(&e, &e2, sizeof(e)) == 0,
+	CHECK(ntfsmac_journal_get(j, v.serial, v.total_sectors, &e2) == NTFSMAC_JOURNAL_OK && memcmp(&e, &e2, sizeof(e)) == 0,
 	      "the journal entry is unchanged");
 	CHECK(strcmp(probe_state_now(), "clean") == 0, "the next probe says clean");
 	CHECK(probe_now(&w), "probe again");

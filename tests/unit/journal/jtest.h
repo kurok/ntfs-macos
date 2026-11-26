@@ -129,6 +129,9 @@ static inline size_t jt_read_file(const char *path, void *buf, size_t size)
 	return (size_t)n;
 }
 
+/* total_sectors of jt_entry(): with the serial, the key of its format-2 entry (T-M7-13). */
+#define JT_TS 976773167u
+
 static inline ntfsmac_journal_entry jt_entry(uint64_t serial)
 {
 	ntfsmac_journal_entry e;
@@ -136,7 +139,7 @@ static inline ntfsmac_journal_entry jt_entry(uint64_t serial)
 	memset(&e, 0, sizeof(e));
 	e.serial = serial;
 	snprintf(e.label, sizeof(e.label), "TESTVOL");
-	e.total_sectors = 976773167u;
+	e.total_sectors = JT_TS;
 	e.session_id = 0x1122334455667788ull;
 	e.created = 1700000000;
 	e.updated = 1700000000;

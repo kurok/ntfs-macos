@@ -12,9 +12,12 @@
  * (removal paths). Library used by the root daemon; implemented in
  * src/journal/ (T-M3-13). Declarations only.
  *
- * Every entry is keyed by the 64-bit serial (section 3.1 grammar). No byte of
- * the probe's serial string is ever used in a name: names are formatted here
- * from the integer. The directory is held as a descriptor opened with
+ * Every entry is keyed by the volume identity (section 3.5, T-M7-13): the
+ * 64-bit serial and total_sectors (section 3.1 grammar), so two volumes with one
+ * serial and different sizes each have their own entry. An entry of format 1,
+ * written before the identity rule, is keyed by the serial alone and applies to
+ * every volume with that serial (`legacy`). No byte of the probe's serial string
+ * is ever used in a name: names are formatted here from the integers. The directory is held as a descriptor opened with
  * O_DIRECTORY | O_NOFOLLOW; every open, rename and unlink is relative to it
  * (openat, renameat, O_NOFOLLOW | O_EXCL for the temporary file).
  *
@@ -39,11 +42,17 @@ extern "C" {
 /* Sanitised label (ADR-016: at most 64 bytes of UTF-8) plus NUL. */
 #define NTFSMAC_JOURNAL_LABEL_MAX_BYTES 64u
 
-/* Entry name: 16 upper-case hex digits plus NUL. */
+/* Entry name of format 1 (legacy): 16 upper-case hex digits plus NUL. */
 #define NTFSMAC_JOURNAL_NAME_SIZE 17u
 
 /* ".<16 hex>.tmp" plus NUL. */
 #define NTFSMAC_JOURNAL_TMPNAME_SIZE 22u
+
+/* Entry name of format 2: "<16 hex serial>-<16 hex total_sectors>" plus NUL. */
+#define NTFSMAC_JOURNAL_IDNAME_SIZE 34u
+
+/* ".<16 hex>-<16 hex>.tmp" plus NUL. */
+#define NTFSMAC_JOURNAL_IDTMPNAME_SIZE 39u
 
 /* "<16 hex>-<YYYYMMDDTHHMMSSZ>" is 16 + 1 + 16 = 33 characters plus NUL. */
 #define NTFSMAC_JOURNAL_TOMBNAME_SIZE 34u
@@ -82,6 +91,13 @@ typedef struct ntfsmac_journal_entry {
 	uint64_t logfile_lsn_at_start;
 	ntfsmac_journal_marker marker;
 	ntfsmac_journal_state state;
+	/*
+	 * Not a stored field: true when the entry was read from format 1 (named by the serial
+	 * alone, written before the identity rule). Its identity is unknown, so it applies to every
+	 * volume with its serial, whatever total_sectors says. create() writes format 2 only, so a
+	 * zeroed entry (false) is the normal case.
+	 */
+	bool legacy;
 } ntfsmac_journal_entry;
 
 typedef enum ntfsmac_journal_status {
@@ -116,6 +132,14 @@ typedef struct ntfsmac_journal ntfsmac_journal; /* opaque: directory descriptor 
  */
 int ntfsmac_journal_format_name(char *out, size_t size, uint64_t serial);
 int ntfsmac_journal_format_tmpname(char *out, size_t size, uint64_t serial);
+/*
+ * Format 2 (T-M7-13), the same rules:
+ *   entry      <16 hex serial>-<16 hex total_sectors>
+ *   temporary  .<16 hex serial>-<16 hex total_sectors>.tmp
+ */
+int ntfsmac_journal_format_idname(char *out, size_t size, uint64_t serial, uint64_t total_sectors);
+int ntfsmac_journal_format_idtmpname(char *out, size_t size, uint64_t serial,
+				     uint64_t total_sectors);
 int ntfsmac_journal_format_tombstone(char *out, size_t size, uint64_t serial,
 				     int64_t when_utc);
 
@@ -144,8 +168,9 @@ ntfsmac_journal_status ntfsmac_journal_open(const char *dir_path,
 void ntfsmac_journal_close(ntfsmac_journal *j);
 
 /*
- * Create the entry for e->serial (entries are keyed by serial). Fails with
- * ERR_EXISTS rather than replacing. Write protocol: temporary file created
+ * Create the entry for the volume (e->serial, e->total_sectors), in format 2
+ * (e->legacy must be false). Fails with ERR_EXISTS rather than replacing, also
+ * when a format-1 entry of the serial exists (it applies to this volume too). Write protocol: temporary file created
  * with O_NOFOLLOW | O_EXCL, mode 0600, written, F_FULLFSYNC, renameat to the
  * entry name, directory fsync. Returns OK only after the directory sync; a
  * kill at any earlier step leaves no entry, or the previous state, and never
@@ -154,22 +179,31 @@ void ntfsmac_journal_close(ntfsmac_journal *j);
 ntfsmac_journal_status ntfsmac_journal_create(ntfsmac_journal *j,
 					      const ntfsmac_journal_entry *e);
 
-/* Read the entry for `serial`. NOT_FOUND if absent, CORRUPT if unreadable. */
+/*
+ * Read the entry that applies to the volume (serial, total_sectors): its own
+ * entry (format 2) when that name exists, else the format-1 entry of the serial.
+ * total_sectors 0 names the format-1 entry only. The choice is by the name that
+ * exists, so a corrupt file is reported, never skipped for another one.
+ * NOT_FOUND if neither exists, CORRUPT if the one found is unreadable.
+ */
 ntfsmac_journal_status ntfsmac_journal_get(ntfsmac_journal *j, uint64_t serial,
-					   ntfsmac_journal_entry *out);
+					   uint64_t total_sectors, ntfsmac_journal_entry *out);
 
 /*
- * Replace the entry for e->serial with the same write protocol as create.
+ * Replace the entry of e (format 1 when e->legacy, else format 2 of
+ * (e->serial, e->total_sectors)) with the same write protocol as create.
  * Checked against the stored entry: marker and state must pass the transition
  * helpers (ERR_TRANSITION) and serial, label, total_sectors, session_id,
  * created and logfile_lsn_at_start must be unchanged (ERR_IMMUTABLE); only
  * `updated`, `marker` and `state` may change. NOT_FOUND if absent.
+ * The format of the stored entry is kept.
  */
 ntfsmac_journal_status ntfsmac_journal_update(ntfsmac_journal *j,
 					      const ntfsmac_journal_entry *e);
 
 /*
- * Remove the entry for `serial` by renaming it to cleared/<serial>-<UTC time>
+ * Remove the entry that ntfsmac_journal_get(j, serial, total_sectors) finds by
+ * renaming it to cleared/<serial>-<UTC time>
  * (a tombstone; nothing is unlinked except by the retention rule), then keep
  * at most NTFSMAC_JOURNAL_MAX_TOMBSTONES of them (oldest by name time go
  * first), fsync both directories, and log which path removed it. Time and
@@ -185,6 +219,7 @@ ntfsmac_journal_status ntfsmac_journal_update(ntfsmac_journal *j,
  * exists (same second) the removal fails with ERR_EXISTS and the entry stays.
  */
 ntfsmac_journal_status ntfsmac_journal_remove(ntfsmac_journal *j, uint64_t serial,
+					      uint64_t total_sectors,
 					      ntfsmac_journal_removal path,
 					      int64_t now_utc);
 

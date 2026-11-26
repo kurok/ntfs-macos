@@ -132,7 +132,7 @@ static int f_open(void *ctx, const char *bsd, bool writable)
 		{
 			ntfsmac_journal_entry e;
 
-			f->entry_at_open_rw = ntfsmac_journal_get(f->j, SERIAL, &e) == NTFSMAC_JOURNAL_OK;
+			f->entry_at_open_rw = ntfsmac_journal_get(f->j, SERIAL, 131072, &e) == NTFSMAC_JOURNAL_OK;
 			f->a_open_at_open_rw = count_open(f) > 0;
 		}
 		if (f->fail_open_rw)
@@ -222,7 +222,7 @@ static ntfsmac_dmn_status f_volmark(void *ctx, const ntfsmac_volmark_run *run, n
 	f->vm_open_fds = count_open(f);
 	f->vm_a_open = 0;
 	f->rw_fd_at_vm = run->device_fd;
-	f->marker_at_volmark = ntfsmac_journal_get(f->j, SERIAL, &e) == NTFSMAC_JOURNAL_OK
+	f->marker_at_volmark = ntfsmac_journal_get(f->j, SERIAL, 131072, &e) == NTFSMAC_JOURNAL_OK
 				       ? e.marker
 				       : NTFSMAC_JOURNAL_MARKER_NONE;
 	ev(f, op == NTFSMAC_VOLMARK_SET ? "volmark_set" : op == NTFSMAC_VOLMARK_CLEAR ? "volmark_clear"
@@ -367,7 +367,7 @@ static bool entry_is(fake *f, ntfsmac_journal_marker m, ntfsmac_journal_state st
 {
 	ntfsmac_journal_entry e;
 
-	return ntfsmac_journal_get(f->j, SERIAL, &e) == NTFSMAC_JOURNAL_OK && e.marker == m &&
+	return ntfsmac_journal_get(f->j, SERIAL, 131072, &e) == NTFSMAC_JOURNAL_OK && e.marker == m &&
 	       e.state == st;
 }
 
@@ -375,7 +375,7 @@ static bool entry_exists(fake *f)
 {
 	ntfsmac_journal_entry e;
 
-	return ntfsmac_journal_get(f->j, SERIAL, &e) == NTFSMAC_JOURNAL_OK;
+	return ntfsmac_journal_get(f->j, SERIAL, 131072, &e) == NTFSMAC_JOURNAL_OK;
 }
 
 typedef struct begun {
@@ -691,7 +691,7 @@ static void test_rw_happy(void)
 	CHECK(pos(&f, "close_ro") < pos(&f, "volmark_set"));
 	/* after it the journal says `set`; the worker is started only now (the caller's step) */
 	CHECK(entry_is(&f, NTFSMAC_JOURNAL_MARKER_SET, NTFSMAC_JOURNAL_STATE_OPEN));
-	CHECK_EQ_INT(ntfsmac_journal_get(f.j, SERIAL, &e), NTFSMAC_JOURNAL_OK);
+	CHECK_EQ_INT(ntfsmac_journal_get(f.j, SERIAL, 131072, &e), NTFSMAC_JOURNAL_OK);
 	CHECK(e.session_id == 1000 && e.logfile_lsn_at_start == 0x1234 && e.total_sectors == 131072);
 	CHECK(strcmp(e.label, "Vol") == 0);
 	CHECK_EQ_INT(count_open(&f), 1);
@@ -1098,7 +1098,7 @@ static void test_journal_refusals(void)
 	CHECK_EQ_INT(b.res.reason, NTFSMAC_SREASON_JOURNAL);
 	CHECK_EQ_INT(f.open_rw_calls, 0);
 	CHECK_EQ_INT(f.vm_calls, 0);
-	CHECK_EQ_INT(ntfsmac_journal_get(f.j, SERIAL, &e), NTFSMAC_JOURNAL_OK);
+	CHECK_EQ_INT(ntfsmac_journal_get(f.j, SERIAL, 131072, &e), NTFSMAC_JOURNAL_OK);
 	CHECK(e.session_id == 5 && e.marker == NTFSMAC_JOURNAL_MARKER_PENDING);
 	CHECK(!ntfsmac_session_owns_entry(b.s)); /* not ours */
 	ntfsmac_session_free(b.s);
@@ -1403,7 +1403,9 @@ static void test_end_failures(void)
 
 		fake_init(&f);
 		b = rw_session(&f, &c);
-		snprintf(tmpdir, sizeof tmpdir, "%s/.%016llX.tmp", g_jdir, (unsigned long long)SERIAL);
+		/* the temporary name of the entry's key: serial and total_sectors (T-M7-13) */
+		snprintf(tmpdir, sizeof tmpdir, "%s/.%016llX-%016llX.tmp", g_jdir, (unsigned long long)SERIAL,
+			 131072ull);
 		snprintf(inner, sizeof inner, "%s/x", tmpdir);
 		CHECK_EQ_INT(mkdir(tmpdir, 0700), 0);
 		CHECK_EQ_INT(mkdir(inner, 0700), 0);
@@ -1565,9 +1567,92 @@ static void test_real_sys(void)
 	r.sys.close_fd(r.sys.ctx, fd3);
 }
 
+/* A journal entry of (SERIAL, total_sectors) with marker set: an unclean session of that volume. */
+static void unclean_entry(fake *f, uint64_t total_sectors, uint64_t session_id)
+{
+	ntfsmac_journal_entry e;
+
+	memset(&e, 0, sizeof e);
+	e.serial = SERIAL;
+	snprintf(e.label, sizeof e.label, "Vol");
+	e.total_sectors = total_sectors;
+	e.session_id = session_id;
+	e.created = e.updated = NOW0;
+	e.logfile_lsn_at_start = 0x1234;
+	e.marker = NTFSMAC_JOURNAL_MARKER_PENDING;
+	CHECK_EQ_INT(ntfsmac_journal_create(f->j, &e), NTFSMAC_JOURNAL_OK);
+	e.marker = NTFSMAC_JOURNAL_MARKER_SET;
+	CHECK_EQ_INT(ntfsmac_journal_update(f->j, &e), NTFSMAC_JOURNAL_OK);
+}
+
+/*
+ * U-DMN-SESS-ID (T-M7-13): the decision looks up the entry of the probed volume, serial and
+ * total_sectors. Another volume's entry with the same serial (a forged serial, say) gives the
+ * decision of "no entry" and stays; the same identity, or an entry of format 1, is read-only as
+ * before.
+ */
+static void test_decide_identity(void)
+{
+	fake f;
+	ntfsmac_session_config c = cfg0();
+	ntfsmac_probe_verdict v = clean_verdict();
+	ntfsmac_session_decision d;
+	ntfsmac_journal_entry e;
+	const uint64_t other = 131072 + 2048;
+
+	/* entry of (S, A), probed (S, B): rw, as with no entry; the entry of A is still there */
+	fake_init(&f);
+	unclean_entry(&f, other, 77);
+	c.evidence_rule_enabled = true;
+	CHECK_EQ_INT(ntfsmac_session_decide(&c, f.j, &v, true, false, NOW0, NULL, NULL, &d), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(d.policy.decision, NTFSMAC_POLICY_RW);
+	CHECK_EQ_INT(d.policy.note, NTFSMAC_POLICY_NOTE_NONE);
+	CHECK(!d.evidence_removed && !d.entry_corrupt && !d.serial_live);
+	CHECK(ntfsmac_journal_get(f.j, SERIAL, other, &e) == NTFSMAC_JOURNAL_OK && e.session_id == 77 &&
+	      e.marker == NTFSMAC_JOURNAL_MARKER_SET);
+	CHECK(!entry_exists(&f));
+	/* B gets an entry of its own beside it; each one names its own session */
+	unclean_entry(&f, 131072, 78);
+	CHECK(ntfsmac_journal_get(f.j, SERIAL, other, &e) == NTFSMAC_JOURNAL_OK && e.session_id == 77);
+	CHECK(ntfsmac_journal_get(f.j, SERIAL, 131072, &e) == NTFSMAC_JOURNAL_OK && e.session_id == 78);
+	/* ... and now B has one: same identity, read-only, unclean session */
+	CHECK_EQ_INT(ntfsmac_session_decide(&c, f.j, &v, true, false, NOW0, NULL, NULL, &d), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(d.policy.decision, NTFSMAC_POLICY_RO);
+	CHECK_EQ_INT(d.policy.note, NTFSMAC_POLICY_NOTE_UNCLEAN_SESSION);
+	fake_done(&f);
+
+	/* a format-1 entry (by serial alone, identity unknown) of another size: read-only, as before */
+	fake_init(&f);
+	{
+		char path[300];
+		FILE *fp;
+
+		snprintf(path, sizeof path, "%s/%016llX", g_jdir, (unsigned long long)SERIAL);
+		fp = fopen(path, "w");
+		CHECK(fp != NULL);
+		if (fp != NULL) {
+			fprintf(fp,
+				"ntfsmac-journal 1\nserial %016llX\nlabel 566f6c\ntotal_sectors %llu\n"
+				"session_id 77\ncreated %lld\nupdated %lld\nlogfile_lsn_at_start 4660\n"
+				"marker set\nstate open\nend\n",
+				(unsigned long long)SERIAL, (unsigned long long)other, (long long)NOW0,
+				(long long)NOW0);
+			fclose(fp);
+			chmod(path, 0600);
+		}
+	}
+	CHECK_EQ_INT(ntfsmac_session_decide(&c, f.j, &v, true, false, NOW0, NULL, NULL, &d), NTFSMAC_DMN_OK);
+	CHECK_EQ_INT(d.policy.decision, NTFSMAC_POLICY_RO);
+	CHECK_EQ_INT(d.policy.note, NTFSMAC_POLICY_NOTE_UNCLEAN_SESSION);
+	CHECK(!d.entry_corrupt);
+	CHECK(ntfsmac_journal_get(f.j, SERIAL, 131072, &e) == NTFSMAC_JOURNAL_OK && e.legacy);
+	fake_done(&f);
+}
+
 int main(void)
 {
 	make_dir();
+	test_decide_identity();
 	test_policy_mode();
 	test_bind_table();
 	test_decide();

@@ -76,7 +76,7 @@ static const char *const BEFORE_RENAME[] = { "write.begin", "write.tmp_created",
 static void check_other_untouched(ntfsmac_journal *j)
 {
 	ntfsmac_journal_entry g, o = jt_entry(OTHER);
-	ntfsmac_journal_status st = ntfsmac_journal_get(j, OTHER, &g);
+	ntfsmac_journal_status st = ntfsmac_journal_get(j, OTHER, JT_TS, &g);
 
 	if (st == NTFSMAC_JOURNAL_OK)
 		CHECK(jt_entry_eq(&o, &g));
@@ -131,7 +131,7 @@ static void op_create(ntfsmac_journal *j, const char *jdir)
 static void verify_create(ntfsmac_journal *j, const char *jdir, const char *point)
 {
 	ntfsmac_journal_entry g, e = jt_entry(SERIAL);
-	ntfsmac_journal_status st = ntfsmac_journal_get(j, SERIAL, &g);
+	ntfsmac_journal_status st = ntfsmac_journal_get(j, SERIAL, JT_TS, &g);
 	int stray = jt_count_names(jdir, jt_is_tmp);
 
 	if (point == NULL || !in(point, BEFORE_RENAME)) {
@@ -211,9 +211,12 @@ static void op_write_error(ntfsmac_journal *j, const char *jdir)
  * starts (planted after open, so the stray cleanup of open did not see it). */
 static void op_marker_set_over_stale_tmp(ntfsmac_journal *j, const char *jdir)
 {
-	char p[PATH_MAX_T];
+	char p[PATH_MAX_T], tname[NTFSMAC_JOURNAL_IDTMPNAME_SIZE];
 
-	jt_path(p, sizeof(p), jdir, ".0000000005E55101.tmp", NULL);
+	/* the temporary name of the entry's key (format 2, T-M7-13) */
+	if (ntfsmac_journal_format_idtmpname(tname, sizeof(tname), SERIAL, JT_TS) != 0)
+		_exit(95);
+	jt_path(p, sizeof(p), jdir, tname, NULL);
 	{
 		int fd = open(p, O_WRONLY | O_CREAT | O_EXCL, 0600);
 
@@ -234,7 +237,7 @@ static void verify_update_generic(ntfsmac_journal *j, const char *jdir,
 				  const char *point, const struct upd_expect *x)
 {
 	ntfsmac_journal_entry g;
-	ntfsmac_journal_status st = ntfsmac_journal_get(j, SERIAL, &g);
+	ntfsmac_journal_status st = ntfsmac_journal_get(j, SERIAL, JT_TS, &g);
 	int stray = jt_count_names(jdir, jt_is_tmp);
 	int is_new = point == NULL || !in(point, BEFORE_RENAME);
 
@@ -305,7 +308,7 @@ static void setup_remove_full(ntfsmac_journal *j, const char *jdir)
 
 		e.marker = NTFSMAC_JOURNAL_MARKER_NONE;
 		CHECK_ST(ntfsmac_journal_create(j, &e), NTFSMAC_JOURNAL_OK);
-		CHECK_ST(ntfsmac_journal_remove(j, e.serial,
+		CHECK_ST(ntfsmac_journal_remove(j, e.serial, JT_TS,
 						NTFSMAC_JOURNAL_REMOVE_CLEAN_SESSION,
 						T_OLD + i),
 			 NTFSMAC_JOURNAL_OK);
@@ -315,7 +318,7 @@ static void setup_remove_full(ntfsmac_journal *j, const char *jdir)
 static void op_remove(ntfsmac_journal *j, const char *jdir)
 {
 	(void)jdir;
-	if (ntfsmac_journal_remove(j, SERIAL, NTFSMAC_JOURNAL_REMOVE_CLEAN_SESSION,
+	if (ntfsmac_journal_remove(j, SERIAL, JT_TS, NTFSMAC_JOURNAL_REMOVE_CLEAN_SESSION,
 				   T_REMOVE) != NTFSMAC_JOURNAL_OK)
 		_exit(97);
 }
@@ -343,7 +346,7 @@ static void verify_remove_common(ntfsmac_journal *j, const char *jdir,
 				 const char *point, unsigned base_tombs, int expect_prune)
 {
 	ntfsmac_journal_entry g;
-	ntfsmac_journal_status st = ntfsmac_journal_get(j, SERIAL, &g);
+	ntfsmac_journal_status st = ntfsmac_journal_get(j, SERIAL, JT_TS, &g);
 	struct tcount t;
 	int renamed = point == NULL || (strcmp(point, "remove.begin") != 0 &&
 					 strcmp(point, "remove.checked") != 0);
@@ -476,7 +479,7 @@ static void race_hook(const char *point)
 	if (strcmp(point, "remove.checked") != 0)
 		return;
 	ntfsmac_journal_testhook = NULL; /* the inner removal runs unhooked */
-	CHECK_ST(ntfsmac_journal_remove(g_race_j, SERIAL, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR,
+	CHECK_ST(ntfsmac_journal_remove(g_race_j, SERIAL, JT_TS, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR,
 					T_REMOVE + 1),
 		 NTFSMAC_JOURNAL_OK);
 }
@@ -490,11 +493,11 @@ static void test_remove_race(void)
 	CHECK_ST(ntfsmac_journal_open(jdir, &g_race_j), NTFSMAC_JOURNAL_OK);
 	setup_set_entry(g_race_j, jdir);
 	ntfsmac_journal_testhook = race_hook;
-	CHECK_ST(ntfsmac_journal_remove(g_race_j, SERIAL, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR,
+	CHECK_ST(ntfsmac_journal_remove(g_race_j, SERIAL, JT_TS, NTFSMAC_JOURNAL_REMOVE_JOURNAL_CLEAR,
 					T_REMOVE),
 		 NTFSMAC_JOURNAL_ERR_NOT_FOUND);
 	ntfsmac_journal_testhook = NULL;
-	CHECK_ST(ntfsmac_journal_get(g_race_j, SERIAL, &g), NTFSMAC_JOURNAL_ERR_NOT_FOUND);
+	CHECK_ST(ntfsmac_journal_get(g_race_j, SERIAL, JT_TS, &g), NTFSMAC_JOURNAL_ERR_NOT_FOUND);
 	CHECK(jt_count_names(jdir, jt_is_tmp) == 0);
 	ntfsmac_journal_close(g_race_j);
 	jt_rmrf(base);

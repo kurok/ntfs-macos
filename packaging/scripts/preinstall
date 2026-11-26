@@ -27,7 +27,14 @@
 #      /Library/LaunchDaemons); a user-owned /usr/local/bin or /usr/local/share (Homebrew) does
 #      not matter, because the package puts nothing there (postinstall makes the optional link
 #      /usr/local/bin/ntfsmac only when /usr/local/bin is root-only).
-# An install of ours (an earlier package, or dev-install.sh) is upgraded.
+#   6. a downgrade (owner decision 2026-11-26, issue #10): this package's version (build-pkg.sh
+#      writes it into new_version below) is older than the installed one, read from the receipt
+#      org.ntfs-macos.pkg.v2 (pkgutil --pkg-info) or, without that receipt, from the installed
+#      BUILD-INFO of a developer install. An older daemon does not read the format-2 journal
+#      entries of a newer one, so it could mount read/write a volume that was left open.
+#      An installed version that cannot be read is named in the log and not compared.
+# An install of ours (an earlier package, or dev-install.sh) is upgraded; the same version is
+# installed again.
 #
 # The package identifier is org.ntfs-macos.pkg.v2 (owner decision 2026-11-26, audit M6-F02). The
 # earlier layout, among it the published pre-release v0.1.0-dev.20261116, used org.ntfs-macos.pkg.
@@ -57,6 +64,9 @@ refuse() {
 }
 
 pkg_id=org.ntfs-macos.pkg.v2
+# the version of this package: packaging/build-pkg.sh replaces the placeholder (U-PKG-03 checks it)
+new_version='@VERSION@'
+build_info='/Library/Application Support/ntfs-macos/doc/BUILD-INFO'
 old_pkg_id=org.ntfs-macos.pkg
 job=org.ntfs-macos.ntfsmacd
 fs_dir=/Library/Filesystems
@@ -103,6 +113,28 @@ conflict() {
 	ntfs.fs | ntfsmac*) ;;
 	*ntfs*.fs) /usr/bin/printf 'another NTFS driver' ;;
 	esac
+}
+
+# ver_older A B: 0 when version A is older than version B, 1 when it is not, 2 when either is not
+# 1 to 4 numbers separated by dots (a missing number counts as 0, so 0.1 equals 0.1.0)
+ver_older() {
+	/usr/bin/awk -v a="$1" -v b="$2" 'function ok(v,  n, i, c) {
+		if (v !~ /^[0-9]+(\.[0-9]+)*$/) return 0
+		n = split(v, c, ".")
+		if (n > 4) return 0
+		for (i = 1; i <= n; i++) if (length(c[i]) > 9) return 0
+		return 1
+	}
+	BEGIN {
+		if (!ok(a) || !ok(b)) exit 2
+		na = split(a, x, "."); nb = split(b, y, ".")
+		for (i = 1; i <= 4; i++) {
+			p = (i <= na) ? x[i] + 0 : 0; q = (i <= nb) ? y[i] + 0 : 0
+			if (p < q) exit 0
+			if (p > q) exit 1
+		}
+		exit 1
+	}'
 }
 
 # >>> root-only check (M6-F01). The same text in packaging/scripts/preinstall,
@@ -258,6 +290,32 @@ while IFS= read -r line; do
 done <<EOF
 $paths
 EOF
+
+# ---- 6. no downgrade (owner decision 2026-11-26, issue #10) ----
+# Before the daemon is stopped, so a refusal changes nothing.
+case $new_version in
+*@*) refuse "this preinstall has no package version (it was not prepared by packaging/build-pkg.sh)" ;;
+esac
+ver_older "$new_version" 0 && rc_v=0 || rc_v=$?
+[ "$rc_v" -ne 2 ] || refuse "the version of this package cannot be read"
+inst_ver=
+inst_from=
+if /usr/sbin/pkgutil --pkg-info "$pkg_id" >/dev/null 2>&1; then
+	inst_ver=$(/usr/sbin/pkgutil --pkg-info "$pkg_id" | /usr/bin/sed -n 's/^version: //p' | /usr/bin/head -n 1)
+	inst_from="the receipt $pkg_id"
+elif [ -f "$build_info" ] && [ ! -L "$build_info" ] && [ "$(/usr/bin/stat -f %Su "$build_info")" = root ] &&
+	root_only_dir "${build_info%/*}"; then
+	inst_ver=$(/usr/bin/sed -n 's/^version[[:space:]][[:space:]]*//p' "$build_info" | /usr/bin/head -n 1)
+	inst_from="the installed BUILD-INFO"
+fi
+if [ -n "$inst_from" ]; then
+	ver_older "$new_version" "$inst_ver" && rc_v=0 || rc_v=$?
+	case $rc_v in
+	0) refuse "this package is ntfs-macos $new_version, older than the installed $inst_ver ($inst_from). A downgrade is refused: an older ntfs-macos does not read the session journal that a newer one wrote, so it could mount read/write a volume that was left open. Install version $inst_ver or newer. To go back on purpose, uninstall first (uninstall.sh) and check every NTFS volume with Windows chkdsk before you attach it." ;;
+	2) say "the installed version ($inst_from) cannot be read; it is not compared with $new_version" ;;
+	*) say "installed version $inst_ver ($inst_from); this package is $new_version" ;;
+	esac
+fi
 
 say "preflight passed${ours:+ (upgrading the $ours)}"
 

@@ -290,6 +290,20 @@ and `ntfs-macos postinstall:`):
   warned, installed and set passive mode (ARCHITECTURE.md section 8.4); the daemon still goes
   passive when such a bundle is installed later (not for a kext-only driver: a known gap, ARCHITECTURE.md
   section 8.4).
+  **Owner decision 2026-11-26 (issue #10):** it also refuses a downgrade: when this package's
+  version (`packaging/build-pkg.sh` writes it into the `new_version` line of the script) is older
+  than the installed one, read from the receipt `org.ntfs-macos.pkg.v2` (`pkgutil --pkg-info`) or,
+  without a receipt, from the installed `BUILD-INFO` of a developer install. The check runs before
+  the daemon is stopped, so a refusal changes nothing; the same version installs again. An older
+  daemon does not read the format-2 session journal (ADR-006 amendment), so after a downgrade a
+  volume left open could be mounted read/write (ADR-011 amendment). The same root-safety rules
+  apply: `BUILD-INFO` is read only when it is a regular root-owned file in a root-only directory
+  chain, and only a version that is 1 to 4 numbers is compared or shown. The project version is
+  0.2.0 from this change on, so every later package orders above every earlier one. A package
+  built before this change (0.1.0, the published pre-release included) has no such check in its
+  own preinstall, so installing it over a newer ntfs-macos cannot be refused; the on-disk dirty
+  flag set for every read/write session still makes a volume left open mount read-only until
+  Windows checks it.
 - An install of ours is upgraded: preinstall stops the running daemon (it unmounts its volumes),
   and removes the files an earlier install of ours had and this package does not ship (the earlier
   `/usr/local/bin/ntfsmac` file and `/usr/local/share/doc/ntfs-macos` included), but only where

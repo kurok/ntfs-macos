@@ -13,11 +13,13 @@
  *   09 the stale-socket decision is pinned to the inode that was examined (pure function)
  *   10 bind_socket() uses it: a path replaced after socket_in_use() is left alone, start refused
  *   11 stop removes only the file its own bind() made; a replacement is left alone
+ *   12 one connection holds the server thread for a bounded time (T-M7-14)
  * Nothing here needs root, a signed client or an authorization.
  */
 #include <errno.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -465,6 +467,112 @@ static void test_dos(void)
 	ntfsmac_ctl_stop(v.ctl);
 }
 
+/* Send `n` pipelined copies of `line` (with its newline) in one write. */
+static void send_many(int fd, const char *line, int n)
+{
+	char big[2048];
+	size_t len = strlen(line), have = 0;
+	int i;
+
+	for (i = 0; i < n && have + len < sizeof big; i++) {
+		memcpy(big + have, line, len);
+		have += len;
+	}
+	send_str(fd, big, have);
+}
+
+/* How long until the server answers a new client, from now. */
+static long long time_to_serve(void)
+{
+	char buf[512];
+	bool eof;
+	long long t0 = mono_ms();
+	int fd = dial();
+
+	send_str(fd, "{\"cmd\":\"list\"}\n", 15);
+	slurp(fd, buf, sizeof buf, 1, 30000, &eof);
+	close(fd);
+	CHECK(strncmp(buf, "{\"ok\":true", 10) == 0);
+	return mono_ms() - t0;
+}
+
+/*
+ * U-CTL-SOCK-12 (T-M7-14): one connection holds the one server thread for a bounded time.
+ *   a. Eight pipelined requests whose operations each block for the longest bound an operation has
+ *      (NTFSMAC_CTL_OP_MAX_MS): the first is the only one run (a slow request ends its connection),
+ *      and the thread is free for the next client within that bound plus a margin, well under
+ *      NTFSMAC_CTL_CONN_HOLD_MAX_MS. Before the fix this took 8 times the bound.
+ *   b. Fast requests (under NTFSMAC_CTL_SLOW_REQUEST_MS) pipelined past the deadline (the seam sets
+ *      it to 1 s): those that would start after the deadline are not run and get no reply.
+ *   c. A request that arrives after the deadline is not run.
+ */
+static void test_conn_bound(void)
+{
+	srv v;
+	char buf[4096];
+	bool eof;
+	int fd, lines;
+	size_t n, k;
+	long long t0, dt;
+
+	signal(SIGPIPE, SIG_IGN); /* c. writes to a connection the server has closed */
+	srv_start(&v);
+	CHECK(NTFSMAC_CTL_CONN_HOLD_MAX_MS <= 10000u);
+
+	/* a. */
+	v.o.delay_ms = NTFSMAC_CTL_OP_MAX_MS;
+	fd = dial();
+	t0 = mono_ms();
+	send_many(fd, "{\"cmd\":\"doctor\"}\n", 8);
+	n = slurp(fd, buf, sizeof buf, 8, (int)NTFSMAC_CTL_CONN_HOLD_MAX_MS + 3000, &eof);
+	dt = mono_ms() - t0;
+	for (lines = 0, k = 0; k < n; k++)
+		lines += buf[k] == '\n';
+	CHECK_EQ_INT(lines, 1);
+	CHECK(eof);
+	/* far under the 8 x 4 s of the old code; a wide margin for a loaded or sanitized run */
+	CHECK(dt < (long long)NTFSMAC_CTL_OP_MAX_MS + 4000);
+	close(fd);
+	CHECK_EQ_INT(v.o.calls[NTFSMAC_CTL_CMD_DOCTOR], 1);
+	v.o.delay_ms = 0;
+	CHECK(time_to_serve() < 1000);
+	ntfsmac_ctl_stop(v.ctl);
+
+	/* b. */
+	srv_start(&v);
+	v.env.conn_deadline_ms = 1000;
+	ntfsmac_ctl_stop(v.ctl);
+	CHECK_EQ_INT(ntfsmac_ctl_start_env(path, &v.ops, &v.o, &v.env, &v.ctl), NTFSMAC_DMN_OK);
+	v.o.delay_ms = 400; /* starts at about 0, 400 and 800 ms; the 4th would start at 1200 */
+	fd = dial();
+	t0 = mono_ms();
+	send_many(fd, "{\"cmd\":\"status\",\"bsd\":\"disk4s1\"}\n", 8);
+	n = slurp(fd, buf, sizeof buf, 8, 5000, &eof);
+	dt = mono_ms() - t0;
+	for (lines = 0, k = 0; k < n; k++)
+		lines += buf[k] == '\n';
+	/* Counts, not wall time: at most 3 can start before the deadline (at 0, 400 and 800 ms; a
+	 * slow run starts fewer), never all 8, and every request that ran was answered. */
+	CHECK(lines >= 1 && lines <= 3);
+	CHECK_EQ_INT(v.o.calls[NTFSMAC_CTL_CMD_STATUS], lines);
+	CHECK(eof);
+	CHECK(dt < 1000 + 400 + 4000);
+	close(fd);
+
+	/* c. */
+	v.o.delay_ms = 0;
+	fd = dial();
+	send_str(fd, "{", 1); /* in time for the first byte */
+	usleep(1300000);      /* the rest after the deadline of 1 s */
+	send_str(fd, "\"cmd\":\"list\"}\n", 14);
+	n = slurp(fd, buf, sizeof buf, 1, 2000, &eof);
+	CHECK_EQ_INT(n, 0);
+	CHECK(eof);
+	close(fd);
+	CHECK_EQ_INT(v.o.calls[NTFSMAC_CTL_CMD_LIST], 0);
+	ntfsmac_ctl_stop(v.ctl);
+}
+
 /* U-CTL-SOCK-07: a live daemon is never taken over (L2). */
 static void test_live_socket(void)
 {
@@ -760,6 +868,7 @@ int main(void)
 	test_limits();
 	test_peer();
 	test_dos();
+	test_conn_bound();
 	test_live_socket();
 	test_right();
 	test_real_sys();

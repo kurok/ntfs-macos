@@ -234,6 +234,11 @@ typedef struct ntfsmac_ctl_env {
 	 */
 	void (*before_unlink)(void *ctx, const char *path);
 	void *before_unlink_ctx;
+	/*
+	 * Test seam of the socket server: the time after the accept within which a request may still
+	 * be started, in ms. 0 (production) is NTFSMAC_CTL_CONN_DEADLINE_MS.
+	 */
+	unsigned conn_deadline_ms;
 } ntfsmac_ctl_env;
 
 /* Check 4, the one seam: both strategies, chosen by `env->authz`. */
@@ -253,6 +258,23 @@ ntfsmac_ctl_refusal ntfsmac_ctl_authorise_privileged(const ntfsmac_ctl_env *env,
 /* ------------------------------------------------------------------ */
 /* Dispatch and server (ctl.c)                                         */
 /* ------------------------------------------------------------------ */
+
+/*
+ * Time bounds of one socket connection (ARCHITECTURE.md section 3.4, T-M7-14). The server has one
+ * thread. A connection gets 1 s for its first byte; a request is started only within
+ * NTFSMAC_CTL_CONN_DEADLINE_MS of the accept (a request read later is not run: the connection is
+ * closed without a reply); a request that took NTFSMAC_CTL_SLOW_REQUEST_MS or more is the last
+ * one of its connection, so waits never stack; each reply gets NTFSMAC_CTL_REPLY_SEND_MS to be
+ * sent. Every operation has its own bound (the longest is `unmount`, 4 s, in main.c), so one
+ * connection holds the thread at most NTFSMAC_CTL_CONN_HOLD_MAX_MS.
+ */
+#define NTFSMAC_CTL_CONN_DEADLINE_MS 5000u
+#define NTFSMAC_CTL_FIRST_BYTE_MS 1000u
+#define NTFSMAC_CTL_SLOW_REQUEST_MS 1000u
+#define NTFSMAC_CTL_REPLY_SEND_MS 1000u
+#define NTFSMAC_CTL_OP_MAX_MS 4000u
+#define NTFSMAC_CTL_CONN_HOLD_MAX_MS \
+	(NTFSMAC_CTL_CONN_DEADLINE_MS + NTFSMAC_CTL_OP_MAX_MS + NTFSMAC_CTL_REPLY_SEND_MS)
 
 /* ntfsmac_ctl_handle_line() with an explicit environment. */
 ntfsmac_dmn_status ntfsmac_ctl_handle_line_env(const ntfsmac_ctl_env *env,

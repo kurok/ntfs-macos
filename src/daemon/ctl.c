@@ -195,6 +195,7 @@ static ntfsmac_ctl_env default_env(void)
 {
 	ntfsmac_ctl_env e;
 
+	memset(&e, 0, sizeof e); /* every field not set below is 0: the production value */
 	pthread_once(&g_replay_once, replay_once);
 	e.sys = ntfsmac_ctl_sys_default();
 	e.replay = &g_replay;
@@ -227,9 +228,7 @@ ntfsmac_dmn_status ntfsmac_ctl_handle_line(const ntfsmac_ctl_ops *ops, void *ctx
 /* Server                                                              */
 /* ------------------------------------------------------------------ */
 
-#define CONN_DEADLINE_MS 5000 /* total time one connection may take to send its requests */
-#define FIRST_BYTE_MS 1000    /* time a connection may stay silent before its first byte */
-#define CONN_MAX_REQUESTS 8
+#define CONN_MAX_REQUESTS 8 /* the bounds of time are in ctl_priv.h */
 #define LISTEN_BACKLOG 8
 
 struct ntfsmac_ctl {
@@ -295,12 +294,13 @@ static bool send_all(int fd, const char *buf, size_t len, long long deadline)
 	return true;
 }
 
-static bool send_reply(struct ntfsmac_ctl *c, int fd, long long deadline)
+/* A reply has its own short bound, so that one that follows a slow operation can still go out. */
+static bool send_reply(struct ntfsmac_ctl *c, int fd)
 {
 	size_t n = strlen(c->reply);
 
 	c->reply[n] = '\n'; /* room: handle_line leaves at least one byte after the text */
-	return send_all(fd, c->reply, n + 1, deadline);
+	return send_all(fd, c->reply, n + 1, now_ms() + NTFSMAC_CTL_REPLY_SEND_MS);
 }
 
 static void serve_connection(struct ntfsmac_ctl *c, int fd)
@@ -308,8 +308,10 @@ static void serve_connection(struct ntfsmac_ctl *c, int fd)
 	ntfsmac_ctl_peer peer;
 	char buf[NTFSMAC_CTL_LINE_MAX + 1];
 	size_t have = 0;
-	long long deadline = now_ms() + CONN_DEADLINE_MS;
-	long long first_deadline = now_ms() + FIRST_BYTE_MS;
+	long long deadline = now_ms() + (c->env.conn_deadline_ms != 0 ? c->env.conn_deadline_ms
+								       : NTFSMAC_CTL_CONN_DEADLINE_MS);
+	long long first_deadline = now_ms() + NTFSMAC_CTL_FIRST_BYTE_MS;
+	long long t0;
 	int requests = 0;
 	bool eof = false;
 	bool got_byte = false;
@@ -331,7 +333,7 @@ static void serve_connection(struct ntfsmac_ctl *c, int fd)
 
 		if (nl == NULL && have == sizeof buf) {
 			put_error(c->reply, sizeof c->reply, NTFSMAC_CTL_ERR_LINE_TOO_LONG, -1);
-			send_reply(c, fd, deadline);
+			send_reply(c, fd);
 			return; /* the rest of the stream cannot be trusted to be framed */
 		}
 		if (nl == NULL && !eof) {
@@ -361,11 +363,18 @@ static void serve_connection(struct ntfsmac_ctl *c, int fd)
 			linelen = (size_t)(nl - buf);
 		}
 
+		/* A request read after the deadline (pipelined behind slow ones) is not run. */
+		t0 = now_ms();
+		if (t0 >= deadline)
+			return;
 		(void)ntfsmac_ctl_handle_line_env(&c->env, c->ops, c->ctx, &peer, buf, linelen,
 						  c->reply, sizeof c->reply - 1);
-		if (!send_reply(c, fd, deadline))
+		if (!send_reply(c, fd))
 			return;
 		requests++;
+		/* One slow operation per connection: waits do not stack (T-M7-14). */
+		if (now_ms() - t0 >= (long long)NTFSMAC_CTL_SLOW_REQUEST_MS)
+			return;
 
 		if (nl == NULL)
 			return;

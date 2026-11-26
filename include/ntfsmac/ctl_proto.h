@@ -82,6 +82,13 @@ extern "C" {
 	X(CHECK_UNAVAILABLE, "check_unavailable")            \
 	X(WRONG_CHANNEL, "wrong_channel")
 
+/*
+ * Reason of {"ok":false,"error":"failed","reason":"journal_busy"}: `status` could not read the
+ * session journal within its bound because a long job (a repair, a mount) holds the journal (the
+ * control socket answers within a fixed time, section 3.4; T-M7-14). Nothing was changed.
+ */
+#define NTFSMAC_CTL_REASON_JOURNAL_BUSY "journal_busy"
+
 typedef enum ntfsmac_ctl_cmd {
 #define X(id, str) NTFSMAC_CTL_CMD_##id,
 	NTFSMAC_CTL_CMD_LIST(X)

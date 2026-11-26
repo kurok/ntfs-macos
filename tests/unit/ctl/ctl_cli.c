@@ -303,6 +303,15 @@ static void test_render(void)
 	CHECK(strcmp(c.out, "No NTFS volumes.\n") == 0);
 	cap_free(&c);
 
+	/* status while the journal is busy (T-M7-14): a fixed text, not the raw code */
+	cap_open(&c);
+	rc = ntfsmac_cli_render(&c.ctx, NTFSMAC_CTL_CMD_STATUS,
+		"{\"ok\":false,\"error\":\"failed\",\"reason\":\"journal_busy\"}");
+	cap_close(&c);
+	CHECK(rc != NTFSMAC_CLI_EXIT_OK);
+	CHECK(strstr(c.err, "busy with the session journal") != NULL);
+	cap_free(&c);
+
 	/* doctor (I-DMN-17, T-M4-11): one line per finding, with text; the conflicting bundle is named */
 	cap_open(&c);
 	rc = ntfsmac_cli_render(&c.ctx, NTFSMAC_CTL_CMD_DOCTOR,

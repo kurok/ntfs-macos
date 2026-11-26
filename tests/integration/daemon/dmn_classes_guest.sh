@@ -133,7 +133,8 @@ for n in dirty-flag unclean-log log-v2 hiber-lower; do
 	echo "-- I-DMN-23 $n ($bsd): $(row "$bsd")"
 	st=$(state_of "$bsd"); mo=$(mount_of "$bsd"); re=$(reason_of "$bsd"); mp=$(mpoint_of "$bsd")
 	km=$(mount | grep -F " on $mp (" || true)
-	check "I-DMN-23 $n: the probe stand-in said clean (status shows probe state clean)" sh -c "'$CLI' status $bsd 2>&1 | grep -q 'state: clean'"
+	so=$(status_of "$bsd")
+	check "I-DMN-23 $n: the probe stand-in said clean (status shows probe state clean)" contains "$so" "state: clean"
 	eq "I-DMN-23 $n: state and mode (marker on: volmark refuses, so ro)" "$st $mo" "Mounted ro"
 	check "I-DMN-23 $n: the reason is given ('$re')" [ -n "$re" ]
 	if [ "$st" = Mounted ]; then

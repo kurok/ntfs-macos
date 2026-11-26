@@ -10,6 +10,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #include "ctl_priv.h"
 
@@ -44,6 +45,7 @@ typedef struct fake_ops_state {
 	/* what the next operation does */
 	ntfsmac_dmn_status status;
 	const char *reply; /* NULL: leave the reply empty */
+	unsigned delay_ms; /* each operation blocks this long first (a slow operation) */
 	/* spawned pids for is_spawned */
 	pid_t spawned[8];
 	int nspawned;
@@ -64,6 +66,14 @@ static inline ntfsmac_dmn_status fake_finish(fake_ops_state *s, ntfsmac_ctl_cmd 
 	ntfsmac_dmn_status st;
 
 	fake_sync();
+	if (s->delay_ms != 0) {
+		struct timespec ts;
+
+		ts.tv_sec = (time_t)(s->delay_ms / 1000u);
+		ts.tv_nsec = (long)(s->delay_ms % 1000u) * 1000000L;
+		while (nanosleep(&ts, &ts) != 0)
+			;
+	}
 	s->calls[c]++;
 	if (s->reply != NULL)
 		snprintf(reply, cap, "%s", s->reply);

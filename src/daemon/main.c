@@ -58,6 +58,7 @@
 
 #include "ctl_priv.h"
 #include "mountwatch.h"
+#include "qbounded.h"
 #include "ntfsmac/ctl_proto.h"
 #include "ntfsmac/log.h"
 #include "report.h"
@@ -79,6 +80,7 @@
 #define DA_SEEN_WAIT_MS 5000u  /* after a worker exit: wait for Disk Arbitration's unmount report */
 #define SHUTDOWN_WAIT_MS 50000u /* all volumes at SIGTERM; the plist's ExitTimeOut is 60 s */
 #define REQUEST_WAIT_MS 3000u
+#define STATUS_JOURNAL_WAIT_MS 1000u /* `status` waits this long for the journal queue (T-M7-14) */
 #define MW_POLL_S 2u
 #define MW_STRAY_PATHS_MAX 8u
 #define JOURNAL_PARENT "/var/db/ntfs-macos"
@@ -2130,7 +2132,13 @@ static ntfsmac_dmn_status op_status(void *ctx, const char *bsd, char *reply, siz
 	memset(&pk, 0, sizeof pk);
 	if (have_pv && serial != 0) {
 		pk.serial = serial;
-		dispatch_sync_f(g_journal_q, &pk, jq_peek);
+		/* Bounded: a repair or a mount can hold the journal queue (control socket bound, 3.4). */
+		if (!ntfsmac_queue_call_bounded(g_journal_q, &pk, sizeof pk, jq_peek, STATUS_JOURNAL_WAIT_MS)) {
+			pthread_mutex_unlock(&mu);
+			snprintf(reply, cap, "{\"ok\":false,\"error\":\"failed\",\"reason\":\"%s\"}",
+				 NTFSMAC_CTL_REASON_JOURNAL_BUSY);
+			return NTFSMAC_DMN_E_BUSY;
+		}
 		have_entry = pk.present;
 		/*
 		 * The entry of a session that is running now is not a "left open" one: its marker and

@@ -85,6 +85,21 @@ sha() { shasum -a 256 "$1" | awk '{ print $1 }'; }
 
 # ---- what the daemon says ----
 list() { "$CLI" list 2>&1; }
+# `ntfsmac status BSD`, asked again (up to 10 times, 1 s apart) while the daemon answers that the
+# session journal is busy (reason journal_busy, T-M7-14: status waits at most 1 s for the journal).
+status_of() {
+	_n=0
+	while :; do
+		_o=$("$CLI" status "$1" 2>&1) || true
+		case $_o in
+		*"busy with the session journal"*) ;;
+		*) printf '%s\n' "$_o"; return 0 ;;
+		esac
+		_n=$((_n + 1))
+		[ "$_n" -lt 10 ] || { printf '%s\n' "$_o"; return 0; }
+		sleep 1
+	done
+}
 row() { list | awk -v b="$1" '$1 == b { print }'; } # BSD LABEL STATE MOUNT MOUNTPOINT REASON
 # the fields come from `ntfsmac status` (a label or a mount point with a space breaks the columns of list)
 state_of() { sget "$1" state; }

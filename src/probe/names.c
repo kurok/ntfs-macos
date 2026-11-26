@@ -226,8 +226,6 @@ static int fill(void *ctx, const ntfschar *name, const int name_len, const int n
 	unsigned type;
 
 	(void)pos;
-	if (name_type == FILE_NAME_DOS)
-		return 0;
 	if (name_len <= 0 || name_len > (int)NTFSMAC_NFC_MAX_UNITS)
 		return 0; /* the library never delivers these; nothing to compare */
 	for (i = 0; i < name_len; i++)
@@ -240,15 +238,36 @@ static int fill(void *ctx, const ntfschar *name, const int name_len, const int n
 		return -1;
 	}
 
-	/* Check 5: hiberfil.sys in the root directory, any case. */
+	/*
+	 * Check 5: hiberfil.sys in the root directory, any case, in every namespace. It must find
+	 * every file that ntfs_volume_check_hiberfile() finds (volmark and the engine use it): that
+	 * one looks the name up by collation in the root index whatever namespace the entry has, so
+	 * a DOS (8.3) name counts here too (T-M7-18). Its lookup is case sensitive on a mount
+	 * without ignore_case; this check ignores case, so it finds more, never less. A record with
+	 * a Win32 and a DOS name is one candidate, not two.
+	 */
 	if (s->cur == 0 && name_len == (int)(sizeof(hiberfile_name) - 1) &&
 	    ntfs_names_are_equal(name, (size_t)name_len, s->hibname, sizeof(hiberfile_name) - 1,
 				 IGNORE_CASE, s->vol->upcase, s->vol->upcase_len)) {
-		if (s->nhib < MAX_HIBER_CANDIDATES)
+		unsigned k = 0;
+
+		while (k < s->nhib && s->hib[k] != MREF(mref))
+			k++;
+		if (k < s->nhib)
+			; /* the other name of a record that is listed already */
+		else if (s->nhib < MAX_HIBER_CANDIDATES)
 			s->hib[s->nhib++] = MREF(mref);
 		else
 			s->hib_overflow = true;
 	}
+
+	/*
+	 * A DOS name is the short alias of a Win32 name (or of nothing, on a crafted volume). It is
+	 * not a name a user sees: checks 5a and later, and the directory walk, take the Win32 or POSIX
+	 * name of the record, so a DOS name is neither counted in names_seen nor queued.
+	 */
+	if (name_type == FILE_NAME_DOS)
+		return 0;
 
 	/* Check 5a. */
 	s->r->names_seen++;
@@ -410,6 +429,7 @@ void names_scan(ntfs_volume *vol, int64_t budget_ms, names_result *r)
 			unsigned k;
 
 			r->hiberfile = NTFSMAC_PROBE_HIBERFILE_ABSENT;
+			r->hiber_records = s.nhib;
 			if (s.hib_overflow)
 				hiber_note(r, NTFSMAC_PROBE_HIBERFILE_UNREADABLE,
 					   NTFSMAC_PROBE_REASON_BIT(NTFSMAC_PROBE_REASON_HIBER_UNREADABLE));

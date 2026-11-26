@@ -151,3 +151,48 @@ def damage_directory_record(img, name):
                 f.write(b"\xde\xad")
                 return True
             pos = i + 1
+
+
+FILE_NAME_TYPES = {"posix": 0, "win32": 1, "dos": 2, "win32_and_dos": 3}
+
+
+def set_name_type(img, name, type_name):
+    """Give every $FILE_NAME that is exactly `name` (case as given) the namespace `type_name`
+    ("posix", "win32", "dos" or "win32_and_dos"): the attribute in the file's MFT record and the
+    key of its entry in the directory index (resident or in an INDX block). Both structures are
+    edited with their multi sector protection undone and redone. Returns how many were changed."""
+    g = geometry(img)
+    want = FILE_NAME_TYPES[type_name]
+    uname = name.encode("utf-16-le")
+    changed = 0
+
+    def edit(block):
+        """FILE_NAME_ATTR: name length at 0x40, namespace at 0x41, the name at 0x42."""
+        n = 0
+        pos = 0
+        while True:
+            i = block.find(uname, pos)
+            if i < 0:
+                return n
+            if i >= 2 and block[i - 2] == len(name) and block[i - 1] in FILE_NAME_TYPES.values():
+                block[i - 1] = want
+                n += 1
+            pos = i + 1
+
+    with open(img, "r+b") as f:
+        data = f.read()
+        for size, magic in ((g["rs"], b"FILE"), (4096, b"INDX")):
+            for off in range(0, len(data) - size + 1, size):
+                raw = data[off:off + size]
+                if raw[:4] != magic or uname not in raw:
+                    continue
+                try:
+                    rec, usn = unprotect(raw)
+                except AssertionError:
+                    continue
+                k = edit(rec)
+                if k:
+                    f.seek(off)
+                    f.write(protect(rec, usn))
+                    changed += k
+    return changed

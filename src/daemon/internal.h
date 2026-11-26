@@ -106,6 +106,8 @@ typedef enum ntfsmac_vol_reason {
 	NTFSMAC_VREASON_MODE_MISMATCH,  /* ro decision, writable mount (step 8) */
 	NTFSMAC_VREASON_UNMOUNT,        /* unmount failed (section 4.5) */
 	NTFSMAC_VREASON_STRAY_MOUNT,    /* the worker mounted another file system (T-M4-08, H1) */
+	NTFSMAC_VREASON_NOT_NTFS,       /* the probe or Disk Arbitration says another file system;
+	                                 * no `mount` until the disk appears again (T-M7-11) */
 	NTFSMAC_VREASON_COUNT_
 } ntfsmac_vol_reason;
 
@@ -167,8 +169,15 @@ ntfsmac_vol_result ntfsmac_volume_apply(ntfsmac_volume *v,
 					ntfsmac_vol_event event,
 					const ntfsmac_vol_event_arg *arg);
 
-/* True if a `mount` request is accepted now (state Appeared or Failed; section 5). */
+/*
+ * True if a `mount` request is accepted now: state Appeared or Failed (section 5), except Failed
+ * with reason NOT_NTFS, which is final for this appearance of the disk (T-M7-11).
+ */
 bool ntfsmac_volume_accepts_mount(const ntfsmac_volume *v);
+/* Why `mount` is refused: NULL if it is accepted, else "not_ntfs" or "wrong_state". */
+const char *ntfsmac_volume_mount_refusal(const ntfsmac_volume *v);
+/* False for a disk that is none of our business (Failed, NOT_NTFS): `list` leaves it out. */
+bool ntfsmac_volume_listed(const ntfsmac_volume *v);
 
 /*
  * Reuse of volume records (T-M7-15). The daemon keeps one record per BSD name, in a table of
@@ -204,8 +213,13 @@ const char *ntfsmac_vol_result_name(ntfsmac_vol_result r);
  * of the name. The verdict is stored at one place only, after a probe of this disk gave one.
  * The caller locks (main.c: g_mu).
  */
+/* Size of a DAVolumeKind as the daemon keeps it, NUL included (da_filter.h normalises it). */
+#define NTFSMAC_DISK_KIND_SIZE 64
+
 typedef struct ntfsmac_volrec {
 	ntfsmac_probe_verdict *verdict; /* the last probe of this disk; NULL: no verdict yet */
+	char kind[NTFSMAC_DISK_KIND_SIZE]; /* DAVolumeKind as ntfsmac_disk_info.volume_kind */
+	bool we_unmounted;              /* this daemon removed another driver's mount of it */
 } ntfsmac_volrec;
 
 /* Forget everything about the disk: no verdict. The record stays usable. */
@@ -214,6 +228,83 @@ void ntfsmac_volrec_reset(ntfsmac_volrec *r);
 ntfsmac_dmn_status ntfsmac_volrec_set_verdict(ntfsmac_volrec *r, const ntfsmac_probe_verdict *pv);
 /* The stored verdict, or NULL when this disk has none yet (never a zeroed verdict). */
 const ntfsmac_probe_verdict *ntfsmac_volrec_verdict(const ntfsmac_volrec *r);
+/* Note the DAVolumeKind of the disk (from Disk Arbitration; "" or NULL: none). A kind that does
+ * not fit is kept as "?" (unreadable, so never taken for "no kind"). */
+void ntfsmac_volrec_set_kind(ntfsmac_volrec *r, const char *kind);
+
+/* ------------------------------------------------------------------ */
+/* Another driver's mount at attach time (claim.c, T-M7-11)            */
+/* ------------------------------------------------------------------ */
+
+/*
+ * Step 3 of section 4.1 decides from Disk Arbitration alone, because no probe can run yet: while
+ * a driver has the disk mounted even a root O_RDONLY open of /dev/diskN fails with EBUSY (U18,
+ * ADR-003), so the probe cannot come first. DAVolumeKind is set from the first appearance, mounted
+ * or not (U18), and it is what decides whether a mount may be removed.
+ */
+typedef enum ntfsmac_kind_class {
+	NTFSMAC_KIND_UNKNOWN = 0, /* no DAVolumeKind at all ("" or NULL) */
+	NTFSMAC_KIND_NTFS,        /* "ntfs": Apple's driver (U18) */
+	NTFSMAC_KIND_OTHER_NTFS,  /* another NTFS driver's kind: "ntfs" anywhere in it, any case
+				   * (Paragon's ufsd_NTFS, a dotted FSKit kind, ...) */
+	NTFSMAC_KIND_OTHER,       /* a kind that is there but could not be read ("?"): left alone */
+	NTFSMAC_KIND_NOT_NTFS     /* any other file system: exfat, msdos, hfs, apfs, ... */
+} ntfsmac_kind_class;
+
+ntfsmac_kind_class ntfsmac_kind_classify(const char *kind);
+
+/* The Disk Arbitration calls of the claim, behind a seam (main.c: g_da; tests: a fake). */
+typedef struct ntfsmac_claim_ops {
+	void *ctx;
+	/* DADiskUnmount of another driver's mount; OK, or E_STATE when nothing was mounted */
+	ntfsmac_dmn_status (*unmount)(void *ctx, const char *bsd);
+	/* ntfsmac_da_release(): drop the dissent; `mount_again`: ask the system to mount the disk */
+	ntfsmac_dmn_status (*release)(void *ctx, const char *bsd, bool mount_again);
+} ntfsmac_claim_ops;
+
+typedef enum ntfsmac_claim_result {
+	NTFSMAC_CLAIM_FREE = 0,       /* no other mount now: the probe may open the device */
+	NTFSMAC_CLAIM_NOT_NTFS,       /* Disk Arbitration knows another file system: left alone */
+	NTFSMAC_CLAIM_OTHER_DRIVER,   /* another NTFS driver has it mounted: left alone */
+	NTFSMAC_CLAIM_UNMOUNT_FAILED  /* Apple's mount (or one of unknown kind) stays */
+} ntfsmac_claim_result;
+
+/*
+ * Before the probe. `mounted`: some driver has the disk mounted (DAVolumePath); `kind`: its
+ * DAVolumeKind. A disk of a kind that is known and not NTFS is never unmounted and never probed;
+ * a mount of another NTFS driver, or of a kind that could not be read, is never removed; Apple's
+ * mount, or one of a disk without any kind, is removed with ops->unmount. *we_unmounted is set to
+ * true only when that unmount succeeded.
+ */
+ntfsmac_claim_result ntfsmac_claim_take(const ntfsmac_claim_ops *ops, const char *bsd, bool mounted,
+					const char *kind, bool *we_unmounted);
+
+/*
+ * At every end of the attach flow, with the state it ended in: Mounting, Mounted or Unmounting
+ * keep the dissent (our own volume). Every other state releases it, and asks the system to mount
+ * the disk again when `we_unmounted` (the daemon removed another driver's mount and did not mount
+ * the volume itself) -- but only when `device_free`: after a worker was started, the clean-up must
+ * have shown that no mount of ours is left and no process holds the device. Otherwise the dissent
+ * stays and nothing is mounted, so that Apple's driver cannot mount a device that a worker of
+ * ours may still write (section 4.1 step 3, ADR-003). True when the dissent was released.
+ */
+bool ntfsmac_claim_finish(const ntfsmac_claim_ops *ops, const char *bsd, ntfsmac_vol_state end,
+			  bool we_unmounted, bool device_free);
+
+/* True for a verdict that says the volume is not NTFS (and not BitLocker): reason NOT_NTFS. */
+/*
+ * The sticky "device busy" of one volume record (T-M7-11 review). A clean-up that could not prove
+ * the device free makes it busy; it stays busy, across later attaches that end before a worker
+ * is started, until a later device check returns OK with no mount left, or the disk goes
+ * (ntfsmac_devbusy_reset). `check` is the result of ntfsmac_child_device_check(); E_STATE (no
+ * device known) changes nothing. Pure.
+ */
+void ntfsmac_devbusy_note(bool *busy, ntfsmac_dmn_status check, bool mount_left);
+void ntfsmac_devbusy_reset(bool *busy);
+/* What attach_finish() passes to ntfsmac_claim_finish(): this attach's proof AND not busy. */
+bool ntfsmac_devbusy_free(bool busy, bool this_attach_free);
+
+bool ntfsmac_verdict_not_ntfs(const ntfsmac_probe_verdict *pv);
 
 /* ------------------------------------------------------------------ */
 /* Process spawn and supervision (spawn.c, T-M4-01)                    */
@@ -382,7 +473,12 @@ typedef struct ntfsmac_disk_info {
 	bool is_ntfs_candidate;   /* passed the filter of section 4.1 step 1 */
 	bool has_volume_path;     /* DAVolumePath present: some driver mounted it (ADR-020) */
 	char media_path[128];     /* DAMediaPath, for the binding check */
-	char volume_kind[16];     /* DAVolumeKind ("ntfs" for Apple's driver), "" if none or odd */
+	/*
+	 * DAVolumeKind folded to lower case ("ntfs" for Apple's driver, U18); "" when the disk has
+	 * none; NTFSMAC_DA_KIND_UNREADABLE ("?") when it has one that is not a string, is longer
+	 * than this field or has a byte outside [a-z0-9._-] after folding (T-M7-11 review).
+	 */
+	char volume_kind[NTFSMAC_DISK_KIND_SIZE];
 	char volume_path[128];    /* DAVolumePath as a file system path, "" if none or too long */
 } ntfsmac_disk_info;
 
@@ -411,6 +507,12 @@ void ntfsmac_da_stop(ntfsmac_da *da);
 /* Mount-approval dissenter for one disk (section 4.1 step 3) and its withdrawal. */
 ntfsmac_dmn_status ntfsmac_da_dissent(ntfsmac_da *da, const char *bsd_name);
 ntfsmac_dmn_status ntfsmac_da_withdraw(ntfsmac_da *da, const char *bsd_name);
+/*
+ * ntfsmac_da_withdraw(), and when `mount_again` is true also ask Disk Arbitration to mount the
+ * disk with default options even if no mount was refused: the daemon removed another driver's
+ * mount and did not mount the volume itself (T-M7-11). The answer of the mount is not awaited.
+ */
+ntfsmac_dmn_status ntfsmac_da_release(ntfsmac_da *da, const char *bsd_name, bool mount_again);
 /* True if two file system paths name the same thing under Unicode normalisation (NFC/NFD). */
 bool ntfsmac_da_same_path(const char *a, const char *b);
 /* Fresh description, for the binding check (step 6). */

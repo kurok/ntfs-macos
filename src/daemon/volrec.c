@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "da_filter.h"
 #include "internal.h"
 
 void ntfsmac_volrec_reset(ntfsmac_volrec *r)
@@ -21,6 +22,23 @@ void ntfsmac_volrec_reset(ntfsmac_volrec *r)
 		return;
 	free(r->verdict);
 	r->verdict = NULL;
+	r->kind[0] = '\0';
+	r->we_unmounted = false;
+}
+
+void ntfsmac_volrec_set_kind(ntfsmac_volrec *r, const char *kind)
+{
+	size_t n;
+
+	if (r == NULL)
+		return;
+	n = kind != NULL ? strnlen(kind, sizeof r->kind) : 0;
+	if (n >= sizeof r->kind) {
+		strcpy(r->kind, NTFSMAC_DA_KIND_UNREADABLE); /* a kind, not one we can keep: never "none" */
+		return;
+	}
+	memcpy(r->kind, kind != NULL ? kind : "", n);
+	r->kind[n] = '\0';
 }
 
 ntfsmac_dmn_status ntfsmac_volrec_set_verdict(ntfsmac_volrec *r, const ntfsmac_probe_verdict *pv)

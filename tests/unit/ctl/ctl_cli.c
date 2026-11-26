@@ -418,6 +418,16 @@ static void test_render(void)
 	CHECK(strstr(c.err, "MFTMIRR_STALE: The backup copy") != NULL);
 	cap_free(&c);
 
+	/* T-M7-11: a disk that is not NTFS is named as such */
+	cap_open(&c);
+	rc = ntfsmac_cli_render(&c.ctx, NTFSMAC_CTL_CMD_MOUNT,
+				"{\"ok\":false,\"error\":\"failed\",\"reason\":\"not_ntfs\"}");
+	cap_close(&c);
+	CHECK_EQ_INT(rc, NTFSMAC_CLI_EXIT_FAILED);
+	CHECK(strstr(c.err, "The volume is not NTFS") != NULL);
+	CHECK_EQ_INT(c.outlen, 0);
+	cap_free(&c);
+
 	cap_open(&c);
 	rc = ntfsmac_cli_render(&c.ctx, NTFSMAC_CTL_CMD_DOCTOR, "{\"ok\":false,\"error\":\"not_implemented\"}");
 	cap_close(&c);

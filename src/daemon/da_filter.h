@@ -45,6 +45,17 @@ bool ntfsmac_da_content_is_candidate(const char *content, bool whole);
 bool ntfsmac_da_is_macfuse_backing(uint64_t size_bytes, bool whole, const char *content,
 				   const char *model, const char *protocol);
 
+/*
+ * DAVolumeKind as the daemon keeps it (T-M7-11 review). `raw` is the kind as Disk Arbitration
+ * gave it (NULL: the disk has none) and `present` says whether the description had the key at
+ * all (a value that is not a string, or did not convert, is present with `raw` NULL). Result in
+ * `out` (`cap` bytes): "" when there is no kind; the kind folded to lower case when it fits and
+ * every byte is in [a-z0-9._-] after folding; else NTFSMAC_DA_KIND_UNREADABLE. So a kind is never
+ * cut, and never turned into "no kind".
+ */
+#define NTFSMAC_DA_KIND_UNREADABLE "?"
+void ntfsmac_da_kind_normalize(const char *raw, bool present, char *out, size_t cap);
+
 /* Table of BSD names, each with one flag. Fixed size; the caller locks. */
 #define NTFSMAC_DA_TABLE_MAX 128
 #define NTFSMAC_DA_NAME_MAX 32

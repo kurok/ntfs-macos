@@ -200,8 +200,24 @@ ntfsmac_vol_result ntfsmac_volume_apply(ntfsmac_volume *v,
 
 bool ntfsmac_volume_accepts_mount(const ntfsmac_volume *v)
 {
-	return v != NULL && v->disk_present &&
-	       (v->state == NTFSMAC_VOL_APPEARED || v->state == NTFSMAC_VOL_FAILED);
+	return ntfsmac_volume_mount_refusal(v) == NULL;
+}
+
+const char *ntfsmac_volume_mount_refusal(const ntfsmac_volume *v)
+{
+	if (v == NULL || !v->disk_present ||
+	    (v->state != NTFSMAC_VOL_APPEARED && v->state != NTFSMAC_VOL_FAILED))
+		return "wrong_state";
+	/* Another file system: a `mount` would only unmount it and refuse it again (T-M7-11). */
+	if (v->state == NTFSMAC_VOL_FAILED && v->reason == NTFSMAC_VREASON_NOT_NTFS)
+		return "not_ntfs";
+	return NULL;
+}
+
+bool ntfsmac_volume_listed(const ntfsmac_volume *v)
+{
+	return v != NULL && v->state != NTFSMAC_VOL_GONE &&
+	       !(v->state == NTFSMAC_VOL_FAILED && v->reason == NTFSMAC_VREASON_NOT_NTFS);
 }
 
 const char *ntfsmac_vol_state_name(ntfsmac_vol_state s)

@@ -130,6 +130,8 @@ static const struct {
 	{NTFSMAC_CTL_REASON_JOURNAL_BUSY,
 	 "The daemon is busy with the session journal (a repair or a mount is running). Try again in a "
 	 "moment."},
+	{"not_ntfs",
+	 "The volume is not NTFS (the system's own driver handles it), so ntfsmac does not mount it."},
 	{"probe_failed", "The volume could not be checked just now (is it mounted by another driver?)."},
 	{"invalid_input", "The request was not valid."},
 	{"no_entry", "There is no session journal entry for this volume, so there is nothing to clear."},

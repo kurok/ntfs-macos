@@ -17,8 +17,12 @@ if(NTFSMAC_SH)
   # package scripts (preinstall, postinstall).
   add_test(NAME packaging.payload
            COMMAND ${NTFSMAC_SH} ${CMAKE_CURRENT_SOURCE_DIR}/payload_lint.sh ${PROJECT_SOURCE_DIR})
+  # U-PKG-05 (T-M6-02): argument handling and dry run of the signing script (no signing, no keychain).
+  add_test(NAME packaging.sign_and_notarize
+           COMMAND ${NTFSMAC_SH} ${CMAKE_CURRENT_SOURCE_DIR}/sign_and_notarize_test.sh
+                   ${PROJECT_SOURCE_DIR}/packaging/sign-and-notarize.sh)
   # The scripts at least parse (they are run only in the guest).
-  foreach(s dev-install uninstall build-pkg payload-check)
+  foreach(s dev-install uninstall build-pkg payload-check sign-and-notarize)
     add_test(NAME packaging.syntax_${s}
              COMMAND ${NTFSMAC_SH} -n ${PROJECT_SOURCE_DIR}/packaging/${s}.sh)
   endforeach()
@@ -36,6 +40,7 @@ if(NTFSMAC_SHELLCHECK)
            COMMAND ${NTFSMAC_SHELLCHECK} -x -S style
                    packaging/scripts/preinstall packaging/scripts/postinstall packaging/build-pkg.sh
                    packaging/payload-check.sh tests/unit/packaging/payload_lint.sh
+                   packaging/sign-and-notarize.sh tests/unit/packaging/sign_and_notarize_test.sh
                    tests/integration/packaging/pkg_release_vm.sh tests/integration/packaging/pkg_release_vm_guest.sh
                    tests/integration/packaging/pkg_preflight_vm.sh tests/integration/packaging/pkg_preflight_vm_guest.sh
            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})

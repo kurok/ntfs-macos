@@ -32,8 +32,8 @@ Prerequisite: macFUSE 5.5.0 or newer, installed and turned on in System Settings
 sudo installer -pkg dist/<label>/ntfs-macos-<label>.pkg -target /
 ```
 
-The package is not signed with a Developer ID or notarized, so a double-click in Finder is
-blocked by Gatekeeper; use `installer` as above, or right-click > Open.
+The package is not signed with a Developer ID or notarized, so Gatekeeper blocks a double-click
+in Finder; use `installer` as above (see "Unsigned packages" below).
 
 The package installs exactly the `dir` and `file` entries of [manifest.txt](manifest.txt), the same
 set as `dev-install.sh`, with the manifest's modes and root:wheel. Everything root runs or reads is
@@ -98,6 +98,57 @@ installation check of `distribution.xml`, so only those reasons show in the Inst
 the output of `installer`. Every other refusal shows there as a failed install; the reason is in
 `/var/log/install.log`.
 
+## Unsigned packages (ADR-011)
+
+Until Developer ID credentials exist (H8, `docs/IMPLEMENTATION_PLAN.md`), every package from
+`build-pkg.sh` is unsigned. That is the documented unsigned path of ADR-011 (last row of its
+table): ship the unsigned `.pkg` with build-from-source instructions, say that Gatekeeper blocks a
+double-click install, and mark M6 as "complete, unsigned" (criterion 6.4 is then recorded as
+unsigned). The supported install is `sudo installer -pkg FILE -target /`, as in
+[docs/INSTALL.md](../docs/INSTALL.md); the release notes must say that the package is unsigned.
+
+## Signed release (T-M6-02, not run yet)
+
+`sign-and-notarize.sh` turns the unsigned package into a signed, notarized and stapled one. It
+needs Xcode or its command line tools (`notarytool`, `stapler`), a Developer ID Application and a Developer ID
+Installer certificate in the keychain of the Mac that runs it, and a `notarytool` keychain profile
+made once with `xcrun notarytool store-credentials NAME` (H8). The names are arguments; nothing is
+stored in the repository, in a file or in the environment, and the script never reads or changes a
+keychain itself.
+
+```sh
+packaging/sign-and-notarize.sh --pkg dist/<label>/ntfs-macos-<label>.pkg \
+    --profile NAME \
+    --app-identity "Developer ID Application: ..." \
+    --installer-identity "Developer ID Installer: ..." [--out-dir DIR] [--dry-run]
+```
+
+| Step | Command |
+|---|---|
+| unpack | `pkgutil --expand-full` |
+| sign each Mach-O file of the payload | `codesign --force --timestamp --options runtime --sign <Application identity>`; a file whose `otool -L` lists `/usr/local/lib/libfuse*` (the worker) also gets `--entitlements packaging/entitlements-libfuse.plist` (`com.apple.security.cs.disable-library-validation`), because with library validation the signed worker refuses macFUSE's libfuse |
+| rebuild | `pkgbuild --ownership recommended` and `productbuild` from the signed payload, with the original scripts, identifier, version and Distribution. `pkgutil --flatten-full` is not used: run as a normal user it writes the user's uid into the bill of materials and adds `._` files |
+| check | `lsbom -p MUGf` of the new component must equal the original; otherwise the script stops |
+| sign the package | `productsign --sign <Installer identity>` |
+| notarize | `xcrun notarytool submit --keychain-profile NAME --wait`; on a status other than Accepted it prints `notarytool log` for the submission and stops |
+| staple | `xcrun stapler staple`, then `stapler validate` |
+| Gatekeeper check | `spctl -a -t install -vv` (criterion 6.4) |
+| output | `ntfs-macos-<label>.pkg`, `uninstall.sh`, `manifest.txt`, `BUILD-INFO` (signature line changed) and a new `SHA256SUMS` in `--out-dir` (default `signed/` next to the input) |
+
+`--dry-run` prints these commands and runs none. Without a profile or an identity (or without the
+tools) the script exits 3 and points to the unsigned path above; exit 2 is a usage error and exit 1
+a failed step. The input directory is not changed. Unit test:
+`tests/unit/packaging/sign_and_notarize_test.sh` (U-PKG-05, ctest `packaging.sign_and_notarize`)
+checks the argument handling and the dry run only. Checked on the host without signing: the
+rebuild gives root:wheel for every entry (`--ownership recommended`), whereas `pkgutil
+--flatten-full` as a normal user gave the user's uid and `._` files. A host where the expanded files
+carry `com.apple.provenance` (it cannot be removed with `xattr`) still gets `._` files from
+`pkgbuild`; the bill-of-materials check then stops the script, so run it where the files carry no
+such attribute. Not yet checked against a real account: that the signed worker starts with the
+entitlement, and that the signed CLI agrees with the code requirement that postinstall records
+(`cli-requirement`, ADR-019 check 3). Do both in the first real run, in a disposable guest, before
+anything is published.
+
 ## Uninstall
 
 ```sh
@@ -153,4 +204,4 @@ the package `tests/integration/packaging/pkg_release_vm.sh --pkg-dir dist/<label
 (I-PKG-03..04), `pkg_preflight_vm.sh --pkg-dir dist/<label>` (I-PKG-05) and
 `pkg_preflight_vm.sh --pkg-dir dist/<label> --case userlocal` (I-PKG-06). Each starts one VM;
 run them through the VM slot protocol when other runs use the VMs. Host-side checks:
-`ctest -R packaging` (U-PKG-01..04).
+`ctest -R packaging` (U-PKG-01..05).

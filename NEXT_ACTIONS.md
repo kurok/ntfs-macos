@@ -1,27 +1,53 @@
 # Next actions
 
+State on 2026-11-26: M5 gate passed; criterion 5.6 pending the owner's decision. The results are at fd6a0de
+(full local CI run at ac5cf2b, host, A and B, plus the criterion runs S-SOAK-01, S-PAR-01, S-LEAK-01,
+S-KILL-01..05, S-DISC-01..05 with `--full`, and the fuzz campaign F-CAMPAIGN-01, 8.00 CPU-hours, all signatures
+known). `docs/PERFORMANCE.md` still says "NO RESULTS YET": the criterion 5.6 performance run has not been made.
+Milestone 6 (packaging) is in progress.
+
 ## Human actions needed (details: docs/IMPLEMENTATION_PLAN.md section 5)
 
-H1 and H2 are done (tools installed, Docker running, tart installed).
+H1, H2 and H3 are done (tools installed, Docker running, tart installed, macFUSE approved in the
+current golden VM `ntfsmac-golden`; a rebuilt golden image needs H3 again, `vm/macos/provision-golden.sh` waits for it).
+
+- **H8 (Apple Developer account):** needed only for a signed and notarized release (criterion 6.4, T-M6-02).
+  Without it the release is the unsigned package of ADR-011 ("complete, unsigned"). Nothing else in M6 waits for it.
+- H5 to H7 (disposable USB media, a Windows machine, how to test with Paragon on the host) are needed for
+  criterion 5.8 and T-M5-10 (`docs/HARDWARE_TEST_PROTOCOL.md`); the release stays labelled "VM-verified only"
+  until 5.8 passes (brief section 9).
 
 ## Blocked on the owner
 
-Nothing. H3 is done for the current golden VM (`ntfsmac-golden`); a rebuilt golden image needs it again (`vm/macos/provision-golden.sh` waits for it).
+Decisions that are open. None of them stops the M6 work in the list below.
+
+1. **Perf `dir100000` (criterion 5.6).** In Environment B the 100,000-entry directory case cannot pass with
+   macFUSE 5.5.0 as measured (`docs/spikes/M5-perf.md`, section "Criterion 5.6 at ac5cf2b"; 0f3357f changed the
+   test only). The options listed there: pre-populate the directories in the image in Environment A, record the
+   case as not runnable on this macFUSE version, or extend the daemon's unmount wait to a module that is still
+   unmounting. No choice is made, and `docs/LIMITATIONS.md` states the behaviour only.
+2. **ADR-028 (Spotlight and Quick Look wait at unmount): Proposed.** Code is on main (647c18f); the owner has not
+   accepted it as a product choice. `docs/LIMITATIONS.md` describes it as proposed.
+3. **ADR-002 and ADR-026 amendment for patch 0016 (F9, `INDEX_ROOT.index_block_size`): Proposed.** The patch is on
+   main (14241bd) and edits index code, which the scope sentence of ADR-002 excludes unless amended.
+4. **Upstream report drafts are not posted, by owner decision:** NTFS-3G F2, F5, F6, F7, F8, F9, the stale
+   `$MFTMirr` report, and the reports for patches 0007 and 0008 (`docs/UPSTREAM_REPORTS.md`); and the macFUSE
+   report on synchronize after every request with directory handles held (draft in the same file). Sending is a
+   human act.
 
 ## Agent tasks ready now
 
-1. Milestone 3, in this order (tasks and criteria: docs/AGENT_TASKS.md, docs/IMPLEMENTATION_PLAN.md section M3):
-   - **Step 1, no VM: DONE (f8b3815).** T-M3-00 contracts first (probe JSON schema, policy enum, journal API, option builder API). Then in parallel: T-M3-01 (U9 by test, Environment A), T-M3-03 (policy library and option builder, emits the corrected 3.3 set), T-M3-04 (unsafe fixtures, S+O), T-M3-13 (session journal library), T-M3-14 (patch 0004 fault injection and crash sweeper, S+O).
-   - **Step 2, macOS VM suites: DONE (54ec9b4).** T-M3-10 (sync path, first: T-M3-12 and T-M3-18 need it), T-M3-05 (names, U22), T-M3-08 (xattr, openxattr), T-M3-20 (ownership, N10), T-M3-06 (metadata), T-M3-07 (EOF reads), T-M3-09 (large, sparse, compressed), T-M3-11 (mmap).
-   - **Step 3: DONE (85d6bc2).** T-M3-21, T-M3-22, T-M3-23 (patches 0007, 0008, 0009, S+O; ADR-022/024/025), T-M3-24 (`nocompression` in the option set, S), T-M3-02 (probe incl. non-NFC scan, S+O; needs 00 and 04), T-M3-19 (disk-string hardening, S+O; needs 00 and 03), T-M3-18 (patch 0006 session channel, S+O; needs 10, 14 and 21; re-bases 0007 to 0009), T-M3-15 (Linux vs macOS reference comparison; needs 05).
-   - **Step 4: DONE (c5bcee9).** T-M3-12 (`ntfsmac-volmark`, senior engineer; needs 01, 04, 10, 13, 14), T-M3-16 (fuzzing, needs 02).
-   - **Step 5:** T-M3-17 M3 audit (independent).
-   - Independent reviews planned: T-M3-12, T-M3-17, and reviews of T-M3-02, -04, -14, -18, -19 (7). Check plan usage before each step; stop and checkpoint before any paid overage.
-2. Follow-ups: NTFS-3G fuzz findings F3 and F4 (4-byte heap over-reads in `acls.c` and `reparse.c`, the latter on every directory listing) need an owner decision: carry a fix as a patch, report upstream, or both (drafts in tests/fuzz/TRIAGE.md); volmark macOS-only code needs a build in B and its sandbox profile `integration/sandbox/volmark.sb`; TEST_STRATEGY entries for F-PROBE and F-MOUNT-WALK. wire `U-VERDICT-04` to real fixture probe output (`tests/unit/probe/inner.sh` through `verdict_tool`); integration suites should take option strings from the builder (`optstr.c`) instead of building their own; probe run on macOS with a CFStringNormalize comparison; upstream reports for patches 0007 and 0008 (owner decision).
-3. Run `scripts/ci-local.sh --quick` before every push (ADR-015).
-4. Confirm the three assumptions recorded by the N-05/N-07/N-08 fixes (`/dev/fd/N` sharing, `POSIX_SPAWN_CLOEXEC_DEFAULT`, peer code-signing checks) when T-M4-02/-04/-13 run.
-
-## Milestone 2 gate
-
-T-M2-03 decides whether NTFS-3G runs on the macFUSE FSKit backend (risk R-01). Needs T-M1-04 finished,
-the golden macOS 27 VM (T-M2-02) and the one-time GUI approval of the macFUSE extension (H3).
+1. Milestone 6 (tasks and criteria: docs/AGENT_TASKS.md, docs/IMPLEMENTATION_PLAN.md section M6):
+   - **T-M6-01** release package (`packaging/build-pkg.sh`, `packaging/scripts/*`, `packaging/distribution.xml`):
+     in progress in a parallel change. Criteria 6.1 and 6.3 (`I-PKG-03..04`).
+   - **T-M6-03:** `docs/INSTALL.md` and `docs/LIMITATIONS.md` written (criterion 6.6); the installed-layout table in
+     INSTALL.md must be checked against the package when T-M6-01 lands.
+   - **T-M6-02:** `packaging/sign-and-notarize.sh` written, with a dry run and the stub test U-PKG-05; never run for
+     real (needs H8). Criterion 6.4 is recorded as unsigned per ADR-011 unless H8 is done.
+   - T-M6-04 (`scripts/repro-check.sh`, criterion 6.2) and T-M6-05 (`scripts/make-source-release.sh`, criterion 6.5; the GPL
+     source archive is needed before any binary is distributed, ADR-015).
+   - T-M6-06 M6 audit (independent; root-run package scripts, package contents, uninstall manifest), after T-M6-01 to 05.
+2. Open M5 follow-up: `docs/PERFORMANCE.md` needs the criterion 5.6 run and the owner's decision on item 1 above.
+3. Run `scripts/ci-local.sh --quick` before every push (ADR-015). Packages are built locally and published, if
+   at all, only by the owner as a GitHub pre-release.
+4. Milestone 7 (release readiness, `docs/RELEASE_READINESS.md`, audit M7) follows M6.

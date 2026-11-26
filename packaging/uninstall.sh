@@ -17,8 +17,13 @@
 # A package installed with `installer` is removed the same way: the files of its receipt are
 # removed if each lies below a `dir` of the manifest or is exactly a `file` or `link` of the
 # manifest (anything else in the receipt refuses the whole run), then the receipt is forgotten.
-# The receipt is org.ntfs-macos.pkg (the release package of T-M6-01 or the earlier developer
-# package).
+# Two receipts are ours: org.ntfs-macos.pkg.v2, the release package of the current layout, and
+# org.ntfs-macos.pkg, the earlier layout (the published pre-release v0.1.0-dev.20261116 and the
+# earlier developer packages; owner decision 2026-11-26 for audit M6-F02). For the earlier receipt
+# the exact files that the pre-release put in /usr/local/share/doc/ntfs-macos are accepted too, and
+# removed by the same rules (audit M6-F04): this replaces the pre-release's own uninstaller, which
+# follows symbolic links. With --old-receipt only the earlier layout is removed (what the current
+# install does not use) and its receipt forgotten; the current install stays.
 #
 # The journal of unsafe volumes (/var/db/ntfs-macos) and the daemon log are state: they stay unless
 # --purge-state is given.
@@ -31,9 +36,11 @@
 # you downloaded and checked against its SHA256SUMS; the installed copy is a convenience. With
 # --allow-unsafe-ancestors the run goes on, but still removes a path only when every directory
 # from / down to it passes the check; every other path is kept and named, the receipt is then
-# kept, and the exit status is 1.
+# kept, and the exit status is 1. The same per-path rule applies to the files of the earlier
+# layout, which are not manifest paths (a user-owned /usr/local/share/doc keeps them, named).
 #
 # Usage: sudo uninstall.sh [--dry-run] [--purge-state] [--manifest FILE] [--allow-unsafe-ancestors]
+#        sudo uninstall.sh --old-receipt [--dry-run] [--manifest FILE]
 # Exit:  0 removed (or nothing installed), 1 error or a path kept (named), 2 usage error.
 set -eu
 
@@ -41,7 +48,9 @@ set -eu
 PATH=/usr/bin:/bin:/usr/sbin:/sbin
 export PATH
 
-pkg_id=org.ntfs-macos.pkg
+# the receipt of the current layout, and the receipt of the earlier layout (audit M6-F02)
+pkg_id=org.ntfs-macos.pkg.v2
+old_pkg_id=org.ntfs-macos.pkg
 job=org.ntfs-macos.ntfsmacd
 right=org.ntfs-macos.journal-modify
 
@@ -50,15 +59,17 @@ manifest=$here/manifest.txt
 dry=0
 purge=0
 unsafe=0
+old_only=0
 
 die() { printf 'uninstall: %s\n' "$1" >&2; exit "${2:-1}"; }
-usage() { printf 'usage: sudo %s [--dry-run] [--purge-state] [--manifest FILE] [--allow-unsafe-ancestors]\n' "$0" >&2; }
+usage() { printf 'usage: sudo %s [--dry-run] [--purge-state] [--manifest FILE] [--allow-unsafe-ancestors] | --old-receipt [--dry-run] [--manifest FILE]\n' "$0" >&2; }
 
 while [ $# -gt 0 ]; do
 	case "$1" in
 	--dry-run) dry=1 ;;
 	--purge-state) purge=1 ;;
 	--allow-unsafe-ancestors) unsafe=1 ;;
+	--old-receipt) old_only=1 ;;
 	--manifest) [ $# -ge 2 ] || { usage; exit 2; }; manifest=$2; shift ;;
 	-h | --help) usage; exit 0 ;;
 	*) usage; exit 2 ;;
@@ -66,6 +77,10 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
+[ "$old_only" -eq 0 ] || [ "$purge" -eq 0 ] || { usage; die "--old-receipt removes only the earlier layout; --purge-state does not go with it" 2; }
+# --old-receipt skips the check that --allow-unsafe-ancestors relaxes (it removes no path of the
+# manifest), and every path of the earlier layout is checked one by one in any case
+[ "$old_only" -eq 0 ] || [ "$unsafe" -eq 0 ] || { usage; die "--allow-unsafe-ancestors does not go with --old-receipt" 2; }
 [ -f "$manifest" ] || die "manifest not found: $manifest"
 [ "$dry" -eq 1 ] || [ "$(id -u)" -eq 0 ] || die "run with sudo"
 
@@ -249,11 +264,35 @@ may_remove() { # PATH: 0 when PATH may be removed; else names it (once), counts 
 	return 1
 }
 
-# ---- the package receipt: every file must be a path of ours (checked before any change) ----
-# receipt_files ID: 1 when there is no receipt ID; else 0 with its files (as pkgutil prints them,
-# without the leading /) in rc_files. A file must lie below a dir of the manifest or be exactly a
-# `file` or `link` of it (the plist in /Library/LaunchDaemons; the CLI file /usr/local/bin/ntfsmac
-# of an earlier layout). Anything else stops the run with nothing removed.
+# ---- the earlier layout (audit M6-F02, M6-F04) ----
+# The files outside the manifest's directories that the published pre-release v0.1.0-dev.20261116
+# (receipt org.ntfs-macos.pkg) installed, exactly as its bill of materials lists them, and the
+# directories that held them. /usr/local/share/doc itself is shared and never removed.
+old_doc=/usr/local/share/doc/ntfs-macos
+old_files="$old_doc/BUILD-INFO
+$old_doc/COPYING
+$old_doc/README.md
+$old_doc/._COPYING
+$old_doc/._README.md
+$old_doc/LICENSES/GPL-2.0-or-later.txt
+$old_doc/LICENSES/LGPL-2.1.txt
+$old_doc/LICENSES/LicenseRef-macFUSE-notice.txt
+$old_doc/LICENSES/README.md
+$old_doc/LICENSES/._GPL-2.0-or-later.txt
+$old_doc/LICENSES/._LGPL-2.1.txt
+$old_doc/LICENSES/._LicenseRef-macFUSE-notice.txt
+$old_doc/LICENSES/._README.md
+"
+old_dirs="$old_doc/LICENSES
+$old_doc
+"
+
+# ---- package receipts: every file must be a path of ours (checked before any change) ----
+# receipt_files ID OLD: 1 when there is no receipt ID; else 0 with its files (as pkgutil prints
+# them, without the leading /) in rc_files. A file must lie below a dir of the manifest or be
+# exactly a `file` or `link` of it (the plist in /Library/LaunchDaemons; the CLI file
+# /usr/local/bin/ntfsmac of an earlier layout); with OLD 1 also one of old_files. Anything else
+# stops the run with nothing removed.
 receipt_files() {
 	rc_files=
 	pkgutil --pkg-info "$1" >/dev/null 2>&1 || return 1
@@ -275,49 +314,64 @@ receipt_files() {
 $dirs
 EOF2
 		case "$nl$files$links" in *"$nl/$f$nl"*) ok=1 ;; esac
+		if [ "$2" -eq 1 ]; then
+			case "$nl$old_files" in *"$nl/$f$nl"*) ok=1 ;; esac
+		fi
 		[ "$ok" -eq 1 ] || die "refusing receipt path of $1 outside the paths of ntfs-macos: /$f"
 	done <<EOF2
 $rc_files
 EOF2
 	return 0
 }
-have_receipt=0
-rfiles=
-if receipt_files "$pkg_id"; then
-	have_receipt=1
-	rfiles=$rc_files
+have_new=0
+new_rfiles=
+have_old=0
+old_rfiles=
+if [ "$old_only" -eq 0 ] && receipt_files "$pkg_id" 0; then
+	have_new=1
+	new_rfiles=$rc_files
+fi
+if receipt_files "$old_pkg_id" 1; then
+	have_old=1
+	old_rfiles=$rc_files
+fi
+if [ "$old_only" -eq 1 ] && [ "$have_old" -eq 0 ]; then
+	say "no receipt $old_pkg_id: nothing of the earlier layout to remove"
+	exit 0
 fi
 
 # ---- every directory above a path of the manifest is root-only (M6-F01, issue #6) ----
 # Checked before any change, without following a symbolic link. /var is the system's own link to
 # private/var: the state below it is checked at its real path.
-bad_chain=0
-pf_seen=
-while IFS= read -r p; do
-	[ -n "$p" ] || continue
-	pf_d=${p%/*}
-	case $pf_d in
-	/var | /var/*)
-		if [ "$(readlink /var)" = private/var ]; then pf_d=/private$pf_d; fi
-		;;
-	esac
-	case "$nl$pf_seen" in *"$nl$pf_d$nl"*) continue ;; esac
-	pf_seen="$pf_seen$pf_d$nl"
-	root_only_chain "$pf_d" && continue
-	bad_chain=1
-	say "the directory $(ro_show "$ro_bad") above $(ro_show "$p") $ro_why, so a user could have replaced what lies below it"
-done <<EOF2
+if [ "$old_only" -eq 0 ]; then
+	bad_chain=0
+	pf_seen=
+	while IFS= read -r p; do
+		[ -n "$p" ] || continue
+		pf_d=${p%/*}
+		case $pf_d in
+		/var | /var/*)
+			if [ "$(readlink /var)" = private/var ]; then pf_d=/private$pf_d; fi
+			;;
+		esac
+		case "$nl$pf_seen" in *"$nl$pf_d$nl"*) continue ;; esac
+		pf_seen="$pf_seen$pf_d$nl"
+		root_only_chain "$pf_d" && continue
+		bad_chain=1
+		say "the directory $(ro_show "$ro_bad") above $(ro_show "$p") $ro_why, so a user could have replaced what lies below it"
+	done <<EOF2
 $dirs$files$sdirs$sfiles
 EOF2
-if [ "$bad_chain" -eq 1 ]; then
-	if [ "$unsafe" -eq 0 ]; then
-		die "nothing was removed. Every directory above the install must be a real directory (not a symbolic link), owned by root and not writable by group or others. Replace a symbolic link by a real directory, or give each directory named above to root and remove the write permission of group and others, then run this again. This script may itself have been replaced: run the uninstall.sh of the release you downloaded and checked against its SHA256SUMS. With --allow-unsafe-ancestors the rest is removed and every path below those directories is kept and named."
+	if [ "$bad_chain" -eq 1 ]; then
+		if [ "$unsafe" -eq 0 ]; then
+			die "nothing was removed. Every directory above the install must be a real directory (not a symbolic link), owned by root and not writable by group or others. Replace a symbolic link by a real directory, or give each directory named above to root and remove the write permission of group and others, then run this again. This script may itself have been replaced: run the uninstall.sh of the release you downloaded and checked against its SHA256SUMS. With --allow-unsafe-ancestors the rest is removed and every path below those directories is kept and named."
+		fi
+		say "--allow-unsafe-ancestors: the rest is removed; every path below those directories is kept and named"
 	fi
-	say "--allow-unsafe-ancestors: the rest is removed; every path below those directories is kept and named"
 fi
 
 # ---- the launchd job ----
-if launchctl print "system/$job" >/dev/null 2>&1; then
+if [ "$old_only" -eq 0 ] && launchctl print "system/$job" >/dev/null 2>&1; then
 	if [ "$dry" -eq 1 ]; then
 		say "would boot out system/$job"
 	else
@@ -331,7 +385,7 @@ if launchctl print "system/$job" >/dev/null 2>&1; then
 fi
 
 # ---- the authorization right ----
-if [ "$has_right" -eq 1 ]; then
+if [ "$old_only" -eq 0 ] && [ "$has_right" -eq 1 ]; then
 	if [ "$dry" -eq 1 ]; then
 		say "would remove the authorization right $right"
 	else
@@ -339,16 +393,21 @@ if [ "$has_right" -eq 1 ]; then
 	fi
 fi
 
-# ---- the package receipt: remove its files ----
-# remove_receipt ID FILES: removes the files of a checked receipt (each through may_remove; the
+# ---- the package receipts: remove their files ----
+# remove_receipt ID FILES OLD: removes the files of a checked receipt (each through may_remove; the
 # manifest's link by its own rule), then the empty directories that held them: only directories
-# strictly below a dir of the manifest (the dirs of the manifest go in the step below), and only in
-# a root-only directory. A shared directory (/usr/local/bin, /Library/LaunchDaemons) is never
-# removed. The receipt is forgotten when nothing of it was kept.
+# strictly below a dir of the manifest (the dirs of the manifest go in the step below) or, for the
+# earlier receipt, the directories of old_dirs, and only in a root-only directory. A shared
+# directory (/usr/local/bin, /usr/local/share/doc, /Library/LaunchDaemons) is never removed. The
+# receipt is forgotten when nothing of it was kept. With --old-receipt a path that the current
+# install uses (a `file` or `link` of the manifest) is left to it.
 remove_receipt() {
 	rr_k=$kept
 	while IFS= read -r f; do
 		[ -n "$f" ] || continue
+		if [ "$old_only" -eq 1 ]; then
+			case "$nl$files$links" in *"$nl/$f$nl"*) continue ;; esac
+		fi
 		# a receipt path that is the manifest's link follows the rule of the link
 		case "$nl$links" in *"$nl/$f$nl"*) remove_link "/$f"; continue ;; esac
 		[ -e "/$f" ] || [ -L "/$f" ] || continue
@@ -377,6 +436,9 @@ EOF2
 			done <<EOF2
 $dirs
 EOF2
+			if [ "$3" -eq 1 ]; then
+				case "$nl$old_dirs" in *"$nl$dd$nl"*) below=1 ;; esac
+			fi
 			[ "$below" -eq 1 ] || break
 			root_only_dir "${dd%/*}" || break
 			rmdir "$dd" 2>/dev/null || break
@@ -390,7 +452,17 @@ EOF2
 		say "kept the receipt $1: paths of it are still there (named above); run this again after the fix"
 	fi
 }
-[ "$have_receipt" -eq 0 ] || remove_receipt "$pkg_id" "$rfiles"
+[ "$have_new" -eq 0 ] || remove_receipt "$pkg_id" "$new_rfiles" 0
+[ "$have_old" -eq 0 ] || remove_receipt "$old_pkg_id" "$old_rfiles" 1
+if [ "$old_only" -eq 1 ]; then
+	if [ "$dry" -eq 1 ]; then
+		say "dry run: nothing was removed"
+		exit 0
+	fi
+	[ "$kept" -eq 0 ] || die "the earlier layout is removed except $kept path(s) named above"
+	say "removed the earlier layout; the current install is unchanged"
+	exit 0
+fi
 
 # ---- files ----
 while IFS= read -r f; do

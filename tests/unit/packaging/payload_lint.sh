@@ -16,6 +16,9 @@
 #   f. postinstall installs the right with the definition of dev-install.sh
 #   g. preinstall and postinstall: `set -eu`, a fixed PATH, no environment variable, no argument
 #      but $3, no eval, and every program by its absolute path
+#   h. the package identifier is org.ntfs-macos.pkg.v2 in build-pkg.sh, preinstall, uninstall.sh,
+#      release-local.sh and the VM tests, and the earlier layout's org.ntfs-macos.pkg is named as
+#      old_pkg_id in preinstall and uninstall.sh (owner decision 2026-11-26, audit M6-F02)
 #
 # Usage: payload_lint.sh ROOT
 # Exit: 0 all checks passed, 1 a check failed, 2 usage error.
@@ -148,6 +151,23 @@ for s in "$pre" "$post"; do
 	fi
 	[ "$fail" -ne 0 ] || pass "$n: set -eu, fixed PATH, umask, no environment, only \$3, absolute programs"
 done
+
+# ---- h. package identifiers ----
+want_id=org.ntfs-macos.pkg.v2
+old_id=org.ntfs-macos.pkg
+id_bad=0
+for f in packaging/build-pkg.sh packaging/scripts/preinstall packaging/uninstall.sh; do
+	[ "$(sed -n 's/^pkg_id=//p' "$root/$f")" = "$want_id" ] || { bad "$f: pkg_id is not $want_id"; id_bad=1; }
+done
+for f in packaging/scripts/preinstall packaging/uninstall.sh; do
+	[ "$(sed -n 's/^old_pkg_id=//p' "$root/$f")" = "$old_id" ] || { bad "$f: old_pkg_id is not $old_id"; id_bad=1; }
+done
+for f in tests/integration/packaging/pkg_release_vm_guest.sh tests/integration/packaging/pkg_preflight_vm_guest.sh; do
+	[ "$(sed -n 's/^PKGID=//p' "$root/$f")" = "$want_id" ] || { bad "$f: PKGID is not $want_id"; id_bad=1; }
+done
+if grep -n 'org\.ntfs-macos\.pkg\([^.]\|$\)' "$root/scripts/release-local.sh"; then bad "release-local.sh names the receipt of the earlier layout"; id_bad=1; fi
+grep -q "pkgutil --pkg-info $want_id" "$root/scripts/release-local.sh" || { bad "release-local.sh does not check the receipt $want_id"; id_bad=1; }
+[ "$id_bad" -eq 1 ] || pass "the package identifier is $want_id everywhere, and preinstall and uninstall.sh know the earlier $old_id"
 
 [ "$fail" -eq 0 ] && echo "PASS: payload and package scripts agree with the manifest"
 exit "$fail"

@@ -169,7 +169,7 @@ and `ntfs-macos postinstall:`):
   older than 27 or not arm64, without macFUSE, with macFUSE older than 5.5.0 (its
   `CFBundleShortVersionString`, else `CFBundleVersion`) or without its `libfuse.2.dylib`, when a
   path of the manifest exists although no install of ours is recorded (no receipt
-  `org.ntfs-macos.pkg`, no developer install), when such a path is a
+  `org.ntfs-macos.pkg.v2` or `org.ntfs-macos.pkg`, no developer install), when such a path is a
   symbolic link, and when a directory above an installed path is a symbolic link or is not
   root-only (those are `/usr/local/libexec`, `/usr/local`, `/usr`, `/Library` and their parents;
   a user-owned `/usr/local/bin` or `/usr/local/share` does not stop the install). The path is
@@ -188,7 +188,10 @@ and `ntfs-macos postinstall:`):
   and removes the files an earlier install of ours had and this package does not ship (the earlier
   `/usr/local/bin/ntfsmac` file and `/usr/local/share/doc/ntfs-macos` included), but only where
   every directory from `/` down to the file's directory is a real directory (no symbolic link) and
-  root-only; anything else is left and named in the log. If the daemon does not stop within 70 s the install stops before any file is copied;
+  root-only; anything else is left and named in the log. It then forgets the receipt
+  `org.ntfs-macos.pkg` of the earlier layout when none of its files that this package does not
+  ship is left; otherwise that receipt stays, and the log says to run
+  `uninstall.sh --old-receipt` after fixing the directory (see "Package identifier" below). If the daemon does not stop within 70 s the install stops before any file is copied;
   unmount the NTFS volumes and run the installer again, or start the earlier daemon again with
   `sudo launchctl bootstrap system /Library/LaunchDaemons/org.ntfs-macos.ntfsmacd.plist`. If an
   upgrade fails later (in postinstall), run the installer again; it repeats every step.
@@ -260,6 +263,30 @@ entitlement, and that the signed CLI agrees with the code requirement that posti
 (`cli-requirement`, ADR-019 check 3). Do both in the first real run, in a disposable guest, before
 anything is published.
 
+## Package identifier (owner decision 2026-11-26, audit M6-F02)
+
+The package identifier is `org.ntfs-macos.pkg.v2`. The earlier layout used `org.ntfs-macos.pkg`:
+the published pre-release `v0.1.0-dev.20261116` (tools in `/usr/local/libexec/ntfs-macos`,
+documents and `LICENSES` in `/usr/local/share/doc/ntfs-macos`) and the earlier developer packages.
+With one identifier the macOS Installer treats a new package as an upgrade of the old receipt and
+deletes, as root and outside every check of preinstall, the old receipt's files that the new
+package does not ship. Those lie in `/usr/local/share/doc`, which a user may own (Homebrew from an
+Intel Mac), and a link planted there would point that deletion at another directory. With another
+identifier the Installer has no old receipt to compare and deletes nothing. The old files are
+removed by preinstall and by `uninstall.sh` instead, each only below a root-only directory chain
+with no link on the way. preinstall and `uninstall.sh` recognise both receipts as ours; the unit
+test U-PKG-03 (`packaging.payload`) keeps the names in step. Options the owner did not choose:
+`pkgutil --forget` of the old receipt in preinstall (it relies on the order in which the Installer
+reads receipts), and refusing such an upgrade. Whether to withdraw the pre-release is the owner's
+separate decision; its own `uninstall.sh` follows links and should not be used.
+
+Note for later releases: an upgrade from one `org.ntfs-macos.pkg.v2` package to the next is again
+an upgrade of the same identifier, so the Installer again deletes, itself and outside preinstall's
+checks, the files of the old receipt that the new package does not ship. Today every such file lies
+in a root-only directory of the project. A release that drops a directory, or moves a path into a
+directory a user may own, needs a preinstall refusal (or its own clean-up under root_only_dir)
+for leftover `.v2` files there before it is published, or another identifier.
+
 ## Uninstall
 
 Run the `uninstall.sh` of the release that you downloaded and checked against its `SHA256SUMS`
@@ -280,18 +307,27 @@ is not owned by root and protected from group and others, it names it and stops:
 removed, also with `--dry-run`. `--allow-unsafe-ancestors` goes on, but a path is still removed only
 when every directory from `/` down to it passes that check; every other path is kept and named,
 its receipt is kept, and the exit status is 1 (audit M6-F05). Then it stops the daemon, removes the
-right, the files of the package receipt `org.ntfs-macos.pkg` (each must lie below a `dir` of the
-manifest or be exactly a `file` or `link` path of the manifest; anything else refuses the whole
-run) and every path of the
+right, the files of the package receipts `org.ntfs-macos.pkg.v2` and `org.ntfs-macos.pkg` (each
+must lie below a `dir` of the manifest or be exactly a `file` or `link` path of the manifest; for
+the earlier receipt also one of the exact files that the pre-release put in
+`/usr/local/share/doc/ntfs-macos`; anything else refuses the whole run) and every path of the
 manifest, removes `/usr/local/bin/ntfsmac` only when it is a symbolic link to exactly
 `/usr/local/libexec/ntfs-macos/ntfsmac` and `/usr/local/bin` is root-only (the same rule when a
 receipt names that path; anything else there, such as the CLI file of the earlier layout, is kept
-and named in the output), then forgets the receipt when no file of it was kept by the directory
+and named in the output), then forgets each receipt of which no file was kept by the directory
 check. A path kept by the rule of the link (a file or a foreign link at `/usr/local/bin/ntfsmac`,
 or our link in a `/usr/local/bin` that is not root-only) does not keep the receipt: it is named,
 and it is not a file that a later run of this script would remove. With `--purge-state` the state
 directory itself must pass the same check before its tree is removed. It never removes a
-shared directory (`/usr/local/bin`, `/Library/LaunchDaemons`), even an empty one. `--dry-run` lists what it would remove.
+shared directory (`/usr/local/bin`, `/usr/local/share/doc`, `/Library/LaunchDaemons`), even an
+empty one. `--dry-run` lists what it would remove.
+
+`--old-receipt` removes only the earlier layout (audit M6-F04): the files of the receipt
+`org.ntfs-macos.pkg` that the current install does not use, under the same rules, and then that
+receipt; the current install stays. It replaces the pre-release's own uninstaller. It does not go
+with `--allow-unsafe-ancestors` (refused as a usage error): it removes no path of the manifest, so
+the check that option relaxes does not run, and each path of the earlier layout is checked by
+itself in any case.
 
 ## Developer install from source
 
@@ -335,6 +371,9 @@ below a `dir` of the manifest or be exactly a `file` or `link` path of the manif
 Run the installer and the uninstaller only on a Mac you mean to change. The tests run them in a
 disposable guest: `tests/integration/packaging/pkg_vm.sh` (I-PKG-01..02, developer install), and for
 the package `tests/integration/packaging/pkg_release_vm.sh --pkg-dir dist/<label> --fixtures DIR`
-(I-PKG-03..04), `pkg_preflight_vm.sh --pkg-dir dist/<label>` (I-PKG-05)
-and `pkg_preflight_vm.sh --pkg-dir dist/<label> --case userlocal` (I-PKG-06). Each starts one VM; run them through the VM slot protocol when other runs use the VMs. Host-side
+(I-PKG-03..04), `pkg_preflight_vm.sh --pkg-dir dist/<label>` (I-PKG-05),
+`pkg_preflight_vm.sh --pkg-dir dist/<label> --case userlocal` (I-PKG-06) and
+`pkg_preflight_vm.sh --pkg-dir dist/<label> --case oldrel --old-pkg FILE` (I-PKG-06, the published
+pre-release first; FILE is a local copy, refused unless its sha256 is the published one). Each
+starts one VM; run them through the VM slot protocol when other runs use the VMs. Host-side
 checks: `ctest -R packaging` (U-PKG-01..08).

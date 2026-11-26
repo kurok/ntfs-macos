@@ -18,8 +18,8 @@
 #      the name except Apple's ntfs.fs and our own ntfsmac*), or a kernel extension in
 #      /Library/Extensions with "ntfs" in its name (ARCHITECTURE.md section 8.4, R-17)
 #   4. a path the package installs that exists although no install of ours is recorded (no receipt
-#      org.ntfs-macos.pkg and no /usr/local/libexec/ntfs-macos/manifest.txt of a developer
-#      install), a path of ours that is a symbolic link or of the wrong type
+#      org.ntfs-macos.pkg.v2 or org.ntfs-macos.pkg and no /usr/local/libexec/ntfs-macos/manifest.txt
+#      of a developer install), a path of ours that is a symbolic link or of the wrong type
 #   5. a directory above an installed path that is a symbolic link, or is not a real directory
 #      owned by root and not writable by group or others; the path is walked from / down and no
 #      link is followed (M6-F01). Every installed path is one that root runs or reads
@@ -28,6 +28,15 @@
 #      not matter, because the package puts nothing there (postinstall makes the optional link
 #      /usr/local/bin/ntfsmac only when /usr/local/bin is root-only).
 # An install of ours (an earlier package, or dev-install.sh) is upgraded.
+#
+# The package identifier is org.ntfs-macos.pkg.v2 (owner decision 2026-11-26, audit M6-F02). The
+# earlier layout, among it the published pre-release v0.1.0-dev.20261116, used org.ntfs-macos.pkg.
+# Because the identifiers differ, the Installer never treats this package as an upgrade of that
+# receipt, so it never deletes the earlier receipt's files itself (that deletion follows a link in
+# a user-owned /usr/local/share/doc). This script removes them instead, each only when its
+# directory passes root_only_dir, and forgets the earlier receipt when none of its files that this
+# package does not ship is left. Otherwise the receipt stays, and the log says to run
+# `uninstall.sh --old-receipt` after the fix.
 #
 # Root-safe by construction: absolute program paths, a fixed PATH, no environment variable is
 # read, no argument but the target volume ($3, compared with "/") is used, no string from outside
@@ -47,7 +56,8 @@ refuse() {
 	exit 1
 }
 
-pkg_id=org.ntfs-macos.pkg
+pkg_id=org.ntfs-macos.pkg.v2
+old_pkg_id=org.ntfs-macos.pkg
 job=org.ntfs-macos.ntfsmacd
 fs_dir=/Library/Filesystems
 macfuse=$fs_dir/macfuse.fs
@@ -206,6 +216,8 @@ fi
 ours=
 if /usr/sbin/pkgutil --pkg-info "$pkg_id" >/dev/null 2>&1; then
 	ours="package $(/usr/sbin/pkgutil --pkg-info "$pkg_id" | /usr/bin/sed -n 's/^version: //p')"
+elif /usr/sbin/pkgutil --pkg-info "$old_pkg_id" >/dev/null 2>&1; then
+	ours="package $(/usr/sbin/pkgutil --pkg-info "$old_pkg_id" | /usr/bin/sed -n 's/^version: //p') of the earlier layout"
 elif [ -f /usr/local/libexec/ntfs-macos/manifest.txt ] && [ ! -L /usr/local/libexec/ntfs-macos/manifest.txt ] &&
 	[ "$(/usr/bin/stat -f %Su /usr/local/libexec/ntfs-macos/manifest.txt)" = root ]; then
 	ours="developer install"
@@ -219,7 +231,7 @@ while IFS= read -r line; do
 		refuse "$p is a symbolic link; ntfs-macos installs a real file or directory there. Remove the link first."
 	fi
 	[ -e "$p" ] || continue
-	[ -n "$ours" ] || refuse "$p exists, but no install of ntfs-macos is recorded on this Mac (no receipt $pkg_id, no developer install). It may belong to other software; move it away, then run this installer again."
+	[ -n "$ours" ] || refuse "$p exists, but no install of ntfs-macos is recorded on this Mac (no receipt $pkg_id or $old_pkg_id, no developer install). It may belong to other software; move it away, then run this installer again."
 	case $kind in
 	dir) [ -d "$p" ] || refuse "$p is not a directory" ;;
 	file) [ -f "$p" ] || refuse "$p is not a regular file" ;;
@@ -302,9 +314,11 @@ remove_old() { # path
 }
 old_manifest=/usr/local/libexec/ntfs-macos/manifest.txt
 {
-	if /usr/sbin/pkgutil --pkg-info "$pkg_id" >/dev/null 2>&1; then
-		/usr/sbin/pkgutil --only-files --files "$pkg_id" | /usr/bin/sed 's|^|/|'
-	fi
+	for rid in "$pkg_id" "$old_pkg_id"; do
+		if /usr/sbin/pkgutil --pkg-info "$rid" >/dev/null 2>&1; then
+			/usr/sbin/pkgutil --only-files --files "$rid" | /usr/bin/sed 's|^|/|'
+		fi
+	done
 	if [ -f "$old_manifest" ] && [ ! -L "$old_manifest" ] && [ "$(/usr/bin/stat -f %Su "$old_manifest")" = root ]; then
 		/usr/bin/awk '/^[ \t]*(#|$)/ { next } $1 == "file" { p = $0; for (i = 0; i < 4; i++) sub(/^[ \t]*[^ \t]+/, "", p); sub(/^[ \t]+/, "", p); sub(/[ \t]+$/, "", p); print p }' "$old_manifest"
 	fi
@@ -312,4 +326,22 @@ old_manifest=/usr/local/libexec/ntfs-macos/manifest.txt
 	remove_old "$f"
 done
 
+# ---- upgrade: the receipt of the earlier layout (audit M6-F02) ----
+# Forgotten when every file of it that this package does not ship is gone; else kept, so that
+# `uninstall.sh --old-receipt` can remove the rest after the fix.
+old_left() { # one line for each file of the earlier receipt that is still there and not ours now
+	/usr/sbin/pkgutil --only-files --files "$old_pkg_id" | while IFS= read -r f; do
+		case "$nl$paths$nl" in *" /$f$nl"*) continue ;; esac
+		if [ -e "/$f" ] || [ -L "/$f" ]; then /usr/bin/printf '%s\n' x; fi
+	done
+}
+if /usr/sbin/pkgutil --pkg-info "$old_pkg_id" >/dev/null 2>&1; then
+	left=$(old_left | /usr/bin/wc -l | /usr/bin/tr -d ' ')
+	if [ "$left" -eq 0 ]; then
+		/usr/sbin/pkgutil --forget "$old_pkg_id" >/dev/null
+		say "forgot the receipt $old_pkg_id of the earlier layout (none of its files that this package does not ship is left)"
+	else
+		say "kept the receipt $old_pkg_id of the earlier layout: $left of its files are still there (named above, in a directory that is not root-only or is reached through a symbolic link). After the fix, run: sudo /usr/local/libexec/ntfs-macos/uninstall.sh --old-receipt (or the uninstall.sh of the release, checked against its SHA256SUMS)"
+	fi
+fi
 exit 0

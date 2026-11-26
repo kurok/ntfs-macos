@@ -191,7 +191,7 @@ set -eu
 cd ~/ntfsmac-verify
 d=/usr/local/libexec/ntfs-macos
 sudo -n /usr/sbin/installer -pkg '"$pkg"' -target /
-pkgutil --pkg-info org.ntfs-macos.pkg
+pkgutil --pkg-info org.ntfs-macos.pkg.v2
 fail=0
 check() { # name args...: the binary must load and run (exit < 126; dyld or signature failures are >= 126)
 	_n=$1; shift
@@ -212,7 +212,7 @@ check ntfsinfo --version
 check ntfslabel --version
 for f in "$d"/*; do codesign --verify "$f" 2>/dev/null || case $f in *.sh | */manifest.txt) ;; *) echo "FAIL signature $f"; fail=1 ;; esac; done
 sudo -n sh ./uninstall.sh
-if pkgutil --pkg-info org.ntfs-macos.pkg >/dev/null 2>&1; then echo "FAIL receipt still present"; fail=1; fi
+if pkgutil --pkg-info org.ntfs-macos.pkg.v2 >/dev/null 2>&1; then echo "FAIL receipt still present"; fail=1; fi
 if [ -e "$d" ] || [ -e /usr/local/bin/ntfsmac ] || [ -L /usr/local/bin/ntfsmac ] || [ -e /Library/LaunchDaemons/org.ntfs-macos.ntfsmacd.plist ] || [ -e "/Library/Application Support/ntfs-macos" ]; then echo "FAIL files left after uninstall"; fail=1; fi
 if sudo -n launchctl print system/org.ntfs-macos.ntfsmacd >/dev/null 2>&1; then echo "FAIL the daemon is still loaded"; fail=1; fi
 [ "$fail" -eq 0 ] && echo "verify: PASSED"

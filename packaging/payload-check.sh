@@ -3,7 +3,7 @@
 #
 # Compare the path list of a package with the install manifest (T-M6-01, criterion 6.3). Reads
 # files only. The list is the output of `pkgutil --payload-files PKG` (paths such as ./usr/local)
-# or of `pkgutil --files org.ntfs-macos.pkg` (paths such as usr/local), one per line.
+# or of `pkgutil --files org.ntfs-macos.pkg.v2` (paths such as usr/local), one per line.
 #
 # The list agrees with the manifest when
 #   - every `dir` and `file` of the manifest is in the list, and

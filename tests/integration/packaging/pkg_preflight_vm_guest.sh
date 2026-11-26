@@ -2,9 +2,12 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 # T-M6-01: the part of pkg_preflight_vm.sh that runs inside a fresh clone of the golden VM, as the
-# guest user (passwordless sudo). Usage: pkg_preflight_vm_guest.sh DIR [preflight|userlocal], where
-# DIR/pkg holds the built package and DIR/tree the reference files (packaging/manifest.txt,
-# packaging/payload-check.sh). Everything here changes only the guest, which is deleted afterwards.
+# guest user (passwordless sudo). Usage: pkg_preflight_vm_guest.sh DIR [preflight|userlocal|oldrel],
+# where DIR/pkg holds the built package, DIR/oldpkg the published pre-release package (oldrel only)
+# and DIR/tree the reference files (packaging/manifest.txt, packaging/payload-check.sh,
+# packaging/uninstall.sh). Everything here changes only the guest, which is deleted afterwards.
+# The package's receipt is org.ntfs-macos.pkg.v2; org.ntfs-macos.pkg is the earlier layout (owner
+# decision 2026-11-26, audit M6-F02).
 #
 # preflight, I-PKG-05: with each of the following, `installer -pkg` refuses with the reason (from
 # the installation check of distribution.xml or from preinstall, in the install log) and installs
@@ -27,23 +30,33 @@
 # an Intel Mac) the install succeeds, postinstall skips the link and logs how to run the CLI,
 # nothing in those directories changes, and the CLI works by its full path (doctor, and the
 # privileged door answers it). With a root-owned /usr/local/bin that holds a foreign ntfsmac, the
-# install leaves it alone, and uninstall.sh keeps it. Over an older package whose receipt has
-# /usr/local/bin/ntfsmac in a user-owned /usr/local/bin, preinstall leaves the file (a NOTE records
-# what the Installer then does with it). An upgrade of a developer install of the earlier layout
+# install leaves it alone, and uninstall.sh keeps it. Over an older package (receipt
+# org.ntfs-macos.pkg) that has /usr/local/bin/ntfsmac in a user-owned /usr/local/bin, preinstall
+# leaves the file and keeps that receipt, and the Installer does not delete the file either (the
+# identifiers differ, audit M6-F02). An upgrade of a developer install of the earlier layout
 # (CLI file /usr/local/bin/ntfsmac, no receipt) with a user-owned /usr/local/bin leaves that file,
 # and the last line of postinstall is a WARNING that names it with the remedy; uninstall.sh keeps
 # it and names it.
 #
+# oldrel (audit M6-F02, M6-F04): the published pre-release v0.1.0-dev.20261116 (receipt
+# org.ntfs-macos.pkg; tools in /usr/local/libexec/ntfs-macos, documents and LICENSES in
+# /usr/local/share/doc/ntfs-macos) is installed first, then this package: the upgrade removes the
+# earlier layout and forgets its receipt, the Installer changes nothing outside the project's
+# directories, and uninstall.sh removes everything. The pre-release alone is removed by the new
+# uninstall.sh. With a user-owned /usr/local/share/doc whose ntfs-macos is replaced by a link to a
+# root-owned directory with canary files, neither the upgrade, nor uninstall.sh, nor
+# uninstall.sh --old-receipt deletes anything there; after the fix --old-receipt removes the rest.
+#
 # Prints PASS, FAIL and NOTE lines; exit 0 only if no FAIL.
 # Test script run as the guest user: the output of sudo commands goes to the user's own files on purpose.
-# shellcheck disable=SC2024,SC2015,SC2016
+# shellcheck disable=SC2024,SC2015,SC2016,SC2329
 set -u
 PATH=/opt/homebrew/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/bin:/bin:$PATH
 export PATH
 
 d=${1:?directory}
 mode=${2:-preflight}
-case $mode in preflight | userlocal) ;; *) echo "usage: pkg_preflight_vm_guest.sh DIR [preflight|userlocal]"; exit 2 ;; esac
+case $mode in preflight | userlocal | oldrel) ;; *) echo "usage: pkg_preflight_vm_guest.sh DIR [preflight|userlocal|oldrel]"; exit 2 ;; esac
 cd "$d" || exit 2
 fail=0
 LIBEXEC=/usr/local/libexec/ntfs-macos
@@ -51,7 +64,8 @@ CLI=$LIBEXEC/ntfsmac
 LINK=/usr/local/bin/ntfsmac
 LABEL=org.ntfs-macos.ntfsmacd
 PLIST=/Library/LaunchDaemons/$LABEL.plist
-PKGID=org.ntfs-macos.pkg
+PKGID=org.ntfs-macos.pkg.v2
+OLDID=org.ntfs-macos.pkg
 MACFUSE=/Library/Filesystems/macfuse.fs
 ASIDE=/Library/ntfsmac-test-macfuse.fs.aside
 MANIFEST=$d/tree/packaging/manifest.txt
@@ -67,7 +81,7 @@ job_loaded() { sudo -n launchctl print "system/$LABEL" >/dev/null 2>&1; }
 
 [ -n "$pkg" ] || { failf "no package in $d/pkg"; exit 1; }
 echo "guest: $(sw_vers -productVersion) $(uname -m), user $(id -un); package ${pkg##*/}"
-[ ! -e "$LIBEXEC" ] && ! pkgutil --pkg-info "$PKGID" >/dev/null 2>&1 || { failf "the guest already has an install; use a fresh clone"; exit 1; }
+[ ! -e "$LIBEXEC" ] && ! pkgutil --pkg-info "$PKGID" >/dev/null 2>&1 && ! pkgutil --pkg-info "$OLDID" >/dev/null 2>&1 || { failf "the guest already has an install; use a fresh clone"; exit 1; }
 macfuse_ver=$(plutil -extract CFBundleShortVersionString raw -o - "$MACFUSE/Contents/Info.plist" 2>/dev/null)
 echo "macFUSE $macfuse_ver"
 pkgutil --expand-full "$pkg" "$work/exp" >/dev/null || { failf "pkgutil --expand-full"; exit 1; }
@@ -76,7 +90,7 @@ PRE=$(find "$work/exp" -path '*/Scripts/preinstall' | head -n 1)
 check "the package carries preinstall and postinstall, both executable" sh -c "[ -x '$PRE' ] && [ -x '${PRE%/preinstall}/postinstall' ]"
 
 nothing_installed() {
-	! pkgutil --pkg-info "$PKGID" >/dev/null 2>&1 && [ ! -e "$LIBEXEC/ntfsmac-worker" ] && [ ! -e "$PLIST" ] && [ ! -e "/Library/Application Support/ntfs-macos" ] && ! job_loaded
+	! pkgutil --pkg-info "$PKGID" >/dev/null 2>&1 && ! pkgutil --pkg-info "$OLDID" >/dev/null 2>&1 && [ ! -e "$LIBEXEC/ntfsmac-worker" ] && [ ! -e "$PLIST" ] && [ ! -e "/Library/Application Support/ntfs-macos" ] && ! job_loaded
 }
 # refused NAME TEXT: the installer refuses, gives TEXT (its own output or the install log), and installs nothing;
 # the preinstall script on its own refuses with TEXT too
@@ -175,14 +189,16 @@ if [ "$mode" = userlocal ]; then
 	printf '#!/bin/sh\necho old\n' >"$work/old$LIBEXEC/ntfsmac-probe"
 	printf '#!/bin/sh\necho old cli\n' >"$work/old/usr/local/bin/ntfsmac"
 	chmod 755 "$work/old$LIBEXEC/ntfsmac-probe" "$work/old/usr/local/bin/ntfsmac"
-	pkgbuild --root "$work/old" --identifier "$PKGID" --version 0.0.1 --install-location / "$work/old.pkg" >/dev/null 2>&1 || failf "pkgbuild of the old package"
+	pkgbuild --root "$work/old" --identifier "$OLDID" --version 0.0.1 --install-location / "$work/old.pkg" >/dev/null 2>&1 || failf "pkgbuild of the old package"
 	sudo -n /usr/sbin/installer -pkg "$work/old.pkg" -target / >/dev/null 2>&1 || failf "install of the old package"
 	pkg_install "$work/u3.out"
 	rc=$?
 	if [ "$rc" -eq 0 ]; then pass "the upgrade from an older package with /usr/local/bin/ntfsmac in its receipt succeeds"; else failf "the upgrade exits $rc"; fi
 	check "preinstall left that file (user-owned directory) and said so" grep -q 'left /usr/local/bin/ntfsmac of the earlier install' "$work/u3.out.log"
-	if [ -e "$LINK" ]; then note "INSTALLER: the old receipt's /usr/local/bin/ntfsmac is still there after the upgrade"; else note "INSTALLER: the Installer itself removed the old receipt's /usr/local/bin/ntfsmac (a file of the old receipt that the new package does not ship), in a user-owned directory"; fi
-	sudo -n "$LIBEXEC/uninstall.sh" >/dev/null 2>&1 || failf "uninstall after the receipt case"
+	check "the Installer did not delete the old receipt's file in the user-owned /usr/local/bin (another identifier, M6-F02)" sh -c "[ -f $LINK ] && [ ! -L $LINK ]"
+	check "preinstall kept the receipt $OLDID and says to run uninstall.sh --old-receipt" sh -c "pkgutil --pkg-info $OLDID >/dev/null 2>&1 && grep -q 'kept the receipt $OLDID of the earlier layout.*uninstall.sh --old-receipt' '$work/u3.out.log'"
+	sudo -n "$LIBEXEC/uninstall.sh" >"$work/un3.out" 2>&1 || failf "uninstall after the receipt case"
+	check "uninstall.sh kept the regular file /usr/local/bin/ntfsmac, named it, and forgot both receipts" sh -c "[ -f $LINK ] && grep -q 'kept $LINK' '$work/un3.out' && ! pkgutil --pkg-info $OLDID >/dev/null 2>&1 && ! pkgutil --pkg-info $PKGID >/dev/null 2>&1"
 	sudo -n rm -f "$LINK"
 
 	echo "-- an upgrade of a developer install of the earlier layout (CLI file /usr/local/bin/ntfsmac, no receipt) with a user-owned /usr/local/bin"
@@ -208,6 +224,120 @@ if [ "$mode" = userlocal ]; then
 	sudo -n chmod 755 /usr/local/bin
 	[ "$made_bin" -eq 0 ] || sudo -n rmdir /usr/local/bin
 	[ "$made_share" -eq 0 ] || sudo -n rmdir /usr/local/share
+	sudo -n rm -rf "$work"
+	echo "result: $fail failure(s)"
+	[ "$fail" -eq 0 ]
+	exit
+fi
+
+if [ "$mode" = oldrel ]; then
+	# =====================================================================================
+	echo "== I-PKG-06 oldrel: the published pre-release v0.1.0-dev.20261116 (receipt $OLDID), then this package"
+	# =====================================================================================
+	OLDPKG=$(find "$d/oldpkg" -name 'ntfs-macos-*.pkg' | head -n 1)
+	UNTREE=$d/tree/packaging/uninstall.sh
+	OLDDOC=/usr/local/share/doc/ntfs-macos
+	[ -n "$OLDPKG" ] && [ -f "$UNTREE" ] || { failf "no pre-release package in $d/oldpkg or no tree uninstall.sh"; exit 1; }
+	echo "pre-release: ${OLDPKG##*/} sha256 $(shasum -a 256 "$OLDPKG" | awk '{print $1}')"
+	# the places the Installer could touch (the system's /private/var/db changes on its own and is left
+	# out; the canary there is checked by itself), without the project's own directories
+	outside() {
+		{
+			{
+				find /usr/local /Library/LaunchDaemons -print 2>/dev/null
+				find "/Library/Application Support" -maxdepth 1 -print 2>/dev/null
+			} | grep -v -e "^$LIBEXEC\(/\|\$\)" -e "^$OLDDOC\(/\|\$\)" -e "^/Library/Application Support/ntfs-macos\$" \
+				-e '^/usr/local/share/doc/ntfs-macos.moved\(/\|$\)' -e "^$LINK\$" -e "^$PLIST\$"
+		} | sort
+	}
+	old_install() {
+		sudo -n /usr/sbin/installer -pkg "$OLDPKG" -target / >"$work/old.out" 2>&1 || { failf "install of the pre-release"; cat "$work/old.out"; }
+		check "the pre-release is installed: receipt $OLDID 0.1.0, its tools and $OLDDOC/LICENSES" sh -c "pkgutil --pkg-info $OLDID | grep -q '^version: 0.1.0' && [ -x $LIBEXEC/ntfsmac-worker ] && [ -f $OLDDOC/COPYING ] && [ -f $OLDDOC/LICENSES/GPL-2.0-or-later.txt ]"
+	}
+	both_gone() { ! pkgutil --pkg-info "$PKGID" >/dev/null 2>&1 && ! pkgutil --pkg-info "$OLDID" >/dev/null 2>&1; }
+	nothing_ours() { [ ! -e "$LIBEXEC" ] && [ ! -e "$OLDDOC" ] && [ ! -e "/Library/Application Support/ntfs-macos" ] && [ ! -e "$PLIST" ] && [ ! -L "$LINK" ] && ! job_loaded && both_gone; }
+
+	echo "-- the pre-release, then this package (an upgrade across identifiers)"
+	had_doc=1
+	[ -d /usr/local/share/doc ] || had_doc=0
+	outside >"$work/out.0"
+	old_install
+	outside >"$work/out.1"
+	pkg_install "$work/o1.out"
+	rc=$?
+	if [ "$rc" -eq 0 ]; then pass "this package installs over the pre-release (exit 0)"; else failf "the upgrade exits $rc"; fi
+	check "the preflight passed as an upgrade of the earlier layout" grep -q 'preflight passed (upgrading the package 0.1.0 of the earlier layout)' "$work/o1.out.log"
+	check "preinstall removed the earlier layout's documents ($OLDDOC with LICENSES and the ._ files)" sh -c "[ ! -e $OLDDOC ] && [ ! -e $LIBEXEC/._uninstall.sh ]"
+	check "the receipt $OLDID is forgotten and $PKGID is there" sh -c "! pkgutil --pkg-info $OLDID >/dev/null 2>&1 && pkgutil --pkg-info $PKGID >/dev/null 2>&1"
+	pkgutil --files "$PKGID" >"$work/receipt.list"
+	if out=$(sh tree/packaging/payload-check.sh "$MANIFEST" "$work/receipt.list"); then pass "the receipt $PKGID matches the manifest"; else failf "the receipt differs"; echo "$out"; fi
+	if set_ok; then pass "exactly the manifest's set is installed"; else failf "the installed set differs"; fi
+	check "the daemon runs" wait_for 30 test -S /var/run/ntfsmacd.sock
+	outside >"$work/out.2"
+	# the link /usr/local/bin/ntfsmac is the package's own (excluded above); nothing else outside changed
+	if cmp -s "$work/out.1" "$work/out.2"; then pass "the Installer and the scripts changed nothing outside the project's directories"; else failf "something outside the project's directories changed"; diff "$work/out.1" "$work/out.2" | sed 's/^/  /'; fi
+	sudo -n "$LIBEXEC/uninstall.sh" >"$work/o1.un" 2>&1
+	rc=$?
+	cat "$work/o1.un"
+	if [ "$rc" -eq 0 ]; then pass "uninstall.sh exits 0"; else failf "uninstall.sh exits $rc"; fi
+	check "nothing of either layout is left, both receipts are forgotten" nothing_ours
+
+	echo "-- the pre-release alone, removed by the new uninstall.sh (M6-F04)"
+	old_install
+	sudo -n sh "$UNTREE" --manifest "$MANIFEST" >"$work/o2.un" 2>&1
+	rc=$?
+	cat "$work/o2.un"
+	if [ "$rc" -eq 0 ]; then pass "uninstall.sh exits 0"; else failf "uninstall.sh exits $rc"; fi
+	check "the pre-release is gone: tools, documents, LICENSES, receipt" nothing_ours
+	outside >"$work/out.3"
+	if cmp -s "$work/out.1" "$work/out.3"; then pass "nothing outside the project's directories changed"; else failf "something outside changed"; diff "$work/out.1" "$work/out.3" | sed 's/^/  /'; fi
+
+	echo "-- a user-owned /usr/local/share/doc whose ntfs-macos is a link to a root-owned directory (M6-F02)"
+	old_install
+	CANARY=/private/var/db/ntfsmac-canary
+	sudo -n mkdir -p "$CANARY/LICENSES"
+	for f in COPYING README.md BUILD-INFO ._COPYING LICENSES/README.md LICENSES/GPL-2.0-or-later.txt; do echo canary | sudo -n tee "$CANARY/$f" >/dev/null; done
+	(cd "$CANARY" && find . -print | sort) >"$work/canary.before"
+	docorig=$(stat -f '%Su:%Sg %Lp' /usr/local/share/doc)
+	sudo -n chown "$(id -un)" /usr/local/share/doc
+	sudo -n mv "$OLDDOC" "$OLDDOC.moved"
+	ln -s "$CANARY" "$OLDDOC"
+	echo "/usr/local/share/doc: $(stat -f '%Su:%Sg %Lp' /usr/local/share/doc); $OLDDOC -> $(readlink "$OLDDOC")"
+	canary_ok() { [ "$(cd "$CANARY" && find . -print | sort)" = "$(cat "$work/canary.before")" ] && [ "$(cat "$CANARY/COPYING")" = canary ]; }
+	pkg_install "$work/o3.out"
+	rc=$?
+	if [ "$rc" -eq 0 ]; then pass "the upgrade succeeds"; else failf "the upgrade exits $rc"; fi
+	check "the canary files behind the link are all there" canary_ok
+	check "preinstall left the earlier documents, kept the receipt $OLDID and says to run uninstall.sh --old-receipt" sh -c "grep -q 'left $OLDDOC/COPYING of the earlier install' '$work/o3.out.log' && grep -q 'kept the receipt $OLDID of the earlier layout.*--old-receipt' '$work/o3.out.log' && pkgutil --pkg-info $OLDID >/dev/null 2>&1"
+	sudo -n "$LIBEXEC/uninstall.sh" --old-receipt >"$work/o3.old" 2>&1
+	rc=$?
+	cat "$work/o3.old"
+	if [ "$rc" -ne 0 ]; then pass "uninstall.sh --old-receipt exits $rc: it keeps what lies behind the link"; else failf "uninstall.sh --old-receipt exits 0"; fi
+	check "...the receipt $OLDID is kept" pkgutil --pkg-info "$OLDID"
+	check "...the canary files are all there" canary_ok
+	if set_ok; then pass "...the current install is unchanged"; else failf "--old-receipt changed the current install"; fi
+	check "...and it named the kept paths" grep -q "kept \"$OLDDOC/COPYING\": the directory \"/usr/local/share/doc\" is owned by $(id -un)" "$work/o3.old"
+	sudo -n "$LIBEXEC/uninstall.sh" >"$work/o3.un" 2>&1
+	rc=$?
+	cat "$work/o3.un"
+	if [ "$rc" -eq 1 ]; then pass "uninstall.sh exits 1: it removed the current install and kept the earlier documents (named)"; else failf "uninstall.sh exits $rc"; fi
+	check "...the canary files are all there" canary_ok
+	check "...the current install is gone, $PKGID forgotten, $OLDID kept" sh -c "[ ! -e '/Library/Application Support/ntfs-macos' ] && [ ! -e $PLIST ] && ! pkgutil --pkg-info $PKGID >/dev/null 2>&1 && pkgutil --pkg-info $OLDID >/dev/null 2>&1"
+	echo "-- after the fix (the link replaced by the real directory, /usr/local/share/doc root-owned again)"
+	rm -f "$OLDDOC"
+	sudo -n mv "$OLDDOC.moved" "$OLDDOC"
+	sudo -n chown "${docorig%%:*}" /usr/local/share/doc
+	sudo -n chmod "${docorig#* }" /usr/local/share/doc
+	sudo -n sh "$UNTREE" --manifest "$MANIFEST" --old-receipt >"$work/o4.un" 2>&1
+	rc=$?
+	cat "$work/o4.un"
+	if [ "$rc" -eq 0 ]; then pass "uninstall.sh --old-receipt exits 0"; else failf "uninstall.sh --old-receipt exits $rc"; fi
+	check "nothing of either layout is left, both receipts are forgotten" nothing_ours
+	check "the canary files are all there" canary_ok
+	sudo -n rm -rf "$CANARY"
+	[ "$had_doc" -eq 1 ] || sudo -n rmdir /usr/local/share/doc /usr/local/share 2>/dev/null
+	outside >"$work/out.4"
+	if cmp -s "$work/out.0" "$work/out.4"; then pass "the guest outside the project's directories is as before the first install"; else note "outside differs from before the first install (shared parents the packages made):"; diff "$work/out.0" "$work/out.4" | sed 's/^/  /'; fi
 	sudo -n rm -rf "$work"
 	echo "result: $fail failure(s)"
 	[ "$fail" -eq 0 ]
@@ -295,13 +425,14 @@ printf '#!/bin/sh\necho old cli\n' >"$work/old/usr/local/bin/ntfsmac"
 chmod 755 "$work/old$LIBEXEC/ntfsmac-probe" "$work/old$LIBEXEC/old-tool" "$work/old/usr/local/bin/ntfsmac"
 echo licence >"$work/old$OLDDOC/LICENSES/GPL-2.0-or-later.txt"
 echo text >"$work/old$OLDDOC/COPYING"
-pkgbuild --root "$work/old" --identifier "$PKGID" --version 0.0.1 --install-location / "$work/old.pkg" >/dev/null 2>&1 || failf "pkgbuild of the old package"
+pkgbuild --root "$work/old" --identifier "$OLDID" --version 0.0.1 --install-location / "$work/old.pkg" >/dev/null 2>&1 || failf "pkgbuild of the old package"
 sudo -n /usr/sbin/installer -pkg "$work/old.pkg" -target / >/dev/null 2>&1 || failf "install of the old package"
-check "the old package 0.0.1 is installed, with /usr/local/bin/ntfsmac as a file" sh -c "pkgutil --pkg-info $PKGID | grep -q '^version: 0.0.1' && [ -f $LINK ] && [ ! -L $LINK ]"
+check "the old package 0.0.1 ($OLDID) is installed, with /usr/local/bin/ntfsmac as a file" sh -c "pkgutil --pkg-info $OLDID | grep -q '^version: 0.0.1' && [ -f $LINK ] && [ ! -L $LINK ]"
 pkg_install "$work/up.out"
 rc=$?
 if [ "$rc" -eq 0 ]; then pass "the release package installs over the old one (exit 0)"; else failf "the upgrade exits $rc"; fi
-check "the preflight passed as an upgrade of package 0.0.1" grep -q 'preflight passed (upgrading the package 0.0.1)' "$work/up.out.log"
+check "the preflight passed as an upgrade of package 0.0.1 of the earlier layout" grep -q 'preflight passed (upgrading the package 0.0.1 of the earlier layout)' "$work/up.out.log"
+check "the receipt $OLDID of the earlier layout is forgotten" sh -c "! pkgutil --pkg-info $OLDID >/dev/null 2>&1 && grep -q 'forgot the receipt $OLDID' '$work/up.out.log'"
 check "the old package's extra files are gone (old-tool, $OLDDOC with LICENSES)" sh -c "[ ! -e $LIBEXEC/old-tool ] && [ ! -e $OLDDOC ]"
 check "the old CLI file was replaced by the link to $CLI" [ "$(readlink "$LINK")" = "$CLI" ]
 pkgutil --files "$PKGID" >"$work/receipt.list"

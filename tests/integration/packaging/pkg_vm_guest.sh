@@ -27,6 +27,7 @@
 #           is refused. With a user-owned /usr/local/libexec it removes nothing (also not in a dry
 #           run) and names the directory; with --allow-unsafe-ancestors it removes the rest, keeps
 #           and names every path below that directory, and exits 1 (audit M6-F05, issue #6).
+#           The test packages here use the receipt org.ntfs-macos.pkg of the earlier layout.
 #
 # Prints PASS, FAIL and NOTE lines; exit 0 only if no FAIL.
 set -u
@@ -463,7 +464,7 @@ snapshot >"$work/snap.after"
 if cmp -s "$work/snap.before" "$work/snap.after"; then pass "the files on the guest equal those before the install (snapshot compare)"; else failf "the files on the guest differ from before the install"; diff "$work/snap.before" "$work/snap.after" | sed 's/^/  /'; fi
 
 # =====================================================================================
-echo "== I-PKG-02: a package receipt of the developer package (build-pkg.sh kind)"
+echo "== I-PKG-02: a package receipt of the earlier layout (org.ntfs-macos.pkg, the developer package of build-pkg.sh)"
 # =====================================================================================
 mkdir -p "$work/pkgroot$LIBEXEC" "$work/pkgroot$DOC/LICENSES"
 printf '#!/bin/sh\necho tool\n' >"$work/pkgroot$LIBEXEC/ntfsmac-probe"

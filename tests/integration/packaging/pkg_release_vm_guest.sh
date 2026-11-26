@@ -11,7 +11,7 @@
 #
 # I-PKG-03: `installer -pkg` of the package with the quarantine attribute set (a NOTE says whether
 #           the command-line installer accepts it; if not, it is installed without the attribute)
-#           installs; `pkgutil --files org.ntfs-macos.pkg` agrees with the manifest;
+#           installs; `pkgutil --files org.ntfs-macos.pkg.v2` agrees with the manifest;
 #           every dir and file of the manifest is there with its owner, group and mode and nothing
 #           else is below the owned directories; the installed manifest, uninstaller and plist are
 #           the tree's; the daemon has no test seams; the recorded requirement is the cdhash of
@@ -52,7 +52,7 @@ RIGHT=org.ntfs-macos.journal-modify
 SUPPORT="/Library/Application Support/ntfs-macos"
 SOCK=/var/run/ntfsmacd.sock
 LOG=/var/log/ntfsmacd.log
-PKGID=org.ntfs-macos.pkg
+PKGID=org.ntfs-macos.pkg.v2
 MANIFEST=$d/tree/packaging/manifest.txt
 VOL=clean64m4k
 work=$(cd -P "$(mktemp -d /tmp/pkgrel.XXXXXX)" && pwd)

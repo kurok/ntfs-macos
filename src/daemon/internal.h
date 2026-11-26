@@ -194,6 +194,28 @@ const char *ntfsmac_vol_event_name(ntfsmac_vol_event e);
 const char *ntfsmac_vol_result_name(ntfsmac_vol_result r);
 
 /* ------------------------------------------------------------------ */
+/* What a volume record knows of the disk there now (volrec.c, T-M7-16) */
+/* ------------------------------------------------------------------ */
+
+/*
+ * The part of a volume record that describes one disk, not the BSD name: a disk that appears
+ * under a name the daemon has seen before is another disk, so ntfsmac_volrec_reset() runs for
+ * every appearance (and when the disk goes) and nothing of the earlier disk survives the reuse
+ * of the name. The verdict is stored at one place only, after a probe of this disk gave one.
+ * The caller locks (main.c: g_mu).
+ */
+typedef struct ntfsmac_volrec {
+	ntfsmac_probe_verdict *verdict; /* the last probe of this disk; NULL: no verdict yet */
+} ntfsmac_volrec;
+
+/* Forget everything about the disk: no verdict. The record stays usable. */
+void ntfsmac_volrec_reset(ntfsmac_volrec *r);
+/* Keep a copy of `pv`, the verdict of a probe of this disk. E_IO: no memory (no verdict kept). */
+ntfsmac_dmn_status ntfsmac_volrec_set_verdict(ntfsmac_volrec *r, const ntfsmac_probe_verdict *pv);
+/* The stored verdict, or NULL when this disk has none yet (never a zeroed verdict). */
+const ntfsmac_probe_verdict *ntfsmac_volrec_verdict(const ntfsmac_volrec *r);
+
+/* ------------------------------------------------------------------ */
 /* Process spawn and supervision (spawn.c, T-M4-01)                    */
 /* ------------------------------------------------------------------ */
 

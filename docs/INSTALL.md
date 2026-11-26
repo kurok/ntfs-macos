@@ -114,7 +114,7 @@ The package checks the Mac before it copies anything and stops with a reason in 
 | The target is not the startup volume | Install onto the startup volume (`-target /`). |
 | macFUSE missing, below 5.5.0, or `/usr/local/lib/libfuse.2.dylib` missing | Install or update macFUSE from <https://macfuse.github.io/>, turn its extension on, run the installer again. |
 | A Paragon or Tuxera NTFS driver, another `*ntfs*.fs` bundle, or an `*ntfs*.kext` is installed. The installer refuses (owner decision of 2026-11-26): two drivers could write to one volume | Remove the other driver with its own uninstaller, then install again. This project never removes another vendor's driver. |
-| A path of the package already belongs to other software, a symbolic link stands at one of its paths, or one of the directories `/usr/local/libexec`, `/Library/Application Support` and `/Library/LaunchDaemons` is not root-only (owned by root and not writable by group or others). A user-owned `/usr/local/bin` does not block the install; the package then makes no `ntfsmac` link | Do not force it. A user-writable `/usr/local/libexec` would let a user plant a program that runs as root. Fix the ownership of that directory or move the other software, then install again. |
+| A path of the package already belongs to other software, a symbolic link stands at one of its paths, or a directory above them (`/usr/local/libexec`, `/usr/local`, `/Library/Application Support`, `/Library/LaunchDaemons` and their parents) is a symbolic link or is not root-only (owned by root and not writable by group or others). A link is refused even when it points to a root-only directory. A user-owned `/usr/local/bin` does not block the install; the package then makes no `ntfsmac` link | Do not force it. A user-writable `/usr/local/libexec`, or a link there in a user-writable `/usr/local`, would let a user plant a program that runs as root. The message names the directory; replace a link by a real directory, or give the directory to root and remove the write permission of group and others, or move the other software, then install again. |
 
 An upgrade over an install of this package is not refused.
 
@@ -160,16 +160,28 @@ An upgrade over an install of this package is not refused.
 
 ## Uninstall
 
+Use the `uninstall.sh` that came with the release you downloaded, after checking it against the
+release's `SHA256SUMS` (previous sections), from the directory that holds both:
+
 ```sh
-sudo /usr/local/libexec/ntfs-macos/uninstall.sh
+shasum -a 256 -c SHA256SUMS
+sudo sh ./uninstall.sh
 ```
+
+The installed copy, `sudo /usr/local/libexec/ntfs-macos/uninstall.sh`, does the same and is a
+convenience. If a directory above it were not root-only, another user could have replaced it, so
+the checked copy is the safer one.
 
 The script reads the manifest next to it and removes exactly the paths that it lists: the files
 above, the launchd job (it is booted out first) and the authorization right. It checks every path
-first and stops with nothing removed if one lies outside the directories that the manifest names. A
-directory is removed only if it is empty afterwards. For a package installed with `installer` it
-also removes the files of the package receipt `org.ntfs-macos.pkg` and then the receipt. Add
-`--dry-run` to see what it would remove without removing anything.
+first and stops with nothing removed if one lies outside the directories that the manifest names,
+or if a directory above one of them is a symbolic link or is not owned by root and protected from
+other users. It names that directory; fix it, then run the script again.
+`--allow-unsafe-ancestors` removes the rest anyway, but never a path below such a directory: those
+are kept and named, and the script exits 1. A directory is removed only if it is empty afterwards.
+For a package installed with `installer` it also removes the files of the package receipt
+`org.ntfs-macos.pkg` and then the receipt. Add `--dry-run` to see what it would remove without
+removing anything.
 
 The journal of unsafe volumes (`/var/db/ntfs-macos`) and the daemon log stay unless you add
 `--purge-state`. Keep them if you may mount a volume again: the journal is what makes the next

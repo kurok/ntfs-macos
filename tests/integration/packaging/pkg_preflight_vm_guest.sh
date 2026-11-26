@@ -14,7 +14,9 @@
 #   (ufsd_NTFS.fs), a Tuxera (tuxera_ntfs.fs) and another NTFS bundle (Acme-NTFS.fs) (the refusal
 #   of other drivers is the owner decision of 2026-11-26); an NTFS kernel extension in
 #   /Library/Extensions; a foreign file at an installed path with no install of ours; a symbolic
-#   link at /usr/local/libexec/ntfs-macos; a user-owned /usr/local/libexec (above programs root runs).
+#   link at /usr/local/libexec/ntfs-macos; a user-owned /usr/local/libexec (above programs root runs);
+#   audit M6-F01: /usr/local/libexec a symbolic link to a root-only directory, with a root-owned and
+#   with a user-owned /usr/local (nothing is installed, and nothing appears in the link's target).
 # After each case the guest is put back. Then the real install works over an older package of ours
 # in the earlier layout (receipt 0.0.1: the CLI as the file /usr/local/bin/ntfsmac, documents and
 # LICENSES in /usr/local/share/doc/ntfs-macos, a file this package does not ship): it passes the
@@ -258,6 +260,25 @@ sudo -n chown "$(id -un)" /usr/local/libexec
 refused "a user-owned /usr/local/libexec (above the programs root runs)" "owned by $(id -un)"
 sudo -n chown "${orig% *}" /usr/local/libexec
 sudo -n chmod "${orig#* }" /usr/local/libexec
+
+echo "-- audit M6-F01: /usr/local/libexec a symbolic link to a root-only directory"
+TARGET=/private/var/db/ntfsmac-f01-target
+sudo -n mkdir -m 755 "$TARGET"
+sudo -n mv /usr/local/libexec /usr/local/libexec.pkgpre-aside
+sudo -n ln -s "$TARGET" /usr/local/libexec
+lorig=$(stat -f '%Su:%Sg %Lp' /usr/local)
+echo "/usr/local: $lorig; /usr/local/libexec -> $(readlink /usr/local/libexec) ($(stat -f '%Su:%Sg %Lp' "$TARGET"))"
+refused "a root-owned /usr/local, /usr/local/libexec a link to a root-only directory" 'the directory "/usr/local/libexec" above "/usr/local/libexec/ntfs-macos" is a symbolic link'
+check "...and nothing appeared in the link's target" sh -c "[ -z \"\$(ls -A $TARGET)\" ]"
+sudo -n chown "$(id -un)" /usr/local
+refused "a user-owned /usr/local, /usr/local/libexec a link to a root-only directory (the case of the audit)" "the directory \"/usr/local\" above \"/usr/local/libexec/ntfs-macos\" is owned by $(id -un)"
+check "...and nothing appeared in the link's target" sh -c "[ -z \"\$(ls -A $TARGET)\" ]"
+sudo -n chown "${lorig%%:*}" /usr/local
+sudo -n chmod "${lorig#* }" /usr/local
+sudo -n rm -f /usr/local/libexec
+sudo -n mv /usr/local/libexec.pkgpre-aside /usr/local/libexec
+sudo -n rmdir "$TARGET"
+check "/usr/local and /usr/local/libexec are back ($lorig, a real directory)" sh -c "[ \"\$(stat -f '%Su:%Sg %Lp' /usr/local)\" = '$lorig' ] && [ -d /usr/local/libexec ] && [ ! -L /usr/local/libexec ]"
 [ "$had_lx" -eq 1 ] || sudo -n rmdir /usr/local/libexec
 
 # =====================================================================================

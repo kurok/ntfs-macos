@@ -118,7 +118,7 @@ allowed() { # kind path
 		case $2 in
 		/usr/local/libexec/ntfs-macos | /usr/local/libexec/ntfs-macos/*) return 0 ;;
 		"/Library/Application Support/ntfs-macos" | "/Library/Application Support/ntfs-macos/"*) return 0 ;;
-		/Library/LaunchDaemons/$job.plist) [ "$1" = file ] && return 0 ;;
+		"/Library/LaunchDaemons/$job.plist") [ "$1" = file ] && return 0 ;;
 		esac
 		;;
 	link) [ "$2" = /usr/local/bin/ntfsmac ] && return 0 ;;
@@ -129,45 +129,73 @@ allowed() { # kind path
 	return 1
 }
 
-# Every ancestor of a path the installer writes must be a real directory that only root can change:
-# the daemon and the programs it starts run as root from these paths, and the CLI is run with sudo.
-# A user-owned /usr/local/libexec (an old Homebrew, a `chown -R`) would let a user process rename the
-# directory and plant a binary. The check follows the physical path, so a symbolic link to a
-# directory a user owns is refused too (/var is the system's own link to /private/var).
-check_ancestors() { # path
-	_d=${1%/*}
-	[ -n "$_d" ] || _d=/
-	until [ -d "$_d" ]; do _d=${_d%/*}; [ -n "$_d" ] || _d=/; done
-	_p=$(CDPATH='' cd -P -- "$_d" 2>/dev/null && pwd -P) || die "cannot resolve $_d"
+# >>> root-only check (M6-F01). The same text in packaging/scripts/preinstall,
+# packaging/scripts/postinstall, packaging/uninstall.sh and packaging/dev-install.sh: a package
+# script cannot source a file of the repository, so each carries a copy, and the unit test
+# packaging.root_only (tests/unit/packaging/root_only_test.sh) keeps the copies equal.
+#
+# root_only_chain PATH: 0 when every component of the absolute PATH that exists, from / down to
+# PATH itself, is a real directory owned by root, not writable by group or others and without an
+# access control entry that allows anything (`ls -lde` shows "allow"; a deny-only list is fine,
+# audit M6 review). PATH must not hold an empty, "." or ".." component. A symbolic link is never
+# followed: a link at any component fails, so the directory that holds a link is
+# always checked as well (a user-owned /usr/local with /usr/local/libexec a link to a root-only
+# directory fails at /usr/local). The components below the first missing one do not exist yet,
+# which is allowed. On failure ro_bad is the component that failed and ro_why the reason.
+root_only_chain() {
+	ro_bad=
+	ro_why=
+	case $1 in
+	/*) ;;
+	*) ro_bad=$1; ro_why='is not an absolute path'; return 1 ;;
+	esac
+	if [ "$1" != / ]; then
+		case "$1/" in
+		*/../* | */./* | *//*) ro_bad=$1; ro_why='has an empty component or a component that is a dot or two dots'; return 1 ;;
+		esac
+	fi
+	ro_rest=${1#/}
+	ro_p=/
 	while :; do
-		_st=$(stat -f '%Su %Lp' "$_p") || die "cannot stat $_p"
-		_o=${_st% *}
-		_m=${_st#* }
-		if [ "$_o" != root ] || [ $((0$_m & 022)) -ne 0 ]; then
-			die "$_p (above $1) is owned by $_o with mode $_m; it must be owned by root and not writable by group or others, or a user could plant a program that runs as root. Fix it first: sudo chown root:wheel '$_p' && sudo chmod go-w '$_p'"
+		if [ -L "$ro_p" ]; then ro_bad=$ro_p; ro_why='is a symbolic link'; return 1; fi
+		[ -e "$ro_p" ] || return 0
+		if [ ! -d "$ro_p" ]; then ro_bad=$ro_p; ro_why='is not a directory'; return 1; fi
+		ro_st=$(/usr/bin/stat -f '%Su %Lp' "$ro_p") || { ro_bad=$ro_p; ro_why='cannot be read'; return 1; }
+		if [ "${ro_st% *}" != root ] || [ $((0${ro_st#* } & 022)) -ne 0 ]; then
+			ro_bad=$ro_p
+			ro_why="is owned by ${ro_st% *} with mode ${ro_st#* }"
+			return 1
 		fi
-		[ "$_p" != / ] || break
-		_p=${_p%/*}
-		[ -n "$_p" ] || _p=/
+		ro_acl=$(/bin/ls -lde "$ro_p") || { ro_bad=$ro_p; ro_why='cannot be read'; return 1; }
+		case $ro_acl in
+		*"
+"*" allow "*)
+			ro_bad=$ro_p
+			ro_why='has an access control entry that allows changes to it (ls -le shows it)'
+			return 1
+			;;
+		esac
+		[ -n "$ro_rest" ] || return 0
+		ro_c=${ro_rest%%/*}
+		case $ro_rest in */*) ro_rest=${ro_rest#*/} ;; *) ro_rest= ;; esac
+		case $ro_c in '' | '.' | '..') ro_bad=$1; ro_why='has an empty component or a component that is a dot or two dots'; return 1 ;; esac
+		if [ "$ro_p" = / ]; then ro_p=/$ro_c; else ro_p=$ro_p/$ro_c; fi
 	done
 }
-
-# root_only_dir DIR: 0 when DIR is a directory reached without a symbolic link (its physical path
-# is DIR) and it and every directory above it are owned by root and not writable by group or
-# others. Used for the optional link and the paths of the earlier layout, where a user-owned
-# directory (a Homebrew /usr/local/bin) means: leave it alone.
+# root_only_dir DIR: 0 when DIR exists and root_only_chain accepts it (DIR included)
 root_only_dir() {
-	[ -d "$1" ] || return 1
-	_r=$(CDPATH='' cd -P -- "$1" 2>/dev/null && pwd -P) || return 1
-	[ "$_r" = "$1" ] || return 1
-	while :; do
-		_st=$(stat -f '%Su %Lp' "$_r") || return 1
-		[ "${_st% *}" = root ] && [ $((0${_st#* } & 022)) -eq 0 ] || return 1
-		[ "$_r" != / ] || return 0
-		_r=${_r%/*}
-		[ -n "$_r" ] || _r=/
-	done
+	ro_bad=
+	ro_why=
+	[ -d "$1" ] || { ro_bad=$1; ro_why='is missing'; return 1; }
+	root_only_chain "$1"
 }
+# ro_show PATH: PATH for a message, in double quotes, for reading only. Each character other than
+# a letter, a digit, a space or / . _ , : @ + = - is shown as ?, so a name that a user chose
+# cannot end the quotes or add a command or a line to the log.
+ro_show() {
+	/usr/bin/printf '"%s"' "$(/usr/bin/printf '%s' "$1" | LC_ALL=C /usr/bin/tr -c 'A-Za-z0-9 /._,:@+=-' '?')"
+}
+# <<< root-only check
 
 entries=
 nl='
@@ -188,8 +216,26 @@ while read -r kind mode owner group path || [ -n "$kind" ]; do
 		{ [ "$owner" = root ] && [ "$group" = wheel ]; } || die "$manifest:$n: owner and group must be root wheel: $path"
 		;;
 	esac
-	# root runs or reads every dir and file; the optional link is checked when it is made (step 6)
-	case $kind in right | link) ;; *) check_ancestors "$path" ;; esac
+	# Root runs or reads every dir and file: every directory above it must be a real directory that
+	# only root can change, walked from / down without following a symbolic link (M6-F01). A
+	# user-owned /usr/local/libexec (an old Homebrew, a `chown -R`), or a link there in a user-owned
+	# /usr/local, would let a user process rename the directory and plant a binary. The optional
+	# link is checked when it is made (step 6).
+	case $kind in
+	right | link) ;;
+	*)
+		an=${path%/*}
+		# /var is the system's own link to private/var (the state entries): checked at its real path
+		case $an in
+		/var | /var/*)
+			if [ "$(readlink /var)" = private/var ]; then an=/private$an; fi
+			;;
+		esac
+		if ! root_only_chain "$an"; then
+			die "the directory $(ro_show "$ro_bad") above $(ro_show "$path") $ro_why. Every directory above a path that this installs must be a real directory (not a symbolic link), owned by root and not writable by group or others, or a user could plant a program that runs as root. Replace a symbolic link by a real directory, or give the directory to root and remove the write permission of group and others, then run this again."
+		fi
+		;;
+	esac
 	entries="$entries$kind $mode $owner $group $path$nl"
 done <"$manifest"
 
@@ -322,7 +368,7 @@ source_of() { # installed path: where the file comes from
 	/usr/local/libexec/ntfs-macos/ntfsmac) echo "$stage/ntfsmac" ;;
 	"/Library/Application Support/ntfs-macos/cli-requirement") echo "$stage/cli-requirement" ;;
 	"/Library/Application Support/ntfs-macos/sandbox/"*.sb) echo "$root/integration/sandbox/${1##*/}" ;;
-	/Library/LaunchDaemons/$job.plist) echo "$job_plist" ;;
+	"/Library/LaunchDaemons/$job.plist") echo "$job_plist" ;;
 	"/Library/Application Support/ntfs-macos/doc/COPYING") echo "$root/COPYING" ;;
 	"/Library/Application Support/ntfs-macos/doc/README.md") echo "$root/README.md" ;;
 	"/Library/Application Support/ntfs-macos/doc/BUILD-INFO") echo "$stage/BUILD-INFO" ;;
@@ -404,7 +450,7 @@ if root_only_dir /usr/local/bin; then
 		if [ "$(readlink "$link")" = "$target" ]; then
 			log "the link $link -> $target is in place"
 		else
-			log "NOTE: $link points to $(readlink "$link"), not to $target; left as it is"
+			log "NOTE: $link points to $(ro_show "$(readlink "$link")"), not to $target; left as it is"
 		fi
 	elif [ -e "$link" ]; then
 		log "NOTE: $link exists and is not ours; left as it is. Run the CLI as $target"

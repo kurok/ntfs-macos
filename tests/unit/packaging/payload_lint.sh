@@ -128,7 +128,7 @@ for s in "$pre" "$post"; do
 	n=${s##*/}
 	# code lines only: comments and the quoted path and right blocks are dropped
 	sed -e '/^[[:space:]]*#/d' -e "/^paths='/,/'\$/d" -e "/^right_def='/,/'\$/d" "$s" >"$tmp/code"
-	[ "$(sed -n '2,40p' "$s" | grep -m1 -v '^#')" = "set -eu" ] || bad "$n: the first command is not set -eu"
+	[ "$(sed -n '2,$p' "$s" | grep -m1 -v '^#')" = "set -eu" ] || bad "$n: the first command is not set -eu"
 	grep -qx 'PATH=/usr/bin:/bin:/usr/sbin:/sbin' "$s" || bad "$n: PATH is not set to the system directories"
 	grep -qx 'umask 022' "$s" || bad "$n: no umask 022"
 	if grep -n -E '\$\{?(HOME|TMPDIR|USER|LOGNAME|SUDO_[A-Z]+|INSTALLER_[A-Z_]+|PACKAGE_PATH|DSTROOT|DSTVOLUME|SCRIPT_NAME|PWD|IFS|SHELL|ENV)\b' "$tmp/code"; then

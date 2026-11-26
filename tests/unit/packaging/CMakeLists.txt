@@ -28,6 +28,10 @@ if(NTFSMAC_SH)
   # tarball (nothing is downloaded).
   add_test(NAME packaging.source_release
            COMMAND ${NTFSMAC_SH} ${CMAKE_CURRENT_SOURCE_DIR}/source_release_test.sh ${PROJECT_SOURCE_DIR})
+  # U-PKG-08 (audit M6-F01): the root-only check is one text in the four root-run scripts, walks the
+  # path without following a link, and its mutants fail.
+  add_test(NAME packaging.root_only
+           COMMAND ${NTFSMAC_SH} ${CMAKE_CURRENT_SOURCE_DIR}/root_only_test.sh ${PROJECT_SOURCE_DIR})
   # The scripts at least parse (they are run only in the guest).
   foreach(s dev-install uninstall build-pkg payload-check sign-and-notarize)
     add_test(NAME packaging.syntax_${s}
@@ -48,14 +52,17 @@ if(NTFSMAC_SH)
            COMMAND ${NTFSMAC_SH} -n ${PROJECT_SOURCE_DIR}/scripts/repro-check.sh)
 endif()
 
-# U-PKG-04 (T-M6-01): shellcheck. Every check (style level) on the scripts that run as root from the
-# package and on the release build and test scripts; errors only on the older packaging scripts.
+# U-PKG-04 (T-M6-01): shellcheck. Every check (style level) on the scripts that run as root (the
+# package scripts, uninstall.sh, dev-install.sh; audit M6-F08) and on the release build and test
+# scripts; errors only on the older M4 test scripts.
 find_program(NTFSMAC_SHELLCHECK shellcheck)
 if(NTFSMAC_SHELLCHECK)
   add_test(NAME packaging.shellcheck_release
            COMMAND ${NTFSMAC_SHELLCHECK} -x -S style
                    packaging/scripts/preinstall packaging/scripts/postinstall packaging/build-pkg.sh
+                   packaging/uninstall.sh packaging/dev-install.sh
                    packaging/payload-check.sh tests/unit/packaging/payload_lint.sh
+                   tests/unit/packaging/root_only_test.sh
                    packaging/sign-and-notarize.sh tests/unit/packaging/sign_and_notarize_test.sh
                    scripts/make-source-release.sh scripts/lib/label.sh scripts/lib/tree.sh scripts/release-local.sh tests/unit/packaging/source_release_test.sh
                    scripts/repro-check.sh tests/unit/packaging/repro_check_test.sh
@@ -64,7 +71,6 @@ if(NTFSMAC_SHELLCHECK)
            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
   add_test(NAME packaging.shellcheck_errors
            COMMAND ${NTFSMAC_SHELLCHECK} -x -S error
-                   packaging/dev-install.sh packaging/uninstall.sh
                    tests/unit/packaging/manifest_lint.sh tests/unit/packaging/manifest_lint_test.sh
                    tests/integration/packaging/pkg_vm.sh tests/integration/packaging/pkg_vm_guest.sh
            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})

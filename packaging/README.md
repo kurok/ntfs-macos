@@ -169,10 +169,14 @@ and `ntfs-macos postinstall:`):
   older than 27 or not arm64, without macFUSE, with macFUSE older than 5.5.0 (its
   `CFBundleShortVersionString`, else `CFBundleVersion`) or without its `libfuse.2.dylib`, when a
   path of the manifest exists although no install of ours is recorded (no receipt
-  `org.ntfs-macos.pkg`, no developer install), when such a path is a symbolic link, and when a
-  directory above an installed path is not root-only (those are `/usr/local/libexec`, `/usr/local`,
-  `/usr`, `/Library` and their parents; a user-owned `/usr/local/bin` or `/usr/local/share` does
-  not stop the install).
+  `org.ntfs-macos.pkg`, no developer install), when such a path is a
+  symbolic link, and when a directory above an installed path is a symbolic link or is not
+  root-only (those are `/usr/local/libexec`, `/usr/local`, `/usr`, `/Library` and their parents;
+  a user-owned `/usr/local/bin` or `/usr/local/share` does not stop the install). The path is
+  walked from `/` down and no link is followed, so a link at `/usr/local/libexec` is refused even
+  when it points to a root-only directory, and so is a user-owned `/usr/local` that holds it
+  (audit M6-F01). A refusal names the directory, quoted for reading only, and says in words what
+  to change; it never suggests a command built from a path (audit M6-F06).
   **Owner decision 2026-11-26:** it also refuses when another NTFS driver is installed:
   `ufsd_NTFS.fs` of Paragon, `tuxera_ntfs.fs` of Tuxera, any other `*ntfs*.fs` in
   `/Library/Filesystems` except Apple's `ntfs.fs` and our own `ntfsmac*` names (the same rule as
@@ -182,9 +186,9 @@ and `ntfs-macos postinstall:`):
   section 8.4).
 - An install of ours is upgraded: preinstall stops the running daemon (it unmounts its volumes),
   and removes the files an earlier install of ours had and this package does not ship (the earlier
-  `/usr/local/bin/ntfsmac` file and `/usr/local/share/doc/ntfs-macos` included), but only where the
-  directory is root-only and reached without a symbolic link; anything else is left and named in
-  the log. If the daemon does not stop within 70 s the install stops before any file is copied;
+  `/usr/local/bin/ntfsmac` file and `/usr/local/share/doc/ntfs-macos` included), but only where
+  every directory from `/` down to the file's directory is a real directory (no symbolic link) and
+  root-only; anything else is left and named in the log. If the daemon does not stop within 70 s the install stops before any file is copied;
   unmount the NTFS volumes and run the installer again, or start the earlier daemon again with
   `sudo launchctl bootstrap system /Library/LaunchDaemons/org.ntfs-macos.ntfsmacd.plist`. If an
   upgrade fails later (in postinstall), run the installer again; it repeats every step.
@@ -258,17 +262,36 @@ anything is published.
 
 ## Uninstall
 
+Run the `uninstall.sh` of the release that you downloaded and checked against its `SHA256SUMS`
+(it is next to the package in `dist/<label>/` and in the release assets):
+
 ```sh
-sudo /usr/local/libexec/ntfs-macos/uninstall.sh
+shasum -a 256 -c SHA256SUMS
+sudo sh ./uninstall.sh
 ```
 
-It stops the daemon, removes the right, the files of the package receipt `org.ntfs-macos.pkg` (each
-must lie below a `dir` of the manifest or be exactly a `file` or `link` path of the manifest;
-anything else refuses the whole run) and every path of the manifest, removes `/usr/local/bin/ntfsmac`
-only when it is a symbolic link to exactly `/usr/local/libexec/ntfs-macos/ntfsmac` and `/usr/local/bin`
-is root-only (the same rule when a receipt names that path; anything else there, such as the CLI
-file of the earlier layout, is kept and named in the output), then forgets the receipt. It never removes a shared directory (`/usr/local/bin`, `/Library/LaunchDaemons`), even an
-empty one. `--dry-run` lists what it would remove.
+The installed copy, `sudo /usr/local/libexec/ntfs-macos/uninstall.sh`, is a convenience. If a
+directory above it is not root-only, a user could have replaced it, and its own checks cannot help
+then (issue #6).
+
+Before it changes anything, it checks every directory from `/` down to each path of the manifest
+(`dir`, `file`, `statedir`, `statefile`) without following a symbolic link. When one is a link or
+is not owned by root and protected from group and others, it names it and stops: nothing is
+removed, also with `--dry-run`. `--allow-unsafe-ancestors` goes on, but a path is still removed only
+when every directory from `/` down to it passes that check; every other path is kept and named,
+its receipt is kept, and the exit status is 1 (audit M6-F05). Then it stops the daemon, removes the
+right, the files of the package receipt `org.ntfs-macos.pkg` (each must lie below a `dir` of the
+manifest or be exactly a `file` or `link` path of the manifest; anything else refuses the whole
+run) and every path of the
+manifest, removes `/usr/local/bin/ntfsmac` only when it is a symbolic link to exactly
+`/usr/local/libexec/ntfs-macos/ntfsmac` and `/usr/local/bin` is root-only (the same rule when a
+receipt names that path; anything else there, such as the CLI file of the earlier layout, is kept
+and named in the output), then forgets the receipt when no file of it was kept by the directory
+check. A path kept by the rule of the link (a file or a foreign link at `/usr/local/bin/ntfsmac`,
+or our link in a `/usr/local/bin` that is not root-only) does not keep the receipt: it is named,
+and it is not a file that a later run of this script would remove. With `--purge-state` the state
+directory itself must pass the same check before its tree is removed. It never removes a
+shared directory (`/usr/local/bin`, `/Library/LaunchDaemons`), even an empty one. `--dry-run` lists what it would remove.
 
 ## Developer install from source
 
@@ -281,8 +304,12 @@ sudo /usr/local/libexec/ntfs-macos/uninstall.sh
 ```
 
 `dev-install.sh` refuses to install unless every directory above an installed path is a real
-directory owned by root and not writable by group or others (a user-owned `/usr/local/libexec`
-would let a user plant a program that runs as root); the uninstaller warns about the same. It
+directory (no symbolic link on the way, also not one to a root-only directory) owned by root and
+not writable by group or others (a user-owned `/usr/local/libexec` would let a user plant a program
+that runs as root); the uninstaller refuses in the same case (see "Uninstall"). The check is the
+same text in `preinstall`, `postinstall`, `uninstall.sh` and `dev-install.sh` (a package script
+cannot source a repository file), and the unit test U-PKG-08 (`packaging.root_only`) keeps the four
+copies equal. It
 needs macOS 27 on arm64, macFUSE 5.5.0 or newer and cmake. It builds NTFS-3G (into
 `build/deps`) and the product with the CMake preset `product` (no test seams; check 4 of ADR-019 is
 the root-peer fallback, so `journal-clear` and `repair` are run with `sudo`), then installs every
@@ -308,7 +335,6 @@ below a `dir` of the manifest or be exactly a `file` or `link` path of the manif
 Run the installer and the uninstaller only on a Mac you mean to change. The tests run them in a
 disposable guest: `tests/integration/packaging/pkg_vm.sh` (I-PKG-01..02, developer install), and for
 the package `tests/integration/packaging/pkg_release_vm.sh --pkg-dir dist/<label> --fixtures DIR`
-(I-PKG-03..04), `pkg_preflight_vm.sh --pkg-dir dist/<label>` (I-PKG-05) and
-`pkg_preflight_vm.sh --pkg-dir dist/<label> --case userlocal` (I-PKG-06). Each starts one VM;
-run them through the VM slot protocol when other runs use the VMs. Host-side checks:
-`ctest -R packaging` (U-PKG-01..07).
+(I-PKG-03..04), `pkg_preflight_vm.sh --pkg-dir dist/<label>` (I-PKG-05)
+and `pkg_preflight_vm.sh --pkg-dir dist/<label> --case userlocal` (I-PKG-06). Each starts one VM; run them through the VM slot protocol when other runs use the VMs. Host-side
+checks: `ctest -R packaging` (U-PKG-01..08).

@@ -82,8 +82,15 @@ Everything installed is owned by root:wheel. Nothing is installed in `/usr/local
 runs as root from launchd, because only root may open a disk device. It opens a volume read-only
 first, and starts the NTFS-3G worker in a sandbox.
 
-An upgrade from the earlier layout (a preview package) removes the old `/usr/local/bin/ntfsmac`
-file and `/usr/local/share/doc/ntfs-macos`.
+An upgrade from the earlier layout (a preview package, such as the pre-release
+`v0.1.0-dev.20261116`) removes the old `/usr/local/bin/ntfsmac` file and
+`/usr/local/share/doc/ntfs-macos`, but only where every directory on the way is a real directory
+owned by root and not writable by others. This package has the identifier `org.ntfs-macos.pkg.v2`;
+the earlier layout used `org.ntfs-macos.pkg`. When the old files were all removed, that old receipt
+is forgotten. When some had to stay (for example in a `/usr/local/share/doc` that your user owns),
+the install log names them and the old receipt stays: check those files, then run
+`sudo /usr/local/libexec/ntfs-macos/uninstall.sh --old-receipt`. Do not run the pre-release's own
+`uninstall.sh`; it follows symbolic links.
 
 **Running `ntfsmac`.** The commands in this page are written as `ntfsmac`. That works when the link
 `/usr/local/bin/ntfsmac` exists (check with `ls -l /usr/local/bin/ntfsmac`). If it does not, run the
@@ -101,7 +108,7 @@ To see which build is installed:
 
 ```sh
 cat "/Library/Application Support/ntfs-macos/doc/BUILD-INFO"
-pkgutil --pkg-info org.ntfs-macos.pkg
+pkgutil --pkg-info org.ntfs-macos.pkg.v2
 ```
 
 ### If the installer refuses
@@ -180,8 +187,10 @@ other users. It names that directory; fix it, then run the script again.
 `--allow-unsafe-ancestors` removes the rest anyway, but never a path below such a directory: those
 are kept and named, and the script exits 1. A directory is removed only if it is empty afterwards.
 For a package installed with `installer` it also removes the files of the package receipt
-`org.ntfs-macos.pkg` and then the receipt. Add `--dry-run` to see what it would remove without
-removing anything.
+(`org.ntfs-macos.pkg.v2`, and `org.ntfs-macos.pkg` of the earlier layout, including the
+pre-release's documents in `/usr/local/share/doc/ntfs-macos`) and then each receipt. Add
+`--dry-run` to see what it would remove without removing anything. `--old-receipt` removes only
+what is left of the earlier layout and keeps the current install.
 
 The journal of unsafe volumes (`/var/db/ntfs-macos`) and the daemon log stay unless you add
 `--purge-state`. Keep them if you may mount a volume again: the journal is what makes the next

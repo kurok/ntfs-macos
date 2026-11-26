@@ -35,7 +35,7 @@ mk() {
 	cp -R "$tmp/root" "$tmp/root.$1"
 	cp -R "$tmp/scripts" "$tmp/scripts.$1"
 	(TZ=UTC0 && export TZ && find "$tmp/root.$1" "$tmp/scripts.$1" -exec touch -h -t "$2" {} +)
-	pkgbuild --quiet --root "$tmp/root.$1" --scripts "$tmp/scripts.$1" --identifier org.ntfs-macos.pkg \
+	pkgbuild --quiet --root "$tmp/root.$1" --scripts "$tmp/scripts.$1" --identifier org.ntfs-macos.pkg.v2 \
 		--version 0.0.1 --install-location / --ownership recommended "$tmp/component.pkg" >/dev/null
 	productbuild --quiet --package "$tmp/component.pkg" "$_d/ntfs-macos-t.pkg" >/dev/null
 	cp "$tmp/BUILD-INFO" "$_d/BUILD-INFO"

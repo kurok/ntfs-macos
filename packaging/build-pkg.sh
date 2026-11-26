@@ -77,7 +77,12 @@ case $jobs in '' | *[!0-9]*) die "--jobs needs a number" 2 ;; esac
 
 manifest=$here/manifest.txt
 job=org.ntfs-macos.ntfsmacd
-pkg_id=org.ntfs-macos.pkg
+# The package identifier. org.ntfs-macos.pkg.v2, not org.ntfs-macos.pkg: the earlier layout (the
+# published pre-release v0.1.0-dev.20261116) used org.ntfs-macos.pkg, and with the same identifier
+# the Installer would delete that receipt's files itself on an upgrade, also through a link in a
+# user-owned /usr/local/share/doc (owner decision 2026-11-26, audit M6-F02). preinstall and
+# uninstall.sh know both; tests/unit/packaging/payload_lint.sh keeps the names in step.
+pkg_id=org.ntfs-macos.pkg.v2
 [ -f "$manifest" ] || die "manifest not found: $manifest"
 
 find_tool() { # name: the NTFS-3G tool in the deps prefix (bin or sbin, as NTFS-3G installs it)

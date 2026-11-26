@@ -106,6 +106,12 @@ fi
 # ---- b. the functions on a real tree ----
 grep -q '/bin/ls -lde "$ro_p"' "$tmp/block.sh" || bad "the block no longer reads the access control list with /bin/ls -lde; adjust this test"
 grep -q "/usr/bin/stat -f '%Su %Lp' \"\$ro_p\"" "$tmp/block.sh" || bad "the block no longer reads the owner with /usr/bin/stat -f '%Su %Lp'; adjust this test"
+# The functions run on a real tree only on macOS: the block reads BSD stat -f and the access control lists of
+# /bin/ls -lde, and the test sets them with chmod +a. Elsewhere (the Linux container of Environment A) a, the
+# grep checks above and d. still run, and b and c are skipped with a message.
+if [ "$(uname -s)" != Darwin ]; then
+	echo "skipped: b and c (the functions on a real tree, the mutants) need macOS (BSD stat, ls -lde, chmod +a)"
+else
 # The owner is a stand-in: "someone" for the paths in user_owned, root for every other path. The
 # mode is the real one inside the test tree and 755 above it (the temporary directory and its
 # parents are not part of the case).
@@ -228,6 +234,8 @@ mutant "no access control check" 's/\*" allow "\*)/*" allow-nothing "*)/'
 mutant "no up-front component check" 's/\*\/\.\.\/\* | \*\/\.\/\* | \*\/\/\*)/*\/no-such\/*)/'
 mutant "a file ends the walk as if missing" 's/\[ -e "\$ro_p" \] || return 0/[ -d "$ro_p" ] || return 0/'
 mutant "ro_show passes every character" "s/tr -c 'A-Za-z0-9 \/._,:@+=-' '?'/tr -c '\\\\000-\\\\377' '?'/"
+
+fi
 
 # ---- d. the callers ----
 # first LINE-NUMBER of a fixed string in FILE (0 when absent)

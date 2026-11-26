@@ -4,6 +4,8 @@
  * (docs/ARCHITECTURE.md section 5, events from sections 4.1 and 4.5), and an
  * exhaustive check that the table holds these transitions and no others.
  */
+#include <string.h>
+
 #include "check.h"
 #include "statemachine_common.h"
 
@@ -325,9 +327,61 @@ static void t_full_lifecycle(void)
 	CHECK_EQ_INT(v.state, S(GONE));
 }
 
+/*
+ * T-M7-11: "not NTFS" (the probe's verdict, or Disk Arbitration's volume kind) is final for this
+ * appearance of the disk: `mount` is refused with its own reason and `list` leaves it out. Every
+ * other Failed still takes a retry. A new appearance starts over.
+ */
+static void t_not_ntfs_is_final(void)
+{
+	static const ntfsmac_vol_reason retry[] = { NTFSMAC_VREASON_PROBE_FAILED,
+						    NTFSMAC_VREASON_POLICY_REFUSED,
+						    NTFSMAC_VREASON_SPAWN, NTFSMAC_VREASON_MOUNT_TIMEOUT };
+	ntfsmac_volume v;
+	size_t i;
+
+	/* the probe said not NTFS */
+	ntfsmac_volume_init(&v);
+	CHECK_EQ_INT(apply(&v, E(START), NOMODE, 0), NTFSMAC_VRES_OK);
+	CHECK_EQ_INT(apply(&v, E(PROBE_DONE), NOMODE, 0), NTFSMAC_VRES_OK);
+	CHECK_EQ_INT(apply(&v, E(REFUSED), NOMODE, NTFSMAC_VREASON_NOT_NTFS), NTFSMAC_VRES_OK);
+	CHECK_EQ_INT(v.state, S(FAILED));
+	CHECK(!ntfsmac_volume_accepts_mount(&v));
+	CHECK(strcmp(ntfsmac_volume_mount_refusal(&v), "not_ntfs") == 0);
+	CHECK(!ntfsmac_volume_listed(&v));
+	/* Disk Arbitration's kind said it, before any probe */
+	ntfsmac_volume_init(&v);
+	CHECK_EQ_INT(apply(&v, E(START), NOMODE, 0), NTFSMAC_VRES_OK);
+	CHECK_EQ_INT(apply(&v, E(PROBE_FAILED), NOMODE, NTFSMAC_VREASON_NOT_NTFS), NTFSMAC_VRES_OK);
+	CHECK(strcmp(ntfsmac_volume_mount_refusal(&v), "not_ntfs") == 0);
+	CHECK(!ntfsmac_volume_listed(&v));
+	/* the disk goes and appears again: a new disk, a candidate */
+	CHECK_EQ_INT(apply(&v, E(DISK_GONE), NOMODE, 0), NTFSMAC_VRES_OK);
+	CHECK(!ntfsmac_volume_listed(&v));
+	CHECK(strcmp(ntfsmac_volume_mount_refusal(&v), "wrong_state") == 0);
+	ntfsmac_volume_init(&v);
+	CHECK(ntfsmac_volume_mount_refusal(&v) == NULL);
+	CHECK(ntfsmac_volume_listed(&v));
+	/* a probe or spawn failure, a refusal by the policy: retry allowed, listed */
+	for (i = 0; i < sizeof retry / sizeof retry[0]; i++) {
+		v = volume_in(S(FAILED), NOMODE, false);
+		v.reason = retry[i];
+		CHECK(ntfsmac_volume_accepts_mount(&v));
+		CHECK(ntfsmac_volume_mount_refusal(&v) == NULL);
+		CHECK(ntfsmac_volume_listed(&v));
+	}
+	/* our own volume: wrong state, listed */
+	v = volume_in(S(MOUNTED), RW, false);
+	CHECK(strcmp(ntfsmac_volume_mount_refusal(&v), "wrong_state") == 0);
+	CHECK(ntfsmac_volume_listed(&v));
+	CHECK(strcmp(ntfsmac_volume_mount_refusal(NULL), "wrong_state") == 0);
+	CHECK(!ntfsmac_volume_listed(NULL));
+}
+
 int main(void)
 {
 	test_exhaustive();
+	t_not_ntfs_is_final();
 	test_init();
 	t_appeared_start();
 	t_failed_start();

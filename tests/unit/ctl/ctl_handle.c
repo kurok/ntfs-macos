@@ -335,6 +335,11 @@ static void test_reply_and_errors(void)
 	g.o.reply = "{\"ok\":false,\"error\":\"failed\",\"reason\":\"FLAG_DIRTY\"}";
 	CHECK_EQ_INT(run(&g, "{\"cmd\":\"unmount\",\"bsd\":\"disk4\"}"), NTFSMAC_DMN_E_STATE);
 	CHECK(reply_has(&g, "FLAG_DIRTY"));
+	/* T-M7-11: `mount` of a disk that is not NTFS: the operation's fixed reason reaches the caller */
+	g.o.reply = "{\"ok\":false,\"error\":\"failed\",\"reason\":\"not_ntfs\"}";
+	CHECK_EQ_INT(run(&g, "{\"cmd\":\"mount\",\"bsd\":\"disk4s1\"}"), NTFSMAC_DMN_E_STATE);
+	CHECK(reply_has(&g, "\"reason\":\"not_ntfs\""));
+	check_reply_shape(&g);
 	/* success without a reply */
 	g.o.status = NTFSMAC_DMN_OK;
 	g.o.reply = NULL;

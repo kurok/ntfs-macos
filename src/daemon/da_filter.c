@@ -68,6 +68,42 @@ bool ntfsmac_da_is_macfuse_backing(uint64_t size_bytes, bool whole, const char *
 	       strcmp(protocol, "Virtual Interface") == 0;
 }
 
+void ntfsmac_da_kind_normalize(const char *raw, bool present, char *out, size_t cap)
+{
+	size_t i, n;
+
+	if (out == NULL || cap == 0)
+		return;
+	out[0] = '\0';
+	if (raw == NULL) {
+		if (present && cap > 1)
+			strcpy(out, NTFSMAC_DA_KIND_UNREADABLE);
+		return;
+	}
+	n = strlen(raw);
+	if (n == 0)
+		return;
+	if (n >= cap)
+		goto unreadable;
+	for (i = 0; i < n; i++) {
+		char c = raw[i];
+
+		if (c >= 'A' && c <= 'Z')
+			c = (char)(c - 'A' + 'a');
+		if (!((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '.' || c == '_' ||
+		      c == '-'))
+			goto unreadable;
+		out[i] = c;
+	}
+	out[n] = '\0';
+	return;
+unreadable:
+	if (cap > 1)
+		strcpy(out, NTFSMAC_DA_KIND_UNREADABLE);
+	else
+		out[0] = '\0';
+}
+
 void ntfsmac_da_table_init(ntfsmac_da_table *t)
 {
 	memset(t, 0, sizeof *t);

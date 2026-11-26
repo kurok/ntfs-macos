@@ -278,6 +278,7 @@ const char *ntfsmac_report_vreason_token(ntfsmac_vol_reason r)
 	case NTFSMAC_VREASON_MODE_MISMATCH: return "mode_mismatch";
 	case NTFSMAC_VREASON_UNMOUNT: return "unmount";
 	case NTFSMAC_VREASON_STRAY_MOUNT: return "stray_mount";
+	case NTFSMAC_VREASON_NOT_NTFS: return "not_ntfs";
 	default: return "";
 	}
 }
@@ -330,6 +331,7 @@ const char *ntfsmac_report_reason_text(const char *token)
 		{"mode_mismatch", "the mount did not have the mode that was decided"},
 		{"unmount", "the volume could not be unmounted"},
 		{"stray_mount", "the program that serves the volume mounted another file system"},
+		{"not_ntfs", "the volume is not NTFS"},
 		{"ro_requested", "read-only was requested"},
 		{"external_check", "checked on another system; re-attach or `ntfsmac mount` for read/write"},
 		{"same_serial", "another attached volume has the same serial number (a clone?); this one is read-only. Detach one of them, or give one a new serial number on Windows"},

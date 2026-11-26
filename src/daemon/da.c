@@ -19,6 +19,8 @@
  * ntfsmac_da_withdraw drops it earlier. If a mount was really refused, the
  * withdrawal also asks Disk Arbitration to mount the disk, so the system
  * handles it as if the daemon had never been there (section 4.1 step 5).
+ * ntfsmac_da_release does the same and also asks for the mount when the
+ * daemon itself removed another driver's mount of the disk (T-M7-11).
  * A volume the daemon mounts itself keeps its dissent until the disk is gone.
  */
 #include "internal.h"
@@ -61,23 +63,18 @@ static bool cf_to_cstr(CFStringRef s, char *buf, size_t cap)
 	return CFStringGetCString(s, buf, (CFIndex)cap, kCFStringEncodingUTF8);
 }
 
-/* Volume kind is a fixed driver name such as "ntfs"; keep a safe subset. */
-static void copy_kind(CFStringRef s, char *buf, size_t cap)
+/*
+ * Volume kind: a driver name such as "ntfs", "exfat" or Paragon's "ufsd_NTFS". Folded to lower
+ * case; a kind that is there but cannot be kept as it is becomes "?", never "" (no kind), so it
+ * is left alone and not taken for a disk without a file system (T-M7-11 review).
+ */
+static void copy_kind(CFTypeRef s, char *buf, size_t cap)
 {
-	size_t i;
+	char raw[256];
+	bool ok = s != NULL && CFGetTypeID(s) == CFStringGetTypeID() &&
+		  cf_to_cstr((CFStringRef)s, raw, sizeof raw);
 
-	buf[0] = '\0';
-	if (!cf_to_cstr(s, buf, cap))
-		return;
-	for (i = 0; buf[i] != '\0'; i++) {
-		char c = buf[i];
-
-		if (!((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_' ||
-		      c == '-')) {
-			buf[0] = '\0';
-			return;
-		}
-	}
+	ntfsmac_da_kind_normalize(ok ? raw : NULL, s != NULL, buf, cap);
 }
 
 static bool describe_disk(DADiskRef disk, ntfsmac_disk_info *out)
@@ -373,16 +370,21 @@ static void mount_done(DADiskRef disk, DADissenterRef dissenter, void *context)
 
 ntfsmac_dmn_status ntfsmac_da_withdraw(ntfsmac_da *da, const char *bsd_name)
 {
+	return ntfsmac_da_release(da, bsd_name, false);
+}
+
+ntfsmac_dmn_status ntfsmac_da_release(ntfsmac_da *da, const char *bsd_name, bool mount_again)
+{
 	bool refused = false;
-	bool had;
 	DADiskRef disk;
 
 	if (da == NULL || !ntfsmac_da_bsd_name_valid(bsd_name))
 		return NTFSMAC_DMN_E_INVAL;
 	pthread_mutex_lock(&da->lock);
-	had = ntfsmac_da_table_remove(&da->dissent, bsd_name, &refused);
+	if (!ntfsmac_da_table_remove(&da->dissent, bsd_name, &refused))
+		refused = false;
 	pthread_mutex_unlock(&da->lock);
-	if (!had || !refused)
+	if (!refused && !mount_again)
 		return NTFSMAC_DMN_OK;
 	disk = DADiskCreateFromBSDName(kCFAllocatorDefault, da->session, bsd_name);
 	if (disk == NULL)
@@ -598,6 +600,14 @@ ntfsmac_dmn_status ntfsmac_da_withdraw(ntfsmac_da *da, const char *bsd_name)
 {
 	(void)da;
 	(void)bsd_name;
+	return NTFSMAC_DMN_E_NOTIMPL;
+}
+
+ntfsmac_dmn_status ntfsmac_da_release(ntfsmac_da *da, const char *bsd_name, bool mount_again)
+{
+	(void)da;
+	(void)bsd_name;
+	(void)mount_again;
 	return NTFSMAC_DMN_E_NOTIMPL;
 }
 

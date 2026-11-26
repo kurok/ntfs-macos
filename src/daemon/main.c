@@ -134,6 +134,7 @@ struct vol {
 	ntfsmac_volrec rec;                   /* (m) this disk's last verdict (T-M7-16) */
 	bool apple_mounted;                   /* (m) some driver has the disk mounted */
 	bool dissent;                         /* (m) we hold the dissent for this disk */
+	bool device_busy;                     /* (m) not proven free since a clean-up (T-M7-11) */
 	bool wk_live;                         /* (m) a worker process is running */
 	uid_t wk_uid;                         /* (m) the user it runs as */
 	gid_t wk_gid;                         /* (m) and its group */
@@ -258,6 +259,15 @@ static vol *vol_find(const char *bsd)
 	return v;
 }
 
+/* The worker handle describes one disk's device: a new disk must not be checked against it. */
+static void worker_forget(vol *v)
+{
+	memset(&v->worker, 0, sizeof v->worker);
+	v->worker.pid = -1;
+	v->worker.status_fd = -1;
+	v->worker.dev_known = false;
+}
+
 /*
  * Take over a Gone record for `bsd` when the table is full (T-M7-15; ntfsmac_vol_reuse_pick()).
  * The memory is reused in place and never freed, so a pointer that a block or a request still
@@ -300,6 +310,8 @@ static vol *vol_reuse_locked(const char *bsd)
 	v->reason_token[0] = '\0';
 	ntfsmac_volrec_reset(&v->rec); /* the last probe was of another disk (T-M7-16) */
 	v->gone_not_ntfs = false;
+	ntfsmac_devbusy_reset(&v->device_busy);
+	worker_forget(v);
 	v->apple_mounted = false;
 	v->dissent = false;
 	ntfsmac_uev_reset(&v->uev);
@@ -397,17 +409,21 @@ static ntfsmac_dmn_status sm_apply(vol *v, ntfsmac_vol_event ev, ntfsmac_vol_mod
 	ntfsmac_vol_event_arg arg;
 	ntfsmac_vol_result r;
 	ntfsmac_vol_state before;
+	ntfsmac_vol_reason before_reason;
 
 	arg.mode = mode;
 	arg.reason = reason;
 	pthread_mutex_lock(&g_mu);
 	before = v->sm.state;
+	before_reason = v->sm.reason;
 	r = ntfsmac_volume_apply(&v->sm, ev, &arg);
 	if (r == NTFSMAC_VRES_OK && v->sm.state == NTFSMAC_VOL_GONE && before != NTFSMAC_VOL_GONE) {
 		v->gone_seq = ++g_gone_seq; /* the order of reuse (T-M7-15) */
-		/* taken now: the record forgets the verdict of a disk that went (T-M7-16) */
-		v->gone_not_ntfs = ntfsmac_volrec_verdict(&v->rec) != NULL &&
-				   !ntfsmac_volrec_verdict(&v->rec)->is_ntfs;
+		/* taken now: the record forgets the verdict of a disk that went (T-M7-16); "not NTFS"
+		 * is the reason NOT_NTFS, from the volume kind or from the probe (T-M7-11) */
+		v->gone_not_ntfs = before_reason == NTFSMAC_VREASON_NOT_NTFS ||
+				   (ntfsmac_volrec_verdict(&v->rec) != NULL &&
+				    !ntfsmac_volrec_verdict(&v->rec)->is_ntfs);
 	}
 	if (r == NTFSMAC_VRES_OK) {
 		if (token != NULL)
@@ -1032,6 +1048,9 @@ static void vol_teardown(vol *v, const td_args *a)
 	/* 5. Nothing of the worker's user may still hold the device. */
 	st = ntfsmac_child_device_check(&v->worker, &killed);
 	device_held = st != NTFSMAC_DMN_OK && st != NTFSMAC_DMN_E_STATE;
+	pthread_mutex_lock(&g_mu);
+	ntfsmac_devbusy_note(&v->device_busy, st, false);
+	pthread_mutex_unlock(&g_mu);
 	if (device_held)
 		NTFSMAC_LOGE("%s: a process still holds the device (%s): the session is not clean", v->bsd,
 			     ntfsmac_dmn_status_name(st));
@@ -1260,10 +1279,16 @@ static void attach_done(attach_req *rq)
 	free(rq);
 }
 
-/* Worker failed to start or to mount: settle what exists, in the order of section 4.5. */
-static void settle_failed_spawn(vol *v, int rd, int wr)
+/*
+ * Worker failed to start or to mount: settle what exists, in the order of section 4.5. True when
+ * the device is proven free afterwards: no mount at the mount point and no process holding the
+ * device (T-M7-11 review: only then may another driver have the disk).
+ */
+static bool settle_failed_spawn(vol *v, int rd, int wr)
 {
 	unsigned killed = 0;
+	bool free_now, mount_left;
+	ntfsmac_dmn_status dc;
 	jq_end_arg ea;
 	ntfsmac_errwatch ew;
 
@@ -1277,7 +1302,12 @@ static void settle_failed_spawn(vol *v, int rd, int wr)
 	if (v->mp_valid && mount_present(v->mp.path))
 		(void)ntfsmac_mw_force_unmount(v->mp.path, FORCE_UNMOUNT_MS);
 	/* A holder that remains changes nothing below: this session never gets a proof of a clean end. */
-	(void)ntfsmac_child_device_check(&v->worker, &killed);
+	dc = ntfsmac_child_device_check(&v->worker, &killed);
+	mount_left = v->mp_valid && mount_present(v->mp.path);
+	free_now = (dc == NTFSMAC_DMN_OK || dc == NTFSMAC_DMN_E_STATE) && !mount_left;
+	pthread_mutex_lock(&g_mu);
+	ntfsmac_devbusy_note(&v->device_busy, dc, mount_left);
+	pthread_mutex_unlock(&g_mu);
 	if (wr >= 0)
 		close(wr);
 	if (rd >= 0)
@@ -1302,6 +1332,7 @@ static void settle_failed_spawn(vol *v, int rd, int wr)
 			(void)ntfsmac_mountpoint_remove(&v->mp);
 		v->mp_valid = false;
 	}
+	return free_now;
 }
 
 #define WORKER_RETRY_DELAY_MS 1500u
@@ -1390,6 +1421,72 @@ static void notify_refused(vol *v, const ntfsmac_probe_verdict *pv, ntfsmac_poli
 	notify(v, NTFSMAC_NOTIFY_REFUSED, refuse_reason_for(pv, note));
 }
 
+/* The claim of section 4.1 step 3 (claim.c) on the real Disk Arbitration session. */
+static ntfsmac_dmn_status claim_unmount(void *ctx, const char *bsd)
+{
+	(void)ctx;
+	return ntfsmac_da_unmount(g_da, bsd);
+}
+
+static ntfsmac_dmn_status claim_release(void *ctx, const char *bsd, bool mount_again)
+{
+	(void)ctx;
+	return ntfsmac_da_release(g_da, bsd, mount_again);
+}
+
+static const ntfsmac_claim_ops g_claim_ops = { NULL, claim_unmount, claim_release };
+
+/*
+ * Every end of the attach flow (T-M7-11): unless the volume is ours now (Mounting, Mounted), the
+ * dissent goes and, when this daemon removed another driver's mount, the system is asked to
+ * mount the disk again. Nothing of the claim outlives the attach.
+ */
+static void attach_finish(vol *v, bool device_free)
+{
+	bool we_unmounted;
+
+	pthread_mutex_lock(&g_mu);
+	we_unmounted = v->rec.we_unmounted;
+	v->rec.we_unmounted = false;
+	/* a device an earlier clean-up could not prove free stays held, on every path (sticky) */
+	device_free = ntfsmac_devbusy_free(v->device_busy, device_free);
+	pthread_mutex_unlock(&g_mu);
+	if (!device_free)
+		NTFSMAC_LOGW("%s: the device is not proven free: the claim stays, nothing is mounted", v->bsd);
+	if (ntfsmac_claim_finish(&g_claim_ops, v->bsd, vol_state(v), we_unmounted, device_free)) {
+		pthread_mutex_lock(&g_mu);
+		v->dissent = false;
+		pthread_mutex_unlock(&g_mu);
+		if (we_unmounted)
+			NTFSMAC_LOGI("%s: not mounted here; the system was asked to mount it again", v->bsd);
+	}
+}
+
+/*
+ * The dissent is one per disk, not counted: an earlier attach that failed released it. Every
+ * attach takes it again when it starts, when passive mode allows a dissent at all, so that an
+ * attach queued after a failed one still holds Apple's driver off (T-M7-11 review).
+ */
+static void claim_again(vol *v)
+{
+	bool allow, held;
+
+	pthread_mutex_lock(&g_mu);
+	held = v->dissent;
+	pthread_mutex_unlock(&g_mu);
+	if (held)
+		return;
+	pthread_mutex_lock(&g_conflict_mu);
+	(void)ntfsmac_conflict_detect(&g_conflict);
+	allow = ntfsmac_passive_allows_dissent(&g_conflict);
+	pthread_mutex_unlock(&g_conflict_mu);
+	if (allow && ntfsmac_da_dissent(g_da, v->bsd) == NTFSMAC_DMN_OK) {
+		pthread_mutex_lock(&g_mu);
+		v->dissent = true;
+		pthread_mutex_unlock(&g_mu);
+	}
+}
+
 static void attach_run(void *arg)
 {
 	attach_req *rq = arg;
@@ -1413,7 +1510,7 @@ static void attach_run(void *arg)
 	ntfsmac_policy_decision dec;
 	ntfsmac_vol_result vr;
 	ntfsmac_vol_reason why;
-	bool accepted;
+	bool accepted, device_free = true;
 	char label[NTFSMAC_LABEL_PART_SIZE];
 
 	memset(&ba, 0, sizeof ba);
@@ -1426,6 +1523,7 @@ static void attach_run(void *arg)
 	}
 	if (sm_apply(v, NTFSMAC_VEV_START, NTFSMAC_VMODE_NONE, NTFSMAC_VREASON_NONE, NULL) != NTFSMAC_DMN_OK)
 		goto out;
+	claim_again(v);
 	pv = calloc(1, sizeof *pv);
 	in = calloc(1, sizeof *in);
 	if (pv == NULL || in == NULL) {
@@ -1434,26 +1532,44 @@ static void attach_run(void *arg)
 	}
 	if (!console_ids(&cuid, &cgid)) {
 		NTFSMAC_LOGW("%s: no user at the console: the worker cannot run, leaving the disk to the system", v->bsd);
-		(void)ntfsmac_da_withdraw(g_da, v->bsd);
 		(void)sm_apply(v, NTFSMAC_VEV_PROBE_FAILED, NTFSMAC_VMODE_NONE, NTFSMAC_VREASON_PROBE_FAILED, NULL);
 		goto out;
 	}
 
-	/* Step 3: Apple's driver mounted the disk first: unmount it, then nothing holds the device. */
-	pthread_mutex_lock(&g_mu);
-	if (v->apple_mounted) {
+	/*
+	 * Step 3: another driver may have the disk mounted. Only Apple's NTFS mount (or one of unknown
+	 * kind) is removed; a disk that Disk Arbitration knows as another file system is left alone
+	 * and not probed (T-M7-11).
+	 */
+	{
+		bool mounted, took = false;
+		char kind[sizeof v->rec.kind];
+		ntfsmac_claim_result cr;
+
+		pthread_mutex_lock(&g_mu);
+		mounted = v->apple_mounted;
+		copy_str(kind, sizeof kind, v->rec.kind);
 		pthread_mutex_unlock(&g_mu);
-		st = ntfsmac_da_unmount(g_da, v->bsd);
-		if (st != NTFSMAC_DMN_OK && st != NTFSMAC_DMN_E_STATE) {
-			NTFSMAC_LOGW("%s: Apple's mount could not be removed: %s", v->bsd, ntfsmac_dmn_status_name(st));
+		cr = ntfsmac_claim_take(&g_claim_ops, v->bsd, mounted, kind, &took);
+		pthread_mutex_lock(&g_mu);
+		if (cr == NTFSMAC_CLAIM_FREE)
+			v->apple_mounted = false;
+		v->rec.we_unmounted = took;
+		pthread_mutex_unlock(&g_mu);
+		if (cr == NTFSMAC_CLAIM_NOT_NTFS) {
+			NTFSMAC_LOGI("%s: volume kind %s: not NTFS, left to the system", v->bsd, kind);
+			(void)sm_apply(v, NTFSMAC_VEV_PROBE_FAILED, NTFSMAC_VMODE_NONE, NTFSMAC_VREASON_NOT_NTFS,
+				       "not_ntfs");
+			goto out;
+		}
+		if (cr != NTFSMAC_CLAIM_FREE) {
+			NTFSMAC_LOGW("%s: another driver's mount (kind %s) %s", v->bsd, kind[0] != '\0' ? kind : "unknown",
+				     cr == NTFSMAC_CLAIM_OTHER_DRIVER ? "is left alone" : "could not be removed");
 			(void)sm_apply(v, NTFSMAC_VEV_PROBE_FAILED, NTFSMAC_VMODE_NONE,
 				       NTFSMAC_VREASON_PROBE_FAILED, "other_driver");
 			goto out;
 		}
-		pthread_mutex_lock(&g_mu);
-		v->apple_mounted = false;
 	}
-	pthread_mutex_unlock(&g_mu);
 
 	/* Step 4: descriptor A, the first 4096 bytes, the disk's identity, the probe. */
 	fd = g_real.sys.open_device(g_real.sys.ctx, v->bsd, false);
@@ -1500,12 +1616,14 @@ static void attach_run(void *arg)
 		     ntfsmac_policy_decision_name(dec));
 	if (dec == NTFSMAC_POLICY_REFUSE) {
 		g_real.sys.close_fd(g_real.sys.ctx, fd);
-		(void)ntfsmac_da_withdraw(g_da, v->bsd); /* the system handles the disk (step 5) */
-		pthread_mutex_lock(&g_mu);
-		v->dissent = false;
-		pthread_mutex_unlock(&g_mu);
-		(void)sm_apply(v, NTFSMAC_VEV_REFUSED, NTFSMAC_VMODE_NONE, NTFSMAC_VREASON_POLICY_REFUSED,
-			       ntfsmac_report_policy_note_token(da.out.policy.note));
+		/* the system handles the disk (step 5): attach_finish() releases it */
+		if (ntfsmac_verdict_not_ntfs(pv))
+			(void)sm_apply(v, NTFSMAC_VEV_REFUSED, NTFSMAC_VMODE_NONE, NTFSMAC_VREASON_NOT_NTFS,
+				       "not_ntfs");
+		else
+			(void)sm_apply(v, NTFSMAC_VEV_REFUSED, NTFSMAC_VMODE_NONE,
+				       NTFSMAC_VREASON_POLICY_REFUSED,
+				       ntfsmac_report_policy_note_token(da.out.policy.note));
 		notify_refused(v, pv, da.out.policy.note, da.have_entry, &da.entry);
 		goto out;
 	}
@@ -1581,7 +1699,7 @@ static void attach_run(void *arg)
 		NTFSMAC_LOGE("%s: no session channel", v->bsd);
 		rd = wr = -1;
 		(void)sm_apply(v, NTFSMAC_VEV_MOUNT_FAILED, NTFSMAC_VMODE_NONE, NTFSMAC_VREASON_SPAWN, NULL);
-		settle_failed_spawn(v, -1, -1);
+		device_free = settle_failed_spawn(v, -1, -1);
 		notify_token(v, NTFSMAC_NOTIFY_REFUSED, "spawn");
 		goto out;
 	}
@@ -1614,7 +1732,7 @@ static void attach_run(void *arg)
 			NTFSMAC_LOGW("%s: the retry is dropped (daemon stopping or a mount appeared)", v->bsd);
 			(void)sm_apply(v, NTFSMAC_VEV_MOUNT_FAILED, NTFSMAC_VMODE_NONE, NTFSMAC_VREASON_SPAWN, NULL);
 			v->worker = child;
-			settle_failed_spawn(v, -1, -1);
+			device_free = settle_failed_spawn(v, -1, -1);
 			notify_token(v, NTFSMAC_NOTIFY_REFUSED, "spawn");
 			goto out;
 		}
@@ -1622,7 +1740,8 @@ static void attach_run(void *arg)
 			NTFSMAC_LOGE("%s: no session channel", v->bsd);
 			rd = wr = -1;
 			(void)sm_apply(v, NTFSMAC_VEV_MOUNT_FAILED, NTFSMAC_VMODE_NONE, NTFSMAC_VREASON_SPAWN, NULL);
-			settle_failed_spawn(v, -1, -1);
+			v->worker = child; /* the first start's device is the one to check */
+			device_free = settle_failed_spawn(v, -1, -1);
 			notify_token(v, NTFSMAC_NOTIFY_REFUSED, "spawn");
 			goto out;
 		}
@@ -1644,7 +1763,7 @@ static void attach_run(void *arg)
 		NTFSMAC_LOGE("%s: the worker did not mount (%s)", v->bsd, ntfsmac_dmn_status_name(st));
 		(void)sm_apply(v, NTFSMAC_VEV_MOUNT_FAILED, NTFSMAC_VMODE_NONE, why, NULL);
 		v->worker = child;
-		settle_failed_spawn(v, rd, wr);
+		device_free = settle_failed_spawn(v, rd, wr);
 		notify_token(v, NTFSMAC_NOTIFY_REFUSED, ntfsmac_report_vreason_token(why));
 		goto out;
 	}
@@ -1671,7 +1790,7 @@ static void attach_run(void *arg)
 	if (vr == NTFSMAC_VRES_MODE_MISMATCH) {
 		NTFSMAC_LOGE("%s: a read-only decision gave a writable mount: stopping it", v->bsd);
 		(void)sm_apply(v, NTFSMAC_VEV_MOUNT_FAILED, NTFSMAC_VMODE_NONE, NTFSMAC_VREASON_MODE_MISMATCH, NULL);
-		settle_failed_spawn(v, v->errrd, -1); /* kills the worker, removes the mount, settles */
+		device_free = settle_failed_spawn(v, v->errrd, -1); /* kills the worker, removes the mount, settles */
 		v->errrd = -1;
 		notify_token(v, NTFSMAC_NOTIFY_REFUSED, "mode_mismatch");
 		goto out;
@@ -1698,6 +1817,7 @@ static void attach_run(void *arg)
 	}
 	(void)mw_check(-1, NULL, NULL); /* a hijack during the mount wait is seen before the first tick */
 out:
+	attach_finish(v, device_free);
 	free(pv);
 	free(in);
 	attach_done(rq);
@@ -1731,6 +1851,7 @@ static void disk_gone_run(void *arg)
 		v->dissent = false;
 		v->apple_mounted = false;
 		ntfsmac_volrec_reset(&v->rec);
+		ntfsmac_devbusy_reset(&v->device_busy); /* the disk is gone */
 	}
 	pthread_mutex_unlock(&g_mu);
 	if (vol_state(v) == NTFSMAC_VOL_GONE)
@@ -1946,6 +2067,7 @@ static void queue_attach(vol *v, bool automatic, bool request_ro, dispatch_semap
 
 typedef struct appeared_arg {
 	vol *v;
+	char volume_kind[NTFSMAC_DISK_KIND_SIZE]; /* DAVolumeKind (T-M7-11), as ntfsmac_disk_info */
 	bool has_volume_path;
 	bool dissent;
 	bool allow_auto;
@@ -1966,6 +2088,9 @@ static void vol_reset_for_appearance(vol *v, const appeared_arg *ap)
 	v->apple_mounted = ap->has_volume_path;
 	v->dissent = ap->dissent;
 	ntfsmac_volrec_reset(&v->rec);
+	ntfsmac_volrec_set_kind(&v->rec, ap->volume_kind);
+	ntfsmac_devbusy_reset(&v->device_busy); /* a new disk: nothing of the old device */
+	worker_forget(v);
 }
 
 /* On the volume's queue, so that it runs after the handling of an earlier disappearance. */
@@ -2028,6 +2153,7 @@ static void cb_disk_appeared(const ntfsmac_disk_info *d, void *ctx)
 
 	/* Step 3: the dissent must be given from inside this callback. */
 	ap->v = v;
+	copy_str(ap->volume_kind, sizeof ap->volume_kind, d->volume_kind);
 	ap->has_volume_path = d->has_volume_path;
 	ap->size_bytes = d->size_bytes;
 	ap->allow_auto = allow_auto;
@@ -2058,8 +2184,10 @@ static void cb_disk_mounted(const ntfsmac_disk_info *d, void *ctx)
 	pthread_mutex_lock(&g_mu);
 	/* Our own mount of the volume is not Apple's. */
 	if (v->sm.state != NTFSMAC_VOL_MOUNTING && v->sm.state != NTFSMAC_VOL_MOUNTED &&
-	    v->sm.state != NTFSMAC_VOL_UNMOUNTING)
+	    v->sm.state != NTFSMAC_VOL_UNMOUNTING) {
 		v->apple_mounted = true;
+		ntfsmac_volrec_set_kind(&v->rec, d->volume_kind); /* the driver that mounted it (T-M7-11) */
+	}
 	pthread_mutex_unlock(&g_mu);
 }
 
@@ -2212,12 +2340,12 @@ static ntfsmac_dmn_status op_list(void *ctx, char *reply, size_t cap)
 		if (v->sm.state == NTFSMAC_VOL_GONE)
 			continue;
 		/*
-		 * A disk the probe found not to be NTFS at all is none of our business (the macFUSE
-		 * FSKit backend makes small disk-image devices of its own, for one): not listed, as
-		 * no notification is made for it. BitLocker stays visible.
+		 * A disk that the probe or Disk Arbitration found not to be NTFS at all is none of our
+		 * business (the macFUSE FSKit backend makes small disk-image devices of its own, for
+		 * one): not listed, as no notification is made for it. BitLocker stays visible. The
+		 * reason belongs to this appearance of the disk, never to an earlier one (T-M7-16).
 		 */
-		if (ntfsmac_volrec_verdict(&v->rec) != NULL && !ntfsmac_volrec_verdict(&v->rec)->is_ntfs &&
-		    !ntfsmac_volrec_verdict(&v->rec)->bitlocker && v->sm.state == NTFSMAC_VOL_FAILED)
+		if (!ntfsmac_volume_listed(&v->sm))
 			continue;
 		view_locked(v, &views[n]);
 		n++;
@@ -2337,15 +2465,16 @@ static ntfsmac_dmn_status op_mount_held(vol *v, const char *bsd, bool read_only,
 {
 	dispatch_semaphore_t done;
 	ntfsmac_dmn_status st;
-	bool accepts, apple;
+	bool apple;
+	const char *refusal;
 	ntfsmac_conflict_report cr;
 
 	pthread_mutex_lock(&g_mu);
-	accepts = ntfsmac_volume_accepts_mount(&v->sm);
+	refusal = ntfsmac_volume_mount_refusal(&v->sm); /* a fixed string */
 	apple = v->apple_mounted;
 	pthread_mutex_unlock(&g_mu);
-	if (!accepts) {
-		snprintf(reply, cap, "{\"ok\":false,\"error\":\"failed\",\"reason\":\"wrong_state\"}");
+	if (refusal != NULL) { /* "not_ntfs" (T-M7-11) or "wrong_state": no unmount, no dissent */
+		snprintf(reply, cap, "{\"ok\":false,\"error\":\"failed\",\"reason\":\"%s\"}", refusal);
 		return NTFSMAC_DMN_E_STATE;
 	}
 	pthread_mutex_lock(&g_conflict_mu);

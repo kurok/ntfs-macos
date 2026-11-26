@@ -54,6 +54,14 @@ if(NTFSMAC_SH)
                    ${PROJECT_SOURCE_DIR}/scripts/repro-check.sh ${PROJECT_SOURCE_DIR}/packaging/build-pkg.sh)
   add_test(NAME packaging.syntax_repro-check
            COMMAND ${NTFSMAC_SH} -n ${PROJECT_SOURCE_DIR}/scripts/repro-check.sh)
+  # U-PKG-10 (T-M7-08): the detached signature of SHA256SUMS (scripts/sign-release.sh) with a throw-away
+  # key made in a temporary directory, release-local.sh's refusal without --sign-key or --unsigned, no
+  # private key in the tree, and the verify step of docs/INSTALL.md before the install command.
+  find_program(NTFSMAC_SSH_KEYGEN ssh-keygen)
+  if(NTFSMAC_SSH_KEYGEN)
+    add_test(NAME packaging.release_signing
+             COMMAND ${NTFSMAC_SH} ${CMAKE_CURRENT_SOURCE_DIR}/release_signing_test.sh ${PROJECT_SOURCE_DIR})
+  endif()
 endif()
 
 # U-PKG-04 (T-M6-01): shellcheck. Every check (style level) on the scripts that run as root (the
@@ -70,6 +78,7 @@ if(NTFSMAC_SHELLCHECK)
                    packaging/sign-and-notarize.sh tests/unit/packaging/sign_and_notarize_test.sh
                    scripts/make-source-release.sh scripts/lib/label.sh scripts/lib/tree.sh scripts/release-local.sh tests/unit/packaging/source_release_test.sh
                    scripts/repro-check.sh tests/unit/packaging/repro_check_test.sh
+                   scripts/sign-release.sh tests/unit/packaging/release_signing_test.sh
                    tests/integration/packaging/pkg_release_vm.sh tests/integration/packaging/pkg_release_vm_guest.sh
                    tests/integration/packaging/pkg_preflight_vm.sh tests/integration/packaging/pkg_preflight_vm_guest.sh
            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})

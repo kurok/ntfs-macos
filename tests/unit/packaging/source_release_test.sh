@@ -249,7 +249,7 @@ printf 'dist/\nbuild/\n' >>"$repo/.gitignore"
 git -C "$repo" add -A
 git -C "$repo" -c user.name=t -c user.email=t@example.invalid -c commit.gpgsign=false commit -q -m stub
 rl_tree=$(git -C "$repo" rev-parse 'HEAD^{tree}')
-env LIVE="$repo" sh -c "cd '$repo' && sh scripts/release-local.sh --no-ci --host" >"$tmp/rl.out" 2>&1 && ok || { bad "release-local host run failed"; sed 's/^/    /' "$tmp/rl.out"; }
+env LIVE="$repo" sh -c "cd '$repo' && sh scripts/release-local.sh --no-ci --unsigned --host" >"$tmp/rl.out" 2>&1 && ok || { bad "release-local host run failed"; sed 's/^/    /' "$tmp/rl.out"; }
 d=$(find "$repo/dist" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | head -1)/
 if [ "$d" != / ] && ls "$d"ntfs-macos-*-source.tar.gz >/dev/null 2>&1; then
 	sa=$(ls "$d"ntfs-macos-*-source.tar.gz)
@@ -265,7 +265,7 @@ fi
 git -C "$repo" checkout -q -- COPYING
 rm -rf "$repo/dist"
 printf 'untracked\n' >"$repo/extra.txt"
-env LIVE="$repo" sh -c "cd '$repo' && sh scripts/release-local.sh --no-ci --host" >"$tmp/rl.out" 2>&1 && ok || { bad "release-local host run (untracked file) failed"; sed 's/^/    /' "$tmp/rl.out"; }
+env LIVE="$repo" sh -c "cd '$repo' && sh scripts/release-local.sh --no-ci --unsigned --host" >"$tmp/rl.out" 2>&1 && ok || { bad "release-local host run (untracked file) failed"; sed 's/^/    /' "$tmp/rl.out"; }
 d=$(find "$repo/dist" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | head -1)/
 case $d in *.dirty/) ok ;; *) bad "an untracked file did not make the label dirty: $d" ;; esac
 grep -qx extra.txt "$d/seen-ls" && ok || bad "the host build did not get the untracked file"
@@ -275,7 +275,7 @@ sa=$(ls "$d"ntfs-macos-*-source.tar.gz 2>/dev/null)
 [ -n "$sa" ] && tar -xzOf "$sa" "$(basename "$sa" .tar.gz)/SOURCES.txt" | grep -q '^  dirty  *yes' && ok || bad "SOURCES.txt does not say dirty"
 git -C "$repo" checkout -q -- COPYING
 rm -rf "$repo/dist" "$repo/extra.txt"
-env LIVE="$repo" STUB_MOVE=1 sh -c "cd '$repo' && sh scripts/release-local.sh --no-ci --host" >"$tmp/rl.out" 2>&1 && bad "release-local accepted a moved HEAD" || ok
+env LIVE="$repo" STUB_MOVE=1 sh -c "cd '$repo' && sh scripts/release-local.sh --no-ci --unsigned --host" >"$tmp/rl.out" 2>&1 && bad "release-local accepted a moved HEAD" || ok
 grep -q 'HEAD moved' "$tmp/rl.out" && ok || bad "no HEAD moved message"
 ls "$repo"/dist/*/ntfs-macos-*.pkg >/dev/null 2>&1 && bad "a package was left without its source" || ok
 git -C "$repo" reset -q --hard "$rl_tree" 2>/dev/null || true

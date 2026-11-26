@@ -19,6 +19,12 @@
 #                are I-PKG-03..05, tests/integration/packaging/pkg_release_vm.sh and
 #                pkg_preflight_vm.sh)
 #
+#   4. sign      on the host, after every check above: scripts/sign-release.sh signs SHA256SUMS with the
+#                owner's key (--sign-key FILE: the private key, or the public key of a key in ssh-agent;
+#                no default) and checks SHA256SUMS.sig against packaging/release-signers (T-M7-08,
+#                ADR-011 amendment 2026-11-26). Without --sign-key, --unsigned must be given: the result
+#                is then for testing only and is not published.
+#
 # Both VMs are always deleted, also on failure or interrupt (unless --keep-vm).
 # --host builds on this Mac instead of a VM; it needs macFUSE installed here and skips verify.
 #
@@ -26,8 +32,9 @@
 # <version>-dev.<UTC date>.g<12-hex commit>, plus ".dirty" for uncommitted changes
 # (only with --allow-dirty; tracked files are packaged as they are in the working tree).
 #
-# Usage: scripts/release-local.sh [--allow-dirty] [--no-ci] [--no-verify] [--host] [--keep-vm]
-# Exit:  0 package built (and verified), 1 a stage failed, 2 usage or setup error.
+# Usage: scripts/release-local.sh (--sign-key FILE | --unsigned) [--allow-dirty] [--no-ci] [--no-verify] [--host] [--keep-vm]
+# Exit:  0 package built (and verified, and signed), 1 a stage failed, 2 usage or setup error,
+#        3 no release key in packaging/release-signers yet (owner setup, packaging/README.md).
 set -eu
 
 here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
@@ -40,11 +47,13 @@ tart_sh=$root/vm/macos/tart.sh
 
 die() { printf 'release-local: %s\n' "$1" >&2; exit "${2:-1}"; }
 log() { printf '\n== release-local: %s ==\n' "$*"; }
-usage() { printf 'usage: %s [--allow-dirty] [--no-ci] [--no-verify] [--host] [--keep-vm]\n' "$0" >&2; }
+usage() { printf 'usage: %s (--sign-key FILE | --unsigned) [--allow-dirty] [--no-ci] [--no-verify] [--host] [--keep-vm]\n' "$0" >&2; }
 
-allow_dirty=0 run_ci=1 verify=1 on_host=0 keep_vm=0
+allow_dirty=0 run_ci=1 verify=1 on_host=0 keep_vm=0 sign_key='' unsigned=0
 while [ $# -gt 0 ]; do
 	case "$1" in
+	--sign-key) [ $# -ge 2 ] || { usage; die "--sign-key needs a file" 2; }; sign_key=$2; shift ;;
+	--unsigned) unsigned=1 ;;
 	--allow-dirty) allow_dirty=1 ;;
 	--no-ci) run_ci=0 ;;
 	--no-verify) verify=0 ;;
@@ -55,6 +64,19 @@ while [ $# -gt 0 ]; do
 	esac
 	shift
 done
+# T-M7-08: a release is signed, or explicitly not. Checked before anything runs.
+if [ -n "$sign_key" ]; then
+	[ "$unsigned" -eq 0 ] || { usage; die "--sign-key and --unsigned exclude each other" 2; }
+	# a signed release is built in the isolated VM from a committed tree and verified
+	[ "$on_host" -eq 0 ] || { usage; die "--sign-key is not allowed with --host (a signed release is built in the isolated VM)" 2; }
+	[ "$verify" -eq 1 ] || { usage; die "--sign-key is not allowed with --no-verify" 2; }
+	[ "$allow_dirty" -eq 0 ] || { usage; die "--sign-key is not allowed with --allow-dirty" 2; }
+	[ -f "$sign_key" ] || die "signing key file not found: $sign_key" 2
+	command -v ssh-keygen >/dev/null 2>&1 || die "ssh-keygen not found" 2
+elif [ "$unsigned" -eq 0 ]; then
+	usage
+	die "no signing key: pass --sign-key FILE (the release key, packaging/README.md), or --unsigned for a test build that is not published" 2
+fi
 
 srcrel() { # the GPL source archive of the tree that was built (TREE, made before the build), next to the package
 	# fetch-deps.sh may download the pinned tarball (checked against deps.lock); make-source-release.sh never does
@@ -64,6 +86,20 @@ srcrel() { # the GPL source archive of the tree that was built (TREE, made befor
 		rm -f "${out:?}/ntfs-macos-$label.pkg"
 		printf 'source release archive failed; the package was removed from %s\n' "$out" >&2
 		die "source release archive failed"
+	}
+}
+
+signrel() { # T-M7-08: on the host, after every check: sign SHA256SUMS, or say plainly that it is not signed
+	if [ "$unsigned" -eq 1 ]; then
+		log "not signed (--unsigned): a test build; do not publish it"
+		return 0
+	fi
+	log "sign SHA256SUMS (scripts/sign-release.sh)"
+	sh "$here/sign-release.sh" --key "$sign_key" --label "$label" "$out" || {
+		_rc=$?
+		rm -f "${out:?}/SHA256SUMS.sig"
+		[ "$_rc" -eq 3 ] && die "no release key in packaging/release-signers yet (owner setup, packaging/README.md); nothing was signed" 3
+		die "signing SHA256SUMS failed; nothing was signed"
 	}
 }
 
@@ -132,6 +168,7 @@ if [ "$on_host" -eq 1 ]; then
 	NTFSMAC_SOURCE_REV=$rev$dirty SOURCE_DATE_EPOCH=$sde sh "$rl_tmp/src/packaging/build-pkg.sh" --label "$label" --out "$out" --work "$rl_tmp/src/build/pkg"
 	log "source release archive"
 	srcrel
+	signrel
 	log "done: $out"
 	exit 0
 fi
@@ -175,6 +212,7 @@ srcrel
 
 pkg=ntfs-macos-$label.pkg
 if [ "$verify" -eq 0 ]; then
+	signrel
 	log "done (not verified): $out/$pkg and the source archive"
 	exit 0
 fi
@@ -219,5 +257,6 @@ if sudo -n launchctl print system/org.ntfs-macos.ntfsmacd >/dev/null 2>&1; then 
 exit "$fail"
 ' || die "install verification failed"
 
+signrel
 log "done: $out/$pkg"
 ls -l "$out"

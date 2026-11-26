@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# Release signing key of ntfs-macos (T-M7-08, ADR-011 amendment 2026-11-26).
+# Format: ssh-keygen(1) ALLOWED SIGNERS, one line per key:
+#
+#   ntfs-macos-release namespaces="ntfs-macos-release" ssh-ed25519 AAAA...
+#
+# A user checks a release's SHA256SUMS.sig against THIS file from a clone of the repository
+# (docs/INSTALL.md), never against a copy from the release page. Only the owner adds or changes a
+# line, in a commit of their own; the private key never enters the repository, the build VM or a
+# script default (packaging/README.md, "Release signing key").
+#
+# No key yet: the owner adds the public key line here once (owner setup). Until then
+# scripts/sign-release.sh and scripts/release-local.sh --sign-key stop with exit 3.

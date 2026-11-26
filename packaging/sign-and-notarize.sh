@@ -27,7 +27,9 @@
 #   7. xcrun stapler staple       and `stapler validate`
 #   8. spctl -a -t install -vv    Gatekeeper's verdict on the result (must say "accepted")
 #   9. output directory           ntfs-macos-<label>.pkg, uninstall.sh, manifest.txt, BUILD-INFO
-#                                 (signature line changed) and a new SHA256SUMS
+#                                 (signature line changed), the GPL source archive
+#                                 ntfs-macos-<label>-source.tar.gz (copied unchanged after its
+#                                 SHA256SUMS line in the input directory checks; T-M6-05) and a new SHA256SUMS
 #
 # Credentials are never stored. The names of the two Developer ID identities and the name of a
 # notarytool keychain profile are passed as arguments, and the script only hands them to
@@ -132,6 +134,7 @@ ntfs-macos-*.pkg) ;;
 *) die "--pkg must be named ntfs-macos-<label>.pkg: $name" 2 ;;
 esac
 indir=$(dirname -- "$pkg")
+srcname=${name%.pkg}-source.tar.gz
 
 # The credentials. All three are required; none is read from the environment or a file.
 need=
@@ -180,9 +183,13 @@ if [ "$dry" = 0 ]; then
 	[ -f "$pkg" ] || die "no such package: $pkg" 1
 	[ -f "$ents" ] || die "missing $ents" 1
 	[ ! -e "$outdir/$name" ] || die "refusing to overwrite $outdir/$name" 1
-	for f in uninstall.sh manifest.txt BUILD-INFO; do
-		[ -f "$indir/$f" ] || die "the input directory lacks $f (it is copied to the output)" 1
+	for f in uninstall.sh manifest.txt BUILD-INFO SHA256SUMS "$srcname"; do
+		[ -f "$indir/$f" ] || die "the input directory lacks $f (it is copied to the output; the source archive and its SHA256SUMS line come from scripts/make-source-release.sh)" 1
 	done
+	# The source archive must be the one its SHA256SUMS line names; the digest is checked before it is copied.
+	grep -q "  $srcname\$" "$indir/SHA256SUMS" || die "$indir/SHA256SUMS has no line for $srcname" 1
+	grep "  $srcname\$" "$indir/SHA256SUMS" | (cd "$indir" && shasum -a 256 -c - >/dev/null 2>&1) ||
+		die "$srcname does not match its line in $indir/SHA256SUMS" 1
 	work=$(mktemp -d "${TMPDIR:-/tmp}/ntfsmac-sign.XXXXXX") || die "cannot make a scratch directory" 1
 	trap cleanup EXIT
 	trap 'exit 130' INT
@@ -293,13 +300,13 @@ run spctl -a -t install -vv "$signed"
 # and SHA256SUMS.
 run mkdir -p "$outdir"
 run cp "$signed" "$outdir/$name"
-run cp "$indir/uninstall.sh" "$indir/manifest.txt" "$outdir/"
+run cp "$indir/uninstall.sh" "$indir/manifest.txt" "$indir/$srcname" "$outdir/"
 if [ "$dry" = 1 ]; then
 	printf '+ sed (signature line of BUILD-INFO) %s/BUILD-INFO > %s/BUILD-INFO\n' "$indir" "$outdir"
-	printf '+ (cd %s && shasum -a 256 %s uninstall.sh manifest.txt > SHA256SUMS)\n' "$outdir" "$name"
+	printf '+ (cd %s && shasum -a 256 %s uninstall.sh manifest.txt %s > SHA256SUMS)\n' "$outdir" "$name" "$srcname"
 	printf '# dry run done; the result would be in %s\n' "$outdir"
 else
 	sed 's/^signature .*/signature    Developer ID, notarized, stapled; every program with hardened runtime, libfuse users with disable-library-validation/' "$indir/BUILD-INFO" >"$outdir/BUILD-INFO"
-	(cd "$outdir" && shasum -a 256 "$name" uninstall.sh manifest.txt >SHA256SUMS)
+	(cd "$outdir" && shasum -a 256 "$name" uninstall.sh manifest.txt "$srcname" >SHA256SUMS)
 	printf '%s: wrote %s\n' "$prog" "$outdir"
 fi

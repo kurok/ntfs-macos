@@ -24,6 +24,47 @@ also sends the files that are not yet tracked and not ignored).
 Options: `--no-ci`, `--no-verify`, `--keep-vm`, and `--host` to build on this Mac when macFUSE is
 installed here (no verify stage).
 
+## Source release archive (T-M6-05)
+
+The GPL requires the corresponding source with every binary. `scripts/release-local.sh` therefore
+runs `scripts/make-source-release.sh` on the host after the package build and puts
+`ntfs-macos-<label>-source.tar.gz` into `dist/<label>/` next to the package, with its line in
+`SHA256SUMS`. Publish the two together (ADR-015).
+
+```sh
+scripts/make-source-release.sh [--label L] [--out DIR] [--rev COMMIT] [--tree TREE] [--allow-dirty] [--worktree]
+```
+
+- The archive is the corresponding source of what was built: one git tree. `release-local.sh` makes
+  the tree before the build (`scripts/lib/tree.sh`: the commit's tree, or with `--allow-dirty` and for
+  the host build the file set of `git ls-files --cached --others --exclude-standard` with the
+  working-tree contents, force-added ignored files included, no line-ending conversion, an untracked
+  nested repository refused), gives it to the build (sent to the VM, or extracted and built on the host,
+  so no cached CMake state of the working tree and no later edit reaches the build), and passes the same
+  id as `--tree`. Standalone, the script uses the commit's tree, or with `--allow-dirty` or `--worktree`
+  the working-tree set. Plus the pinned NTFS-3G tarball from `third_party/cache` and `SOURCES.txt`
+  (licence, corresponding-source statement, base commit, tree id, dirty flag and changed paths, git and
+  git version and the built-in gzip, the macFUSE prerequisite), under `ntfs-macos-<label>-source/`.
+- A tree that differs from the commit is dirty: the label gets `.dirty` (also for untracked files on
+  the host), and `BUILD-INFO` and `SOURCES.txt` agree.
+- Standalone it refuses uncommitted changes to tracked files unless `--allow-dirty`, and an untracked
+  `*.patch` in the patch directory unless the working-tree set is archived. `--rev` is the commit
+  that was built; the script refuses if `HEAD` is another commit. `release-local.sh` passes it.
+- It verifies the tarball against `third_party/deps.lock` and refuses on a mismatch. It never
+  downloads: if the tarball is missing it prints `scripts/fetch-deps.sh ntfs-3g` and exits 1. It also
+  checks that every patch the series README lists as applied is in the archive.
+- Same tree and same git version give the same bytes: the commit time on every entry, owner 0/0,
+  modes with umask 022, compressed by git's built-in gzip (`tar.tar.gz.command=git archive gzip`, no
+  name, no time, not the system gzip).
+- `--rev` is strict on purpose: if `HEAD` is not the commit that was built, the script refuses, even when
+  only a later commit was added.
+- If it fails in `release-local.sh`, the package is removed from `dist/<label>/`.
+- `sign-and-notarize.sh` requires the archive and `SHA256SUMS` next to the unsigned package, checks the
+  archive against its line (`shasum -a 256 -c`), and copies it, with its line, into the signed output.
+- The label logic is `scripts/lib/label.sh`, shared with `release-local.sh`; `--label` overrides it.
+  A default label has the current date; pass `--label` for a reproducible name.
+- Test: U-PKG-06 (`ctest -R packaging.source_release`).
+
 ## Install
 
 Prerequisite: macFUSE 5.5.0 or newer, installed and turned on in System Settings.
@@ -133,7 +174,7 @@ packaging/sign-and-notarize.sh --pkg dist/<label>/ntfs-macos-<label>.pkg \
 | notarize | `xcrun notarytool submit --keychain-profile NAME --wait`; on a status other than Accepted it prints `notarytool log` for the submission and stops |
 | staple | `xcrun stapler staple`, then `stapler validate` |
 | Gatekeeper check | `spctl -a -t install -vv` (criterion 6.4) |
-| output | `ntfs-macos-<label>.pkg`, `uninstall.sh`, `manifest.txt`, `BUILD-INFO` (signature line changed) and a new `SHA256SUMS` in `--out-dir` (default `signed/` next to the input) |
+| output | `ntfs-macos-<label>.pkg`, `uninstall.sh`, `manifest.txt`, `BUILD-INFO` (signature line changed), the source archive `ntfs-macos-<label>-source.tar.gz` (required in the input directory with its `SHA256SUMS` line, checked, copied unchanged) and a new `SHA256SUMS` in `--out-dir` (default `signed/` next to the input) |
 
 `--dry-run` prints these commands and runs none. Without a profile or an identity (or without the
 tools) the script exits 3 and points to the unsigned path above; exit 2 is a usage error and exit 1

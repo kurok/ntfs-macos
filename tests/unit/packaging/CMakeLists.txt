@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# T-M4-10, T-M6-01, T-M6-02: host-side checks of the packaging: the manifest and payload lints, the
+# T-M4-10, T-M6-01, T-M6-02, T-M6-05: host-side checks of the packaging: the manifest and payload lints, the
 # rules of the root-run package scripts, shellcheck, and the dry run of the signing script. They read
 # files or run scripts in dry-run or plan mode only; nothing is installed or signed on the host. The
 # installers and the uninstaller run in a disposable macOS guest (I-PKG-01..06, tests/integration/packaging).
@@ -22,11 +22,17 @@ if(NTFSMAC_SH)
   add_test(NAME packaging.sign_and_notarize
            COMMAND ${NTFSMAC_SH} ${CMAKE_CURRENT_SOURCE_DIR}/sign_and_notarize_test.sh
                    ${PROJECT_SOURCE_DIR}/packaging/sign-and-notarize.sh)
+  # U-PKG-06 (T-M6-05): the GPL source release archive, in a throw-away git repository with a fake
+  # tarball (nothing is downloaded).
+  add_test(NAME packaging.source_release
+           COMMAND ${NTFSMAC_SH} ${CMAKE_CURRENT_SOURCE_DIR}/source_release_test.sh ${PROJECT_SOURCE_DIR})
   # The scripts at least parse (they are run only in the guest).
   foreach(s dev-install uninstall build-pkg payload-check sign-and-notarize)
     add_test(NAME packaging.syntax_${s}
              COMMAND ${NTFSMAC_SH} -n ${PROJECT_SOURCE_DIR}/packaging/${s}.sh)
   endforeach()
+  add_test(NAME packaging.syntax_make_source_release
+           COMMAND ${NTFSMAC_SH} -n ${PROJECT_SOURCE_DIR}/scripts/make-source-release.sh)
   foreach(s preinstall postinstall)
     add_test(NAME packaging.syntax_${s}
              COMMAND ${NTFSMAC_SH} -n ${PROJECT_SOURCE_DIR}/packaging/scripts/${s})
@@ -42,6 +48,7 @@ if(NTFSMAC_SHELLCHECK)
                    packaging/scripts/preinstall packaging/scripts/postinstall packaging/build-pkg.sh
                    packaging/payload-check.sh tests/unit/packaging/payload_lint.sh
                    packaging/sign-and-notarize.sh tests/unit/packaging/sign_and_notarize_test.sh
+                   scripts/make-source-release.sh scripts/lib/label.sh scripts/lib/tree.sh scripts/release-local.sh tests/unit/packaging/source_release_test.sh
                    tests/integration/packaging/pkg_release_vm.sh tests/integration/packaging/pkg_release_vm_guest.sh
                    tests/integration/packaging/pkg_preflight_vm.sh tests/integration/packaging/pkg_preflight_vm_guest.sh
            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})

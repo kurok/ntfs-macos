@@ -85,6 +85,38 @@ else
 	pass=$((pass + 1))
 fi
 
+# A real run needs the source archive in the input directory (GPL, T-M6-05): without it exit 1 and
+# nothing written (3 where the signing tools are not installed).
+mkdir -p "$tmp/in2"
+for f in ntfs-macos-x.pkg uninstall.sh manifest.txt BUILD-INFO SHA256SUMS; do : >"$tmp/in2/$f"; done
+sh "$script" --pkg "$tmp/in2/ntfs-macos-x.pkg" --profile p --app-identity "$APP" --installer-identity "$INST" --out-dir "$tmp/in2/signed" >"$tmp/out" 2>&1
+rc=$?
+case $rc in
+1) if grep -q 'lacks ntfs-macos-x-source.tar.gz' "$tmp/out"; then pass=$((pass + 1)); else echo "FAIL: missing source archive: wrong message"; cat "$tmp/out"; fail=$((fail + 1)); fi ;;
+3) pass=$((pass + 1)) ;;
+*) echo "FAIL: missing source archive: exit $rc, want 1 or 3"; fail=$((fail + 1)) ;;
+esac
+if [ -e "$tmp/in2/signed" ]; then echo "FAIL: a refused run wrote the output directory"; fail=$((fail + 1)); else pass=$((pass + 1)); fi
+# The source archive must match its SHA256SUMS line: a wrong digest is refused (exit 1; 3 without the tools),
+# a missing line is refused, a right digest passes this check (the run then stops later or at the tools).
+printf 'source\n' >"$tmp/in2/ntfs-macos-x-source.tar.gz"
+printf '%s  ntfs-macos-x-source.tar.gz\n' 0000000000000000000000000000000000000000000000000000000000000000 >"$tmp/in2/SHA256SUMS"
+sh "$script" --pkg "$tmp/in2/ntfs-macos-x.pkg" --profile p --app-identity "$APP" --installer-identity "$INST" --out-dir "$tmp/in2/signed" >"$tmp/out" 2>&1
+rc=$?
+case $rc in
+1) if grep -q 'does not match its line' "$tmp/out"; then pass=$((pass + 1)); else echo "FAIL: wrong source digest: wrong message"; cat "$tmp/out"; fail=$((fail + 1)); fi ;;
+3) pass=$((pass + 1)) ;;
+*) echo "FAIL: wrong source digest: exit $rc, want 1 or 3"; fail=$((fail + 1)) ;;
+esac
+: >"$tmp/in2/SHA256SUMS"
+sh "$script" --pkg "$tmp/in2/ntfs-macos-x.pkg" --profile p --app-identity "$APP" --installer-identity "$INST" --out-dir "$tmp/in2/signed" >"$tmp/out" 2>&1
+rc=$?
+case $rc in
+1) if grep -q 'has no line for ntfs-macos-x-source.tar.gz' "$tmp/out"; then pass=$((pass + 1)); else echo "FAIL: no digest line: wrong message"; cat "$tmp/out"; fail=$((fail + 1)); fi ;;
+3) pass=$((pass + 1)) ;;
+*) echo "FAIL: no digest line: exit $rc, want 1 or 3"; fail=$((fail + 1)) ;;
+esac
+
 # --out-dir: the parent must exist, and it must not be the input's directory.
 check outdir-no-parent 2 'parent of --out-dir' sh "$script" --dry-run --pkg "$tmp/ntfs-macos-x.pkg" --profile p --app-identity "$APP" --installer-identity "$INST" --out-dir "$tmp/no/such/dir"
 check outdir-is-input 2 'must not be the directory' sh "$script" --dry-run --pkg "$tmp/ntfs-macos-x.pkg" --profile p --app-identity "$APP" --installer-identity "$INST" --out-dir "$tmp"
@@ -117,6 +149,10 @@ has "'stapler' 'validate'" 'stapler validate'
 has "'-a' '-t' 'install' '-vv'" 'spctl'
 has "$tmp/signed/ntfs-macos-x.pkg" 'output name ntfs-macos-<label>.pkg in signed/'
 has "SHA256SUMS" 'SHA256SUMS'
+has "$tmp/ntfs-macos-x-source.tar.gz" 'copy of the source archive of the input directory'
+has "$tmp/signed/" 'output directory of the copy'
+# the SHA256SUMS line of the source archive is in the dry-run command
+if grep -F 'shasum -a 256' "$tmp/dry.txt" | grep -qF 'ntfs-macos-x-source.tar.gz'; then pass=$((pass + 1)); else echo "FAIL: SHA256SUMS command lacks the source archive"; fail=$((fail + 1)); fi
 has "BUILD-INFO" 'BUILD-INFO'
 # The flatten that writes the user's uid must not be used.
 if grep -q -- 'flatten-full' "$tmp/dry.txt"; then

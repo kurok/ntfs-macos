@@ -202,11 +202,47 @@ tests the result. Details of both, and of the unsigned path, are in
 [packaging/README.md](../packaging/README.md).
 
 The binaries are licensed under GPL-2.0-or-later. A release lists the commit it was built from
-(`source` in `BUILD-INFO`) and its tag. The corresponding source is this repository at that tag,
-which holds the NTFS-3G patch series in `third_party/patches/ntfs-3g/` and the build scripts, and
-the unmodified NTFS-3G release tarball. A source release archive that holds both is a requirement
-before any binary is distributed (criterion 6.5, T-M6-05, not made yet); until it exists, the
-tarball is the one pinned in `third_party/deps.lock`.
+(`source` in `BUILD-INFO`) and its tag. The corresponding source is the source release archive
+`ntfs-macos-<label>-source.tar.gz`, which is published next to every binary package (criterion 6.5,
+T-M6-05). It holds, under one directory `ntfs-macos-<label>-source/`:
+
+- the file set that the build got, as one git tree (its id is in `SOURCES.txt`): the release commit's
+  tree, or, for a build with `--allow-dirty` and for a host build, the tree of the tracked files, the
+  force-added ignored files and the new files that are not ignored, with their contents as they were
+  when the build started (the sources, the build scripts, the documents),
+- the NTFS-3G patch series in `third_party/patches/ntfs-3g/`,
+- the unmodified NTFS-3G release tarball in `third_party/cache/`, the one pinned in
+  `third_party/deps.lock`,
+- `SOURCES.txt`, which states the GPL licence and the corresponding-source statement and lists the
+  base commit, the tree id, whether the tree differs from the commit (dirty) with the changed paths,
+  the tarball digest, the patches and the git version.
+
+macFUSE (libfuse and its headers) is a system prerequisite and is not part of the archive; install
+macFUSE 5.5.0 or newer from <https://macfuse.github.io/> first. The build finds it with
+`pkg-config fuse`.
+
+`scripts/make-source-release.sh` makes the archive, checks the tarball against its pin (it never
+downloads), and writes the archive and its line in `SHA256SUMS` into `dist/<label>/`.
+`scripts/release-local.sh` makes that tree once before it builds, gives it to the build (sent to the
+VM, or extracted and built on the host, never the live working tree), and archives the same tree id
+after the build for the commit it read at the start. An edit made during the build changes neither.
+If the archive fails, or `HEAD` moved, it removes the package, so a package never exists without its
+source. A tree that differs from the commit gets the label suffix `.dirty` in the label, `BUILD-INFO`
+and `SOURCES.txt`. `packaging/sign-and-notarize.sh` checks the archive against its `SHA256SUMS` line,
+copies it into the signed output set and lists it in the new `SHA256SUMS`, so the signed release has
+it too. The same tree and the same git version give the same bytes. To build from it:
+
+```sh
+tar -xzf ntfs-macos-<label>-source.tar.gz
+cd ntfs-macos-<label>-source
+shasum -a 256 third_party/cache/ntfs-3g_ntfsprogs-*.tgz      # equals the pin in third_party/deps.lock
+# base commit and label are in SOURCES.txt; the label names the package
+NTFSMAC_SOURCE_REV=<base commit> packaging/build-pkg.sh --label <label>
+```
+
+The archive is not a git clone; `NTFSMAC_SOURCE_REV` makes `BUILD-INFO` of the package name the base
+commit. `packaging/dev-install.sh` reads the commit from git and records `unknown` here, so use
+`build-pkg.sh` for a build from the archive.
 
 ## Problems
 

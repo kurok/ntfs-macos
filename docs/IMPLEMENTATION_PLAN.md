@@ -111,6 +111,8 @@ Source tags `[V:Sn]`, `[A]`, `[U]` are defined in [ARCHITECTURE.md](ARCHITECTURE
 | 6.6 | `docs/INSTALL.md` and `docs/LIMITATIONS.md` exist; limitations include N1 to N5 and N9 to N22 from ARCHITECTURE.md section 9 (the verbatim rule there). | Audit check. |
 | 6.7 | Independent audit of the installer scripts that run as root, the package contents and the uninstall manifest. | `docs/audits/M6.md` (T-M6-06). |
 
+**Criterion 6.4, owner decision 2026-11-27:** recorded as "complete, unsigned" (ADR-011). No Developer ID credentials exist, so the package is unsigned and not notarized (the installed programs carry ad hoc signatures only); `packaging/sign-and-notarize.sh` stays unrun until H8 is done. The M6 gate passed at `811c186` on that basis (`docs/audits/M6.md` section 11).
+
 ### M7 Release readiness
 
 | # | Acceptance criterion | Measured by |

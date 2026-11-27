@@ -862,6 +862,9 @@ static void test_stop_removes_only_own(void)
 
 int main(void)
 {
+	/* The test client writes to connections the server may close (oversize lines, refused
+	 * peers, the DoS cases); a closed socket must fail the write, not kill the test. */
+	signal(SIGPIPE, SIG_IGN);
 	make_dir();
 	test_start_stop();
 	test_framing();

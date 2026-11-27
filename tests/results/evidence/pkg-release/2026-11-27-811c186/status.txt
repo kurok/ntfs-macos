@@ -1,0 +1,18 @@
+07:18:30 start 811c186a44602a14d407d800b226e773a9ba0fb9
+07:18:31 fixtures exit 0
+07:27:09 release-local exit 0
+07:27:09 pkg dir dist/0.2.0-dev.20261127.g811c186a4460
+total 31344
+-rw-r--r--@ 1 user  staff       526 Nov 27 07:26 BUILD-INFO
+-rw-r--r--@ 1 user  staff       516 Nov 27 07:26 SHA256SUMS
+-rw-r--r--@ 1 user  staff      4551 Nov 27 07:26 manifest.txt
+-rw-r--r--@ 1 user  staff  14705751 Nov 27 07:26 ntfs-macos-0.2.0-dev.20261127.g811c186a4460-source.tar.gz
+-rw-r--r--@ 1 user  staff   1296048 Nov 27 07:26 ntfs-macos-0.2.0-dev.20261127.g811c186a4460.pkg
+-rwxr-xr-x@ 1 user  staff     21889 Nov 27 07:26 uninstall.sh
+07:28:22 I-PKG-03/04 exit 0
+07:29:00 I-PKG-01/02 exit 0
+07:29:21 I-PKG-05 exit 0
+07:30:15 I-PKG-06 userlocal exit 0
+07:31:05 I-PKG-07 exit 0
+07:31:09 I-PKG-06 oldrel exit 0
+07:31:09 done

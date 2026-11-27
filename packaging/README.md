@@ -208,7 +208,10 @@ What the build does for it (`build-pkg.sh`, `build-ntfs3g.sh`):
 | no `-ffile-prefix-map`/`-fdebug-prefix-map`, no `-oso_prefix` | the build directory is the same in every clone; for NTFS-3G a `CFLAGS` value would replace its default `-g -O2` and change the deps key (`--print-key`) of `run-inputs.sh` |
 | no sorting of the payload | `pkgbuild` has no option for the order; equal trees give the same order |
 
-Result, 2026-11-26, commit d64f32d with these changes (`--allow-dirty`), golden VM macOS 27.2 with
+Gate result, 2026-11-27, clean commit 811c186 (no `--allow-dirty`): 28 identical, 3 differ, all allowed
+(`xar-toc-times`, `sums-follow-pkg`), exit 0; log `tests/results/evidence/pkg-release/2026-11-27-811c186/i-pkg-07.txt`.
+
+Earlier result, 2026-11-26, commit d64f32d with these changes (`--allow-dirty`, not recorded), golden VM macOS 27.2 with
 macFUSE 5.5.0 (libfuse 2.9.9): 28 items identical, 3 differ, all allowed, exit 0. Identical: every
 payload file (`ntfsmacd`, `ntfsmac`, `ntfsmac-worker`, `ntfsmac-probe`, `ntfsmac-volmark`, `mkntfs`,
 `ntfsfix`, `ntfsinfo`, `ntfslabel`, the sandbox profiles, the plist, `cli-requirement`,

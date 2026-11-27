@@ -1,0 +1,150 @@
+guest: 27.2 arm64, user admin; package ntfs-macos-0.2.0-dev.20261127.g811c186a4460.pkg
+macFUSE 5.5.0
+PASS: the package carries preinstall and postinstall, both executable
+== I-PKG-05: preflight refusals
+-- macFUSE missing
+  installer (exit 1): installer: Error - Install macFUSE 5.5.0 or newer and turn its file system extension on in System Settings, then run this installer again. ntfs-macos does not include macFUSE. 
+PASS: macFUSE missing: installer refuses: macFUSE
+PASS: macFUSE missing: nothing was installed
+  preinstall alone (exit 1): ntfs-macos preinstall: REFUSED: macFUSE is not installed (/Library/Filesystems/macfuse.fs is missing). Install macFUSE 5.5.0 or newer from https://macfuse.github.io and turn its file system extension on in System Settings, then run this installer again. ntfs-macos does not include macFUSE.
+PASS: macFUSE missing: preinstall refuses: macFUSE
+-- macFUSE too old (a stand-in bundle that says 5.4.2)
+  installer (exit 1): installer: Error - ntfs-macos needs macFUSE 5.5.0 or newer; this Mac has 5.4.2. Update macFUSE, then run this installer again. 
+PASS: macFUSE 5.4.2: installer refuses: 5.4.2
+PASS: macFUSE 5.4.2: nothing was installed
+  preinstall alone (exit 1): ntfs-macos preinstall: REFUSED: macFUSE 5.4.2 is too old; ntfs-macos needs macFUSE 5.5.0 or newer. Update macFUSE, then run this installer again.
+PASS: macFUSE 5.4.2: preinstall refuses: 5.4.2
+PASS: macFUSE is back (5.5.0)
+-- other NTFS drivers
+  installer (exit 1): installer: Error - Paragon NTFS (/Library/Filesystems/ufsd_NTFS.fs) is installed. ntfs-macos does not install next to another NTFS driver, because two drivers could write to one volume. Remove it with its own uninstaller first. 
+PASS: ufsd_NTFS.fs: installer refuses: Paragon NTFS
+PASS: ufsd_NTFS.fs: nothing was installed
+  preinstall alone (exit 1): ntfs-macos preinstall: REFUSED: another NTFS driver is installed: Paragon NTFS (/Library/Filesystems/ufsd_NTFS.fs); ntfs-macos does not install next to another NTFS driver, because two drivers could write to one volume. Remove the other driver with its own uninstaller first.
+PASS: ufsd_NTFS.fs: preinstall refuses: Paragon NTFS
+  installer (exit 1): installer: Error - Tuxera NTFS (/Library/Filesystems/tuxera_ntfs.fs) is installed. ntfs-macos does not install next to another NTFS driver, because two drivers could write to one volume. Remove it with its own uninstaller first. 
+PASS: tuxera_ntfs.fs: installer refuses: Tuxera NTFS
+PASS: tuxera_ntfs.fs: nothing was installed
+  preinstall alone (exit 1): ntfs-macos preinstall: REFUSED: another NTFS driver is installed: Tuxera NTFS (/Library/Filesystems/tuxera_ntfs.fs); ntfs-macos does not install next to another NTFS driver, because two drivers could write to one volume. Remove the other driver with its own uninstaller first.
+PASS: tuxera_ntfs.fs: preinstall refuses: Tuxera NTFS
+  installer (exit 1): installer: Package name is ntfs-macos 0.2.0-dev.20261127.g811c186a4460 installer: Installing at base path / installer: The install failed. (The Installer encountered an error that caused the installation to fail. Contact the software manufacturer for assistance. An error occurred while running scrip
+  install log: ntfs-macos preinstall: REFUSED: another NTFS driver is installed: another NTFS driver (/Library/Filesystems/Acme-NTFS.fs); ntfs-macos does not install next to another NTFS driver, because two drivers could write to one volume. Remove the other driver with its own uninstaller first.
+PASS: Acme-NTFS.fs: installer refuses: another NTFS driver
+PASS: Acme-NTFS.fs: nothing was installed
+  preinstall alone (exit 1): ntfs-macos preinstall: REFUSED: another NTFS driver is installed: another NTFS driver (/Library/Filesystems/Acme-NTFS.fs); ntfs-macos does not install next to another NTFS driver, because two drivers could write to one volume. Remove the other driver with its own uninstaller first.
+PASS: Acme-NTFS.fs: preinstall refuses: another NTFS driver
+  preinstall alone (exit 1): ntfs-macos preinstall: REFUSED: another NTFS driver is installed: an NTFS kernel extension (/Library/Extensions/acme_ntfs.kext); ntfs-macos does not install next to another NTFS driver, because two drivers could write to one volume. Remove the other driver with its own uninstaller first.
+PASS: acme_ntfs.kext: preinstall refuses: NTFS kernel extension
+PASS: acme_ntfs.kext: nothing was installed
+-- files in the way
+  installer (exit 1): installer: Package name is ntfs-macos 0.2.0-dev.20261127.g811c186a4460 installer: Installing at base path / installer: The install failed. (The Installer encountered an error that caused the installation to fail. Contact the software manufacturer for assistance. An error occurred while running scrip
+  install log: ntfs-macos preinstall: REFUSED: /usr/local/libexec/ntfs-macos exists, but no install of ntfs-macos is recorded on this Mac (no receipt org.ntfs-macos.pkg.v2 or org.ntfs-macos.pkg, no developer install). It may belong to other software; move it away, then run this installer again.
+PASS: a foreign /usr/local/libexec/ntfs-macos/ntfsmacd: installer refuses: no install of ntfs-macos is recorded
+PASS: a foreign /usr/local/libexec/ntfs-macos/ntfsmacd: nothing was installed
+  preinstall alone (exit 1): ntfs-macos preinstall: REFUSED: /usr/local/libexec/ntfs-macos exists, but no install of ntfs-macos is recorded on this Mac (no receipt org.ntfs-macos.pkg.v2 or org.ntfs-macos.pkg, no developer install). It may belong to other software; move it away, then run this installer again.
+PASS: a foreign /usr/local/libexec/ntfs-macos/ntfsmacd: preinstall refuses: no install of ntfs-macos is recorded
+PASS: ...and the foreign file is unchanged
+  preinstall alone (exit 1): ntfs-macos preinstall: REFUSED: /usr/local/libexec/ntfs-macos is a symbolic link; ntfs-macos installs a real file or directory there. Remove the link first.
+PASS: a symbolic link at /usr/local/libexec/ntfs-macos: preinstall refuses: symbolic link
+PASS: a symbolic link at /usr/local/libexec/ntfs-macos: nothing was installed
+  installer (exit 1): installer: Package name is ntfs-macos 0.2.0-dev.20261127.g811c186a4460 installer: Installing at base path / installer: The install failed. (The Installer encountered an error that caused the installation to fail. Contact the software manufacturer for assistance. An error occurred while running scrip
+  install log: ntfs-macos preinstall: REFUSED: the directory "/usr/local/libexec" above "/usr/local/libexec/ntfs-macos" is owned by admin with mode 755. Every directory above a path that this package installs must be a real directory (not a symbolic link), owned by root and not writable by group or others; otherwise another user could replace a program that runs as root. Replace a symbolic link by a real directory, or give the directory to root and remove the write permission of group and others, then run this installer again.
+PASS: a user-owned /usr/local/libexec (above the programs root runs): installer refuses: owned by admin
+PASS: a user-owned /usr/local/libexec (above the programs root runs): nothing was installed
+  preinstall alone (exit 1): ntfs-macos preinstall: REFUSED: the directory "/usr/local/libexec" above "/usr/local/libexec/ntfs-macos" is owned by admin with mode 755. Every directory above a path that this package installs must be a real directory (not a symbolic link), owned by root and not writable by group or others; otherwi
+PASS: a user-owned /usr/local/libexec (above the programs root runs): preinstall refuses: owned by admin
+-- audit M6-F01: /usr/local/libexec a symbolic link to a root-only directory
+/usr/local: root:wheel 755; /usr/local/libexec -> /private/var/db/ntfsmac-f01-target (root:wheel 755)
+  installer (exit 1): installer: Package name is ntfs-macos 0.2.0-dev.20261127.g811c186a4460 installer: Installing at base path / installer: The install failed. (The Installer encountered an error that caused the installation to fail. Contact the software manufacturer for assistance. An error occurred while running scrip
+  install log: ntfs-macos preinstall: REFUSED: the directory "/usr/local/libexec" above "/usr/local/libexec/ntfs-macos" is a symbolic link. Every directory above a path that this package installs must be a real directory (not a symbolic link), owned by root and not writable by group or others; otherwise another user could replace a program that runs as root. Replace a symbolic link by a real directory, or give the directory to root and remove the write permission of group and others, then run this installer again.
+PASS: a root-owned /usr/local, /usr/local/libexec a link to a root-only directory: installer refuses: the directory "/usr/local/libexec" above "/usr/local/libexec/ntfs-macos" is a symbolic link
+PASS: a root-owned /usr/local, /usr/local/libexec a link to a root-only directory: nothing was installed
+  preinstall alone (exit 1): ntfs-macos preinstall: REFUSED: the directory "/usr/local/libexec" above "/usr/local/libexec/ntfs-macos" is a symbolic link. Every directory above a path that this package installs must be a real directory (not a symbolic link), owned by root and not writable by group or others; otherwise another us
+PASS: a root-owned /usr/local, /usr/local/libexec a link to a root-only directory: preinstall refuses: the directory "/usr/local/libexec" above "/usr/local/libexec/ntfs-macos" is a symbolic link
+PASS: ...and nothing appeared in the link's target
+  installer (exit 1): installer: Package name is ntfs-macos 0.2.0-dev.20261127.g811c186a4460 installer: Installing at base path / installer: The install failed. (The Installer encountered an error that caused the installation to fail. Contact the software manufacturer for assistance. An error occurred while running scrip
+  install log: ntfs-macos preinstall: REFUSED: the directory "/usr/local" above "/usr/local/libexec/ntfs-macos" is owned by admin with mode 755. Every directory above a path that this package installs must be a real directory (not a symbolic link), owned by root and not writable by group or others; otherwise another user could replace a program that runs as root. Replace a symbolic link by a real directory, or give the directory to root and remove the write permission of group and others, then run this installer again.
+PASS: a user-owned /usr/local, /usr/local/libexec a link to a root-only directory (the case of the audit): installer refuses: the directory "/usr/local" above "/usr/local/libexec/ntfs-macos" is owned by admin
+PASS: a user-owned /usr/local, /usr/local/libexec a link to a root-only directory (the case of the audit): nothing was installed
+  preinstall alone (exit 1): ntfs-macos preinstall: REFUSED: the directory "/usr/local" above "/usr/local/libexec/ntfs-macos" is owned by admin with mode 755. Every directory above a path that this package installs must be a real directory (not a symbolic link), owned by root and not writable by group or others; otherwise anoth
+PASS: a user-owned /usr/local, /usr/local/libexec a link to a root-only directory (the case of the audit): preinstall refuses: the directory "/usr/local" above "/usr/local/libexec/ntfs-macos" is owned by admin
+PASS: ...and nothing appeared in the link's target
+PASS: /usr/local and /usr/local/libexec are back (root:wheel 755, a real directory)
+== I-PKG-05: an upgrade of an older package of ours
+PASS: the old package 0.0.1 (org.ntfs-macos.pkg) is installed, with /usr/local/bin/ntfsmac as a file
+installer: Package name is ntfs-macos 0.2.0-dev.20261127.g811c186a4460
+installer: Installing at base path /
+installer: The install was successful.
+  ntfs-macos preinstall: macFUSE 5.5.0 found
+  ntfs-macos preinstall: preflight passed (upgrading the package 0.0.1 of the earlier layout)
+  ntfs-macos preinstall: removing /usr/local/bin/ntfsmac (the earlier install had it; this package does not)
+  ntfs-macos preinstall: removing /usr/local/libexec/ntfs-macos/old-tool (the earlier install had it; this package does not)
+  ntfs-macos preinstall: removing /usr/local/share/doc/ntfs-macos/COPYING (the earlier install had it; this package does not)
+  ntfs-macos preinstall: removing /usr/local/share/doc/ntfs-macos/LICENSES/GPL-2.0-or-later.txt (the earlier install had it; this package does not)
+  ntfs-macos preinstall: forgot the receipt org.ntfs-macos.pkg of the earlier layout (none of its files that this package does not ship is left)
+  ntfs-macos postinstall: authorization right org.ntfs-macos.journal-modify installed
+  ntfs-macos postinstall: recorded the requirement of /usr/local/libexec/ntfs-macos/ntfsmac: cdhash b7616dcc8f676e987d358297f3894e75cbe87190
+  ntfs-macos postinstall: linked /usr/local/bin/ntfsmac -> /usr/local/libexec/ntfs-macos/ntfsmac
+  ntfs-macos postinstall: the daemon org.ntfs-macos.ntfsmacd is running (/var/run/ntfsmacd.sock)
+  ntfs-macos postinstall: done. Check the setup with: /usr/local/libexec/ntfs-macos/ntfsmac doctor (macFUSE's file system extension must be on in System Settings)
+PASS: the release package installs over the old one (exit 0)
+PASS: the preflight passed as an upgrade of package 0.0.1 of the earlier layout
+PASS: the receipt org.ntfs-macos.pkg of the earlier layout is forgotten
+PASS: the old package's extra files are gone (old-tool, /usr/local/share/doc/ntfs-macos with LICENSES)
+PASS: the old CLI file was replaced by the link to /usr/local/libexec/ntfs-macos/ntfsmac
+PASS: the receipt now matches the manifest
+PASS: exactly the manifest's set is installed
+PASS: the probe is the new one, not the old script
+PASS: the daemon runs
+== I-PKG-05: a downgrade is refused (owner decision 2026-11-26, issue #10)
+PASS: the package's preinstall carries its version 0.2.0
+PASS: the receipt now says 99.0.0
+  ntfs-macos preinstall: macFUSE 5.5.0 found
+  ntfs-macos preinstall: REFUSED: this package is ntfs-macos 0.2.0, older than the installed 99.0.0 (the receipt org.ntfs-macos.pkg.v2). A downgrade is refused: an older ntfs-macos does not read the session journal that a newer one wrote, so it could mount read/write a volume that was left open. Install version 99.0.0 or newer. To go back on purpose, uninstall first (uninstall.sh) and check every NTFS volume with Windows chkdsk before you attach it.
+  ntfs-macos preinstall: REFUSED: this package is ntfs-macos 0.2.0, older than the installed 99.0.0 (the receipt org.ntfs-macos.pkg.v2). A downgrade is refused: an older ntfs-macos does not read the session journal that a newer one wrote, so it could mount read/write a volume that was left open. Install version 99.0.0 or newer. To go back on purpose, uninstall first (uninstall.sh) and check every NTFS volume with Windows chkdsk before you attach it.
+PASS: installer refuses the downgrade: this package is ntfs-macos 0.2.0, older than the installed 99.0.0 (the receipt org.ntfs-macos.pkg.v2)
+PASS: ...the receipt still says 99.0.0
+PASS: ...the installed set is unchanged
+PASS: ...the daemon was not stopped (pid 1783)
+PASS: ...the install log has no line of a stop or a removal
+PASS: preinstall alone refuses the downgrade
+PASS: the receipt says 0.2.0 again
+-- without a receipt: the installed BUILD-INFO
+PASS: no receipt, BUILD-INFO says 99.0.0
+  preinstall alone (exit 1): ntfs-macos preinstall: REFUSED: this package is ntfs-macos 0.2.0, older than the installed 99.0.0 (the installed BUILD-INFO). A downgrade is refused: an older ntfs-macos does not read the session jour
+PASS: preinstall refuses the downgrade of a developer install: this package is ntfs-macos 0.2.0, older than the installed 99.0.0 (the installed BUILD-INFO)
+PASS: receipt and BUILD-INFO are back (0.2.0)
+-- the real version next to this one: one patch newer is refused, the earlier 0.1.0 is upgraded
+PASS: preinstall refuses 0.2.0 over 0.2.1
+installer: Package name is ntfs-macos 0.2.0-dev.20261127.g811c186a4460
+installer: Upgrading at base path /
+installer: The upgrade was successful.
+  ntfs-macos preinstall: macFUSE 5.5.0 found
+  ntfs-macos preinstall: installed version 0.1.0 (the receipt org.ntfs-macos.pkg.v2); this package is 0.2.0
+  ntfs-macos preinstall: preflight passed (upgrading the package 0.1.0)
+  ntfs-macos preinstall: stopping the running daemon of the earlier install
+  ntfs-macos postinstall: authorization right org.ntfs-macos.journal-modify installed
+  ntfs-macos postinstall: recorded the requirement of /usr/local/libexec/ntfs-macos/ntfsmac: cdhash b7616dcc8f676e987d358297f3894e75cbe87190
+  ntfs-macos postinstall: the link /usr/local/bin/ntfsmac -> /usr/local/libexec/ntfs-macos/ntfsmac is in place
+  ntfs-macos postinstall: the daemon org.ntfs-macos.ntfsmacd is running (/var/run/ntfsmacd.sock)
+  ntfs-macos postinstall: done. Check the setup with: /usr/local/libexec/ntfs-macos/ntfsmac doctor (macFUSE's file system extension must be on in System Settings)
+PASS: 0.2.0 installs over an installed 0.1.0 (exit 0)
+PASS: ...the log names the installed 0.1.0 and this package 0.2.0
+PASS: ...the receipt says 0.2.0 again
+-- the same version again: installed (a reinstall is not a downgrade)
+installer: Package name is ntfs-macos 0.2.0-dev.20261127.g811c186a4460
+installer: Upgrading at base path /
+installer: The upgrade was successful.
+  ntfs-macos preinstall: macFUSE 5.5.0 found
+  ntfs-macos preinstall: installed version 0.2.0 (the receipt org.ntfs-macos.pkg.v2); this package is 0.2.0
+  ntfs-macos preinstall: preflight passed (upgrading the package 0.2.0)
+  ntfs-macos preinstall: stopping the running daemon of the earlier install
+  ntfs-macos postinstall: authorization right org.ntfs-macos.journal-modify installed
+  ntfs-macos postinstall: recorded the requirement of /usr/local/libexec/ntfs-macos/ntfsmac: cdhash b7616dcc8f676e987d358297f3894e75cbe87190
+  ntfs-macos postinstall: the link /usr/local/bin/ntfsmac -> /usr/local/libexec/ntfs-macos/ntfsmac is in place
+  ntfs-macos postinstall: the daemon org.ntfs-macos.ntfsmacd is running (/var/run/ntfsmacd.sock)
+  ntfs-macos postinstall: done. Check the setup with: /usr/local/libexec/ntfs-macos/ntfsmac doctor (macFUSE's file system extension must be on in System Settings)
+PASS: the same version installs again (exit 0)
+PASS: ...the log names the installed version 0.2.0
+PASS: ...exactly the manifest's set is installed
+PASS: ...the daemon runs
+result: 0 failure(s)

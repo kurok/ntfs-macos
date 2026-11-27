@@ -1,0 +1,339 @@
+with-slot: holding slot-2
+tart.sh: cloned ntfsmac-golden -> ntfsmac-pkg-14195
+tart.sh: started ntfsmac-pkg-14195 (pid 15055, log ~/.cache/ntfsmac-vm/ntfsmac-pkg-14195.log); waiting for guest (exec)
+Error Domain=VZErrorDomain Code=1 "The virtual machine failed to start." UserInfo={NSLocalizedFailure=Internal Virtualization error., NSLocalizedFailureReason=The virtual machine failed to start.}
+tart.sh: tart run failed with VZErrorDomain Code=1 (the virtual machine failed to start); retrying once in 10s
+tart.sh: started ntfsmac-pkg-14195 (pid 15216, log ~/.cache/ntfsmac-vm/ntfsmac-pkg-14195.log); waiting for guest (exec)
+tart.sh: ntfsmac-pkg-14195 up at 192.168.64.4 after 23s
+192.168.64.4
+pkg_vm: copying the source tree
+guest: 27.2 arm64, user admin uid 501; manifest 27 entries
+NOTE: before the install: 34 files below /usr/local, the launchd and support directories
+== I-PKG-01: dev-install.sh
+-- a directory above an installed path that is not root-only: the install is refused
+dev-install: error: the directory "/usr/local/libexec" above "/usr/local/libexec/ntfs-macos" is owned by admin with mode 755. Every directory above a path that this installs must be a real directory (not a symbolic link), owned by root and not writable by grou
+PASS: a user-owned ancestor (/usr/local/libexec) is refused (exit 1)
+PASS: a group-writable ancestor is refused (exit 1)
+PASS: ...before anything was built or installed (no build tree, no install)
+ancestor restored: removed
+-- /usr/local/libexec a symbolic link to a root-only directory: the install is refused (audit M6-F01)
+dev-install: error: the directory "/usr/local/libexec" above "/usr/local/libexec/ntfs-macos" is a symbolic link. Every directory above a path that this installs must be a real directory (not a symbolic link), owned by root and not writable by group or others, 
+PASS: a link at /usr/local/libexec (root-owned /usr/local) is refused (exit 1)
+dev-install: error: the directory "/usr/local" above "/usr/local/libexec/ntfs-macos" is owned by admin with mode 755. Every directory above a path that this installs must be a real directory (not a symbolic link), owned by root and not writable by group or oth
+PASS: a user-owned /usr/local holding that link is refused (exit 1)
+PASS: ...nothing was built or installed, and nothing appeared in the link's target
+PASS: ...and no refusal suggests a command (audit M6-F06)
+PASS: /usr/local is back (root:wheel 755)
+-- dev-install.sh (last 25 lines)
+[ 85%] Linking C static library libntfsmac_probe_core.a
+[ 85%] Built target ntfsmac_probe_core
+[100%] Building C object src/probe/CMakeFiles/ntfsmac-probe.dir/main.c.o
+[100%] Linking C executable ntfsmac-probe
+[100%] Built target ntfsmac-probe
+[ 20%] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_pure.dir/args.c.o
+[ 40%] Built target ntfsmac_mftmirr
+[ 40%] Linking C static library libntfsmac_volmark_pure.a
+[ 40%] Built target ntfsmac_volmark_pure
+[ 60%] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/volmark.c.o
+[ 60%] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/syncmirror.c.o
+[ 60%] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/vdev.c.o
+[ 80%] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/cli.c.o
+[ 80%] Linking C static library libntfsmac_volmark_core.a
+[ 80%] Built target ntfsmac_volmark_core
+[100%] Building C object src/volmark/CMakeFiles/ntfsmac-volmark.dir/main.c.o
+[100%] Linking C executable ntfsmac-volmark
+[100%] Built target ntfsmac-volmark
+dev-install: installing the files of manifest.txt
+dev-install: installing the authorization right org.ntfs-macos.journal-modify
+dev-install: linked /usr/local/bin/ntfsmac -> /usr/local/libexec/ntfs-macos/ntfsmac
+dev-install: loading org.ntfs-macos.ntfsmacd
+dev-install: the daemon is up (/var/run/ntfsmacd.sock)
+dev-install: done. Check it with: /usr/local/libexec/ntfs-macos/ntfsmac doctor
+dev-install: remove it with:     sudo /usr/local/libexec/ntfs-macos/uninstall.sh
+PASS: dev-install.sh exits 0
+PASS: built with the product configuration
+PASS: build tree is the product preset (test seams off, root fallback on)
+-- every path of the manifest, owner, group and mode
+PASS: all dirs and files of the manifest are installed with the manifest's owner, group and mode (23 paths)
+PASS: the installed set below the owned directories equals the manifest (nothing extra)
+drwxr-xr-x 5 root wheel 160 /Library/Application Support/ntfs-macos
+-rw-r--r-- 1 root wheel 51 /Library/Application Support/ntfs-macos/cli-requirement
+drwxr-xr-x 5 root wheel 160 /Library/Application Support/ntfs-macos/doc
+drwxr-xr-x 5 root wheel 160 /Library/Application Support/ntfs-macos/sandbox
+-rw-r--r-- 1 root wheel 2645 /Library/Application Support/ntfs-macos/sandbox/probe.sb
+-rw-r--r-- 1 root wheel 2934 /Library/Application Support/ntfs-macos/sandbox/volmark.sb
+-rw-r--r-- 1 root wheel 7374 /Library/Application Support/ntfs-macos/sandbox/worker.sb
+-rw-r--r-- 1 root wheel 1967 /Library/LaunchDaemons/org.ntfs-macos.ntfsmacd.plist
+drwxr-xr-x 13 root wheel 416 /usr/local/libexec/ntfs-macos
+-rw-r--r-- 1 root wheel 4551 /usr/local/libexec/ntfs-macos/manifest.txt
+-rwxr-xr-x 1 root wheel 405336 /usr/local/libexec/ntfs-macos/mkntfs
+-rwxr-xr-x 1 root wheel 370216 /usr/local/libexec/ntfs-macos/ntfsfix
+-rwxr-xr-x 1 root wheel 384568 /usr/local/libexec/ntfs-macos/ntfsinfo
+-rwxr-xr-x 1 root wheel 366712 /usr/local/libexec/ntfs-macos/ntfslabel
+-rwxr-xr-x 1 root wheel 74016 /usr/local/libexec/ntfs-macos/ntfsmac
+-rwxr-xr-x 1 root wheel 74016 /usr/local/libexec/ntfs-macos/ntfsmac
+-rwxr-xr-x 1 root wheel 431024 /usr/local/libexec/ntfs-macos/ntfsmac-probe
+-rwxr-xr-x 1 root wheel 364400 /usr/local/libexec/ntfs-macos/ntfsmac-volmark
+-rwxr-xr-x 1 root wheel 391528 /usr/local/libexec/ntfs-macos/ntfsmac-worker
+-rwxr-xr-x 1 root wheel 289752 /usr/local/libexec/ntfs-macos/ntfsmacd
+-rwxr-xr-x 1 root wheel 21889 /usr/local/libexec/ntfs-macos/uninstall.sh
+PASS: sandbox profiles are root:wheel 0644 (spawn.c refuses anything else)
+PASS: installed manifest and uninstaller are the ones of the source tree
+PASS: the shipped plist is installed unchanged
+/Library/LaunchDaemons/org.ntfs-macos.ntfsmacd.plist: OK
+PASS: the plist is valid
+-- the product has no test seams
+PASS: the installed daemon has none of --console-uid, --child-log, --journal-dir
+PASS: BUILD-INFO says preset product
+PASS: the link /usr/local/bin/ntfsmac points to the CLI (/usr/local/bin is root-only in the guest)
+-- the CLI and its recorded code requirement (ADR-019 check 3)
+recorded: cdhash H"b7616dcc8f676e987d358297f3894e75cbe87190"
+PASS: cli-requirement is the cdhash of the installed CLI
+PASS: the installed CLI has the hardened runtime
+PASS: the installed CLI is not the unsigned build output (re-signed, hash differs from the build tree's CLI)
+-- the authorization right (ADR-019)
+<key>class</key> <string>user</string> -- <key>group</key> <string>admin</string> -- <key>shared</key> <false/> <key>timeout</key> <integer>0</integer> 
+PASS: right org.ntfs-macos.journal-modify: class user
+PASS: right org.ntfs-macos.journal-modify: group admin
+PASS: right org.ntfs-macos.journal-modify: shared false
+PASS: right org.ntfs-macos.journal-modify: timeout 0
+-- the launchd job
+PASS: the job is loaded
+PASS: the control socket appears
+PASS: the privileged XPC service is registered with launchd
+PASS: the job runs the installed daemon
+PASS: the daemon reads no warning about a missing right or requirement
+-- daemon log
+INFO: check 4 of ADR-019: root_peer
+ntfsmacd: privileged requests on org.ntfs-macos.ctl.privileged, check 4 of ADR-019: root_peer
+INFO: ntfsmacd: started
+INFO: disk4: appeared (6291456 bytes)
+INFO: disk4: START -> Probing
+INFO: disk4: PROBE_DONE -> Deciding
+INFO: disk4: probe state unsupported, decision refuse
+INFO: disk4: REFUSED -> Failed
+-- ntfsmac list and doctor
+No NTFS volumes.
+ok: macFUSE is installed.
+ok: macFUSE version 5.5.0 is supported.
+ok: The macFUSE file system extension is enabled.
+ok: No other NTFS driver is installed.
+ok: No session journal entries: no volume was left open by this Mac.
+ok: No unreadable journal entries.
+ok: 0 cleared journal entries are kept as tombstones.
+ok: No notification banner has been sent since the daemon started, so banner delivery is unknown.
+ok: No read/write volume was left mounted since the last daemon start.
+PASS: ntfsmac doctor exits 0
+PASS: doctor is green: macFUSE installed, version ok, extension enabled, no conflicting driver, journal readable
+-- doctor with the macFUSE extension disabled for admin (pluginkit -e ignore)
++    io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
+ (1 plug-in)
+-    io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
+ (1 plug-in)
+ok: macFUSE is installed.
+ok: macFUSE version 5.5.0 is supported.
+problem: The macFUSE file system extension is not approved: approve it in System Settings, then restart.
+ok: No other NTFS driver is installed.
+ok: No session journal entries: no volume was left open by this Mac.
+ok: No unreadable journal entries.
+ok: 0 cleared journal entries are kept as tombstones.
+ok: No notification banner has been sent since the daemon started, so banner delivery is unknown.
+ok: No read/write volume was left mounted since the last daemon start.
+PASS: doctor says the extension is not approved
+-- doctor with the extension enabled again (pluginkit -e use)
++    io.macfuse.app.fsmodule.macfuse-local((null))	AAF1FA77-228C-4AB8-BD8C-96CAF4E8AC24	2026-11-14 10:39:39 +0000	/Library/Filesystems/macfuse.fs/Contents/Resources/macfuse.app/Contents/Extensions/io.macfuse.app.fsmodule.macfuse-local.appex
+ (1 plug-in)
+ok: macFUSE is installed.
+ok: macFUSE version 5.5.0 is supported.
+ok: The macFUSE file system extension is enabled.
+ok: No other NTFS driver is installed.
+ok: No session journal entries: no volume was left open by this Mac.
+ok: No unreadable journal entries.
+ok: 0 cleared journal entries are kept as tombstones.
+ok: No notification banner has been sent since the daemon started, so banner delivery is unknown.
+ok: No read/write volume was left mounted since the last daemon start.
+PASS: doctor is green again
+-- the privileged door accepts the installed CLI (root peer, recorded requirement)
+sudo ntfsmac journal-clear (a volume that does not exist): This removes the record that this Mac left the volume open, so that the next mount can be read/write again. It does not check or repair the file system. If the earlier session ended unclean, files written in it may be incomplete or damaged; Windows chkdsk is strongly preferred. The volume's current mount is not changed. ntfsmac: The daemon does not know this volume. Check the name with `ntfsmac list`. 
+PASS: the daemon itself answered: it does not know the volume (past checks 1 to 3 of ADR-019)
+PASS: ...and it was not a peer refusal (reasons.c texts of checks 1 to 4)
+ntfsmac journal-clear without sudo: ntfsmac: journal-clear needs administrator rights. Run it again with sudo: sudo ntfsmac journal-clear disk99s1 
+PASS: without sudo the CLI says to run the command with sudo
+-- installing again over the install
+dev-install: installing the authorization right org.ntfs-macos.journal-modify
+dev-install: the link /usr/local/bin/ntfsmac -> /usr/local/libexec/ntfs-macos/ntfsmac is in place
+dev-install: loading org.ntfs-macos.ntfsmacd
+dev-install: the daemon is up (/var/run/ntfsmacd.sock)
+dev-install: done. Check it with: /usr/local/libexec/ntfs-macos/ntfsmac doctor
+dev-install: remove it with:     sudo /usr/local/libexec/ntfs-macos/uninstall.sh
+PASS: a second dev-install.sh exits 0
+PASS: the same state after the second install
+PASS: the job is loaded again and the socket is back
+PASS: the right is still ours
+-- --job-arg: a daemon argument in the installed plist (what a VM driver or a person adds)
+PASS: dev-install.sh --job-arg exits 0
+PASS: the installed plist has the argument after the program path
+/Library/LaunchDaemons/org.ntfs-macos.ntfsmacd.plist: OK
+PASS: the plist with the argument is valid
+PASS: launchd runs the daemon with the argument
+PASS: the daemon is up with it
+PASS: the set is unchanged by --job-arg
+PASS: a --job-arg with a space is refused (exit 2)
+PASS: installing again without --job-arg restores the shipped plist
+PASS: the daemon is up again
+-- dev-install.sh refuses a build with test seams (three independent checks)
+PASS: seam-cache: refused (exit 1), reason: not a product build
+dev-install: error: /private/tmp/pkgvm.lkMBiu/seam-cache is not a product build (NTFSMAC_TEST_SEAMS is not OFF); use the preset product
+PASS: seam-strings: refused (exit 1), reason: contains test seams
+dev-install: error: /private/tmp/pkgvm.lkMBiu/seam-strings/src/daemon/ntfsmacd contains test seams (--console-uid, --child-log or --journal-dir); build with the preset product
+PASS: seam-usage: refused (exit 1), reason: usage line
+dev-install: error: /private/tmp/pkgvm.lkMBiu/seam-usage/src/daemon/ntfsmacd lists test seams in its usage line; build with the preset product
+PASS: seam-mute: refused (exit 1), reason: printed no usage line
+dev-install: error: /private/tmp/pkgvm.lkMBiu/seam-mute/src/daemon/ntfsmacd printed no usage line for --bogus; cannot tell whether it has test seams
+PASS: the real product daemon prints its usage without seam options
+PASS: ...and none of the refusals changed anything (the installed set is as before)
+== I-PKG-02: uninstall.sh
+-- manifests that name paths outside the project are refused, and nothing is removed
+PASS: a path outside the project: refused (exit 1)
+PASS: a path outside the project: nothing was removed
+PASS: a shared directory entry: refused (exit 1)
+PASS: a shared directory entry: nothing was removed
+PASS: a dot-dot path: refused (exit 1)
+PASS: a dot-dot path: nothing was removed
+PASS: a relative path: refused (exit 1)
+PASS: a relative path: nothing was removed
+PASS: a system plist: refused (exit 1)
+PASS: a system plist: nothing was removed
+PASS: a wrong right: refused (exit 1)
+PASS: a wrong right: nothing was removed
+PASS: the decoy in /usr/local/bin is untouched
+-- a symbolic link in place of a project directory is refused
+PASS: a symlinked project directory is refused (exit 1)
+PASS: ...before anything was removed (CLI, plist and job are still there)
+PASS: the install is whole again
+-- an ancestor that is not root-only: the uninstaller refuses and removes nothing (audit M6-F05, issue #6)
+uninstall: the directory "/usr/local/libexec" above "/usr/local/libexec/ntfs-macos" is owned by admin with mode 755, so a user could have replaced what lies below it
+uninstall: the directory "/usr/local/libexec" above "/usr/local/libexec/ntfs-macos/ntfsmacd" is owned by admin with mode 755, so a user could have replaced what lies below it
+uninstall: nothing was removed. Every directory above the install must be a real directory (not a symbolic link), owned by root and not writable by group or others. Replace a symbolic link by a real directory, or give each directory named above to root and remove the write permission of group and others, then run this again. This script may itself have been replaced: run the uninstall.sh of the release you downloaded and checked against its SHA256SUMS. With --allow-unsafe-ancestors the rest is removed and every path below those directories is kept and named.
+PASS: the dry run refuses (exit 1) and names /usr/local/libexec
+PASS: the real run refuses (exit 1)
+PASS: ...and removed nothing: files, job and right are all still there
+PASS: ...and suggests no command (audit M6-F06)
+uninstall: the directory "/usr/local/libexec" above "/usr/local/libexec/ntfs-macos" is owned by admin with mode 755, so a user could have replaced what lies below it
+uninstall: the directory "/usr/local/libexec" above "/usr/local/libexec/ntfs-macos/ntfsmacd" is owned by admin with mode 755, so a user could have replaced what lies below it
+uninstall: --allow-unsafe-ancestors: the rest is removed; every path below those directories is kept and named
+uninstall: kept "/usr/local/libexec/ntfs-macos/ntfsmacd": the directory "/usr/local/libexec" is owned by admin with mode 755, so a user may have replaced what is there; it is not removed. Check it, make every directory on its way a real directory owned by root and not writable by group or others, then run this again
+uninstall: kept "/usr/local/libexec/ntfs-macos/ntfsmac-worker": the directory "/usr/local/libexec" is owned by admin with mode 755, so a user may have replaced what is there; it is not removed. Check it, make every directory on its way a real directory owned by root and not writable by group or others, then run this again
+uninstall: kept "/usr/local/libexec/ntfs-macos/ntfsmac-probe": the directory "/usr/local/libexec" is owned by admin with mode 755, so a user may have replaced what is there; it is not removed. Check it, make every directory on its way a real directory owned by root and not writable by group or others, then run this again
+uninstall: kept "/usr/local/libexec/ntfs-macos/ntfsmac-volmark": the directory "/usr/local/libexec" is owned by admin with mode 755, so a user may have replaced what is there; it is not removed. Check it, make every directory on its way a real directory owned by root and not writable by group or others, then run this again
+uninstall: kept "/usr/local/libexec/ntfs-macos/mkntfs": the directory "/usr/local/libexec" is owned by admin with mode 755, so a user may have replaced what is there; it is not removed. Check it, make every directory on its way a real directory owned by root and not writable by group or others, then run this again
+uninstall: kept "/usr/local/libexec/ntfs-macos/ntfsfix": the directory "/usr/local/libexec" is owned by admin with mode 755, so a user may have replaced what is there; it is not removed. Check it, make every directory on its way a real directory owned by root and not writable by group or others, then run this again
+uninstall: kept "/usr/local/libexec/ntfs-macos/ntfsinfo": the directory "/usr/local/libexec" is owned by admin with mode 755, so a user may have replaced what is there; it is not removed. Check it, make every directory on its way a real directory owned by root and not writable by group or others, then run this again
+uninstall: kept "/usr/local/libexec/ntfs-macos/ntfslabel": the directory "/usr/local/libexec" is owned by admin with mode 755, so a user may have replaced what is there; it is not removed. Check it, make every directory on its way a real directory owned by root and not writable by group or others, then run this again
+uninstall: kept "/usr/local/libexec/ntfs-macos/uninstall.sh": the directory "/usr/local/libexec" is owned by admin with mode 755, so a user may have replaced what is there; it is not removed. Check it, make every directory on its way a real directory owned by root and not writable by group or others, then run this again
+uninstall: kept "/usr/local/libexec/ntfs-macos/manifest.txt": the directory "/usr/local/libexec" is owned by admin with mode 755, so a user may have replaced what is there; it is not removed. Check it, make every directory on its way a real directory owned by root and not writable by group or others, then run this again
+uninstall: kept "/usr/local/libexec/ntfs-macos/ntfsmac": the directory "/usr/local/libexec" is owned by admin with mode 755, so a user may have replaced what is there; it is not removed. Check it, make every directory on its way a real directory owned by root and not writable by group or others, then run this again
+uninstall: kept "/usr/local/libexec/ntfs-macos": the directory "/usr/local/libexec" is owned by admin with mode 755, so a user may have replaced what is there; it is not removed. Check it, make every directory on its way a real directory owned by root and not writable by group or others, then run this again
+uninstall: kept state /var/db/ntfs-macos (--purge-state removes it)
+uninstall: kept state /var/log/ntfsmacd.log (--purge-state removes it)
+uninstall: removed ntfs-macos except 12 path(s) named above: each lies below a directory that is a symbolic link or is not owned by root and protected from other users
+PASS: --allow-unsafe-ancestors exits 1 (paths kept)
+PASS: ...it kept and named the files below /usr/local/libexec
+PASS: ...and removed the rest (job, plist, support directory)
+PASS: the install is whole again
+PASS: the daemon is up again
+-- --dry-run
+uninstall: would boot out system/org.ntfs-macos.ntfsmacd
+uninstall: would remove the authorization right org.ntfs-macos.journal-modify
+uninstall: would remove /usr/local/libexec/ntfs-macos/ntfsmacd
+uninstall: would remove /usr/local/libexec/ntfs-macos/ntfsmac-worker
+uninstall: would remove /usr/local/libexec/ntfs-macos/ntfsmac-probe
+uninstall: would remove /usr/local/libexec/ntfs-macos/ntfsmac-volmark
+uninstall: would remove /usr/local/libexec/ntfs-macos/mkntfs
+uninstall: would remove /usr/local/libexec/ntfs-macos/ntfsfix
+uninstall: would remove /usr/local/libexec/ntfs-macos/ntfsinfo
+uninstall: would remove /usr/local/libexec/ntfs-macos/ntfslabel
+uninstall: would remove /usr/local/libexec/ntfs-macos/uninstall.sh
+uninstall: would remove /usr/local/libexec/ntfs-macos/manifest.txt
+...
+PASS: --dry-run exits 0
+PASS: --dry-run lists the files it would remove
+PASS: --dry-run removed nothing: files, job and right are all still there
+-- the uninstall (the installed copy, as a user would run it)
+uninstall: kept /usr/local/libexec/ntfs-macos: it holds files that ntfs-macos did not install
+uninstall: kept state /var/db/ntfs-macos (--purge-state removes it)
+uninstall: kept state /var/log/ntfsmacd.log (--purge-state removes it)
+uninstall: removed ntfs-macos
+PASS: uninstall.sh exits 0
+PASS: the job is unloaded
+PASS: the authorization right is removed
+PASS: the control socket is gone
+PASS: every file of the manifest is gone
+PASS: the empty project directories are gone (sandbox, doc, support)
+PASS: the link /usr/local/bin/ntfsmac is gone
+PASS: the directory with a foreign file is kept, with the file unchanged
+PASS: nothing else is in the kept directory
+PASS: the decoy in /usr/local/bin is untouched
+PASS: the journal (state) is kept without --purge-state
+PASS: uninstall said that the state is kept
+PASS: the file outside the project is untouched
+PASS: /usr/local/bin and /Library/LaunchDaemons (shared) are still there
+-- running it again, from the source tree (nothing is installed)
+uninstall: kept /usr/local/libexec/ntfs-macos: it holds files that ntfs-macos did not install
+uninstall: kept state /var/db/ntfs-macos (--purge-state removes it)
+uninstall: kept state /var/log/ntfsmacd.log (--purge-state removes it)
+uninstall: removed ntfs-macos
+PASS: a second uninstall exits 0
+PASS: the foreign file is still there
+-- install once more, then uninstall with --purge-state after the foreign file is gone
+PASS: a reinstall after an uninstall exits 0
+PASS: the reinstall is whole
+PASS: the daemon is up again
+PASS: the journal entry of the earlier install survived (state outlives an uninstall)
+uninstall: removed ntfs-macos
+PASS: uninstall --purge-state exits 0
+PASS: nothing of the project is left (files, directories, job, right, socket)
+PASS: the state is purged (journal directory and daemon log)
+PASS: the files on the guest equal those before the install (snapshot compare)
+== I-PKG-02: a package receipt of the earlier layout (org.ntfs-macos.pkg, the developer package of build-pkg.sh)
+package-id: org.ntfs-macos.pkg
+version: 0.0.1
+volume: /
+location: 
+install-time: 1795764524
+PASS: the test package is installed with a receipt
+uninstall: forgot the receipt org.ntfs-macos.pkg
+uninstall: removed ntfs-macos
+PASS: uninstall.sh removes a package install (exit 0)
+PASS: the receipt is forgotten
+PASS: its files and directories (LICENSES included) are gone
+-- receipts that name /usr/local/bin/ntfsmac follow the rule of the link
+PASS: a) /usr/local/bin holds only ntfsmac, a regular file of the receipt
+uninstall: kept /usr/local/bin/ntfsmac: it is not a symbolic link to /usr/local/libexec/ntfs-macos/ntfsmac (an earlier CLI or another program); remove it yourself if it is the CLI of an earlier ntfs-macos
+uninstall: forgot the receipt org.ntfs-macos.pkg
+uninstall: kept /usr/local/bin/ntfsmac: it is not a symbolic link to /usr/local/libexec/ntfs-macos/ntfsmac (an earlier CLI or another program); remove it yourself if it is the CLI of an earlier ntfs-macos
+uninstall: removed ntfs-macos
+PASS: a) uninstall.sh exits 0
+PASS: a) the regular file /usr/local/bin/ntfsmac is kept (not our link) and named
+PASS: a) the rest of the receipt is gone and the receipt is forgotten
+PASS: a) the shared /usr/local/bin is kept
+PASS: b) the receipt installed the link
+uninstall: forgot the receipt org.ntfs-macos.pkg
+uninstall: removed ntfs-macos
+PASS: b) uninstall.sh exits 0
+PASS: b) the link is removed
+PASS: b) the shared /usr/local/bin is kept although it is empty now
+uninstall: forgot the receipt org.ntfs-macos.pkg
+uninstall: kept /usr/local/bin/ntfsmac: /usr/local/bin is not root-only or is reached through a symbolic link; remove it yourself
+uninstall: removed ntfs-macos
+PASS: c) uninstall.sh exits 0
+PASS: c) the link in a user-owned /usr/local/bin is kept and named
+PASS: c) the receipt is forgotten
+uninstall: refusing receipt path of org.ntfs-macos.pkg outside the paths of ntfs-macos: /usr/local/share/ntfs-macos-outside/file
+PASS: a receipt path outside the project directories is refused (exit 1)
+PASS: ...and nothing was removed
+PASS: the guest is as before the install
+result: 0 failure(s)
+tart.sh: stopped ntfsmac-pkg-14195
+tart.sh: deleted ntfsmac-pkg-14195
+with-slot: exit 0

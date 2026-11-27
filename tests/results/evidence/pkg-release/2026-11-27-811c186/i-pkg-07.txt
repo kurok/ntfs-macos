@@ -1,0 +1,54 @@
+repro-check: commit 811c186a44602a14d407d800b226e773a9ba0fb9, SOURCE_DATE_EPOCH 1795738557, label 0.2.0-repro.g811c186a4460, work $TREE/build/repro
+repro-check: holding slot-2
+
+== repro-check: build a in a fresh clone ntfsmac-repro-a-16160 ==
+tart.sh: cloned ntfsmac-golden -> ntfsmac-repro-a-16160
+tart.sh: started ntfsmac-repro-a-16160 (pid 16609, log ~/.cache/ntfsmac-vm/ntfsmac-repro-a-16160.log); waiting for guest (exec)
+tart.sh: ntfsmac-repro-a-16160 up at 192.168.64.6 after 24s
+192.168.64.6
+
+== repro-check: build b in a fresh clone ntfsmac-repro-b-16160 ==
+tart.sh: cloned ntfsmac-golden -> ntfsmac-repro-b-16160
+tart.sh: started ntfsmac-repro-b-16160 (pid 18007, log ~/.cache/ntfsmac-vm/ntfsmac-repro-b-16160.log); waiting for guest (exec)
+tart.sh: ntfsmac-repro-b-16160 up at 192.168.64.8 after 24s
+192.168.64.8
+
+== repro-check: compare $TREE/build/repro/a and $TREE/build/repro/b ==
+ITEM                                                               RESULT    CAUSE
+pkg:Distribution                                                   identical -
+pkg:component.pkg/Bom                                              identical -
+pkg:component.pkg/PackageInfo                                      identical -
+pkg:component.pkg/Payload                                          identical -
+pkg:component.pkg/Scripts/postinstall                              identical -
+pkg:component.pkg/Scripts/preinstall                               identical -
+payload:/Library/Application Support/ntfs-macos/cli-requirement    identical -
+payload:/Library/Application Support/ntfs-macos/doc/BUILD-INFO     identical -
+payload:/Library/Application Support/ntfs-macos/doc/COPYING        identical -
+payload:/Library/Application Support/ntfs-macos/doc/README.md      identical -
+payload:/Library/Application Support/ntfs-macos/sandbox/probe.sb   identical -
+payload:/Library/Application Support/ntfs-macos/sandbox/volmark.sb identical -
+payload:/Library/Application Support/ntfs-macos/sandbox/worker.sb  identical -
+payload:/Library/LaunchDaemons/org.ntfs-macos.ntfsmacd.plist       identical -
+payload:/usr/local/libexec/ntfs-macos/manifest.txt                 identical -
+payload:/usr/local/libexec/ntfs-macos/mkntfs                       identical -
+payload:/usr/local/libexec/ntfs-macos/ntfsfix                      identical -
+payload:/usr/local/libexec/ntfs-macos/ntfsinfo                     identical -
+payload:/usr/local/libexec/ntfs-macos/ntfslabel                    identical -
+payload:/usr/local/libexec/ntfs-macos/ntfsmac                      identical -
+payload:/usr/local/libexec/ntfs-macos/ntfsmac-probe                identical -
+payload:/usr/local/libexec/ntfs-macos/ntfsmac-volmark              identical -
+payload:/usr/local/libexec/ntfs-macos/ntfsmac-worker               identical -
+payload:/usr/local/libexec/ntfs-macos/ntfsmacd                     identical -
+payload:/usr/local/libexec/ntfs-macos/uninstall.sh                 identical -
+pkg:xar table of contents                                          differs   xar-toc-times (allowed)
+      |  6 atime; 2 creation-time; 6 ctime; 6 inode; 6 mtime; 6 time;
+dist:ntfs-macos-0.2.0-repro.g811c186a4460.pkg                      differs   xar-toc-times (allowed)
+      | sha256 b94850d32bc02ada / 39fe400e4c996bdd; every member equal
+dist:BUILD-INFO                                                    identical -
+dist:uninstall.sh                                                  identical -
+dist:manifest.txt                                                  identical -
+dist:SHA256SUMS                                                    differs   sums-follow-pkg (allowed)
+      | only the line of ntfs-macos-0.2.0-repro.g811c186a4460.pkg
+
+repro-check: 28 identical, 3 differ, 0 of them without an allowed cause
+repro-check: PASSED (every difference has an allowed cause: xar-toc-times sums-follow-pkg)

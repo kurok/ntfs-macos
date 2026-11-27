@@ -1,0 +1,1463 @@
+with-slot: holding slot-1
+release-local: version 0.2.0, label 0.2.0-dev.20261127.g811c186a4460, commit 811c186a44602a14d407d800b226e773a9ba0fb9, tree ade169162fa0b121be8ebf1a603009d76cfa8b73
+
+== release-local: ci (ci-local.sh --quick) ==
+
+== stage: bootstrap ==
+Checking prerequisites (nothing is installed by this script)
+ok       cmake 4.4.5
+ok       ninja 1.13.2
+ok       pkgconf 3.0.10
+ok       C compiler cc (Apple clang version 21.0.0 (clang-2100.4.1.1))
+
+All prerequisites present.
+
+== stage: configure ==
+-- The C compiler identification is AppleClang 21.0.0.21000401
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Platform: macOS arm64 (product target)
+-- Performing Test NTFSMAC_HAVE_STACK_PROTECTOR_STRONG
+-- Performing Test NTFSMAC_HAVE_STACK_PROTECTOR_STRONG - Success
+-- Performing Test NTFSMAC_HAVE_AUTO_VAR_INIT
+-- Performing Test NTFSMAC_HAVE_AUTO_VAR_INIT - Success
+-- libntfs-3g not found: skipping ntfsmac-probe
+-- libntfs-3g not found: skipping ntfsmac-volmark
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- libntfs-3g not found: skipping setvolflags, logfile_mark, txf_make
+-- libntfs-3g not found: skipping the image fuzz harnesses
+-- Configuring done (0.7s)
+-- Generating done (0.0s)
+-- Build files have been written to: $TREE/build/release
+
+== stage: build ==
+[0/2] Re-checking globbed directories...
+[1/207] Building C object src/common/CMakeFiles/ntfsmac_state_rank.dir/state_rank.c.o
+[2/207] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/leaf.c.o
+[3/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/claim.c.o
+[4/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_repair_mirror.c.o
+[5/207] Building C object src/policy/CMakeFiles/ntfsmac_policy.dir/policy.c.o
+[6/207] Building C object src/options/CMakeFiles/ntfsmac_worker_options.dir/options.c.o
+[7/207] Building C object src/common/CMakeFiles/ntfsmac_common.dir/log.c.o
+[8/207] Building C object src/common/CMakeFiles/ntfsmac_label_cp.dir/label_cp.c.o
+[9/207] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/label.c.o
+[10/207] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/display.c.o
+[11/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_peer.c.o
+[12/207] Building C object src/options/CMakeFiles/ntfsmac_worker_options.dir/argv_check.c.o
+[13/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_journal.c.o
+[14/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/conflict.c.o
+[15/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_parse.c.o
+[16/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl.c.o
+[17/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/errwatch.c.o
+[18/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/errwatch_io.c.o
+[19/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/mountpoint.c.o
+[20/207] Linking C static library src/policy/libntfsmac_policy.a
+[21/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_xpc.c.o
+[22/207] Linking C static library src/common/libntfsmac_common.a
+[23/207] Linking C static library src/common/libntfsmac_label_cp.a
+[24/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/da_filter.c.o
+[25/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/qbounded.c.o
+[26/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/notify.c.o
+[27/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/doctor.c.o
+[28/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/status.c.o
+[29/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/spawn_holder.c.o
+[30/207] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/verdict.c.o
+[31/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/report.c.o
+[32/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/unmount_ev.c.o
+[33/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/volrec.c.o
+[34/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/usermap_file.c.o
+[35/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/da.c.o
+[36/207] Linking C static library src/options/libntfsmac_worker_options.a
+[37/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/mountwatch.c.o
+[38/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/volume.c.o
+[39/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/reconcile.c.o
+[40/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_sys.c.o
+[41/207] Building C object src/journal/CMakeFiles/ntfsmac_journal.dir/journal.c.o
+[42/207] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/state.c.o
+[43/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/session.c.o
+[44/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/usermap.c.o
+[45/207] Linking C static library src/common/libntfsmac_state_rank.a
+[46/207] Building C object tests/unit/spawn/CMakeFiles/spawn_stub.dir/spawn_stub.c.o
+[47/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/unmount.c.o
+[48/207] Linking C static library src/sanitize/libntfsmac_sanitize.a
+[49/207] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/text.c.o
+[50/207] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/cmd_journal.c.o
+[51/207] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/cli.c.o
+[52/207] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/json.c.o
+[53/207] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_pure.dir/args.c.o
+[54/207] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/client.c.o
+[55/207] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/nfc.c.o
+[56/207] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/cmd_repair.c.o
+[57/207] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/authz.c.o
+[58/207] Linking C static library src/journal/libntfsmac_journal.a
+[59/207] Building C object src/common/CMakeFiles/ntfsmac_mftmirr.dir/mftmirr.c.o
+[60/207] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/req.c.o
+[61/207] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/reasons.c.o
+[62/207] Building C object src/common/CMakeFiles/test_log.dir/test_log.c.o
+[63/207] Linking C executable tests/unit/spawn/spawn_stub
+[64/207] Building C object src/cli/CMakeFiles/ntfsmac.dir/main.c.o
+[65/207] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/priv.c.o
+[66/207] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_probe.c.o
+[67/207] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/json.c.o
+[68/207] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_policy.c.o
+[69/207] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/test_headers.c.o
+[70/207] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_journal.c.o
+[71/207] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/xpc_client.c.o
+[72/207] Building C object tests/unit/contracts/CMakeFiles/test_headers.dir/hdr_options.c.o
+[73/207] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/spawn.c.o
+[74/207] Linking C static library src/volmark/libntfsmac_volmark_pure.a
+[75/207] Linking C static library src/probe/libntfsmac_probe_pure.a
+[76/207] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/render.c.o
+[77/207] Linking C static library src/common/libntfsmac_mftmirr.a
+[78/207] Building C object tests/tools/CMakeFiles/treedump.dir/treedump.c.o
+[79/207] Building C object tests/unit/da/CMakeFiles/da_watch.dir/__/__/integration/daemon/da_watch.c.o
+[80/207] Building C object src/journal/CMakeFiles/ntfsmac_journal_testhooks.dir/journal.c.o
+[81/207] Building C object tests/unit/da/CMakeFiles/da_filter.dir/da_filter.c.o
+[82/207] Building C object tests/unit/daemon/CMakeFiles/statemachine_stubs.dir/statemachine_stubs.c.o
+[83/207] Building C object tests/unit/ctl/CMakeFiles/ctl_vm_probe.dir/ctl_vm_probe.c.o
+[84/207] Building C object tests/unit/daemon/CMakeFiles/unmount_ev_test.dir/unmount_ev_test.c.o
+[85/207] Building C object tests/unit/ctl/CMakeFiles/ctl_parse.dir/ctl_parse.c.o
+[86/207] Building C object tests/unit/ctl/CMakeFiles/ctl_xpc.dir/ctl_xpc.c.o
+[87/207] Linking C static library src/daemon/libntfsmac_daemon.a
+[88/207] Building C object tests/unit/daemon/CMakeFiles/unmount_verify_test.dir/unmount_verify_test.c.o
+[89/207] Building C object tests/unit/daemon/CMakeFiles/statemachine_invalid.dir/statemachine_invalid.c.o
+[90/207] Linking C static library src/journal/libntfsmac_journal_testhooks.a
+[91/207] Building C object tests/unit/daemon/CMakeFiles/unmount_test.dir/unmount_test.c.o
+[92/207] Building C object tests/unit/ctl/CMakeFiles/ctl_fuzz.dir/ctl_fuzz.c.o
+[93/207] Building C object tests/unit/daemon/CMakeFiles/statemachine_transitions.dir/statemachine_transitions.c.o
+[94/207] Building C object tests/unit/daemon/CMakeFiles/startup_test.dir/startup_test.c.o
+[95/207] Linking C static library src/cli/libntfsmac_cli.a
+[96/207] Building C object tests/unit/daemon/CMakeFiles/volreuse_test.dir/volreuse_test.c.o
+[97/207] Building C object tests/unit/daemon/CMakeFiles/qbounded_test.dir/qbounded_test.c.o
+[98/207] Building C object tests/unit/daemon/CMakeFiles/mountpoint_test.dir/mountpoint_test.c.o
+[99/207] Building C object tests/unit/daemon/CMakeFiles/volrec_test.dir/volrec_test.c.o
+[100/207] Building C object tests/unit/daemon/CMakeFiles/plist_test.dir/plist_test.c.o
+[101/207] Building C object tests/unit/daemon/CMakeFiles/notify_test.dir/notify_test.c.o
+[102/207] Building C object src/daemon/CMakeFiles/ntfsmacd.dir/main.c.o
+[103/207] Building C object tests/unit/daemon/CMakeFiles/errwatch_test.dir/errwatch_test.c.o
+[104/207] Building C object tests/unit/ctl/CMakeFiles/ctl_peer.dir/ctl_peer.c.o
+[105/207] Building C object tests/unit/daemon/CMakeFiles/claim_test.dir/claim_test.c.o
+[106/207] Building C object tests/unit/daemon_conflict/CMakeFiles/test_daemon_conflict.dir/test_conflict.c.o
+[107/207] Building C object tests/unit/daemon/CMakeFiles/report_test.dir/report_test.c.o
+[108/207] Building C object tests/unit/daemon/CMakeFiles/mountwatch_test.dir/mountwatch_test.c.o
+[109/207] Building C object tests/unit/ctl/CMakeFiles/ctl_handle.dir/ctl_handle.c.o
+[110/207] Building C object tests/unit/ctl/CMakeFiles/ctl_socket.dir/ctl_socket.c.o
+[111/207] Building C object tests/unit/policy/CMakeFiles/argv_tool.dir/argv_tool.c.o
+[112/207] Building C object tests/unit/probe/CMakeFiles/nfc_tool.dir/nfc_tool.c.o
+[113/207] Building C object tests/unit/probe/CMakeFiles/mm_tool.dir/mm_tool.c.o
+[114/207] Building C object tests/unit/ctl/CMakeFiles/ctl_cli.dir/ctl_cli.c.o
+[115/207] Building C object tests/unit/journal/CMakeFiles/test_journal_crash.dir/test_journal_crash.c.o
+[116/207] Building C object tests/unit/sanitize/CMakeFiles/verdict_tool.dir/verdict_tool.c.o
+[117/207] Building C object tests/unit/spawn/CMakeFiles/test_holder.dir/test_holder.c.o
+[118/207] Building C object tests/unit/sanitize/CMakeFiles/test_display.dir/test_display.c.o
+[119/207] Building C object tests/unit/probe/CMakeFiles/test_probe_pure.dir/test_pure.c.o
+[120/207] Building C object tests/unit/spawn/CMakeFiles/test_usermap.dir/test_usermap.c.o
+[121/207] Building C object tests/unit/spawn/CMakeFiles/test_usermap_file.dir/test_usermap_file.c.o
+[122/207] Building C object tests/unit/daemon_conflict/CMakeFiles/test_daemon_doctor.dir/test_doctor.c.o
+[123/207] Building C object tests/unit/tsan/CMakeFiles/tsan_statemachine.dir/tsan_statemachine.c.o
+[124/207] Building C object tests/fuzz/sanitize/CMakeFiles/fuzz_replay_verdict.dir/fuzz_main.c.o
+[125/207] Building C object tests/fuzz/sanitize/CMakeFiles/fuzz_replay_label.dir/fuzz_main.c.o
+[126/207] Building C object tests/unit/tsan/CMakeFiles/tsan_session.dir/tsan_session.c.o
+[127/207] Building C object tests/fuzz/sanitize/CMakeFiles/fuzz_replay_display.dir/fuzz_main.c.o
+[128/207] Building C object tests/unit/volmark/CMakeFiles/test_volmark_args.dir/test_args.c.o
+[129/207] Building C object tests/unit/spawn/CMakeFiles/test_sandbox.dir/test_sandbox.c.o
+[130/207] Building C object tests/unit/tsan/CMakeFiles/tsan_ctl_journal.dir/tsan_ctl_journal.c.o
+[131/207] Building C object tests/unit/policy/CMakeFiles/test_policy.dir/test_policy.c.o
+[132/207] Building C object tests/fuzz/ctl/CMakeFiles/fuzz_replay_ctl.dir/__/sanitize/fuzz_main.c.o
+[133/207] Building C object tests/unit/reconcile/CMakeFiles/test_reconcile.dir/test_reconcile.c.o
+[134/207] Building C object tests/fuzz/sanitize/CMakeFiles/fuzz_replay_display.dir/fuzz_display.c.o
+[135/207] Linking C executable src/daemon/ntfsmacd
+[136/207] Linking C executable src/common/test_log
+[137/207] Linking C executable tests/tools/treedump
+[138/207] Building C object tests/unit/spawn/CMakeFiles/test_spawn.dir/test_spawn.c.o
+[139/207] Linking C executable src/cli/ntfsmac
+[140/207] Linking C executable tests/unit/contracts/test_headers
+[141/207] Building C object tests/unit/daemon/CMakeFiles/privops_test.dir/privops_test.c.o
+[142/207] Building C object tests/fuzz/sanitize/CMakeFiles/fuzz_replay_label.dir/fuzz_label.c.o
+[143/207] Linking C executable tests/unit/da/da_filter
+[144/207] Linking C executable tests/unit/da/da_watch
+[145/207] Linking C executable tests/unit/ctl/ctl_parse
+[146/207] Building C object tests/fuzz/ctl/CMakeFiles/fuzz_replay_ctl.dir/fuzz_ctl.c.o
+[147/207] Linking C executable tests/unit/ctl/ctl_fuzz
+[148/207] Building C object tests/fuzz/sanitize/CMakeFiles/fuzz_replay_verdict.dir/fuzz_verdict.c.o
+[149/207] Linking C executable tests/unit/ctl/ctl_peer
+[150/207] Linking C executable tests/unit/ctl/ctl_socket
+[151/207] Linking C executable tests/unit/ctl/ctl_cli
+[152/207] Linking C executable tests/unit/ctl/ctl_handle
+[153/207] Building C object tests/unit/sanitize/CMakeFiles/test_label.dir/test_label.c.o
+[154/207] Linking C executable tests/unit/ctl/ctl_xpc
+[155/207] Linking C executable tests/unit/daemon/statemachine_invalid
+[156/207] Linking C executable tests/unit/daemon/statemachine_transitions
+[157/207] Linking C executable tests/unit/ctl/ctl_vm_probe
+[158/207] Linking C executable tests/unit/daemon/mountpoint_test
+[159/207] Linking C executable tests/unit/daemon/statemachine_stubs
+[160/207] Building C object tests/unit/policy/CMakeFiles/test_options.dir/test_options.c.o
+[161/207] Linking C executable tests/unit/daemon/unmount_test
+[162/207] Linking C executable tests/unit/daemon/unmount_ev_test
+[163/207] Linking C executable tests/unit/daemon/unmount_verify_test
+[164/207] Linking C executable tests/unit/daemon/errwatch_test
+[165/207] Linking C executable tests/unit/daemon/privops_test
+[166/207] Linking C executable tests/unit/daemon/notify_test
+[167/207] Linking C executable tests/unit/daemon/claim_test
+[168/207] Linking C executable tests/unit/daemon/startup_test
+[169/207] Linking C executable tests/unit/daemon/qbounded_test
+[170/207] Linking C executable tests/unit/daemon/volreuse_test
+[171/207] Linking C executable tests/unit/daemon/volrec_test
+[172/207] Linking C executable tests/unit/daemon/report_test
+[173/207] Linking C executable tests/unit/daemon/plist_test
+[174/207] Linking C executable tests/unit/daemon_conflict/test_daemon_conflict
+[175/207] Linking C executable tests/unit/daemon_conflict/test_daemon_doctor
+[176/207] Linking C executable tests/unit/journal/test_journal_crash
+[177/207] Linking C executable tests/unit/policy/test_policy
+[178/207] Linking C executable tests/unit/daemon/mountwatch_test
+[179/207] Linking C executable tests/unit/policy/test_options
+[180/207] Linking C executable tests/unit/probe/test_probe_pure
+[181/207] Linking C executable tests/unit/probe/nfc_tool
+[182/207] Linking C executable tests/unit/probe/mm_tool
+[183/207] Linking C executable tests/unit/spawn/test_usermap
+[184/207] Linking C executable tests/unit/policy/argv_tool
+[185/207] Linking C executable tests/unit/reconcile/test_reconcile
+[186/207] Linking C executable tests/unit/sanitize/test_label
+[187/207] Linking C executable tests/unit/spawn/test_holder
+[188/207] Linking C executable tests/unit/sanitize/verdict_tool
+[189/207] Linking C executable tests/unit/spawn/test_usermap_file
+[190/207] Linking C executable tests/unit/sanitize/test_display
+[191/207] Linking C executable tests/unit/spawn/test_sandbox
+[192/207] Linking C executable tests/unit/spawn/test_spawn
+[193/207] Linking C executable tests/unit/tsan/tsan_ctl_journal
+[194/207] Linking C executable tests/unit/tsan/tsan_statemachine
+[195/207] Linking C executable tests/unit/tsan/tsan_session
+[196/207] Linking C executable tests/unit/volmark/test_volmark_args
+[197/207] Linking C executable tests/fuzz/sanitize/fuzz_replay_display
+[198/207] Linking C executable tests/fuzz/sanitize/fuzz_replay_verdict
+[199/207] Linking C executable tests/fuzz/sanitize/fuzz_replay_label
+[200/207] Linking C executable tests/fuzz/ctl/fuzz_replay_ctl
+[201/207] Building C object tests/unit/daemon/CMakeFiles/session_test.dir/session_test.c.o
+[202/207] Linking C executable tests/unit/daemon/session_test
+[203/207] Building C object tests/unit/journal/CMakeFiles/test_journal.dir/test_journal.c.o
+[204/207] Linking C executable tests/unit/journal/test_journal
+[205/207] Building C object tests/unit/sanitize/CMakeFiles/test_verdict.dir/test_verdict.c.o
+[206/207] Linking C executable tests/unit/sanitize/test_verdict
+
+== stage: product ==
+[0/2] Re-checking globbed directories...
+[1/48] Building C object src/policy/CMakeFiles/ntfsmac_policy.dir/policy.c.o
+[2/48] Building C object src/common/CMakeFiles/ntfsmac_common.dir/log.c.o
+[3/48] Building C object src/common/CMakeFiles/ntfsmac_label_cp.dir/label_cp.c.o
+[4/48] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/label.c.o
+[5/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_repair_mirror.c.o
+[6/48] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/display.c.o
+[7/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/claim.c.o
+[8/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/conflict.c.o
+[9/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_peer.c.o
+[10/48] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/leaf.c.o
+[11/48] Building C object src/options/CMakeFiles/ntfsmac_worker_options.dir/options.c.o
+[12/48] Building C object src/options/CMakeFiles/ntfsmac_worker_options.dir/argv_check.c.o
+[13/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_journal.c.o
+[14/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl.c.o
+[15/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_parse.c.o
+[16/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_xpc.c.o
+[17/48] Linking C static library src/policy/libntfsmac_policy.a
+[18/48] Linking C static library src/common/libntfsmac_label_cp.a
+[19/48] Linking C static library src/common/libntfsmac_common.a
+[20/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/errwatch.c.o
+[21/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/errwatch_io.c.o
+[22/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/mountpoint.c.o
+[23/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/da.c.o
+[24/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/da_filter.c.o
+[25/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/qbounded.c.o
+[26/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/doctor.c.o
+[27/48] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/verdict.c.o
+[28/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/spawn_holder.c.o
+[29/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/notify.c.o
+[30/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/status.c.o
+[31/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/report.c.o
+[32/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_sys.c.o
+[33/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/unmount_ev.c.o
+[34/48] Linking C static library src/options/libntfsmac_worker_options.a
+[35/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/volume.c.o
+[36/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/reconcile.c.o
+[37/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/volrec.c.o
+[38/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/usermap_file.c.o
+[39/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/mountwatch.c.o
+[40/48] Building C object src/journal/CMakeFiles/ntfsmac_journal.dir/journal.c.o
+[41/48] Linking C static library src/sanitize/libntfsmac_sanitize.a
+[42/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/unmount.c.o
+[43/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/usermap.c.o
+[44/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/session.c.o
+[45/48] Linking C static library src/journal/libntfsmac_journal.a
+[46/48] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/spawn.c.o
+[47/48] Linking C static library src/daemon/libntfsmac_daemon.a
+
+== stage: ctest ==
+Test project $TREE/build/release
+        Start   1: common.log
+  1/106 Test   #1: common.log .............................   Passed    0.94 sec
+        Start   2: tools.treedump
+  2/106 Test   #2: tools.treedump .........................   Passed    0.54 sec
+        Start   3: harness.unit
+  3/106 Test   #3: harness.unit ...........................   Passed   79.09 sec
+        Start   4: ci.local
+  4/106 Test   #4: ci.local ...............................   Passed    4.99 sec
+        Start   5: ci.local_full
+  5/106 Test   #5: ci.local_full ..........................   Passed   46.43 sec
+        Start   6: ci.local_tools
+  6/106 Test   #6: ci.local_tools .........................   Passed    2.22 sec
+        Start   7: ci.vm_slots
+  7/106 Test   #7: ci.vm_slots ............................   Passed   25.75 sec
+        Start   8: ci.dmn_all
+  8/106 Test   #8: ci.dmn_all .............................   Passed   86.09 sec
+        Start   9: ci.run_inputs
+  9/106 Test   #9: ci.run_inputs ..........................   Passed   10.93 sec
+        Start  10: ci.gate_cases
+ 10/106 Test  #10: ci.gate_cases ..........................   Passed    0.06 sec
+        Start  11: ci.fuzz_short
+ 11/106 Test  #11: ci.fuzz_short ..........................   Passed    1.13 sec
+        Start  12: ci.guest_sources
+ 12/106 Test  #12: ci.guest_sources .......................   Passed    0.04 sec
+        Start  13: ci.guest_plan
+ 13/106 Test  #13: ci.guest_plan ..........................   Passed    0.44 sec
+        Start  14: ci.guest_link
+ 14/106 Test  #14: ci.guest_link ..........................   Passed    4.56 sec
+        Start  15: stress.soak_mixlib
+ 15/106 Test  #15: stress.soak_mixlib .....................   Passed   11.27 sec
+        Start  16: stress.soak_result
+ 16/106 Test  #16: stress.soak_result .....................   Passed    0.05 sec
+        Start  17: stress.kill_result
+ 17/106 Test  #17: stress.kill_result .....................   Passed    0.02 sec
+        Start  18: stress.disconnect_result
+ 18/106 Test  #18: stress.disconnect_result ...............   Passed    0.03 sec
+        Start  19: stress.leaks_classify
+ 19/106 Test  #19: stress.leaks_classify ..................   Passed    0.03 sec
+        Start  20: perf.result
+ 20/106 Test  #20: perf.result ............................   Passed   10.00 sec
+        Start  21: perf.report
+ 21/106 Test  #21: perf.report ............................   Passed    0.19 sec
+        Start  22: harness.inputs
+ 22/106 Test  #22: harness.inputs .........................   Passed    0.02 sec
+        Start  23: contracts.headers
+ 23/106 Test  #23: contracts.headers ......................   Passed    0.80 sec
+        Start  24: contracts.probe_schema
+ 24/106 Test  #24: contracts.probe_schema .................   Passed    0.07 sec
+        Start  25: daemon.da_filter
+ 25/106 Test  #25: daemon.da_filter .......................   Passed    0.46 sec
+        Start  26: ctl.parse
+ 26/106 Test  #26: ctl.parse ..............................   Passed    0.58 sec
+        Start  27: ctl.peer
+ 27/106 Test  #27: ctl.peer ...............................   Passed    0.47 sec
+        Start  28: ctl.handle
+ 28/106 Test  #28: ctl.handle .............................   Passed    0.52 sec
+        Start  29: ctl.fuzz
+ 29/106 Test  #29: ctl.fuzz ...............................   Passed    0.72 sec
+        Start  30: ctl.socket
+ 30/106 Test  #30: ctl.socket .............................   Passed   10.95 sec
+        Start  31: ctl.cli
+ 31/106 Test  #31: ctl.cli ................................   Passed    1.04 sec
+        Start  32: ctl.xpc
+ 32/106 Test  #32: ctl.xpc ................................   Passed    0.92 sec
+        Start  33: daemon.statemachine_transitions
+ 33/106 Test  #33: daemon.statemachine_transitions ........   Passed    0.52 sec
+        Start  34: daemon.statemachine_invalid
+ 34/106 Test  #34: daemon.statemachine_invalid ............   Passed    0.52 sec
+        Start  35: daemon.statemachine_stubs
+ 35/106 Test  #35: daemon.statemachine_stubs ..............   Passed    0.53 sec
+        Start  36: daemon.mountpoint
+ 36/106 Test  #36: daemon.mountpoint ......................   Passed    0.55 sec
+        Start  37: daemon.unmount
+ 37/106 Test  #37: daemon.unmount .........................   Passed    0.49 sec
+        Start  38: daemon.unmount_ev
+ 38/106 Test  #38: daemon.unmount_ev ......................   Passed    0.60 sec
+        Start  39: daemon.unmount_verify
+ 39/106 Test  #39: daemon.unmount_verify ..................   Passed    0.45 sec
+        Start  40: daemon.errwatch
+ 40/106 Test  #40: daemon.errwatch ........................   Passed    1.33 sec
+        Start  41: daemon.session
+ 41/106 Test  #41: daemon.session .........................   Passed    2.18 sec
+        Start  42: daemon.privops
+ 42/106 Test  #42: daemon.privops .........................   Passed    1.34 sec
+        Start  43: daemon.mountwatch
+ 43/106 Test  #43: daemon.mountwatch ......................   Passed    2.25 sec
+        Start  44: daemon.notify
+ 44/106 Test  #44: daemon.notify ..........................   Passed    0.78 sec
+        Start  45: daemon.startup
+ 45/106 Test  #45: daemon.startup .........................   Passed    0.56 sec
+        Start  46: daemon.qbounded
+ 46/106 Test  #46: daemon.qbounded ........................   Passed    0.80 sec
+        Start  47: daemon.volreuse
+ 47/106 Test  #47: daemon.volreuse ........................   Passed    0.73 sec
+        Start  48: daemon.volrec
+ 48/106 Test  #48: daemon.volrec ..........................   Passed    0.53 sec
+        Start  49: daemon.claim
+ 49/106 Test  #49: daemon.claim ...........................   Passed    0.52 sec
+        Start  50: daemon.report
+ 50/106 Test  #50: daemon.report ..........................   Passed    0.53 sec
+        Start  51: daemon.plist
+ 51/106 Test  #51: daemon.plist ...........................   Passed    0.52 sec
+        Start  52: daemon.conflict
+ 52/106 Test  #52: daemon.conflict ........................   Passed    0.57 sec
+        Start  53: daemon.doctor
+ 53/106 Test  #53: daemon.doctor ..........................   Passed    0.53 sec
+        Start  54: journal.unit
+ 54/106 Test  #54: journal.unit ...........................   Passed    2.41 sec
+        Start  55: journal.crash
+ 55/106 Test  #55: journal.crash ..........................   Passed    6.39 sec
+        Start  56: policy.table
+ 56/106 Test  #56: policy.table ...........................   Passed    0.66 sec
+        Start  57: policy.options
+ 57/106 Test  #57: policy.options .........................   Passed    0.46 sec
+        Start  58: policy.mount_options_json
+ 58/106 Test  #58: policy.mount_options_json ..............   Passed    0.71 sec
+        Start  59: packaging.manifest
+ 59/106 Test  #59: packaging.manifest .....................   Passed    0.08 sec
+        Start  60: packaging.manifest_mutants
+ 60/106 Test  #60: packaging.manifest_mutants .............   Passed    2.41 sec
+        Start  61: packaging.payload
+ 61/106 Test  #61: packaging.payload ......................   Passed    0.32 sec
+        Start  62: packaging.sign_and_notarize
+ 62/106 Test  #62: packaging.sign_and_notarize ............   Passed    0.35 sec
+        Start  63: packaging.source_release
+ 63/106 Test  #63: packaging.source_release ...............   Passed    5.81 sec
+        Start  64: packaging.root_only
+ 64/106 Test  #64: packaging.root_only ....................   Passed    3.32 sec
+        Start  65: packaging.bom_check
+ 65/106 Test  #65: packaging.bom_check ....................   Passed    0.31 sec
+        Start  66: packaging.syntax_dev-install
+ 66/106 Test  #66: packaging.syntax_dev-install ...........   Passed    0.00 sec
+        Start  67: packaging.syntax_uninstall
+ 67/106 Test  #67: packaging.syntax_uninstall .............   Passed    0.00 sec
+        Start  68: packaging.syntax_build-pkg
+ 68/106 Test  #68: packaging.syntax_build-pkg .............   Passed    0.00 sec
+        Start  69: packaging.syntax_payload-check
+ 69/106 Test  #69: packaging.syntax_payload-check .........   Passed    0.00 sec
+        Start  70: packaging.syntax_bom-check
+ 70/106 Test  #70: packaging.syntax_bom-check .............   Passed    0.00 sec
+        Start  71: packaging.syntax_sign-and-notarize
+ 71/106 Test  #71: packaging.syntax_sign-and-notarize .....   Passed    0.00 sec
+        Start  72: packaging.syntax_make_source_release
+ 72/106 Test  #72: packaging.syntax_make_source_release ...   Passed    0.00 sec
+        Start  73: packaging.syntax_preinstall
+ 73/106 Test  #73: packaging.syntax_preinstall ............   Passed    0.00 sec
+        Start  74: packaging.syntax_postinstall
+ 74/106 Test  #74: packaging.syntax_postinstall ...........   Passed    0.00 sec
+        Start  75: packaging.repro_check
+ 75/106 Test  #75: packaging.repro_check ..................   Passed    3.95 sec
+        Start  76: packaging.syntax_repro-check
+ 76/106 Test  #76: packaging.syntax_repro-check ...........   Passed    0.00 sec
+        Start  77: packaging.release_signing
+ 77/106 Test  #77: packaging.release_signing ..............   Passed    1.33 sec
+        Start  78: packaging.guest_login_check
+ 78/106 Test  #78: packaging.guest_login_check ............   Passed    1.21 sec
+        Start  79: packaging.shellcheck_release
+ 79/106 Test  #79: packaging.shellcheck_release ...........   Passed    1.79 sec
+        Start  80: packaging.shellcheck_errors
+ 80/106 Test  #80: packaging.shellcheck_errors ............   Passed    0.30 sec
+        Start  81: probe.pure
+ 81/106 Test  #81: probe.pure .............................   Passed    0.65 sec
+        Start  82: probe.nfc
+ 82/106 Test  #82: probe.nfc ..............................   Passed    1.56 sec
+        Start  83: daemon.reconcile
+ 83/106 Test  #83: daemon.reconcile .......................   Passed    0.58 sec
+        Start  84: sanitize.label
+ 84/106 Test  #84: sanitize.label .........................   Passed    0.57 sec
+        Start  85: sanitize.display
+ 85/106 Test  #85: sanitize.display .......................   Passed    1.18 sec
+        Start  86: sanitize.verdict
+ 86/106 Test  #86: sanitize.verdict .......................   Passed    0.79 sec
+        Start  87: sanitize.verdict_schema
+ 87/106 Test  #87: sanitize.verdict_schema ................   Passed    2.17 sec
+        Start  88: daemon.spawn_holder
+ 88/106 Test  #88: daemon.spawn_holder ....................   Passed    0.46 sec
+        Start  89: daemon.usermap
+ 89/106 Test  #89: daemon.usermap .........................   Passed    0.52 sec
+        Start  90: daemon.usermap_file
+ 90/106 Test  #90: daemon.usermap_file ....................   Passed    0.53 sec
+        Start  91: daemon.spawn
+ 91/106 Test  #91: daemon.spawn ...........................   Passed   19.30 sec
+        Start  92: daemon.sandbox
+ 92/106 Test  #92: daemon.sandbox .........................   Passed    1.75 sec
+        Start  93: sandbox.profiles
+ 93/106 Test  #93: sandbox.profiles .......................   Passed    0.19 sec
+        Start  94: sandbox.lint_mutants
+ 94/106 Test  #94: sandbox.lint_mutants ...................   Passed    6.03 sec
+        Start  95: sandbox.seams_hidden
+ 95/106 Test  #95: sandbox.seams_hidden ...................   Passed    0.02 sec
+        Start  96: sandbox.seams_visible
+ 96/106 Test  #96: sandbox.seams_visible ..................   Passed    0.01 sec
+        Start  97: tsan.statemachine
+ 97/106 Test  #97: tsan.statemachine ......................   Passed    0.96 sec
+        Start  98: tsan.ctl_journal
+ 98/106 Test  #98: tsan.ctl_journal .......................   Passed    1.69 sec
+        Start  99: tsan.session
+ 99/106 Test  #99: tsan.session ...........................   Passed    0.97 sec
+        Start 100: volmark.args
+100/106 Test #100: volmark.args ...........................   Passed    0.52 sec
+        Start 101: fuzz.sanitize_verdict_seeds
+101/106 Test #101: fuzz.sanitize_verdict_seeds ............   Passed    0.53 sec
+        Start 102: fuzz.sanitize_label_seeds
+102/106 Test #102: fuzz.sanitize_label_seeds ..............   Passed    0.52 sec
+        Start 103: fuzz.sanitize_display_seeds
+103/106 Test #103: fuzz.sanitize_display_seeds ............   Passed    0.52 sec
+        Start 104: fuzz.findings.M5-01
+104/106 Test #104: fuzz.findings.M5-01 ....................   Passed    0.00 sec
+        Start 105: fuzz.ctl_seeds
+105/106 Test #105: fuzz.ctl_seeds .........................   Passed    0.54 sec
+        Start 106: fuzz.campaign_tools
+106/106 Test #106: fuzz.campaign_tools ....................   Passed    4.71 sec
+
+100% tests passed out of 106
+
+Label Time Summary:
+ci    = 204.25 sec*proc (19 tests)
+
+Total Test time (real) = 397.32 sec
+
+== summary ==
+bootstrap    ok       1s
+configure    ok       1s
+build        ok       1s
+product      ok       1s
+ctest        ok     397s
+ci-local --quick: PASSED
+
+== release-local: build in VM ntfsmac-release-build-53872 ==
+tart.sh: cloned ntfsmac-golden -> ntfsmac-release-build-53872
+tart.sh: started ntfsmac-release-build-53872 (pid 12797, log ~/.cache/ntfsmac-vm/ntfsmac-release-build-53872.log); waiting for guest (exec)
+tart.sh: ntfsmac-release-build-53872 up at  after 29s
+
+guest-login-check: ntfsmac-release-build-53872: Remote Login, Screen Sharing, Remote Management and the Kerberos KDC turned off (this clone only)
+guest-login-check: ok   ntfsmac-release-build-53872: no TCP socket listens beyond loopback
+guest-login-check: ok   ntfsmac-release-build-53872 has no address on the host network (tart ip)
+guest-login-check: ok   ntfsmac-release-build-53872 has no default route (other than over its own utun tunnels)
+build-pkg: building NTFS-3G (external FUSE) into /Users/admin/ntfsmac/work/deps
+build-ntfs3g: unpacking ntfs-3g_ntfsprogs-2026.9.28.tgz into /Users/admin/ntfsmac/work/ntfs-3g/src
+build-ntfs3g: applying 0003-inherited-device-descriptor.patch
+patching file 'include/ntfs-3g/device.h'
+patching file 'libntfs-3g/unix_io.c'
+patching file 'src/ntfs-3g.c'
+patching file 'src/ntfs-3g_common.c'
+build-ntfs3g: applying 0004-faultio-device-layer.patch
+patching file config.h.in
+patching file configure
+patching file configure.ac
+patching file 'include/ntfs-3g/faultio.h'
+patching file 'libntfs-3g/unix_io.c'
+build-ntfs3g: applying 0006-session-channel.patch
+patching file 'include/ntfs-3g/device.h'
+patching file 'libntfs-3g/unix_io.c'
+patching file 'src/ntfs-3g.c'
+build-ntfs3g: applying 0007-device-drive-flush.patch
+patching file 'libntfs-3g/unix_io.c'
+build-ntfs3g: applying 0008-creation-time-conversion.patch
+patching file 'src/ntfs-3g.c'
+build-ntfs3g: applying 0009-xattr-names-exempt-windows-names.patch
+patching file 'src/ntfs-3g.c'
+build-ntfs3g: applying 0010-valid-descr-header-length.patch
+patching file 'libntfs-3g/acls.c'
+build-ntfs3g: applying 0011-possible-symlink-header-length.patch
+patching file 'libntfs-3g/reparse.c'
+build-ntfs3g: applying 0012-retrievesecurityattr-bounds.patch
+patching file 'libntfs-3g/security.c'
+build-ntfs3g: applying 0013-inode-sync-reparse-tag-length.patch
+patching file 'libntfs-3g/inode.c'
+build-ntfs3g: applying 0014-readdir-offsets.patch
+patching file 'libfuse-lite/fuse.c'
+patching file 'src/ntfs-3g.c'
+build-ntfs3g: applying 0015-boot-sector-record-size-limit.patch
+patching file 'libntfs-3g/bootsect.c'
+build-ntfs3g: applying 0016-index-root-block-size-limit.patch
+patching file 'include/ntfs-3g/index.h'
+patching file 'include/ntfs-3g/layout.h'
+patching file 'libntfs-3g/attrib.c'
+patching file 'libntfs-3g/dir.c'
+patching file 'libntfs-3g/index.c'
+build-ntfs3g: configure: PKG_CONFIG_PATH=/usr/local/lib/pkgconfig /Users/admin/ntfsmac/work/ntfs-3g/src/configure --prefix=/Users/admin/ntfsmac/work/deps --exec-prefix=/Users/admin/ntfsmac/work/deps --with-fuse=external --enable-static --disable-shared --enable-ntfsprogs --disable-ldconfig --disable-mount-helper --disable-plugins
+checking build system type... aarch64-apple-darwin27.2.0
+checking host system type... aarch64-apple-darwin27.2.0
+checking target system type... aarch64-apple-darwin27.2.0
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether sleep supports fractional seconds... yes
+checking filesystem timestamp resolution... 2
+checking whether build environment is sane... yes
+checking for a race-free mkdir -p... mkdir -p
+checking for gawk... no
+checking for mawk... no
+checking for nawk... no
+checking for awk... awk
+checking whether make sets $(MAKE)... yes
+checking whether make supports nested variables... yes
+checking xargs -n works... yes
+checking whether UID '501' is supported by ustar format... yes
+checking whether GID '20' is supported by ustar format... yes
+checking how to create a ustar tar archive... plaintar
+checking whether to enable maintainer-specific portions of Makefiles... no
+checking whether make supports the include directive... yes (GNU style)
+checking for gcc... gcc
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether the compiler supports GNU C... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to enable C23 features... -std=gnu23
+checking whether gcc -std=gnu23 understands -c and -o together... yes
+checking dependency style of gcc -std=gnu23... gcc3
+checking for stdio.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for strings.h... yes
+checking for sys/stat.h... yes
+checking for sys/types.h... yes
+checking for unistd.h... yes
+checking for wchar.h... yes
+checking for minix/config.h... no
+checking for utime.h... yes
+checking whether it is safe to define __EXTENSIONS__... yes
+checking whether _XOPEN_SOURCE should be defined... no
+checking whether the compiler supports GNU C... (cached) yes
+checking whether gcc -std=gnu23 accepts -g... (cached) yes
+checking for gcc -std=gnu23 option to enable C23 features... (cached) -std=gnu23
+checking whether gcc -std=gnu23 -std=gnu23 understands -c and -o together... (cached) yes
+checking dependency style of gcc -std=gnu23 -std=gnu23... (cached) gcc3
+checking whether ln -s works... yes
+checking how to print strings... printf
+checking for a sed that does not truncate output... /usr/bin/sed
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+checking for fgrep... /usr/bin/grep -F
+checking for ld used by gcc -std=gnu23 -std=gnu23... /Library/Developer/CommandLineTools/usr/bin/ld
+checking if the linker (/Library/Developer/CommandLineTools/usr/bin/ld) is GNU ld... no
+checking for BSD- or MS-compatible name lister (nm)... /usr/bin/nm -B
+checking the name lister (/usr/bin/nm -B) interface... BSD nm
+checking the maximum length of command line arguments... 786432
+checking how to convert aarch64-apple-darwin27.2.0 file names to aarch64-apple-darwin27.2.0 format... func_convert_file_noop
+checking how to convert aarch64-apple-darwin27.2.0 file names to toolchain format... func_convert_file_noop
+checking for /Library/Developer/CommandLineTools/usr/bin/ld option to reload object files... -r
+checking for file... file
+checking for objdump... objdump
+checking how to recognize dependent libraries... pass_all
+checking for dlltool... no
+checking how to associate runtime and link libraries... printf %s\n
+checking for ranlib... ranlib
+checking for ar... ar
+checking for archiver @FILE support... no
+checking for strip... strip
+checking command to parse /usr/bin/nm -B output from gcc -std=gnu23 -std=gnu23 object... ok
+checking for sysroot... no
+checking for a working dd... /bin/dd
+checking how to truncate binary pipes... /bin/dd bs=4096 count=1
+checking for mt... no
+checking if : is a manifest tool... no
+checking for dsymutil... dsymutil
+checking for nmedit... nmedit
+checking for lipo... lipo
+checking for otool... otool
+checking for otool64... no
+checking for -single_module linker flag... ld: warning: -single_module is obsolete
+no
+checking for -no_fixup_chains linker flag... yes
+checking for -exported_symbols_list linker flag... yes
+checking for -force_load linker flag... yes
+checking for dlfcn.h... yes
+checking which variant of shared library versioning to provide... (default) aix
+checking for objdir... .libs
+checking if gcc -std=gnu23 -std=gnu23 supports -fno-rtti -fno-exceptions... yes
+checking for gcc -std=gnu23 -std=gnu23 option to produce PIC... -fno-common -DPIC
+checking if gcc -std=gnu23 -std=gnu23 PIC flag -fno-common -DPIC works... yes
+checking if gcc -std=gnu23 -std=gnu23 static flag -static works... no
+checking if gcc -std=gnu23 -std=gnu23 supports -c -o file.o... yes
+checking if gcc -std=gnu23 -std=gnu23 supports -c -o file.o... (cached) yes
+checking whether the gcc -std=gnu23 -std=gnu23 linker (/Library/Developer/CommandLineTools/usr/bin/ld) supports shared libraries... yes
+checking dynamic linker characteristics... darwin27.2.0 dyld
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... no
+checking whether to build static libraries... yes
+checking for pkg-config... /opt/homebrew/bin/pkg-config
+checking pkg-config is at least version 0.9.0... yes
+checking for mv... /bin/mv
+checking for rm... /bin/rm
+checking for sed... (cached) /usr/bin/sed
+checking for ldconfig... true
+checking Windows OS... no
+checking for fuse >= 2.6.0... yes
+checking for uuid/uuid.h... yes
+checking for uuid_generate... yes
+checking for hd.h... no
+configure: WARNING: ntfsprogs Windows compliant geometry code requires the hd library.
+checking for egrep... (cached) /usr/bin/grep -E
+checking for sys/mkdev.h... no
+checking for sys/sysmacros.h... no
+checking for ctype.h... yes
+checking for fcntl.h... yes
+checking for libgen.h... yes
+checking for libintl.h... no
+checking for limits.h... yes
+checking for locale.h... yes
+checking for mntent.h... no
+checking for stddef.h... yes
+checking for stdint.h... (cached) yes
+checking for stdlib.h... (cached) yes
+checking for stdio.h... (cached) yes
+checking for stdarg.h... yes
+checking for string.h... (cached) yes
+checking for strings.h... (cached) yes
+checking for errno.h... yes
+checking for time.h... yes
+checking for unistd.h... (cached) yes
+checking for utime.h... (cached) yes
+checking for wchar.h... (cached) yes
+checking for getopt.h... yes
+checking for features.h... no
+checking for regex.h... yes
+checking for endian.h... no
+checking for byteswap.h... no
+checking for sys/byteorder.h... no
+checking for sys/disk.h... yes
+checking for sys/endian.h... yes
+checking for sys/param.h... yes
+checking for sys/ioctl.h... yes
+checking for sys/mount.h... yes
+checking for sys/stat.h... (cached) yes
+checking for sys/types.h... (cached) yes
+checking for sys/vfs.h... no
+checking for sys/statvfs.h... yes
+checking for linux/major.h... no
+checking for linux/fd.h... no
+checking for linux/fs.h... no
+checking for inttypes.h... (cached) yes
+checking for linux/hdreg.h... no
+checking for machine/endian.h... yes
+checking for windows.h... no
+checking for syslog.h... yes
+checking for pwd.h... yes
+checking for malloc.h... no
+checking for _Bool... yes
+checking for stdbool.h that conforms to C99 or later... yes
+checking whether byte ordering is bigendian... no
+checking for an ANSI C-conforming const... yes
+checking for inline... inline
+checking for off_t... yes
+checking for size_t... yes
+checking for struct stat.st_blocks... yes
+checking for struct stat.st_rdev... yes
+checking for struct stat.st_atim... no
+checking for struct stat.st_atimespec... yes
+checking for struct stat.st_atimensec... no
+checking for CoreFoundation/CoreFoundation.h... yes
+checking for gcc -std=gnu23 -std=gnu23 options to detect undeclared functions... none needed
+checking for gcc -std=gnu23 -std=gnu23 options to ignore future-version functions... -Werror=unguarded-availability-new
+checking whether optreset is declared... yes
+checking for library containing getmntent... no
+checking whether mbrtowc and mbstate_t are properly declared... yes
+checking for working memcmp... yes
+checking whether lstat correctly handles trailing slash... yes
+checking whether stat accepts an empty string... no
+checking for strftime... yes
+checking whether utime accepts a null argument... yes
+checking for vprintf... yes
+checking for atexit... yes
+checking for basename... yes
+checking for daemon... yes
+checking for dup2... yes
+checking for fdatasync... yes
+checking for ffs... yes
+checking for getopt_long... yes
+checking for hasmntopt... no
+checking for mbsinit... yes
+checking for memmove... yes
+checking for memset... yes
+checking for realpath... yes
+checking for regcomp... yes
+checking for setlocale... yes
+checking for setxattr... yes
+checking for strcasecmp... yes
+checking for strchr... yes
+checking for strdup... yes
+checking for strerror... yes
+checking for strnlen... yes
+checking for strsep... yes
+checking for strtol... yes
+checking for strtoul... yes
+checking for sysconf... yes
+checking for utime... yes
+checking for utimensat... yes
+checking for gettimeofday... yes
+checking for clock_gettime... yes
+checking for fork... yes
+checking for memcpy... yes
+checking for random... yes
+checking for snprintf... yes
+checking for gcc -std=gnu23 -std=gnu23 option to support large files... none needed
+checking that generated files are newer than configure... done
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating include/Makefile
+config.status: creating include/fuse-lite/Makefile
+config.status: creating include/ntfs-3g/Makefile
+config.status: creating libfuse-lite/Makefile
+config.status: creating libntfs-3g/Makefile
+config.status: creating libntfs-3g/libntfs-3g.pc
+config.status: creating libntfs-3g/libntfs-3g.script.so
+config.status: creating ntfsprogs/Makefile
+config.status: creating ntfsprogs/mkntfs.8
+config.status: creating ntfsprogs/ntfscat.8
+config.status: creating ntfsprogs/ntfsclone.8
+config.status: creating ntfsprogs/ntfscluster.8
+config.status: creating ntfsprogs/ntfscmp.8
+config.status: creating ntfsprogs/ntfscp.8
+config.status: creating ntfsprogs/ntfsfix.8
+config.status: creating ntfsprogs/ntfsinfo.8
+config.status: creating ntfsprogs/ntfslabel.8
+config.status: creating ntfsprogs/ntfsls.8
+config.status: creating ntfsprogs/ntfsprogs.8
+config.status: creating ntfsprogs/ntfsresize.8
+config.status: creating ntfsprogs/ntfsundelete.8
+config.status: creating ntfsprogs/ntfsdecrypt.8
+config.status: creating ntfsprogs/ntfswipe.8
+config.status: creating ntfsprogs/ntfstruncate.8
+config.status: creating ntfsprogs/ntfsfallocate.8
+config.status: creating ntfsprogs/ntfsrecover.8
+config.status: creating ntfsprogs/ntfsusermap.8
+config.status: creating ntfsprogs/ntfssecaudit.8
+config.status: creating src/Makefile
+config.status: creating src/ntfs-3g.8
+config.status: creating src/ntfs-3g.probe.8
+config.status: creating config.h
+config.status: executing depfiles commands
+config.status: executing libtool commands
+rm: libtoolT: No such file or directory
+****************************************************************************
+* WARNING  WARNING  WARNING  WARNING  WARNING  WARNING  WARNING  WARNING   *
+* The FUSE user space binaries were NOT installed with root directory      *
+* executable prefix. This means that automounting NTFS volumes during boot *
+* could fail. This can be fixed the below way by reinstalling FUSE using   *
+* the right 'configure' option during FUSE compilation:                    *
+* 	./configure --exec-prefix=/                                        *
+* 	make && sudo make install                                          *
+* WARNING  WARNING  WARNING  WARNING  WARNING  WARNING  WARNING  WARNING   *
+****************************************************************************
+You can type now 'make' to build ntfs-3g.
+build-ntfs3g: make -j4
+/Library/Developer/CommandLineTools/usr/bin/make  all-recursive
+Making all in include
+Making all in ntfs-3g
+make[3]: Nothing to be done for `all'.
+Making all in fuse-lite
+make[3]: Nothing to be done for `all'.
+make[3]: Nothing to be done for `all-am'.
+Making all in libfuse-lite
+make[2]: Nothing to be done for `all'.
+Making all in libntfs-3g
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-acls.lo -MD -MP -MF .deps/libntfs_3g_la-acls.Tpo -c -o libntfs_3g_la-acls.lo `test -f 'acls.c' || echo './'`acls.c
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-attrib.lo -MD -MP -MF .deps/libntfs_3g_la-attrib.Tpo -c -o libntfs_3g_la-attrib.lo `test -f 'attrib.c' || echo './'`attrib.c
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-attrlist.lo -MD -MP -MF .deps/libntfs_3g_la-attrlist.Tpo -c -o libntfs_3g_la-attrlist.lo `test -f 'attrlist.c' || echo './'`attrlist.c
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-bitmap.lo -MD -MP -MF .deps/libntfs_3g_la-bitmap.Tpo -c -o libntfs_3g_la-bitmap.lo `test -f 'bitmap.c' || echo './'`bitmap.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-acls.lo -MD -MP -MF .deps/libntfs_3g_la-acls.Tpo -c acls.c -o libntfs_3g_la-acls.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-bitmap.lo -MD -MP -MF .deps/libntfs_3g_la-bitmap.Tpo -c bitmap.c -o libntfs_3g_la-bitmap.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-attrib.lo -MD -MP -MF .deps/libntfs_3g_la-attrib.Tpo -c attrib.c -o libntfs_3g_la-attrib.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-attrlist.lo -MD -MP -MF .deps/libntfs_3g_la-attrlist.Tpo -c attrlist.c -o libntfs_3g_la-attrlist.o
+attrib.c:1557:8: warning: variable 'n' set but not used [-Wunused-but-set-variable]
+ 1557 |                         int n;
+      |                             ^
+attrib.c:1628:9: warning: variable 'n' set but not used [-Wunused-but-set-variable]
+ 1628 |                                 int n;
+      |                                     ^
+mv -f .deps/libntfs_3g_la-attrlist.Tpo .deps/libntfs_3g_la-attrlist.Plo
+mv -f .deps/libntfs_3g_la-bitmap.Tpo .deps/libntfs_3g_la-bitmap.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-bootsect.lo -MD -MP -MF .deps/libntfs_3g_la-bootsect.Tpo -c -o libntfs_3g_la-bootsect.lo `test -f 'bootsect.c' || echo './'`bootsect.c
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-cache.lo -MD -MP -MF .deps/libntfs_3g_la-cache.Tpo -c -o libntfs_3g_la-cache.lo `test -f 'cache.c' || echo './'`cache.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-bootsect.lo -MD -MP -MF .deps/libntfs_3g_la-bootsect.Tpo -c bootsect.c -o libntfs_3g_la-bootsect.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-cache.lo -MD -MP -MF .deps/libntfs_3g_la-cache.Tpo -c cache.c -o libntfs_3g_la-cache.o
+mv -f .deps/libntfs_3g_la-bootsect.Tpo .deps/libntfs_3g_la-bootsect.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-collate.lo -MD -MP -MF .deps/libntfs_3g_la-collate.Tpo -c -o libntfs_3g_la-collate.lo `test -f 'collate.c' || echo './'`collate.c
+mv -f .deps/libntfs_3g_la-acls.Tpo .deps/libntfs_3g_la-acls.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-compat.lo -MD -MP -MF .deps/libntfs_3g_la-compat.Tpo -c -o libntfs_3g_la-compat.lo `test -f 'compat.c' || echo './'`compat.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-collate.lo -MD -MP -MF .deps/libntfs_3g_la-collate.Tpo -c collate.c -o libntfs_3g_la-collate.o
+mv -f .deps/libntfs_3g_la-cache.Tpo .deps/libntfs_3g_la-cache.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-compress.lo -MD -MP -MF .deps/libntfs_3g_la-compress.Tpo -c -o libntfs_3g_la-compress.lo `test -f 'compress.c' || echo './'`compress.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-compat.lo -MD -MP -MF .deps/libntfs_3g_la-compat.Tpo -c compat.c -o libntfs_3g_la-compat.o
+collate.c:230:16: warning: taking address of packed member 'file_name' of class or structure 'FILE_NAME_ATTR' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  230 |                         (ntfschar*)&file_name_attr1->file_name,
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+collate.c:232:16: warning: taking address of packed member 'file_name' of class or structure 'FILE_NAME_ATTR' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  232 |                         (ntfschar*)&file_name_attr2->file_name,
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+mv -f .deps/libntfs_3g_la-compat.Tpo .deps/libntfs_3g_la-compat.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-debug.lo -MD -MP -MF .deps/libntfs_3g_la-debug.Tpo -c -o libntfs_3g_la-debug.lo `test -f 'debug.c' || echo './'`debug.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-compress.lo -MD -MP -MF .deps/libntfs_3g_la-compress.Tpo -c compress.c -o libntfs_3g_la-compress.o
+2 warnings generated.
+mv -f .deps/libntfs_3g_la-collate.Tpo .deps/libntfs_3g_la-collate.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-device.lo -MD -MP -MF .deps/libntfs_3g_la-device.Tpo -c -o libntfs_3g_la-device.lo `test -f 'device.c' || echo './'`device.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-debug.lo -MD -MP -MF .deps/libntfs_3g_la-debug.Tpo -c debug.c -o libntfs_3g_la-debug.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-device.lo -MD -MP -MF .deps/libntfs_3g_la-device.Tpo -c device.c -o libntfs_3g_la-device.o
+mv -f .deps/libntfs_3g_la-debug.Tpo .deps/libntfs_3g_la-debug.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-dir.lo -MD -MP -MF .deps/libntfs_3g_la-dir.Tpo -c -o libntfs_3g_la-dir.lo `test -f 'dir.c' || echo './'`dir.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-dir.lo -MD -MP -MF .deps/libntfs_3g_la-dir.Tpo -c dir.c -o libntfs_3g_la-dir.o
+mv -f .deps/libntfs_3g_la-device.Tpo .deps/libntfs_3g_la-device.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-ea.lo -MD -MP -MF .deps/libntfs_3g_la-ea.Tpo -c -o libntfs_3g_la-ea.lo `test -f 'ea.c' || echo './'`ea.c
+dir.c:334:17: warning: taking address of packed member 'file_name' of class or structure 'FILE_NAME_ATTR' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  334 |                                 (ntfschar*)&ie->key.file_name.file_name,
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+dir.c:455:17: warning: taking address of packed member 'file_name' of class or structure 'FILE_NAME_ATTR' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  455 |                                 (ntfschar*)&ie->key.file_name.file_name,
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-ea.lo -MD -MP -MF .deps/libntfs_3g_la-ea.Tpo -c ea.c -o libntfs_3g_la-ea.o
+mv -f .deps/libntfs_3g_la-compress.Tpo .deps/libntfs_3g_la-compress.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-efs.lo -MD -MP -MF .deps/libntfs_3g_la-efs.Tpo -c -o libntfs_3g_la-efs.lo `test -f 'efs.c' || echo './'`efs.c
+2 warnings generated.
+mv -f .deps/libntfs_3g_la-attrib.Tpo .deps/libntfs_3g_la-attrib.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-index.lo -MD -MP -MF .deps/libntfs_3g_la-index.Tpo -c -o libntfs_3g_la-index.lo `test -f 'index.c' || echo './'`index.c
+ea.c:90:20: warning: variable 'dummy' is uninitialized when passed as a const pointer argument here [-Wuninitialized-const-pointer]
+   90 |                                         AT_UNNAMED,0,&dummy,(s64)size);
+      |                                                       ^~~~~
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-efs.lo -MD -MP -MF .deps/libntfs_3g_la-efs.Tpo -c efs.c -o libntfs_3g_la-efs.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-index.lo -MD -MP -MF .deps/libntfs_3g_la-index.Tpo -c index.c -o libntfs_3g_la-index.o
+1 warning generated.
+mv -f .deps/libntfs_3g_la-ea.Tpo .deps/libntfs_3g_la-ea.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-inode.lo -MD -MP -MF .deps/libntfs_3g_la-inode.Tpo -c -o libntfs_3g_la-inode.lo `test -f 'inode.c' || echo './'`inode.c
+mv -f .deps/libntfs_3g_la-efs.Tpo .deps/libntfs_3g_la-efs.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-ioctl.lo -MD -MP -MF .deps/libntfs_3g_la-ioctl.Tpo -c -o libntfs_3g_la-ioctl.lo `test -f 'ioctl.c' || echo './'`ioctl.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-inode.lo -MD -MP -MF .deps/libntfs_3g_la-inode.Tpo -c inode.c -o libntfs_3g_la-inode.o
+2 warnings generated.
+mv -f .deps/libntfs_3g_la-dir.Tpo .deps/libntfs_3g_la-dir.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-lcnalloc.lo -MD -MP -MF .deps/libntfs_3g_la-lcnalloc.Tpo -c -o libntfs_3g_la-lcnalloc.lo `test -f 'lcnalloc.c' || echo './'`lcnalloc.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-ioctl.lo -MD -MP -MF .deps/libntfs_3g_la-ioctl.Tpo -c ioctl.c -o libntfs_3g_la-ioctl.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-lcnalloc.lo -MD -MP -MF .deps/libntfs_3g_la-lcnalloc.Tpo -c lcnalloc.c -o libntfs_3g_la-lcnalloc.o
+ioctl.c:412:2: warning: Trimming not supported : FITRIM or BLKDISCARD not defined [-W#warnings]
+  412 | #warning Trimming not supported : FITRIM or BLKDISCARD not defined
+      |  ^
+1 warning generated.
+mv -f .deps/libntfs_3g_la-ioctl.Tpo .deps/libntfs_3g_la-ioctl.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-logfile.lo -MD -MP -MF .deps/libntfs_3g_la-logfile.Tpo -c -o libntfs_3g_la-logfile.lo `test -f 'logfile.c' || echo './'`logfile.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-logfile.lo -MD -MP -MF .deps/libntfs_3g_la-logfile.Tpo -c logfile.c -o libntfs_3g_la-logfile.o
+mv -f .deps/libntfs_3g_la-inode.Tpo .deps/libntfs_3g_la-inode.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-logging.lo -MD -MP -MF .deps/libntfs_3g_la-logging.Tpo -c -o libntfs_3g_la-logging.lo `test -f 'logging.c' || echo './'`logging.c
+mv -f .deps/libntfs_3g_la-index.Tpo .deps/libntfs_3g_la-index.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-mft.lo -MD -MP -MF .deps/libntfs_3g_la-mft.Tpo -c -o libntfs_3g_la-mft.lo `test -f 'mft.c' || echo './'`mft.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-logging.lo -MD -MP -MF .deps/libntfs_3g_la-logging.Tpo -c logging.c -o libntfs_3g_la-logging.o
+mv -f .deps/libntfs_3g_la-lcnalloc.Tpo .deps/libntfs_3g_la-lcnalloc.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-misc.lo -MD -MP -MF .deps/libntfs_3g_la-misc.Tpo -c -o libntfs_3g_la-misc.lo `test -f 'misc.c' || echo './'`misc.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-mft.lo -MD -MP -MF .deps/libntfs_3g_la-mft.Tpo -c mft.c -o libntfs_3g_la-mft.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-misc.lo -MD -MP -MF .deps/libntfs_3g_la-misc.Tpo -c misc.c -o libntfs_3g_la-misc.o
+mv -f .deps/libntfs_3g_la-logging.Tpo .deps/libntfs_3g_la-logging.Plo
+mv -f .deps/libntfs_3g_la-logfile.Tpo .deps/libntfs_3g_la-logfile.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-mst.lo -MD -MP -MF .deps/libntfs_3g_la-mst.Tpo -c -o libntfs_3g_la-mst.lo `test -f 'mst.c' || echo './'`mst.c
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-object_id.lo -MD -MP -MF .deps/libntfs_3g_la-object_id.Tpo -c -o libntfs_3g_la-object_id.lo `test -f 'object_id.c' || echo './'`object_id.c
+mv -f .deps/libntfs_3g_la-misc.Tpo .deps/libntfs_3g_la-misc.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-realpath.lo -MD -MP -MF .deps/libntfs_3g_la-realpath.Tpo -c -o libntfs_3g_la-realpath.lo `test -f 'realpath.c' || echo './'`realpath.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-object_id.lo -MD -MP -MF .deps/libntfs_3g_la-object_id.Tpo -c object_id.c -o libntfs_3g_la-object_id.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-mst.lo -MD -MP -MF .deps/libntfs_3g_la-mst.Tpo -c mst.c -o libntfs_3g_la-mst.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-realpath.lo -MD -MP -MF .deps/libntfs_3g_la-realpath.Tpo -c realpath.c -o libntfs_3g_la-realpath.o
+object_id.c:401:23: warning: variable 'dummy' is uninitialized when passed as a const pointer argument here [-Wuninitialized-const-pointer]
+  401 |                                                 AT_UNNAMED, 0, &dummy, (s64)0);
+      |                                                                 ^~~~~
+mv -f .deps/libntfs_3g_la-mst.Tpo .deps/libntfs_3g_la-mst.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-reparse.lo -MD -MP -MF .deps/libntfs_3g_la-reparse.Tpo -c -o libntfs_3g_la-reparse.lo `test -f 'reparse.c' || echo './'`reparse.c
+mv -f .deps/libntfs_3g_la-realpath.Tpo .deps/libntfs_3g_la-realpath.Plo
+1 warning generated.
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-runlist.lo -MD -MP -MF .deps/libntfs_3g_la-runlist.Tpo -c -o libntfs_3g_la-runlist.lo `test -f 'runlist.c' || echo './'`runlist.c
+mv -f .deps/libntfs_3g_la-object_id.Tpo .deps/libntfs_3g_la-object_id.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-security.lo -MD -MP -MF .deps/libntfs_3g_la-security.Tpo -c -o libntfs_3g_la-security.lo `test -f 'security.c' || echo './'`security.c
+mv -f .deps/libntfs_3g_la-mft.Tpo .deps/libntfs_3g_la-mft.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-unistr.lo -MD -MP -MF .deps/libntfs_3g_la-unistr.Tpo -c -o libntfs_3g_la-unistr.lo `test -f 'unistr.c' || echo './'`unistr.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-reparse.lo -MD -MP -MF .deps/libntfs_3g_la-reparse.Tpo -c reparse.c -o libntfs_3g_la-reparse.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-runlist.lo -MD -MP -MF .deps/libntfs_3g_la-runlist.Tpo -c runlist.c -o libntfs_3g_la-runlist.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-security.lo -MD -MP -MF .deps/libntfs_3g_la-security.Tpo -c security.c -o libntfs_3g_la-security.o
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-unistr.lo -MD -MP -MF .deps/libntfs_3g_la-unistr.Tpo -c unistr.c -o libntfs_3g_la-unistr.o
+reparse.c:1230:22: warning: variable 'dummy' is uninitialized when passed as a const pointer argument here [-Wuninitialized-const-pointer]
+ 1230 |                                                         AT_UNNAMED,0,&dummy,
+      |                                                                       ^~~~~
+unistr.c:432:31: warning: taking address of packed member 'file_name' of class or structure 'FILE_NAME_ATTR' may result in an unaligned pointer value [-Waddress-of-packed-member]
+  432 |         ntfs_name_upcase((ntfschar*)&file_name_attr->file_name,
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.
+mv -f .deps/libntfs_3g_la-reparse.Tpo .deps/libntfs_3g_la-reparse.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-volume.lo -MD -MP -MF .deps/libntfs_3g_la-volume.Tpo -c -o libntfs_3g_la-volume.lo `test -f 'volume.c' || echo './'`volume.c
+mv -f .deps/libntfs_3g_la-runlist.Tpo .deps/libntfs_3g_la-runlist.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-xattrs.lo -MD -MP -MF .deps/libntfs_3g_la-xattrs.Tpo -c -o libntfs_3g_la-xattrs.lo `test -f 'xattrs.c' || echo './'`xattrs.c
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-volume.lo -MD -MP -MF .deps/libntfs_3g_la-volume.Tpo -c volume.c -o libntfs_3g_la-volume.o
+1 warning generated.
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-xattrs.lo -MD -MP -MF .deps/libntfs_3g_la-xattrs.Tpo -c xattrs.c -o libntfs_3g_la-xattrs.o
+mv -f .deps/libntfs_3g_la-unistr.Tpo .deps/libntfs_3g_la-unistr.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..    -I../include/ntfs-3g   -g -O2 -Wall -MT libntfs_3g_la-unix_io.lo -MD -MP -MF .deps/libntfs_3g_la-unix_io.Tpo -c -o libntfs_3g_la-unix_io.lo `test -f 'unix_io.c' || echo './'`unix_io.c
+mv -f .deps/libntfs_3g_la-security.Tpo .deps/libntfs_3g_la-security.Plo
+libtool: compile:  gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I.. -I../include/ntfs-3g -g -O2 -Wall -MT libntfs_3g_la-unix_io.lo -MD -MP -MF .deps/libntfs_3g_la-unix_io.Tpo -c unix_io.c -o libntfs_3g_la-unix_io.o
+mv -f .deps/libntfs_3g_la-xattrs.Tpo .deps/libntfs_3g_la-xattrs.Plo
+mv -f .deps/libntfs_3g_la-volume.Tpo .deps/libntfs_3g_la-volume.Plo
+mv -f .deps/libntfs_3g_la-unix_io.Tpo .deps/libntfs_3g_la-unix_io.Plo
+/bin/sh ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall -version-info 91 -no-undefined -framework CoreFoundation -o libntfs-3g.la -rpath /Users/admin/ntfsmac/work/deps/lib libntfs_3g_la-acls.lo libntfs_3g_la-attrib.lo libntfs_3g_la-attrlist.lo libntfs_3g_la-bitmap.lo libntfs_3g_la-bootsect.lo libntfs_3g_la-cache.lo libntfs_3g_la-collate.lo libntfs_3g_la-compat.lo libntfs_3g_la-compress.lo libntfs_3g_la-debug.lo libntfs_3g_la-device.lo libntfs_3g_la-dir.lo libntfs_3g_la-ea.lo libntfs_3g_la-efs.lo libntfs_3g_la-index.lo libntfs_3g_la-inode.lo libntfs_3g_la-ioctl.lo libntfs_3g_la-lcnalloc.lo libntfs_3g_la-logfile.lo libntfs_3g_la-logging.lo libntfs_3g_la-mft.lo libntfs_3g_la-misc.lo libntfs_3g_la-mst.lo libntfs_3g_la-object_id.lo libntfs_3g_la-realpath.lo libntfs_3g_la-reparse.lo libntfs_3g_la-runlist.lo libntfs_3g_la-security.lo libntfs_3g_la-unistr.lo libntfs_3g_la-volume.lo libntfs_3g_la-xattrs.lo  libntfs_3g_la-unix_io.lo  
+libtool: link: ar cr .libs/libntfs-3g.a libntfs_3g_la-acls.o libntfs_3g_la-attrib.o libntfs_3g_la-attrlist.o libntfs_3g_la-bitmap.o libntfs_3g_la-bootsect.o libntfs_3g_la-cache.o libntfs_3g_la-collate.o libntfs_3g_la-compat.o libntfs_3g_la-compress.o libntfs_3g_la-debug.o libntfs_3g_la-device.o libntfs_3g_la-dir.o libntfs_3g_la-ea.o libntfs_3g_la-efs.o libntfs_3g_la-index.o libntfs_3g_la-inode.o libntfs_3g_la-ioctl.o libntfs_3g_la-lcnalloc.o libntfs_3g_la-logfile.o libntfs_3g_la-logging.o libntfs_3g_la-mft.o libntfs_3g_la-misc.o libntfs_3g_la-mst.o libntfs_3g_la-object_id.o libntfs_3g_la-realpath.o libntfs_3g_la-reparse.o libntfs_3g_la-runlist.o libntfs_3g_la-security.o libntfs_3g_la-unistr.o libntfs_3g_la-volume.o libntfs_3g_la-xattrs.o libntfs_3g_la-unix_io.o
+libtool: link: ranlib .libs/libntfs-3g.a
+libtool: link: ( cd ".libs" && rm -f "libntfs-3g.la" && ln -s "../libntfs-3g.la" "libntfs-3g.la" )
+Making all in ntfsprogs
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfsfix.o -MD -MP -MF .deps/ntfsfix.Tpo -c -o ntfsfix.o ntfsfix.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT utils.o -MD -MP -MF .deps/utils.Tpo -c -o utils.o utils.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfsinfo.o -MD -MP -MF .deps/ntfsinfo.Tpo -c -o ntfsinfo.o ntfsinfo.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfscluster.o -MD -MP -MF .deps/ntfscluster.Tpo -c -o ntfscluster.o ntfscluster.c
+utils.c:914:20: warning: variable 'col' set but not used [-Wunused-but-set-variable]
+  914 |         int off, i, s, e, col;
+      |                           ^
+mv -f .deps/ntfscluster.Tpo .deps/ntfscluster.Po
+1 warning generated.
+mv -f .deps/utils.Tpo .deps/utils.Po
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT cluster.o -MD -MP -MF .deps/cluster.Tpo -c -o cluster.o cluster.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfsls.o -MD -MP -MF .deps/ntfsls.Tpo -c -o ntfsls.o ntfsls.c
+mv -f .deps/ntfsfix.Tpo .deps/ntfsfix.Po
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfscat.o -MD -MP -MF .deps/ntfscat.Tpo -c -o ntfscat.o ntfscat.c
+mv -f .deps/cluster.Tpo .deps/cluster.Po
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfscmp.o -MD -MP -MF .deps/ntfscmp.Tpo -c -o ntfscmp.o ntfscmp.c
+mv -f .deps/ntfsls.Tpo .deps/ntfsls.Po
+mv -f .deps/ntfsinfo.Tpo .deps/ntfsinfo.Po
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g     -g -O2 -Wall -MT mkntfs-attrdef.o -MD -MP -MF .deps/mkntfs-attrdef.Tpo -c -o mkntfs-attrdef.o `test -f 'attrdef.c' || echo './'`attrdef.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g     -g -O2 -Wall -MT mkntfs-boot.o -MD -MP -MF .deps/mkntfs-boot.Tpo -c -o mkntfs-boot.o `test -f 'boot.c' || echo './'`boot.c
+mv -f .deps/mkntfs-attrdef.Tpo .deps/mkntfs-attrdef.Po
+mv -f .deps/ntfscat.Tpo .deps/ntfscat.Po
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g     -g -O2 -Wall -MT mkntfs-sd.o -MD -MP -MF .deps/mkntfs-sd.Tpo -c -o mkntfs-sd.o `test -f 'sd.c' || echo './'`sd.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g     -g -O2 -Wall -MT mkntfs-mkntfs.o -MD -MP -MF .deps/mkntfs-mkntfs.Tpo -c -o mkntfs-mkntfs.o `test -f 'mkntfs.c' || echo './'`mkntfs.c
+mv -f .deps/mkntfs-boot.Tpo .deps/mkntfs-boot.Po
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g     -g -O2 -Wall -MT mkntfs-utils.o -MD -MP -MF .deps/mkntfs-utils.Tpo -c -o mkntfs-utils.o `test -f 'utils.c' || echo './'`utils.c
+utils.c:914:20: warning: variable 'col' set but not used [-Wunused-but-set-variable]
+  914 |         int off, i, s, e, col;
+      |                           ^
+mv -f .deps/mkntfs-sd.Tpo .deps/mkntfs-sd.Po
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfslabel.o -MD -MP -MF .deps/ntfslabel.Tpo -c -o ntfslabel.o ntfslabel.c
+mv -f .deps/ntfscmp.Tpo .deps/ntfscmp.Po
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfsundelete.o -MD -MP -MF .deps/ntfsundelete.Tpo -c -o ntfsundelete.o ntfsundelete.c
+1 warning generated.
+mv -f .deps/mkntfs-utils.Tpo .deps/mkntfs-utils.Po
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfsresize.o -MD -MP -MF .deps/ntfsresize.Tpo -c -o ntfsresize.o ntfsresize.c
+mv -f .deps/ntfslabel.Tpo .deps/ntfslabel.Po
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfsclone.o -MD -MP -MF .deps/ntfsclone.Tpo -c -o ntfsclone.o ntfsclone.c
+mv -f .deps/ntfsundelete.Tpo .deps/ntfsundelete.Po
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..  -I../include/ntfs-3g    -g -O2 -Wall -MT ntfscp.o -MD -MP -MF .deps/ntfscp.Tpo -c -o ntfscp.o ntfscp.c
+mv -f .deps/mkntfs-mkntfs.Tpo .deps/mkntfs-mkntfs.Po
+/bin/sh ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall  -framework CoreFoundation -o ntfsfix ntfsfix.o utils.o ../libntfs-3g/libntfs-3g.la 
+mv -f .deps/ntfscp.Tpo .deps/ntfscp.Po
+/bin/sh ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall  -framework CoreFoundation -o ntfsinfo ntfsinfo.o utils.o ../libntfs-3g/libntfs-3g.la 
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfsfix ntfsfix.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a -framework CoreFoundation
+/bin/sh ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall  -framework CoreFoundation -o ntfscluster ntfscluster.o cluster.o utils.o ../libntfs-3g/libntfs-3g.la 
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfsinfo ntfsinfo.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a -framework CoreFoundation
+/bin/sh ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall  -framework CoreFoundation -o ntfsls ntfsls.o utils.o ../libntfs-3g/libntfs-3g.la 
+mv -f .deps/ntfsresize.Tpo .deps/ntfsresize.Po
+/bin/sh ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall  -framework CoreFoundation -o ntfscat ntfscat.o utils.o ../libntfs-3g/libntfs-3g.la 
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfscluster ntfscluster.o cluster.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a -framework CoreFoundation
+mv -f .deps/ntfsclone.Tpo .deps/ntfsclone.Po
+/bin/sh ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall  -framework CoreFoundation -o ntfscmp ntfscmp.o utils.o ../libntfs-3g/libntfs-3g.la 
+/bin/sh ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall  -framework CoreFoundation -o mkntfs mkntfs-attrdef.o mkntfs-boot.o mkntfs-sd.o mkntfs-mkntfs.o mkntfs-utils.o ../libntfs-3g/libntfs-3g.la  
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfsls ntfsls.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a -framework CoreFoundation
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfscat ntfscat.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a -framework CoreFoundation
+/bin/sh ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall  -framework CoreFoundation -o ntfslabel ntfslabel.o utils.o ../libntfs-3g/libntfs-3g.la 
+/bin/sh ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall  -framework CoreFoundation -o ntfsundelete ntfsundelete.o utils.o ../libntfs-3g/libntfs-3g.la 
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfscmp ntfscmp.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a -framework CoreFoundation
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o mkntfs mkntfs-attrdef.o mkntfs-boot.o mkntfs-sd.o mkntfs-mkntfs.o mkntfs-utils.o  ../libntfs-3g/.libs/libntfs-3g.a -framework CoreFoundation
+/bin/sh ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall  -framework CoreFoundation -o ntfsresize ntfsresize.o utils.o ../libntfs-3g/libntfs-3g.la 
+/bin/sh ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall  -framework CoreFoundation -o ntfsclone ntfsclone.o utils.o ../libntfs-3g/libntfs-3g.la 
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfslabel ntfslabel.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a -framework CoreFoundation
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfsundelete ntfsundelete.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a -framework CoreFoundation
+/bin/sh ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -g -O2 -Wall  -framework CoreFoundation -o ntfscp ntfscp.o utils.o ../libntfs-3g/libntfs-3g.la 
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfsresize ntfsresize.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a -framework CoreFoundation
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfsclone ntfsclone.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a -framework CoreFoundation
+libtool: link: gcc -std=gnu23 -std=gnu23 -g -O2 -Wall -o ntfscp ntfscp.o utils.o  ../libntfs-3g/.libs/libntfs-3g.a -framework CoreFoundation
+Making all in src
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..     -I../include/ntfs-3g -g -O2 -Wall -MT ntfs_3g_probe-ntfs-3g.probe.o -MD -MP -MF .deps/ntfs_3g_probe-ntfs-3g.probe.Tpo -c -o ntfs_3g_probe-ntfs-3g.probe.o `test -f 'ntfs-3g.probe.c' || echo './'`ntfs-3g.probe.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..     -DFUSE_USE_VERSION=26 -I/usr/local/include/fuse -D_FILE_OFFSET_BITS=64 -I../include/ntfs-3g  -g -O2 -Wall -MT ntfs_3g-ntfs-3g.o -MD -MP -MF .deps/ntfs_3g-ntfs-3g.Tpo -c -o ntfs_3g-ntfs-3g.o `test -f 'ntfs-3g.c' || echo './'`ntfs-3g.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..     -DFUSE_USE_VERSION=26 -I/usr/local/include/fuse -D_FILE_OFFSET_BITS=64 -I../include/ntfs-3g  -g -O2 -Wall -MT ntfs_3g-ntfs-3g_common.o -MD -MP -MF .deps/ntfs_3g-ntfs-3g_common.Tpo -c -o ntfs_3g-ntfs-3g_common.o `test -f 'ntfs-3g_common.c' || echo './'`ntfs-3g_common.c
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..     -DFUSE_USE_VERSION=26 -I/usr/local/include/fuse -D_FILE_OFFSET_BITS=64 -I../include/ntfs-3g  -g -O2 -Wall -MT lowntfs_3g-lowntfs-3g.o -MD -MP -MF .deps/lowntfs_3g-lowntfs-3g.Tpo -c -o lowntfs_3g-lowntfs-3g.o `test -f 'lowntfs-3g.c' || echo './'`lowntfs-3g.c
+ntfs-3g.c:2316:7: warning: variable 'ni' is used uninitialized whenever 'if' condition is true [-Wsometimes-uninitialized]
+ 2316 |                 if (dir_ni->flags & FILE_ATTR_REPARSE_POINT) {
+      |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ntfs-3g.c:2358:7: note: uninitialized use occurs here
+ 2358 |                 if (ni) {
+      |                     ^~
+ntfs-3g.c:2316:3: note: remove the 'if' if its condition is always false
+ 2316 |                 if (dir_ni->flags & FILE_ATTR_REPARSE_POINT) {
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2317 | #ifndef DISABLE_PLUGINS
+      | ~~~~~~~~~~~~~~~~~~~~~~~
+ 2318 |                         const plugin_operations_t *ops;
+      |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2319 |                         REPARSE_POINT *reparse;
+      |                         ~~~~~~~~~~~~~~~~~~~~~~~
+ 2320 | 
+ 2321 |                         reparse = (REPARSE_POINT*)NULL;
+      |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2322 |                         ops = select_reparse_plugin(ctx, dir_ni, &reparse);
+      |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2323 |                         if (ops && ops->create) {
+      |                         ~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2324 |                                 ni = (*ops->create)(dir_ni, reparse,
+      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2325 |                                         securid, uname, uname_len, type);
+      |                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2326 |                         } else {
+      |                         ~~~~~~~~
+ 2327 |                                 ni = (ntfs_inode*)NULL;
+      |                                 ~~~~~~~~~~~~~~~~~~~~~~~
+ 2328 |                                 errno = EOPNOTSUPP;
+      |                                 ~~~~~~~~~~~~~~~~~~~
+ 2329 |                         }
+      |                         ~
+ 2330 |                         free(reparse);
+      |                         ~~~~~~~~~~~~~~
+ 2331 | #else /* DISABLE_PLUGINS */
+      | ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ntfs-3g.c:2231:32: note: initialize the variable 'ni' to silence this warning
+ 2231 |         ntfs_inode *dir_ni = NULL, *ni;
+      |                                       ^
+      |                                        = NULL
+mv -f .deps/ntfs_3g_probe-ntfs-3g.probe.Tpo .deps/ntfs_3g_probe-ntfs-3g.probe.Po
+gcc -std=gnu23 -std=gnu23 -DHAVE_CONFIG_H -I. -I..     -DFUSE_USE_VERSION=26 -I/usr/local/include/fuse -D_FILE_OFFSET_BITS=64 -I../include/ntfs-3g  -g -O2 -Wall -MT lowntfs_3g-ntfs-3g_common.o -MD -MP -MF .deps/lowntfs_3g-ntfs-3g_common.Tpo -c -o lowntfs_3g-ntfs-3g_common.o `test -f 'ntfs-3g_common.c' || echo './'`ntfs-3g_common.c
+ntfs-3g.c:4562:7: warning: 'daemon' is deprecated: first deprecated in macOS 10.5 - Use posix_spawn APIs instead. [-Wdeprecated-declarations]
+ 4562 |                 if (daemon(0, ctx->debug))
+      |                     ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_stdlib.h:324:6: note: 'daemon' has been explicitly marked deprecated here
+  324 | int      daemon(int, int) __DARWIN_1050(daemon) __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_10_0, __MAC_10_5, __IPHONE_2_0, __IPHONE_2_0, "Use posix_spawn APIs instead.") __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+      |          ^
+mv -f .deps/ntfs_3g-ntfs-3g_common.Tpo .deps/ntfs_3g-ntfs-3g_common.Po
+/bin/sh ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -I../include/ntfs-3g -g -O2 -Wall  -framework CoreFoundation -o ntfs-3g.probe ntfs_3g_probe-ntfs-3g.probe.o ../libntfs-3g/libntfs-3g.la 
+lowntfs-3g.c:4573:7: warning: 'daemon' is deprecated: first deprecated in macOS 10.5 - Use posix_spawn APIs instead. [-Wdeprecated-declarations]
+ 4573 |                 if (daemon(0, ctx->debug))
+      |                     ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_stdlib.h:324:6: note: 'daemon' has been explicitly marked deprecated here
+  324 | int      daemon(int, int) __DARWIN_1050(daemon) __OSX_AVAILABLE_BUT_DEPRECATED_MSG(__MAC_10_0, __MAC_10_5, __IPHONE_2_0, __IPHONE_2_0, "Use posix_spawn APIs instead.") __WATCHOS_PROHIBITED __TVOS_PROHIBITED;
+      |          ^
+mv -f .deps/lowntfs_3g-ntfs-3g_common.Tpo .deps/lowntfs_3g-ntfs-3g_common.Po
+libtool: link: gcc -std=gnu23 -std=gnu23 -I../include/ntfs-3g -g -O2 -Wall -o ntfs-3g.probe ntfs_3g_probe-ntfs-3g.probe.o  ../libntfs-3g/.libs/libntfs-3g.a -framework CoreFoundation
+2 warnings generated.
+mv -f .deps/ntfs_3g-ntfs-3g.Tpo .deps/ntfs_3g-ntfs-3g.Po
+/bin/sh ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -DFUSE_USE_VERSION=26 -I/usr/local/include/fuse -D_FILE_OFFSET_BITS=64 -I../include/ntfs-3g  -g -O2 -Wall  -framework CoreFoundation -o ntfs-3g ntfs_3g-ntfs-3g.o ntfs_3g-ntfs-3g_common.o  -L/usr/local/lib -lfuse -pthread ../libntfs-3g/libntfs-3g.la 
+1 warning generated.
+mv -f .deps/lowntfs_3g-lowntfs-3g.Tpo .deps/lowntfs_3g-lowntfs-3g.Po
+/bin/sh ../libtool  --tag=CC   --mode=link gcc -std=gnu23 -std=gnu23  -DFUSE_USE_VERSION=26 -I/usr/local/include/fuse -D_FILE_OFFSET_BITS=64 -I../include/ntfs-3g  -g -O2 -Wall  -framework CoreFoundation -o lowntfs-3g lowntfs_3g-lowntfs-3g.o lowntfs_3g-ntfs-3g_common.o  -L/usr/local/lib -lfuse -pthread ../libntfs-3g/libntfs-3g.la 
+libtool: link: gcc -std=gnu23 -std=gnu23 -DFUSE_USE_VERSION=26 -I/usr/local/include/fuse -D_FILE_OFFSET_BITS=64 -I../include/ntfs-3g -g -O2 -Wall -o ntfs-3g ntfs_3g-ntfs-3g.o ntfs_3g-ntfs-3g_common.o  -L/usr/local/lib /usr/local/lib/libfuse.dylib -licucore ../libntfs-3g/.libs/libntfs-3g.a -framework CoreFoundation -pthread
+libtool: link: gcc -std=gnu23 -std=gnu23 -DFUSE_USE_VERSION=26 -I/usr/local/include/fuse -D_FILE_OFFSET_BITS=64 -I../include/ntfs-3g -g -O2 -Wall -o lowntfs-3g lowntfs_3g-lowntfs-3g.o lowntfs_3g-ntfs-3g_common.o  -L/usr/local/lib /usr/local/lib/libfuse.dylib -licucore ../libntfs-3g/.libs/libntfs-3g.a -framework CoreFoundation -pthread
+make[2]: Nothing to be done for `all-am'.
+build-ntfs3g: make install
+Making install in include
+Making install in ntfs-3g
+make[3]: Nothing to be done for `install-exec-am'.
+ mkdir -p '/Users/admin/ntfsmac/work/deps/include/ntfs-3g'
+ /usr/bin/install -c -m 644 acls.h attrib.h attrlist.h bitmap.h bootsect.h cache.h collate.h compat.h compress.h debug.h device.h device_io.h dir.h ea.h efs.h endians.h index.h inode.h ioctl.h layout.h lcnalloc.h logfile.h logging.h mft.h misc.h mst.h ntfstime.h object_id.h param.h plugin.h realpath.h reparse.h runlist.h security.h support.h types.h unistr.h volume.h xattrs.h '/Users/admin/ntfsmac/work/deps/include/ntfs-3g'
+Making install in fuse-lite
+make[3]: Nothing to be done for `install-exec-am'.
+make[3]: Nothing to be done for `install-data-am'.
+make[3]: Nothing to be done for `install-exec-am'.
+make[3]: Nothing to be done for `install-data-am'.
+Making install in libfuse-lite
+make[2]: Nothing to be done for `install-exec-am'.
+make[2]: Nothing to be done for `install-data-am'.
+Making install in libntfs-3g
+ mkdir -p '/Users/admin/ntfsmac/work/deps/lib'
+ /bin/sh ../libtool   --mode=install /usr/bin/install -c   libntfs-3g.la '/Users/admin/ntfsmac/work/deps/lib'
+libtool: install: /usr/bin/install -c .libs/libntfs-3g.lai /Users/admin/ntfsmac/work/deps/lib/libntfs-3g.la
+libtool: install: /usr/bin/install -c .libs/libntfs-3g.a /Users/admin/ntfsmac/work/deps/lib/libntfs-3g.a
+libtool: install: chmod 644 /Users/admin/ntfsmac/work/deps/lib/libntfs-3g.a
+libtool: install: ranlib /Users/admin/ntfsmac/work/deps/lib/libntfs-3g.a
+/Library/Developer/CommandLineTools/usr/bin/make  install-exec-hook
+ mkdir -p '/Users/admin/ntfsmac/work/deps/lib'
+ /bin/sh ../libtool   --mode=install /usr/bin/install -c   libntfs-3g.la '/Users/admin/ntfsmac/work/deps/lib'
+libtool: install: /usr/bin/install -c .libs/libntfs-3g.lai /Users/admin/ntfsmac/work/deps/lib/libntfs-3g.la
+libtool: install: /usr/bin/install -c .libs/libntfs-3g.a /Users/admin/ntfsmac/work/deps/lib/libntfs-3g.a
+libtool: install: chmod 644 /Users/admin/ntfsmac/work/deps/lib/libntfs-3g.a
+libtool: install: ranlib /Users/admin/ntfsmac/work/deps/lib/libntfs-3g.a
+if [ ! "/Users/admin/ntfsmac/work/deps/lib" -ef "/Users/admin/ntfsmac/work/deps/lib" ]; then \
+		/bin/mv -f "//Users/admin/ntfsmac/work/deps/lib"/libntfs-3g.so* "//Users/admin/ntfsmac/work/deps/lib";  \
+	fi
+if [ ! "/Users/admin/ntfsmac/work/deps/lib" -ef "/Users/admin/ntfsmac/work/deps/lib" ]; then \
+		ln -s "/Users/admin/ntfsmac/work/deps/lib/libntfs-3g.so" "//Users/admin/ntfsmac/work/deps/lib/libntfs-3g.so"; \
+	fi
+ mkdir -p '/Users/admin/ntfsmac/work/deps/lib/pkgconfig'
+ /usr/bin/install -c -m 644 libntfs-3g.pc '/Users/admin/ntfsmac/work/deps/lib/pkgconfig'
+Making install in ntfsprogs
+ mkdir -p '/Users/admin/ntfsmac/work/deps/bin'
+  /bin/sh ../libtool   --mode=install /usr/bin/install -c ntfsfix ntfsinfo ntfscluster ntfsls ntfscat ntfscmp '/Users/admin/ntfsmac/work/deps/bin'
+libtool: install: /usr/bin/install -c ntfsfix /Users/admin/ntfsmac/work/deps/bin/ntfsfix
+libtool: install: /usr/bin/install -c ntfsinfo /Users/admin/ntfsmac/work/deps/bin/ntfsinfo
+libtool: install: /usr/bin/install -c ntfscluster /Users/admin/ntfsmac/work/deps/bin/ntfscluster
+libtool: install: /usr/bin/install -c ntfsls /Users/admin/ntfsmac/work/deps/bin/ntfsls
+libtool: install: /usr/bin/install -c ntfscat /Users/admin/ntfsmac/work/deps/bin/ntfscat
+libtool: install: /usr/bin/install -c ntfscmp /Users/admin/ntfsmac/work/deps/bin/ntfscmp
+ mkdir -p '/Users/admin/ntfsmac/work/deps/sbin'
+  /bin/sh ../libtool   --mode=install /usr/bin/install -c mkntfs ntfslabel ntfsundelete ntfsresize ntfsclone ntfscp '/Users/admin/ntfsmac/work/deps/sbin'
+libtool: install: /usr/bin/install -c mkntfs /Users/admin/ntfsmac/work/deps/sbin/mkntfs
+libtool: install: /usr/bin/install -c ntfslabel /Users/admin/ntfsmac/work/deps/sbin/ntfslabel
+libtool: install: /usr/bin/install -c ntfsundelete /Users/admin/ntfsmac/work/deps/sbin/ntfsundelete
+libtool: install: /usr/bin/install -c ntfsresize /Users/admin/ntfsmac/work/deps/sbin/ntfsresize
+libtool: install: /usr/bin/install -c ntfsclone /Users/admin/ntfsmac/work/deps/sbin/ntfsclone
+libtool: install: /usr/bin/install -c ntfscp /Users/admin/ntfsmac/work/deps/sbin/ntfscp
+/Library/Developer/CommandLineTools/usr/bin/make  install-exec-hook
+make[3]: Nothing to be done for `install-exec-hook'.
+ mkdir -p '/Users/admin/ntfsmac/work/deps/share/man/man8'
+ /usr/bin/install -c -m 644 mkntfs.8 ntfscat.8 ntfsclone.8 ntfscluster.8 ntfscmp.8 ntfscp.8 ntfsdecrypt.8 ntfsfallocate.8 ntfsfix.8 ntfsinfo.8 ntfslabel.8 ntfsls.8 ntfsprogs.8 ntfsresize.8 ntfsundelete.8 '/Users/admin/ntfsmac/work/deps/share/man/man8'
+/Library/Developer/CommandLineTools/usr/bin/make  install-data-hook
+make[3]: Nothing to be done for `install-data-hook'.
+Making install in src
+ mkdir -p '/Users/admin/ntfsmac/work/deps/bin'
+  /bin/sh ../libtool   --mode=install /usr/bin/install -c ntfs-3g.probe '/Users/admin/ntfsmac/work/deps/bin'
+libtool: install: /usr/bin/install -c ntfs-3g.probe /Users/admin/ntfsmac/work/deps/bin/ntfs-3g.probe
+/Library/Developer/CommandLineTools/usr/bin/make  install-exec-hook
+make[3]: Nothing to be done for `install-exec-hook'.
+ mkdir -p '/Users/admin/ntfsmac/work/deps/share/man/man8'
+ /usr/bin/install -c -m 644 ntfs-3g.8 ntfs-3g.probe.8 '/Users/admin/ntfsmac/work/deps/share/man/man8'
+ mkdir -p '/Users/admin/ntfsmac/work/deps/bin'
+  /bin/sh ../libtool   --mode=install /usr/bin/install -c ntfs-3g lowntfs-3g '/Users/admin/ntfsmac/work/deps/bin'
+libtool: install: /usr/bin/install -c ntfs-3g /Users/admin/ntfsmac/work/deps/bin/ntfs-3g
+libtool: install: /usr/bin/install -c lowntfs-3g /Users/admin/ntfsmac/work/deps/bin/lowntfs-3g
+make[2]: Nothing to be done for `install-exec-am'.
+ mkdir -p '/Users/admin/ntfsmac/work/deps/share/doc/ntfs-3g'
+ /usr/bin/install -c -m 644 README '/Users/admin/ntfsmac/work/deps/share/doc/ntfs-3g'
+build-ntfs3g: done: /Users/admin/ntfsmac/work/deps/lib/libntfs-3g.a
+build-pkg: configuring the product build in /Users/admin/ntfsmac/work/product
+-- The C compiler identification is AppleClang 21.0.0.21000401
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Platform: macOS arm64 (product target)
+-- Performing Test NTFSMAC_HAVE_STACK_PROTECTOR_STRONG
+-- Performing Test NTFSMAC_HAVE_STACK_PROTECTOR_STRONG - Success
+-- Performing Test NTFSMAC_HAVE_AUTO_VAR_INIT
+-- Performing Test NTFSMAC_HAVE_AUTO_VAR_INIT - Success
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- no AddressSanitizer build: fuzz.findings.F1/F3/F4/F8/F9 not registered
+-- Configuring done (0.5s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/admin/ntfsmac/work/product
+[  4%] Building C object src/common/CMakeFiles/ntfsmac_label_cp.dir/label_cp.c.o
+[  4%] Building C object src/policy/CMakeFiles/ntfsmac_policy.dir/policy.c.o
+[  9%] Building C object src/common/CMakeFiles/ntfsmac_common.dir/log.c.o
+[ 14%] Linking C static library libntfsmac_common.a
+[ 14%] Linking C static library libntfsmac_policy.a
+[ 14%] Linking C static library libntfsmac_label_cp.a
+[ 14%] Built target ntfsmac_policy
+[ 14%] Built target ntfsmac_common
+[ 14%] Built target ntfsmac_label_cp
+[ 19%] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/label.c.o
+[ 23%] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/display.c.o
+[ 23%] Building C object src/journal/CMakeFiles/ntfsmac_journal.dir/journal.c.o
+[ 28%] Building C object src/options/CMakeFiles/ntfsmac_worker_options.dir/options.c.o
+[ 28%] Building C object src/options/CMakeFiles/ntfsmac_worker_options.dir/argv_check.c.o
+[ 28%] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/leaf.c.o
+[ 33%] Building C object src/sanitize/CMakeFiles/ntfsmac_sanitize.dir/verdict.c.o
+[ 33%] Linking C static library libntfsmac_worker_options.a
+[ 33%] Built target ntfsmac_worker_options
+[ 33%] Linking C static library libntfsmac_sanitize.a
+[ 33%] Linking C static library libntfsmac_journal.a
+[ 33%] Built target ntfsmac_journal
+[ 33%] Built target ntfsmac_sanitize
+[ 33%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/conflict.c.o
+[ 33%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl.c.o
+[ 42%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_journal.c.o
+[ 42%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/claim.c.o
+[ 42%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_parse.c.o
+[ 47%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_peer.c.o
+[ 47%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_repair_mirror.c.o
+[ 52%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_sys.c.o
+[ 52%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/ctl_xpc.c.o
+[ 52%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/da.c.o
+[ 57%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/da_filter.c.o
+[ 57%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/doctor.c.o
+[ 61%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/errwatch.c.o
+[ 61%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/errwatch_io.c.o
+[ 61%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/mountwatch.c.o
+[ 66%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/mountpoint.c.o
+[ 66%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/notify.c.o
+[ 71%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/qbounded.c.o
+[ 71%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/reconcile.c.o
+[ 71%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/session.c.o
+[ 76%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/report.c.o
+[ 80%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/spawn.c.o
+[ 80%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/spawn_holder.c.o
+[ 80%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/status.c.o
+[ 85%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/unmount.c.o
+[ 85%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/unmount_ev.c.o
+[ 90%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/usermap.c.o
+[ 90%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/usermap_file.c.o
+[ 95%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/volrec.c.o
+[ 95%] Building C object src/daemon/CMakeFiles/ntfsmac_daemon.dir/volume.c.o
+[ 95%] Linking C static library libntfsmac_daemon.a
+[ 95%] Built target ntfsmac_daemon
+[100%] Building C object src/daemon/CMakeFiles/ntfsmacd.dir/main.c.o
+[100%] Linking C executable ntfsmacd
+[100%] Built target ntfsmacd
+[  4%] Built target ntfsmac_label_cp
+[  8%] Built target ntfsmac_policy
+[ 12%] Built target ntfsmac_common
+[ 16%] Built target ntfsmac_worker_options
+[ 20%] Built target ntfsmac_journal
+[ 28%] Built target ntfsmac_sanitize
+[ 80%] Built target ntfsmac_daemon
+[ 80%] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/cli.c.o
+[ 80%] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/client.c.o
+[ 88%] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/authz.c.o
+[ 88%] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/cmd_journal.c.o
+[ 88%] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/cmd_repair.c.o
+[ 92%] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/json.c.o
+[ 92%] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/priv.c.o
+[ 96%] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/reasons.c.o
+[ 96%] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/render.c.o
+[ 96%] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/req.c.o
+[100%] Building C object src/cli/CMakeFiles/ntfsmac_cli.dir/xpc_client.c.o
+[100%] Linking C static library libntfsmac_cli.a
+[100%] Built target ntfsmac_cli
+[100%] Building C object src/cli/CMakeFiles/ntfsmac.dir/main.c.o
+[100%] Linking C executable ntfsmac
+[100%] Built target ntfsmac
+[ 14%] Building C object src/common/CMakeFiles/ntfsmac_state_rank.dir/state_rank.c.o
+[ 28%] Building C object src/common/CMakeFiles/ntfsmac_mftmirr.dir/mftmirr.c.o
+[ 28%] Linking C static library libntfsmac_state_rank.a
+[ 28%] Built target ntfsmac_state_rank
+[ 42%] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/state.c.o
+[ 42%] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/nfc.c.o
+[ 42%] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/text.c.o
+[ 42%] Linking C static library libntfsmac_mftmirr.a
+[ 57%] Building C object src/probe/CMakeFiles/ntfsmac_probe_pure.dir/json.c.o
+[ 57%] Built target ntfsmac_mftmirr
+[ 57%] Linking C static library libntfsmac_probe_pure.a
+[ 57%] Built target ntfsmac_probe_pure
+[ 57%] Building C object src/probe/CMakeFiles/ntfsmac_probe_core.dir/probe.c.o
+[ 85%] Building C object src/probe/CMakeFiles/ntfsmac_probe_core.dir/names.c.o
+[ 85%] Building C object src/probe/CMakeFiles/ntfsmac_probe_core.dir/cli.c.o
+[ 85%] Building C object src/probe/CMakeFiles/ntfsmac_probe_core.dir/devio.c.o
+[ 85%] Linking C static library libntfsmac_probe_core.a
+[ 85%] Built target ntfsmac_probe_core
+[100%] Building C object src/probe/CMakeFiles/ntfsmac-probe.dir/main.c.o
+[100%] Linking C executable ntfsmac-probe
+[100%] Built target ntfsmac-probe
+[ 20%] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_pure.dir/args.c.o
+[ 40%] Built target ntfsmac_mftmirr
+[ 40%] Linking C static library libntfsmac_volmark_pure.a
+[ 40%] Built target ntfsmac_volmark_pure
+[ 80%] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/syncmirror.c.o
+[ 80%] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/vdev.c.o
+[ 80%] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/volmark.c.o
+[ 80%] Building C object src/volmark/CMakeFiles/ntfsmac_volmark_core.dir/cli.c.o
+[ 80%] Linking C static library libntfsmac_volmark_core.a
+[ 80%] Built target ntfsmac_volmark_core
+[100%] Building C object src/volmark/CMakeFiles/ntfsmac-volmark.dir/main.c.o
+[100%] Linking C executable ntfsmac-volmark
+[100%] Built target ntfsmac-volmark
+build-pkg: smoke test of the release binaries
+ntfsmac-probe schema 1, NFC tables Unicode 15.1.0
+/Users/admin/ntfsmac/work/stage/ntfsmac: replacing existing signature
+/Users/admin/ntfsmac/work/root/usr/local/libexec/ntfs-macos/mkntfs: replacing existing signature
+/Users/admin/ntfsmac/work/root/usr/local/libexec/ntfs-macos/ntfsfix: replacing existing signature
+/Users/admin/ntfsmac/work/root/usr/local/libexec/ntfs-macos/ntfsinfo: replacing existing signature
+/Users/admin/ntfsmac/work/root/usr/local/libexec/ntfs-macos/ntfslabel: replacing existing signature
+/Users/admin/ntfsmac/work/root/usr/local/libexec/ntfs-macos/ntfsmac-probe: replacing existing signature
+/Users/admin/ntfsmac/work/root/usr/local/libexec/ntfs-macos/ntfsmac-volmark: replacing existing signature
+/Users/admin/ntfsmac/work/root/usr/local/libexec/ntfs-macos/ntfsmac-worker: replacing existing signature
+/Users/admin/ntfsmac/work/root/usr/local/libexec/ntfs-macos/ntfsmacd: replacing existing signature
+build-pkg: building ntfs-macos-0.2.0-dev.20261127.g811c186a4460.pkg
+pkgbuild: Inferring bundle components from contents of /Users/admin/ntfsmac/work/root
+pkgbuild: Adding top-level preinstall script
+pkgbuild: Adding top-level postinstall script
+pkgbuild: Wrote package to /Users/admin/ntfsmac/work/component.pkg
+productbuild: Wrote product to /Users/admin/ntfsmac/dist/ntfs-macos-0.2.0-dev.20261127.g811c186a4460.pkg
+productbuild: Supported OS versions: [Min: 27.0, Before: None]
+build-pkg: payload (30 entries; manifest: 23 dirs and files):
+  .
+  ./usr
+  ./usr/local
+  ./usr/local/libexec
+  ./usr/local/libexec/ntfs-macos
+  ./usr/local/libexec/ntfs-macos/ntfslabel
+  ./usr/local/libexec/ntfs-macos/manifest.txt
+  ./usr/local/libexec/ntfs-macos/uninstall.sh
+  ./usr/local/libexec/ntfs-macos/ntfsmacd
+  ./usr/local/libexec/ntfs-macos/ntfsmac-probe
+  ./usr/local/libexec/ntfs-macos/ntfsmac-volmark
+  ./usr/local/libexec/ntfs-macos/mkntfs
+  ./usr/local/libexec/ntfs-macos/ntfsmac-worker
+  ./usr/local/libexec/ntfs-macos/ntfsinfo
+  ./usr/local/libexec/ntfs-macos/ntfsfix
+  ./usr/local/libexec/ntfs-macos/ntfsmac
+  ./Library
+  ./Library/Application Support
+  ./Library/Application Support/ntfs-macos
+  ./Library/Application Support/ntfs-macos/cli-requirement
+  ./Library/Application Support/ntfs-macos/sandbox
+  ./Library/Application Support/ntfs-macos/sandbox/worker.sb
+  ./Library/Application Support/ntfs-macos/sandbox/volmark.sb
+  ./Library/Application Support/ntfs-macos/sandbox/probe.sb
+  ./Library/Application Support/ntfs-macos/doc
+  ./Library/Application Support/ntfs-macos/doc/README.md
+  ./Library/Application Support/ntfs-macos/doc/COPYING
+  ./Library/Application Support/ntfs-macos/doc/BUILD-INFO
+  ./Library/LaunchDaemons
+  ./Library/LaunchDaemons/org.ntfs-macos.ntfsmacd.plist
+build-pkg: size: 1296048 bytes
+build-pkg: done: /Users/admin/ntfsmac/dist/ntfs-macos-0.2.0-dev.20261127.g811c186a4460.pkg
+guest-login-check: ok   ntfsmac-release-build-53872: no TCP socket listens beyond loopback
+guest-login-check: ok   ntfsmac-release-build-53872 has no address on the host network (tart ip)
+guest-login-check: ok   ntfsmac-release-build-53872 has no default route (other than over its own utun tunnels)
+release-local: checksums computed on the host; the guest's SHA256SUMS agrees
+
+== release-local: source release archive ==
+make-source-release: commit 811c186a44602a14d407d800b226e773a9ba0fb9, tree ade169162fa0b121be8ebf1a603009d76cfa8b73, label 0.2.0-dev.20261127.g811c186a4460
+make-source-release: entries: 4857, patches: 13, size: 14705751 bytes
+make-source-release: sha256: 3d211f679e7032e5a5d08a7a1b3a13062e654f92278fb48bc76a0b82e93235a5
+make-source-release: done: $TREE/dist/0.2.0-dev.20261127.g811c186a4460/ntfs-macos-0.2.0-dev.20261127.g811c186a4460-source.tar.gz
+
+== release-local: verify install in fresh VM ntfsmac-release-verify-53872 ==
+tart.sh: cloned ntfsmac-golden -> ntfsmac-release-verify-53872
+tart.sh: started ntfsmac-release-verify-53872 (pid 13705, log ~/.cache/ntfsmac-vm/ntfsmac-release-verify-53872.log); waiting for guest (exec)
+tart.sh: ntfsmac-release-verify-53872 up at 192.168.64.2 after 23s
+192.168.64.2
+installer: Package name is ntfs-macos 0.2.0-dev.20261127.g811c186a4460
+installer: Installing at base path /
+installer: The install was successful.
+package-id: org.ntfs-macos.pkg.v2
+version: 0.2.0
+volume: /
+location: 
+install-time: 1795764416
+ok   the daemon runs
+ok: macFUSE is installed.
+ok: macFUSE version 5.5.0 is supported.
+ok: The macFUSE file system extension is enabled.
+ok: No other NTFS driver is installed.
+ok: No session journal entries: no volume was left open by this Mac.
+ok: No unreadable journal entries.
+ok: 0 cleared journal entries are kept as tombstones.
+ok: No notification banner has been sent since the daemon started, so banner delivery is unknown.
+ok: No read/write volume was left mounted since the last daemon start.
+ok   the link /usr/local/bin/ntfsmac
+ok   ntfsmac doctor
+ok   ntfsmac (exit 2)
+ok   ntfsmac-worker (exit 9)
+ok   ntfsmac-probe (exit 0)
+ok   ntfsmac-volmark (exit 2)
+ok   mkntfs (exit 0)
+ok   ntfsfix (exit 0)
+ok   ntfsinfo (exit 0)
+ok   ntfslabel (exit 0)
+uninstall: forgot the receipt org.ntfs-macos.pkg.v2
+uninstall: kept state /var/db/ntfs-macos (--purge-state removes it)
+uninstall: kept state /var/log/ntfsmacd.log (--purge-state removes it)
+uninstall: removed ntfs-macos
+verify: PASSED
+
+== release-local: not signed (--unsigned): a test build; do not publish it ==
+
+== release-local: done: $TREE/dist/0.2.0-dev.20261127.g811c186a4460/ntfs-macos-0.2.0-dev.20261127.g811c186a4460.pkg ==
+total 31344
+-rw-r--r--@ 1 user  staff       526 Nov 27 07:26 BUILD-INFO
+-rw-r--r--@ 1 user  staff       516 Nov 27 07:26 SHA256SUMS
+-rw-r--r--@ 1 user  staff      4551 Nov 27 07:26 manifest.txt
+-rw-r--r--@ 1 user  staff  14705751 Nov 27 07:26 ntfs-macos-0.2.0-dev.20261127.g811c186a4460-source.tar.gz
+-rw-r--r--@ 1 user  staff   1296048 Nov 27 07:26 ntfs-macos-0.2.0-dev.20261127.g811c186a4460.pkg
+-rwxr-xr-x@ 1 user  staff     21889 Nov 27 07:26 uninstall.sh
+with-slot: exit 0

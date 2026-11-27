@@ -1,0 +1,102 @@
+guest: 27.2 arm64, user admin; package ntfs-macos-0.2.0-dev.20261127.g811c186a4460.pkg
+macFUSE 5.5.0
+PASS: the package carries preinstall and postinstall, both executable
+== I-PKG-06: a user-owned /usr/local/bin and /usr/local/share (Homebrew moved from an Intel Mac)
+/usr/local/bin: admin:admin 775; /usr/local/share: admin:admin 775
+installer: Package name is ntfs-macos 0.2.0-dev.20261127.g811c186a4460
+installer: Installing at base path /
+installer: The install was successful.
+  ntfs-macos preinstall: macFUSE 5.5.0 found
+  ntfs-macos preinstall: preflight passed
+  ntfs-macos postinstall: authorization right org.ntfs-macos.journal-modify installed
+  ntfs-macos postinstall: recorded the requirement of /usr/local/libexec/ntfs-macos/ntfsmac: cdhash b7616dcc8f676e987d358297f3894e75cbe87190
+  ntfs-macos postinstall: no link /usr/local/bin/ntfsmac: /usr/local/bin is missing, or is not owned by root and protected from other users (a Homebrew directory?): "/usr/local/bin" is owned by admin with mode 775; run the CLI as /usr/local/libexec/ntfs-macos/ntfsmac, or add /usr/local/libexec/ntfs-macos to PATH (for example: echo 'export PATH="$PATH:/usr/local/libexec/ntfs-macos"' >> ~/.zprofile)
+  ntfs-macos postinstall: the daemon org.ntfs-macos.ntfsmacd is running (/var/run/ntfsmacd.sock)
+  ntfs-macos postinstall: done. Check the setup with: /usr/local/libexec/ntfs-macos/ntfsmac doctor (macFUSE's file system extension must be on in System Settings)
+PASS: the install succeeds with a user-owned /usr/local/bin and /usr/local/share
+PASS: postinstall skipped the link and says how to run the CLI
+PASS: no /usr/local/bin/ntfsmac was made
+PASS: nothing in /usr/local/bin or /usr/local/share was written or changed (owner, mode, files)
+PASS: exactly the manifest's set is installed
+PASS: the daemon runs
+ok: macFUSE is installed.
+ok: macFUSE version 5.5.0 is supported.
+ok: The macFUSE file system extension is enabled.
+ok: No other NTFS driver is installed.
+ok: No session journal entries: no volume was left open by this Mac.
+ok: No unreadable journal entries.
+ok: 0 cleared journal entries are kept as tombstones.
+ok: No notification banner has been sent since the daemon started, so banner delivery is unknown.
+ok: No read/write volume was left mounted since the last daemon start.
+PASS: the CLI works by its full path: /usr/local/libexec/ntfs-macos/ntfsmac doctor exits 0 with no problem
+PASS: sudo /usr/local/libexec/ntfs-macos/ntfsmac journal-clear is answered by the daemon (the recorded requirement is the CLI's)
+-- a root-owned /usr/local/bin with a foreign ntfsmac in it: the install leaves it alone
+installer: Package name is ntfs-macos 0.2.0-dev.20261127.g811c186a4460
+installer: Upgrading at base path /
+installer: The upgrade was successful.
+  ntfs-macos preinstall: macFUSE 5.5.0 found
+  ntfs-macos preinstall: installed version 0.2.0 (the receipt org.ntfs-macos.pkg.v2); this package is 0.2.0
+  ntfs-macos preinstall: preflight passed (upgrading the package 0.2.0)
+  ntfs-macos preinstall: stopping the running daemon of the earlier install
+  ntfs-macos postinstall: authorization right org.ntfs-macos.journal-modify installed
+  ntfs-macos postinstall: recorded the requirement of /usr/local/libexec/ntfs-macos/ntfsmac: cdhash b7616dcc8f676e987d358297f3894e75cbe87190
+  ntfs-macos postinstall: no link: /usr/local/bin/ntfsmac exists and is not ours; it is left as it is; run the CLI as /usr/local/libexec/ntfs-macos/ntfsmac, or add /usr/local/libexec/ntfs-macos to PATH (for example: echo 'export PATH="$PATH:/usr/local/libexec/ntfs-macos"' >> ~/.zprofile)
+  ntfs-macos postinstall: the daemon org.ntfs-macos.ntfsmacd is running (/var/run/ntfsmacd.sock)
+  ntfs-macos postinstall: done. Check the setup with: /usr/local/libexec/ntfs-macos/ntfsmac doctor (macFUSE's file system extension must be on in System Settings)
+  ntfs-macos postinstall: WARNING: /usr/local/bin/ntfsmac is not the installed CLI. Typing ntfsmac may run it instead of /usr/local/libexec/ntfs-macos/ntfsmac, and an earlier CLI is refused by the daemon for journal-clear and repair. Remove it by hand (sudo rm /usr/local/bin/ntfsmac) or run /usr/local/libexec/ntfs-macos/ntfsmac by its full path.
+PASS: the install (an upgrade) succeeds
+PASS: postinstall left the foreign /usr/local/bin/ntfsmac alone and said so
+uninstall: forgot the receipt org.ntfs-macos.pkg.v2
+uninstall: kept /usr/local/bin/ntfsmac: it is not a symbolic link to /usr/local/libexec/ntfs-macos/ntfsmac (an earlier CLI or another program); remove it yourself if it is the CLI of an earlier ntfs-macos
+uninstall: kept state /var/db/ntfs-macos (--purge-state removes it)
+uninstall: kept state /var/log/ntfsmacd.log (--purge-state removes it)
+uninstall: removed ntfs-macos
+PASS: uninstall.sh exits 0
+PASS: the foreign /usr/local/bin/ntfsmac is kept, unchanged
+PASS: uninstall.sh said why it kept it
+PASS: the user's file in /usr/local/bin is untouched
+PASS: nothing of the manifest is left
+-- the Installer and an older package's file in a user-owned /usr/local/bin
+installer: Package name is ntfs-macos 0.2.0-dev.20261127.g811c186a4460
+installer: Installing at base path /
+installer: The install was successful.
+  ntfs-macos preinstall: macFUSE 5.5.0 found
+  ntfs-macos preinstall: preflight passed (upgrading the package 0.0.1 of the earlier layout)
+  ntfs-macos preinstall: left /usr/local/bin/ntfsmac of the earlier install: /usr/local/bin is not root-only or is reached through a symbolic link; remove it yourself
+  ntfs-macos preinstall: kept the receipt org.ntfs-macos.pkg of the earlier layout: 1 of its files are still there (named above, in a directory that is not root-only or is reached through a symbolic link). After the fix, run: sudo /usr/local/libexec/ntfs-macos/uninstall.sh --old-receipt (or the uninstall.sh of the release, checked against its SHA256SUMS)
+  ntfs-macos postinstall: authorization right org.ntfs-macos.journal-modify installed
+  ntfs-macos postinstall: recorded the requirement of /usr/local/libexec/ntfs-macos/ntfsmac: cdhash b7616dcc8f676e987d358297f3894e75cbe87190
+  ntfs-macos postinstall: no link /usr/local/bin/ntfsmac: /usr/local/bin is missing, or is not owned by root and protected from other users (a Homebrew directory?): "/usr/local/bin" is owned by admin with mode 775; run the CLI as /usr/local/libexec/ntfs-macos/ntfsmac, or add /usr/local/libexec/ntfs-macos to PATH (for example: echo 'export PATH="$PATH:/usr/local/libexec/ntfs-macos"' >> ~/.zprofile)
+  ntfs-macos postinstall: the daemon org.ntfs-macos.ntfsmacd is running (/var/run/ntfsmacd.sock)
+  ntfs-macos postinstall: done. Check the setup with: /usr/local/libexec/ntfs-macos/ntfsmac doctor (macFUSE's file system extension must be on in System Settings)
+  ntfs-macos postinstall: WARNING: /usr/local/bin/ntfsmac is not the installed CLI. Typing ntfsmac may run it instead of /usr/local/libexec/ntfs-macos/ntfsmac, and an earlier CLI is refused by the daemon for journal-clear and repair. Remove it by hand (sudo rm /usr/local/bin/ntfsmac) or run /usr/local/libexec/ntfs-macos/ntfsmac by its full path.
+PASS: the upgrade from an older package with /usr/local/bin/ntfsmac in its receipt succeeds
+PASS: preinstall left that file (user-owned directory) and said so
+PASS: the Installer did not delete the old receipt's file in the user-owned /usr/local/bin (another identifier, M6-F02)
+PASS: preinstall kept the receipt org.ntfs-macos.pkg and says to run uninstall.sh --old-receipt
+PASS: uninstall.sh kept the regular file /usr/local/bin/ntfsmac, named it, and forgot both receipts
+-- an upgrade of a developer install of the earlier layout (CLI file /usr/local/bin/ntfsmac, no receipt) with a user-owned /usr/local/bin
+installer: Package name is ntfs-macos 0.2.0-dev.20261127.g811c186a4460
+installer: Installing at base path /
+installer: The install was successful.
+  ntfs-macos preinstall: macFUSE 5.5.0 found
+  ntfs-macos preinstall: preflight passed (upgrading the developer install)
+  ntfs-macos preinstall: left /usr/local/bin/ntfsmac of the earlier install: /usr/local/bin is not root-only or is reached through a symbolic link; remove it yourself
+  ntfs-macos postinstall: authorization right org.ntfs-macos.journal-modify installed
+  ntfs-macos postinstall: recorded the requirement of /usr/local/libexec/ntfs-macos/ntfsmac: cdhash b7616dcc8f676e987d358297f3894e75cbe87190
+  ntfs-macos postinstall: no link /usr/local/bin/ntfsmac: /usr/local/bin is missing, or is not owned by root and protected from other users (a Homebrew directory?): "/usr/local/bin" is owned by admin with mode 775; run the CLI as /usr/local/libexec/ntfs-macos/ntfsmac, or add /usr/local/libexec/ntfs-macos to PATH (for example: echo 'export PATH="$PATH:/usr/local/libexec/ntfs-macos"' >> ~/.zprofile)
+  ntfs-macos postinstall: the daemon org.ntfs-macos.ntfsmacd is running (/var/run/ntfsmacd.sock)
+  ntfs-macos postinstall: done. Check the setup with: /usr/local/libexec/ntfs-macos/ntfsmac doctor (macFUSE's file system extension must be on in System Settings)
+  ntfs-macos postinstall: WARNING: /usr/local/bin/ntfsmac is not the installed CLI. Typing ntfsmac may run it instead of /usr/local/libexec/ntfs-macos/ntfsmac, and an earlier CLI is refused by the daemon for journal-clear and repair. Remove it by hand (sudo rm /usr/local/bin/ntfsmac) or run /usr/local/libexec/ntfs-macos/ntfsmac by its full path.
+PASS: the upgrade of the earlier developer install succeeds
+PASS: preinstall saw the developer install and left the old CLI file in the user-owned /usr/local/bin
+PASS: the last line of postinstall is a plain WARNING with the remedy
+PASS: the installed CLI works by its full path
+uninstall: forgot the receipt org.ntfs-macos.pkg.v2
+uninstall: kept /usr/local/bin/ntfsmac: it is not a symbolic link to /usr/local/libexec/ntfs-macos/ntfsmac (an earlier CLI or another program); remove it yourself if it is the CLI of an earlier ntfs-macos
+uninstall: kept state /var/db/ntfs-macos (--purge-state removes it)
+uninstall: kept state /var/log/ntfsmacd.log (--purge-state removes it)
+uninstall: removed ntfs-macos
+PASS: uninstall.sh exits 0
+PASS: uninstall.sh keeps the old CLI file and names it
+result: 0 failure(s)

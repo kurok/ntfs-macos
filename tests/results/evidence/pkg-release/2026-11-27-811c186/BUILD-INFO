@@ -1,0 +1,10 @@
+package      ntfs-macos-0.2.0-dev.20261127.g811c186a4460
+identifier   org.ntfs-macos.pkg.v2
+version      0.2.0
+source       811c186a44602a14d407d800b226e773a9ba0fb9
+source-date  2026-11-27T00:15:57Z (SOURCE_DATE_EPOCH, the commit time; the build time is not recorded)
+build-host   macOS 27.2 arm64
+ntfs-3g      2026.9.28 (patch series third_party/patches/ntfs-3g)
+libfuse      2.9.9 (macFUSE, not bundled)
+preset       product (no test seams)
+signature    ad-hoc (unsigned developer build, ADR-011); cli with hardened runtime

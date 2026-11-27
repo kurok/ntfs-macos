@@ -10,5 +10,6 @@
 # line, in a commit of their own; the private key never enters the repository, the build VM or a
 # script default (packaging/README.md, "Release signing key").
 #
-# No key yet: the owner adds the public key line here once (owner setup). Until then
-# scripts/sign-release.sh and scripts/release-local.sh --sign-key stop with exit 3.
+# Key added 2026-11-27 by the owner: Ed25519, passphrase-protected, made and kept on the release Mac,
+# fingerprint SHA256:9HTpLUcepKXtepwwMAcSywIMm4mwE1o/NhHH3WbahVQ (ssh-keygen -lf of the .pub file).
+ntfs-macos-release namespaces="ntfs-macos-release" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDWllKXvwGJEmma4INgOJLSEaNf6CvWfGre7ajhV1mbf

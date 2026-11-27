@@ -70,10 +70,11 @@ docs/INSTALL.md "Download and check" as written.
 
 ### Release signing key (owner, once)
 
-Proposed (owner decision pending): an Ed25519 SSH key, made and kept only by the owner, ideally on a
-hardware key or at least with a passphrase, on the release Mac or in `ssh-agent`, never in the
-repository, a VM, a script default or GitHub (not as an SSH or signing key of the GitHub account
-either, so a stolen GitHub login cannot replace it).
+Owner decision 2026-11-27: an Ed25519 SSH key with a passphrase (not on a hardware key), made and kept
+only by the owner on the release Mac, fingerprint `SHA256:9HTpLUcepKXtepwwMAcSywIMm4mwE1o/NhHH3WbahVQ`,
+in `release-signers` since 2026-11-27. The rule stays: the private key is kept only by the owner,
+on the release Mac or in `ssh-agent`, never in the repository, a VM, a script default or GitHub (not
+as an SSH or signing key of the GitHub account either, so a stolen GitHub login cannot replace it).
 
 1. Make the key, outside the repository (the owner runs this; no script does):
 

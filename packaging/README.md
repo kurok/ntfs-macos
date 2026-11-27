@@ -84,7 +84,7 @@ as an SSH or signing key of the GitHub account either, so a stolen GitHub login 
 
    (`-t ed25519-sk` for a FIDO hardware key.)
 2. Add its public key to `packaging/release-signers` as one line, and commit it with a signed commit
-   or tag if you sign commits:
+   if you sign commits:
 
    ```sh
    printf 'ntfs-macos-release namespaces="ntfs-macos-release" %s\n' "$(cut -d' ' -f1,2 ~/.ssh/ntfs-macos-release.pub)" >>packaging/release-signers
@@ -101,6 +101,8 @@ as an SSH or signing key of the GitHub account either, so a stolen GitHub login 
    who already have an earlier copy of the key (docs/INSTALL.md).
 4. Release with `scripts/release-local.sh --sign-key ~/.ssh/ntfs-macos-release`, or with the key in
    `ssh-agent`: `--sign-key ~/.ssh/ntfs-macos-release.pub`.
+
+Release tags are not signed (decision 2026-11-27, ADR-011): `SHA256SUMS.sig` is the check.
 
 A key change (a new or lost key) is a commit to `release-signers` and a note in the next release;
 remove the old line only when no supported release is signed with it.
